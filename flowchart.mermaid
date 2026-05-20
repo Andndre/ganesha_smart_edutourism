@@ -1,0 +1,67 @@
+flowchart TD
+    %% Styling Colors
+    classDef startEnd fill:#1b5e20,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef process fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px,color:#000;
+    classDef decision fill:#fff3e0,stroke:#e65100,stroke-width:1px,color:#000;
+
+    Start([Mulai: Buka Aplikasi Wisata]):::startEnd --> PusatInfo[Smart Tourism Information Center]:::process
+
+    %% ================= FASE 1 =================
+    subgraph Fase1 ["Fase 1: Persiapan & Pemesanan Tiket (Pre-Visit)"]
+        direction TB
+        PusatInfo --> CekEvent[Lihat Event & Cultural Calendar]:::process
+        CekEvent --> PesanTiket{Pilih Cara Pesan Tour?}:::decision
+        
+        PesanTiket -->|Pilih Paket Jadi| Reservasi[Online Reservation System]:::process
+        PesanTiket -->|Rancang Rute Sendiri| CustomTour[Custom Tour Builder]:::process
+        
+        Reservasi --> Jadwal[Smart Scheduling System \n Rekomendasi Waktu]:::process
+        CustomTour --> Jadwal
+        
+        Jadwal --> BayarTiket[Digital Payment \n Pembayaran Tiket/Paket]:::process
+        BayarTiket --> TiketDigital[Terima Digital Ticketing \n QR Code Masuk]:::process
+    end
+
+    TiketDigital --> TibaLokasi([Scan QR: Tiba di Desa Penglipuran]):::startEnd
+
+    %% ================= FASE 2 =================
+    subgraph Fase2 ["Fase 2: Navigasi, Edukasi & Budaya (On-Site)"]
+        direction TB
+        TibaLokasi --> BukaPeta[Buka Interactive Digital Map]:::process
+        
+        %% Peta Digital Sub-features
+        BukaPeta -.-> CekKepadatan[Cek Crowd Density Heatmap]:::process
+        BukaPeta -.-> CekAkses[Cek Accessibility & Emergency Route]:::process
+        
+        BukaPeta --> IkutiRute[Ikuti Smart Edu-Tourism Route]:::process
+        
+        IkutiRute --> TibaDiObjek{Tiba di Titik Objek Wisata}:::decision
+        
+        %% Percabangan Eksplorasi
+        TibaDiObjek -->|Eksplorasi Budaya| ScanBudaya[Gunakan AR Marker Budaya]:::process
+        ScanBudaya --> Storytelling[Nikmati Digital Storytelling \n Audio & Teks]:::process
+        ScanBudaya --> TimeTravel[Gunakan AR Time Travel \n Lihat Masa Lampau]:::process
+        
+        TibaDiObjek -->|Eksplorasi Edukasi| TitikBelajar[Akses Virtual Learning Point \n 360° & AR]:::process
+        TitikBelajar --> ModulBelajar[Buka Interactive Learning Module \n Video, Audio, Quiz]:::process
+        TitikBelajar --> BukuSaku[Buka Digital Pocket Book]:::process
+    end
+
+    Storytelling --> KeUMKM([Lanjut ke Area Belanja]):::startEnd
+    TimeTravel --> KeUMKM
+    ModulBelajar --> KeUMKM
+    BukuSaku --> KeUMKM
+
+    %% ================= FASE 3 =================
+    subgraph Fase3 ["Fase 3: UMKM & Transaksi"]
+        direction TB
+        KeUMKM --> ScanUMKM[Gunakan AR Marker Produk UMKM]:::process
+        ScanUMKM --> KatalogUMKM[Lihat Katalog Digital UMKM]:::process
+        KatalogUMKM --> Marketplace[Masuk ke UMKM Marketplace Integration]:::process
+        Marketplace --> BayarUMKM[Digital Payment Integration \n Bayar Produk]:::process
+    end
+
+    %% ================= FASE 4 =================
+    BayarUMKM --> BeriFeedback[Isi Feedback & Kepuasan Wisatawan]:::process
+    BeriFeedback --> Selesai([Selesai Kunjungan]):::startEnd
+    
