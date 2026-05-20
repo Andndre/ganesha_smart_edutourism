@@ -1,11 +1,97 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/* ===========================================
+   PENGLIPURAN SMART EDUTOURISM DESIGN SYSTEM
+   =========================================== */
+
+/* Theme Variables */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Fonts */
+    --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Playfair Display", ui-serif, Georgia, serif;
+
+    /* Primary Colors - Penglipuran Green */
+    --color-primary-50: oklch(0.95 0.02 160);
+    --color-primary-100: oklch(0.9 0.05 160);
+    --color-primary-200: oklch(0.8 0.1 160);
+    --color-primary-300: oklch(0.7 0.15 160);
+    --color-primary-400: oklch(0.6 0.2 160);
+    --color-primary-500: oklch(0.5 0.18 160);
+    --color-primary-600: oklch(0.42 0.16 160);
+    --color-primary-700: oklch(0.35 0.14 160);
+    --color-primary-800: oklch(0.28 0.12 160);
+    --color-primary-900: oklch(0.2 0.1 160);
+    --color-primary-950: oklch(0.12 0.08 160);
+
+    /* Secondary Colors - Bali Gold */
+    --color-secondary-50: oklch(0.98 0.02 45);
+    --color-secondary-100: oklch(0.94 0.06 45);
+    --color-secondary-200: oklch(0.88 0.1 45);
+    --color-secondary-300: oklch(0.8 0.14 45);
+    --color-secondary-400: oklch(0.72 0.16 45);
+    --color-secondary-500: oklch(0.65 0.15 45);
+    --color-secondary-600: oklch(0.55 0.13 45);
+    --color-secondary-700: oklch(0.45 0.11 45);
+    --color-secondary-800: oklch(0.35 0.09 45);
+    --color-secondary-900: oklch(0.25 0.07 45);
+    --color-secondary-950: oklch(0.15 0.05 45);
+
+    /* Base Colors - Dark Theme */
+    --color-dark-bg: #0d2818;
+    --color-dark-surface: #152e1d;
+    --color-dark-sand: #e8e8e6;
+    --color-dark-gold: #c9a227;
+    --color-dark-amber: #ff8a50;
+
+    /* Light Theme Base */
+    --color-surface: #faf9f6;
+    --color-charcoal: #191a19;
+    --color-bali-gold: #d4af37;
+    --color-penglipuran-green: #1e5128;
+    --color-alert-amber: #e65100;
+
+    /* Semantic Colors */
+    --color-success: #1e5128;
+    --color-warning: #e65100;
+    --color-error: #b00020;
+    --color-info: #0066cc;
+
+    /* Typography Scale from DESIGN.md */
+    --text-display: 2rem;
+    --text-headline: 1.5rem;
+    --text-title: 1.25rem;
+    --text-body-lg: 1.125rem;
+    --text-body: 1rem;
+    --text-label: 0.875rem;
+    --text-caption: 0.75rem;
+}
+
+/* Custom utility classes */
+@layer utilities {
+    /* Tap target for mobile accessibility */
+    .tap-target {
+        @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+    }
+
+    /* Safe area padding for notched phones */
+    .pb-sab {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .pt-sat {
+        padding-top: env(safe-area-inset-top);
+    }
+
+    .pl-sal {
+        padding-left: env(safe-area-inset-left);
+    }
+
+    .prsar {
+        padding-right: env(safe-area-inset-right);
+    }
 }
