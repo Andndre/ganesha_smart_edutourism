@@ -41,7 +41,13 @@ class CulturalStorySeeder extends Seeder
             ];
 
             foreach ($stories as $story) {
-                CulturalStory::create($story);
+                CulturalStory::updateOrCreate(
+                    [
+                        'cultural_object_id' => $story['cultural_object_id'],
+                        'title' => $story['title'],
+                    ],
+                    $story
+                );
             }
         }
 
@@ -60,7 +66,13 @@ class CulturalStorySeeder extends Seeder
             ];
 
             foreach ($stories as $story) {
-                CulturalStory::create($story);
+                CulturalStory::updateOrCreate(
+                    [
+                        'cultural_object_id' => $story['cultural_object_id'],
+                        'title' => $story['title'],
+                    ],
+                    $story
+                );
             }
         }
     }

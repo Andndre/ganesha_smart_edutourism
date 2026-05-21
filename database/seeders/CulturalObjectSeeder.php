@@ -61,7 +61,10 @@ class CulturalObjectSeeder extends Seeder
         ];
 
         foreach ($objects as $object) {
-            CulturalObject::create($object);
+            CulturalObject::updateOrCreate(
+                ['slug' => $object['slug']],
+                $object
+            );
         }
     }
 }

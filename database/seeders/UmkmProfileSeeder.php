@@ -76,7 +76,10 @@ class UmkmProfileSeeder extends Seeder
         ];
 
         foreach ($umkms as $umkm) {
-            UmkmProfile::create($umkm);
+            UmkmProfile::updateOrCreate(
+                ['slug' => $umkm['slug']],
+                $umkm
+            );
         }
     }
 }
