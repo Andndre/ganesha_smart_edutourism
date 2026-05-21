@@ -3,20 +3,71 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * CulturalStory model for stories related to cultural objects.
+ *
+ * @property int $id
+ * @property int $cultural_object_id
+ * @property string $title
+ * @property string|null $content
+ * @property string|null $story_type
+ * @property int|null $order
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 #[Fillable(['cultural_object_id', 'title', 'content', 'story_type', 'order'])]
 class CulturalStory extends Model
 {
-  use HasFactory;
+    use HasFactory;
 
-  /**
-   * Get the cultural object that owns the story.
-   */
-  public function culturalObject(): BelongsTo
-  {
-    return $this->belongsTo(CulturalObject::class);
-  }
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'cultural_object_id' => 'integer',
+            'order' => 'integer',
+        ];
+    }
+
+    /**
+     * Get the cultural object that owns the story.
+     *
+     * @return BelongsTo<CulturalObject, CulturalStory>
+     */
+    public function culturalObject(): BelongsTo
+    {
+        return $this->belongsTo(CulturalObject::class);
+    }
+
+    /**
+     * Scope a query to order by story sequence.
+     *
+     * @param  Builder<CulturalStory>  $query
+     * @return Builder<CulturalStory>
+     */
+    public function scopeOrdered($query)
+    {
+        return $query->orderBy('order');
+    }
+
+    /**
+     * Scope a query to filter by story type.
+     *
+     * @param  Builder<CulturalStory>  $query
+     * @return Builder<CulturalStory>
+     */
+    public function scopeOfType($query, string $type)
+    {
+        return $query->where('story_type', $type);
+    }
 }
