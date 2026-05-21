@@ -60,7 +60,7 @@
 </div>
 
 <!-- Success Toast (Hidden by default) -->
-<div id="toast" class="fixed top-4 inset-x-4 bg-charcoal text-white rounded-2xl p-4 shadow-2xl flex items-center gap-3 transform -translate-y-[150%] transition-transform duration-300 z-50">
+<div id="toast" class="fixed top-4 inset-x-4 bg-charcoal text-white rounded-2xl p-4 shadow-2xl flex items-center gap-3 transform translate-y-[-150%] transition-transform duration-300 z-50">
     <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white shrink-0">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
     </div>
