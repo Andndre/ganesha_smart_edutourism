@@ -9,7 +9,7 @@ Route::get('/', function () {
 
 // Explore/Map
 Route::get('/explore', function () {
-    return view('explore');
+    return view('pages.explore.index');
 })->name('explore');
 
 // AR Scan
