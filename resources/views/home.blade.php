@@ -132,7 +132,8 @@
                 </div>
                 <span class="text-center text-[11px] font-medium leading-tight">Info<br>Fasilitas</span>
             </a>
-            <a href="{{ route('emergency') }}"
+            <!-- Emergency SOS (Routes to Map) -->
+            <a href="{{ route('explore') }}?filter=sos"
                 class="tap-target flex flex-col items-center gap-2 transition-transform active:scale-95">
                 <div
                     class="text-warning flex h-14 w-14 items-center justify-center rounded-2xl border border-red-100 bg-red-50 shadow-sm">
