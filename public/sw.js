@@ -1,45 +1,16 @@
 const CACHE_NAME = "penglipuran-v1";
-const urlsToCache = [
-    "/",
-    "/offline",
-    "/build/app.css",
-    "/build/app.js",
-    "/icons/icon-home.svg",
-    "/icons/icon-explore.svg",
-    "/icons/icon-ar-scan.svg",
-    "/icons/icon-umkm.svg",
-    "/icons/icon-profile.svg",
-];
+const OFFLINE_URL = "/offline";
+
+const urlsToCache = ["/", OFFLINE_URL];
 
 self.addEventListener("install", (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            console.log("Opened cache");
+            console.log("PWA: Membuka cache dan menyimpan halaman dasar");
             return cache.addAll(urlsToCache);
         }),
     );
-});
-
-self.addEventListener("fetch", (event) => {
-    // Network-first for API calls
-    if (event.request.url.includes("/api/")) {
-        event.respondWith(
-            fetch(event.request)
-                .then((response) => {
-                    return response;
-                })
-                .catch(() => {
-                    return caches.match(event.request);
-                }),
-        );
-    } else {
-        // Cache-first for static assets
-        event.respondWith(
-            caches.match(event.request).then((response) => {
-                return response || fetch(event.request);
-            }),
-        );
-    }
+    self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -48,10 +19,44 @@ self.addEventListener("activate", (event) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
                     if (cacheName !== CACHE_NAME) {
+                        console.log("PWA: Menghapus cache usang:", cacheName);
                         return caches.delete(cacheName);
                     }
                 }),
             );
         }),
+    );
+    self.clients.claim();
+});
+
+self.addEventListener("fetch", (event) => {
+    if (event.request.method !== "GET") return;
+
+    event.respondWith(
+        fetch(event.request)
+            .then((networkResponse) => {
+                if (
+                    networkResponse.status === 200 &&
+                    (event.request.url.includes("/build/") ||
+                        event.request.url.includes("/fonts."))
+                ) {
+                    const responseClone = networkResponse.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseClone);
+                    });
+                }
+                return networkResponse;
+            })
+            .catch(() => {
+                return caches.match(event.request).then((cachedResponse) => {
+                    if (cachedResponse) {
+                        return cachedResponse;
+                    }
+
+                    if (event.request.mode === "navigate") {
+                        return caches.match(OFFLINE_URL);
+                    }
+                });
+            }),
     );
 });
