@@ -45,7 +45,27 @@ class CulturalObjectController extends Controller
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
             'model_3d_path' => ['nullable', 'string', 'max:255'],
             'audio_narration_path' => ['nullable', 'string', 'max:255'],
+            'model_3d_file' => ['nullable', 'file', 'max:20480'],
+            'audio_narration_file' => ['nullable', 'file', 'max:10240'],
+            'historical_images' => ['nullable', 'array'],
+            'historical_images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
         ]);
+
+        if ($request->hasFile('model_3d_file')) {
+            $validated['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
+        }
+
+        if ($request->hasFile('audio_narration_file')) {
+            $validated['audio_narration_path'] = $request->file('audio_narration_file')->store('audio', 'public');
+        }
+
+        if ($request->hasFile('historical_images')) {
+            $images = [];
+            foreach ($request->file('historical_images') as $file) {
+                $images[] = $file->store('images', 'public');
+            }
+            $validated['historical_images'] = $images;
+        }
 
         $validated['slug'] = Str::slug($validated['name']);
 
@@ -62,6 +82,9 @@ class CulturalObjectController extends Controller
         if (empty($validated['ar_marker_id'])) {
             $validated['ar_marker_id'] = 'MARKER_'.strtoupper(Str::random(8));
         }
+
+        // Clean up temporary variables not in DB schema
+        unset($validated['model_3d_file'], $validated['audio_narration_file']);
 
         CulturalObject::create($validated);
 
@@ -84,7 +107,33 @@ class CulturalObjectController extends Controller
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
             'model_3d_path' => ['nullable', 'string', 'max:255'],
             'audio_narration_path' => ['nullable', 'string', 'max:255'],
+            'model_3d_file' => ['nullable', 'file', 'max:20480'],
+            'audio_narration_file' => ['nullable', 'file', 'max:10240'],
+            'historical_images' => ['nullable', 'array'],
+            'historical_images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
         ]);
+
+        if ($request->hasFile('model_3d_file')) {
+            $validated['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
+        } elseif (! isset($validated['model_3d_path'])) {
+            $validated['model_3d_path'] = $object->model_3d_path;
+        }
+
+        if ($request->hasFile('audio_narration_file')) {
+            $validated['audio_narration_path'] = $request->file('audio_narration_file')->store('audio', 'public');
+        } elseif (! isset($validated['audio_narration_path'])) {
+            $validated['audio_narration_path'] = $object->audio_narration_path;
+        }
+
+        if ($request->hasFile('historical_images')) {
+            $images = [];
+            foreach ($request->file('historical_images') as $file) {
+                $images[] = $file->store('images', 'public');
+            }
+            $validated['historical_images'] = $images;
+        } else {
+            $validated['historical_images'] = $object->historical_images;
+        }
 
         $validated['slug'] = Str::slug($validated['name']);
 
@@ -101,6 +150,9 @@ class CulturalObjectController extends Controller
         if (empty($validated['ar_marker_id'])) {
             $validated['ar_marker_id'] = 'MARKER_'.strtoupper(Str::random(8));
         }
+
+        // Clean up temporary variables not in DB schema
+        unset($validated['model_3d_file'], $validated['audio_narration_file']);
 
         $object->update($validated);
 

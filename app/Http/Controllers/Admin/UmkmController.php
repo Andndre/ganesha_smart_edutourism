@@ -69,7 +69,22 @@ class UmkmController extends Controller
             'unit' => ['nullable', 'string', 'max:50'],
             'description' => ['nullable', 'string'],
             'ar_model_path' => ['nullable', 'string', 'max:255'],
+            'ar_model_file' => ['nullable', 'file', 'max:20480'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
         ]);
+
+        if ($request->hasFile('ar_model_file')) {
+            $validated['ar_model_path'] = $request->file('ar_model_file')->store('models', 'public');
+        }
+
+        if ($request->hasFile('images')) {
+            $imagePaths = [];
+            foreach ($request->file('images') as $file) {
+                $imagePaths[] = $file->store('images', 'public');
+            }
+            $validated['images'] = $imagePaths;
+        }
 
         $validated['slug'] = Str::slug($validated['name']).'-'.Str::random(5);
         $validated['is_active'] = true;
@@ -77,6 +92,8 @@ class UmkmController extends Controller
         if (! isset($validated['unit'])) {
             $validated['unit'] = 'pcs';
         }
+
+        unset($validated['ar_model_file']);
 
         UmkmProduct::create($validated);
 
@@ -98,11 +115,32 @@ class UmkmController extends Controller
             'unit' => ['nullable', 'string', 'max:50'],
             'description' => ['nullable', 'string'],
             'ar_model_path' => ['nullable', 'string', 'max:255'],
+            'ar_model_file' => ['nullable', 'file', 'max:20480'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
+        if ($request->hasFile('ar_model_file')) {
+            $validated['ar_model_path'] = $request->file('ar_model_file')->store('models', 'public');
+        } elseif (! isset($validated['ar_model_path'])) {
+            $validated['ar_model_path'] = $product->ar_model_path;
+        }
+
+        if ($request->hasFile('images')) {
+            $imagePaths = [];
+            foreach ($request->file('images') as $file) {
+                $imagePaths[] = $file->store('images', 'public');
+            }
+            $validated['images'] = $imagePaths;
+        } else {
+            $validated['images'] = $product->images;
+        }
+
         $validated['slug'] = Str::slug($validated['name']).'-'.Str::random(5);
         $validated['is_active'] = $request->has('is_active') ? true : false;
+
+        unset($validated['ar_model_file']);
 
         $product->update($validated);
 

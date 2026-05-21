@@ -141,7 +141,7 @@
                 </svg>
             </button>
         </div>
-        <form id="modal-form" method="POST" action="">
+        <form id="modal-form" method="POST" action="" enctype="multipart/form-data">
             @csrf
             <div id="method-container"></div>
             <div class="space-y-4">
@@ -173,8 +173,19 @@
                         <input type="text" name="unit" id="field-unit" placeholder="pcs, porsi, bungkus" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700">File AR Model 3D (.glb path)</label>
-                        <input type="text" name="ar_model_path" id="field-ar-model" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                        <label class="block text-sm font-semibold text-gray-700">File AR Model 3D (.glb)</label>
+                        <input type="file" name="ar_model_file" id="field-ar-model-file" accept=".glb,.gltf" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                        <p id="current-ar-model-container" class="mt-1 text-xs text-gray-500 hidden">
+                            File saat ini: <span id="current-ar-model-path" class="font-mono bg-gray-50 px-1 py-0.5 rounded border border-gray-100"></span>
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">Foto Produk (PNG, JPG, dll. - Bisa pilih banyak)</label>
+                    <input type="file" name="images[]" id="field-images" accept="image/*" multiple class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    <div id="current-images-container" class="mt-2 hidden">
+                        <p class="text-xs text-gray-700 font-semibold mb-1">Foto saat ini:</p>
+                        <div id="current-images-list" class="flex flex-wrap gap-2"></div>
                     </div>
                 </div>
                 <div>
@@ -212,9 +223,13 @@
         document.getElementById('field-price').value = "";
         document.getElementById('field-stock').value = "";
         document.getElementById('field-unit').value = "pcs";
-        document.getElementById('field-ar-model').value = "";
+        document.getElementById('field-ar-model-file').value = "";
+        document.getElementById('field-images').value = "";
         document.getElementById('field-desc').value = "";
         document.getElementById('field-active').checked = true;
+
+        document.getElementById('current-ar-model-container').classList.add('hidden');
+        document.getElementById('current-images-container').classList.add('hidden');
         
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -230,9 +245,43 @@
         document.getElementById('field-price').value = Math.round(prod.price);
         document.getElementById('field-stock').value = prod.stock;
         document.getElementById('field-unit').value = prod.unit || "pcs";
-        document.getElementById('field-ar-model').value = prod.ar_model_path || "";
         document.getElementById('field-desc').value = prod.description || "";
         document.getElementById('field-active').checked = prod.is_active;
+
+        document.getElementById('field-ar-model-file').value = "";
+        document.getElementById('field-images').value = "";
+
+        // AR Model
+        const modelContainer = document.getElementById('current-ar-model-container');
+        const modelPath = document.getElementById('current-ar-model-path');
+        if (prod.ar_model_path) {
+            modelPath.textContent = prod.ar_model_path;
+            modelContainer.classList.remove('hidden');
+        } else {
+            modelContainer.classList.add('hidden');
+        }
+
+        // Images
+        const imagesContainer = document.getElementById('current-images-container');
+        const imagesList = document.getElementById('current-images-list');
+        imagesList.textContent = ''; // clear old ones using safe textContent assignment
+        
+        if (prod.images && Array.isArray(prod.images) && prod.images.length > 0) {
+            prod.images.forEach(img => {
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'relative group w-16 h-16 rounded-lg overflow-hidden border border-gray-200';
+                
+                const imgEl = document.createElement('img');
+                imgEl.src = `/storage/${img}`;
+                imgEl.className = 'w-full h-full object-cover';
+                
+                imgContainer.appendChild(imgEl);
+                imagesList.appendChild(imgContainer);
+            });
+            imagesContainer.classList.remove('hidden');
+        } else {
+            imagesContainer.classList.add('hidden');
+        }
 
         modal.classList.remove('hidden');
         modal.classList.add('flex');
