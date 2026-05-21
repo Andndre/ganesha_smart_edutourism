@@ -81,7 +81,10 @@ class TourPackageSeeder extends Seeder
         ];
 
         foreach ($packages as $package) {
-            TourPackage::create($package);
+            TourPackage::updateOrCreate(
+                ['slug' => $package['slug']],
+                $package
+            );
         }
     }
 }

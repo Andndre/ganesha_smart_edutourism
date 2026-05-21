@@ -51,7 +51,10 @@ class ProductSeeder extends Seeder
             ];
 
             foreach ($products as $product) {
-                UmkmProduct::create($product);
+                UmkmProduct::updateOrCreate(
+                    ['slug' => $product['slug']],
+                    $product
+                );
             }
         }
 
@@ -83,7 +86,10 @@ class ProductSeeder extends Seeder
             ];
 
             foreach ($products as $product) {
-                UmkmProduct::create($product);
+                UmkmProduct::updateOrCreate(
+                    ['slug' => $product['slug']],
+                    $product
+                );
             }
         }
 
@@ -115,7 +121,10 @@ class ProductSeeder extends Seeder
             ];
 
             foreach ($products as $product) {
-                UmkmProduct::create($product);
+                UmkmProduct::updateOrCreate(
+                    ['slug' => $product['slug']],
+                    $product
+                );
             }
         }
     }
