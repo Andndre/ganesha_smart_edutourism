@@ -30,9 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Home
-    Route::get('/', function () {
-        return view('home');
-    })->name('home');
+    Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
     // Explore/Map
     Route::get('/explore', function () {
@@ -66,12 +64,9 @@ Route::middleware('auth')->group(function () {
     })->name('events');
 
     // Learning
-    Route::get('/learning', function () {
-        return view('pages.learning.index');
-    })->name('learning');
-    Route::get('/learning/module/{id}', function () {
-        return view('pages.learning.show');
-    })->name('learning-module');
+    Route::get('/learning', [App\Http\Controllers\LearningController::class, 'index'])->name('learning');
+    Route::get('/learning/{slug}', [App\Http\Controllers\LearningController::class, 'show'])->name('learning.show');
+    Route::post('/learning/{moduleSlug}/{contentSlug}/quiz', [App\Http\Controllers\LearningProgressController::class, 'submitQuiz'])->name('learning.quiz.submit');
 
     // Tour Packages
     Route::get('/tour-packages', function () {

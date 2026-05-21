@@ -7,7 +7,7 @@
 
         <div class="flex items-start justify-between">
             <div class="pr-4">
-                <h2 class="font-display text-2xl font-bold">Rahajeng Rauh, Andre!</h2>
+                <h2 class="font-display text-2xl font-bold">Rahajeng Rauh, {{ Auth::user()->name }}!</h2>
                 <p class="text-primary-100/90 mt-1.5 text-sm font-medium leading-snug">
                     Siap menjelajahi budaya & tradisi Penglipuran hari ini?
                 </p>
@@ -16,8 +16,8 @@
             <a href="{{ route('profile') }}" class="tap-target -mt-1 shrink-0 transition-transform active:scale-95"
                 aria-label="Buka Profil">
                 <div class="h-12 w-12 overflow-hidden rounded-full border-2 border-white/30 bg-white/10 p-0.5 shadow-sm">
-                    <img src="https://ui-avatars.com/api/?name=Andre&background=D4AF37&color=fff&bold=true"
-                        alt="Profil Andre" class="h-full w-full rounded-full object-cover">
+                    <img src="https://ui-avatars.com/api/?name={{ \urlencode(Auth::user()->name) }}&background=D4AF37&color=fff&bold=true"
+                        alt="Profil {{ Auth::user()->name }}" class="h-full w-full rounded-full object-cover">
                 </div>
             </a>
         </div>
@@ -40,7 +40,7 @@
             <div class="h-10 w-[1.5px] bg-gray-100"></div>
 
             <div class="flex items-center gap-3">
-                <div class="text-primary rounded-full bg-green-50 p-2.5">
+                <div class="{{ $densityClass }} rounded-full {{ $densityBg }} p-2.5">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -48,7 +48,7 @@
                 </div>
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Kepadatan Desa</p>
-                    <p class="text-primary mt-0.5 text-sm font-bold">Aman (Lancar)</p>
+                    <p class="{{ $densityClass }} mt-0.5 text-sm font-bold">{{ $densityText }}</p>
                 </div>
             </div>
         </div>
@@ -154,39 +154,31 @@
         </div>
 
         <div class="no-scrollbar flex gap-4 overflow-x-auto pb-2">
-            <div class="min-w-65 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <h4 class="text-charcoal font-bold">Jalur Budaya Singkat</h4>
-                        <p class="mt-1 text-xs text-gray-500">Estimasi 1 Jam • 4 Objek</p>
+            @forelse($recommendedRoutes as $route)
+                <div class="min-w-65 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h4 class="text-charcoal font-bold">{{ $route->name }}</h4>
+                            <p class="mt-1 text-xs text-gray-500">
+                                Estimasi {{ $route->estimated_duration_minutes ?? 60 }} Menit • {{ $route->route_points_count ?? 0 }} Objek
+                            </p>
+                        </div>
+                        <div class="bg-primary/10 text-primary rounded-lg p-2">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                        </div>
                     </div>
-                    <div class="bg-primary/10 text-primary rounded-lg p-2">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                        </svg>
-                    </div>
+                    <a href="{{ route('explore') }}?route={{ $route->id }}"
+                        class="bg-primary mt-4 block w-full text-center rounded-xl py-2 text-sm font-medium text-white transition-transform active:scale-95">
+                        Mulai Rute
+                    </a>
                 </div>
-                <button
-                    class="bg-primary mt-4 w-full rounded-xl py-2 text-sm font-medium text-white transition-transform active:scale-95">Mulai
-                    Rute</button>
-            </div>
-            <div class="min-w-65 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <h4 class="text-charcoal font-bold">Eksplorasi Hutan Bambu</h4>
-                        <p class="mt-1 text-xs text-gray-500">Estimasi 1.5 Jam • Alam</p>
-                    </div>
-                    <div class="bg-primary/10 text-primary rounded-lg p-2">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
-                        </svg>
-                    </div>
+            @empty
+                <div class="w-full text-center py-6 text-sm text-gray-500 bg-white rounded-2xl border border-gray-100 p-4">
+                    Tidak ada rute rekomendasi saat ini.
                 </div>
-                <button
-                    class="bg-primary mt-4 w-full rounded-xl py-2 text-sm font-medium text-white transition-transform active:scale-95">Mulai
-                    Rute</button>
-            </div>
+            @endforelse
         </div>
     </section>
 @endsection
