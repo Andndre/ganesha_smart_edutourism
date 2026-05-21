@@ -14,7 +14,7 @@ Route::get('/explore', function () {
 
 // AR Scan
 Route::get('/ar-scan', function () {
-    return view('ar-scan');
+    return view('pages.ar.index');
 })->name('ar-scan');
 
 // UMKM
@@ -84,11 +84,11 @@ Route::get('/events', function () {
 
 // Learning
 Route::get('/learning', function () {
-    return view('learning.index');
+    return view('pages.learning.index');
 })->name('learning');
 
 Route::get('/learning/module/{id}', function () {
-    return view('home');
+    return view('pages.learning.show');
 })->name('learning-module');
 
 // Tour Packages

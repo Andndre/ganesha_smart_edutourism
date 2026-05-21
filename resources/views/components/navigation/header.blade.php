@@ -4,7 +4,7 @@
 
 @props([
     'showBack' => true,
-    'backUrl' => url()->previous(),
+    'fallbackUrl' => route('home'),
     'headerTitle' => null,
 ])
 
@@ -19,13 +19,13 @@
     <nav class="flex h-14 items-center justify-between">
         <div class="flex items-center gap-3">
             @if ($showBack && !$isMainTab)
-                <a href="{{ $backUrl }}"
-                    class="tap-target -ml-2 flex h-10 w-10 items-center justify-center rounded-full transition-all active:scale-95"
+                <button onclick="if (document.referrer && document.referrer.includes(window.location.host)) { history.back(); } else { window.location.href = '{{ $fallbackUrl }}'; }"
+                    class="tap-target -ml-2 flex h-10 w-10 items-center justify-center rounded-full transition-all active:scale-95 cursor-pointer bg-transparent border-0 p-0 text-white"
                     aria-label="Kembali">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
-                </a>
+                </button>
             @endif
 
             @if ($isMainTab)
