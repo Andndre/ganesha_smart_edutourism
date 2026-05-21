@@ -36,10 +36,12 @@
 
 <body class="bg-surface text-charcoal flex h-dvh flex-col antialiased">
 
-    @include('components.navigation.header', [
-        'showBack' => true,
-        'headerTitle' => null,
-    ])
+    @unless (Route::is('explore'))
+        @include('components.navigation.header', [
+            'showBack' => true,
+            'headerTitle' => null,
+        ])
+    @endunless
 
     <main id="main-content" class="no-scrollbar relative flex-1 overflow-y-auto pb-24">
         @yield('content')

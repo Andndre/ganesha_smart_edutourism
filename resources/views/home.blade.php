@@ -3,7 +3,7 @@
 @section('header_title', 'Desa Wisata Penglipuran')
 
 @section('content')
-    <section class="bg-primary relative rounded-b-3xl px-5 pb-12 pt-6 text-white">
+    <section class="bg-primary relative rounded-b-3xl px-5 pb-12 pt-[calc(env(safe-area-inset-top)+6rem)] text-white">
 
         <div class="flex items-start justify-between">
             <div class="pr-4">
