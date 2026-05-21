@@ -6,11 +6,9 @@
     <div class="bg-surface flex min-h-full flex-col justify-center px-6 py-10">
 
         {{-- Hero / Brand Header --}}
-        <div class="mx-auto w-full max-w-sm">
-            <div class="bg-primary shadow-primary/30 mb-8 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg">
-                <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 21V3m0 0l-5 5m5-5l5 5m-11 8h12" />
-                </svg>
+        <div class="mx-auto w-full max-w-sm text-center">
+            <div class="mb-6 flex justify-center">
+                <img src="{{ asset('icons/logo-blck.png') }}" alt="Penglipuran Logo" class="h-24 w-auto object-contain">
             </div>
 
             <h1 class="font-display text-charcoal text-3xl font-bold">Buat Akun</h1>
@@ -19,51 +17,44 @@
         </div>
 
         {{-- Register Form --}}
-        <form class="mx-auto mt-8 w-full max-w-sm space-y-4" action="#" method="POST">
-
-            <div>
-                <label for="name" class="text-charcoal mb-1.5 block text-sm font-semibold">Nama Lengkap</label>
-                <div class="relative">
-                    <input type="text" id="name" name="name" required
-                        class="focus:border-primary focus:ring-primary/20 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm placeholder-gray-400 outline-none transition-all focus:ring-2"
-                        placeholder="Masukkan nama sesuai KTP/Paspor">
+        <form class="mx-auto mt-8 w-full max-w-sm space-y-4" action="{{ route('register') }}" method="POST">
+            @csrf
+            
+            @if($errors->any())
+                <div class="bg-red-50 text-red-600 p-3 rounded-xl text-sm mb-4 border border-red-100">
+                    {{ $errors->first() }}
                 </div>
+            @endif
+
+            <div class="space-y-1.5">
+                <label for="name" class="text-sm font-semibold text-gray-700">Nama Lengkap</label>
+                <input type="text" id="name" name="name" value="{{ old('name') }}"
+                    class="w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
+                    placeholder="Contoh: Andre Kusuma" required>
             </div>
 
-            <div>
-                <label for="email" class="text-charcoal mb-1.5 block text-sm font-semibold">Email</label>
-                <div class="relative">
-                    <input type="email" id="email" name="email" required
-                        class="focus:border-primary focus:ring-primary/20 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm placeholder-gray-400 outline-none transition-all focus:ring-2"
-                        placeholder="nama@email.com">
-                </div>
+            <div class="space-y-1.5">
+                <label for="email" class="text-sm font-semibold text-gray-700">Email</label>
+                <input type="email" id="email" name="email" value="{{ old('email') }}"
+                    class="w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
+                    placeholder="Masukkan email aktif" required>
             </div>
 
-            <div>
-                <label for="phone" class="text-charcoal mb-1.5 block text-sm font-semibold">Nomor WhatsApp</label>
+            <div class="space-y-1.5">
+                <label for="password" class="text-sm font-semibold text-gray-700">Password</label>
                 <div class="relative">
-                    <input type="tel" id="phone" name="phone" required
-                        class="focus:border-primary focus:ring-primary/20 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm placeholder-gray-400 outline-none transition-all focus:ring-2"
-                        placeholder="Contoh: 081234567890">
+                    <input type="password" id="password" name="password"
+                        class="w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
+                        placeholder="Minimal 8 karakter" required>
                 </div>
             </div>
-
-            <div>
-                <label for="password" class="text-charcoal mb-1.5 block text-sm font-semibold">Kata Sandi</label>
+            
+            <div class="space-y-1.5">
+                <label for="password_confirmation" class="text-sm font-semibold text-gray-700">Konfirmasi Password</label>
                 <div class="relative">
-                    <input type="password" id="password" name="password" required minlength="8"
-                        class="focus:border-primary focus:ring-primary/20 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm placeholder-gray-400 outline-none transition-all focus:ring-2"
-                        placeholder="Minimal 8 karakter">
-                    <button type="button"
-                        class="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 focus:outline-none"
-                        aria-label="Tampilkan kata sandi">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                    </button>
+                    <input type="password" id="password_confirmation" name="password_confirmation"
+                        class="w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
+                        placeholder="Ketik ulang password" required>
                 </div>
             </div>
 

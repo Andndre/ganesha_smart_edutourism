@@ -6,12 +6,9 @@
     <div class="bg-surface flex min-h-full flex-col justify-center px-6 py-12">
 
         {{-- Hero / Brand Header --}}
-        <div class="mx-auto w-full max-w-sm">
-            <div class="bg-primary shadow-primary/30 mb-8 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg">
-                <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
+        <div class="mx-auto w-full max-w-sm text-center">
+            <div class="mb-6 flex justify-center">
+                <img src="{{ asset('icons/logo-blck.png') }}" alt="Penglipuran Logo" class="h-24 w-auto object-contain">
             </div>
 
             <h1 class="font-display text-charcoal text-3xl font-bold">Rahajeng Rauh</h1>
@@ -20,25 +17,32 @@
         </div>
 
         {{-- Login Form --}}
-        <form class="mx-auto mt-10 w-full max-w-sm space-y-5" action="#" method="POST">
-            <div>
-                <label for="email" class="text-charcoal mb-1.5 block text-sm font-semibold">Email</label>
-                <div class="relative">
-                    <input type="email" id="email" name="email" required
-                        class="focus:border-primary focus:ring-primary/20 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm placeholder-gray-400 outline-none transition-all focus:ring-2"
-                        placeholder="nama@email.com">
+        <form class="mx-auto mt-10 w-full max-w-sm space-y-5" action="{{ route('login') }}" method="POST">
+            @csrf
+            
+            @if($errors->any())
+                <div class="bg-red-50 text-red-600 p-3 rounded-xl text-sm mb-4 border border-red-100">
+                    {{ $errors->first() }}
                 </div>
+            @endif
+
+            <div class="space-y-1.5">
+                <label for="email" class="text-sm font-semibold text-gray-700">Email</label>
+                <input type="email" id="email" name="email" value="{{ old('email') }}"
+                    class="w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
+                    placeholder="Masukkan email Anda" required>
             </div>
 
-            <div>
-                <label for="password" class="text-charcoal mb-1.5 block text-sm font-semibold">Kata Sandi</label>
+            <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                    <label for="password" class="text-sm font-semibold text-gray-700">Password</label>
+                    <a href="{{ route('forgot-password') }}" class="text-xs font-semibold text-primary">Lupa password?</a>
+                </div>
                 <div class="relative">
-                    <input type="password" id="password" name="password" required
-                        class="focus:border-primary focus:ring-primary/20 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm placeholder-gray-400 outline-none transition-all focus:ring-2"
-                        placeholder="••••••••">
-                    <button type="button"
-                        class="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 focus:outline-none"
-                        aria-label="Tampilkan kata sandi">
+                    <input type="password" id="password" name="password"
+                        class="w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
+                        placeholder="••••••••" required>
+                    <button type="button" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -47,15 +51,6 @@
                         </svg>
                     </button>
                 </div>
-            </div>
-
-            <div class="flex items-center justify-between pt-1">
-                <label class="flex cursor-pointer items-center gap-2">
-                    <input type="checkbox" class="h-4.5 w-4.5 text-primary focus:ring-primary rounded border-gray-300">
-                    <span class="text-sm font-medium text-gray-600">Ingat saya</span>
-                </label>
-                <a href="{{ route('forgot-password') }}"
-                    class="text-primary hover:text-primary-600 text-sm font-bold transition-colors">Lupa sandi?</a>
             </div>
 
             <button type="submit"
