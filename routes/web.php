@@ -2,36 +2,166 @@
 
 use Illuminate\Support\Facades\Route;
 
+// Home
 Route::get('/', function () {
-    return view('welcome');
+    return view('home');
 })->name('home');
 
+// Explore/Map
+Route::get('/explore', function () {
+    return view('explore');
+})->name('explore');
+
+// AR Scan
+Route::get('/ar-scan', function () {
+    return view('ar-scan');
+})->name('ar-scan');
+
+// UMKM
+Route::get('/umkm', function () {
+    return view('umkm.index');
+})->name('umkm');
+
+Route::get('/umkm/product/{id}', function () {
+    return view('umkm.index', ['title' => 'Produk']);
+})->name('umkm-product');
+
+// Profile
+Route::get('/profile', function () {
+    return view('profile');
+})->name('profile');
+
+Route::get('/profile/bookings', function () {
+    return view('bookings.index');
+})->name('bookings');
+
+Route::get('/profile/learning', function () {
+    return view('learning.index');
+})->name('learning-progress');
+
+Route::get('/profile/favorites', function () {
+    return view('home');
+})->name('favorites');
+
+Route::get('/profile/visited', function () {
+    return view('home');
+})->name('visited');
+
+Route::get('/profile/settings', function () {
+    return view('home');
+})->name('settings');
+
+Route::get('/profile/help', function () {
+    return view('home');
+})->name('help');
+
+// Auth
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
+Route::get('/register', function () {
+    return view('auth.register');
+})->name('register');
+
+Route::get('/forgot-password', function () {
+    return view('auth.login');
+})->name('forgot-password');
+
+// Cultural Objects
+Route::get('/cultural', function () {
+    return view('cultural.index');
+})->name('cultural-objects');
+
+Route::get('/cultural/{id}', function () {
+    return view('home');
+})->name('cultural-object');
+
+// Events
+Route::get('/events', function () {
+    return view('events.index');
+})->name('events');
+
+// Learning
+Route::get('/learning', function () {
+    return view('learning.index');
+})->name('learning');
+
+Route::get('/learning/module/{id}', function () {
+    return view('home');
+})->name('learning-module');
+
+// Tour Packages
+Route::get('/tour-packages', function () {
+    return view('home');
+})->name('tour-packages');
+
+Route::get('/tour-package/{id}', function () {
+    return view('home');
+})->name('tour-package');
+
+// Emergency
+Route::get('/emergency', function () {
+    return view('emergency.index');
+})->name('emergency');
+
+// Offline Page
 Route::get('/offline', function () {
     return view('offline');
 })->name('offline');
 
-// App Routes (using layouts/app.blade.php)
-Route::get('/explore', function () {
-    return view('welcome', ['title' => 'Explore']);
-})->name('explore');
+// Admin Routes
+Route::prefix('admin')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
 
-Route::get('/ar-scan', function () {
-    return view('welcome', ['title' => 'AR Scan']);
-})->name('ar-scan');
+    Route::get('/cultural-objects', function () {
+        return view('home');
+    })->name('admin.cultural-objects');
 
-Route::get('/umkm', function () {
-    return view('welcome', ['title' => 'UMKM']);
-})->name('umkm');
+    Route::get('/umkm', function () {
+        return view('home');
+    })->name('admin.umkm');
 
-Route::get('/profile', function () {
-    return view('welcome', ['title' => 'Profil']);
-})->name('profile');
+    Route::get('/events', function () {
+        return view('home');
+    })->name('admin.events');
 
-// Auth Routes
-Route::get('/login', function () {
-    return view('welcome', ['title' => 'Login']);
-})->name('login');
+    Route::get('/events/create', function () {
+        return view('home');
+    })->name('admin.events.create');
 
-Route::get('/register', function () {
-    return view('welcome', ['title' => 'Register']);
-})->name('register');
+    Route::get('/tour-routes', function () {
+        return view('home');
+    })->name('admin.tour-routes');
+
+    Route::get('/capacity', function () {
+        return view('home');
+    })->name('admin.capacity');
+
+    Route::get('/bookings', function () {
+        return view('home');
+    })->name('admin.bookings');
+
+    Route::get('/packages', function () {
+        return view('home');
+    })->name('admin.packages');
+
+    Route::get('/packages/create', function () {
+        return view('home');
+    })->name('admin.packages.create');
+
+    Route::get('/feedback', function () {
+        return view('home');
+    })->name('admin.feedback');
+
+    Route::get('/reports', function () {
+        return view('home');
+    })->name('admin.reports');
+});
+
+// Logout (for demo purposes)
+Route::post('/logout', function () {
+    return redirect('/');
+})->name('logout');
