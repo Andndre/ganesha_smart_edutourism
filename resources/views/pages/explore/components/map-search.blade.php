@@ -1,4 +1,4 @@
-<div class="absolute left-4 right-4 z-10" style="top: calc(var(--sat) + 1rem);">
+<div class="absolute top-8 left-4 right-4 z-10">
     <div
         class="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white/95 px-4 py-3.5 shadow-md backdrop-blur-md">
         <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
