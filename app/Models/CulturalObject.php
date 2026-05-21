@@ -91,7 +91,7 @@ class CulturalObject extends Model
      * @param  Builder<CulturalObject>  $query
      * @return Builder<CulturalObject>
      */
-    public function scopeWithCoordinates($query)
+    public function scopeWithCoordinates(Builder $query)
     {
         return $query->whereNotNull('latitude')->whereNotNull('longitude');
     }
@@ -102,7 +102,7 @@ class CulturalObject extends Model
      * @param  Builder<CulturalObject>  $query
      * @return Builder<CulturalObject>
      */
-    public function scopeCategory($query, string $category)
+    public function scopeCategory(Builder $query, string $category)
     {
         return $query->where('category', $category);
     }
@@ -113,7 +113,7 @@ class CulturalObject extends Model
      * @param  Builder<CulturalObject>  $query
      * @return Builder<CulturalObject>
      */
-    public function scopeWithAr($query)
+    public function scopeWithAr(Builder $query)
     {
         return $query->whereNotNull('ar_marker_id')->orWhereNotNull('model_3d_path');
     }

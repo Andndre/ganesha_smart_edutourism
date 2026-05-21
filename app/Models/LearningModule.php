@@ -70,7 +70,7 @@ class LearningModule extends Model
      * @param  Builder<LearningModule>  $query
      * @return Builder<LearningModule>
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query)
     {
         return $query->where('is_active', true)->orderBy('order');
     }
@@ -81,7 +81,7 @@ class LearningModule extends Model
      * @param  Builder<LearningModule>  $query
      * @return Builder<LearningModule>
      */
-    public function scopeCategory($query, string $category)
+    public function scopeCategory(Builder $query, string $category)
     {
         return $query->where('category', $category);
     }
@@ -92,7 +92,7 @@ class LearningModule extends Model
      * @param  Builder<LearningModule>  $query
      * @return Builder<LearningModule>
      */
-    public function scopeDifficulty($query, string $difficulty)
+    public function scopeDifficulty(Builder $query, string $difficulty)
     {
         return $query->where('difficulty', $difficulty);
     }

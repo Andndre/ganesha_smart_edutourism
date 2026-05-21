@@ -100,7 +100,7 @@ class User extends Authenticatable
      * @param  Builder<User>  $query
      * @return Builder<User>
      */
-    public function scopeAdmins($query)
+    public function scopeAdmins(Builder $query)
     {
         return $query->where('role', 'admin');
     }
@@ -111,7 +111,7 @@ class User extends Authenticatable
      * @param  Builder<User>  $query
      * @return Builder<User>
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query)
     {
         return $query->whereNotNull('email_verified_at');
     }

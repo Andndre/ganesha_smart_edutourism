@@ -89,7 +89,7 @@ class Reservation extends Model
      * @param  Builder<Reservation>  $query
      * @return Builder<Reservation>
      */
-    public function scopeStatus($query, string $status)
+    public function scopeStatus(Builder $query, string $status)
     {
         return $query->where('status', $status);
     }
@@ -100,7 +100,7 @@ class Reservation extends Model
      * @param  Builder<Reservation>  $query
      * @return Builder<Reservation>
      */
-    public function scopePaymentStatus($query, string $paymentStatus)
+    public function scopePaymentStatus(Builder $query, string $paymentStatus)
     {
         return $query->where('payment_status', $paymentStatus);
     }
@@ -111,7 +111,7 @@ class Reservation extends Model
      * @param  Builder<Reservation>  $query
      * @return Builder<Reservation>
      */
-    public function scopeConfirmed($query)
+    public function scopeConfirmed(Builder $query)
     {
         return $query->where('status', 'confirmed');
     }
@@ -122,7 +122,7 @@ class Reservation extends Model
      * @param  Builder<Reservation>  $query
      * @return Builder<Reservation>
      */
-    public function scopeUpcoming($query)
+    public function scopeUpcoming(Builder $query)
     {
         return $query->whereDate('scheduled_date', '>=', today())
             ->whereIn('status', ['pending', 'confirmed'])
@@ -135,7 +135,7 @@ class Reservation extends Model
      * @param  Builder<Reservation>  $query
      * @return Builder<Reservation>
      */
-    public function scopeOfType($query, string $type)
+    public function scopeOfType(Builder $query, string $type)
     {
         return $query->where('reservation_type', $type);
     }

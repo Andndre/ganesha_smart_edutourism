@@ -62,7 +62,7 @@ class VisitorLog extends Model
      * @param  Builder<VisitorLog>  $query
      * @return Builder<VisitorLog>
      */
-    public function scopeEventType($query, string $eventType)
+    public function scopeEventType(Builder $query, string $eventType)
     {
         return $query->where('event_type', $eventType);
     }
@@ -73,7 +73,7 @@ class VisitorLog extends Model
      * @param  Builder<VisitorLog>  $query
      * @return Builder<VisitorLog>
      */
-    public function scopeSession($query, string $sessionId)
+    public function scopeSession(Builder $query, string $sessionId)
     {
         return $query->where('session_id', $sessionId);
     }
@@ -86,7 +86,7 @@ class VisitorLog extends Model
      * @param  Carbon  $endDate
      * @return Builder<VisitorLog>
      */
-    public function scopeDateRange($query, $startDate, $endDate)
+    public function scopeDateRange(Builder $query, $startDate, $endDate)
     {
         return $query->whereBetween('logged_at', [$startDate, $endDate]);
     }
@@ -97,7 +97,7 @@ class VisitorLog extends Model
      * @param  Builder<VisitorLog>  $query
      * @return Builder<VisitorLog>
      */
-    public function scopeDevice($query, string $deviceType)
+    public function scopeDevice(Builder $query, string $deviceType)
     {
         return $query->where('device_type', $deviceType);
     }
@@ -108,7 +108,7 @@ class VisitorLog extends Model
      * @param  Builder<VisitorLog>  $query
      * @return Builder<VisitorLog>
      */
-    public function scopeRecent($query, int $hours = 24)
+    public function scopeRecent(Builder $query, int $hours = 24)
     {
         return $query->where('logged_at', '>=', now()->subHours($hours));
     }

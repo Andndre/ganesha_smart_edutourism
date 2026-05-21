@@ -57,7 +57,7 @@ class MapLocation extends Model
      * @param  Builder<MapLocation>  $query
      * @return Builder<MapLocation>
      */
-    public function scopeAccessible($query)
+    public function scopeAccessible(Builder $query)
     {
         return $query->where('is_accessible', true);
     }
@@ -68,7 +68,7 @@ class MapLocation extends Model
      * @param  Builder<MapLocation>  $query
      * @return Builder<MapLocation>
      */
-    public function scopeCategory($query, string $category)
+    public function scopeCategory(Builder $query, string $category)
     {
         return $query->where('category', $category);
     }
@@ -79,7 +79,7 @@ class MapLocation extends Model
      * @param  Builder<MapLocation>  $query
      * @return Builder<MapLocation>
      */
-    public function scopeOfType($query, string $type)
+    public function scopeOfType(Builder $query, string $type)
     {
         return $query->where('locationable_type', $type);
     }

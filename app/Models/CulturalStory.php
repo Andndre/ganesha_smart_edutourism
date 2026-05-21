@@ -55,7 +55,7 @@ class CulturalStory extends Model
      * @param  Builder<CulturalStory>  $query
      * @return Builder<CulturalStory>
      */
-    public function scopeOrdered($query)
+    public function scopeOrdered(Builder $query)
     {
         return $query->orderBy('order');
     }
@@ -66,7 +66,7 @@ class CulturalStory extends Model
      * @param  Builder<CulturalStory>  $query
      * @return Builder<CulturalStory>
      */
-    public function scopeOfType($query, string $type)
+    public function scopeOfType(Builder $query, string $type)
     {
         return $query->where('story_type', $type);
     }
