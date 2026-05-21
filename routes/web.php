@@ -33,9 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
     // Explore/Map
-    Route::get('/explore', function () {
-        return view('pages.explore.index');
-    })->name('explore');
+    Route::get('/explore', [App\Http\Controllers\ExploreController::class, 'index'])->name('explore');
 
     // AR Scan
     Route::get('/ar-scan', function () {

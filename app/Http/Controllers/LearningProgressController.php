@@ -47,12 +47,16 @@ class LearningProgressController extends Controller
             [
                 'user_id' => $user->id,
                 'learning_module_id' => $module->id,
-                'learning_content_id' => $content->id,
+                // Track the last content the user interacted with
+                'last_content_id' => $content->id,
             ],
             [
-                'completed' => true,
-                'score' => $isCorrect ? 1 : 0,
-                'answered_at' => now(),
+                // Set status based on correctness
+                'status' => $isCorrect ? 'completed' : 'in_progress',
+                // Update progress percentage (simple binary for now)
+                'progress_percentage' => $isCorrect ? 100 : 0,
+                // Record completion timestamp only when correct
+                'completed_at' => $isCorrect ? now() : null,
             ]
         );
 

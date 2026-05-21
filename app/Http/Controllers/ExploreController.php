@@ -47,15 +47,14 @@ class ExploreController extends Controller
 
                 $lat = $locationable->latitude ?? null;
                 $lng = $locationable->longitude ?? null;
-
-                if (\is_null($lat) || \is_null($lng)) {
+                if (! $lat || ! $lng) {
                     if (\method_exists($locationable, 'mapLocation') && $locationable->mapLocation) {
                         $lat = $locationable->mapLocation->latitude;
                         $lng = $locationable->mapLocation->longitude;
                     }
                 }
 
-                if (! \is_null($lat) && ! \is_null($lng)) {
+                if ($lat !== null && $lng !== null) {
                     return [$lat, $lng];
                 }
 
