@@ -1,4 +1,4 @@
-<div class="absolute top-8 left-4 right-4 z-10">
+<div class="absolute top-4 left-4 right-4 z-10">
     <div
         class="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white/95 px-4 py-3.5 shadow-md backdrop-blur-md">
         <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
@@ -62,6 +62,28 @@
                 <span class="filter-label flex-1 text-sm font-medium text-gray-700">Aksesibilitas</span>
                 <span class="filter-dot" style="background: #F59E0B;"></span>
             </label>
+
+            <label class="filter-toggle flex cursor-pointer items-center gap-3" data-filter="edu_route">
+                <input type="checkbox" class="sr-only" checked />
+                <span class="filter-checkbox checked">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                </span>
+                <span class="filter-label flex-1 text-sm font-medium text-gray-700">Rute Edu-Tourism</span>
+                <span class="filter-dot" style="background: #1E5128;"></span>
+            </label>
+
+            <label class="filter-toggle flex cursor-pointer items-center gap-3" data-filter="sos_route">
+                <input type="checkbox" class="sr-only" checked />
+                <span class="filter-checkbox checked">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                </span>
+                <span class="filter-label flex-1 text-sm font-medium text-gray-700">Rute Darurat (SOS)</span>
+                <span class="filter-dot" style="background: #E65100;"></span>
+            </label>
         </div>
     </div>
 </div>
@@ -118,7 +140,9 @@
 
         // Filter toggle click handlers
         document.querySelectorAll('.filter-toggle').forEach(toggle => {
-            toggle.addEventListener('click', function() {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault(); // Mencegah klik ganda otomatis dari elemen label
+                
                 const checkbox = this.querySelector('.filter-checkbox');
                 const isChecked = checkbox.classList.toggle('checked');
                 this.querySelector('input[type="checkbox"]').checked = isChecked;
