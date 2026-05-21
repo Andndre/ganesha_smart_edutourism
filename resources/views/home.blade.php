@@ -3,34 +3,52 @@
 @section('header_title', 'Desa Wisata Penglipuran')
 
 @section('content')
-    <section class="bg-primary rounded-b-3xl px-4 pb-12 pt-4 text-white">
-        <h2 class="text-xl font-bold">Rahajeng Rauh, Wisatawan!</h2>
-        <p class="mt-1 text-sm opacity-90">Jelajahi budaya, edukasi, dan tradisi Bali.</p>
+    <section class="bg-primary relative rounded-b-3xl px-5 pb-12 pt-6 text-white">
 
-        <div class="text-charcoal mt-6 flex translate-y-8 items-center justify-between rounded-2xl bg-white p-4 shadow-md">
+        <div class="flex items-start justify-between">
+            <div class="pr-4">
+                <h2 class="font-display text-2xl font-bold">Rahajeng Rauh, Andre!</h2>
+                <p class="text-primary-100/90 mt-1.5 text-sm font-medium leading-snug">
+                    Siap menjelajahi budaya & tradisi Penglipuran hari ini?
+                </p>
+            </div>
+
+            <a href="{{ route('profile') }}" class="tap-target -mt-1 shrink-0 transition-transform active:scale-95"
+                aria-label="Buka Profil">
+                <div class="h-12 w-12 overflow-hidden rounded-full border-2 border-white/30 bg-white/10 p-0.5 shadow-sm">
+                    <img src="https://ui-avatars.com/api/?name=Andre&background=D4AF37&color=fff&bold=true"
+                        alt="Profil Andre" class="h-full w-full rounded-full object-cover">
+                </div>
+            </a>
+        </div>
+
+        <div
+            class="text-charcoal mx-auto mt-8 flex w-full max-w-[calc(100vw-2.5rem)] translate-y-8 items-center justify-between rounded-2xl bg-white p-4 shadow-md">
             <div class="flex items-center gap-3">
-                <div class="rounded-full bg-blue-50 p-2 text-blue-500">
+                <div class="rounded-full bg-blue-50 p-2.5 text-blue-500">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
                     </svg>
                 </div>
                 <div>
-                    <p class="text-xs font-medium text-gray-500">Cuaca Hari Ini</p>
-                    <p class="text-sm font-bold">27°C Cerah</p>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Cuaca Hari Ini</p>
+                    <p class="mt-0.5 text-sm font-bold">27°C Cerah</p>
                 </div>
             </div>
-            <div class="h-8 w-[1px] bg-gray-200"></div>
+
+            <div class="h-10 w-[1.5px] bg-gray-100"></div>
+
             <div class="flex items-center gap-3">
-                <div class="text-primary rounded-full bg-green-50 p-2">
+                <div class="text-primary rounded-full bg-green-50 p-2.5">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                 </div>
                 <div>
-                    <p class="text-xs font-medium text-gray-500">Kepadatan Desa</p>
-                    <p class="text-primary text-sm font-bold">Aman (Lancar)</p>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Kepadatan Desa</p>
+                    <p class="text-primary mt-0.5 text-sm font-bold">Aman (Lancar)</p>
                 </div>
             </div>
         </div>
