@@ -33,8 +33,12 @@ class CapacityController extends Controller
         // Yesterday's visitor hourly data for 24h chart
         $hourlyData = [];
         for ($h = 0; $h < 24; $h++) {
-            $count = VisitorLog::whereHour('logged_at', $h)
-                ->whereDate('logged_at', Carbon::today())
+            $startTime = \sprintf('%02d:00:00', $h);
+            $endTime = \sprintf('%02d:59:59', $h);
+
+            $count = VisitorLog::whereDate('logged_at', Carbon::today())
+                ->whereTime('logged_at', '>=', $startTime)
+                ->whereTime('logged_at', '<=', $endTime)
                 ->where('event_type', 'location_visit')
                 ->count();
             if ($count === 0) {
