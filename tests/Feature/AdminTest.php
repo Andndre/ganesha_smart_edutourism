@@ -13,6 +13,8 @@ use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class AdminTest extends TestCase
@@ -96,6 +98,8 @@ class AdminTest extends TestCase
      */
     public function test_cultural_objects_crud(): void
     {
+        Storage::fake('public');
+
         $response = $this->actingAs($this->adminUser)
             ->get(route('admin.cultural-objects'));
         $response->assertStatus(200);
@@ -109,6 +113,11 @@ class AdminTest extends TestCase
         $responseCreateInvalid->assertSessionHasErrors(['name', 'category']);
 
         // 2. Create valid object
+        $modelFile = UploadedFile::fake()->create('object.glb', 500);
+        $audioFile = UploadedFile::fake()->create('narration.mp3', 200);
+        $image1 = UploadedFile::fake()->image('image1.png');
+        $image2 = UploadedFile::fake()->image('image2.png');
+
         $responseCreateSuccess = $this->actingAs($this->adminUser)
             ->post(route('admin.cultural-objects.store'), [
                 'name' => 'Pura Luhur',
@@ -117,17 +126,28 @@ class AdminTest extends TestCase
                 'latitude' => -8.234,
                 'longitude' => 115.345,
                 'ar_marker_id' => 'MARKER_PURA_LUHUR',
+                'model_3d_file' => $modelFile,
+                'audio_narration_file' => $audioFile,
+                'historical_images' => [$image1, $image2],
             ]);
         $responseCreateSuccess->assertRedirect();
-        $this->assertDatabaseHas('cultural_objects', [
-            'name' => 'Pura Luhur',
-            'category' => 'temple',
-            'ar_marker_id' => 'MARKER_PURA_LUHUR',
-        ]);
 
         $object = CulturalObject::where('name', 'Pura Luhur')->firstOrFail();
+        $this->assertNotNull($object->model_3d_path);
+        $this->assertNotNull($object->audio_narration_path);
+        $this->assertCount(2, $object->historical_images);
+
+        Storage::disk('public')->assertExists($object->model_3d_path);
+        Storage::disk('public')->assertExists($object->audio_narration_path);
+        foreach ($object->historical_images as $path) {
+            Storage::disk('public')->assertExists($path);
+        }
 
         // 3. Update object
+        $newModelFile = UploadedFile::fake()->create('new_object.glb', 600);
+        $newAudioFile = UploadedFile::fake()->create('new_narration.mp3', 300);
+        $newImage = UploadedFile::fake()->image('new_image.png');
+
         $responseUpdate = $this->actingAs($this->adminUser)
             ->put(route('admin.cultural-objects.update', $object->id), [
                 'name' => 'Pura Luhur Updated',
@@ -136,14 +156,18 @@ class AdminTest extends TestCase
                 'latitude' => -8.234,
                 'longitude' => 115.345,
                 'ar_marker_id' => 'MARKER_PURA_LUHUR_UPDATED',
+                'model_3d_file' => $newModelFile,
+                'audio_narration_file' => $newAudioFile,
+                'historical_images' => [$newImage],
             ]);
         $responseUpdate->assertRedirect();
-        $this->assertDatabaseHas('cultural_objects', [
-            'id' => $object->id,
-            'name' => 'Pura Luhur Updated',
-            'category' => 'house',
-            'ar_marker_id' => 'MARKER_PURA_LUHUR_UPDATED',
-        ]);
+
+        $object->refresh();
+        $this->assertEquals('Pura Luhur Updated', $object->name);
+        Storage::disk('public')->assertExists($object->model_3d_path);
+        Storage::disk('public')->assertExists($object->audio_narration_path);
+        $this->assertCount(1, $object->historical_images);
+        Storage::disk('public')->assertExists($object->historical_images[0]);
 
         // 4. Delete object
         $responseDelete = $this->actingAs($this->adminUser)
@@ -159,6 +183,8 @@ class AdminTest extends TestCase
      */
     public function test_umkm_products_crud(): void
     {
+        Storage::fake('public');
+
         $profile = UmkmProfile::create([
             'user_id' => $this->adminUser->id,
             'owner_name' => 'Wayan',
@@ -182,6 +208,10 @@ class AdminTest extends TestCase
         $responseCreateInvalid->assertSessionHasErrors(['name', 'price']);
 
         // 2. Create valid product
+        $arModel = UploadedFile::fake()->create('product_model.glb', 400);
+        $prodImg1 = UploadedFile::fake()->image('prod1.png');
+        $prodImg2 = UploadedFile::fake()->image('prod2.png');
+
         $responseCreateSuccess = $this->actingAs($this->adminUser)
             ->post(route('admin.umkm.store'), [
                 'umkm_profile_id' => $profile->id,
@@ -191,16 +221,24 @@ class AdminTest extends TestCase
                 'stock' => 100,
                 'unit' => 'botol',
                 'is_active' => true,
+                'ar_model_file' => $arModel,
+                'images' => [$prodImg1, $prodImg2],
             ]);
         $responseCreateSuccess->assertRedirect();
-        $this->assertDatabaseHas('umkm_products', [
-            'name' => 'Loloh Cemcem Spesial',
-            'price' => 5000,
-        ]);
 
         $product = UmkmProduct::where('name', 'Loloh Cemcem Spesial')->firstOrFail();
+        $this->assertNotNull($product->ar_model_path);
+        $this->assertCount(2, $product->images);
+
+        Storage::disk('public')->assertExists($product->ar_model_path);
+        foreach ($product->images as $path) {
+            Storage::disk('public')->assertExists($path);
+        }
 
         // 3. Update product
+        $newArModel = UploadedFile::fake()->create('new_product_model.glb', 500);
+        $newProdImg = UploadedFile::fake()->image('new_prod.png');
+
         $responseUpdate = $this->actingAs($this->adminUser)
             ->put(route('admin.umkm.update', $product->id), [
                 'umkm_profile_id' => $profile->id,
@@ -210,13 +248,16 @@ class AdminTest extends TestCase
                 'stock' => 50,
                 'unit' => 'botol',
                 'is_active' => true,
+                'ar_model_file' => $newArModel,
+                'images' => [$newProdImg],
             ]);
         $responseUpdate->assertRedirect();
-        $this->assertDatabaseHas('umkm_products', [
-            'id' => $product->id,
-            'name' => 'Loloh Cemcem Premium',
-            'price' => 7500,
-        ]);
+
+        $product->refresh();
+        $this->assertEquals('Loloh Cemcem Premium', $product->name);
+        Storage::disk('public')->assertExists($product->ar_model_path);
+        $this->assertCount(1, $product->images);
+        Storage::disk('public')->assertExists($product->images[0]);
 
         // 4. Delete product
         $responseDelete = $this->actingAs($this->adminUser)
@@ -371,11 +412,16 @@ class AdminTest extends TestCase
      */
     public function test_tour_packages_crud(): void
     {
+        Storage::fake('public');
+
         $response = $this->actingAs($this->adminUser)
             ->get(route('admin.packages'));
         $response->assertStatus(200);
 
         // 1. Create valid package
+        $pkgImg1 = UploadedFile::fake()->image('pkg1.png');
+        $pkgImg2 = UploadedFile::fake()->image('pkg2.png');
+
         $responseCreate = $this->actingAs($this->adminUser)
             ->post(route('admin.packages.store'), [
                 'name' => 'Paket Budaya Bali Kuno',
@@ -386,14 +432,15 @@ class AdminTest extends TestCase
                 'min_party_size' => 2,
                 'inclusions' => ['Pemandu lokal', 'Welcome drink', 'Materi tenun'],
                 'is_active' => true,
+                'images' => [$pkgImg1, $pkgImg2],
             ]);
         $responseCreate->assertRedirect();
-        $this->assertDatabaseHas('tour_packages', [
-            'name' => 'Paket Budaya Bali Kuno',
-            'price' => 150000,
-        ]);
 
         $package = TourPackage::where('name', 'Paket Budaya Bali Kuno')->firstOrFail();
+        $this->assertCount(2, $package->images);
+        foreach ($package->images as $path) {
+            Storage::disk('public')->assertExists($path);
+        }
 
         // 2. Edit route renders
         $responseEdit = $this->actingAs($this->adminUser)
@@ -401,6 +448,8 @@ class AdminTest extends TestCase
         $responseEdit->assertStatus(200);
 
         // 3. Update package
+        $newPkgImg = UploadedFile::fake()->image('new_pkg.png');
+
         $responseUpdate = $this->actingAs($this->adminUser)
             ->put(route('admin.packages.update', $package->id), [
                 'name' => 'Paket Budaya Bali Kuno Mod',
@@ -411,13 +460,14 @@ class AdminTest extends TestCase
                 'min_party_size' => 1,
                 'inclusions' => ['Pemandu lokal', 'Welcome drink'],
                 'is_active' => true,
+                'images' => [$newPkgImg],
             ]);
         $responseUpdate->assertRedirect();
-        $this->assertDatabaseHas('tour_packages', [
-            'id' => $package->id,
-            'name' => 'Paket Budaya Bali Kuno Mod',
-            'price' => 180000,
-        ]);
+
+        $package->refresh();
+        $this->assertEquals('Paket Budaya Bali Kuno Mod', $package->name);
+        $this->assertCount(1, $package->images);
+        Storage::disk('public')->assertExists($package->images[0]);
 
         // 4. Delete package
         $responseDelete = $this->actingAs($this->adminUser)

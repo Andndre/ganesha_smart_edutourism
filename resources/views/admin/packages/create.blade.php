@@ -16,7 +16,7 @@
     </div>
 </div>
 
-<form action="{{ isset($package) ? route('admin.packages.update', $package->id) : route('admin.packages.store') }}" method="POST" class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+<form action="{{ isset($package) ? route('admin.packages.update', $package->id) : route('admin.packages.store') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     @csrf
     @if(isset($package))
         @method('PUT')
@@ -90,6 +90,27 @@
     </div>
 
     <div class="space-y-5">
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <h2 class="mb-4 font-semibold text-charcoal">Foto Paket Wisata</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Upload Foto</label>
+                    <input type="file" name="images[]" id="field-images" accept="image/*" multiple class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                </div>
+                @if(isset($package) && is_array($package->images) && count($package->images) > 0)
+                    <div>
+                        <p class="text-xs text-gray-700 font-semibold mb-1.5">Foto saat ini:</p>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach($package->images as $img)
+                                <div class="relative group w-16 h-16 rounded-lg overflow-hidden border border-gray-200">
+                                    <img src="{{ asset('storage/' . $img) }}" class="w-full h-full object-cover">
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
         <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <h2 class="mb-4 font-semibold text-charcoal">Pengaturan</h2>
             <div class="space-y-4">

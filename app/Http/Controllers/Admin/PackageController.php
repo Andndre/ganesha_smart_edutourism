@@ -45,6 +45,8 @@ class PackageController extends Controller
             'inclusions' => ['nullable', 'array'],
             'inclusions.*' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
         ]);
 
         $inclusions = array_filter($request->input('inclusions') ?: []);
@@ -59,6 +61,17 @@ class PackageController extends Controller
         $package->inclusions = array_values($inclusions);
         $package->exclusions = [];
         $package->is_active = $request->has('is_active') ? true : false;
+
+        if ($request->hasFile('images')) {
+            $imagePaths = [];
+            foreach ($request->file('images') as $file) {
+                $imagePaths[] = $file->store('images', 'public');
+            }
+            $package->images = $imagePaths;
+        } else {
+            $package->images = [];
+        }
+
         $package->save();
 
         return redirect()->route('admin.packages')->with('success', 'Paket wisata berhasil ditambahkan.');
@@ -90,6 +103,8 @@ class PackageController extends Controller
             'inclusions' => ['nullable', 'array'],
             'inclusions.*' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
         ]);
 
         $inclusions = array_filter($request->input('inclusions') ?: []);
@@ -102,6 +117,15 @@ class PackageController extends Controller
         $package->max_capacity = $validated['max_capacity'] ?? null;
         $package->inclusions = array_values($inclusions);
         $package->is_active = $request->has('is_active') ? true : false;
+
+        if ($request->hasFile('images')) {
+            $imagePaths = [];
+            foreach ($request->file('images') as $file) {
+                $imagePaths[] = $file->store('images', 'public');
+            }
+            $package->images = $imagePaths;
+        }
+
         $package->save();
 
         return redirect()->route('admin.packages')->with('success', 'Paket wisata berhasil diperbarui.');

@@ -119,7 +119,7 @@
                 </svg>
             </button>
         </div>
-        <form id="modal-form" method="POST" action="">
+        <form id="modal-form" method="POST" action="" enctype="multipart/form-data">
             @csrf
             <div id="method-container"></div>
             <div class="space-y-4">
@@ -139,7 +139,12 @@
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700">Marker AR ID</label>
-                        <input type="text" name="ar_marker_id" id="field-ar-marker" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                        <div class="relative mt-1 flex rounded-xl shadow-sm">
+                            <input type="text" name="ar_marker_id" id="field-ar-marker" class="w-full rounded-l-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                            <button type="button" onclick="generateMarkerId()" class="inline-flex items-center rounded-r-xl border border-l-0 border-gray-200 bg-gray-50 px-4 text-sm font-semibold text-gray-500 hover:bg-gray-100 hover:text-charcoal transition-colors">
+                                Generate
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
@@ -153,12 +158,26 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700">File Model 3D (.glb path)</label>
-                    <input type="text" name="model_3d_path" id="field-model" placeholder="models/candi_bentar.glb" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    <label class="block text-sm font-semibold text-gray-700">File Model 3D (.glb)</label>
+                    <input type="file" name="model_3d_file" id="field-model-file" accept=".glb,.gltf" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    <p id="current-model-container" class="mt-1 text-xs text-gray-500 hidden">
+                        File saat ini: <span id="current-model-path" class="font-mono bg-gray-50 px-1 py-0.5 rounded border border-gray-100"></span>
+                    </p>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700">Audio Narasi (.mp3 path)</label>
-                    <input type="text" name="audio_narration_path" id="field-audio" placeholder="audio/candi_bentar.mp3" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    <label class="block text-sm font-semibold text-gray-700">Audio Narasi (.mp3)</label>
+                    <input type="file" name="audio_narration_file" id="field-audio-file" accept=".mp3,.wav" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    <p id="current-audio-container" class="mt-1 text-xs text-gray-500 hidden">
+                        File saat ini: <span id="current-audio-path" class="font-mono bg-gray-50 px-1 py-0.5 rounded border border-gray-100"></span>
+                    </p>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">Foto Sejarah (PNG, JPG, dll. - Bisa pilih banyak)</label>
+                    <input type="file" name="historical_images[]" id="field-images" accept="image/*" multiple class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    <div id="current-images-container" class="mt-2 hidden">
+                        <p class="text-xs text-gray-700 font-semibold mb-1">Foto saat ini:</p>
+                        <div id="current-images-list" class="flex flex-wrap gap-2"></div>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Deskripsi</label>
@@ -181,6 +200,7 @@
     const form = document.getElementById('modal-form');
     const modalTitle = document.getElementById('modal-title');
     const methodContainer = document.getElementById('method-container');
+    let isMarkerManual = false;
 
     function openCreateModal() {
         modalTitle.innerText = "Tambah Objek Budaya";
@@ -188,14 +208,20 @@
         methodContainer.innerHTML = "";
         
         document.getElementById('field-name').value = "";
-        document.getElementById('field-category').value = "Pura";
+        document.getElementById('field-category').value = "temple";
         document.getElementById('field-ar-marker').value = "";
         document.getElementById('field-latitude').value = "";
         document.getElementById('field-longitude').value = "";
-        document.getElementById('field-model').value = "";
-        document.getElementById('field-audio').value = "";
+        document.getElementById('field-model-file').value = "";
+        document.getElementById('field-audio-file').value = "";
+        document.getElementById('field-images').value = "";
         document.getElementById('field-desc').value = "";
+
+        document.getElementById('current-model-container').classList.add('hidden');
+        document.getElementById('current-audio-container').classList.add('hidden');
+        document.getElementById('current-images-container').classList.add('hidden');
         
+        isMarkerManual = false;
         modal.classList.remove('hidden');
         modal.classList.add('flex');
     }
@@ -208,11 +234,57 @@
         document.getElementById('field-name').value = obj.name;
         document.getElementById('field-category').value = obj.category;
         document.getElementById('field-ar-marker').value = obj.ar_marker_id || "";
+        isMarkerManual = true;
         document.getElementById('field-latitude').value = obj.latitude || "";
         document.getElementById('field-longitude').value = obj.longitude || "";
-        document.getElementById('field-model').value = obj.model_3d_path || "";
-        document.getElementById('field-audio').value = obj.audio_narration_path || "";
         document.getElementById('field-desc').value = obj.description || "";
+        
+        // Reset file inputs
+        document.getElementById('field-model-file').value = "";
+        document.getElementById('field-audio-file').value = "";
+        document.getElementById('field-images').value = "";
+
+        // Model 3D Path
+        const modelContainer = document.getElementById('current-model-container');
+        const modelPath = document.getElementById('current-model-path');
+        if (obj.model_3d_path) {
+            modelPath.textContent = obj.model_3d_path;
+            modelContainer.classList.remove('hidden');
+        } else {
+            modelContainer.classList.add('hidden');
+        }
+
+        // Audio Path
+        const audioContainer = document.getElementById('current-audio-container');
+        const audioPath = document.getElementById('current-audio-path');
+        if (obj.audio_narration_path) {
+            audioPath.textContent = obj.audio_narration_path;
+            audioContainer.classList.remove('hidden');
+        } else {
+            audioContainer.classList.add('hidden');
+        }
+
+        // Historical Images
+        const imagesContainer = document.getElementById('current-images-container');
+        const imagesList = document.getElementById('current-images-list');
+        imagesList.textContent = ''; // clear old ones using safe textContent assignment
+        
+        if (obj.historical_images && Array.isArray(obj.historical_images) && obj.historical_images.length > 0) {
+            obj.historical_images.forEach(img => {
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'relative group w-16 h-16 rounded-lg overflow-hidden border border-gray-200';
+                
+                const imgEl = document.createElement('img');
+                imgEl.src = `/storage/${img}`;
+                imgEl.className = 'w-full h-full object-cover';
+                
+                imgContainer.appendChild(imgEl);
+                imagesList.appendChild(imgContainer);
+            });
+            imagesContainer.classList.remove('hidden');
+        } else {
+            imagesContainer.classList.add('hidden');
+        }
 
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -222,5 +294,32 @@
         modal.classList.add('hidden');
         modal.classList.remove('flex');
     }
+
+    function generateMarkerId() {
+        const nameVal = document.getElementById('field-name').value.trim();
+        if (nameVal) {
+            const slug = nameVal.toUpperCase().replace(/[^A-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '');
+            document.getElementById('field-ar-marker').value = `MARKER_${slug}`;
+        } else {
+            const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
+            document.getElementById('field-ar-marker').value = `MARKER_${rand}`;
+        }
+    }
+
+    document.getElementById('field-name').addEventListener('input', function() {
+        if (!isMarkerManual) {
+            const nameVal = this.value.trim();
+            if (nameVal) {
+                const slug = nameVal.toUpperCase().replace(/[^A-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '');
+                document.getElementById('field-ar-marker').value = `MARKER_${slug}`;
+            } else {
+                document.getElementById('field-ar-marker').value = "";
+            }
+        }
+    });
+
+    document.getElementById('field-ar-marker').addEventListener('input', function() {
+        isMarkerManual = true;
+    });
 </script>
 @endpush
