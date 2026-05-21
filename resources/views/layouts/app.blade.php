@@ -51,6 +51,16 @@
 
     @include('components.navigation.bottom-nav')
 
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker terdaftar!', reg.scope))
+                    .catch(err => console.error('Pendaftaran Service Worker gagal:', err));
+            });
+        }
+    </script>
+
 </body>
 
 </html>
