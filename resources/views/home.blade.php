@@ -3,7 +3,7 @@
 @section('header_title', 'Desa Wisata Penglipuran')
 
 @section('content')
-    <section class="bg-primary relative rounded-b-3xl px-5 pb-12 pt-[calc(env(safe-area-inset-top)+6rem)] text-white">
+    <section class="bg-primary relative rounded-b-3xl px-5 pb-13 pt-[calc(env(safe-area-inset-top)+8rem)] text-white">
 
         <div class="flex items-start justify-between">
             <div class="pr-4">
@@ -23,7 +23,7 @@
         </div>
 
         <div
-            class="text-charcoal mx-auto mt-8 flex w-full max-w-[calc(100vw-2.5rem)] translate-y-8 items-center justify-between rounded-2xl bg-white p-4 shadow-md">
+            class="text-charcoal mx-auto flex w-full max-w-[calc(100vw-2.5rem)] translate-y-8 items-center justify-between rounded-2xl bg-white p-4 shadow-md">
             <div class="flex items-center gap-3">
                 <div class="rounded-full bg-blue-50 p-2.5 text-blue-500">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
