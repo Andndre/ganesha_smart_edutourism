@@ -21,5 +21,14 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Create sample data for Penglipuran Smart Edutourism
+        $this->call([
+            CulturalObjectSeeder::class,
+            CulturalStorySeeder::class,
+            UmkmProfileSeeder::class,
+            ProductSeeder::class,
+            TourPackageSeeder::class,
+        ]);
     }
 }
