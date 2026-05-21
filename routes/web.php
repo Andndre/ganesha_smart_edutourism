@@ -26,10 +26,15 @@ Route::get('/umkm/product/{id}', function () {
     return view('pages.umkm.show');
 })->name('umkm-product');
 
-// Profile
+// Profile & E-Ticket
 Route::get('/profile', function () {
-    return view('profile');
+    return view('pages.profile.index');
 })->name('profile');
+
+// Feedback
+Route::get('/feedback', function () {
+    return view('pages.feedback.create');
+})->name('feedback');
 
 Route::get('/profile/bookings', function () {
     return view('bookings.index');
@@ -93,11 +98,11 @@ Route::get('/learning/module/{id}', function () {
 
 // Tour Packages
 Route::get('/tour-packages', function () {
-    return view('home');
+    return view('pages.packages.index');
 })->name('tour-packages');
 
 Route::get('/tour-package/{id}', function () {
-    return view('home');
+    return view('pages.packages.show');
 })->name('tour-package');
 
 // Emergency
