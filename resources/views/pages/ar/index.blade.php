@@ -58,7 +58,7 @@
     <!-- HUD Overlay (z-index 10) -->
     <div class="relative z-10 flex-1 flex flex-col pointer-events-none">
         <!-- Top Glassmorphism Bar -->
-        <div class="pt-sat p-4 flex items-center justify-between">
+        <div class="p-4 flex items-center justify-between">
             <a href="{{ route('home') }}" class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white pointer-events-auto active:scale-95 transition-all">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
             </a>
