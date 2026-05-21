@@ -102,39 +102,18 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 1. Inisialisasi Peta (Koordinat Desa Penglipuran: -8.4216, 115.3588)
+            // 1. Inisialisasi Peta (Koordinat Desa Penglipuran, Bangli, Bali: -8.5406281, 115.4169525)
             const map = L.map('map', {
                 zoomControl: false
-            }).setView([-8.4216, 115.3588], 17);
+            }).setView([-8.5406, 115.4170], 17);
 
             // 2. Tambahkan Tile Layer
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                 maxZoom: 20,
             }).addTo(map);
 
-            // 3. Data Mockup Locations
-            const locations = [{
-                    lat: -8.4216,
-                    lng: 115.3588,
-                    name: "Pura Penataran",
-                    cat: "Budaya",
-                    desc: "Kawasan suci utama desa. Harap berpakaian sopan saat memasuki area ini."
-                },
-                {
-                    lat: -8.4230,
-                    lng: 115.3585,
-                    name: "Hutan Bambu",
-                    cat: "Edukasi",
-                    desc: "Hutan bambu seluas 45 hektar yang melestarikan keseimbangan ekosistem."
-                },
-                {
-                    lat: -8.4225,
-                    lng: 115.3589,
-                    name: "Kopi Luwak Pak Wayan",
-                    cat: "UMKM",
-                    desc: "Kedai kopi otentik dengan pemandangan langsung ke arsitektur rumah tradisional."
-                }
-            ];
+            // 3. Data from ExploreController
+            const locations = @json($locations);
 
             // 4. Custom Icon
             const customIcon = L.divIcon({
@@ -163,8 +142,8 @@
             // HEATMAP OVERLAY DATA (Mock visitor density)
             // ==========================================
             const heatmapData = [{
-                    lat: -8.4216,
-                    lng: 115.3588,
+                    lat: -8.5406,
+                    lng: 115.4165,
                     intensity: 0.9,
                     category: 'umkm'
                 },
@@ -221,9 +200,9 @@
             // MOCK ROUTES (Edu-Tourism & SOS)
             // ==========================================
             const eduRoute = L.polyline([
-                [-8.4216, 115.3588],
-                [-8.4225, 115.3589],
-                [-8.4230, 115.3585]
+                [-8.5406, 115.4170],
+                [-8.5400, 115.4175],
+                [-8.5415, 115.4168]
             ], {
                 color: '#1E5128', // Penglipuran Green
                 weight: 4,
@@ -232,9 +211,9 @@
             }).addTo(map);
 
             const sosRoute = L.polyline([
-                [-8.4216, 115.3588],
-                [-8.4218, 115.3590],
-                [-8.4210, 115.3595]
+                [-8.5406, 115.4170],
+                [-8.5403, 115.4173],
+                [-8.5398, 115.4180]
             ], {
                 color: '#E65100', // Alert Amber
                 weight: 4,
@@ -480,7 +459,7 @@
             });
 
             document.getElementById('btn-locate').addEventListener('click', function() {
-                map.flyTo([-8.4216, 115.3588], 17, {
+                map.flyTo([-8.5406, 115.4170], 17, {
                     animate: true,
                     duration: 0.5
                 });

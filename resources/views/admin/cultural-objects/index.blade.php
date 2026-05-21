@@ -2,6 +2,16 @@
 
 @section('title', 'Objek Budaya')
 
+@push('styles')
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <style>
+        #picker-map { height: 220px; border-radius: 12px; z-index: 0; }
+        .leaflet-control-attribution { display: none !important; }
+        #picker-map .leaflet-container { border-radius: 12px; }
+    </style>
+@endpush
+
 @section('content')
 
 <div class="mb-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
@@ -110,7 +120,7 @@
 
 {{-- Dynamic Modal Form --}}
 <div id="object-modal" class="fixed inset-0 z-50 items-center justify-center hidden bg-charcoal/50 backdrop-blur-sm p-4">
-    <div class="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl transition-all">
+    <div class="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl transition-all">
         <div class="mb-4 flex items-center justify-between">
             <h3 id="modal-title" class="font-display text-lg font-bold text-charcoal">Tambah Objek Budaya</h3>
             <button onclick="closeModal()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100">
@@ -147,14 +157,22 @@
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Latitude</label>
-                        <input type="number" step="any" name="latitude" id="field-latitude" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                {{-- Interactive Map Picker --}}
+                <div>
+                    <div class="mb-1.5 flex items-center justify-between">
+                        <label class="block text-sm font-semibold text-gray-700">Lokasi (Klik peta untuk memilih titik)</label>
+                        <button type="button" onclick="resetMapToDefault()" class="text-xs text-primary hover:underline">Reset ke pusat desa</button>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Longitude</label>
-                        <input type="number" step="any" name="longitude" id="field-longitude" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    <div id="picker-map" class="w-full overflow-hidden border border-gray-200 shadow-sm"></div>
+                    <div class="mt-2 grid grid-cols-2 gap-3">
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 uppercase">Lat</span>
+                            <input type="number" step="any" name="latitude" id="field-latitude" placeholder="-8.5406" class="w-full rounded-xl border border-gray-200 py-2 pl-10 pr-3 text-sm focus:border-primary focus:outline-none" oninput="syncMapFromFields()">
+                        </div>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 uppercase">Lng</span>
+                            <input type="number" step="any" name="longitude" id="field-longitude" placeholder="115.4170" class="w-full rounded-xl border border-gray-200 py-2 pl-10 pr-3 text-sm focus:border-primary focus:outline-none" oninput="syncMapFromFields()">
+                        </div>
                     </div>
                 </div>
                 <div>
@@ -195,7 +213,90 @@
 @endsection
 
 @push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
+    // ==========================================
+    // MAP PICKER
+    // ==========================================
+    const PENGLIPURAN_LAT = -8.5406;
+    const PENGLIPURAN_LNG = 115.4170;
+    const PENGLIPURAN_ZOOM = 17;
+
+    let pickerMap = null;
+    let pickerMarker = null;
+
+    function initPickerMap(lat, lng) {
+        if (pickerMap) {
+            // Map already exists — just update view & marker
+            const center = (lat && lng) ? [lat, lng] : [PENGLIPURAN_LAT, PENGLIPURAN_LNG];
+            pickerMap.setView(center, PENGLIPURAN_ZOOM);
+            if (lat && lng) {
+                placePickerMarker(lat, lng);
+            } else {
+                if (pickerMarker) { pickerMarker.remove(); pickerMarker = null; }
+            }
+            setTimeout(() => pickerMap.invalidateSize(), 50);
+            return;
+        }
+
+        pickerMap = L.map('picker-map', { zoomControl: true, attributionControl: false })
+            .setView([PENGLIPURAN_LAT, PENGLIPURAN_LNG], PENGLIPURAN_ZOOM);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            maxZoom: 20
+        }).addTo(pickerMap);
+
+        pickerMap.on('click', function(e) {
+            placePickerMarker(e.latlng.lat, e.latlng.lng);
+            document.getElementById('field-latitude').value = e.latlng.lat.toFixed(7);
+            document.getElementById('field-longitude').value = e.latlng.lng.toFixed(7);
+        });
+
+        if (lat && lng) {
+            placePickerMarker(lat, lng);
+        }
+
+        setTimeout(() => pickerMap.invalidateSize(), 50);
+    }
+
+    function placePickerMarker(lat, lng) {
+        const icon = L.divIcon({
+            className: '',
+            html: `<div style="width:20px;height:20px;background:#1E5128;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.4);transform:translate(-50%,-50%)"></div>`,
+            iconSize: [0, 0],
+            iconAnchor: [0, 0]
+        });
+        if (pickerMarker) pickerMarker.remove();
+        pickerMarker = L.marker([lat, lng], { icon, draggable: true }).addTo(pickerMap);
+        pickerMarker.on('dragend', function(e) {
+            const pos = e.target.getLatLng();
+            document.getElementById('field-latitude').value = pos.lat.toFixed(7);
+            document.getElementById('field-longitude').value = pos.lng.toFixed(7);
+        });
+    }
+
+    function syncMapFromFields() {
+        const lat = parseFloat(document.getElementById('field-latitude').value);
+        const lng = parseFloat(document.getElementById('field-longitude').value);
+        if (!isNaN(lat) && !isNaN(lng) && pickerMap) {
+            placePickerMarker(lat, lng);
+            pickerMap.setView([lat, lng], pickerMap.getZoom());
+        }
+    }
+
+    function resetMapToDefault() {
+        document.getElementById('field-latitude').value = '';
+        document.getElementById('field-longitude').value = '';
+        if (pickerMap) {
+            pickerMap.setView([PENGLIPURAN_LAT, PENGLIPURAN_LNG], PENGLIPURAN_ZOOM);
+        }
+        if (pickerMarker) { pickerMarker.remove(); pickerMarker = null; }
+    }
+
+    // ==========================================
+    // MODAL
+    // ==========================================
     const modal = document.getElementById('object-modal');
     const form = document.getElementById('modal-form');
     const modalTitle = document.getElementById('modal-title');
@@ -224,6 +325,7 @@
         isMarkerManual = false;
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        initPickerMap(null, null);
     }
 
     function openEditModal(obj) {
@@ -288,6 +390,7 @@
 
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        initPickerMap(obj.latitude ? parseFloat(obj.latitude) : null, obj.longitude ? parseFloat(obj.longitude) : null);
     }
 
     function closeModal() {
