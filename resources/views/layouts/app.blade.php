@@ -30,6 +30,8 @@
     </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @stack('styles')
 </head>
 
 <body class="bg-surface text-charcoal flex h-dvh flex-col antialiased">
@@ -60,6 +62,8 @@
             });
         }
     </script>
+
+    @stack('scripts')
 
 </body>
 
