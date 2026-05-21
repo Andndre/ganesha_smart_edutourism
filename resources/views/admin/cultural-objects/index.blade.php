@@ -219,8 +219,8 @@
     // ==========================================
     // MAP PICKER
     // ==========================================
-    const PENGLIPURAN_LAT = -8.5406;
-    const PENGLIPURAN_LNG = 115.4170;
+    const PENGLIPURAN_LAT = -8.421750367447837;
+    const PENGLIPURAN_LNG = 115.35900208148409;
     const PENGLIPURAN_ZOOM = 17;
 
     let pickerMap = null;
@@ -423,6 +423,20 @@
 
     document.getElementById('field-ar-marker').addEventListener('input', function() {
         isMarkerManual = true;
+    });
+
+    // Auto-parse Google Maps coordinate paste (e.g. "-8.4217, 115.3590")
+    document.getElementById('field-latitude').addEventListener('paste', function(e) {
+        const text = (e.clipboardData || window.clipboardData).getData('text').trim();
+        const match = text.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+        if (match) {
+            e.preventDefault();
+            const lat = parseFloat(match[1]);
+            const lng = parseFloat(match[2]);
+            this.value = lat;
+            document.getElementById('field-longitude').value = lng;
+            syncMapFromFields();
+        }
     });
 </script>
 @endpush
