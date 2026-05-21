@@ -3,7 +3,7 @@
 @section('header_title', 'Profil Saya')
 
 @section('content')
-<div class="px-4 py-6 pb-24">
+<div class="px-4 pt-[calc(env(safe-area-inset-top)+6rem)] pb-24">
     
     <!-- User Info Card -->
     <div class="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm flex items-center gap-4 mb-6">

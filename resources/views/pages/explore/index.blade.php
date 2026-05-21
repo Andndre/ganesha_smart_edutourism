@@ -84,7 +84,7 @@
 @endpush
 
 @section('content')
-    <div class="fixed inset-x-0 bottom-0 top-14 z-0 overflow-hidden bg-[#E5E3DF]">
+    <div class="fixed inset-x-0 bottom-0 top-0 z-0 overflow-hidden bg-[#E5E3DF]">
         <div id="map" class="absolute inset-0 z-0"></div>
 
         <!-- Heatmap Overlay Container -->

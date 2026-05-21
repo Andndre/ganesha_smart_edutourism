@@ -3,7 +3,7 @@
 @section('header_title', 'Katalog UMKM')
 
 @section('content')
-<div class="px-4 py-6">
+<div class="px-4 pt-[calc(env(safe-area-inset-top)+6rem)] pb-6">
     <!-- Category Tabs/Pills -->
     <div class="flex overflow-x-auto no-scrollbar gap-2 mb-6 pb-2">
         <button class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-full shrink-0">Semua</button>
