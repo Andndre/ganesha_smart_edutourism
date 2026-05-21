@@ -79,7 +79,7 @@ Route::get('/cultural/{id}', function () {
 
 // Events
 Route::get('/events', function () {
-    return view('events.index');
+    return view('pages.events.index');
 })->name('events');
 
 // Learning
