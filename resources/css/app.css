@@ -15,12 +15,18 @@
     --font-display: "Playfair Display", ui-serif, Georgia, serif;
 
     /* Base Brand Colors */
-    --color-primary: #1e5128; /* Penglipuran Green */
-    --color-secondary: #d4af37; /* Bali Gold */
-    --color-accent: #d4af37; /* Bali Gold */
-    --color-surface: #faf9f6; /* Off-White Clean */
-    --color-charcoal: #191a19; /* High-contrast text */
-    --color-warning: #e65100; /* Alert Amber */
+    --color-primary: #1e5128;
+    /* Penglipuran Green */
+    --color-secondary: #d4af37;
+    /* Bali Gold */
+    --color-accent: #d4af37;
+    /* Bali Gold */
+    --color-surface: #faf9f6;
+    /* Off-White Clean */
+    --color-charcoal: #191a19;
+    /* High-contrast text */
+    --color-warning: #e65100;
+    /* Alert Amber */
     --color-success: #1e5128;
 
     /* Primary Colors - Scale */
@@ -41,6 +47,7 @@
 }
 
 @layer utilities {
+
     /* Tap target for mobile accessibility */
     .tap-target {
         @apply min-h-11 min-w-11 flex items-center justify-center;
@@ -48,22 +55,26 @@
 
     /* Safe area padding for notched phones */
     .pb-sab {
-        padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        padding-bottom: env(safe-area-inset-bottom);
     }
+
     .pt-sat {
-        padding-top: max(1rem, env(safe-area-inset-top));
+        padding-top: env(safe-area-inset-top);
     }
+
     .pl-sal {
-        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-left: env(safe-area-inset-left);
     }
+
     .pr-sar {
-        padding-right: max(1rem, env(safe-area-inset-right));
+        padding-right: env(safe-area-inset-right);
     }
 
     /* Sembunyikan scrollbar tapi tetap bisa di-scroll (untuk carousel horizontal) */
     .no-scrollbar::-webkit-scrollbar {
         display: none;
     }
+
     .no-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;

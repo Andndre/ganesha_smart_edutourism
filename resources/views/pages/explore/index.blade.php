@@ -210,10 +210,36 @@
                 umkm: true,
                 facilities: true,
                 toilets: true,
-                accessibility: true
+                accessibility: true,
+                edu_route: true,
+                sos_route: true
             };
 
             let heatmapVisible = false;
+
+            // ==========================================
+            // MOCK ROUTES (Edu-Tourism & SOS)
+            // ==========================================
+            const eduRoute = L.polyline([
+                [-8.4216, 115.3588],
+                [-8.4225, 115.3589],
+                [-8.4230, 115.3585]
+            ], {
+                color: '#1E5128', // Penglipuran Green
+                weight: 4,
+                dashArray: '8, 8',
+                opacity: 0.8
+            }).addTo(map);
+
+            const sosRoute = L.polyline([
+                [-8.4216, 115.3588],
+                [-8.4218, 115.3590],
+                [-8.4210, 115.3595]
+            ], {
+                color: '#E65100', // Alert Amber
+                weight: 4,
+                opacity: 0.9
+            }).addTo(map);
 
             // Generate Heatmap Cells
             function renderHeatmap() {
@@ -267,6 +293,18 @@
                     active
                 } = e.detail;
                 activeFilters[filter] = active;
+
+                // Toggle visibility of route layers
+                if (filter === 'edu_route') {
+                    if (active) map.addLayer(eduRoute);
+                    else map.removeLayer(eduRoute);
+                }
+                
+                if (filter === 'sos_route') {
+                    if (active) map.addLayer(sosRoute);
+                    else map.removeLayer(sosRoute);
+                }
+
                 if (heatmapVisible) {
                     renderHeatmap();
                 }
