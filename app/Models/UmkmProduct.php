@@ -62,7 +62,7 @@ class UmkmProduct extends Model
      * @param  Builder<UmkmProduct>  $query
      * @return Builder<UmkmProduct>
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query)
     {
         return $query->where('is_active', true);
     }
@@ -73,7 +73,7 @@ class UmkmProduct extends Model
      * @param  Builder<UmkmProduct>  $query
      * @return Builder<UmkmProduct>
      */
-    public function scopeInStock($query)
+    public function scopeInStock(Builder $query)
     {
         return $query->where(function ($q) {
             $q->whereNull('stock')->orWhere('stock', '>', 0);
@@ -86,7 +86,7 @@ class UmkmProduct extends Model
      * @param  Builder<UmkmProduct>  $query
      * @return Builder<UmkmProduct>
      */
-    public function scopeInProfile($query, int $profileId)
+    public function scopeInProfile(Builder $query, int $profileId)
     {
         return $query->where('umkm_profile_id', $profileId);
     }

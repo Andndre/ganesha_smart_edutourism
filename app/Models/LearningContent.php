@@ -68,7 +68,7 @@ class LearningContent extends Model
      * @param  Builder<LearningContent>  $query
      * @return Builder<LearningContent>
      */
-    public function scopeOrdered($query)
+    public function scopeOrdered(Builder $query)
     {
         return $query->orderBy('order');
     }
@@ -79,7 +79,7 @@ class LearningContent extends Model
      * @param  Builder<LearningContent>  $query
      * @return Builder<LearningContent>
      */
-    public function scopeOfType($query, string $type)
+    public function scopeOfType(Builder $query, string $type)
     {
         return $query->where('content_type', $type);
     }
@@ -90,7 +90,7 @@ class LearningContent extends Model
      * @param  Builder<LearningContent>  $query
      * @return Builder<LearningContent>
      */
-    public function scopeInModule($query, int $moduleId)
+    public function scopeInModule(Builder $query, int $moduleId)
     {
         return $query->where('learning_module_id', $moduleId);
     }

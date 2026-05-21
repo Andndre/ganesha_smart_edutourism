@@ -55,7 +55,7 @@ class LearningQuiz extends Model
      * @param  Builder<LearningQuiz>  $query
      * @return Builder<LearningQuiz>
      */
-    public function scopeOrdered($query)
+    public function scopeOrdered(Builder $query)
     {
         return $query->orderBy('order');
     }
@@ -66,7 +66,7 @@ class LearningQuiz extends Model
      * @param  Builder<LearningQuiz>  $query
      * @return Builder<LearningQuiz>
      */
-    public function scopeInContent($query, int $contentId)
+    public function scopeInContent(Builder $query, int $contentId)
     {
         return $query->where('learning_content_id', $contentId);
     }

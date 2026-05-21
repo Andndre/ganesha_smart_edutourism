@@ -66,7 +66,7 @@ class Event extends Model
      * @param  Builder<Event>  $query
      * @return Builder<Event>
      */
-    public function scopeUpcoming($query)
+    public function scopeUpcoming(Builder $query)
     {
         return $query->where('start_datetime', '>', now())->orderBy('start_datetime');
     }
@@ -77,7 +77,7 @@ class Event extends Model
      * @param  Builder<Event>  $query
      * @return Builder<Event>
      */
-    public function scopeOngoing($query)
+    public function scopeOngoing(Builder $query)
     {
         return $query->where('start_datetime', '<=', now())
             ->where('end_datetime', '>=', now());
@@ -89,7 +89,7 @@ class Event extends Model
      * @param  Builder<Event>  $query
      * @return Builder<Event>
      */
-    public function scopeFree($query)
+    public function scopeFree(Builder $query)
     {
         return $query->where('is_free', true);
     }
@@ -100,7 +100,7 @@ class Event extends Model
      * @param  Builder<Event>  $query
      * @return Builder<Event>
      */
-    public function scopeCategory($query, string $category)
+    public function scopeCategory(Builder $query, string $category)
     {
         return $query->where('category', $category);
     }
@@ -111,7 +111,7 @@ class Event extends Model
      * @param  Builder<Event>  $query
      * @return Builder<Event>
      */
-    public function scopeAvailable($query)
+    public function scopeAvailable(Builder $query)
     {
         return $query->where(function ($q) {
             $q->whereNull('max_participants')

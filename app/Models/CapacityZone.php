@@ -56,7 +56,7 @@ class CapacityZone extends Model
      * @param  Builder<CapacityZone>  $query
      * @return Builder<CapacityZone>
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query)
     {
         return $query->where('is_active', true);
     }
@@ -67,7 +67,7 @@ class CapacityZone extends Model
      * @param  Builder<CapacityZone>  $query
      * @return Builder<CapacityZone>
      */
-    public function scopeAtWarning($query)
+    public function scopeAtWarning(Builder $query)
     {
         return $query->whereRaw('(current_count::float / max_capacity) * 100 >= warning_threshold');
     }
@@ -78,7 +78,7 @@ class CapacityZone extends Model
      * @param  Builder<CapacityZone>  $query
      * @return Builder<CapacityZone>
      */
-    public function scopeAtCritical($query)
+    public function scopeAtCritical(Builder $query)
     {
         return $query->whereRaw('(current_count::float / max_capacity) * 100 >= critical_threshold');
     }

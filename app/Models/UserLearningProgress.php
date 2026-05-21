@@ -76,7 +76,7 @@ class UserLearningProgress extends Model
      * @param  Builder<UserLearningProgress>  $query
      * @return Builder<UserLearningProgress>
      */
-    public function scopeStatus($query, string $status)
+    public function scopeStatus(Builder $query, string $status)
     {
         return $query->where('status', $status);
     }
@@ -87,7 +87,7 @@ class UserLearningProgress extends Model
      * @param  Builder<UserLearningProgress>  $query
      * @return Builder<UserLearningProgress>
      */
-    public function scopeInProgress($query)
+    public function scopeInProgress(Builder $query)
     {
         return $query->where('status', 'in_progress');
     }
@@ -98,7 +98,7 @@ class UserLearningProgress extends Model
      * @param  Builder<UserLearningProgress>  $query
      * @return Builder<UserLearningProgress>
      */
-    public function scopeCompleted($query)
+    public function scopeCompleted(Builder $query)
     {
         return $query->where('status', 'completed');
     }

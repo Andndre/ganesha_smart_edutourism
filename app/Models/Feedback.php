@@ -68,7 +68,7 @@ class Feedback extends Model
      * @param  Builder<Feedback>  $query
      * @return Builder<Feedback>
      */
-    public function scopePublic($query)
+    public function scopePublic(Builder $query)
     {
         return $query->where('is_public', true)->orderBy('created_at', 'desc');
     }
@@ -79,7 +79,7 @@ class Feedback extends Model
      * @param  Builder<Feedback>  $query
      * @return Builder<Feedback>
      */
-    public function scopeOfType($query, string $type)
+    public function scopeOfType(Builder $query, string $type)
     {
         return $query->where('feedback_type', $type);
     }
@@ -90,7 +90,7 @@ class Feedback extends Model
      * @param  Builder<Feedback>  $query
      * @return Builder<Feedback>
      */
-    public function scopeMinRating($query, int $rating)
+    public function scopeMinRating(Builder $query, int $rating)
     {
         return $query->where('rating', '>=', $rating);
     }
@@ -101,7 +101,7 @@ class Feedback extends Model
      * @param  Builder<Feedback>  $query
      * @return Builder<Feedback>
      */
-    public function scopeReviewed($query)
+    public function scopeReviewed(Builder $query)
     {
         return $query->whereNotNull('admin_response');
     }

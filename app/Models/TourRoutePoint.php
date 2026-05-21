@@ -65,7 +65,7 @@ class TourRoutePoint extends Model
      * @param  Builder<TourRoutePoint>  $query
      * @return Builder<TourRoutePoint>
      */
-    public function scopeOrdered($query)
+    public function scopeOrdered(Builder $query)
     {
         return $query->orderBy('order');
     }
@@ -76,7 +76,7 @@ class TourRoutePoint extends Model
      * @param  Builder<TourRoutePoint>  $query
      * @return Builder<TourRoutePoint>
      */
-    public function scopeInRoute($query, int $routeId)
+    public function scopeInRoute(Builder $query, int $routeId)
     {
         return $query->where('tour_route_id', $routeId)->ordered();
     }

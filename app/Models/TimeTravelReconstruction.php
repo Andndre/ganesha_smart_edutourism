@@ -55,7 +55,7 @@ class TimeTravelReconstruction extends Model
      * @param  Builder<TimeTravelReconstruction>  $query
      * @return Builder<TimeTravelReconstruction>
      */
-    public function scopeChronological($query)
+    public function scopeChronological(Builder $query)
     {
         return $query->orderBy('year_represented');
     }
@@ -66,7 +66,7 @@ class TimeTravelReconstruction extends Model
      * @param  Builder<TimeTravelReconstruction>  $query
      * @return Builder<TimeTravelReconstruction>
      */
-    public function scopeYearRange($query, int $startYear, int $endYear)
+    public function scopeYearRange(Builder $query, int $startYear, int $endYear)
     {
         return $query->whereBetween('year_represented', [$startYear, $endYear]);
     }

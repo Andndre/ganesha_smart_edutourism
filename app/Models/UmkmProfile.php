@@ -95,7 +95,7 @@ class UmkmProfile extends Model
      * @param  Builder<UmkmProfile>  $query
      * @return Builder<UmkmProfile>
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query)
     {
         return $query->where('is_active', true);
     }
@@ -106,7 +106,7 @@ class UmkmProfile extends Model
      * @param  Builder<UmkmProfile>  $query
      * @return Builder<UmkmProfile>
      */
-    public function scopeCategory($query, string $category)
+    public function scopeCategory(Builder $query, string $category)
     {
         return $query->where('category', $category);
     }
@@ -117,7 +117,7 @@ class UmkmProfile extends Model
      * @param  Builder<UmkmProfile>  $query
      * @return Builder<UmkmProfile>
      */
-    public function scopeWithCoordinates($query)
+    public function scopeWithCoordinates(Builder $query)
     {
         return $query->whereNotNull('latitude')->whereNotNull('longitude');
     }

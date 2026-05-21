@@ -65,7 +65,7 @@ class TourPackage extends Model
      * @param  Builder<TourPackage>  $query
      * @return Builder<TourPackage>
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query)
     {
         return $query->where('is_active', true);
     }
@@ -74,9 +74,9 @@ class TourPackage extends Model
      * Scope a query to filter by price range.
      *
      * @param  Builder<TourPackage>  $query
-     * @return \Illuminate\Database\Eloquent.Builder<TourPackage>
+     * @return Builder.Builder<TourPackage>
      */
-    public function scopePriceRange($query, float $minPrice, float $maxPrice)
+    public function scopePriceRange(Builder $query, float $minPrice, float $maxPrice)
     {
         return $query->whereBetween('price', [$minPrice, $maxPrice]);
     }

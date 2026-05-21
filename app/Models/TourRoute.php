@@ -59,7 +59,7 @@ class TourRoute extends Model
      * @param  Builder<TourRoute>  $query
      * @return Builder<TourRoute>
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query)
     {
         return $query->where('is_active', true);
     }
@@ -70,7 +70,7 @@ class TourRoute extends Model
      * @param  Builder<TourRoute>  $query
      * @return Builder<TourRoute>
      */
-    public function scopeSmartRoutes($query)
+    public function scopeSmartRoutes(Builder $query)
     {
         return $query->where('is_smart_route', true);
     }
@@ -81,7 +81,7 @@ class TourRoute extends Model
      * @param  Builder<TourRoute>  $query
      * @return Builder<TourRoute>
      */
-    public function scopeDifficulty($query, string $difficulty)
+    public function scopeDifficulty(Builder $query, string $difficulty)
     {
         return $query->where('difficulty', $difficulty);
     }
