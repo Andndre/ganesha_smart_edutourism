@@ -153,7 +153,7 @@
         </div>
 
         <div class="no-scrollbar flex gap-4 overflow-x-auto pb-2">
-            <div class="min-w-[260px] rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+            <div class="min-w-65 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
                 <div class="flex items-start justify-between">
                     <div>
                         <h4 class="text-charcoal font-bold">Jalur Budaya Singkat</h4>
@@ -169,7 +169,7 @@
                     class="bg-primary mt-4 w-full rounded-xl py-2 text-sm font-medium text-white transition-transform active:scale-95">Mulai
                     Rute</button>
             </div>
-            <div class="min-w-[260px] rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+            <div class="min-w-65 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
                 <div class="flex items-start justify-between">
                     <div>
                         <h4 class="text-charcoal font-bold">Eksplorasi Hutan Bambu</h4>
