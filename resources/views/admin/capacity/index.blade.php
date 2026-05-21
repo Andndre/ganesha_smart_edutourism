@@ -23,16 +23,32 @@
 {{-- Overall Crowd Level --}}
 <div class="mb-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div class="flex-1">
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Wisatawan Saat Ini</p>
             <div class="mt-1 flex items-baseline gap-2">
-                <span class="text-5xl font-bold text-charcoal">617</span>
-                <span class="text-lg text-gray-400">/ 1.050 kapasitas total</span>
+                <span class="text-5xl font-bold text-charcoal">{{ $totalCurrentCount }}</span>
+                <span class="text-lg text-gray-400">/ {{ $totalMaxCapacity }} kapasitas total</span>
             </div>
+            @php
+                $overallPct = $totalMaxCapacity > 0 ? round(($totalCurrentCount / $totalMaxCapacity) * 100, 1) : 0;
+                if ($overallPct >= 80) {
+                    $overallStatus = 'Kapasitas Penuh';
+                    $overallColor = 'text-warning';
+                    $overallBarColor = 'bg-warning';
+                } elseif ($overallPct >= 60) {
+                    $overallStatus = 'Kapasitas Sedang';
+                    $overallColor = 'text-secondary';
+                    $overallBarColor = 'bg-secondary';
+                } else {
+                    $overallStatus = 'Kapasitas Aman';
+                    $overallColor = 'text-primary';
+                    $overallBarColor = 'bg-primary';
+                }
+            @endphp
             <div class="mt-3 h-3 overflow-hidden rounded-full bg-gray-100">
-                <div class="h-full rounded-full bg-warning transition-all" style="width: 58.8%"></div>
+                <div class="h-full {{ $overallBarColor }} transition-all" style="width: {{ min(100, $overallPct) }}%"></div>
             </div>
-            <p class="mt-1.5 text-sm text-gray-500">58.8% — <span class="font-semibold text-warning">Kapasitas Sedang</span></p>
+            <p class="mt-1.5 text-sm text-gray-500">{{ $overallPct }}% — <span class="font-semibold {{ $overallColor }}">{{ $overallStatus }}</span></p>
         </div>
         <div class="grid grid-cols-3 gap-3 sm:text-right">
             @php
@@ -53,24 +69,16 @@
 </div>
 
 {{-- Zone Cards --}}
-@php
-    $zones = [
-        ['name' => 'Zona Utama (Jalan Utama)',    'current' => 312, 'max' => 400, 'trend' => '+18 / jam',  'note' => 'Mendekati batas — pertimbangkan pengalihan rute.'],
-        ['name' => 'Area UMKM & Pasar',           'current' => 178, 'max' => 300, 'trend' => '+5 / jam',   'note' => 'Normal.'],
-        ['name' => 'Pura Penataran Agung',        'current' => 85,  'max' => 150, 'trend' => '-2 / jam',   'note' => 'Normal.'],
-        ['name' => 'Kebun Bambu & Jalur Trekking','current' => 42,  'max' => 200, 'trend' => '+1 / jam',   'note' => 'Masih sangat longgar.'],
-    ];
-@endphp
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
     @foreach ($zones as $zone)
         @php
-            $pct = round(($zone['current'] / $zone['max']) * 100);
-            if ($pct >= 80) {
+            $pct = $zone->max_capacity > 0 ? round(($zone->current_count / $zone->max_capacity) * 100) : 0;
+            if ($pct >= ($zone->critical_threshold ?? 80)) {
                 $statusLabel = 'Kritis';
                 $barColor    = 'bg-warning';
                 $badgeClass  = 'bg-warning/10 text-warning';
                 $borderClass = 'border-warning/20';
-            } elseif ($pct >= 60) {
+            } elseif ($pct >= ($zone->warning_threshold ?? 60)) {
                 $statusLabel = 'Sedang';
                 $barColor    = 'bg-secondary';
                 $badgeClass  = 'bg-secondary/15 text-secondary-700';
@@ -84,35 +92,114 @@
         @endphp
         <div class="rounded-2xl border {{ $borderClass }} bg-white p-5 shadow-sm">
             <div class="mb-3 flex items-start justify-between gap-2">
-                <h3 class="font-semibold text-charcoal">{{ $zone['name'] }}</h3>
-                <span class="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold {{ $badgeClass }}">{{ $statusLabel }}</span>
+                <div>
+                    <h3 class="font-semibold text-charcoal">{{ $zone->name }}</h3>
+                    <span class="text-[10px] text-gray-400">Limit: {{ $zone->warning_threshold }}% Warning / {{ $zone->critical_threshold }}% Critical</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold {{ $badgeClass }}">{{ $statusLabel }}</span>
+                    @if($zone->id)
+                        <button onclick="openThresholdModal({{ json_encode([
+                            'id' => $zone->id,
+                            'name' => $zone->name,
+                            'warning_threshold' => $zone->warning_threshold,
+                            'critical_threshold' => $zone->critical_threshold,
+                            'max_capacity' => $zone->max_capacity
+                        ]) }})" class="text-gray-400 hover:text-primary transition-colors focus:outline-none" title="Edit Ambang Batas">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </button>
+                    @endif
+                </div>
             </div>
             <div class="flex items-baseline gap-1">
-                <span class="text-3xl font-bold text-charcoal">{{ $zone['current'] }}</span>
-                <span class="text-gray-400">/ {{ $zone['max'] }} orang</span>
+                <span class="text-3xl font-bold text-charcoal">{{ $zone->current_count }}</span>
+                <span class="text-gray-400 font-medium">/ {{ $zone->max_capacity }} orang</span>
             </div>
             <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-gray-100">
-                <div class="{{ $barColor }} h-full rounded-full" style="width: {{ $pct }}%"></div>
+                <div class="{{ $barColor }} h-full rounded-full transition-all" style="width: {{ min(100, $pct) }}%"></div>
             </div>
             <div class="mt-2.5 flex items-center justify-between text-xs text-gray-500">
                 <span>{{ $pct }}% terisi</span>
-                <span class="font-medium">Tren: {{ $zone['trend'] }}</span>
+                <span class="font-medium">Identitas: {{ $zone->zone_identifier }}</span>
             </div>
-            <p class="mt-2 text-xs text-gray-400">{{ $zone['note'] }}</p>
         </div>
     @endforeach
 </div>
 
-{{-- Historical 24h chart placeholder --}}
+{{-- Historical 24h chart --}}
 <div class="mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
     <h3 class="mb-4 font-semibold text-charcoal">Tren Kunjungan 24 Jam Terakhir</h3>
     <canvas id="capacityChart" class="w-full" height="160"></canvas>
+</div>
+
+{{-- Edit Threshold Modal --}}
+<div id="threshold-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-xl animate-fade-in">
+        <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+            <h3 class="font-display text-lg font-bold text-charcoal">Edit Ambang Batas <span id="modal-zone-name" class="text-gray-400"></span></h3>
+            <button onclick="closeThresholdModal()" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <form id="modal-threshold-form" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="p-6 space-y-4">
+                <div>
+                    <label for="modal-max-capacity" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Kapasitas Maksimal (Orang)</label>
+                    <input type="number" name="max_capacity" id="modal-max-capacity" required min="1" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="modal-warning-threshold" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Warning (%)</label>
+                        <input type="number" name="warning_threshold" id="modal-warning-threshold" required min="1" max="100" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
+                    </div>
+                    <div>
+                        <label for="modal-critical-threshold" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Critical (%)</label>
+                        <input type="number" name="critical_threshold" id="modal-critical-threshold" required min="1" max="100" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-100 px-6 py-4 flex justify-end gap-2 bg-gray-50/50">
+                <button type="button" onclick="closeThresholdModal()" class="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-500 hover:bg-gray-50">
+                    Batal
+                </button>
+                <button type="submit" class="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary-dark">
+                    Simpan
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 @endsection
 
 @push('scripts')
 <script>
+    function openThresholdModal(data) {
+        document.getElementById('modal-zone-name').innerText = data.name;
+        document.getElementById('modal-max-capacity').value = data.max_capacity;
+        document.getElementById('modal-warning-threshold').value = data.warning_threshold;
+        document.getElementById('modal-critical-threshold').value = data.critical_threshold;
+
+        const form = document.getElementById('modal-threshold-form');
+        form.action = `/admin/capacity/${data.id}/thresholds`;
+
+        const modal = document.getElementById('threshold-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeThresholdModal() {
+        const modal = document.getElementById('threshold-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
     (function () {
         const canvas = document.getElementById('capacityChart');
         if (!canvas) return;
@@ -125,10 +212,8 @@
         canvas.style.height = H + 'px';
         ctx.scale(dpr, dpr);
 
-        // Mock hourly data (0–23h)
-        const hours = Array.from({length: 24}, (_, i) => i);
-        const data  = [12,8,5,3,2,8,45,120,280,390,480,530,580,617,590,540,480,410,330,260,180,120,80,40];
-        const max   = 700;
+        const data = {{ json_encode($hourlyData) }};
+        const max = Math.max(...data, 100) * 1.15;
         const padL  = 36, padR = 12, padT = 12, padB = 28;
         const chartW = W - padL - padR;
         const chartH = H - padT - padB;

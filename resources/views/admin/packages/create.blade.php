@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Tambah Paket Wisata')
+@section('title', isset($package) ? 'Edit Paket Wisata' : 'Tambah Paket Wisata')
 
 @section('content')
 
@@ -11,38 +11,43 @@
         </svg>
     </a>
     <div>
-        <h1 class="font-display text-2xl font-bold text-charcoal">Tambah Paket Wisata Baru</h1>
-        <p class="mt-0.5 text-sm text-gray-500">Buat paket baru untuk ditawarkan kepada wisatawan.</p>
+        <h1 class="font-display text-2xl font-bold text-charcoal">{{ isset($package) ? 'Edit Paket Wisata' : 'Tambah Paket Wisata Baru' }}</h1>
+        <p class="mt-0.5 text-sm text-gray-500">{{ isset($package) ? 'Ubah detail paket wisata dan penawaran harga.' : 'Buat paket baru untuk ditawarkan kepada wisatawan.' }}</p>
     </div>
 </div>
 
-<form class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+<form action="{{ isset($package) ? route('admin.packages.update', $package->id) : route('admin.packages.store') }}" method="POST" class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    @csrf
+    @if(isset($package))
+        @method('PUT')
+    @endif
+
     <div class="space-y-5 lg:col-span-2">
         <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
             <h2 class="mb-5 font-semibold text-charcoal">Detail Paket</h2>
             <div class="space-y-4">
                 <div>
                     <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Paket <span class="text-warning">*</span></label>
-                    <input type="text" placeholder="Contoh: Paket Keluarga 1 Hari"
-                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
+                    <input type="text" name="name" value="{{ old('name', $package->name ?? '') }}" placeholder="Contoh: Paket Keluarga 1 Hari"
+                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30" required>
                 </div>
                 <div>
                     <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi</label>
-                    <textarea rows="3" placeholder="Jelaskan apa saja yang termasuk dalam paket ini..."
-                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none"></textarea>
+                    <textarea name="description" rows="3" placeholder="Jelaskan apa saja yang termasuk dalam paket ini..."
+                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none">{{ old('description', $package->description ?? '') }}</textarea>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Harga per Orang <span class="text-warning">*</span></label>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">Rp</span>
-                            <input type="number" placeholder="85000"
-                                class="w-full rounded-xl border border-gray-200 py-3 pl-10 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
+                            <input type="number" name="price" value="{{ old('price', $package->price ?? '') }}" placeholder="85000"
+                                class="w-full rounded-xl border border-gray-200 py-3 pl-10 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30" required>
                         </div>
                     </div>
                     <div>
-                        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Durasi</label>
-                        <input type="text" placeholder="Contoh: 8 jam"
+                        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Durasi (Jam)</label>
+                        <input type="number" step="any" name="duration_hours" value="{{ old('duration_hours', $package->duration_hours ?? '') }}" placeholder="Contoh: 8"
                             class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
                     </div>
                 </div>
@@ -50,24 +55,29 @@
         </div>
 
         <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-            <h2 class="mb-5 font-semibold text-charcoal">Yang Termasuk dalam Paket</h2>
+            <h2 class="mb-5 font-semibold text-charcoal">Yang Termasuk dalam Paket (Inclusions)</h2>
             <div id="includes-list" class="space-y-2">
-                <div class="flex items-center gap-2">
-                    <input type="text" placeholder="Contoh: Tiket masuk desa" class="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                    <button type="button" class="h-10 w-10 rounded-xl bg-gray-100 text-gray-400 hover:text-warning">
-                        <svg class="mx-auto h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="text" placeholder="Contoh: Makan siang tradisional" class="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                    <button type="button" class="h-10 w-10 rounded-xl bg-gray-100 text-gray-400 hover:text-warning">
-                        <svg class="mx-auto h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
+                @if(isset($package) && is_array($package->inclusions) && count($package->inclusions) > 0)
+                    @foreach($package->inclusions as $inc)
+                        <div class="flex items-center gap-2">
+                            <input type="text" name="inclusions[]" value="{{ $inc }}" placeholder="Contoh: Tiket masuk desa" class="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                            <button type="button" onclick="this.parentElement.remove()" class="h-10 w-10 rounded-xl bg-gray-100 text-gray-400 hover:text-warning">
+                                <svg class="mx-auto h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="flex items-center gap-2">
+                        <input type="text" name="inclusions[]" placeholder="Contoh: Tiket masuk desa" class="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                        <button type="button" onclick="this.parentElement.remove()" class="h-10 w-10 rounded-xl bg-gray-100 text-gray-400 hover:text-warning">
+                            <svg class="mx-auto h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                @endif
             </div>
             <button type="button" onclick="addInclude()"
                 class="mt-3 flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
@@ -84,25 +94,13 @@
             <h2 class="mb-4 font-semibold text-charcoal">Pengaturan</h2>
             <div class="space-y-4">
                 <div>
-                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Status</label>
-                    <select class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none">
-                        <option>Aktif</option>
-                        <option>Nonaktif</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Maks. Peserta / Sesi</label>
-                    <input type="number" placeholder="Contoh: 20"
+                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Maks. Peserta / Sesi (opsional)</label>
+                    <input type="number" name="max_capacity" value="{{ old('max_capacity', $package->max_capacity ?? '') }}" placeholder="Contoh: 20"
                         class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
                 </div>
-                <div>
-                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Kategori</label>
-                    <select class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none">
-                        <option>Keluarga</option>
-                        <option>Edukasi</option>
-                        <option>Petualangan</option>
-                        <option>Fotografi</option>
-                    </select>
+                <div class="flex items-center gap-2 py-1">
+                    <input type="checkbox" id="is_active" name="is_active" value="1" {{ old('is_active', $package->is_active ?? true) ? 'checked' : '' }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
+                    <label for="is_active" class="text-sm font-semibold text-gray-700">Aktifkan Paket Wisata</label>
                 </div>
             </div>
         </div>
@@ -126,7 +124,7 @@
         const row = document.createElement('div');
         row.className = 'flex items-center gap-2';
         row.innerHTML = `
-            <input type="text" placeholder="Tambahkan item..." class="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+            <input type="text" name="inclusions[]" placeholder="Tambahkan item..." class="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
             <button type="button" onclick="this.parentElement.remove()" class="h-10 w-10 rounded-xl bg-gray-100 text-gray-400 hover:text-warning">
                 <svg class="mx-auto h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>

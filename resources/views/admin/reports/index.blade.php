@@ -10,57 +10,66 @@
         <p class="mt-0.5 text-sm text-gray-500">Ringkasan performa desa wisata secara periodik.</p>
     </div>
     <div class="flex items-center gap-2">
-        <select class="rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:border-primary focus:outline-none">
-            <option>Mei 2026</option>
-            <option>April 2026</option>
-            <option>Maret 2026</option>
+        <select id="period-selector" onchange="window.location.href = '{{ route('admin.reports') }}?period=' + this.value" class="rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:border-primary focus:outline-none bg-white text-charcoal">
+            <option value="Mei 2026" {{ $selectedPeriod === 'Mei 2026' ? 'selected' : '' }}>Mei 2026</option>
+            <option value="April 2026" {{ $selectedPeriod === 'April 2026' ? 'selected' : '' }}>April 2026</option>
+            <option value="Maret 2026" {{ $selectedPeriod === 'Maret 2026' ? 'selected' : '' }}>Maret 2026</option>
         </select>
-        <button class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-600">
+        <a href="{{ route('admin.reports.download', ['period' => $selectedPeriod]) }}" class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-dark">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
             Unduh PDF
-        </button>
+        </a>
     </div>
 </div>
 
 {{-- Monthly KPI Summary --}}
 <div class="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-    @php
-        $kpis = [
-            ['label' => 'Total Pengunjung',  'value' => '14.230', 'delta' => '+18%', 'up' => true],
-            ['label' => 'Total Pendapatan',  'value' => 'Rp 98 Jt', 'delta' => '+22%', 'up' => true],
-            ['label' => 'Tiket Terjual',     'value' => '1.847',  'delta' => '+15%', 'up' => true],
-            ['label' => 'Rating Kepuasan',   'value' => '4.7 ★',  'delta' => '+0.3', 'up' => true],
-        ];
-    @endphp
-    @foreach ($kpis as $k)
-        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">{{ $k['label'] }}</p>
-            <p class="mt-2 text-2xl font-bold text-charcoal">{{ $k['value'] }}</p>
-            <p class="mt-1 text-xs font-semibold {{ $k['up'] ? 'text-primary' : 'text-warning' }}">{{ $k['delta'] }} {{ $k['up'] ? '↑' : '↓' }} vs. bulan lalu</p>
-        </div>
-    @endforeach
+    {{-- Visitor KPI --}}
+    <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Pengunjung</p>
+        <p class="mt-2 text-2xl font-bold text-charcoal">{{ number_format($visitorCount, 0, ',', '.') }}</p>
+        <p class="mt-1 text-xs font-semibold {{ $visitorDelta >= 0 ? 'text-primary' : 'text-warning' }}">
+            {{ ($visitorDelta >= 0 ? '+' : '') . $visitorDelta }}% {{ $visitorDelta >= 0 ? '↑' : '↓' }} vs. bulan lalu
+        </p>
+    </div>
+    {{-- Revenue KPI --}}
+    <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Pendapatan</p>
+        <p class="mt-2 text-2xl font-bold text-charcoal">Rp {{ number_format($revenue, 0, ',', '.') }}</p>
+        <p class="mt-1 text-xs font-semibold {{ $revenueDelta >= 0 ? 'text-primary' : 'text-warning' }}">
+            {{ ($revenueDelta >= 0 ? '+' : '') . $revenueDelta }}% {{ $revenueDelta >= 0 ? '↑' : '↓' }} vs. bulan lalu
+        </p>
+    </div>
+    {{-- Tickets KPI --}}
+    <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Tiket Terjual</p>
+        <p class="mt-2 text-2xl font-bold text-charcoal">{{ number_format($ticketsSold, 0, ',', '.') }}</p>
+        <p class="mt-1 text-xs font-semibold {{ $ticketsDelta >= 0 ? 'text-primary' : 'text-warning' }}">
+            {{ ($ticketsDelta >= 0 ? '+' : '') . $ticketsDelta }}% {{ $ticketsDelta >= 0 ? '↑' : '↓' }} vs. bulan lalu
+        </p>
+    </div>
+    {{-- Rating KPI --}}
+    <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Rating Kepuasan</p>
+        <p class="mt-2 text-2xl font-bold text-charcoal">{{ $rating }} ★</p>
+        <p class="mt-1 text-xs font-semibold {{ $ratingDelta >= 0 ? 'text-primary' : 'text-warning' }}">
+            {{ ($ratingDelta >= 0 ? '+' : '') . $ratingDelta }} {{ $ratingDelta >= 0 ? '↑' : '↓' }} vs. bulan lalu
+        </p>
+    </div>
 </div>
 
 {{-- Charts Row --}}
 <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
     <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-        <h3 class="mb-4 font-semibold text-charcoal">Pengunjung per Hari (Mei 2026)</h3>
+        <h3 class="mb-4 font-semibold text-charcoal">Pengunjung per Hari ({{ $selectedPeriod }})</h3>
         <canvas id="monthlyChart" class="w-full" height="180"></canvas>
     </div>
     <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
         <h3 class="mb-4 font-semibold text-charcoal">Pendapatan per Kategori Paket</h3>
         <div class="space-y-3">
-            @php
-                $revenue = [
-                    ['label' => 'Paket Keluarga 1 Hari', 'amount' => 'Rp 48 Jt', 'pct' => 49],
-                    ['label' => 'Paket Edukasi Budaya',  'amount' => 'Rp 27 Jt', 'pct' => 28],
-                    ['label' => 'Paket Sunrise Trek',    'amount' => 'Rp 14 Jt', 'pct' => 14],
-                    ['label' => 'Lainnya',               'amount' => 'Rp 9 Jt',  'pct' => 9],
-                ];
-            @endphp
-            @foreach ($revenue as $r)
+            @foreach ($revenueBreakdown as $r)
                 <div>
                     <div class="mb-1 flex items-center justify-between text-sm">
                         <span class="font-medium text-charcoal">{{ $r['label'] }}</span>
@@ -142,8 +151,7 @@
         canvas.style.height = H + 'px';
         ctx.scale(dpr, dpr);
 
-        // 21 days of mock data
-        const data = [280,320,290,450,610,730,617,310,340,380,420,500,560,620,710,680,590,540,480,430,617];
+        const data = {{ json_encode($chartData) }};
         const max = Math.max(...data) * 1.15;
         const padL = 36, padR = 12, padT = 12, padB = 28;
         const chartW = W - padL - padR;
@@ -180,9 +188,12 @@
         ctx.fillStyle = '#9ca3af';
         ctx.font = '10px Plus Jakarta Sans, sans-serif';
         ctx.textAlign = 'center';
+        const selectedPeriod = "{{ $selectedPeriod }}";
+        const labelSuffix = selectedPeriod.split(' ')[0] || 'Mei';
+        
         [1, 7, 14, 21].forEach(d => {
             const x = padL + ((d - 1) / (data.length - 1)) * chartW;
-            ctx.fillText(d + ' Mei', x, H - 6);
+            ctx.fillText(d + ' ' + labelSuffix, x, H - 6);
         });
     })();
 </script>
