@@ -36,16 +36,11 @@
 
 <body class="bg-surface text-charcoal flex h-dvh flex-col antialiased">
 
-    <header class="pt-sat bg-primary z-40 shrink-0 px-4 text-white">
-        <nav class="flex h-14 items-center justify-between">
-            <h1 class="text-label font-semibold">@yield('header_title', 'Penglipuran Smart Tour')</h1>
-            <div class="flex items-center gap-2">
-                <span id="offline-indicator" class="bg-warning hidden rounded-full px-2 py-1 text-xs font-medium">
-                    Offline Mode
-                </span>
-            </div>
-        </nav>
-    </header>
+    @include('components.navigation.header', [
+        'showBack' => true,
+        'backUrl' => url()->previous(),
+        'headerTitle' => null,
+    ])
 
     <main id="main-content" class="no-scrollbar relative flex-1 overflow-y-auto pb-24">
         @yield('content')
