@@ -1,0 +1,541 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\CapacityZone;
+use App\Models\CulturalObject;
+use App\Models\Event;
+use App\Models\Feedback;
+use App\Models\Reservation;
+use App\Models\TourPackage;
+use App\Models\TourRoute;
+use App\Models\UmkmProduct;
+use App\Models\UmkmProfile;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class AdminTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private User $adminUser;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Create an admin user to authenticate
+        $this->adminUser = User::factory()->create([
+            'name' => 'Admin Test',
+            'email' => 'admin@test.com',
+        ]);
+    }
+
+    /**
+     * Test admin dashboard page can be rendered.
+     */
+    public function test_admin_dashboard_can_be_rendered(): void
+    {
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('admin.dashboard'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Dashboard');
+    }
+
+    /**
+     * Test capacity zone view loading and threshold updates.
+     */
+    public function test_capacity_zones_rendering_and_threshold_update(): void
+    {
+        $zone = CapacityZone::create([
+            'name' => 'Zona Test',
+            'zone_identifier' => 'test_zone',
+            'current_count' => 50,
+            'max_capacity' => 100,
+            'warning_threshold' => 60,
+            'critical_threshold' => 80,
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('admin.capacity'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Zona Test');
+
+        // Test update validation error (critical <= warning)
+        $responseUpdateInvalid = $this->actingAs($this->adminUser)
+            ->put(route('admin.capacity.thresholds', $zone->id), [
+                'max_capacity' => 100,
+                'warning_threshold' => 90,
+                'critical_threshold' => 80, // critical is smaller, should fail validation
+            ]);
+        $responseUpdateInvalid->assertSessionHasErrors(['critical_threshold']);
+
+        // Test successful update
+        $responseUpdateSuccess = $this->actingAs($this->adminUser)
+            ->put(route('admin.capacity.thresholds', $zone->id), [
+                'max_capacity' => 120,
+                'warning_threshold' => 50,
+                'critical_threshold' => 85,
+            ]);
+        $responseUpdateSuccess->assertSessionHasNoErrors();
+        $responseUpdateSuccess->assertRedirect();
+
+        $this->assertDatabaseHas('capacity_zones', [
+            'id' => $zone->id,
+            'max_capacity' => 120,
+            'warning_threshold' => 50,
+            'critical_threshold' => 85,
+        ]);
+    }
+
+    /**
+     * Test Cultural Object CRUD workflows.
+     */
+    public function test_cultural_objects_crud(): void
+    {
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('admin.cultural-objects'));
+        $response->assertStatus(200);
+
+        // 1. Create with invalid inputs (empty name)
+        $responseCreateInvalid = $this->actingAs($this->adminUser)
+            ->post(route('admin.cultural-objects.store'), [
+                'name' => '',
+                'category' => 'invalid-category',
+            ]);
+        $responseCreateInvalid->assertSessionHasErrors(['name', 'category']);
+
+        // 2. Create valid object
+        $responseCreateSuccess = $this->actingAs($this->adminUser)
+            ->post(route('admin.cultural-objects.store'), [
+                'name' => 'Pura Luhur',
+                'category' => 'temple',
+                'description' => 'Tempat pemujaan suci.',
+                'latitude' => -8.234,
+                'longitude' => 115.345,
+                'ar_marker_id' => 'MARKER_PURA_LUHUR',
+            ]);
+        $responseCreateSuccess->assertRedirect();
+        $this->assertDatabaseHas('cultural_objects', [
+            'name' => 'Pura Luhur',
+            'category' => 'temple',
+            'ar_marker_id' => 'MARKER_PURA_LUHUR',
+        ]);
+
+        $object = CulturalObject::where('name', 'Pura Luhur')->firstOrFail();
+
+        // 3. Update object
+        $responseUpdate = $this->actingAs($this->adminUser)
+            ->put(route('admin.cultural-objects.update', $object->id), [
+                'name' => 'Pura Luhur Updated',
+                'category' => 'house',
+                'description' => 'Tempat pemujaan suci terupdate.',
+                'latitude' => -8.234,
+                'longitude' => 115.345,
+                'ar_marker_id' => 'MARKER_PURA_LUHUR_UPDATED',
+            ]);
+        $responseUpdate->assertRedirect();
+        $this->assertDatabaseHas('cultural_objects', [
+            'id' => $object->id,
+            'name' => 'Pura Luhur Updated',
+            'category' => 'house',
+            'ar_marker_id' => 'MARKER_PURA_LUHUR_UPDATED',
+        ]);
+
+        // 4. Delete object
+        $responseDelete = $this->actingAs($this->adminUser)
+            ->delete(route('admin.cultural-objects.destroy', $object->id));
+        $responseDelete->assertRedirect();
+        $this->assertDatabaseMissing('cultural_objects', [
+            'id' => $object->id,
+        ]);
+    }
+
+    /**
+     * Test UMKM Products CRUD workflows.
+     */
+    public function test_umkm_products_crud(): void
+    {
+        $profile = UmkmProfile::create([
+            'user_id' => $this->adminUser->id,
+            'owner_name' => 'Wayan',
+            'business_name' => 'Kopi Wayan',
+            'slug' => 'kopi-wayan',
+            'category' => 'culinary',
+            'ar_marker_id' => 'UMKM_TEST_MARKER',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('admin.umkm'));
+        $response->assertStatus(200);
+
+        // 1. Create with invalid inputs
+        $responseCreateInvalid = $this->actingAs($this->adminUser)
+            ->post(route('admin.umkm.store'), [
+                'name' => '',
+                'price' => -100,
+            ]);
+        $responseCreateInvalid->assertSessionHasErrors(['name', 'price']);
+
+        // 2. Create valid product
+        $responseCreateSuccess = $this->actingAs($this->adminUser)
+            ->post(route('admin.umkm.store'), [
+                'umkm_profile_id' => $profile->id,
+                'name' => 'Loloh Cemcem Spesial',
+                'description' => 'Minuman herbal daun cemcem khas Penglipuran.',
+                'price' => 5000,
+                'stock' => 100,
+                'unit' => 'botol',
+                'is_active' => true,
+            ]);
+        $responseCreateSuccess->assertRedirect();
+        $this->assertDatabaseHas('umkm_products', [
+            'name' => 'Loloh Cemcem Spesial',
+            'price' => 5000,
+        ]);
+
+        $product = UmkmProduct::where('name', 'Loloh Cemcem Spesial')->firstOrFail();
+
+        // 3. Update product
+        $responseUpdate = $this->actingAs($this->adminUser)
+            ->put(route('admin.umkm.update', $product->id), [
+                'umkm_profile_id' => $profile->id,
+                'name' => 'Loloh Cemcem Premium',
+                'description' => 'Minuman herbal premium.',
+                'price' => 7500,
+                'stock' => 50,
+                'unit' => 'botol',
+                'is_active' => true,
+            ]);
+        $responseUpdate->assertRedirect();
+        $this->assertDatabaseHas('umkm_products', [
+            'id' => $product->id,
+            'name' => 'Loloh Cemcem Premium',
+            'price' => 7500,
+        ]);
+
+        // 4. Delete product
+        $responseDelete = $this->actingAs($this->adminUser)
+            ->delete(route('admin.umkm.destroy', $product->id));
+        $responseDelete->assertRedirect();
+        $this->assertDatabaseMissing('umkm_products', [
+            'id' => $product->id,
+        ]);
+    }
+
+    /**
+     * Test Events CRUD and duration validation workflows.
+     */
+    public function test_events_crud_and_duration_validation(): void
+    {
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('admin.events'));
+        $response->assertStatus(200);
+
+        // 1. Create with invalid duration (end date before start date)
+        $responseCreateInvalid = $this->actingAs($this->adminUser)
+            ->post(route('admin.events.store'), [
+                'name' => 'Festival Budaya',
+                'category' => 'Budaya',
+                'start_date' => '2026-06-10',
+                'start_time' => '10:00',
+                'end_date' => '2026-06-09',
+                'end_time' => '12:00',
+                'location_name' => 'Balai Banjar',
+                'price' => 0,
+            ]);
+        $responseCreateInvalid->assertSessionHasErrors(['end_date']);
+
+        // 2. Create valid
+        $responseCreateSuccess = $this->actingAs($this->adminUser)
+            ->post(route('admin.events.store'), [
+                'name' => 'Festival Budaya Valid',
+                'category' => 'Budaya',
+                'start_date' => '2026-06-10',
+                'start_time' => '10:00',
+                'end_date' => '2026-06-12',
+                'end_time' => '18:00',
+                'location_name' => 'Balai Banjar',
+                'is_free' => '1',
+                'max_participants' => 200,
+            ]);
+        $responseCreateSuccess->assertRedirect();
+        $this->assertDatabaseHas('events', [
+            'name' => 'Festival Budaya Valid',
+            'location_name' => 'Balai Banjar',
+        ]);
+
+        $event = Event::where('name', 'Festival Budaya Valid')->firstOrFail();
+
+        // 3. Edit view renders
+        $responseEdit = $this->actingAs($this->adminUser)
+            ->get(route('admin.events.edit', $event->id));
+        $responseEdit->assertStatus(200);
+
+        // 4. Update event
+        $responseUpdate = $this->actingAs($this->adminUser)
+            ->put(route('admin.events.update', $event->id), [
+                'name' => 'Festival Budaya Updated',
+                'category' => 'Budaya',
+                'start_date' => '2026-06-10',
+                'start_time' => '10:00',
+                'end_date' => '2026-06-13',
+                'end_time' => '18:00',
+                'location_name' => 'Halaman Pura',
+                'is_free' => '1',
+                'max_participants' => 300,
+            ]);
+        $responseUpdate->assertRedirect();
+        $this->assertDatabaseHas('events', [
+            'id' => $event->id,
+            'name' => 'Festival Budaya Updated',
+            'location_name' => 'Halaman Pura',
+        ]);
+
+        // 5. Delete event
+        $responseDelete = $this->actingAs($this->adminUser)
+            ->delete(route('admin.events.destroy', $event->id));
+        $responseDelete->assertRedirect();
+        $this->assertDatabaseMissing('events', [
+            'id' => $event->id,
+        ]);
+    }
+
+    /**
+     * Test Tour Routes CRUD and active toggle workflows.
+     */
+    public function test_tour_routes_crud_and_active_toggle(): void
+    {
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('admin.tour-routes'));
+        $response->assertStatus(200);
+
+        // 1. Create valid route
+        $responseCreate = $this->actingAs($this->adminUser)
+            ->post(route('admin.tour-routes.store'), [
+                'name' => 'Rute Edukasi Alam',
+                'description' => 'Mengeksplorasi hutan bambu dan persawahan.',
+                'estimated_duration_minutes' => 60,
+                'distance_meters' => 1500,
+                'difficulty' => 'easy',
+                'is_smart_route' => false,
+            ]);
+        $responseCreate->assertRedirect();
+        $this->assertDatabaseHas('tour_routes', [
+            'name' => 'Rute Edukasi Alam',
+            'difficulty' => 'easy',
+        ]);
+
+        $route = TourRoute::where('name', 'Rute Edukasi Alam')->firstOrFail();
+
+        // 2. Update route
+        $responseUpdate = $this->actingAs($this->adminUser)
+            ->put(route('admin.tour-routes.update', $route->id), [
+                'name' => 'Rute Edukasi Alam Mod',
+                'description' => 'Jalur trekking hutan bambu.',
+                'estimated_duration_minutes' => 90,
+                'distance_meters' => 2000,
+                'difficulty' => 'moderate',
+                'is_smart_route' => true,
+                'is_active' => true,
+            ]);
+        $responseUpdate->assertRedirect();
+        $this->assertDatabaseHas('tour_routes', [
+            'id' => $route->id,
+            'name' => 'Rute Edukasi Alam Mod',
+            'difficulty' => 'moderate',
+        ]);
+
+        // 3. Toggle active
+        $this->assertTrue($route->fresh()->is_active);
+        $responseToggle = $this->actingAs($this->adminUser)
+            ->patch(route('admin.tour-routes.toggle', $route->id));
+        $responseToggle->assertRedirect();
+        $this->assertFalse($route->fresh()->is_active);
+
+        // 4. Delete route
+        $responseDelete = $this->actingAs($this->adminUser)
+            ->delete(route('admin.tour-routes.destroy', $route->id));
+        $responseDelete->assertRedirect();
+        $this->assertDatabaseMissing('tour_routes', [
+            'id' => $route->id,
+        ]);
+    }
+
+    /**
+     * Test Tour Packages CRUD workflows.
+     */
+    public function test_tour_packages_crud(): void
+    {
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('admin.packages'));
+        $response->assertStatus(200);
+
+        // 1. Create valid package
+        $responseCreate = $this->actingAs($this->adminUser)
+            ->post(route('admin.packages.store'), [
+                'name' => 'Paket Budaya Bali Kuno',
+                'description' => 'Belajar kerajinan tenun dan Loloh Cemcem.',
+                'price' => 150000,
+                'duration_hours' => 4.5,
+                'max_capacity' => 15,
+                'min_party_size' => 2,
+                'inclusions' => ['Pemandu lokal', 'Welcome drink', 'Materi tenun'],
+                'is_active' => true,
+            ]);
+        $responseCreate->assertRedirect();
+        $this->assertDatabaseHas('tour_packages', [
+            'name' => 'Paket Budaya Bali Kuno',
+            'price' => 150000,
+        ]);
+
+        $package = TourPackage::where('name', 'Paket Budaya Bali Kuno')->firstOrFail();
+
+        // 2. Edit route renders
+        $responseEdit = $this->actingAs($this->adminUser)
+            ->get(route('admin.packages.edit', $package->id));
+        $responseEdit->assertStatus(200);
+
+        // 3. Update package
+        $responseUpdate = $this->actingAs($this->adminUser)
+            ->put(route('admin.packages.update', $package->id), [
+                'name' => 'Paket Budaya Bali Kuno Mod',
+                'description' => 'Paket terupdate.',
+                'price' => 180000,
+                'duration_hours' => 5.0,
+                'max_capacity' => 20,
+                'min_party_size' => 1,
+                'inclusions' => ['Pemandu lokal', 'Welcome drink'],
+                'is_active' => true,
+            ]);
+        $responseUpdate->assertRedirect();
+        $this->assertDatabaseHas('tour_packages', [
+            'id' => $package->id,
+            'name' => 'Paket Budaya Bali Kuno Mod',
+            'price' => 180000,
+        ]);
+
+        // 4. Delete package
+        $responseDelete = $this->actingAs($this->adminUser)
+            ->delete(route('admin.packages.destroy', $package->id));
+        $responseDelete->assertRedirect();
+        $this->assertDatabaseMissing('tour_packages', [
+            'id' => $package->id,
+        ]);
+    }
+
+    /**
+     * Test Reservation status update workflows.
+     */
+    public function test_bookings_index_and_status_update(): void
+    {
+        $package = TourPackage::create([
+            'name' => 'Paket Test Booking',
+            'slug' => 'paket-test-booking',
+            'price' => 100000,
+            'duration_hours' => 3.0,
+            'max_capacity' => 10,
+            'is_active' => true,
+        ]);
+
+        $booking = Reservation::create([
+            'user_id' => $this->adminUser->id,
+            'guest_name' => 'Budi Santoso',
+            'guest_email' => 'budi@test.com',
+            'guest_phone' => '08123456789',
+            'tour_package_id' => $package->id,
+            'reservation_type' => 'package',
+            'scheduled_date' => today()->addDays(2),
+            'scheduled_time' => '09:00:00',
+            'party_size' => 3,
+            'total_amount' => 300000,
+            'status' => 'pending',
+            'payment_status' => 'unpaid',
+            'qr_code' => 'QR-BOOKING-TEST',
+        ]);
+
+        // List bookings view
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('admin.bookings'));
+        $response->assertStatus(200);
+        $response->assertSee('Budi Santoso');
+
+        // Filter bookings view by status
+        $responseFilter = $this->actingAs($this->adminUser)
+            ->get(route('admin.bookings', ['status' => 'Aktif']));
+        $responseFilter->assertStatus(200);
+
+        // Update booking status
+        $responseUpdate = $this->actingAs($this->adminUser)
+            ->put(route('admin.bookings.status', $booking->id), [
+                'status' => 'confirmed',
+                'payment_status' => 'paid',
+            ]);
+        $responseUpdate->assertRedirect();
+
+        $this->assertEquals('confirmed', $booking->fresh()->status);
+        $this->assertEquals('paid', $booking->fresh()->payment_status);
+    }
+
+    /**
+     * Test Feedback / Review admin replies and public visibility.
+     */
+    public function test_feedback_index_reply_and_toggle_public(): void
+    {
+        $feedback = Feedback::create([
+            'user_id' => $this->adminUser->id,
+            'feedback_type' => 'general',
+            'rating' => 5,
+            'comment' => 'Kunjungan yang sangat luar biasa indah.',
+            'is_public' => false,
+        ]);
+
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('admin.feedback'));
+        $response->assertStatus(200);
+        $response->assertSee('Kunjungan yang sangat luar biasa indah.');
+
+        // Reply to feedback
+        $responseReply = $this->actingAs($this->adminUser)
+            ->post(route('admin.feedback.reply', $feedback->id), [
+                'admin_response' => 'Terima kasih atas ulasannya!',
+            ]);
+        $responseReply->assertRedirect();
+        $this->assertEquals('Terima kasih atas ulasannya!', $feedback->fresh()->admin_response);
+
+        // Toggle public status
+        $this->assertFalse($feedback->fresh()->is_public);
+        $responseToggle = $this->actingAs($this->adminUser)
+            ->patch(route('admin.feedback.toggle', $feedback->id));
+        $responseToggle->assertRedirect();
+        $this->assertTrue($feedback->fresh()->is_public);
+
+        // Delete feedback
+        $responseDelete = $this->actingAs($this->adminUser)
+            ->delete(route('admin.feedback.destroy', $feedback->id));
+        $responseDelete->assertRedirect();
+        $this->assertDatabaseMissing('feedbacks', [
+            'id' => $feedback->id,
+        ]);
+    }
+
+    /**
+     * Test Report Period filter and Simulated PDF downloads.
+     */
+    public function test_reports_index_and_pdf_download(): void
+    {
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('admin.reports', ['period' => 'Mei 2026']));
+        $response->assertStatus(200);
+        $response->assertSee('Laporan & Analitik');
+
+        // Test download redirects (simulated)
+        $responseDownload = $this->actingAs($this->adminUser)
+            ->get(route('admin.reports.download', ['period' => 'Mei 2026']));
+        $responseDownload->assertRedirect();
+    }
+}

@@ -30,6 +30,13 @@ class Feedback extends Model
     use HasFactory;
 
     /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'feedbacks';
+
+    /**
      * The attributes that should be cast.
      *
      * @return array<string, string>

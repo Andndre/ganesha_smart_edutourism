@@ -56,16 +56,6 @@ class CulturalObject extends Model
     }
 
     /**
-     * Get the time travel reconstructions for this cultural object.
-     *
-     * @return HasMany<TimeTravelReconstruction>
-     */
-    public function timeTravels(): HasMany
-    {
-        return $this->hasMany(TimeTravelReconstruction::class);
-    }
-
-    /**
      * Get the map location for this cultural object.
      *
      * @return MorphOne<MapLocation>

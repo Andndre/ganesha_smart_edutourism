@@ -140,4 +140,19 @@ class Event extends Model
 
         return $this->current_participants < $this->max_participants;
     }
+
+    /**
+     * Get the category display label.
+     */
+    public function getCategoryLabel(): string
+    {
+        $map = [
+            'ceremony' => 'Upacara Adat',
+            'cultural' => 'Festival',
+            'workshop' => 'Workshop',
+            'culinary' => 'Kuliner',
+        ];
+
+        return $map[$this->category] ?? $this->category;
+    }
 }

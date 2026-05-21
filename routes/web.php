@@ -1,5 +1,15 @@
 <?php
 
+use App\Http\Controllers\Admin\BookingController;
+use App\Http\Controllers\Admin\CapacityController;
+use App\Http\Controllers\Admin\CulturalObjectController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\Admin\FeedbackController;
+use App\Http\Controllers\Admin\PackageController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\TourRouteController;
+use App\Http\Controllers\Admin\UmkmController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -107,51 +117,58 @@ Route::get('/offline', function () {
 
 // Admin Routes
 Route::prefix('admin')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
-    Route::get('/cultural-objects', function () {
-        return view('admin.cultural-objects.index');
-    })->name('admin.cultural-objects');
+    // Capacity Zone Routes
+    Route::get('/capacity', [CapacityController::class, 'index'])->name('admin.capacity');
+    Route::put('/capacity/{id}/thresholds', [CapacityController::class, 'updateThresholds'])->name('admin.capacity.thresholds');
 
-    Route::get('/umkm', function () {
-        return view('admin.umkm.index');
-    })->name('admin.umkm');
+    // Cultural Object Routes
+    Route::get('/cultural-objects', [CulturalObjectController::class, 'index'])->name('admin.cultural-objects');
+    Route::post('/cultural-objects', [CulturalObjectController::class, 'store'])->name('admin.cultural-objects.store');
+    Route::put('/cultural-objects/{id}', [CulturalObjectController::class, 'update'])->name('admin.cultural-objects.update');
+    Route::delete('/cultural-objects/{id}', [CulturalObjectController::class, 'destroy'])->name('admin.cultural-objects.destroy');
 
-    Route::get('/events', function () {
-        return view('admin.events.index');
-    })->name('admin.events');
+    // UMKM Routes
+    Route::get('/umkm', [UmkmController::class, 'index'])->name('admin.umkm');
+    Route::post('/umkm/products', [UmkmController::class, 'store'])->name('admin.umkm.store');
+    Route::put('/umkm/products/{id}', [UmkmController::class, 'update'])->name('admin.umkm.update');
+    Route::delete('/umkm/products/{id}', [UmkmController::class, 'destroy'])->name('admin.umkm.destroy');
 
-    Route::get('/events/create', function () {
-        return view('admin.events.create');
-    })->name('admin.events.create');
+    // Event Routes
+    Route::get('/events', [EventController::class, 'index'])->name('admin.events');
+    Route::get('/events/create', [EventController::class, 'create'])->name('admin.events.create');
+    Route::post('/events', [EventController::class, 'store'])->name('admin.events.store');
+    Route::get('/events/{id}/edit', [EventController::class, 'edit'])->name('admin.events.edit');
+    Route::put('/events/{id}', [EventController::class, 'update'])->name('admin.events.update');
+    Route::delete('/events/{id}', [EventController::class, 'destroy'])->name('admin.events.destroy');
 
-    Route::get('/tour-routes', function () {
-        return view('admin.tour-routes.index');
-    })->name('admin.tour-routes');
+    // Tour Route Routes
+    Route::get('/tour-routes', [TourRouteController::class, 'index'])->name('admin.tour-routes');
+    Route::post('/tour-routes', [TourRouteController::class, 'store'])->name('admin.tour-routes.store');
+    Route::put('/tour-routes/{id}', [TourRouteController::class, 'update'])->name('admin.tour-routes.update');
+    Route::patch('/tour-routes/{id}/toggle-active', [TourRouteController::class, 'toggleActive'])->name('admin.tour-routes.toggle');
+    Route::delete('/tour-routes/{id}', [TourRouteController::class, 'destroy'])->name('admin.tour-routes.destroy');
 
-    Route::get('/capacity', function () {
-        return view('admin.capacity.index');
-    })->name('admin.capacity');
+    // Tour Package Routes
+    Route::get('/packages', [PackageController::class, 'index'])->name('admin.packages');
+    Route::get('/packages/create', [PackageController::class, 'create'])->name('admin.packages.create');
+    Route::post('/packages', [PackageController::class, 'store'])->name('admin.packages.store');
+    Route::get('/packages/{id}/edit', [PackageController::class, 'edit'])->name('admin.packages.edit');
+    Route::put('/packages/{id}', [PackageController::class, 'update'])->name('admin.packages.update');
+    Route::delete('/packages/{id}', [PackageController::class, 'destroy'])->name('admin.packages.destroy');
 
-    Route::get('/bookings', function () {
-        return view('admin.bookings.index');
-    })->name('admin.bookings');
+    // Booking Routes
+    Route::get('/bookings', [BookingController::class, 'index'])->name('admin.bookings');
+    Route::put('/bookings/{id}/status', [BookingController::class, 'updateStatus'])->name('admin.bookings.status');
 
-    Route::get('/packages', function () {
-        return view('admin.packages.index');
-    })->name('admin.packages');
+    // Feedback Routes
+    Route::get('/feedback', [FeedbackController::class, 'index'])->name('admin.feedback');
+    Route::post('/feedback/{id}/reply', [FeedbackController::class, 'reply'])->name('admin.feedback.reply');
+    Route::patch('/feedback/{id}/toggle-public', [FeedbackController::class, 'togglePublic'])->name('admin.feedback.toggle');
+    Route::delete('/feedback/{id}', [FeedbackController::class, 'destroy'])->name('admin.feedback.destroy');
 
-    Route::get('/packages/create', function () {
-        return view('admin.packages.create');
-    })->name('admin.packages.create');
-
-    Route::get('/feedback', function () {
-        return view('admin.feedback.index');
-    })->name('admin.feedback');
-
-    Route::get('/reports', function () {
-        return view('admin.reports.index');
-    })->name('admin.reports');
+    // Report Routes
+    Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports');
+    Route::get('/reports/download', [ReportController::class, 'downloadPdf'])->name('admin.reports.download');
 });
