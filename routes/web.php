@@ -105,11 +105,6 @@ Route::get('/tour-package/{id}', function () {
     return view('pages.packages.show');
 })->name('tour-package');
 
-// Emergency
-Route::get('/emergency', function () {
-    return view('emergency.index');
-})->name('emergency');
-
 // Offline Page
 Route::get('/offline', function () {
     return view('offline');
