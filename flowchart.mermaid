@@ -40,7 +40,6 @@ flowchart TD
         %% Percabangan Eksplorasi
         TibaDiObjek -->|Eksplorasi Budaya| ScanBudaya[Gunakan AR Marker Budaya]:::process
         ScanBudaya --> Storytelling[Nikmati Digital Storytelling \n Audio & Teks]:::process
-        ScanBudaya --> TimeTravel[Gunakan AR Time Travel \n Lihat Masa Lampau]:::process
         
         TibaDiObjek -->|Eksplorasi Edukasi| TitikBelajar[Akses Virtual Learning Point \n 360° & AR]:::process
         TitikBelajar --> ModulBelajar[Buka Interactive Learning Module \n Video, Audio, Quiz]:::process
@@ -48,7 +47,6 @@ flowchart TD
     end
 
     Storytelling --> KeUMKM([Lanjut ke Area Belanja]):::startEnd
-    TimeTravel --> KeUMKM
     ModulBelajar --> KeUMKM
     BukuSaku --> KeUMKM
 

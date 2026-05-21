@@ -107,20 +107,7 @@ Table cultural_stories {
   ]
 }
 
-Table time_travel_reconstructions {
-  id integer [primary key, not null]
-  cultural_object_id bigint unsigned [not null, ref: > cultural_objects.id]
-  year_represented integer [not null]
-  title varchar(255) [not null]
-  description text [not null]
-  model_3d_path varchar(255) [not null]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
 
-  indexes: [
-    { name: 'time_travel_reconstructions_year_represented_index', columns: [year_represented] }
-  ]
-}
 
 // ============================================
 // UMKM (MICRO BUSINESS)
@@ -448,7 +435,7 @@ Table visitor_logs {
 
 // Cultural Objects relationships
 Ref: cultural_stories.cultural_object_id > cultural_objects.id [delete: cascade]
-Ref: time_travel_reconstructions.cultural_object_id > cultural_objects.id [delete: cascade]
+
 
 // UMKM relationships
 Ref: umkm_profiles.user_id > users.id [delete: set null]
