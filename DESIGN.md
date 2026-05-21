@@ -36,7 +36,7 @@ Sistem tipografi dirancang untuk keterbacaan instan (_glanceability_) di layar k
     - _Penggunaan:_ Label navigasi, harga UMKM, deskripsi rute, status cuaca.
 - **Secondary Font (Editorial/Budaya):** Playfair Display.
     - _Kenapa?_ Memberikan sentuhan klasik Bali tanpa membuat UI terlihat kuno.
-    - _Penggunaan:_ **HANYA** digunakan untuk judul _Digital Storytelling_ atau _headline_ AR Time Travel.
+    - _Penggunaan:_ **HANYA** digunakan untuk judul _Digital Storytelling_, _headline_ halaman budaya, dan nama-nama objek wisata.
 
 ## **4\. Arsitektur Komponen UI Kunci**
 
