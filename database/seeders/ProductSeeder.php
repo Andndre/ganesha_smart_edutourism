@@ -14,7 +14,7 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         // Products from Penglipuran Craft
-        $craft = UmkmProfile::where('slug', 'penglipuran-craft')->first();
+        $craft = UmkmProfile::query()->where('slug', '=', 'penglipuran-craft')->first();
 
         if ($craft) {
             $products = [
@@ -56,7 +56,7 @@ class ProductSeeder extends Seeder
         }
 
         // Products from Souvenir Collection
-        $souvenir = UmkmProfile::where('slug', 'souvenir-collection')->first();
+        $souvenir = UmkmProfile::query()->where('slug', '=', 'souvenir-collection')->first();
 
         if ($souvenir) {
             $products = [
@@ -88,7 +88,7 @@ class ProductSeeder extends Seeder
         }
 
         // Products from Warung Dedari
-        $dedari = UmkmProfile::where('slug', 'warung-dedari')->first();
+        $dedari = UmkmProfile::query()->where('slug', '=', 'warung-dedari')->first();
 
         if ($dedari) {
             $products = [
