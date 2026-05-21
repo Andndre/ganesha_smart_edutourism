@@ -448,10 +448,6 @@
                 });
             });
 
-            document.getElementById('btn-zoom-in').addEventListener('click', function() {
-                map.zoomIn();
-            });
-
             // Update heatmap on map move/zoom
             map.on('moveend', function() {
                 if (heatmapVisible) {

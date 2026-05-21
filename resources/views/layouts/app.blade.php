@@ -38,7 +38,6 @@
 
     @include('components.navigation.header', [
         'showBack' => true,
-        'backUrl' => url()->previous(),
         'headerTitle' => null,
     ])
 

@@ -17,6 +17,7 @@
     /* Base Brand Colors */
     --color-primary: #1e5128; /* Penglipuran Green */
     --color-secondary: #d4af37; /* Bali Gold */
+    --color-accent: #d4af37; /* Bali Gold */
     --color-surface: #faf9f6; /* Off-White Clean */
     --color-charcoal: #191a19; /* High-contrast text */
     --color-warning: #e65100; /* Alert Amber */
@@ -47,17 +48,17 @@
 
     /* Safe area padding for notched phones */
     .pb-sab {
-        padding-bottom: env(safe-area-inset-bottom);
+        padding-bottom: max(1rem, env(safe-area-inset-bottom));
     }
     .pt-sat {
-        padding-top: env(safe-area-inset-top);
+        padding-top: max(1rem, env(safe-area-inset-top));
     }
     .pl-sal {
-        padding-left: env(safe-area-inset-left);
+        padding-left: max(1rem, env(safe-area-inset-left));
     }
     .pr-sar {
-        padding-right: env(safe-area-inset-right);
-    } /* Diperbaiki dari .prsar */
+        padding-right: max(1rem, env(safe-area-inset-right));
+    }
 
     /* Sembunyikan scrollbar tapi tetap bisa di-scroll (untuk carousel horizontal) */
     .no-scrollbar::-webkit-scrollbar {
