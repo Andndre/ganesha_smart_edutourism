@@ -19,11 +19,11 @@ Route::get('/ar-scan', function () {
 
 // UMKM
 Route::get('/umkm', function () {
-    return view('umkm.index');
+    return view('pages.umkm.index');
 })->name('umkm');
 
 Route::get('/umkm/product/{id}', function () {
-    return view('umkm.index', ['title' => 'Produk']);
+    return view('pages.umkm.show');
 })->name('umkm-product');
 
 // Profile
@@ -70,11 +70,11 @@ Route::get('/forgot-password', function () {
 
 // Cultural Objects
 Route::get('/cultural', function () {
-    return view('cultural.index');
+    return view('pages.cultural.index');
 })->name('cultural-objects');
 
 Route::get('/cultural/{id}', function () {
-    return view('home');
+    return view('pages.cultural.show');
 })->name('cultural-object');
 
 // Events
