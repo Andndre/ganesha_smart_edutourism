@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Route;
 
 // Auth Routes (Guest Only)
 Route::middleware('guest')->group(function () {
@@ -10,7 +9,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
-    
+
     Route::get('/forgot-password', function () {
         return view('auth.login');
     })->name('forgot-password');
@@ -113,48 +112,46 @@ Route::prefix('admin')->group(function () {
     })->name('admin.dashboard');
 
     Route::get('/cultural-objects', function () {
-        return view('home');
+        return view('admin.cultural-objects.index');
     })->name('admin.cultural-objects');
 
     Route::get('/umkm', function () {
-        return view('home');
+        return view('admin.umkm.index');
     })->name('admin.umkm');
 
     Route::get('/events', function () {
-        return view('home');
+        return view('admin.events.index');
     })->name('admin.events');
 
     Route::get('/events/create', function () {
-        return view('home');
+        return view('admin.events.create');
     })->name('admin.events.create');
 
     Route::get('/tour-routes', function () {
-        return view('home');
+        return view('admin.tour-routes.index');
     })->name('admin.tour-routes');
 
     Route::get('/capacity', function () {
-        return view('home');
+        return view('admin.capacity.index');
     })->name('admin.capacity');
 
     Route::get('/bookings', function () {
-        return view('home');
+        return view('admin.bookings.index');
     })->name('admin.bookings');
 
     Route::get('/packages', function () {
-        return view('home');
+        return view('admin.packages.index');
     })->name('admin.packages');
 
     Route::get('/packages/create', function () {
-        return view('home');
+        return view('admin.packages.create');
     })->name('admin.packages.create');
 
     Route::get('/feedback', function () {
-        return view('home');
+        return view('admin.feedback.index');
     })->name('admin.feedback');
 
     Route::get('/reports', function () {
-        return view('home');
+        return view('admin.reports.index');
     })->name('admin.reports');
 });
-
-

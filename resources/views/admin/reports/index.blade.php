@@ -1,0 +1,189 @@
+@extends('layouts.admin')
+
+@section('title', 'Laporan & Analitik')
+
+@section('content')
+
+<div class="mb-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+        <h1 class="font-display text-2xl font-bold text-charcoal">Laporan & Analitik</h1>
+        <p class="mt-0.5 text-sm text-gray-500">Ringkasan performa desa wisata secara periodik.</p>
+    </div>
+    <div class="flex items-center gap-2">
+        <select class="rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:border-primary focus:outline-none">
+            <option>Mei 2026</option>
+            <option>April 2026</option>
+            <option>Maret 2026</option>
+        </select>
+        <button class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-600">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Unduh PDF
+        </button>
+    </div>
+</div>
+
+{{-- Monthly KPI Summary --}}
+<div class="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+    @php
+        $kpis = [
+            ['label' => 'Total Pengunjung',  'value' => '14.230', 'delta' => '+18%', 'up' => true],
+            ['label' => 'Total Pendapatan',  'value' => 'Rp 98 Jt', 'delta' => '+22%', 'up' => true],
+            ['label' => 'Tiket Terjual',     'value' => '1.847',  'delta' => '+15%', 'up' => true],
+            ['label' => 'Rating Kepuasan',   'value' => '4.7 ★',  'delta' => '+0.3', 'up' => true],
+        ];
+    @endphp
+    @foreach ($kpis as $k)
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">{{ $k['label'] }}</p>
+            <p class="mt-2 text-2xl font-bold text-charcoal">{{ $k['value'] }}</p>
+            <p class="mt-1 text-xs font-semibold {{ $k['up'] ? 'text-primary' : 'text-warning' }}">{{ $k['delta'] }} {{ $k['up'] ? '↑' : '↓' }} vs. bulan lalu</p>
+        </div>
+    @endforeach
+</div>
+
+{{-- Charts Row --}}
+<div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+        <h3 class="mb-4 font-semibold text-charcoal">Pengunjung per Hari (Mei 2026)</h3>
+        <canvas id="monthlyChart" class="w-full" height="180"></canvas>
+    </div>
+    <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+        <h3 class="mb-4 font-semibold text-charcoal">Pendapatan per Kategori Paket</h3>
+        <div class="space-y-3">
+            @php
+                $revenue = [
+                    ['label' => 'Paket Keluarga 1 Hari', 'amount' => 'Rp 48 Jt', 'pct' => 49],
+                    ['label' => 'Paket Edukasi Budaya',  'amount' => 'Rp 27 Jt', 'pct' => 28],
+                    ['label' => 'Paket Sunrise Trek',    'amount' => 'Rp 14 Jt', 'pct' => 14],
+                    ['label' => 'Lainnya',               'amount' => 'Rp 9 Jt',  'pct' => 9],
+                ];
+            @endphp
+            @foreach ($revenue as $r)
+                <div>
+                    <div class="mb-1 flex items-center justify-between text-sm">
+                        <span class="font-medium text-charcoal">{{ $r['label'] }}</span>
+                        <span class="font-bold text-primary">{{ $r['amount'] }}</span>
+                    </div>
+                    <div class="h-2 overflow-hidden rounded-full bg-gray-100">
+                        <div class="h-full rounded-full bg-primary" style="width: {{ $r['pct'] }}%"></div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+
+{{-- Top Pages / Origin --}}
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+        <h3 class="mb-4 font-semibold text-charcoal">Asal Daerah Wisatawan</h3>
+        <div class="space-y-2">
+            @php
+                $origins = [
+                    ['city' => 'Denpasar', 'pct' => 28],
+                    ['city' => 'Jakarta',  'pct' => 22],
+                    ['city' => 'Surabaya', 'pct' => 16],
+                    ['city' => 'Bandung',  'pct' => 12],
+                    ['city' => 'Lainnya',  'pct' => 22],
+                ];
+            @endphp
+            @foreach ($origins as $o)
+                <div class="flex items-center gap-3">
+                    <span class="w-20 text-sm text-gray-600">{{ $o['city'] }}</span>
+                    <div class="flex-1 h-2 overflow-hidden rounded-full bg-gray-100">
+                        <div class="h-full rounded-full bg-secondary" style="width: {{ $o['pct'] }}%"></div>
+                    </div>
+                    <span class="w-8 text-right text-xs font-bold text-gray-500">{{ $o['pct'] }}%</span>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+        <h3 class="mb-4 font-semibold text-charcoal">Hari Tersibuk Bulan Ini</h3>
+        <div class="space-y-2">
+            @php
+                $busyDays = [
+                    ['day' => 'Sabtu',  'visitors' => '730', 'pct' => 100],
+                    ['day' => 'Minggu', 'visitors' => '680', 'pct' => 93],
+                    ['day' => "Jum'at", 'visitors' => '510', 'pct' => 70],
+                    ['day' => 'Kamis',  'visitors' => '490', 'pct' => 67],
+                    ['day' => 'Rabu',   'visitors' => '380', 'pct' => 52],
+                ];
+            @endphp
+            @foreach ($busyDays as $d)
+                <div class="flex items-center gap-3">
+                    <span class="w-16 text-sm text-gray-600">{{ $d['day'] }}</span>
+                    <div class="flex-1 h-2 overflow-hidden rounded-full bg-gray-100">
+                        <div class="h-full rounded-full bg-primary" style="width: {{ $d['pct'] }}%"></div>
+                    </div>
+                    <span class="w-12 text-right text-xs font-bold text-gray-500">{{ $d['visitors'] }}</span>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@push('scripts')
+<script>
+    (function () {
+        const canvas = document.getElementById('monthlyChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        const W = canvas.offsetWidth;
+        const H = 180;
+        canvas.width  = W * dpr;
+        canvas.height = H * dpr;
+        canvas.style.height = H + 'px';
+        ctx.scale(dpr, dpr);
+
+        // 21 days of mock data
+        const data = [280,320,290,450,610,730,617,310,340,380,420,500,560,620,710,680,590,540,480,430,617];
+        const max = Math.max(...data) * 1.15;
+        const padL = 36, padR = 12, padT = 12, padB = 28;
+        const chartW = W - padL - padR;
+        const chartH = H - padT - padB;
+
+        // Area fill
+        ctx.beginPath();
+        data.forEach((v, i) => {
+            const x = padL + (i / (data.length - 1)) * chartW;
+            const y = padT + chartH - (v / max) * chartH;
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        });
+        ctx.lineTo(padL + chartW, padT + chartH);
+        ctx.lineTo(padL, padT + chartH);
+        ctx.closePath();
+        const grad = ctx.createLinearGradient(0, padT, 0, padT + chartH);
+        grad.addColorStop(0, '#1e512830');
+        grad.addColorStop(1, '#1e512800');
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Line
+        ctx.beginPath();
+        data.forEach((v, i) => {
+            const x = padL + (i / (data.length - 1)) * chartW;
+            const y = padT + chartH - (v / max) * chartH;
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = '#1e5128';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // X labels (every 7 days)
+        ctx.fillStyle = '#9ca3af';
+        ctx.font = '10px Plus Jakarta Sans, sans-serif';
+        ctx.textAlign = 'center';
+        [1, 7, 14, 21].forEach(d => {
+            const x = padL + ((d - 1) / (data.length - 1)) * chartW;
+            ctx.fillText(d + ' Mei', x, H - 6);
+        });
+    })();
+</script>
+@endpush
