@@ -30,8 +30,8 @@
 
             @if ($isMainTab)
                 {{-- Main tabs: show logo (dark variant for pill) --}}
-                <img src="{{ asset('icons/logo-wht-notext.png') }}" alt="Penglipuran Logo"
-                    class="h-8 w-auto object-contain brightness-0 opacity-80">
+                <img src="{{ asset('icons/logo-color-notext.png') }}" alt="Penglipuran Logo"
+                    class="h-8 w-auto object-contain opacity-90">
                 <span class="text-label font-bold tracking-tight text-charcoal truncate max-w-[150px]">
                     @hasSection('header_title')
                         @yield('header_title')

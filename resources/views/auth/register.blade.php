@@ -8,7 +8,7 @@
         {{-- Hero / Brand Header --}}
         <div class="mx-auto w-full max-w-sm text-center">
             <div class="mb-6 flex justify-center">
-                <img src="{{ asset('icons/logo-blck.png') }}" alt="Penglipuran Logo" class="h-24 w-auto object-contain">
+                <img src="{{ asset('icons/logo-color.png') }}" alt="Penglipuran Logo" class="h-24 w-auto object-contain">
             </div>
 
             <h1 class="font-display text-charcoal text-3xl font-bold">Buat Akun</h1>
