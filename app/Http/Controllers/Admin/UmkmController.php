@@ -157,4 +157,130 @@ class UmkmController extends Controller
 
         return redirect()->route('admin.umkm')->with('success', 'Produk UMKM berhasil dihapus.');
     }
+
+    /**
+     * Store a newly created UMKM profile in storage.
+     */
+    public function storeProfile(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'business_name' => ['required', 'string', 'max:255'],
+            'owner_name' => ['required', 'string', 'max:255'],
+            'category' => ['required', 'string', 'in:culinary,craft,souvenir,service'],
+            'description' => ['nullable', 'string'],
+            'ar_marker_id' => ['nullable', 'string', 'max:255'],
+            'rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
+            'is_active' => ['nullable', 'boolean'],
+            'latitude' => ['required', 'numeric', 'between:-90,90'],
+            'longitude' => ['required', 'numeric', 'between:-180,180'],
+            'is_accessible' => ['nullable', 'boolean'],
+            'accessibility_notes' => ['nullable', 'string'],
+        ]);
+
+        $validated['is_active'] = $request->has('is_active');
+
+        if (empty($validated['ar_marker_id'])) {
+            $validated['ar_marker_id'] = 'UMKM_'.strtoupper(Str::random(8));
+        }
+
+        $slug = Str::slug($validated['business_name']);
+        $originalSlug = $slug;
+        $count = 1;
+        while (UmkmProfile::where('slug', $slug)->exists()) {
+            $slug = $originalSlug.'-'.$count++;
+        }
+        $validated['slug'] = $slug;
+
+        $latitude = $validated['latitude'];
+        $longitude = $validated['longitude'];
+        $is_accessible = $request->has('is_accessible');
+        $accessibility_notes = $validated['accessibility_notes'] ?? null;
+
+        unset($validated['latitude'], $validated['longitude'], $validated['is_accessible'], $validated['accessibility_notes']);
+
+        $profile = UmkmProfile::create($validated);
+
+        $profile->mapLocation()->create([
+            'name' => $profile->business_name,
+            'category' => 'umkm',
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'is_accessible' => $is_accessible,
+            'accessibility_notes' => $accessibility_notes,
+        ]);
+
+        return redirect()->route('admin.map-manager')->with('success', 'Profil UMKM berhasil ditambahkan.');
+    }
+
+    /**
+     * Update the specified UMKM profile in storage.
+     */
+    public function updateProfile(Request $request, int $id): RedirectResponse
+    {
+        $profile = UmkmProfile::findOrFail($id);
+
+        $validated = $request->validate([
+            'business_name' => ['required', 'string', 'max:255'],
+            'owner_name' => ['required', 'string', 'max:255'],
+            'category' => ['required', 'string', 'in:culinary,craft,souvenir,service'],
+            'description' => ['nullable', 'string'],
+            'ar_marker_id' => ['nullable', 'string', 'max:255'],
+            'rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
+            'is_active' => ['nullable', 'boolean'],
+            'latitude' => ['required', 'numeric', 'between:-90,90'],
+            'longitude' => ['required', 'numeric', 'between:-180,180'],
+            'is_accessible' => ['nullable', 'boolean'],
+            'accessibility_notes' => ['nullable', 'string'],
+        ]);
+
+        $validated['is_active'] = $request->has('is_active');
+
+        if (empty($validated['ar_marker_id'])) {
+            $validated['ar_marker_id'] = 'UMKM_'.strtoupper(Str::random(8));
+        }
+
+        if ($profile->business_name !== $validated['business_name']) {
+            $slug = Str::slug($validated['business_name']);
+            $originalSlug = $slug;
+            $count = 1;
+            while (UmkmProfile::where('slug', $slug)->where('id', '!=', $id)->exists()) {
+                $slug = $originalSlug.'-'.$count++;
+            }
+            $validated['slug'] = $slug;
+        }
+
+        $latitude = $validated['latitude'];
+        $longitude = $validated['longitude'];
+        $is_accessible = $request->has('is_accessible');
+        $accessibility_notes = $validated['accessibility_notes'] ?? null;
+
+        unset($validated['latitude'], $validated['longitude'], $validated['is_accessible'], $validated['accessibility_notes']);
+
+        $profile->update($validated);
+
+        $profile->mapLocation()->updateOrCreate(
+            [],
+            [
+                'name' => $profile->business_name,
+                'category' => 'umkm',
+                'latitude' => $latitude,
+                'longitude' => $longitude,
+                'is_accessible' => $is_accessible,
+                'accessibility_notes' => $accessibility_notes,
+            ]
+        );
+
+        return redirect()->route('admin.map-manager')->with('success', 'Profil UMKM berhasil diperbarui.');
+    }
+
+    /**
+     * Remove the specified UMKM profile from storage.
+     */
+    public function destroyProfile(int $id): RedirectResponse
+    {
+        $profile = UmkmProfile::findOrFail($id);
+        $profile->delete();
+
+        return redirect()->route('admin.map-manager')->with('success', 'Profil UMKM berhasil dihapus.');
+    }
 }

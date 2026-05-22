@@ -5,7 +5,9 @@ use App\Http\Controllers\Admin\CapacityController;
 use App\Http\Controllers\Admin\CulturalObjectController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\FeedbackController;
+use App\Http\Controllers\Admin\MapManagerController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TourRouteController;
@@ -125,16 +127,26 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::put('/capacity/{id}/thresholds', [CapacityController::class, 'updateThresholds'])->name('admin.capacity.thresholds');
 
     // Cultural Object Routes
-    Route::get('/cultural-objects', [CulturalObjectController::class, 'index'])->name('admin.cultural-objects');
     Route::post('/cultural-objects', [CulturalObjectController::class, 'store'])->name('admin.cultural-objects.store');
     Route::put('/cultural-objects/{id}', [CulturalObjectController::class, 'update'])->name('admin.cultural-objects.update');
     Route::delete('/cultural-objects/{id}', [CulturalObjectController::class, 'destroy'])->name('admin.cultural-objects.destroy');
+
+    // Facility Routes
+    Route::post('/facilities', [FacilityController::class, 'store'])->name('admin.facilities.store');
+    Route::put('/facilities/{facility}', [FacilityController::class, 'update'])->name('admin.facilities.update');
+    Route::delete('/facilities/{facility}', [FacilityController::class, 'destroy'])->name('admin.facilities.destroy');
 
     // UMKM Routes
     Route::get('/umkm', [UmkmController::class, 'index'])->name('admin.umkm');
     Route::post('/umkm/products', [UmkmController::class, 'store'])->name('admin.umkm.store');
     Route::put('/umkm/products/{id}', [UmkmController::class, 'update'])->name('admin.umkm.update');
     Route::delete('/umkm/products/{id}', [UmkmController::class, 'destroy'])->name('admin.umkm.destroy');
+    Route::post('/umkm/profiles', [UmkmController::class, 'storeProfile'])->name('admin.umkm.profile.store');
+    Route::put('/umkm/profiles/{id}', [UmkmController::class, 'updateProfile'])->name('admin.umkm.profile.update');
+    Route::delete('/umkm/profiles/{id}', [UmkmController::class, 'destroyProfile'])->name('admin.umkm.profile.destroy');
+
+    // Map Manager Routes
+    Route::get('/map-manager', [MapManagerController::class, 'index'])->name('admin.map-manager');
 
     // Event Routes
     Route::get('/events', [EventController::class, 'index'])->name('admin.events');

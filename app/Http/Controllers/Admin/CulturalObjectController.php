@@ -7,30 +7,9 @@ use App\Models\CulturalObject;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\View\View;
 
 class CulturalObjectController extends Controller
 {
-    /**
-     * Display a listing of cultural objects.
-     */
-    public function index(Request $request): View
-    {
-        $query = CulturalObject::query();
-
-        if ($request->filled('search')) {
-            $query->where('name', 'like', '%'.$request->search.'%');
-        }
-
-        if ($request->filled('category') && $request->category !== 'Semua Kategori') {
-            $query->category($request->category);
-        }
-
-        $objects = $query->paginate(10)->withQueryString();
-
-        return view('admin.cultural-objects.index', compact('objects'));
-    }
-
     /**
      * Store a newly created cultural object in storage.
      */
@@ -73,22 +52,28 @@ class CulturalObjectController extends Controller
         if (empty($validated['description'])) {
             $validated['description'] = 'Deskripsi untuk '.$validated['name'];
         }
-        if (empty($validated['latitude'])) {
-            $validated['latitude'] = -8.5878;
-        }
-        if (empty($validated['longitude'])) {
-            $validated['longitude'] = 115.1622;
-        }
         if (empty($validated['ar_marker_id'])) {
             $validated['ar_marker_id'] = 'MARKER_'.strtoupper(Str::random(8));
         }
 
+        $latitude = $validated['latitude'] ?? -8.4217504;
+        $longitude = $validated['longitude'] ?? 115.3590021;
+
         // Clean up temporary variables not in DB schema
-        unset($validated['model_3d_file'], $validated['audio_narration_file']);
+        unset($validated['model_3d_file'], $validated['audio_narration_file'], $validated['latitude'], $validated['longitude']);
 
-        CulturalObject::create($validated);
+        $object = CulturalObject::create($validated);
 
-        return redirect()->route('admin.cultural-objects')->with('success', 'Objek budaya berhasil ditambahkan.');
+        $object->mapLocation()->create([
+            'name' => $object->name,
+            'category' => 'cultural',
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'is_accessible' => true,
+            'accessibility_notes' => 'Akses jalan datar ramah kursi roda dan stroller bayi.',
+        ]);
+
+        return redirect()->route('admin.map-manager')->with('success', 'Objek budaya berhasil ditambahkan.');
     }
 
     /**
@@ -141,22 +126,31 @@ class CulturalObjectController extends Controller
         if (empty($validated['description'])) {
             $validated['description'] = 'Deskripsi untuk '.$validated['name'];
         }
-        if (empty($validated['latitude'])) {
-            $validated['latitude'] = -8.5878;
-        }
-        if (empty($validated['longitude'])) {
-            $validated['longitude'] = 115.1622;
-        }
         if (empty($validated['ar_marker_id'])) {
             $validated['ar_marker_id'] = 'MARKER_'.strtoupper(Str::random(8));
         }
 
+        $latitude = $validated['latitude'] ?? -8.4217504;
+        $longitude = $validated['longitude'] ?? 115.3590021;
+
         // Clean up temporary variables not in DB schema
-        unset($validated['model_3d_file'], $validated['audio_narration_file']);
+        unset($validated['model_3d_file'], $validated['audio_narration_file'], $validated['latitude'], $validated['longitude']);
 
         $object->update($validated);
 
-        return redirect()->route('admin.cultural-objects')->with('success', 'Objek budaya berhasil diperbarui.');
+        $object->mapLocation()->updateOrCreate(
+            [],
+            [
+                'name' => $object->name,
+                'category' => 'cultural',
+                'latitude' => $latitude,
+                'longitude' => $longitude,
+                'is_accessible' => true,
+                'accessibility_notes' => 'Akses jalan datar ramah kursi roda dan stroller bayi.',
+            ]
+        );
+
+        return redirect()->route('admin.map-manager')->with('success', 'Objek budaya berhasil diperbarui.');
     }
 
     /**
@@ -167,6 +161,6 @@ class CulturalObjectController extends Controller
         $object = CulturalObject::findOrFail($id);
         $object->delete();
 
-        return redirect()->route('admin.cultural-objects')->with('success', 'Objek budaya berhasil dihapus.');
+        return redirect()->route('admin.map-manager')->with('success', 'Objek budaya berhasil dihapus.');
     }
 }

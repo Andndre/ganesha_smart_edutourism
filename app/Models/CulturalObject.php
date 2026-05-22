@@ -19,8 +19,6 @@ use Illuminate\Support\Carbon;
  * @property string $slug
  * @property string|null $description
  * @property string|null $category
- * @property float|null $latitude
- * @property float|null $longitude
  * @property string|null $ar_marker_id
  * @property string|null $model_3d_path
  * @property array|null $historical_images
@@ -28,7 +26,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'slug', 'description', 'category', 'latitude', 'longitude', 'ar_marker_id', 'model_3d_path', 'historical_images', 'audio_narration_path'])]
+#[Fillable(['name', 'slug', 'description', 'category', 'ar_marker_id', 'model_3d_path', 'historical_images', 'audio_narration_path'])]
 class CulturalObject extends Model
 {
     use HasFactory;
@@ -43,6 +41,16 @@ class CulturalObject extends Model
         return [
             'historical_images' => 'array',
         ];
+    }
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::deleted(function (CulturalObject $culturalObject) {
+            $culturalObject->mapLocation()->delete();
+        });
     }
 
     /**
@@ -83,7 +91,7 @@ class CulturalObject extends Model
      */
     public function scopeWithCoordinates(Builder $query)
     {
-        return $query->whereNotNull('latitude')->whereNotNull('longitude');
+        return $query->whereHas('mapLocation');
     }
 
     /**

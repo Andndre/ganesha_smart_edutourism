@@ -19,6 +19,17 @@
     <div id="filter-panel" class="mt-3 hidden rounded-2xl bg-white px-4 py-3 shadow-md">
         <p class="mb-3 text-xs font-semibold text-gray-500">KATEGORI</p>
         <div class="flex flex-col gap-2">
+            <label class="filter-toggle flex cursor-pointer items-center gap-3" data-filter="cultural">
+                <input type="checkbox" class="sr-only" checked />
+                <span class="filter-checkbox checked">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                </span>
+                <span class="filter-label flex-1 text-sm font-medium text-gray-700">Objek Budaya</span>
+                <span class="filter-dot" style="background: #1E5128;"></span>
+            </label>
+
             <label class="filter-toggle flex cursor-pointer items-center gap-3" data-filter="umkm">
                 <input type="checkbox" class="sr-only" checked />
                 <span class="filter-checkbox checked">

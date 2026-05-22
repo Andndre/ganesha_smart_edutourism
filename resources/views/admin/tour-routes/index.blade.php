@@ -26,7 +26,15 @@
                 <div>
                     <h3 class="font-semibold text-charcoal">{{ $route->name }}</h3>
                     <span class="mt-1 inline-block rounded-lg bg-primary/8 px-2.5 py-0.5 text-xs font-semibold text-primary">
-                        {{ $route->difficulty }}
+                        @if ($route->difficulty === 'easy')
+                            Mudah
+                        @elseif ($route->difficulty === 'moderate')
+                            Sedang
+                        @elseif ($route->difficulty === 'challenging')
+                            Sulit
+                        @else
+                            {{ $route->difficulty }}
+                        @endif
                     </span>
                     @if ($route->is_smart_route)
                         <span class="mt-1 inline-block rounded-lg bg-secondary/10 px-2.5 py-0.5 text-xs font-semibold text-secondary-800">
@@ -85,7 +93,7 @@
                                 : 'border-2 border-gray-300 bg-white' }}">
                         </span>
                         <p class="pl-2 text-sm {{ $i === 0 || $i === count($route->routePoints) - 1 ? 'font-semibold text-charcoal' : 'text-gray-500' }}">
-                            {{ $point->locationable ? $point->locationable->name : ($point->storytelling_content ?? 'Titik Kunjungan') }}
+                            {{ $point->locationable ? ($point->locationable->name ?? $point->locationable->business_name) : ($point->storytelling_content ?? 'Titik Kunjungan') }}
                         </p>
                     </div>
                 @empty

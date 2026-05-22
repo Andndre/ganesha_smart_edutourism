@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -20,8 +21,6 @@ use Illuminate\Support\Carbon;
  * @property Carbon $start_datetime
  * @property Carbon $end_datetime
  * @property string|null $location_name
- * @property float|null $latitude
- * @property float|null $longitude
  * @property bool $is_free
  * @property float|null $price
  * @property int|null $max_participants
@@ -30,7 +29,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'slug', 'description', 'category', 'start_datetime', 'end_datetime', 'location_name', 'latitude', 'longitude', 'is_free', 'price', 'max_participants', 'current_participants', 'registration_url'])]
+#[Fillable(['name', 'slug', 'description', 'category', 'start_datetime', 'end_datetime', 'location_name', 'is_free', 'price', 'max_participants', 'current_participants', 'registration_url'])]
 class Event extends Model
 {
     use HasFactory;
@@ -48,6 +47,26 @@ class Event extends Model
             'is_free' => 'boolean',
             'price' => 'decimal:2',
         ];
+    }
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::deleted(function (Event $event) {
+            $event->mapLocation()->delete();
+        });
+    }
+
+    /**
+     * Get the map location for this event.
+     *
+     * @return MorphOne<MapLocation>
+     */
+    public function mapLocation(): MorphOne
+    {
+        return $this->morphOne(MapLocation::class, 'locationable');
     }
 
     /**

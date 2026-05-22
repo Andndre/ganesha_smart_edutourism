@@ -65,11 +65,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Latitude (opsional)</label>
-                        <input type="number" step="any" name="latitude" value="{{ old('latitude', $event->latitude ?? '') }}" placeholder="Contoh: -8.4312" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
+                        <input type="number" step="any" name="latitude" value="{{ old('latitude', $event->mapLocation->latitude ?? '') }}" placeholder="Contoh: -8.4312" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Longitude (opsional)</label>
-                        <input type="number" step="any" name="longitude" value="{{ old('longitude', $event->longitude ?? '') }}" placeholder="Contoh: 115.3421" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
+                        <input type="number" step="any" name="longitude" value="{{ old('longitude', $event->mapLocation->longitude ?? '') }}" placeholder="Contoh: 115.3521" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
                     </div>
                 </div>
             </div>

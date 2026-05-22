@@ -24,10 +24,10 @@ class CulturalObjectResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             'category' => $this->category,
-            'location' => [
-                'latitude' => (float) $this->latitude,
-                'longitude' => (float) $this->longitude,
-            ],
+            'location' => $this->whenLoaded('mapLocation', fn () => [
+                'latitude' => (float) $this->mapLocation->latitude,
+                'longitude' => (float) $this->mapLocation->longitude,
+            ], null),
             'ar_marker_id' => $this->ar_marker_id,
             'has_3d_model' => ! empty($this->model_3d_path),
             'has_audio' => ! empty($this->audio_narration_path),
