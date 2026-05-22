@@ -5,6 +5,15 @@
 @section('content')
     <div class="px-4 pb-24 pt-[calc(env(safe-area-inset-top)+6rem)]">
 
+        @if (session('success'))
+            <div class="mb-4 rounded-2xl bg-green-50 p-4 border border-green-100 text-sm text-green-700 flex items-center gap-2">
+                <svg class="h-5 w-5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
+
         <!-- User Info Card -->
         <div class="mb-6 flex items-center gap-4 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm">
             <div
@@ -15,8 +24,8 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-charcoal text-xl font-bold">Andre Kusuma</h2>
-                <p class="text-sm text-gray-500">andre@test.com</p>
+                <h2 class="text-charcoal text-xl font-bold">{{ Auth::user()->name }}</h2>
+                <p class="text-sm text-gray-500">{{ str(Auth::user()->email)->before('@')->substr(0, 2)->append('***@')->append(str(Auth::user()->email)->after('@')) }}</p>
                 <div class="mt-1 flex items-center gap-1">
                     <span class="h-2 w-2 rounded-full bg-green-500"></span>
                     <span class="text-xs font-semibold text-green-600">Akun Terverifikasi</span>
@@ -90,6 +99,22 @@
         <!-- Other Menu Options -->
         <h3 class="text-charcoal mb-4 text-lg font-bold">Pengaturan</h3>
         <div class="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
+            <a href="{{ route('profile.edit') }}"
+                class="flex items-center justify-between border-b border-gray-50 p-4 active:bg-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-50 text-green-600">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    <span class="text-charcoal text-sm font-medium">Ubah Profil</span>
+                </div>
+                <svg class="h-4 w-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+
             <a href="#" class="flex items-center justify-between border-b border-gray-50 p-4 active:bg-gray-50">
                 <div class="flex items-center gap-3">
                     <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-blue-600">
