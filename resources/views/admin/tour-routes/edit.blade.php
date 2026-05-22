@@ -106,15 +106,15 @@
                 <div class="mb-4">
                     <label class="mb-1.5 block text-xs font-bold text-gray-500 uppercase">Mode Rute Peta</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <button type="button" id="mode-auto-label" onclick="setRoutingMode('auto')" 
-                            class="flex items-center justify-center gap-2 rounded-xl border border-primary bg-primary/5 p-2.5 cursor-pointer select-none transition-all hover:bg-gray-50 text-left">
+                        <label id="mode-auto-label" class="flex cursor-pointer items-center justify-center gap-2 rounded-xl {{ $route->is_manual_routing ? 'border-gray-200' : 'border-primary bg-primary/5' }} px-4 py-2.5 text-xs font-semibold text-charcoal transition-all hover:bg-gray-50">
+                            <input type="radio" name="routing_mode" value="auto" {{ !$route->is_manual_routing ? 'checked' : '' }} onchange="setRoutingMode('auto')" class="sr-only">
                             <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
-                            <span class="text-xs font-semibold text-gray-700">Otomatis (OSRM)</span>
-                        </button>
-                        <button type="button" id="mode-manual-label" onclick="setRoutingMode('manual')" 
-                            class="flex items-center justify-center gap-2 rounded-xl border border-gray-200 p-2.5 cursor-pointer select-none transition-all hover:bg-gray-50 text-left">
+                            Otomatis (ORS)
+                        </label>
+                        <label id="mode-manual-label" class="flex cursor-pointer items-center justify-center gap-2 rounded-xl {{ $route->is_manual_routing ? 'border-primary bg-primary/5' : 'border-gray-200' }} px-4 py-2.5 text-xs font-semibold text-charcoal transition-all hover:bg-gray-50">
+                            <input type="radio" name="routing_mode" value="manual" {{ $route->is_manual_routing ? 'checked' : '' }} onchange="setRoutingMode('manual')" class="sr-only">
                             <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
@@ -643,22 +643,28 @@
             return;
         }
 
-        // Build coordinates format: Lng,Lat;Lng,Lat;...
-        const coords = selectedPoints.map(p => `${p.longitude},${p.latitude}`).join(';');
-        const url = `https://router.project-osrm.org/route/v1/foot/${coords}?overview=full&geometries=geojson`;
+        // Build coordinates format: [[Lng, Lat], [Lng, Lat], ...]
+        const coords = selectedPoints.map(p => [parseFloat(p.longitude), parseFloat(p.latitude)]);
 
         try {
-            const response = await fetch(url);
+            const response = await fetch('/admin/api/routing/directions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ coordinates: coords })
+            });
             const data = await response.json();
 
-            if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
-                const route = data.routes[0];
-                const distance = Math.round(route.distance); // in meters
-                const walkingDuration = Math.round(route.duration / 60); // in minutes
+            if (response.ok && data.features && data.features.length > 0) {
+                const route = data.features[0];
+                const distance = Math.round(route.properties.summary.distance); // in meters
+                const walkingDuration = Math.round(route.properties.summary.duration / 60); // in minutes
 
-                // Auto-detect if saved route was manual (because OSRM returned 0 but db initialDistance is > 0)
+                // Auto-detect if saved route was manual (because ORS returned 0 but db initialDistance is > 0)
                 if (distance === 0 && initialDistance > 0 && currentRoutingMode === 'auto') {
-                    console.log('OSRM returned 0m, but saved route has distance. Auto switching to manual mode.');
+                    console.log('ORS returned 0m, but saved route has distance. Auto switching to manual mode.');
                     setRoutingMode('manual');
                     return;
                 }

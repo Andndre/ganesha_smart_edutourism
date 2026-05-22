@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TourRouteController;
 use App\Http\Controllers\Admin\UmkmController;
+use App\Http\Controllers\Api\RoutingController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExploreController;
 use App\Http\Controllers\HomeController;
@@ -142,6 +143,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/events/{id}/edit', [EventController::class, 'edit'])->name('admin.events.edit');
     Route::put('/events/{id}', [EventController::class, 'update'])->name('admin.events.update');
     Route::delete('/events/{id}', [EventController::class, 'destroy'])->name('admin.events.destroy');
+
+    // Routing API Proxy
+    Route::post('/api/routing/directions', [RoutingController::class, 'directions'])->name('admin.routing.directions');
 
     // Tour Route Routes
     Route::get('/tour-routes', [TourRouteController::class, 'index'])->name('admin.tour-routes');
