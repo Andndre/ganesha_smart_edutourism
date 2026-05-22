@@ -28,3 +28,8 @@ Thumbs.db
 .agents/
 # *.md
 !README.md
+/openrouteservice/files/
+/openrouteservice/graphs/
+/openrouteservice/logs/
+/openrouteservice/config/example-ors-config.env
+/openrouteservice/config/example-ors-config.yml

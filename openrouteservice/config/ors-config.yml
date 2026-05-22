@@ -1,0 +1,23 @@
+ors:
+  engine:
+    profile_default:
+      build:
+        source_file: /home/ors/files/bali.osm.pbf
+    profiles:
+      foot-walking:
+        enabled: true
+        profile: foot-walking
+        encoder_options:
+          block_fords: false
+        preparation:
+          min_network_size: 20
+          methods:
+            ch:
+              enabled: true
+              threads: 1
+              weightings: fastest
+            lm:
+              enabled: true
+              threads: 1
+              weightings: fastest
+              landmarks: 16

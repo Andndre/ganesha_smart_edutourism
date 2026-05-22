@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'ors' => [
+        'base_url' => env('ORS_BASE_URL', 'http://localhost:8080'),
+    ],
+
 ];
