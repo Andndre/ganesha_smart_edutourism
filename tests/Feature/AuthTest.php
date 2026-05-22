@@ -64,6 +64,25 @@ class AuthTest extends TestCase
     }
 
     /**
+     * Test admin users are redirected to the admin dashboard after login.
+     */
+    public function test_admin_users_are_redirected_to_admin_dashboard_after_login(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'admin',
+            'password' => Hash::make('password123'),
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password123',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect('/admin/dashboard');
+    }
+
+    /**
      * Test users cannot authenticate with invalid password.
      */
     public function test_users_cannot_authenticate_with_invalid_password(): void
