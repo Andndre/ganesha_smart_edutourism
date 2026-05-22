@@ -135,8 +135,8 @@
 </div>
 
 {{-- Edit Threshold Modal --}}
-<div id="threshold-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-    <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-xl animate-fade-in">
+<div id="threshold-modal" class="fixed inset-0 z-50 hidden overflow-y-auto p-4 bg-black/50 backdrop-blur-sm justify-center">
+    <div class="w-full max-w-md my-auto self-start overflow-hidden rounded-2xl bg-white shadow-xl animate-fade-in">
         <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
             <h3 class="font-display text-lg font-bold text-charcoal">Edit Ambang Batas <span id="modal-zone-name" class="text-gray-400"></span></h3>
             <button onclick="closeThresholdModal()" class="text-gray-400 hover:text-gray-600 focus:outline-none">
