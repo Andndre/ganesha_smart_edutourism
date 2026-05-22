@@ -100,8 +100,41 @@
                     <svg class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
-                    Kalkulasi Jarak & Durasi (OSRM)
+                    Mode & Kalkulasi Rute
                 </h2>
+
+                <div class="mb-4">
+                    <label class="mb-1.5 block text-xs font-bold text-gray-500 uppercase">Mode Rute Peta</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" id="mode-auto-label" onclick="setRoutingMode('auto')" 
+                            class="flex items-center justify-center gap-2 rounded-xl border border-primary bg-primary/5 p-2.5 cursor-pointer select-none transition-all hover:bg-gray-50 text-left">
+                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            <span class="text-xs font-semibold text-gray-700">Otomatis (OSRM)</span>
+                        </button>
+                        <button type="button" id="mode-manual-label" onclick="setRoutingMode('manual')" 
+                            class="flex items-center justify-center gap-2 rounded-xl border border-gray-200 p-2.5 cursor-pointer select-none transition-all hover:bg-gray-50 text-left">
+                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                            <span class="text-xs font-semibold text-gray-700">Garis Lurus</span>
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Routing warning banner --}}
+                <div id="routing-warning" class="hidden mb-4 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
+                    <div class="flex items-start gap-2">
+                        <svg class="h-4 w-4 shrink-0 text-amber-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <div>
+                            <span class="font-bold">Info:</span> Jarak rute terdeteksi 0 m. Ini biasanya terjadi karena titik berada di dalam area bebas kendaraan/desa adat yang dibatasi oleh OSRM. Silakan klik tombol <strong>Garis Lurus</strong> di atas.
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-2 gap-4">
                     <div class="rounded-xl bg-gray-50 p-4 border border-gray-100">
                         <span class="text-xs text-gray-400 font-semibold block uppercase">Total Jarak</span>
@@ -115,7 +148,7 @@
                     </div>
                 </div>
                 <p class="mt-2.5 text-[11px] text-gray-400 italic leading-relaxed">
-                    * Durasi dihitung otomatis berdasarkan akumulasi waktu perjalanan kaki (OSRM) dan estimasi durasi kunjungan di setiap titik.
+                    * Durasi dihitung otomatis berdasarkan akumulasi waktu perjalanan kaki dan estimasi durasi kunjungan di setiap titik.
                 </p>
             </div>
 
@@ -214,6 +247,8 @@
 
     let selectedPoints = []; // items: { id, name, category, latitude, longitude, locationable_type, locationable_id, estimated_visit_minutes, storytelling_content }
     
+    let currentRoutingMode = 'auto'; // 'auto' or 'manual'
+    const initialDistance = {{ $route->distance_meters }};
     let map = null;
     let markersMap = {}; // mapping local location.id to L.marker instance
     let routePolyline = null;
@@ -489,8 +524,8 @@
                         <div class="sm:col-span-1">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase">Kunjungan</label>
                             <div class="relative mt-1 flex items-center">
-                                <input type="number" min="1" value="${point.estimated_visit_minutes}" onchange="updatePointMinutes(${index}, this.value)" class="w-full rounded-lg border border-gray-200 py-1.5 px-2 text-xs focus:border-primary focus:outline-none">
-                                <span class="absolute right-2 text-[10px] text-gray-400 font-bold">m</span>
+                                <input type="number" min="1" value="${point.estimated_visit_minutes}" onchange="updatePointMinutes(${index}, this.value)" class="w-full rounded-lg border border-gray-200 py-1.5 pl-2 pr-12 text-xs focus:border-primary focus:outline-none">
+                                <span class="absolute right-2 text-[10px] text-gray-400 font-bold">menit</span>
                             </div>
                         </div>
                         <div class="sm:col-span-3">
@@ -511,7 +546,30 @@
         updateRouting();
     }
 
+    function setRoutingMode(mode) {
+        currentRoutingMode = mode;
+        const autoLabel = document.getElementById('mode-auto-label');
+        const manualLabel = document.getElementById('mode-manual-label');
+        
+        if (mode === 'auto') {
+            autoLabel.classList.remove('border-gray-200');
+            autoLabel.classList.add('border-primary', 'bg-primary/5');
+            manualLabel.classList.add('border-gray-200');
+            manualLabel.classList.remove('border-primary', 'bg-primary/5');
+        } else {
+            manualLabel.classList.remove('border-gray-200');
+            manualLabel.classList.add('border-primary', 'bg-primary/5');
+            autoLabel.classList.add('border-gray-200');
+            autoLabel.classList.remove('border-primary', 'bg-primary/5');
+        }
+        
+        updateRouting();
+    }
+
     async function updateRouting() {
+        // Hide warning by default
+        document.getElementById('routing-warning').classList.add('hidden');
+
         if (selectedPoints.length < 2) {
             // Reset routing line
             if (routePolyline) {
@@ -529,6 +587,62 @@
             return;
         }
 
+        if (currentRoutingMode === 'manual') {
+            // Calculate geodesic (straight-line) distance
+            let distance = 0;
+            const latlngs = [];
+            for (let i = 0; i < selectedPoints.length; i++) {
+                latlngs.push([selectedPoints[i].latitude, selectedPoints[i].longitude]);
+                if (i < selectedPoints.length - 1) {
+                    const p1 = L.latLng(selectedPoints[i].latitude, selectedPoints[i].longitude);
+                    const p2 = L.latLng(selectedPoints[i + 1].latitude, selectedPoints[i + 1].longitude);
+                    distance += p1.distanceTo(p2);
+                }
+            }
+            distance = Math.round(distance);
+            const walkingDuration = Math.round(distance / 80); // 80 m/minute
+
+            // Draw straight line on map
+            if (routePolyline) {
+                map.removeLayer(routePolyline);
+            }
+            routePolyline = L.layerGroup();
+            
+            // Background shadow path
+            L.polyline(latlngs, {
+                color: '#4F46E5',
+                weight: 6,
+                opacity: 0.25
+            }).addTo(routePolyline);
+
+            // Dotted foreground path
+            L.polyline(latlngs, {
+                color: '#4F46E5',
+                weight: 3.5,
+                opacity: 0.95,
+                dashArray: '6, 8'
+            }).addTo(routePolyline);
+
+            routePolyline.addTo(map);
+            map.fitBounds(L.polyline(latlngs).getBounds(), { padding: [40, 40] });
+
+            // Accumulate visit durations
+            let visitMinutesSum = selectedPoints.reduce((acc, p) => acc + parseInt(p.estimated_visit_minutes || 15), 0);
+            const totalDuration = walkingDuration + visitMinutesSum;
+
+            // Sync inputs
+            document.getElementById('route-distance-display').innerText = distance >= 1000 
+                ? (distance / 1000).toFixed(2) + ' km' 
+                : distance + ' m';
+            document.getElementById('field-distance').value = distance;
+
+            document.getElementById('route-duration-display').innerText = totalDuration >= 60 
+                ? Math.floor(totalDuration / 60) + ' jam ' + (totalDuration % 60) + ' menit'
+                : totalDuration + ' menit';
+            document.getElementById('field-duration').value = totalDuration;
+            return;
+        }
+
         // Build coordinates format: Lng,Lat;Lng,Lat;...
         const coords = selectedPoints.map(p => `${p.longitude},${p.latitude}`).join(';');
         const url = `https://router.project-osrm.org/route/v1/foot/${coords}?overview=full&geometries=geojson`;
@@ -541,6 +655,18 @@
                 const route = data.routes[0];
                 const distance = Math.round(route.distance); // in meters
                 const walkingDuration = Math.round(route.duration / 60); // in minutes
+
+                // Auto-detect if saved route was manual (because OSRM returned 0 but db initialDistance is > 0)
+                if (distance === 0 && initialDistance > 0 && currentRoutingMode === 'auto') {
+                    console.log('OSRM returned 0m, but saved route has distance. Auto switching to manual mode.');
+                    setRoutingMode('manual');
+                    return;
+                }
+
+                if (distance === 0) {
+                    // Show routing warning banner
+                    document.getElementById('routing-warning').classList.remove('hidden');
+                }
 
                 // Draw route line on map
                 if (routePolyline) {
