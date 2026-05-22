@@ -15,8 +15,7 @@ Aplikasi ini menggunakan instalasi lokal OpenRouteService untuk menghasilkan rut
    ```
    Script ini akan:
    - Membuat folder `graphs`, `files`, dan `logs`.
-   - Mendownload data peta `.osm.pbf` Indonesia terbaru.
-   - Memotong data khusus untuk pulau Bali.
+   - Mendownload data peta `.osm.pbf` regional Bali terbaru secara langsung.
    - Menjalankan container Docker.
 
 3. Tunggu hingga ORS selesai melakukan *graph building*. Bisa dicek via `docker compose logs -f`.
