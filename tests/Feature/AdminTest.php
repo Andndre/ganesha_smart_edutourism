@@ -30,6 +30,7 @@ class AdminTest extends TestCase
         $this->adminUser = User::factory()->create([
             'name' => 'Admin Test',
             'email' => 'admin@test.com',
+            'role' => 'admin',
         ]);
     }
 
@@ -587,5 +588,20 @@ class AdminTest extends TestCase
         $responseDownload = $this->actingAs($this->adminUser)
             ->get(route('admin.reports.download', ['period' => 'Mei 2026']));
         $responseDownload->assertRedirect();
+    }
+
+    /**
+     * Test non-admin users cannot access the admin dashboard.
+     */
+    public function test_non_admin_users_cannot_access_admin_dashboard(): void
+    {
+        $nonAdmin = User::factory()->create([
+            'role' => 'tourist',
+        ]);
+
+        $response = $this->actingAs($nonAdmin)
+            ->get(route('admin.dashboard'));
+
+        $response->assertStatus(403);
     }
 }

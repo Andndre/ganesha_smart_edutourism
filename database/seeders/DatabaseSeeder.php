@@ -15,26 +15,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        if (! User::where('email', 'test@example.com')->exists()) {
-            User::factory()->create([
-                'name' => 'Test User',
-                'email' => 'test@example.com',
-            ]);
-        }
-
-        // Create sample data for Penglipuran Smart Edutourism
+        // Admin Seeder runs in all environments
         $this->call([
-            CulturalObjectSeeder::class,
-            CulturalStorySeeder::class,
-            UmkmProfileSeeder::class,
-            ProductSeeder::class,
-            TourPackageSeeder::class,
+            AdminSeeder::class,
         ]);
 
         if (app()->environment('local')) {
+            if (! User::where('email', 'test@example.com')->exists()) {
+                User::factory()->create([
+                    'name' => 'Test User',
+                    'email' => 'test@example.com',
+                ]);
+            }
+
+            // Create sample data for Penglipuran Smart Edutourism
             $this->call([
+                CulturalObjectSeeder::class,
+                CulturalStorySeeder::class,
+                UmkmProfileSeeder::class,
+                ProductSeeder::class,
+                TourPackageSeeder::class,
                 LocalDevSeeder::class,
             ]);
         }
