@@ -28,6 +28,9 @@ class LocalDevSeeder extends Seeder
      */
     public function run(): void
     {
+        $baseLat = (float) env('PENGLIPURAN_LAT', -8.422303596762355);
+        $baseLon = (float) env('PENGLIPURAN_LON', 115.35948833933173);
+
         // 1. Seed Users (Admin, Tourist, and UMKM Owners linked to profiles)
         $admin = User::where('email', 'admin@ganesha.com')->first();
         if (! $admin) {
@@ -206,8 +209,8 @@ class LocalDevSeeder extends Seeder
                 'category' => 'facility',
                 'locationable_type' => CapacityZone::class,
                 'locationable_id' => $defaultZoneId,
-                'latitude' => -8.5403,
-                'longitude' => 115.4165,
+                'latitude' => $baseLat + 0.0003,
+                'longitude' => $baseLon - 0.0005,
                 'is_accessible' => true,
                 'accessibility_notes' => 'Pusat informasi utama dekat area parkir depan.',
             ],
@@ -216,8 +219,8 @@ class LocalDevSeeder extends Seeder
                 'category' => 'accessibility',
                 'locationable_type' => CapacityZone::class,
                 'locationable_id' => $defaultZoneId,
-                'latitude' => -8.5408,
-                'longitude' => 115.4171,
+                'latitude' => $baseLat - 0.0002,
+                'longitude' => $baseLon + 0.0001,
                 'is_accessible' => true,
                 'accessibility_notes' => 'Toilet ramah disabilitas dengan handrail dan ruang putar luas.',
             ],
@@ -226,8 +229,8 @@ class LocalDevSeeder extends Seeder
                 'category' => 'emergency',
                 'locationable_type' => CapacityZone::class,
                 'locationable_id' => $defaultZoneId,
-                'latitude' => -8.5412,
-                'longitude' => 115.4168,
+                'latitude' => $baseLat - 0.0006,
+                'longitude' => $baseLon - 0.0002,
                 'is_accessible' => true,
                 'accessibility_notes' => 'Peralatan pertolongan pertama dasar, tabung oksigen, dan kursi roda darurat.',
             ],
@@ -376,8 +379,8 @@ class LocalDevSeeder extends Seeder
                 'start_datetime' => Carbon::now()->addDays(5)->setTime(10, 0),
                 'end_datetime' => Carbon::now()->addDays(5)->setTime(18, 0),
                 'location_name' => 'Balai Banjar Penglipuran',
-                'latitude' => -8.5410,
-                'longitude' => 115.4175,
+                'latitude' => $baseLat - 0.0004,
+                'longitude' => $baseLon + 0.0005,
                 'is_free' => true,
                 'max_participants' => 200,
                 'current_participants' => 45,
@@ -390,8 +393,8 @@ class LocalDevSeeder extends Seeder
                 'start_datetime' => Carbon::now()->addDays(12)->setTime(8, 0),
                 'end_datetime' => Carbon::now()->addDays(12)->setTime(15, 0),
                 'location_name' => 'Pura Penataran Penglipuran',
-                'latitude' => -8.5415,
-                'longitude' => 115.4172,
+                'latitude' => $baseLat - 0.0009,
+                'longitude' => $baseLon + 0.0002,
                 'is_free' => true,
                 'max_participants' => 300,
                 'current_participants' => 120,
@@ -404,8 +407,8 @@ class LocalDevSeeder extends Seeder
                 'start_datetime' => Carbon::now()->addDays(3)->setTime(14, 0),
                 'end_datetime' => Carbon::now()->addDays(3)->setTime(16, 30),
                 'location_name' => 'Workshop Craft Center',
-                'latitude' => -8.5400,
-                'longitude' => 115.4178,
+                'latitude' => $baseLat + 0.0006,
+                'longitude' => $baseLon + 0.0008,
                 'is_free' => false,
                 'price' => 75000.00,
                 'max_participants' => 15,
@@ -683,8 +686,8 @@ class LocalDevSeeder extends Seeder
                     'user_id' => $user_id,
                     'event_type' => fake()->randomElement($eventTypes),
                     'event_data' => json_encode(['path' => fake()->randomElement(['/home', '/cultural', '/events', '/learning', '/tour-packages'])]),
-                    'latitude' => -8.5406 + (rand(-100, 100) / 100000),
-                    'longitude' => 115.4170 + (rand(-100, 100) / 100000),
+                    'latitude' => $baseLat + (rand(-100, 100) / 100000),
+                    'longitude' => $baseLon + (rand(-100, 100) / 100000),
                     'device_type' => fake()->randomElement(['mobile', 'tablet', 'desktop']),
                     'browser' => fake()->randomElement(['Chrome', 'Safari', 'Firefox', 'Edge']),
                     'nationality' => fake()->randomElement(['Indonesia', 'Australia', 'Germany', 'USA', 'Japan']),
