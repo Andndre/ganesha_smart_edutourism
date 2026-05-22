@@ -100,6 +100,9 @@ class ExploreController extends Controller
             ];
         });
 
-        return view('pages.explore.index', \compact('locations', 'formattedRoutes', 'heatmapData'));
+        $defaultLat = (float) env('PENGLIPURAN_LAT', -8.422303596762355);
+        $defaultLon = (float) env('PENGLIPURAN_LON', 115.35948833933173);
+
+        return view('pages.explore.index', compact('locations', 'formattedRoutes', 'heatmapData', 'defaultLat', 'defaultLon'));
     }
 }
