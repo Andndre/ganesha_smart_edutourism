@@ -119,8 +119,8 @@
 </div>
 
 {{-- Dynamic Modal Form --}}
-<div id="object-modal" class="fixed inset-0 z-50 items-center justify-center hidden bg-charcoal/50 backdrop-blur-sm p-4">
-    <div class="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl transition-all">
+<div id="object-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-charcoal/50 backdrop-blur-sm p-4 justify-center">
+    <div class="my-auto self-start w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl transition-all">
         <div class="mb-4 flex items-center justify-between">
             <h3 id="modal-title" class="font-display text-lg font-bold text-charcoal">Tambah Objek Budaya</h3>
             <button onclick="closeModal()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100">

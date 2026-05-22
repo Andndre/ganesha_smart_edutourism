@@ -111,8 +111,8 @@
 </div>
 
 {{-- Detail & Update Status Modal --}}
-<div id="booking-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-    <div class="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-xl">
+<div id="booking-modal" class="fixed inset-0 z-50 hidden overflow-y-auto p-4 bg-black/50 backdrop-blur-sm justify-center">
+    <div class="w-full max-w-lg my-auto self-start overflow-hidden rounded-2xl bg-white shadow-xl">
         <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
             <h3 class="font-display text-lg font-bold text-charcoal">Detail Pemesanan <span id="modal-booking-id" class="text-gray-400 font-mono"></span></h3>
             <button onclick="closeBookingModal()" class="text-gray-400 hover:text-gray-600 focus:outline-none">
