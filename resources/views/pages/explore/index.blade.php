@@ -192,19 +192,108 @@
                 sos_route: []
             };
 
-            routesData.forEach(route => {
-                if (route.coordinates && route.coordinates.length > 0) {
-                    const polyline = L.polyline(route.coordinates, {
-                        color: route.is_smart_route ? '#1E5128' : '#E65100',
-                        weight: 4,
-                        dashArray: route.is_smart_route ? '8, 8' : null,
-                        opacity: route.is_smart_route ? 0.8 : 0.9
-                    }).addTo(map);
+            // Parse URL parameters to check if a specific route is requested
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetRouteId = urlParams.get('route');
 
-                    if (route.is_smart_route) {
-                        routeLayers['edu_route'].push(polyline);
-                    } else {
-                        routeLayers['sos_route'].push(polyline);
+            routesData.forEach(async (route) => {
+                if (route.coordinates && route.coordinates.length > 0) {
+                    let routeLayer = null;
+                    let bounds = null;
+
+                    const isSmartRoute = route.is_smart_route;
+                    const cat = isSmartRoute ? 'edu_route' : 'sos_route';
+                    const routeColor = isSmartRoute ? '#1E5128' : '#E65100';
+                    const dashPattern = isSmartRoute ? '8, 8' : null;
+
+                    if (route.coordinates.length >= 2) {
+                        try {
+                            const coords = route.coordinates.map(c => [c[1], c[0]]); // Swap [lat, lng] to [lng, lat]
+                            const response = await fetch('/api/routing/directions', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                },
+                                body: JSON.stringify({ coordinates: coords })
+                            });
+
+                            if (response.ok) {
+                                const data = await response.json();
+                                if (data.features && data.features.length > 0) {
+                                    const routeFeature = data.features[0];
+                                    
+                                    routeLayer = L.layerGroup();
+
+                                    // Background shadow path
+                                    L.geoJSON(routeFeature.geometry, {
+                                        style: {
+                                            color: routeColor,
+                                            weight: 6,
+                                            opacity: 0.25
+                                        }
+                                    }).addTo(routeLayer);
+
+                                    // Foreground path
+                                    L.geoJSON(routeFeature.geometry, {
+                                        style: {
+                                            color: routeColor,
+                                            weight: 4,
+                                            dashArray: dashPattern,
+                                            opacity: isSmartRoute ? 0.8 : 0.9
+                                        }
+                                    }).addTo(routeLayer);
+
+                                    bounds = L.geoJSON(routeFeature.geometry).getBounds();
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Failed to fetch ORS directions for route ' + route.id, error);
+                        }
+                    }
+
+                    // Fallback to straight polyline if ORS failed or returned no feature
+                    if (!routeLayer) {
+                        const polyline = L.polyline(route.coordinates, {
+                            color: routeColor,
+                            weight: 4,
+                            dashArray: dashPattern,
+                            opacity: isSmartRoute ? 0.8 : 0.9
+                        });
+
+                        routeLayer = L.layerGroup([polyline]);
+                        bounds = polyline.getBounds();
+                    }
+
+                    routeLayers[cat].push(routeLayer);
+
+                    if (activeFilters[cat]) {
+                        routeLayer.addTo(map);
+                    }
+
+                    // If this route is the target route from query parameter, focus map on it
+                    if (targetRouteId && String(route.id) === String(targetRouteId)) {
+                        // Ensure the filter category is active
+                        if (!activeFilters[cat]) {
+                            activeFilters[cat] = true;
+                            const filterToggle = document.querySelector(`.filter-toggle[data-filter="${cat}"]`);
+                            if (filterToggle) {
+                                const checkbox = filterToggle.querySelector('.filter-checkbox');
+                                if (checkbox) checkbox.classList.add('checked');
+                                const input = filterToggle.querySelector('input');
+                                if (input) input.checked = true;
+                            }
+                        }
+
+                        if (bounds) {
+                            setTimeout(() => {
+                                map.fitBounds(bounds, {
+                                    padding: [50, 50],
+                                    animate: true,
+                                    duration: 0.5
+                                });
+                            }, 300);
+                        }
                     }
                 }
             });

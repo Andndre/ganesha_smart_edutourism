@@ -38,6 +38,71 @@ class RoutingTest extends TestCase
 
         // Route requires auth middleware, should return 401 Unauthorized for JSON requests
         $response->assertStatus(401);
+
+        $responsePublic = $this->postJson(route('routing.directions'), [
+            'coordinates' => [
+                [115.35824, -8.43125],
+                [115.35850, -8.43000],
+            ],
+        ]);
+        $responsePublic->assertStatus(401);
+    }
+
+    /**
+     * Test that a regular authenticated user can fetch routing directions from public route.
+     */
+    public function test_regular_user_can_get_routing_directions(): void
+    {
+        Http::fake([
+            '*/ors/v2/directions/*' => Http::response([
+                'type' => 'FeatureCollection',
+                'features' => [
+                    [
+                        'type' => 'Feature',
+                        'properties' => [
+                            'summary' => [
+                                'distance' => 150.0,
+                                'duration' => 120.0,
+                            ],
+                        ],
+                        'geometry' => [
+                            'type' => 'LineString',
+                            'coordinates' => [
+                                [115.35824, -8.43125],
+                                [115.35850, -8.43000],
+                            ],
+                        ],
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        $regularUser = User::factory()->create([
+            'role' => 'tourist',
+        ]);
+
+        $response = $this->actingAs($regularUser)
+            ->postJson(route('routing.directions'), [
+                'coordinates' => [
+                    [115.35824, -8.43125],
+                    [115.35850, -8.43000],
+                ],
+            ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'type',
+            'features' => [
+                '*' => [
+                    'type',
+                    'properties',
+                    'geometry' => [
+                        'type',
+                        'coordinates',
+                    ],
+                ],
+            ],
+        ]);
     }
 
     /**
