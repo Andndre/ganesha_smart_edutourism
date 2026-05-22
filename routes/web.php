@@ -145,6 +145,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     // Tour Route Routes
     Route::get('/tour-routes', [TourRouteController::class, 'index'])->name('admin.tour-routes');
+    Route::get('/tour-routes/create', [TourRouteController::class, 'create'])->name('admin.tour-routes.create');
+    Route::get('/tour-routes/{id}/edit', [TourRouteController::class, 'edit'])->name('admin.tour-routes.edit');
     Route::post('/tour-routes', [TourRouteController::class, 'store'])->name('admin.tour-routes.store');
     Route::put('/tour-routes/{id}', [TourRouteController::class, 'update'])->name('admin.tour-routes.update');
     Route::patch('/tour-routes/{id}/toggle-active', [TourRouteController::class, 'toggleActive'])->name('admin.tour-routes.toggle');

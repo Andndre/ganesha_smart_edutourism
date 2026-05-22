@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserLearningProgress;
-use App\Models\LearningModule;
 use App\Models\LearningContent;
-use App\Models\LearningQuiz;
+use App\Models\LearningModule;
+use App\Models\UserLearningProgress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -75,6 +74,7 @@ class LearningProgressController extends Controller
         $progress = UserLearningProgress::where('user_id', $user->id)
             ->with(['learningModule', 'learningContent'])
             ->get();
+
         return response()->json($progress);
     }
 }

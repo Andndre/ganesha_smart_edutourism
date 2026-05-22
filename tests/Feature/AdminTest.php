@@ -6,6 +6,7 @@ use App\Models\CapacityZone;
 use App\Models\CulturalObject;
 use App\Models\Event;
 use App\Models\Feedback;
+use App\Models\MapLocation;
 use App\Models\Reservation;
 use App\Models\TourPackage;
 use App\Models\TourRoute;
@@ -356,7 +357,34 @@ class AdminTest extends TestCase
             ->get(route('admin.tour-routes'));
         $response->assertStatus(200);
 
-        // 1. Create valid route
+        // Test create page renders
+        $responseCreatePage = $this->actingAs($this->adminUser)
+            ->get(route('admin.tour-routes.create'));
+        $responseCreatePage->assertStatus(200);
+        $responseCreatePage->assertSee('Tambah Rute Wisata Baru');
+
+        // Create dummy attraction points
+        $cultural = CulturalObject::create([
+            'name' => 'Pura Luhur Test',
+            'slug' => 'pura-luhur-test',
+            'category' => 'temple',
+            'description' => 'Tempat pemujaan.',
+            'latitude' => -8.234,
+            'longitude' => 115.345,
+            'ar_marker_id' => 'MARKER_PURA_TEST',
+        ]);
+
+        MapLocation::create([
+            'name' => $cultural->name,
+            'category' => 'cultural',
+            'locationable_type' => CulturalObject::class,
+            'locationable_id' => $cultural->id,
+            'latitude' => $cultural->latitude,
+            'longitude' => $cultural->longitude,
+            'is_accessible' => true,
+        ]);
+
+        // 1. Create valid route with points
         $responseCreate = $this->actingAs($this->adminUser)
             ->post(route('admin.tour-routes.store'), [
                 'name' => 'Rute Edukasi Alam',
@@ -365,6 +393,14 @@ class AdminTest extends TestCase
                 'distance_meters' => 1500,
                 'difficulty' => 'easy',
                 'is_smart_route' => false,
+                'points' => [
+                    [
+                        'locationable_type' => CulturalObject::class,
+                        'locationable_id' => $cultural->id,
+                        'estimated_visit_minutes' => 20,
+                        'storytelling_content' => 'Ini adalah pura penataran agung.',
+                    ],
+                ],
             ]);
         $responseCreate->assertRedirect();
         $this->assertDatabaseHas('tour_routes', [
@@ -373,8 +409,16 @@ class AdminTest extends TestCase
         ]);
 
         $route = TourRoute::where('name', 'Rute Edukasi Alam')->firstOrFail();
+        $this->assertCount(1, $route->routePoints);
+        $this->assertEquals(20, $route->routePoints->first()->estimated_visit_minutes);
 
-        // 2. Update route
+        // Test edit page renders
+        $responseEditPage = $this->actingAs($this->adminUser)
+            ->get(route('admin.tour-routes.edit', $route->id));
+        $responseEditPage->assertStatus(200);
+        $responseEditPage->assertSee('Edit Rute Wisata');
+
+        // 2. Update route with new details and points
         $responseUpdate = $this->actingAs($this->adminUser)
             ->put(route('admin.tour-routes.update', $route->id), [
                 'name' => 'Rute Edukasi Alam Mod',
@@ -384,6 +428,14 @@ class AdminTest extends TestCase
                 'difficulty' => 'moderate',
                 'is_smart_route' => true,
                 'is_active' => true,
+                'points' => [
+                    [
+                        'locationable_type' => CulturalObject::class,
+                        'locationable_id' => $cultural->id,
+                        'estimated_visit_minutes' => 30,
+                        'storytelling_content' => 'Narasi terupdate.',
+                    ],
+                ],
             ]);
         $responseUpdate->assertRedirect();
         $this->assertDatabaseHas('tour_routes', [
@@ -392,8 +444,13 @@ class AdminTest extends TestCase
             'difficulty' => 'moderate',
         ]);
 
+        $route->refresh();
+        $this->assertCount(1, $route->routePoints);
+        $this->assertEquals(30, $route->routePoints->first()->estimated_visit_minutes);
+        $this->assertEquals('Narasi terupdate.', $route->routePoints->first()->storytelling_content);
+
         // 3. Toggle active
-        $this->assertTrue($route->fresh()->is_active);
+        $this->assertTrue($route->is_active);
         $responseToggle = $this->actingAs($this->adminUser)
             ->patch(route('admin.tour-routes.toggle', $route->id));
         $responseToggle->assertRedirect();
@@ -405,6 +462,9 @@ class AdminTest extends TestCase
         $responseDelete->assertRedirect();
         $this->assertDatabaseMissing('tour_routes', [
             'id' => $route->id,
+        ]);
+        $this->assertDatabaseMissing('tour_route_points', [
+            'tour_route_id' => $route->id,
         ]);
     }
 

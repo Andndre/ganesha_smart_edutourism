@@ -9,12 +9,12 @@
         <h1 class="font-display text-2xl font-bold text-charcoal">Rute Wisata</h1>
         <p class="mt-0.5 text-sm text-gray-500">Kelola jalur dan titik kunjungan yang direkomendasikan kepada wisatawan.</p>
     </div>
-    <button onclick="openCreateModal()" class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-600 active:scale-[0.98]">
+    <a href="{{ route('admin.tour-routes.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-600 active:scale-[0.98]">
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
         </svg>
         Tambah Rute
-    </button>
+    </a>
 </div>
 
 {{-- Route Cards --}}
@@ -95,9 +95,9 @@
 
             {{-- Actions --}}
             <div class="flex gap-2 border-t border-gray-50 pt-4">
-                <button onclick="openEditModal({{ json_encode($route) }})" class="flex-1 rounded-xl border border-gray-200 py-2 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-50">
+                <a href="{{ route('admin.tour-routes.edit', $route->id) }}" class="flex-1 rounded-xl border border-gray-200 py-2 text-center text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-50">
                     Edit Rute
-                </button>
+                </a>
                 <form method="POST" action="{{ route('admin.tour-routes.toggle', $route->id) }}" class="flex-1">
                     @csrf
                     @method('PATCH')
@@ -121,116 +121,4 @@
     @endforelse
 </div>
 
-{{-- Dynamic Modal Form --}}
-<div id="route-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-charcoal/50 backdrop-blur-sm p-4 justify-center">
-    <div class="my-auto self-start w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl transition-all">
-        <div class="mb-4 flex items-center justify-between">
-            <h3 id="modal-title" class="font-display text-lg font-bold text-charcoal">Tambah Rute Wisata</h3>
-            <button onclick="closeModal()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-        <form id="modal-form" method="POST" action="">
-            @csrf
-            <div id="method-container"></div>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Nama Rute <span class="text-warning">*</span></label>
-                    <input type="text" name="name" id="field-name" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Kategori / Tema <span class="text-warning">*</span></label>
-                    <select name="difficulty" id="field-difficulty" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                        <option>Mudah</option>
-                        <option>Sedang</option>
-                        <option>Sulit</option>
-                        <option>Edukasi</option>
-                        <option>Alam</option>
-                        <option>Belanja</option>
-                        <option>Difabel</option>
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Durasi (Menit) <span class="text-warning">*</span></label>
-                        <input type="number" name="estimated_duration_minutes" id="field-duration" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Jarak (Meter) <span class="text-warning">*</span></label>
-                        <input type="number" name="distance_meters" id="field-distance" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Deskripsi Rute</label>
-                    <textarea name="description" id="field-desc" rows="3" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none"></textarea>
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" name="is_smart_route" id="field-smart" value="1" class="rounded border-gray-300 text-primary focus:ring-primary">
-                    <label class="text-sm font-semibold text-gray-700">Smart Route (Rekomendasi AI)</label>
-                </div>
-                <div id="active-checkbox-container" class="flex items-center gap-2">
-                    <input type="checkbox" name="is_active" id="field-active" value="1" class="rounded border-gray-300 text-primary focus:ring-primary">
-                    <label class="text-sm font-semibold text-gray-700">Aktifkan Rute</label>
-                </div>
-            </div>
-            <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="closeModal()" class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">Batal</button>
-                <button type="submit" class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 hover:bg-primary-600">Simpan</button>
-            </div>
-        </form>
-    </div>
-</div>
-
 @endsection
-
-@push('scripts')
-<script>
-    const modal = document.getElementById('route-modal');
-    const form = document.getElementById('modal-form');
-    const modalTitle = document.getElementById('modal-title');
-    const methodContainer = document.getElementById('method-container');
-    const activeCheckboxContainer = document.getElementById('active-checkbox-container');
-
-    function openCreateModal() {
-        modalTitle.innerText = "Tambah Rute Wisata";
-        form.action = "{{ route('admin.tour-routes.store') }}";
-        methodContainer.innerHTML = "";
-        activeCheckboxContainer.style.display = "none";
-        
-        document.getElementById('field-name').value = "";
-        document.getElementById('field-difficulty').value = "Mudah";
-        document.getElementById('field-duration').value = "";
-        document.getElementById('field-distance').value = "";
-        document.getElementById('field-desc').value = "";
-        document.getElementById('field-smart').checked = false;
-        
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
-
-    function openEditModal(route) {
-        modalTitle.innerText = "Edit Rute Wisata";
-        form.action = `/admin/tour-routes/${route.id}`;
-        methodContainer.innerHTML = `@method('PUT')`;
-        activeCheckboxContainer.style.display = "flex";
-
-        document.getElementById('field-name').value = route.name;
-        document.getElementById('field-difficulty').value = route.difficulty;
-        document.getElementById('field-duration').value = route.estimated_duration_minutes;
-        document.getElementById('field-distance').value = route.distance_meters;
-        document.getElementById('field-desc').value = route.description || "";
-        document.getElementById('field-smart').checked = route.is_smart_route;
-        document.getElementById('field-active').checked = route.is_active;
-
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
-
-    function closeModal() {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
-</script>
-@endpush

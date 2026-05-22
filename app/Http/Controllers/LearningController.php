@@ -3,9 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\LearningModule;
-use App\Models\LearningContent;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class LearningController extends Controller
 {
@@ -15,6 +12,7 @@ class LearningController extends Controller
     public function index()
     {
         $modules = LearningModule::active()->orderBy('order')->get();
+
         return view('pages.learning.index', compact('modules'));
     }
 
