@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class RoutingTest extends TestCase
@@ -44,6 +45,30 @@ class RoutingTest extends TestCase
      */
     public function test_admin_user_can_get_routing_directions(): void
     {
+        Http::fake([
+            '*/ors/v2/directions/*' => Http::response([
+                'type' => 'FeatureCollection',
+                'features' => [
+                    [
+                        'type' => 'Feature',
+                        'properties' => [
+                            'summary' => [
+                                'distance' => 150.0,
+                                'duration' => 120.0,
+                            ],
+                        ],
+                        'geometry' => [
+                            'type' => 'LineString',
+                            'coordinates' => [
+                                [115.35824, -8.43125],
+                                [115.35850, -8.43000],
+                            ],
+                        ],
+                    ],
+                ],
+            ], 200),
+        ]);
+
         // Query coordinates inside Desa Penglipuran, Bali
         $response = $this->actingAs($this->adminUser)
             ->postJson(route('admin.routing.directions'), [
