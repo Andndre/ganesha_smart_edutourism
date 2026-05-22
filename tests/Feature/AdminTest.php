@@ -604,4 +604,15 @@ class AdminTest extends TestCase
 
         $response->assertStatus(403);
     }
+
+    /**
+     * Test admin users cannot access user pages and are redirected to admin dashboard.
+     */
+    public function test_admin_users_cannot_access_user_pages(): void
+    {
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('home'));
+
+        $response->assertRedirect(route('admin.dashboard'));
+    }
 }

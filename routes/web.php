@@ -34,78 +34,80 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Home
-    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::middleware('redirect.admin')->group(function () {
+        // Home
+        Route::get('/', [HomeController::class, 'index'])->name('home');
 
-    // Explore/Map
-    Route::get('/explore', [ExploreController::class, 'index'])->name('explore');
+        // Explore/Map
+        Route::get('/explore', [ExploreController::class, 'index'])->name('explore');
 
-    // AR Scan
-    Route::get('/ar-scan', function () {
-        return view('pages.ar.index');
-    })->name('ar-scan');
+        // AR Scan
+        Route::get('/ar-scan', function () {
+            return view('pages.ar.index');
+        })->name('ar-scan');
 
-    // UMKM
-    Route::get('/umkm', function () {
-        return view('pages.umkm.index');
-    })->name('umkm');
-    Route::get('/umkm/product/{id}', function () {
-        return view('pages.umkm.show');
-    })->name('umkm-product');
+        // UMKM
+        Route::get('/umkm', function () {
+            return view('pages.umkm.index');
+        })->name('umkm');
+        Route::get('/umkm/product/{id}', function () {
+            return view('pages.umkm.show');
+        })->name('umkm-product');
 
-    // Cultural Objects
-    Route::get('/cultural', function () {
-        return view('pages.cultural.index');
-    })->name('cultural-objects');
-    Route::get('/cultural/{id}', function () {
-        return view('pages.cultural.show');
-    })->name('cultural-object');
+        // Cultural Objects
+        Route::get('/cultural', function () {
+            return view('pages.cultural.index');
+        })->name('cultural-objects');
+        Route::get('/cultural/{id}', function () {
+            return view('pages.cultural.show');
+        })->name('cultural-object');
 
-    // Events
-    Route::get('/events', function () {
-        return view('pages.events.index');
-    })->name('events');
+        // Events
+        Route::get('/events', function () {
+            return view('pages.events.index');
+        })->name('events');
 
-    // Learning
-    Route::get('/learning', [LearningController::class, 'index'])->name('learning');
-    Route::get('/learning/{slug}', [LearningController::class, 'show'])->name('learning.show');
-    Route::post('/learning/{moduleSlug}/{contentSlug}/quiz', [LearningProgressController::class, 'submitQuiz'])->name('learning.quiz.submit');
+        // Learning
+        Route::get('/learning', [LearningController::class, 'index'])->name('learning');
+        Route::get('/learning/{slug}', [LearningController::class, 'show'])->name('learning.show');
+        Route::post('/learning/{moduleSlug}/{contentSlug}/quiz', [LearningProgressController::class, 'submitQuiz'])->name('learning.quiz.submit');
 
-    // Tour Packages
-    Route::get('/tour-packages', function () {
-        return view('pages.packages.index');
-    })->name('tour-packages');
-    Route::get('/tour-package/{id}', function () {
-        return view('pages.packages.show');
-    })->name('tour-package');
+        // Tour Packages
+        Route::get('/tour-packages', function () {
+            return view('pages.packages.index');
+        })->name('tour-packages');
+        Route::get('/tour-package/{id}', function () {
+            return view('pages.packages.show');
+        })->name('tour-package');
 
-    // Feedback
-    Route::get('/feedback', function () {
-        return view('pages.feedback.create');
-    })->name('feedback');
+        // Feedback
+        Route::get('/feedback', function () {
+            return view('pages.feedback.create');
+        })->name('feedback');
 
-    // Profile & E-Ticket
-    Route::get('/profile', function () {
-        return view('pages.profile.index');
-    })->name('profile');
-    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::get('/profile/bookings', function () {
-        return view('bookings.index');
-    })->name('bookings');
-    Route::get('/profile/learning', function () {
-        return view('learning.index');
-    })->name('learning-progress');
-    Route::get('/profile/favorites', function () {
-        return view('home');
-    })->name('favorites');
-    Route::get('/profile/visited', function () {
-        return view('home');
-    })->name('visited');
-    Route::get('/profile/settings', [ProfileController::class, 'edit'])->name('settings');
-    Route::get('/profile/help', function () {
-        return view('home');
-    })->name('help');
+        // Profile & E-Ticket
+        Route::get('/profile', function () {
+            return view('pages.profile.index');
+        })->name('profile');
+        Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::get('/profile/bookings', function () {
+            return view('bookings.index');
+        })->name('bookings');
+        Route::get('/profile/learning', function () {
+            return view('learning.index');
+        })->name('learning-progress');
+        Route::get('/profile/favorites', function () {
+            return view('home');
+        })->name('favorites');
+        Route::get('/profile/visited', function () {
+            return view('home');
+        })->name('visited');
+        Route::get('/profile/settings', [ProfileController::class, 'edit'])->name('settings');
+        Route::get('/profile/help', function () {
+            return view('home');
+        })->name('help');
+    });
 });
 
 // Offline Page
