@@ -15,6 +15,7 @@ use App\Http\Controllers\ExploreController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LearningController;
 use App\Http\Controllers\LearningProgressController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 // Auth Routes (Guest Only)
@@ -87,6 +88,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', function () {
         return view('pages.profile.index');
     })->name('profile');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/profile/bookings', function () {
         return view('bookings.index');
     })->name('bookings');
@@ -99,9 +102,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/visited', function () {
         return view('home');
     })->name('visited');
-    Route::get('/profile/settings', function () {
-        return view('home');
-    })->name('settings');
+    Route::get('/profile/settings', [ProfileController::class, 'edit'])->name('settings');
     Route::get('/profile/help', function () {
         return view('home');
     })->name('help');
