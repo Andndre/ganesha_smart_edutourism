@@ -4,7 +4,7 @@
         <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-        <input type="text" placeholder="Cari objek budaya atau UMKM..."
+        <input type="text" id="search-input" placeholder="Cari objek budaya atau UMKM..."
             class="text-charcoal flex-1 bg-transparent text-sm font-medium placeholder-gray-400 outline-none" />
         <div class="mx-1 h-5 w-[1.5px] bg-gray-200"></div>
         <button type="button" id="btn-filter-toggle" class="text-primary focus:outline-none">

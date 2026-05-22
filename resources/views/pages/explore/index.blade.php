@@ -101,11 +101,14 @@
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 1. Inisialisasi Peta (Koordinat Desa Penglipuran, Bangli, Bali: -8.5406281, 115.4169525)
+        document.addEventListener('DOMContentLoaded', function () {
+            const defaultLat = {{ $defaultLat }};
+            const defaultLon = {{ $defaultLon }};
+
+            // 1. Inisialisasi Peta
             const map = L.map('map', {
                 zoomControl: false
-            }).setView([-8.5406, 115.4170], 17);
+            }).setView([defaultLat, defaultLon], 17);
 
             // 2. Tambahkan Tile Layer
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
@@ -115,75 +118,55 @@
             // 3. Data from ExploreController
             const locations = @json($locations);
 
-            // 4. Custom Icon
-            const customIcon = L.divIcon({
-                className: 'custom-pin',
-                html: `<div style="background-color: #1E5128; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
-                iconSize: [24, 24],
-                iconAnchor: [12, 12]
-            });
+            // 4. Category colors mapping matching the filter panel dots
+            const categoryColors = {
+                umkm: '#8B5CF6',         // Violet
+                facilities: '#3B82F6',   // Blue
+                toilets: '#06B6D4',      // Cyan
+                accessibility: '#F59E0B',// Amber
+                cultural: '#1E5128'      // Green (Default)
+            };
+
+            function getMarkerIcon(category) {
+                const color = categoryColors[category] || '#1E5128';
+                return L.divIcon({
+                    className: 'custom-pin',
+                    html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+            }
+
+            const markerLayers = [];
 
             // 5. Render Marker
             locations.forEach(loc => {
                 const marker = L.marker([loc.lat, loc.lng], {
-                    icon: customIcon
+                    icon: getMarkerIcon(loc.cat)
                 }).addTo(map);
 
-                marker.on('click', function() {
+                marker.on('click', function () {
                     openSheet(loc.name, loc.cat, loc.desc);
                     map.flyTo([loc.lat - 0.0005, loc.lng], 18, {
                         animate: true,
                         duration: 0.5
                     });
                 });
+
+                markerLayers.push({
+                    marker: marker,
+                    category: loc.cat,
+                    name: loc.name,
+                    desc: loc.desc,
+                    lat: loc.lat,
+                    lng: loc.lng
+                });
             });
 
             // ==========================================
-            // HEATMAP OVERLAY DATA (Mock visitor density)
+            // HEATMAP OVERLAY DATA (from controller)
             // ==========================================
-            const heatmapData = [{
-                    lat: -8.5406,
-                    lng: 115.4165,
-                    intensity: 0.9,
-                    category: 'umkm'
-                },
-                {
-                    lat: -8.4218,
-                    lng: 115.3590,
-                    intensity: 0.7,
-                    category: 'facilities'
-                },
-                {
-                    lat: -8.4220,
-                    lng: 115.3585,
-                    intensity: 0.5,
-                    category: 'toilets'
-                },
-                {
-                    lat: -8.4222,
-                    lng: 115.3592,
-                    intensity: 0.6,
-                    category: 'accessibility'
-                },
-                {
-                    lat: -8.4230,
-                    lng: 115.3585,
-                    intensity: 0.4,
-                    category: 'umkm'
-                },
-                {
-                    lat: -8.4215,
-                    lng: 115.3582,
-                    intensity: 0.8,
-                    category: 'umkm'
-                },
-                {
-                    lat: -8.4219,
-                    lng: 115.3586,
-                    intensity: 0.3,
-                    category: 'facilities'
-                },
-            ];
+            const heatmapData = @json($heatmapData);
 
             const activeFilters = {
                 umkm: true,
@@ -197,28 +180,30 @@
             let heatmapVisible = false;
 
             // ==========================================
-            // MOCK ROUTES (Edu-Tourism & SOS)
+            // DYNAMIC ROUTES (from controller)
             // ==========================================
-            const eduRoute = L.polyline([
-                [-8.5406, 115.4170],
-                [-8.5400, 115.4175],
-                [-8.5415, 115.4168]
-            ], {
-                color: '#1E5128', // Penglipuran Green
-                weight: 4,
-                dashArray: '8, 8',
-                opacity: 0.8
-            }).addTo(map);
+            const routesData = @json($formattedRoutes);
+            const routeLayers = {
+                edu_route: [],
+                sos_route: []
+            };
 
-            const sosRoute = L.polyline([
-                [-8.5406, 115.4170],
-                [-8.5403, 115.4173],
-                [-8.5398, 115.4180]
-            ], {
-                color: '#E65100', // Alert Amber
-                weight: 4,
-                opacity: 0.9
-            }).addTo(map);
+            routesData.forEach(route => {
+                if (route.coordinates && route.coordinates.length > 0) {
+                    const polyline = L.polyline(route.coordinates, {
+                        color: route.is_smart_route ? '#1E5128' : '#E65100',
+                        weight: 4,
+                        dashArray: route.is_smart_route ? '8, 8' : null,
+                        opacity: route.is_smart_route ? 0.8 : 0.9
+                    }).addTo(map);
+
+                    if (route.is_smart_route) {
+                        routeLayers['edu_route'].push(polyline);
+                    } else {
+                        routeLayers['sos_route'].push(polyline);
+                    }
+                }
+            });
 
             // Generate Heatmap Cells
             function renderHeatmap() {
@@ -265,8 +250,37 @@
                 }
             }
 
+            // Update marker visibility based on active filters and search query
+            function updateVisibleMarkers() {
+                const searchInput = document.getElementById('search-input');
+                const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+                markerLayers.forEach(item => {
+                    const isFilterActive = activeFilters[item.category] !== false;
+                    const matchesSearch = !query ||
+                        item.name.toLowerCase().includes(query) ||
+                        (item.desc && item.desc.toLowerCase().includes(query));
+
+                    if (isFilterActive && matchesSearch) {
+                        if (!map.hasLayer(item.marker)) {
+                            map.addLayer(item.marker);
+                        }
+                    } else {
+                        if (map.hasLayer(item.marker)) {
+                            map.removeLayer(item.marker);
+                        }
+                    }
+                });
+            }
+
+            // Listen for search input typing
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', updateVisibleMarkers);
+            }
+
             // Listen for filter changes from map-search component
-            window.addEventListener('filter-change', function(e) {
+            window.addEventListener('filter-change', function (e) {
                 const {
                     filter,
                     active
@@ -274,14 +288,14 @@
                 activeFilters[filter] = active;
 
                 // Toggle visibility of route layers
-                if (filter === 'edu_route') {
-                    if (active) map.addLayer(eduRoute);
-                    else map.removeLayer(eduRoute);
-                }
-                
-                if (filter === 'sos_route') {
-                    if (active) map.addLayer(sosRoute);
-                    else map.removeLayer(sosRoute);
+                if (filter === 'edu_route' || filter === 'sos_route') {
+                    routeLayers[filter].forEach(layer => {
+                        if (active) map.addLayer(layer);
+                        else map.removeLayer(layer);
+                    });
+                } else {
+                    // Update markers visibility
+                    updateVisibleMarkers();
                 }
 
                 if (heatmapVisible) {
@@ -364,8 +378,8 @@
 
             function createDirectionArrow(heading) {
                 return `<svg class="location-arrow" viewBox="0 0 24 24" fill="#1E5128" style="transform: rotate(${heading}deg)">
-                    <path d="M12 2L19 20H12H5L12 2Z" />
-                </svg>`;
+                        <path d="M12 2L19 20H12H5L12 2Z" />
+                    </svg>`;
             }
 
             function onLocationError(e) {
@@ -401,17 +415,17 @@
                                 });
                             },
                             onLocationError, {
-                                enableHighAccuracy: true,
-                                maximumAge: 1000,
-                                timeout: 10000
-                            }
+                            enableHighAccuracy: true,
+                            maximumAge: 1000,
+                            timeout: 10000
+                        }
                         );
                     },
                     onLocationError, {
-                        enableHighAccuracy: true,
-                        maximumAge: 0,
-                        timeout: 10000
-                    }
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 10000
+                }
                 );
             }
 
@@ -448,38 +462,52 @@
             // ==========================================
             // BUTTON EVENT LISTENERS
             // ==========================================
-            document.getElementById('btn-layer-map').addEventListener('click', function(e) {
+            document.getElementById('btn-layer-map').addEventListener('click', function (e) {
                 e.stopPropagation();
                 toggleHeatmap();
             });
 
-            document.getElementById('btn-my-location').addEventListener('click', function(e) {
+            document.getElementById('btn-my-location').addEventListener('click', function (e) {
                 e.stopPropagation();
                 toggleMyLocation();
             });
 
-            document.getElementById('btn-locate').addEventListener('click', function() {
-                map.flyTo([-8.5406, 115.4170], 17, {
-                    animate: true,
-                    duration: 0.5
-                });
+            document.getElementById('btn-locate').addEventListener('click', function () {
+                // Focus bounds only on visible markers
+                const visibleCoords = markerLayers
+                    .filter(item => map.hasLayer(item.marker))
+                    .map(item => [item.lat, item.lng]);
+
+                if (visibleCoords.length > 0) {
+                    const bounds = L.latLngBounds(visibleCoords);
+                    map.fitBounds(bounds, {
+                        padding: [50, 50],
+                        animate: true,
+                        duration: 0.5
+                    });
+                } else {
+                    map.flyTo([defaultLat, defaultLon], 17, {
+                        animate: true,
+                        duration: 0.5
+                    });
+                }
             });
 
             // Update heatmap on map move/zoom
-            map.on('moveend', function() {
+            map.on('moveend', function () {
                 if (heatmapVisible) {
                     renderHeatmap();
                 }
             });
 
-            map.on('zoomend', function() {
+            map.on('zoomend', function () {
                 if (heatmapVisible) {
                     renderHeatmap();
                 }
             });
 
             // Close filter panel when clicking elsewhere on map
-            map.on('click', function() {
+            map.on('click', function () {
                 const panel = document.getElementById('filter-panel');
                 if (panel && !panel.classList.contains('hidden')) {
                     panel.classList.add('hidden');
