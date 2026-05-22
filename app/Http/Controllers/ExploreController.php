@@ -16,7 +16,7 @@ class ExploreController extends Controller
      */
     public function index(): View
     {
-        $locations = MapLocation::all()->map(function ($loc) {
+        $locations = MapLocation::with('locationable')->get()->map(function ($loc) {
             // Map category to match JavaScript filters
             $category = $loc->category;
             if ($category === 'facility') {
@@ -24,15 +24,29 @@ class ExploreController extends Controller
             } elseif ($category === 'toilet') {
                 $category = 'toilets';
             } elseif ($category === 'emergency') {
-                $category = 'toilets'; // or facilities
+                $category = 'facilities';
+            }
+
+            $description = '';
+            $detailUrl = null;
+
+            if ($loc->locationable) {
+                $description = $loc->locationable->description ?? '';
+                if ($loc->locationable_type === CulturalObject::class) {
+                    $detailUrl = route('cultural-object', $loc->locationable->id);
+                } elseif ($loc->locationable_type === UmkmProfile::class) {
+                    $detailUrl = route('umkm');
+                }
             }
 
             return [
-                'lat' => $loc->latitude,
-                'lng' => $loc->longitude,
+                'lat' => (float) $loc->latitude,
+                'lng' => (float) $loc->longitude,
                 'name' => $loc->name,
                 'cat' => $category,
-                'desc' => $loc->accessibility_notes ?? '',
+                'desc' => $description,
+                'accessibility' => $loc->accessibility_notes ?? '',
+                'detail_url' => $detailUrl,
             ];
         });
 
@@ -70,10 +84,10 @@ class ExploreController extends Controller
         });
 
         // Build crowd density heatmap data
-        $heatmapData = MapLocation::all()->map(function ($loc) {
+        $heatmapData = MapLocation::with('locationable')->get()->map(function ($loc) {
             $intensity = 0.5;
             if ($loc->locationable_type === CapacityZone::class) {
-                $zone = CapacityZone::find($loc->locationable_id);
+                $zone = $loc->locationable;
                 if ($zone) {
                     $intensity = $zone->max_capacity > 0 ? ($zone->current_count / $zone->max_capacity) : 0.5;
                 }
@@ -93,10 +107,11 @@ class ExploreController extends Controller
             }
 
             return [
-                'lat' => $loc->latitude,
-                'lng' => $loc->longitude,
+                'lat' => (float) $loc->latitude,
+                'lng' => (float) $loc->longitude,
                 'intensity' => \round($intensity, 2),
                 'category' => $category,
+                'name' => $loc->name,
             ];
         });
 

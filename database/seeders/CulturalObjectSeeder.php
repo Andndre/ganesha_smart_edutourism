@@ -64,9 +64,25 @@ class CulturalObjectSeeder extends Seeder
         ];
 
         foreach ($objects as $object) {
-            CulturalObject::updateOrCreate(
+            $lat = $object['latitude'];
+            $lon = $object['longitude'];
+            unset($object['latitude'], $object['longitude']);
+
+            $model = CulturalObject::updateOrCreate(
                 ['slug' => $object['slug']],
                 $object
+            );
+
+            $model->mapLocation()->updateOrCreate(
+                [],
+                [
+                    'name' => $model->name,
+                    'category' => 'cultural',
+                    'latitude' => $lat,
+                    'longitude' => $lon,
+                    'is_accessible' => true,
+                    'accessibility_notes' => 'Akses jalan datar ramah kursi roda dan stroller bayi.',
+                ]
             );
         }
     }

@@ -79,9 +79,25 @@ class UmkmProfileSeeder extends Seeder
         ];
 
         foreach ($umkms as $umkm) {
-            UmkmProfile::updateOrCreate(
+            $lat = $umkm['latitude'];
+            $lon = $umkm['longitude'];
+            unset($umkm['latitude'], $umkm['longitude']);
+
+            $model = UmkmProfile::updateOrCreate(
                 ['slug' => $umkm['slug']],
                 $umkm
+            );
+
+            $model->mapLocation()->updateOrCreate(
+                [],
+                [
+                    'name' => $model->business_name,
+                    'category' => 'umkm',
+                    'latitude' => $lat,
+                    'longitude' => $lon,
+                    'is_accessible' => true,
+                    'accessibility_notes' => 'Pintu masuk landai, staf siap membantu akses disabilitas.',
+                ]
             );
         }
     }

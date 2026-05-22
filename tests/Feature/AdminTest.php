@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\CapacityZone;
 use App\Models\CulturalObject;
 use App\Models\Event;
+use App\Models\Facility;
 use App\Models\Feedback;
 use App\Models\MapLocation;
 use App\Models\Reservation;
@@ -103,7 +104,7 @@ class AdminTest extends TestCase
         Storage::fake('public');
 
         $response = $this->actingAs($this->adminUser)
-            ->get(route('admin.cultural-objects'));
+            ->get(route('admin.map-manager'));
         $response->assertStatus(200);
 
         // 1. Create with invalid inputs (empty name)
@@ -139,6 +140,12 @@ class AdminTest extends TestCase
         $this->assertNotNull($object->audio_narration_path);
         $this->assertCount(2, $object->historical_images);
 
+        // Assert MapLocation was created and synchronized
+        $this->assertNotNull($object->mapLocation);
+        $this->assertEquals('Pura Luhur', $object->mapLocation->name);
+        $this->assertEquals(-8.234, $object->mapLocation->latitude);
+        $this->assertEquals(115.345, $object->mapLocation->longitude);
+
         Storage::disk('public')->assertExists($object->model_3d_path);
         Storage::disk('public')->assertExists($object->audio_narration_path);
         foreach ($object->historical_images as $path) {
@@ -155,8 +162,8 @@ class AdminTest extends TestCase
                 'name' => 'Pura Luhur Updated',
                 'category' => 'house',
                 'description' => 'Tempat pemujaan suci terupdate.',
-                'latitude' => -8.234,
-                'longitude' => 115.345,
+                'latitude' => -8.555,
+                'longitude' => 115.666,
                 'ar_marker_id' => 'MARKER_PURA_LUHUR_UPDATED',
                 'model_3d_file' => $newModelFile,
                 'audio_narration_file' => $newAudioFile,
@@ -171,12 +178,182 @@ class AdminTest extends TestCase
         $this->assertCount(1, $object->historical_images);
         Storage::disk('public')->assertExists($object->historical_images[0]);
 
+        // Assert MapLocation was updated and synchronized
+        $this->assertNotNull($object->mapLocation);
+        $this->assertEquals('Pura Luhur Updated', $object->mapLocation->name);
+        $this->assertEquals(-8.555, $object->mapLocation->latitude);
+        $this->assertEquals(115.666, $object->mapLocation->longitude);
+
+        // Save ID before delete to assert missing later
+        $objectId = $object->id;
+
         // 4. Delete object
         $responseDelete = $this->actingAs($this->adminUser)
             ->delete(route('admin.cultural-objects.destroy', $object->id));
         $responseDelete->assertRedirect();
         $this->assertDatabaseMissing('cultural_objects', [
-            'id' => $object->id,
+            'id' => $objectId,
+        ]);
+
+        // Assert MapLocation was deleted
+        $this->assertDatabaseMissing('map_locations', [
+            'locationable_type' => CulturalObject::class,
+            'locationable_id' => $objectId,
+        ]);
+    }
+
+    /**
+     * Test Facility CRUD workflows.
+     */
+    public function test_facilities_crud(): void
+    {
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('admin.map-manager'));
+        $response->assertStatus(200);
+
+        // 1. Create valid facility
+        $responseCreateSuccess = $this->actingAs($this->adminUser)
+            ->post(route('admin.facilities.store'), [
+                'name' => 'Toilet Utama',
+                'type' => 'toilet',
+                'description' => 'Toilet umum bersih',
+                'is_active' => '1',
+                'latitude' => -8.123,
+                'longitude' => 115.123,
+                'is_accessible' => '1',
+                'accessibility_notes' => 'Ada ramp ramah kursi roda',
+            ]);
+        $responseCreateSuccess->assertRedirect();
+
+        $facility = Facility::where('name', 'Toilet Utama')->firstOrFail();
+        $this->assertEquals('toilet', $facility->type);
+
+        // Assert MapLocation was created and synchronized
+        $this->assertNotNull($facility->mapLocation);
+        $this->assertEquals('Toilet Utama', $facility->mapLocation->name);
+        $this->assertEquals(-8.123, $facility->mapLocation->latitude);
+        $this->assertEquals(115.123, $facility->mapLocation->longitude);
+        $this->assertTrue($facility->mapLocation->is_accessible);
+
+        // 2. Update facility
+        $responseUpdate = $this->actingAs($this->adminUser)
+            ->put(route('admin.facilities.update', $facility->id), [
+                'name' => 'Toilet Utama Updated',
+                'type' => 'toilet',
+                'description' => 'Toilet umum bersih sekali',
+                'is_active' => '1',
+                'latitude' => -8.456,
+                'longitude' => 115.456,
+                'is_accessible' => '1',
+                'accessibility_notes' => 'Ramp diperbaiki',
+            ]);
+        $responseUpdate->assertRedirect();
+
+        $facility->refresh();
+        $this->assertEquals('Toilet Utama Updated', $facility->name);
+        $this->assertEquals('Toilet umum bersih sekali', $facility->description);
+
+        // Assert MapLocation was updated and synchronized
+        $this->assertNotNull($facility->mapLocation);
+        $this->assertEquals('Toilet Utama Updated', $facility->mapLocation->name);
+        $this->assertEquals(-8.456, $facility->mapLocation->latitude);
+        $this->assertEquals(115.456, $facility->mapLocation->longitude);
+
+        // Save ID before delete to assert missing later
+        $facilityId = $facility->id;
+
+        // 3. Delete facility
+        $responseDelete = $this->actingAs($this->adminUser)
+            ->delete(route('admin.facilities.destroy', $facility->id));
+        $responseDelete->assertRedirect();
+        $this->assertDatabaseMissing('facilities', [
+            'id' => $facilityId,
+        ]);
+
+        // Assert MapLocation was deleted
+        $this->assertDatabaseMissing('map_locations', [
+            'locationable_type' => Facility::class,
+            'locationable_id' => $facilityId,
+        ]);
+    }
+
+    /**
+     * Test UMKM Profile CRUD workflows.
+     */
+    public function test_umkm_profiles_crud(): void
+    {
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('admin.map-manager'));
+        $response->assertStatus(200);
+
+        // 1. Create valid profile
+        $responseCreateSuccess = $this->actingAs($this->adminUser)
+            ->post(route('admin.umkm.profile.store'), [
+                'business_name' => 'Warung Luwak',
+                'owner_name' => 'Made Luwak',
+                'category' => 'culinary',
+                'description' => 'Kopi luwak asli',
+                'rating' => 4.8,
+                'is_active' => '1',
+                'latitude' => -8.777,
+                'longitude' => 115.777,
+                'is_accessible' => '1',
+                'accessibility_notes' => 'Datar',
+            ]);
+        $responseCreateSuccess->assertRedirect();
+
+        $profile = UmkmProfile::where('business_name', 'Warung Luwak')->firstOrFail();
+        $this->assertEquals('Made Luwak', $profile->owner_name);
+        $this->assertEquals('culinary', $profile->category);
+
+        // Assert MapLocation was created and synchronized
+        $this->assertNotNull($profile->mapLocation);
+        $this->assertEquals('Warung Luwak', $profile->mapLocation->name);
+        $this->assertEquals(-8.777, $profile->mapLocation->latitude);
+        $this->assertEquals(115.777, $profile->mapLocation->longitude);
+        $this->assertTrue($profile->mapLocation->is_accessible);
+
+        // 2. Update profile
+        $responseUpdate = $this->actingAs($this->adminUser)
+            ->put(route('admin.umkm.profile.update', $profile->id), [
+                'business_name' => 'Warung Luwak Premium',
+                'owner_name' => 'Made Luwak',
+                'category' => 'culinary',
+                'description' => 'Kopi luwak premium',
+                'rating' => 4.9,
+                'is_active' => '1',
+                'latitude' => -8.888,
+                'longitude' => 115.888,
+                'is_accessible' => '1',
+                'accessibility_notes' => 'Datar ramah',
+            ]);
+        $responseUpdate->assertRedirect();
+
+        $profile->refresh();
+        $this->assertEquals('Warung Luwak Premium', $profile->business_name);
+        $this->assertEquals('Kopi luwak premium', $profile->description);
+
+        // Assert MapLocation was updated and synchronized
+        $this->assertNotNull($profile->mapLocation);
+        $this->assertEquals('Warung Luwak Premium', $profile->mapLocation->name);
+        $this->assertEquals(-8.888, $profile->mapLocation->latitude);
+        $this->assertEquals(115.888, $profile->mapLocation->longitude);
+
+        // Save ID before delete to assert missing later
+        $profileId = $profile->id;
+
+        // 3. Delete profile
+        $responseDelete = $this->actingAs($this->adminUser)
+            ->delete(route('admin.umkm.profile.destroy', $profile->id));
+        $responseDelete->assertRedirect();
+        $this->assertDatabaseMissing('umkm_profiles', [
+            'id' => $profileId,
+        ]);
+
+        // Assert MapLocation was deleted
+        $this->assertDatabaseMissing('map_locations', [
+            'locationable_type' => UmkmProfile::class,
+            'locationable_id' => $profileId,
         ]);
     }
 
@@ -369,8 +546,6 @@ class AdminTest extends TestCase
             'slug' => 'pura-luhur-test',
             'category' => 'temple',
             'description' => 'Tempat pemujaan.',
-            'latitude' => -8.234,
-            'longitude' => 115.345,
             'ar_marker_id' => 'MARKER_PURA_TEST',
         ]);
 
@@ -379,8 +554,8 @@ class AdminTest extends TestCase
             'category' => 'cultural',
             'locationable_type' => CulturalObject::class,
             'locationable_id' => $cultural->id,
-            'latitude' => $cultural->latitude,
-            'longitude' => $cultural->longitude,
+            'latitude' => -8.234,
+            'longitude' => 115.345,
             'is_accessible' => true,
         ]);
 

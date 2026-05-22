@@ -124,14 +124,25 @@ class EventController extends Controller
         $event->category = $categoryMap[$validated['category']] ?? 'cultural';
         $event->start_datetime = $startDatetime;
         $event->end_datetime = $endDatetime;
+        $latitude = $validated['latitude'] ?? null;
+        $longitude = $validated['longitude'] ?? null;
+
         $event->location_name = $validated['location_name'];
-        $event->latitude = $validated['latitude'] ?? null;
-        $event->longitude = $validated['longitude'] ?? null;
         $event->is_free = $isFree;
         $event->price = $isFree ? 0 : ($validated['price'] ?? 0);
         $event->max_participants = $validated['max_participants'] ?? null;
         $event->current_participants = 0;
         $event->save();
+
+        if ($latitude !== null && $longitude !== null) {
+            $event->mapLocation()->create([
+                'name' => $event->name,
+                'category' => $event->category,
+                'latitude' => $latitude,
+                'longitude' => $longitude,
+                'is_accessible' => true,
+            ]);
+        }
 
         return redirect()->route('admin.events')->with('success', 'Event berhasil ditambahkan.');
     }
@@ -201,13 +212,29 @@ class EventController extends Controller
         $event->category = $categoryMap[$validated['category']] ?? 'cultural';
         $event->start_datetime = $startDatetime;
         $event->end_datetime = $endDatetime;
+        $latitude = $validated['latitude'] ?? null;
+        $longitude = $validated['longitude'] ?? null;
+
         $event->location_name = $validated['location_name'];
-        $event->latitude = $validated['latitude'] ?? null;
-        $event->longitude = $validated['longitude'] ?? null;
         $event->is_free = $isFree;
         $event->price = $isFree ? 0 : ($validated['price'] ?? 0);
         $event->max_participants = $validated['max_participants'] ?? null;
         $event->save();
+
+        if ($latitude !== null && $longitude !== null) {
+            $event->mapLocation()->updateOrCreate(
+                [],
+                [
+                    'name' => $event->name,
+                    'category' => $event->category,
+                    'latitude' => $latitude,
+                    'longitude' => $longitude,
+                    'is_accessible' => true,
+                ]
+            );
+        } else {
+            $event->mapLocation()->delete();
+        }
 
         return redirect()->route('admin.events')->with('success', 'Event berhasil diperbarui.');
     }

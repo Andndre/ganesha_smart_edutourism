@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\CapacityZone;
 use App\Models\CulturalObject;
 use App\Models\Event;
+use App\Models\Facility;
 use App\Models\Feedback;
 use App\Models\LearningContent;
 use App\Models\LearningModule;
@@ -162,53 +163,16 @@ class LocalDevSeeder extends Seeder
             );
         }
 
-        // 3. Seed Map Locations polymorphically for existing Cultural Objects & UMKM Profiles
-        $culturalObjects = CulturalObject::all();
-        foreach ($culturalObjects as $obj) {
-            MapLocation::updateOrCreate(
-                [
-                    'locationable_type' => CulturalObject::class,
-                    'locationable_id' => $obj->id,
-                ],
-                [
-                    'name' => $obj->name,
-                    'category' => 'cultural',
-                    'latitude' => $obj->latitude,
-                    'longitude' => $obj->longitude,
-                    'is_accessible' => true,
-                    'accessibility_notes' => 'Akses jalan datar ramah kursi roda dan stroller bayi.',
-                ]
-            );
-        }
-
-        $umkms = UmkmProfile::all();
-        foreach ($umkms as $umkm) {
-            MapLocation::updateOrCreate(
-                [
-                    'locationable_type' => UmkmProfile::class,
-                    'locationable_id' => $umkm->id,
-                ],
-                [
-                    'name' => $umkm->business_name,
-                    'category' => 'umkm',
-                    'latitude' => $umkm->latitude,
-                    'longitude' => $umkm->longitude,
-                    'is_accessible' => true,
-                    'accessibility_notes' => 'Pintu masuk landai, staf siap membantu akses disabilitas.',
-                ]
-            );
-        }
+        // 3. Map Locations for Cultural Objects and UMKM Profiles are seeded by their respective seeders
 
         // Standard Utility & Emergency Facilities Map Locations
-        $defaultZone = CapacityZone::where('zone_identifier', 'village_main')->first();
-        $defaultZoneId = $defaultZone ? $defaultZone->id : 1;
-
         $facilities = [
             [
                 'name' => 'Tourist Information Center',
+                'type' => 'information',
+                'description' => 'Pusat informasi utama dekat area parkir depan.',
+                'is_active' => true,
                 'category' => 'facility',
-                'locationable_type' => CapacityZone::class,
-                'locationable_id' => $defaultZoneId,
                 'latitude' => $baseLat + 0.0003,
                 'longitude' => $baseLon - 0.0005,
                 'is_accessible' => true,
@@ -216,9 +180,10 @@ class LocalDevSeeder extends Seeder
             ],
             [
                 'name' => 'Toilet Umum Aksesibel',
+                'type' => 'toilet',
+                'description' => 'Toilet ramah disabilitas dengan handrail dan ruang putar luas.',
+                'is_active' => true,
                 'category' => 'accessibility',
-                'locationable_type' => CapacityZone::class,
-                'locationable_id' => $defaultZoneId,
                 'latitude' => $baseLat - 0.0002,
                 'longitude' => $baseLon + 0.0001,
                 'is_accessible' => true,
@@ -226,9 +191,10 @@ class LocalDevSeeder extends Seeder
             ],
             [
                 'name' => 'Pos Kesehatan & Pertolongan Pertama',
+                'type' => 'emergency',
+                'description' => 'Peralatan pertolongan pertama dasar, tabung oksigen, dan kursi roda darurat.',
+                'is_active' => true,
                 'category' => 'emergency',
-                'locationable_type' => CapacityZone::class,
-                'locationable_id' => $defaultZoneId,
                 'latitude' => $baseLat - 0.0006,
                 'longitude' => $baseLon - 0.0002,
                 'is_accessible' => true,
@@ -236,13 +202,29 @@ class LocalDevSeeder extends Seeder
             ],
         ];
 
-        foreach ($facilities as $fac) {
+        foreach ($facilities as $facData) {
+            $facility = Facility::updateOrCreate(
+                ['name' => $facData['name']],
+                [
+                    'type' => $facData['type'],
+                    'description' => $facData['description'],
+                    'is_active' => $facData['is_active'],
+                ]
+            );
+
             MapLocation::updateOrCreate(
                 [
-                    'name' => $fac['name'],
-                    'category' => $fac['category'],
+                    'locationable_type' => Facility::class,
+                    'locationable_id' => $facility->id,
                 ],
-                $fac
+                [
+                    'name' => $facility->name,
+                    'category' => $facData['category'],
+                    'latitude' => $facData['latitude'],
+                    'longitude' => $facData['longitude'],
+                    'is_accessible' => $facData['is_accessible'],
+                    'accessibility_notes' => $facData['accessibility_notes'],
+                ]
             );
         }
 
@@ -417,9 +399,24 @@ class LocalDevSeeder extends Seeder
         ];
 
         foreach ($events as $evt) {
-            Event::updateOrCreate(
+            $lat = $evt['latitude'];
+            $lon = $evt['longitude'];
+            unset($evt['latitude'], $evt['longitude']);
+
+            $model = Event::updateOrCreate(
                 ['slug' => $evt['slug']],
                 $evt
+            );
+
+            $model->mapLocation()->updateOrCreate(
+                [],
+                [
+                    'name' => $model->name,
+                    'category' => $model->category,
+                    'latitude' => $lat,
+                    'longitude' => $lon,
+                    'is_accessible' => true,
+                ]
             );
         }
 

@@ -147,7 +147,7 @@
                 }).addTo(map);
 
                 marker.on('click', function () {
-                    openSheet(loc.name, loc.cat, loc.desc);
+                    openSheet(loc);
                     map.flyTo([loc.lat - 0.0005, loc.lng], 18, {
                         animate: true,
                         duration: 0.5
@@ -160,7 +160,9 @@
                     name: loc.name,
                     desc: loc.desc,
                     lat: loc.lat,
-                    lng: loc.lng
+                    lng: loc.lng,
+                    accessibility: loc.accessibility,
+                    detail_url: loc.detail_url
                 });
             });
 
@@ -170,6 +172,7 @@
             const heatmapData = @json($heatmapData);
 
             const activeFilters = {
+                cultural: true,
                 umkm: true,
                 facilities: true,
                 toilets: true,
@@ -215,7 +218,14 @@
                 const mapSize = map.getSize();
 
                 heatmapData.forEach(point => {
-                    if (!activeFilters[point.category]) return;
+                    let isFilterActive = activeFilters[point.category];
+                    if (point.category === 'accessibility') {
+                        if (point.name && point.name.toLowerCase().includes('toilet')) {
+                            isFilterActive = activeFilters['accessibility'] || activeFilters['toilets'];
+                        }
+                    }
+
+                    if (!isFilterActive) return;
 
                     const latLng = L.latLng(point.lat, point.lng);
                     if (!mapBounds.contains(latLng)) return;
@@ -257,7 +267,13 @@
                 const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
                 markerLayers.forEach(item => {
-                    const isFilterActive = activeFilters[item.category] !== false;
+                    let isFilterActive = activeFilters[item.category] !== false;
+                    if (item.category === 'accessibility') {
+                        if (item.name && item.name.toLowerCase().includes('toilet')) {
+                            isFilterActive = activeFilters['accessibility'] || activeFilters['toilets'];
+                        }
+                    }
+
                     const matchesSearch = !query ||
                         item.name.toLowerCase().includes(query) ||
                         (item.desc && item.desc.toLowerCase().includes(query));
@@ -521,10 +537,72 @@
         // ==========================================
         const sheet = document.getElementById('location-sheet');
 
-        function openSheet(name, category, desc) {
-            document.getElementById('sheet-title').textContent = name;
-            document.getElementById('sheet-category').textContent = category;
-            document.getElementById('sheet-desc').textContent = desc;
+        function openSheet(loc) {
+            document.getElementById('sheet-title').textContent = loc.name;
+
+            // Kategori mapping for display
+            const categoryLabels = {
+                cultural: 'Objek Budaya',
+                umkm: 'UMKM',
+                facilities: 'Fasilitas',
+                toilets: 'Toilet',
+                accessibility: 'Aksesibilitas'
+            };
+            const label = categoryLabels[loc.cat] || 'Lokasi';
+            const color = categoryColors[loc.cat] || '#1E5128';
+
+            // Style category badge dynamically
+            const badge = document.getElementById('sheet-category-badge');
+            const dot = document.getElementById('sheet-category-dot');
+            const text = document.getElementById('sheet-category-text');
+
+            if (badge && dot && text) {
+                text.textContent = label;
+                dot.style.backgroundColor = color;
+                badge.style.borderColor = color + '30'; // subtle border opacity
+                badge.style.color = color;
+            }
+
+            // Description Section
+            const secDesc = document.getElementById('section-desc');
+            const sheetDesc = document.getElementById('sheet-desc');
+            if (secDesc && sheetDesc) {
+                if (loc.desc && loc.desc.trim() !== '') {
+                    sheetDesc.textContent = loc.desc;
+                    secDesc.style.display = 'block';
+                } else {
+                    secDesc.style.display = 'none';
+                }
+            }
+
+            // Accessibility Section
+            const secAcc = document.getElementById('section-accessibility');
+            const sheetAcc = document.getElementById('sheet-accessibility');
+            if (secAcc && sheetAcc) {
+                if (loc.accessibility && loc.accessibility.trim() !== '') {
+                    sheetAcc.textContent = loc.accessibility;
+                    secAcc.style.display = 'flex';
+                } else {
+                    secAcc.style.display = 'none';
+                }
+            }
+
+            // Arahkan (Google Maps) Button
+            const routeBtn = document.getElementById('sheet-route-btn');
+            if (routeBtn) {
+                routeBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}`;
+            }
+
+            // Detail Button
+            const detailBtn = document.getElementById('sheet-detail-btn');
+            if (detailBtn) {
+                if (loc.detail_url) {
+                    detailBtn.href = loc.detail_url;
+                    detailBtn.style.display = 'flex';
+                } else {
+                    detailBtn.style.display = 'none';
+                }
+            }
 
             sheet.classList.remove('translate-y-full');
             sheet.classList.add('translate-y-0');

@@ -21,15 +21,13 @@ use Illuminate\Support\Carbon;
  * @property string $slug
  * @property string|null $description
  * @property string|null $category
- * @property float|null $latitude
- * @property float|null $longitude
  * @property string|null $ar_marker_id
  * @property float|null $rating
  * @property bool $is_active
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['user_id', 'owner_name', 'business_name', 'slug', 'description', 'category', 'latitude', 'longitude', 'ar_marker_id', 'rating', 'is_active'])]
+#[Fillable(['user_id', 'owner_name', 'business_name', 'slug', 'description', 'category', 'ar_marker_id', 'rating', 'is_active'])]
 class UmkmProfile extends Model
 {
     use HasFactory;
@@ -44,9 +42,17 @@ class UmkmProfile extends Model
         return [
             'is_active' => 'boolean',
             'rating' => 'float',
-            'latitude' => 'float',
-            'longitude' => 'float',
         ];
+    }
+
+    /**
+     * The booted method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::deleted(function (UmkmProfile $umkmProfile) {
+            $umkmProfile->mapLocation()->delete();
+        });
     }
 
     /**
@@ -119,6 +125,6 @@ class UmkmProfile extends Model
      */
     public function scopeWithCoordinates(Builder $query)
     {
-        return $query->whereNotNull('latitude')->whereNotNull('longitude');
+        return $query->whereHas('mapLocation');
     }
 }
