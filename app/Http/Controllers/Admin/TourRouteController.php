@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\MapLocation;
 use App\Models\TourRoute;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,6 +22,48 @@ class TourRouteController extends Controller
     }
 
     /**
+     * Show the form for creating a new tour route.
+     */
+    public function create(): View
+    {
+        $locations = MapLocation::all()->map(function ($loc) {
+            return [
+                'id' => $loc->id,
+                'name' => $loc->name,
+                'category' => $loc->category === 'facility' ? 'facilities' : ($loc->category === 'toilet' ? 'toilets' : $loc->category),
+                'latitude' => $loc->latitude,
+                'longitude' => $loc->longitude,
+                'locationable_type' => $loc->locationable_type,
+                'locationable_id' => $loc->locationable_id,
+            ];
+        });
+
+        return view('admin.tour-routes.create', compact('locations'));
+    }
+
+    /**
+     * Show the form for editing the specified tour route.
+     */
+    public function edit(int $id): View
+    {
+        $route = TourRoute::with('routePoints.locationable')->findOrFail($id);
+
+        $locations = MapLocation::all()->map(function ($loc) {
+            return [
+                'id' => $loc->id,
+                'name' => $loc->name,
+                'category' => $loc->category === 'facility' ? 'facilities' : ($loc->category === 'toilet' ? 'toilets' : $loc->category),
+                'latitude' => $loc->latitude,
+                'longitude' => $loc->longitude,
+                'locationable_type' => $loc->locationable_type,
+                'locationable_id' => $loc->locationable_id,
+            ];
+        });
+
+        return view('admin.tour-routes.edit', compact('route', 'locations'));
+    }
+
+    /**
      * Store a newly created tour route in storage.
      */
     public function store(Request $request): RedirectResponse
@@ -32,6 +75,11 @@ class TourRouteController extends Controller
             'estimated_duration_minutes' => ['required', 'integer', 'min:1'],
             'distance_meters' => ['required', 'integer', 'min:1'],
             'is_smart_route' => ['nullable', 'boolean'],
+            'points' => ['nullable', 'array'],
+            'points.*.locationable_type' => ['required', 'string'],
+            'points.*.locationable_id' => ['required', 'integer'],
+            'points.*.estimated_visit_minutes' => ['nullable', 'integer', 'min:1'],
+            'points.*.storytelling_content' => ['nullable', 'string'],
         ]);
 
         $validated['is_active'] = true;
@@ -47,7 +95,19 @@ class TourRouteController extends Controller
         ];
         $validated['difficulty'] = $difficultyMap[$validated['difficulty']] ?? 'easy';
 
-        TourRoute::create($validated);
+        $route = TourRoute::create($validated);
+
+        if ($request->has('points') && is_array($request->points)) {
+            foreach ($request->points as $index => $point) {
+                $route->routePoints()->create([
+                    'locationable_type' => $point['locationable_type'],
+                    'locationable_id' => $point['locationable_id'],
+                    'order' => $index + 1,
+                    'estimated_visit_minutes' => $point['estimated_visit_minutes'] ?? 15,
+                    'storytelling_content' => $point['storytelling_content'] ?? null,
+                ]);
+            }
+        }
 
         return redirect()->route('admin.tour-routes')->with('success', 'Rute wisata berhasil ditambahkan.');
     }
@@ -67,6 +127,11 @@ class TourRouteController extends Controller
             'distance_meters' => ['required', 'integer', 'min:1'],
             'is_smart_route' => ['nullable', 'boolean'],
             'is_active' => ['nullable', 'boolean'],
+            'points' => ['nullable', 'array'],
+            'points.*.locationable_type' => ['required', 'string'],
+            'points.*.locationable_id' => ['required', 'integer'],
+            'points.*.estimated_visit_minutes' => ['nullable', 'integer', 'min:1'],
+            'points.*.storytelling_content' => ['nullable', 'string'],
         ]);
 
         $validated['is_smart_route'] = $request->has('is_smart_route') ? true : false;
@@ -83,6 +148,20 @@ class TourRouteController extends Controller
         $validated['difficulty'] = $difficultyMap[$validated['difficulty']] ?? 'easy';
 
         $route->update($validated);
+
+        // Re-sync points
+        $route->routePoints()->delete();
+        if ($request->has('points') && is_array($request->points)) {
+            foreach ($request->points as $index => $point) {
+                $route->routePoints()->create([
+                    'locationable_type' => $point['locationable_type'],
+                    'locationable_id' => $point['locationable_id'],
+                    'order' => $index + 1,
+                    'estimated_visit_minutes' => $point['estimated_visit_minutes'] ?? 15,
+                    'storytelling_content' => $point['storytelling_content'] ?? null,
+                ]);
+            }
+        }
 
         return redirect()->route('admin.tour-routes')->with('success', 'Rute wisata berhasil diperbarui.');
     }
