@@ -101,6 +101,15 @@
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
+        // Category colors mapping matching the filter panel dots
+        const categoryColors = {
+            umkm: '#8B5CF6',         // Violet
+            facilities: '#3B82F6',   // Blue
+            toilets: '#06B6D4',      // Cyan
+            accessibility: '#F59E0B',// Amber
+            cultural: '#1E5128'      // Green (Default)
+        };
+
         document.addEventListener('DOMContentLoaded', function () {
             const defaultLat = {{ $defaultLat }};
             const defaultLon = {{ $defaultLon }};
@@ -118,15 +127,6 @@
 
             // 3. Data from ExploreController
             const locations = @json($locations);
-
-            // 4. Category colors mapping matching the filter panel dots
-            const categoryColors = {
-                umkm: '#8B5CF6',         // Violet
-                facilities: '#3B82F6',   // Blue
-                toilets: '#06B6D4',      // Cyan
-                accessibility: '#F59E0B',// Amber
-                cultural: '#1E5128'      // Green (Default)
-            };
 
             function getMarkerIcon(category) {
                 const color = categoryColors[category] || '#1E5128';
