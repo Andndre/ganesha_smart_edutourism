@@ -37,6 +37,9 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    // Public Routing API Proxy
+    Route::post('/api/routing/directions', [RoutingController::class, 'directions'])->name('routing.directions');
+
     Route::middleware('redirect.admin')->group(function () {
         // Home
         Route::get('/', [HomeController::class, 'index'])->name('home');

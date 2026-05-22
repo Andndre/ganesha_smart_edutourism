@@ -13,6 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="Penglipuran">
 
     <title>@yield('title', 'Penglipuran Smart Tour')</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- Shortcut icon --}}
     <link rel="shortcut icon" href="{{ asset('icons/logo-color-notext-shortcut.ico') }}">
