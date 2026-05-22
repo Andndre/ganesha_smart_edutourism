@@ -19,15 +19,15 @@
             --sab: env(safe-area-inset-bottom);
         }
 
-        /* Sidebar fixed on desktop, content scrolls independently */
-        @media (min-width: 1024px) {
-            #admin-sidebar {
-                position: fixed;
-                inset: 0 auto 0 0;
-                width: 260px;
-                overflow-y: auto;
-            }
+        /* Sidebar fixed on desktop & mobile overlay, content scrolls independently */
+        #admin-sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: 260px;
+            overflow-y: auto;
+        }
 
+        @media (min-width: 1024px) {
             #admin-main {
                 margin-left: 260px;
             }
