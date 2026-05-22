@@ -11,6 +11,10 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TourRouteController;
 use App\Http\Controllers\Admin\UmkmController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ExploreController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LearningController;
+use App\Http\Controllers\LearningProgressController;
 use Illuminate\Support\Facades\Route;
 
 // Auth Routes (Guest Only)
@@ -30,10 +34,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Home
-    Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::get('/', [HomeController::class, 'index'])->name('home');
 
     // Explore/Map
-    Route::get('/explore', [App\Http\Controllers\ExploreController::class, 'index'])->name('explore');
+    Route::get('/explore', [ExploreController::class, 'index'])->name('explore');
 
     // AR Scan
     Route::get('/ar-scan', function () {
@@ -62,9 +66,9 @@ Route::middleware('auth')->group(function () {
     })->name('events');
 
     // Learning
-    Route::get('/learning', [App\Http\Controllers\LearningController::class, 'index'])->name('learning');
-    Route::get('/learning/{slug}', [App\Http\Controllers\LearningController::class, 'show'])->name('learning.show');
-    Route::post('/learning/{moduleSlug}/{contentSlug}/quiz', [App\Http\Controllers\LearningProgressController::class, 'submitQuiz'])->name('learning.quiz.submit');
+    Route::get('/learning', [LearningController::class, 'index'])->name('learning');
+    Route::get('/learning/{slug}', [LearningController::class, 'show'])->name('learning.show');
+    Route::post('/learning/{moduleSlug}/{contentSlug}/quiz', [LearningProgressController::class, 'submitQuiz'])->name('learning.quiz.submit');
 
     // Tour Packages
     Route::get('/tour-packages', function () {
@@ -109,7 +113,7 @@ Route::get('/offline', function () {
 })->name('offline');
 
 // Admin Routes
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     // Capacity Zone Routes
