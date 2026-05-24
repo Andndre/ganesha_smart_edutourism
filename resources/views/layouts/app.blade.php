@@ -59,6 +59,34 @@
 
 <body class="bg-surface text-charcoal flex h-dvh flex-col antialiased">
 
+    <!-- Global Offline Coaching Modal -->
+    <div id="offline-coaching-modal" class="fixed inset-0 flex items-center justify-center bg-charcoal/40 backdrop-blur-sm transition-all duration-300 pointer-events-none opacity-0 scale-95" style="z-index: 999999;">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-[90%] shadow-2xl border border-gray-100 flex flex-col items-center text-center">
+            <!-- Icon -->
+            <div class="w-12 h-12 rounded-full bg-amber-50 text-[#E28F1B] flex items-center justify-center mb-4">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18" />
+                </svg>
+            </div>
+            
+            <!-- Title -->
+            <h3 class="text-charcoal text-base font-bold mb-2">Anda Sedang Luring (Offline)</h3>
+            
+            <!-- Description -->
+            <p class="text-gray-500 text-xs leading-relaxed mb-6">
+                Koneksi internet Anda terputus. Jangan khawatir, Anda tetap dapat menjelajahi desa melalui data luring (cache).
+                <br><br>
+                Perhatikan indikator <span class="bg-[#E28F1B] text-white rounded-full px-2.5 py-0.5 font-bold">Offline</span> di pojok kanan atas sebagai penanda status koneksi Anda.
+            </p>
+            
+            <!-- Action Button -->
+            <button id="close-offline-coaching-btn" class="bg-primary hover:bg-[#152E1D] text-white font-semibold text-sm py-2.5 px-6 rounded-xl w-full transition-all duration-200 active:scale-95 shadow-md">
+                Baik, Saya Mengerti
+            </button>
+        </div>
+    </div>
+
     @unless (Route::is('explore'))
         @include('components.navigation.header', [
             'showBack' => true,
@@ -139,6 +167,57 @@
                 });
             });
         });
+
+        // Online/Offline status and Coaching Modal detection
+        function updateOnlineStatus() {
+            const localIndicator = document.getElementById('offline-indicator');
+            const coachingModal = document.getElementById('offline-coaching-modal');
+            const hasSeenPopup = localStorage.getItem('has_seen_offline_popup') === 'true';
+            
+            if (navigator.onLine) {
+                // User is Online: hide indicator
+                if (localIndicator) {
+                    localIndicator.classList.add('hidden');
+                }
+                // Close modal if open (in case they reconnect)
+                if (coachingModal) {
+                    coachingModal.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
+                    coachingModal.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                }
+            } else {
+                // User is Offline: show indicator
+                if (localIndicator) {
+                    localIndicator.classList.remove('hidden');
+                }
+                // Show coaching modal if they haven't seen it yet
+                if (coachingModal && !hasSeenPopup) {
+                    coachingModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+                    coachingModal.classList.add('opacity-100', 'pointer-events-auto', 'scale-100');
+                }
+            }
+        }
+
+        // Handle closing the coaching modal and setting persistent preference
+        document.addEventListener('DOMContentLoaded', () => {
+            const closeBtn = document.getElementById('close-offline-coaching-btn');
+            const coachingModal = document.getElementById('offline-coaching-modal');
+            
+            if (closeBtn && coachingModal) {
+                closeBtn.addEventListener('click', () => {
+                    // Hide modal with animation
+                    coachingModal.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
+                    coachingModal.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                    // Store flag in localStorage permanently
+                    localStorage.setItem('has_seen_offline_popup', 'true');
+                });
+            }
+            
+            // Run check on DOMContentLoaded
+            updateOnlineStatus();
+        });
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
     </script>
 
     @stack('scripts')
