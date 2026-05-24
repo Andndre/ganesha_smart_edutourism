@@ -171,6 +171,7 @@ class UmkmController extends Controller
     public function storeProfile(Request $request): RedirectResponse
     {
         $validated = $request->validate([
+            'user_id' => ['nullable', 'exists:users,id'],
             'business_name' => ['required', 'string', 'max:255'],
             'owner_name' => ['required', 'string', 'max:255'],
             'category' => ['required', 'string', 'in:culinary,craft,souvenir,service'],
@@ -227,6 +228,7 @@ class UmkmController extends Controller
         $profile = UmkmProfile::findOrFail($id);
 
         $validated = $request->validate([
+            'user_id' => ['nullable', 'exists:users,id'],
             'business_name' => ['required', 'string', 'max:255'],
             'owner_name' => ['required', 'string', 'max:255'],
             'category' => ['required', 'string', 'in:culinary,craft,souvenir,service'],
