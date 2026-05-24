@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.dashboard')
 
 @section('title', isset($package) ? 'Edit Paket Wisata' : 'Tambah Paket Wisata')
 

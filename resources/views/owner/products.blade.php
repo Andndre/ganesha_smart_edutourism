@@ -1,0 +1,359 @@
+@extends('layouts.dashboard')
+
+@section('title', 'Daftar Produk Toko')
+
+@push('styles')
+<style>
+    .model-viewer-wrapper {
+        position: relative;
+        width: 100%;
+        height: 250px;
+        background: radial-gradient(circle, #f9fafb 0%, #f3f4f6 100%);
+        border: 1px border-dashed #d1d5db;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    model-viewer {
+        width: 100%;
+        height: 100%;
+        --poster-color: transparent;
+    }
+</style>
+@endpush
+
+@section('content')
+<div class="mb-8 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between max-w-6xl">
+    <div>
+        <h1 class="font-display text-3xl font-extrabold text-charcoal tracking-tight">Daftar Produk Toko</h1>
+        <p class="mt-1 text-sm text-gray-500">Kelola katalog produk, harga, persediaan stok, dan model 3D interaktif produk Anda.</p>
+    </div>
+    @if (!$noProfile)
+        <button onclick="openCreateModal()" class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-600 active:scale-[0.98]">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Tambah Produk
+        </button>
+    @endif
+</div>
+
+@if ($noProfile)
+    <div class="rounded-2xl border border-warning/20 bg-warning/5 p-6 shadow-sm max-w-3xl">
+        <div class="flex items-start gap-4">
+            <div class="rounded-xl bg-warning/10 p-3 text-warning">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <div>
+                <h3 class="font-display text-lg font-bold text-warning-800">Profil Toko Belum Dibuat</h3>
+                <p class="mt-1 text-sm text-warning-700">Anda belum memiliki profil toko UMKM yang aktif. Silakan buat profil toko terlebih dahulu sebelum menambahkan katalog produk.</p>
+                <div class="mt-4">
+                    <a href="{{ route('owner.profile') }}" class="inline-flex items-center gap-2 rounded-xl bg-warning px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-warning/20 transition-all hover:bg-warning-600 active:scale-[0.98]">
+                        Buat Profil Toko
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+@else
+    {{-- Search + Filter --}}
+    <form method="GET" action="{{ route('owner.products') }}" class="mb-6 flex flex-col gap-3 sm:flex-row max-w-6xl">
+        <div class="relative flex-1">
+            <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama produk..." class="w-full rounded-xl border border-gray-200 py-2.5 pl-9 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">
+        </div>
+        <select name="category" onchange="this.form.submit()" class="rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:border-primary focus:outline-none">
+            <option value="Semua Kategori">Semua Kategori</option>
+            @foreach($categories as $cat)
+                <option value="{{ $cat->name }}" {{ request('category') === $cat->name ? 'selected' : '' }}>{{ $cat->name }}</option>
+            @endforeach
+        </select>
+    </form>
+
+    {{-- Products Table --}}
+    <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm max-w-6xl">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-100 bg-gray-50/50">
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Produk</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Kategori</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Harga</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Stok</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Model 3D</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Status</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    @forelse ($products as $p)
+                        <tr class="hover:bg-gray-50/50">
+                            <td class="px-5 py-4 font-semibold text-charcoal">
+                                <div>
+                                    <p>{{ $p->name }}</p>
+                                    @if($p->images && count($p->images) > 0)
+                                        <span class="inline-block mt-0.5 rounded bg-gray-150 px-1.5 py-0.5 text-[10px] font-bold text-gray-500">{{ count($p->images) }} Foto</span>
+                                    @endif
+                                </div>
+                            </td>
+                            <td class="px-5 py-4 text-gray-500">
+                                <span class="rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary-800">
+                                    {{ $p->category->name ?? 'Lainnya' }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-4 font-semibold text-charcoal">Rp {{ number_format($p->price, 0, ',', '.') }}</td>
+                            <td class="px-5 py-4">
+                                @if ($p->stock !== null && $p->stock <= 5)
+                                    <span class="rounded-full bg-warning/10 px-2.5 py-0.5 text-xs font-bold text-warning">{{ $p->stock }} — Stok Rendah</span>
+                                @elseif ($p->stock === null)
+                                    <span class="text-gray-400 italic text-xs">Selalu Tersedia</span>
+                                @else
+                                    <span class="text-gray-600 font-semibold">{{ $p->stock }} {{ $p->unit ?? 'pcs' }}</span>
+                                @endif
+                            </td>
+                            <td class="px-5 py-4">
+                                @if ($p->ar_model_path)
+                                    <span class="inline-flex items-center gap-1 text-xs font-semibold text-secondary-800 bg-secondary/15 rounded-lg px-2 py-1">
+                                        <svg class="h-3.5 w-3.5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                        </svg>
+                                        Tersedia (3D)
+                                    </span>
+                                @else
+                                    <span class="text-xs text-gray-400 italic">Belum Diunggah</span>
+                                @endif
+                            </td>
+                            <td class="px-5 py-4">
+                                @if ($p->is_active)
+                                    <span class="inline-flex items-center gap-1 rounded bg-secondary/10 px-2 py-0.5 text-xs font-bold text-secondary">Aktif</span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 rounded bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-400">Nonaktif</span>
+                                @endif
+                            </td>
+                            <td class="px-5 py-4">
+                                <div class="flex items-center gap-2">
+                                    <button onclick="openEditModal({{ json_encode($p) }})" class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-primary/10 hover:text-primary" title="Edit">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                    <form method="POST" action="{{ route('owner.products.destroy', $p->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?')" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-warning/10 hover:text-warning" title="Hapus">
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-5 py-8 text-center text-gray-400">Belum ada produk terdaftar.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        @if($products->hasPages())
+            <div class="border-t border-gray-100 px-5 py-3.5">
+                {{ $products->links() }}
+            </div>
+        </div>
+        @endif
+    </div>
+@endif
+
+{{-- Product Modal Form --}}
+<div id="product-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-charcoal/50 backdrop-blur-sm p-4 justify-center">
+    <div class="my-auto self-start w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl transition-all">
+        <div class="mb-4 flex items-center justify-between">
+            <h3 id="modal-title" class="font-display text-lg font-bold text-charcoal">Tambah Produk UMKM</h3>
+            <button onclick="closeModal()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <form id="modal-form" method="POST" action="" enctype="multipart/form-data">
+            @csrf
+            <div id="method-container"></div>
+            
+            <div class="grid gap-6 md:grid-cols-2">
+                {{-- Left Column (Text Fields) --}}
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">Nama Produk <span class="text-warning">*</span></label>
+                        <input type="text" name="name" id="field-name" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">Kategori <span class="text-warning">*</span></label>
+                        <select name="umkm_product_category_id" id="field-category" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                            <option value="" disabled selected>Pilih Kategori...</option>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Harga (Rp) <span class="text-warning">*</span></label>
+                            <input type="number" name="price" id="field-price" required min="0" placeholder="5000" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Persediaan (Stok)</label>
+                            <input type="number" name="stock" id="field-stock" min="0" placeholder="Kosongkan jika selalu ada" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Satuan</label>
+                            <input type="text" name="unit" id="field-unit" placeholder="pcs, bungkus, porsi" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                        </div>
+                        <div class="flex items-center gap-2 pt-6">
+                            <input type="checkbox" name="is_active" id="field-active" value="1" checked class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
+                            <label for="field-active" class="text-sm font-semibold text-gray-700">Produk Aktif / Tampil</label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">Deskripsi Produk</label>
+                        <textarea name="description" id="field-description" rows="3" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none"></textarea>
+                    </div>
+                </div>
+
+                {{-- Right Column (Media & 3D Model Upload / Previews) --}}
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">Unggah Foto Produk</label>
+                        <input type="file" name="images[]" multiple accept="image/*" class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">Model 3D (Opsional - format .glb)</label>
+                        <input type="file" id="field-glb-file" name="ar_model_file" accept=".glb" onchange="preview3DModel(this)" class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                        <input type="hidden" name="ar_model_path" id="field-glb-path">
+                    </div>
+
+                    {{-- 3D Interactive Model Viewer Panel --}}
+                    <div>
+                        <span class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Pratinjau 3D Interaktif</span>
+                        <div class="model-viewer-wrapper flex items-center justify-center">
+                            <div id="viewer-placeholder" class="text-center p-4">
+                                <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
+                                <span class="mt-2 block text-xs text-gray-400">Pilih file 3D (.glb) untuk melihat pratinjau interaktif di sini</span>
+                            </div>
+                            <model-viewer id="viewer-3d" class="hidden" camera-controls auto-rotate shadow-intensity="1"></model-viewer>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-4">
+                <button type="button" onclick="closeModal()" class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">Batal</button>
+                <button type="submit" class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 hover:bg-primary-600">Simpan Produk</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@endsection
+
+@push('scripts')
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<script>
+    const modal = document.getElementById('product-modal');
+    const form = document.getElementById('modal-form');
+    const modalTitle = document.getElementById('modal-title');
+    const methodContainer = document.getElementById('method-container');
+    const storageUrl = "{{ asset('storage') }}";
+
+    // Fields
+    const fieldName = document.getElementById('field-name');
+    const fieldCategory = document.getElementById('field-category');
+    const fieldPrice = document.getElementById('field-price');
+    const fieldStock = document.getElementById('field-stock');
+    const fieldUnit = document.getElementById('field-unit');
+    const fieldActive = document.getElementById('field-active');
+    const fieldDescription = document.getElementById('field-description');
+    const fieldGlbFile = document.getElementById('field-glb-file');
+    const fieldGlbPath = document.getElementById('field-glb-path');
+
+    // 3D Viewer Elements
+    const viewer3d = document.getElementById('viewer-3d');
+    const viewerPlaceholder = document.getElementById('viewer-placeholder');
+
+    function openCreateModal() {
+        modalTitle.innerText = "Tambah Produk UMKM";
+        form.action = "{{ route('owner.products.store') }}";
+        methodContainer.innerHTML = "";
+        
+        form.reset();
+        reset3DViewer();
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function openEditModal(product) {
+        modalTitle.innerText = "Edit Produk UMKM";
+        form.action = `/owner/products/${product.id}`;
+        methodContainer.innerHTML = `@method('PUT')`;
+        
+        fieldName.value = product.name;
+        fieldCategory.value = product.umkm_product_category_id || "";
+        fieldPrice.value = Math.round(product.price);
+        fieldStock.value = product.stock !== null ? product.stock : "";
+        fieldUnit.value = product.unit || "pcs";
+        fieldActive.checked = product.is_active;
+        fieldDescription.value = product.description || "";
+        fieldGlbFile.value = "";
+        fieldGlbPath.value = product.ar_model_path || "";
+
+        // Setup 3D viewer if model exists
+        if (product.ar_model_path) {
+            setup3DViewer(`${storageUrl}/${product.ar_model_path}`);
+        } else {
+            reset3DViewer();
+        }
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function preview3DModel(input) {
+        const file = input.files[0];
+        if (file) {
+            const blobUrl = URL.createObjectURL(file);
+            setup3DViewer(blobUrl);
+        }
+    }
+
+    function setup3DViewer(src) {
+        viewerPlaceholder.classList.add('hidden');
+        viewer3d.classList.remove('hidden');
+        viewer3d.src = src;
+    }
+
+    function reset3DViewer() {
+        viewer3d.classList.add('hidden');
+        viewerPlaceholder.classList.remove('hidden');
+        viewer3d.src = "";
+    }
+</script>
+@endpush

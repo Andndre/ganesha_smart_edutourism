@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\MapLocation;
+use App\Models\User;
 use Illuminate\View\View;
 
 class MapManagerController extends Controller
@@ -14,7 +15,8 @@ class MapManagerController extends Controller
     public function index(): View
     {
         $locations = MapLocation::with('locationable')->get();
+        $owners = User::where('role', 'umkm_owner')->orderBy('name')->get();
 
-        return view('admin.map-manager.index', compact('locations'));
+        return view('admin.map-manager.index', compact('locations', 'owners'));
     }
 }

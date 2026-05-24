@@ -348,6 +348,8 @@
 
             form.querySelector('input[name="business_name"]').value = details.business_name;
             form.querySelector('input[name="owner_name"]').value = details.owner_name;
+            document.getElementById('umkm-owner-user-id').value = details.user_id || '';
+            document.getElementById('umkm-owner-search').value = details.owner_name || '';
             form.querySelector('select[name="category"]').value = details.category;
             form.querySelector('textarea[name="description"]').value = details.description || '';
             form.querySelector('input[name="rating"]').value = details.rating || '5.0';
@@ -429,6 +431,9 @@
         umkmForm.reset();
         umkmForm.action = "{{ route('admin.umkm.profile.store') }}";
         document.getElementById('method-umkm').innerHTML = '';
+        document.getElementById('umkm-owner-user-id').value = '';
+        document.getElementById('umkm-owner-search').value = '';
+        document.getElementById('umkm-owner-name').value = '';
 
         const facilityForm = document.getElementById('form-facility');
         facilityForm.reset();

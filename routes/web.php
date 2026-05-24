@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\MapManagerController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TourRouteController;
+use App\Http\Controllers\Admin\UmkmCategoryController;
 use App\Http\Controllers\Admin\UmkmController;
 use App\Http\Controllers\Api\RoutingController;
 use App\Http\Controllers\AuthController;
@@ -18,6 +19,8 @@ use App\Http\Controllers\ExploreController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LearningController;
 use App\Http\Controllers\LearningProgressController;
+use App\Http\Controllers\Owner\OwnerDashboardController;
+use App\Http\Controllers\Owner\OwnerProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -148,6 +151,18 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::put('/umkm/profiles/{id}', [UmkmController::class, 'updateProfile'])->name('admin.umkm.profile.update');
     Route::delete('/umkm/profiles/{id}', [UmkmController::class, 'destroyProfile'])->name('admin.umkm.profile.destroy');
 
+    // UMKM Category Routes
+    Route::get('/umkm/categories', [UmkmCategoryController::class, 'index'])->name('admin.umkm.categories');
+    Route::post('/umkm/categories', [UmkmCategoryController::class, 'store'])->name('admin.umkm.categories.store');
+    Route::put('/umkm/categories/{id}', [UmkmCategoryController::class, 'update'])->name('admin.umkm.categories.update');
+    Route::delete('/umkm/categories/{id}', [UmkmCategoryController::class, 'destroy'])->name('admin.umkm.categories.destroy');
+
+    // UMKM Owner Routes
+    Route::get('/umkm/owners', [UmkmController::class, 'ownersList'])->name('admin.umkm.owners');
+    Route::post('/umkm/owners', [UmkmController::class, 'storeOwner'])->name('admin.umkm.owners.store');
+    Route::put('/umkm/owners/{id}', [UmkmController::class, 'updateOwner'])->name('admin.umkm.owners.update');
+    Route::delete('/umkm/owners/{id}', [UmkmController::class, 'destroyOwner'])->name('admin.umkm.owners.destroy');
+
     // Map Manager Routes
     Route::get('/map-manager', [MapManagerController::class, 'index'])->name('admin.map-manager');
 
@@ -192,4 +207,19 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Report Routes
     Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports');
     Route::get('/reports/download', [ReportController::class, 'downloadPdf'])->name('admin.reports.download');
+});
+
+// Owner Routes
+Route::prefix('owner')->middleware(['auth', 'umkm_owner'])->group(function () {
+    Route::get('/dashboard', [OwnerDashboardController::class, 'index'])->name('owner.dashboard');
+    Route::get('/profile', [OwnerDashboardController::class, 'editProfile'])->name('owner.profile');
+    Route::put('/profile', [OwnerDashboardController::class, 'updateProfile'])->name('owner.profile.update');
+    Route::get('/location', [OwnerDashboardController::class, 'editLocation'])->name('owner.location');
+    Route::put('/location', [OwnerDashboardController::class, 'updateLocation'])->name('owner.location.update');
+
+    // Product Routes
+    Route::get('/products', [OwnerProductController::class, 'index'])->name('owner.products');
+    Route::post('/products', [OwnerProductController::class, 'store'])->name('owner.products.store');
+    Route::put('/products/{id}', [OwnerProductController::class, 'update'])->name('owner.products.update');
+    Route::delete('/products/{id}', [OwnerProductController::class, 'destroy'])->name('owner.products.destroy');
 });

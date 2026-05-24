@@ -1,6 +1,25 @@
-@extends('layouts.admin')
+@extends('layouts.dashboard')
 
 @section('title', 'UMKM')
+
+@push('styles')
+<style>
+    .model-viewer-wrapper {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        background: radial-gradient(circle, #f9fafb 0%, #f3f4f6 100%);
+        border: 1px border-dashed #d1d5db;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    model-viewer {
+        width: 100%;
+        height: 100%;
+        --poster-color: transparent;
+    }
+</style>
+@endpush
 
 @section('content')
 
@@ -86,7 +105,7 @@
                         </td>
                         <td class="px-5 py-4 text-gray-500">{{ $p->umkmProfile->business_name ?? 'Lokal' }}</td>
                         <td class="px-5 py-4">
-                            <span class="rounded-lg bg-secondary/10 px-2.5 py-1 text-xs font-semibold text-secondary-700">{{ $p->umkmProfile->category ?? 'Lainnya' }}</span>
+                            <span class="rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary-800">{{ $p->category->name ?? 'Lainnya' }}</span>
                         </td>
                         <td class="px-5 py-4 font-semibold text-charcoal">Rp {{ number_format($p->price, 0, ',', '.') }}</td>
                         <td class="px-5 py-4">
@@ -150,6 +169,15 @@
                     <input type="text" name="name" id="field-name" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
                 </div>
                 <div>
+                    <label class="block text-sm font-semibold text-gray-700">Kategori Produk <span class="text-warning">*</span></label>
+                    <select name="umkm_product_category_id" id="field-category" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                        <option value="" disabled selected>Pilih Kategori...</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
                     <label class="block text-sm font-semibold text-gray-700">Toko / UMKM Profil <span class="text-warning">*</span></label>
                     <select name="umkm_profile_id" id="field-profile" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
                         @foreach ($profiles as $profile)
@@ -174,10 +202,21 @@
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700">File AR Model 3D (.glb)</label>
-                        <input type="file" name="ar_model_file" id="field-ar-model-file" accept=".glb,.gltf" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                        <p id="current-ar-model-container" class="mt-1 text-xs text-gray-500 hidden">
+                        <input type="file" name="ar_model_file" id="field-ar-model-file" accept=".glb" onchange="preview3DModel(this)" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                        <p id="current-ar-model-container" class="mt-1 text-xs text-gray-500 hidden mb-2">
                             File saat ini: <span id="current-ar-model-path" class="font-mono bg-gray-50 px-1 py-0.5 rounded border border-gray-100"></span>
                         </p>
+                        
+                        {{-- 3D Interactive Model Viewer Panel --}}
+                        <div class="mt-2.5">
+                            <span class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Pratinjau 3D Interaktif</span>
+                            <div class="model-viewer-wrapper flex items-center justify-center">
+                                <div id="viewer-placeholder" class="text-center p-4">
+                                    <span class="text-xs text-gray-400">Pilih/unggah file GLB untuk melihat model 3D di sini</span>
+                                </div>
+                                <model-viewer id="viewer-3d" class="hidden" camera-controls auto-rotate shadow-intensity="1" style="width: 100%; height: 100%;"></model-viewer>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div>
@@ -208,11 +247,17 @@
 @endsection
 
 @push('scripts')
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
 <script>
     const modal = document.getElementById('product-modal');
     const form = document.getElementById('modal-form');
     const modalTitle = document.getElementById('modal-title');
     const methodContainer = document.getElementById('method-container');
+    const storageUrl = "{{ asset('storage') }}";
+
+    // 3D Viewer Elements
+    const viewer3d = document.getElementById('viewer-3d');
+    const viewerPlaceholder = document.getElementById('viewer-placeholder');
 
     function openCreateModal() {
         modalTitle.innerText = "Tambah Produk UMKM";
@@ -220,6 +265,7 @@
         methodContainer.innerHTML = "";
         
         document.getElementById('field-name').value = "";
+        document.getElementById('field-category').value = "";
         document.getElementById('field-price').value = "";
         document.getElementById('field-stock').value = "";
         document.getElementById('field-unit').value = "pcs";
@@ -230,6 +276,7 @@
 
         document.getElementById('current-ar-model-container').classList.add('hidden');
         document.getElementById('current-images-container').classList.add('hidden');
+        reset3DViewer();
         
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -241,6 +288,7 @@
         methodContainer.innerHTML = `@method('PUT')`;
 
         document.getElementById('field-name').value = prod.name;
+        document.getElementById('field-category').value = prod.umkm_product_category_id || "";
         document.getElementById('field-profile').value = prod.umkm_profile_id;
         document.getElementById('field-price').value = Math.round(prod.price);
         document.getElementById('field-stock').value = prod.stock;
@@ -257,8 +305,10 @@
         if (prod.ar_model_path) {
             modelPath.textContent = prod.ar_model_path;
             modelContainer.classList.remove('hidden');
+            setup3DViewer(`${storageUrl}/${prod.ar_model_path}`);
         } else {
             modelContainer.classList.add('hidden');
+            reset3DViewer();
         }
 
         // Images
@@ -290,6 +340,26 @@
     function closeModal() {
         modal.classList.add('hidden');
         modal.classList.remove('flex');
+    }
+
+    function preview3DModel(input) {
+        const file = input.files[0];
+        if (file) {
+            const blobUrl = URL.createObjectURL(file);
+            setup3DViewer(blobUrl);
+        }
+    }
+
+    function setup3DViewer(src) {
+        viewerPlaceholder.classList.add('hidden');
+        viewer3d.classList.remove('hidden');
+        viewer3d.src = src;
+    }
+
+    function reset3DViewer() {
+        viewer3d.classList.add('hidden');
+        viewerPlaceholder.classList.remove('hidden');
+        viewer3d.src = "";
     }
 </script>
 @endpush
