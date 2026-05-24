@@ -222,7 +222,7 @@
                                 const data = await response.json();
                                 if (data.features && data.features.length > 0) {
                                     const routeFeature = data.features[0];
-                                    
+
                                     routeLayer = L.layerGroup();
 
                                     // Background shadow path
@@ -412,13 +412,24 @@
             // ==========================================
             // MY LOCATION FUNCTIONALITY
             // ==========================================
+            /** @type {L.Marker|null} */
             let locationMarker = null;
+            /** @type {L.Marker|null} */
             let locationArrow = null;
+            /** @type {L.Marker|null} */
             let locationPulse = null;
+            /** @type {number|null} */
             let watchId = null;
+            /** @type {number} */
             let currentHeading = 0;
+            /** @type {{ lat: number, lng: number }|null} */
             let lastPosition = null;
 
+            /**
+             * @param {Object} e
+             * @param {L.LatLng} e.latlng
+             * @param {number|null} [e.heading]
+             */
             function onLocationFound(e) {
                 const latlng = e.latlng;
 
@@ -435,32 +446,28 @@
                     iconAnchor: [20, 20]
                 });
 
+                locationPulse = L.marker(latlng, {
+                    icon: pulseIcon
+                }).addTo(map);
+
+                // Determine heading
+                let heading = null;
+                if (e.heading !== undefined && e.heading !== null) {
+                    heading = e.heading;
+                    currentHeading = heading;
+                } else if (lastPosition) {
+                    heading = calculateHeading(lastPosition, latlng);
+                    currentHeading = heading;
+                }
+
+                // Create and add unified location marker
                 locationMarker = L.marker(latlng, {
                     icon: L.divIcon({
                         className: 'location-marker',
-                        html: `<div style="background: #1E5128; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>`,
-                        iconSize: [16, 16],
-                        iconAnchor: [8, 8]
+                        html: createLocationMarkerHtml(heading),
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 20]
                     })
-                }).addTo(map);
-
-                // Create arrow for direction
-                if (e.heading !== undefined && e.heading !== null) {
-                    currentHeading = e.heading;
-                } else if (lastPosition) {
-                    // Calculate heading from last position
-                    currentHeading = calculateHeading(lastPosition, latlng);
-                }
-
-                const arrowHtml = createDirectionArrow(currentHeading);
-                locationArrow = L.marker(latlng, {
-                    icon: L.divIcon({
-                        className: 'direction-arrow',
-                        html: arrowHtml,
-                        iconSize: [24, 24],
-                        iconAnchor: [12, 12]
-                    }),
-                    rotationAngle: currentHeading
                 }).addTo(map);
 
                 lastPosition = {
@@ -482,10 +489,36 @@
                 return (angle + 360) % 360;
             }
 
-            function createDirectionArrow(heading) {
-                return `<svg class="location-arrow" viewBox="0 0 24 24" fill="#1E5128" style="transform: rotate(${heading}deg)">
-                        <path d="M12 2L19 20H12H5L12 2Z" />
-                    </svg>`;
+            function createLocationMarkerHtml(heading) {
+                const hasHeading = heading !== undefined && heading !== null;
+                
+                let html = `
+                    <div class="relative flex items-center justify-center" style="width: 40px; height: 40px;">
+                `;
+
+                if (hasHeading) {
+                    // Modern Translucent Flashlight Beam (gradient cone pointing in the heading direction)
+                    html += `
+                        <svg class="absolute pointer-events-none" style="transform: rotate(${heading}deg); transform-origin: 40px 40px; width: 80px; height: 80px; top: -20px; left: -20px; opacity: 0.5; z-index: 1;" viewBox="0 0 80 80">
+                            <defs>
+                                <radialGradient id="beam-gradient" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" stop-color="#1E5128" stop-opacity="0.8"/>
+                                    <stop offset="35%" stop-color="#1E5128" stop-opacity="0.4"/>
+                                    <stop offset="100%" stop-color="#1E5128" stop-opacity="0"/>
+                                </radialGradient>
+                            </defs>
+                            <path d="M40 40 L17 0 A 40 40 0 0 1 63 0 Z" fill="url(#beam-gradient)" />
+                        </svg>
+                    `;
+                }
+
+                // Central Solid Pin
+                html += `
+                        <div class="absolute" style="background: #1E5128; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 2;"></div>
+                    </div>
+                `;
+
+                return html;
             }
 
             function onLocationError(e) {
@@ -626,6 +659,16 @@
         // ==========================================
         const sheet = document.getElementById('location-sheet');
 
+        /**
+         * @param {Object} loc
+         * @param {string} loc.name
+         * @param {string} loc.cat
+         * @param {string} [loc.desc]
+         * @param {string} [loc.accessibility]
+         * @param {number} loc.lat
+         * @param {number} loc.lng
+         * @param {string} [loc.detail_url]
+         */
         function openSheet(loc) {
             document.getElementById('sheet-title').textContent = loc.name;
 
