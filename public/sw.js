@@ -32,31 +32,45 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
     if (event.request.method !== "GET") return;
 
-    event.respondWith(
-        fetch(event.request)
-            .then((networkResponse) => {
-                if (
-                    networkResponse.status === 200 &&
-                    (event.request.url.includes("/build/") ||
-                        event.request.url.includes("/fonts."))
-                ) {
-                    const responseClone = networkResponse.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, responseClone);
-                    });
-                }
-                return networkResponse;
-            })
-            .catch(() => {
-                return caches.match(event.request).then((cachedResponse) => {
-                    if (cachedResponse) {
-                        return cachedResponse;
-                    }
+    const url = new URL(event.request.url);
 
+    // Skip admin panel, api, and livewire requests
+    if (
+        url.pathname.startsWith('/admin') ||
+        url.pathname.startsWith('/api') ||
+        url.pathname.includes('/livewire/')
+    ) {
+        return;
+    }
+
+    event.respondWith(
+        caches.match(event.request).then((cachedResponse) => {
+            const fetchPromise = fetch(event.request)
+                .then((networkResponse) => {
+                    if (
+                        networkResponse.status === 200 &&
+                        (event.request.mode === "navigate" ||
+                            event.request.url.includes("/build/") ||
+                            event.request.url.includes("/icons/") ||
+                            event.request.url.includes("/images/") ||
+                            event.request.url.includes("/fonts."))
+                    ) {
+                        const responseClone = networkResponse.clone();
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, responseClone);
+                        });
+                    }
+                    return networkResponse;
+                })
+                .catch(() => {
+                    // Fallback to offline page if fetching navigation page fails
                     if (event.request.mode === "navigate") {
                         return caches.match(OFFLINE_URL);
                     }
                 });
-            }),
+
+            // Return cached response instantly if available, otherwise fetch from network
+            return cachedResponse || fetchPromise;
+        })
     );
 });

@@ -31,6 +31,25 @@
             overscroll-behavior: none;
             /* Mencegah pull-to-refresh bawaan browser */
         }
+
+        /* Top Loading Bar */
+        #global-loading-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background-color: #1E5128;
+            z-index: 9999;
+            width: 0%;
+            opacity: 1;
+            transition: width 0.4s cubic-bezier(0.1, 0.8, 0.3, 1), opacity 0.2s ease-in-out;
+            pointer-events: none;
+        }
+
+        #global-loading-bar.finished {
+            width: 100% !important;
+            opacity: 0;
+        }
     </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -61,6 +80,65 @@
                     .catch(err => console.error('Pendaftaran Service Worker gagal:', err));
             });
         }
+
+        // Instant visual feedback for Bottom Nav and loading bar
+        document.addEventListener('DOMContentLoaded', () => {
+            const bottomNavLinks = document.querySelectorAll('nav a');
+            
+            bottomNavLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    // Only process normal clicks on same-origin pages (excluding AR scan which goes to camera)
+                    const isSameOrigin = link.host === window.location.host;
+                    const isARScan = link.pathname.includes('/ar-scan');
+                    
+                    if (e.button === 0 && isSameOrigin && !isARScan && !e.metaKey && !e.ctrlKey) {
+                        // 1. Instantly swap active style on bottom nav tabs (0ms feedback)
+                        bottomNavLinks.forEach(l => {
+                            l.classList.remove('text-primary');
+                            l.classList.add('text-gray-400', 'hover:text-gray-600');
+                            const svg = l.querySelector('svg');
+                            if (svg) {
+                                svg.setAttribute('stroke-width', '2');
+                            }
+                        });
+                        
+                        link.classList.remove('text-gray-400', 'hover:text-gray-600');
+                        link.classList.add('text-primary');
+                        const svg = link.querySelector('svg');
+                        if (svg) {
+                            svg.setAttribute('stroke-width', '2.5');
+                        }
+
+                        // 2. Trigger loading bar animation
+                        let loadingBar = document.getElementById('global-loading-bar');
+                        if (!loadingBar) {
+                            loadingBar = document.createElement('div');
+                            loadingBar.id = 'global-loading-bar';
+                            document.body.appendChild(loadingBar);
+                        }
+                        
+                        // Reset loading bar state
+                        loadingBar.classList.remove('finished');
+                        loadingBar.style.width = '0%';
+                        
+                        // Force reflow
+                        void loadingBar.offsetWidth;
+                        
+                        // Progressively animate
+                        loadingBar.style.width = '20%';
+                        setTimeout(() => { loadingBar.style.width = '60%'; }, 150);
+                        setTimeout(() => { loadingBar.style.width = '85%'; }, 400);
+
+                        // 3. Smooth main content fade
+                        const mainContent = document.getElementById('main-content');
+                        if (mainContent) {
+                            mainContent.style.opacity = '0.5';
+                            mainContent.style.transition = 'opacity 0.2s ease';
+                        }
+                    }
+                });
+            });
+        });
     </script>
 
     @stack('scripts')
