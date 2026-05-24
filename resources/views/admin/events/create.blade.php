@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.dashboard')
 
 @section('title', isset($event) ? 'Edit Event' : 'Tambah Event')
 

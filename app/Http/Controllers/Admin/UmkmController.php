@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\UmkmProduct;
+use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -53,7 +56,9 @@ class UmkmController extends Controller
 
         $totalSoldThisMonth = 89; // Mock sold value or count
 
-        return view('admin.umkm.index', compact('products', 'profiles', 'totalProfiles', 'totalProducts', 'totalSoldThisMonth'));
+        $categories = UmkmProductCategory::orderBy('name')->get();
+
+        return view('admin.umkm.index', compact('products', 'profiles', 'categories', 'totalProfiles', 'totalProducts', 'totalSoldThisMonth'));
     }
 
     /**
@@ -64,6 +69,7 @@ class UmkmController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'umkm_profile_id' => ['required', 'exists:umkm_profiles,id'],
+            'umkm_product_category_id' => ['nullable', 'exists:umkm_product_categories,id'],
             'price' => ['required', 'numeric', 'min:0'],
             'stock' => ['nullable', 'integer', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
@@ -110,6 +116,7 @@ class UmkmController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'umkm_profile_id' => ['required', 'exists:umkm_profiles,id'],
+            'umkm_product_category_id' => ['nullable', 'exists:umkm_product_categories,id'],
             'price' => ['required', 'numeric', 'min:0'],
             'stock' => ['nullable', 'integer', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
@@ -282,5 +289,71 @@ class UmkmController extends Controller
         $profile->delete();
 
         return redirect()->route('admin.map-manager')->with('success', 'Profil UMKM berhasil dihapus.');
+    }
+
+    /**
+     * Display a listing of UMKM owner accounts.
+     */
+    public function ownersList(): View
+    {
+        $owners = User::where('role', 'umkm_owner')->with('umkmProfile')->orderBy('name')->get();
+
+        return view('admin.umkm.owners', compact('owners'));
+    }
+
+    /**
+     * Store a newly created UMKM owner in storage.
+     */
+    public function storeOwner(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'password' => ['required', 'string', 'min:8'],
+        ]);
+
+        $validated['role'] = 'umkm_owner';
+        $validated['password'] = Hash::make($validated['password']);
+
+        User::create($validated);
+
+        return redirect()->route('admin.umkm.owners')->with('success', 'Akun pemilik UMKM berhasil dibuat.');
+    }
+
+    /**
+     * Update the specified UMKM owner in storage.
+     */
+    public function updateOwner(Request $request, int $id): RedirectResponse
+    {
+        $owner = User::where('role', 'umkm_owner')->findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$id],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'password' => ['nullable', 'string', 'min:8'],
+        ]);
+
+        if (! empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
+
+        $owner->update($validated);
+
+        return redirect()->route('admin.umkm.owners')->with('success', 'Akun pemilik UMKM berhasil diperbarui.');
+    }
+
+    /**
+     * Remove the specified UMKM owner from storage.
+     */
+    public function destroyOwner(int $id): RedirectResponse
+    {
+        $owner = User::where('role', 'umkm_owner')->findOrFail($id);
+        $owner->delete();
+
+        return redirect()->route('admin.umkm.owners')->with('success', 'Akun pemilik UMKM berhasil dihapus.');
     }
 }

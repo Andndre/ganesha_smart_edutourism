@@ -26,7 +26,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['umkm_profile_id', 'name', 'slug', 'description', 'price', 'stock', 'unit', 'images', 'ar_model_path', 'is_active'])]
+#[Fillable(['umkm_profile_id', 'umkm_product_category_id', 'name', 'slug', 'description', 'price', 'stock', 'unit', 'images', 'ar_model_path', 'is_active'])]
 class UmkmProduct extends Model
 {
     use HasFactory;
@@ -54,6 +54,16 @@ class UmkmProduct extends Model
     public function umkmProfile(): BelongsTo
     {
         return $this->belongsTo(UmkmProfile::class);
+    }
+
+    /**
+     * Get the category of this product.
+     *
+     * @return BelongsTo<UmkmProductCategory, UmkmProduct>
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(UmkmProductCategory::class, 'umkm_product_category_id');
     }
 
     /**
