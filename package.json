@@ -4,7 +4,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "host": "npx localtunnel --port 8000"
     },
     "devDependencies": {
         "@tailwindcss/vite": "4.3.0",
