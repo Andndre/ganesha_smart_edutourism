@@ -19,10 +19,13 @@
 
         /* Premium Selected Marker Animation */
         @keyframes pin-breath {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: scale(1);
                 filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
             }
+
             50% {
                 transform: scale(1.15);
                 filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.25));
@@ -105,7 +108,7 @@
                         <hr class="border-gray-100">
 
                         {{-- Accessibility status --}}
-                        <div class="flex items-start gap-3 mt-4">
+                        <div class="flex items-center gap-3 mt-4">
                             <input type="checkbox" name="is_accessible" id="field-accessible" value="1" {{ old('is_accessible', $location->is_accessible ?? true) ? 'checked' : '' }}
                                 class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
                             <div>
@@ -177,15 +180,15 @@
                 const pinIcon = L.divIcon({
                     className: 'custom-pin-selected',
                     html: `
-                        <div class="relative flex items-center justify-center marker-selected-glow" style="width: 32px; height: 32px;">
-                            <span class="absolute inline-flex h-6 w-6 animate-ping rounded-full opacity-40" style="background-color: ${color};"></span>
-                            <div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white shadow-lg text-white" style="background-color: ${color}; z-index: 10;">
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    `,
+                                <div class="relative flex items-center justify-center marker-selected-glow" style="width: 32px; height: 32px;">
+                                    <span class="absolute inline-flex h-6 w-6 animate-ping rounded-full opacity-40" style="background-color: ${color};"></span>
+                                    <div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white shadow-lg text-white" style="background-color: ${color}; z-index: 10;">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            `,
                     iconSize: [32, 32],
                     iconAnchor: [16, 16]
                 });

@@ -47,14 +47,36 @@ self.addEventListener("fetch", (event) => {
         return;
     }
 
+    // Strategy 1: Page Navigation (HTML pages) -> Network-First
+    if (event.request.mode === "navigate") {
+        event.respondWith(
+            fetch(event.request)
+                .then((networkResponse) => {
+                    if (networkResponse.status === 200) {
+                        const responseClone = networkResponse.clone();
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, responseClone);
+                        });
+                    }
+                    return networkResponse;
+                })
+                .catch(async () => {
+                    // Fallback to cache if offline, otherwise show offline page
+                    const cachedResponse = await caches.match(event.request);
+                    return cachedResponse || caches.match(OFFLINE_URL);
+                })
+        );
+        return;
+    }
+
+    // Strategy 2: Static Assets -> Stale-While-Revalidate
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             const fetchPromise = fetch(event.request)
                 .then((networkResponse) => {
                     if (
                         networkResponse.status === 200 &&
-                        (event.request.mode === "navigate" ||
-                            event.request.url.includes("/build/") ||
+                        (event.request.url.includes("/build/") ||
                             event.request.url.includes("/icons/") ||
                             event.request.url.includes("/images/") ||
                             event.request.url.includes("/fonts."))
@@ -67,13 +89,9 @@ self.addEventListener("fetch", (event) => {
                     return networkResponse;
                 })
                 .catch(() => {
-                    // Fallback to offline page if fetching navigation page fails
-                    if (event.request.mode === "navigate") {
-                        return caches.match(OFFLINE_URL);
-                    }
+                    // Fail silently for static assets
                 });
 
-            // Return cached response instantly if available, otherwise fetch from network
             return cachedResponse || fetchPromise;
         })
     );
