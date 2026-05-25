@@ -132,6 +132,20 @@
                 </div>
                 <span class="text-center text-[11px] font-medium leading-tight">Info<br>Fasilitas</span>
             </a>
+            @if (Auth::user()->isUmkmOwner())
+                <a href="{{ route('owner.dashboard') }}"
+                    class="tap-target flex flex-col items-center gap-2 transition-transform active:scale-95">
+                    <div
+                        class="text-primary flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/20 bg-primary/5 shadow-sm">
+                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
+                        </svg>
+                    </div>
+                    <span class="text-center text-[11px] font-bold text-primary leading-tight">Panel<br>UMKM</span>
+                </a>
+            @endif
+
             <!-- Emergency SOS (Routes to Map) -->
             <a href="{{ route('explore') }}?filter=sos"
                 class="tap-target flex flex-col items-center gap-2 transition-transform active:scale-95">
