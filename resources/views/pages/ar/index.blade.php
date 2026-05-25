@@ -132,12 +132,12 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const marker = document.querySelector('#ar-marker');
             const loadingIndicator = document.querySelector('#loading-indicator');
 
             if (marker) {
-                marker.addEventListener('markerFound', function() {
+                marker.addEventListener('markerFound', function () {
                     // Get haptic feedback on marker found
                     if (navigator.vibrate) navigator.vibrate(100);
 
@@ -148,7 +148,7 @@
                     }, 1500);
                 });
 
-                marker.addEventListener('markerLost', function() {
+                marker.addEventListener('markerLost', function () {
                     loadingIndicator.classList.add('hidden');
                 });
             }

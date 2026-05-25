@@ -25,7 +25,8 @@
         class="tap-target flex h-12 w-12 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 shadow-md transition-transform active:scale-95"
         title="Cari Lokasi">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v4m0 8v4M4 12h4m8 0h4m-4 0a4 4 0 11-8 0 4 4 0 018 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 4v4m0 8v4M4 12h4m8 0h4m-4 0a4 4 0 11-8 0 4 4 0 018 0z" />
         </svg>
     </button>
 </div>

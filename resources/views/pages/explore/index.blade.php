@@ -491,32 +491,32 @@
 
             function createLocationMarkerHtml(heading) {
                 const hasHeading = heading !== undefined && heading !== null;
-                
+
                 let html = `
-                    <div class="relative flex items-center justify-center" style="width: 40px; height: 40px;">
-                `;
+                        <div class="relative flex items-center justify-center" style="width: 40px; height: 40px;">
+                    `;
 
                 if (hasHeading) {
                     // Modern Translucent Flashlight Beam (gradient cone pointing in the heading direction)
                     html += `
-                        <svg class="absolute pointer-events-none" style="transform: rotate(${heading}deg); transform-origin: 40px 40px; width: 80px; height: 80px; top: -20px; left: -20px; opacity: 0.5; z-index: 1;" viewBox="0 0 80 80">
-                            <defs>
-                                <radialGradient id="beam-gradient" cx="50%" cy="50%" r="50%">
-                                    <stop offset="0%" stop-color="#1E5128" stop-opacity="0.8"/>
-                                    <stop offset="35%" stop-color="#1E5128" stop-opacity="0.4"/>
-                                    <stop offset="100%" stop-color="#1E5128" stop-opacity="0"/>
-                                </radialGradient>
-                            </defs>
-                            <path d="M40 40 L17 0 A 40 40 0 0 1 63 0 Z" fill="url(#beam-gradient)" />
-                        </svg>
-                    `;
+                            <svg class="absolute pointer-events-none" style="transform: rotate(${heading}deg); transform-origin: 40px 40px; width: 80px; height: 80px; top: -20px; left: -20px; opacity: 0.5; z-index: 1;" viewBox="0 0 80 80">
+                                <defs>
+                                    <radialGradient id="beam-gradient" cx="50%" cy="50%" r="50%">
+                                        <stop offset="0%" stop-color="#1E5128" stop-opacity="0.8"/>
+                                        <stop offset="35%" stop-color="#1E5128" stop-opacity="0.4"/>
+                                        <stop offset="100%" stop-color="#1E5128" stop-opacity="0"/>
+                                    </radialGradient>
+                                </defs>
+                                <path d="M40 40 L17 0 A 40 40 0 0 1 63 0 Z" fill="url(#beam-gradient)" />
+                            </svg>
+                        `;
                 }
 
                 // Central Solid Pin
                 html += `
-                        <div class="absolute" style="background: #1E5128; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 2;"></div>
-                    </div>
-                `;
+                            <div class="absolute" style="background: #1E5128; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 2;"></div>
+                        </div>
+                    `;
 
                 return html;
             }
