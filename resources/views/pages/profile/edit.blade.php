@@ -5,8 +5,7 @@
 @section('content')
     <div class="px-5 py-6">
         <div class="mb-6">
-            <h2 class="text-2xl font-bold text-charcoal mb-2" style="font-family: 'Playfair Display', serif;">Informasi
-                Profil</h2>
+            <h2 class="text-2xl font-bold text-charcoal mb-2" style="font-family: 'Playfair Display', serif;">Informasi Profil</h2>
             <p class="text-sm text-gray-500">Perbarui data diri Anda untuk kenyamanan menjelajahi Desa Penglipuran.</p>
         </div>
 
