@@ -34,10 +34,14 @@ self.addEventListener("fetch", (event) => {
 
     const url = new URL(event.request.url);
 
-    // Skip admin panel, api, and livewire requests
+    // Skip admin panel, owner panel, api, authentication, and livewire requests
     if (
         url.pathname.startsWith('/admin') ||
+        url.pathname.startsWith('/owner') ||
         url.pathname.startsWith('/api') ||
+        url.pathname.startsWith('/login') ||
+        url.pathname.startsWith('/logout') ||
+        url.pathname.startsWith('/register') ||
         url.pathname.includes('/livewire/')
     ) {
         return;

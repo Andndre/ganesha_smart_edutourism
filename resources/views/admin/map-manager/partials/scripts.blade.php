@@ -97,7 +97,7 @@
         return L.divIcon({
             className: 'custom-pin-selected',
             html: `
-                <div class="relative flex items-center justify-center animate-bounce" style="width: 32px; height: 32px; margin-top: -10px;">
+                <div class="relative flex items-center justify-center marker-selected-glow" style="width: 32px; height: 32px;">
                     <span class="absolute inline-flex h-6 w-6 animate-ping rounded-full opacity-40" style="background-color: ${color};"></span>
                     <div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white shadow-lg text-white" style="background-color: ${color}; z-index: 10;">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -107,7 +107,7 @@
                 </div>
             `,
             iconSize: [32, 32],
-            iconAnchor: [16, 32]
+            iconAnchor: [16, 16]
         });
     }
 
