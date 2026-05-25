@@ -223,3 +223,16 @@ Route::prefix('owner')->middleware(['auth', 'umkm_owner'])->group(function () {
     Route::put('/products/{id}', [OwnerProductController::class, 'update'])->name('owner.products.update');
     Route::delete('/products/{id}', [OwnerProductController::class, 'destroy'])->name('owner.products.destroy');
 });
+
+// Language Switcher Route
+Route::get('/lang/{locale}', function ($locale) {
+    if (in_array($locale, ['en', 'id'])) {
+        session()->put('locale', $locale);
+
+        if (auth()->check()) {
+            auth()->user()->update(['preferred_language' => $locale]);
+        }
+    }
+
+    return redirect()->back();
+})->name('lang.switch');
