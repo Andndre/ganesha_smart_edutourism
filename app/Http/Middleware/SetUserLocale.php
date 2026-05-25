@@ -17,6 +17,16 @@ class SetUserLocale
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if ($request->has('locale')) {
+            $locale = $request->query('locale');
+            if (in_array($locale, ['en', 'id'])) {
+                session()->put('locale', $locale);
+                if (Auth::check()) {
+                    Auth::user()->update(['preferred_language' => $locale]);
+                }
+            }
+        }
+
         if (Auth::check()) {
             App::setLocale(Auth::user()->preferred_language ?? 'id');
         } elseif (session()->has('locale')) {

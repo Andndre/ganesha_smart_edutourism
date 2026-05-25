@@ -42,13 +42,13 @@ class ProfileController extends Controller
         $user->name = $validated['name'];
         $user->email = $validated['email'];
 
-        if (array_key_exists('phone', $validated)) {
+        if (\array_key_exists('phone', $validated)) {
             $user->phone = $validated['phone'];
         }
-        if (array_key_exists('nationality', $validated)) {
+        if (\array_key_exists('nationality', $validated)) {
             $user->nationality = $validated['nationality'];
         }
-        if (array_key_exists('preferred_language', $validated)) {
+        if (\array_key_exists('preferred_language', $validated)) {
             $user->preferred_language = $validated['preferred_language'];
         }
 

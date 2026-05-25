@@ -95,13 +95,10 @@
                     <input type="checkbox" id="terms" name="terms" required
                         class="h-4.5 w-4.5 text-primary focus:ring-primary cursor-pointer rounded border-gray-300">
                 </div>
-                {{-- TODO: isi konten syarat dan ketentuan --}}
                 <label for="terms" class="cursor-pointer text-sm leading-snug text-gray-600">
-                    Saya menyetujui
-                    <a href="#" class="text-primary hover:text-primary-600 font-bold transition-colors">Syarat &
-                        Ketentuan</a> serta
-                    <a href="#" class="text-primary hover:text-primary-600 font-bold transition-colors">Kebijakan
-                        Privasi</a>.
+                    {{ __('Saya menyetujui') }}
+                    <a href="{{ route('terms') }}" class="text-primary hover:text-primary-600 font-bold transition-colors">{{ __('Syarat & Ketentuan') }}</a> {{ __('serta') }}
+                    <a href="{{ route('privacy') }}" class="text-primary hover:text-primary-600 font-bold transition-colors">{{ __('Kebijakan Privasi') }}</a>.
                 </label>
             </div>
 
