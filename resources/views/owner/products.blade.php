@@ -73,100 +73,108 @@
         </select>
     </form>
 
-    {{-- Products Table --}}
-    <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm max-w-6xl">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-gray-100 bg-gray-50/50">
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Produk</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Kategori</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Harga</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Stok</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Model 3D</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Status</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    @forelse ($products as $p)
-                        <tr class="hover:bg-gray-50/50">
-                            <td class="px-5 py-4 font-semibold text-charcoal">
-                                <div>
-                                    <p>{{ $p->name }}</p>
-                                    @if($p->images && count($p->images) > 0)
-                                        <span class="inline-block mt-0.5 rounded bg-gray-150 px-1.5 py-0.5 text-[10px] font-bold text-gray-500">{{ count($p->images) }} Foto</span>
-                                    @endif
-                                </div>
-                            </td>
-                            <td class="px-5 py-4 text-gray-500">
-                                <span class="rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary-800">
-                                    {{ $p->category->name ?? 'Lainnya' }}
-                                </span>
-                            </td>
-                            <td class="px-5 py-4 font-semibold text-charcoal">Rp {{ number_format($p->price, 0, ',', '.') }}</td>
-                            <td class="px-5 py-4">
-                                @if ($p->stock !== null && $p->stock <= 5)
-                                    <span class="rounded-full bg-warning/10 px-2.5 py-0.5 text-xs font-bold text-warning">{{ $p->stock }} — Stok Rendah</span>
-                                @elseif ($p->stock === null)
-                                    <span class="text-gray-400 italic text-xs">Selalu Tersedia</span>
-                                @else
-                                    <span class="text-gray-600 font-semibold">{{ $p->stock }} {{ $p->unit ?? 'pcs' }}</span>
-                                @endif
-                            </td>
-                            <td class="px-5 py-4">
-                                @if ($p->ar_model_path)
-                                    <span class="inline-flex items-center gap-1 text-xs font-semibold text-secondary-800 bg-secondary/15 rounded-lg px-2 py-1">
-                                        <svg class="h-3.5 w-3.5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                        </svg>
-                                        Tersedia (3D)
-                                    </span>
-                                @else
-                                    <span class="text-xs text-gray-400 italic">Belum Diunggah</span>
-                                @endif
-                            </td>
-                            <td class="px-5 py-4">
-                                @if ($p->is_active)
-                                    <span class="inline-flex items-center gap-1 rounded bg-secondary/10 px-2 py-0.5 text-xs font-bold text-secondary">Aktif</span>
-                                @else
-                                    <span class="inline-flex items-center gap-1 rounded bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-400">Nonaktif</span>
-                                @endif
-                            </td>
-                            <td class="px-5 py-4">
-                                <div class="flex items-center gap-2">
-                                    <button onclick="openEditModal({{ json_encode($p) }})" class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-primary/10 hover:text-primary" title="Edit">
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                    </button>
-                                    <form method="POST" action="{{ route('owner.products.destroy', $p->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?')" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-warning/10 hover:text-warning" title="Hapus">
-                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="px-5 py-8 text-center text-gray-400">Belum ada produk terdaftar.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    {{-- Products Grid --}}
+    @if ($products->isEmpty())
+        <div class="rounded-2xl border border-gray-100 bg-white p-8 text-center text-gray-400 max-w-6xl">
+            Belum ada produk terdaftar.
         </div>
+    @else
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl">
+            @foreach ($products as $p)
+                <div class="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md flex flex-col justify-between">
+                    {{-- Product Image / 3D Model Header --}}
+                    <div class="relative overflow-hidden bg-gray-50 h-44 shrink-0">
+                        @if($p->images && count($p->images) > 0)
+                            <img src="/storage/{{ $p->images[0] }}" alt="{{ $p->name }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                        @else
+                            <div class="w-full h-full flex flex-col items-center justify-center bg-linear-to-br from-primary/5 to-primary/10 text-primary">
+                                <svg class="h-10 w-10 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                </svg>
+                                <span class="text-[10px] uppercase font-bold tracking-widest opacity-60 mt-2">Tanpa Foto</span>
+                            </div>
+                        @endif
+                        
+                        {{-- Top Badge: Category & Status --}}
+                        <div class="absolute top-3 left-3 right-3 flex justify-between items-center z-10">
+                            <span class="rounded-lg bg-white/95 backdrop-blur-sm px-2.5 py-1 text-[10px] font-bold text-primary shadow-sm">
+                                {{ $p->category->name ?? 'Lainnya' }}
+                            </span>
+                            @if ($p->is_active)
+                                <span class="rounded-lg bg-secondary px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">Aktif</span>
+                            @else
+                                <span class="rounded-lg bg-gray-500 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">Nonaktif</span>
+                            @endif
+                        </div>
+
+                        {{-- 3D Model Badge --}}
+                        @if ($p->ar_model_path)
+                            <div class="absolute bottom-3 right-3 z-10">
+                                <span class="inline-flex items-center gap-1 text-[9px] font-bold text-secondary bg-white/95 backdrop-blur-sm rounded-lg px-2 py-1 shadow-sm">
+                                    <svg class="h-3 w-3 text-secondary animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                    </svg>
+                                    3D Model
+                                </span>
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- Product Body --}}
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-display text-lg font-bold text-charcoal tracking-tight leading-snug group-hover:text-primary transition-colors">{{ $p->name }}</h4>
+                            <p class="mt-2 text-xs text-gray-500 line-clamp-2 leading-relaxed">{{ $p->description ?? 'Belum ada deskripsi.' }}</p>
+                        </div>
+
+                        <div class="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
+                            <div>
+                                <span class="text-[10px] text-gray-400 block font-semibold uppercase">Harga</span>
+                                <span class="text-base font-bold text-charcoal">Rp {{ number_format($p->price, 0, ',', '.') }}</span>
+                            </div>
+                            
+                            <div class="text-right">
+                                <span class="text-[10px] text-gray-400 block font-semibold uppercase">Stok</span>
+                                @if ($p->stock !== null && $p->stock <= 5)
+                                    <span class="text-xs font-bold text-warning">{{ $p->stock }} (Menipis)</span>
+                                @elseif ($p->stock === null)
+                                    <span class="text-xs text-gray-400 italic font-semibold">Tersedia</span>
+                                @else
+                                    <span class="text-xs text-gray-600 font-bold">{{ $p->stock }} {{ $p->unit ?? 'pcs' }}</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Product Actions --}}
+                    <div class="px-5 pb-5 shrink-0 flex gap-2">
+                        <button onclick="openEditModal({{ json_encode($p) }})" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border border-primary/20 bg-primary/5 py-2.5 text-xs font-bold text-primary transition-all hover:bg-primary hover:text-white">
+                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Ubah
+                        </button>
+                        
+                        <form method="POST" action="{{ route('owner.products.destroy', $p->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?')" class="inline shrink-0">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="rounded-xl border border-warning/20 bg-warning/5 p-2.5 text-warning transition-all hover:bg-warning hover:text-white" title="Hapus">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
         @if($products->hasPages())
-            <div class="border-t border-gray-100 px-5 py-3.5">
+            <div class="mt-8 max-w-6xl">
                 {{ $products->links() }}
             </div>
-        </div>
         @endif
-    </div>
+    @endif
 @endif
 
 {{-- Product Modal Form --}}
