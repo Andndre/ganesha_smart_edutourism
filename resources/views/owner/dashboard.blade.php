@@ -3,9 +3,17 @@
 @section('title', 'Dashboard Pemilik UMKM')
 
 @section('content')
-<div class="mb-8">
-    <h1 class="font-display text-3xl font-extrabold text-charcoal tracking-tight">Ringkasan Toko Anda</h1>
-    <p class="mt-1 text-sm text-gray-500">Selamat datang kembali! Berikut ringkasan performa dan informasi toko Anda.</p>
+<div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between max-w-6xl">
+    <div>
+        <h1 class="font-display text-3xl font-extrabold text-charcoal tracking-tight">Ringkasan Toko Anda</h1>
+        <p class="mt-1 text-sm text-gray-500">Selamat datang kembali! Berikut ringkasan performa dan informasi toko Anda.</p>
+    </div>
+    <a href="{{ route('home') }}" class="inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-2.5 text-sm font-semibold text-primary transition-all hover:bg-primary hover:text-white active:scale-[0.98]">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        Lihat Aplikasi Wisata
+    </a>
 </div>
 
 @if (!$profile)
