@@ -119,6 +119,15 @@ Route::middleware('auth')->group(function () {
     });
 });
 
+// Public Pages
+Route::get('/terms', function () {
+    return view('pages.terms');
+})->name('terms');
+
+Route::get('/privacy', function () {
+    return view('pages.privacy');
+})->name('privacy');
+
 // Offline Page
 Route::get('/offline', function () {
     return view('offline');
