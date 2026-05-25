@@ -7,9 +7,9 @@
 
         <div class="flex items-start justify-between">
             <div class="pr-4">
-                <h2 class="font-display text-2xl font-bold">Rahajeng Rauh, {{ str(Auth::user()->name)->before(' ') }}!</h2>
+                <h2 class="font-display text-2xl font-bold">{{ __('Rahajeng Rauh, :name!', ['name' => str(Auth::user()->name)->before(' ')]) }}</h2>
                 <p class="text-primary-100/90 mt-1.5 text-sm font-medium leading-snug">
-                    Siap menjelajahi budaya & tradisi Penglipuran hari ini?
+                    {{ __('Siap menjelajahi budaya & tradisi Penglipuran hari ini?') }}
                 </p>
             </div>
 

@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\RedirectIfAdmin;
+use App\Http\Middleware\SetUserLocale;
 use App\Http\Middleware\UmkmOwnerMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -14,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+            SetUserLocale::class,
+        ]);
         $middleware->alias([
             'admin' => AdminMiddleware::class,
             'redirect.admin' => RedirectIfAdmin::class,

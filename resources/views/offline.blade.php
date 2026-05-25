@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ App::getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=0">
-    <title>Mode Luring - Penglipuran Smart Tour</title>
+    <title>{{ __('Mode Luring - Penglipuran Smart Tour') }}</title>
     <meta name="theme-color" content="#FAF9F6">
     <meta name="mobile-web-app-capable" content="yes">
 
@@ -186,35 +186,34 @@
             </svg>
         </div>
 
-        <h1>Anda Sedang Luring</h1>
-        <p class="desc">Koneksi internet terputus. Jangan khawatir, Anda masih bisa menggunakan beberapa fitur penting
-            desa yang telah disimpan di perangkat Anda.</p>
+        <h1>{{ __('Anda Sedang Luring') }}</h1>
+        <p class="desc">{{ __('Koneksi internet terputus. Jangan khawatir, Anda masih bisa menggunakan beberapa fitur penting desa yang telah disimpan di perangkat Anda.') }}</p>
 
-        <button onclick="window.location.reload()" class="btn">Coba Muat Ulang</button>
+        <button onclick="window.location.reload()" class="btn">{{ __('Coba Muat Ulang') }}</button>
 
         <div class="features">
-            <h2>Tersedia Tanpa Internet:</h2>
+            <h2>{{ __('Tersedia Tanpa Internet:') }}</h2>
             <ul>
                 <li>
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Tiket Masuk & QR Code Anda
+                    {{ __('Tiket Masuk & QR Code Anda') }}
                 </li>
                 <li>
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Peta Dasar Desa Penglipuran
+                    {{ __('Peta Dasar Desa Penglipuran') }}
                 </li>
                 <li>
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Buku Saku (Teks Sejarah)
+                    {{ __('Buku Saku (Teks Sejarah)') }}
                 </li>
             </ul>
         </div>
