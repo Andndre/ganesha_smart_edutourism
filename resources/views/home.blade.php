@@ -122,7 +122,8 @@
                 </div>
                 <span class="text-center text-[11px] font-medium leading-tight">Jadwal<br>Event</span>
             </a>
-            <a href="{{ route('explore') }}?filter=facilities" class="tap-target flex flex-col items-center gap-2 transition-transform active:scale-95">
+            <a href="{{ route('explore') }}?filter=facilities"
+                class="tap-target flex flex-col items-center gap-2 transition-transform active:scale-95">
                 <div
                     class="flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-100 bg-white text-gray-500 shadow-sm">
                     <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -174,7 +175,8 @@
                         <div>
                             <h4 class="text-charcoal font-bold">{{ $route->name }}</h4>
                             <p class="mt-1 text-xs text-gray-500">
-                                Estimasi {{ $route->estimated_duration_minutes ?? 60 }} Menit • {{ $route->route_points_count ?? 0 }} Objek
+                                Estimasi {{ $route->estimated_duration_minutes ?? 60 }} Menit •
+                                {{ $route->route_points_count ?? 0 }} Objek
                             </p>
                         </div>
                         <div class="bg-primary/10 text-primary rounded-lg p-2">
