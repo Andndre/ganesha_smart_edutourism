@@ -46,6 +46,14 @@
     --text-caption: 0.75rem;
 }
 
+@layer base {
+
+    button,
+    select {
+        cursor: pointer;
+    }
+}
+
 @layer utilities {
 
     /* Tap target for mobile accessibility */
