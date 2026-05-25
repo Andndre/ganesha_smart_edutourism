@@ -15,7 +15,7 @@ class RedirectIfAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user() && $request->user()->isAdmin()) {
+        if ($request->user()?->isAdmin()) {
             return redirect()->route('admin.dashboard');
         }
 
