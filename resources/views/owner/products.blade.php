@@ -276,7 +276,7 @@
     const form = document.getElementById('modal-form');
     const modalTitle = document.getElementById('modal-title');
     const methodContainer = document.getElementById('method-container');
-    const storageUrl = "{{ asset('storage') }}";
+    const storageUrl = "/storage";
 
     // Fields
     const fieldName = document.getElementById('field-name');
