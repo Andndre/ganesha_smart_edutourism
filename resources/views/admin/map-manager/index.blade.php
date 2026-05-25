@@ -10,6 +10,23 @@
             display: none !important;
         }
 
+        /* Premium Selected Marker Animation */
+        @keyframes pin-breath {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+            }
+            50% {
+                transform: scale(1.15);
+                filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.25));
+            }
+        }
+
+        .marker-selected-glow {
+            animation: pin-breath 2s infinite ease-in-out;
+            transform-origin: center;
+        }
+
         @media (min-width: 1024px) {
             #admin-main {
                 height: 100vh;

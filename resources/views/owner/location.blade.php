@@ -16,6 +16,23 @@
         .custom-pin-selected {
             filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
         }
+
+        /* Premium Selected Marker Animation */
+        @keyframes pin-breath {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+            }
+            50% {
+                transform: scale(1.15);
+                filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.25));
+            }
+        }
+
+        .marker-selected-glow {
+            animation: pin-breath 2s infinite ease-in-out;
+            transform-origin: center;
+        }
     </style>
 @endpush
 
@@ -160,7 +177,7 @@
                 const pinIcon = L.divIcon({
                     className: 'custom-pin-selected',
                     html: `
-                        <div class="relative flex items-center justify-center animate-bounce" style="width: 32px; height: 32px; margin-top: -10px;">
+                        <div class="relative flex items-center justify-center marker-selected-glow" style="width: 32px; height: 32px;">
                             <span class="absolute inline-flex h-6 w-6 animate-ping rounded-full opacity-40" style="background-color: ${color};"></span>
                             <div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white shadow-lg text-white" style="background-color: ${color}; z-index: 10;">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -170,7 +187,7 @@
                         </div>
                     `,
                     iconSize: [32, 32],
-                    iconAnchor: [16, 32]
+                    iconAnchor: [16, 16]
                 });
 
                 // Initialize Marker
