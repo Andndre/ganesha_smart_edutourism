@@ -55,6 +55,21 @@
                 </div>
 
                 {{-- Auto-filled fields info --}}
+                <div class="pt-2">
+                    <div class="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white shadow-sm">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Terima Pembayaran Aplikasi</label>
+                            <p class="mt-1 text-xs text-gray-400 max-w-[250px]">Aktifkan fitur ini jika Anda ingin menerima pembayaran langsung (Midtrans) dari wisatawan.</p>
+                        </div>
+                        <label class="relative inline-flex cursor-pointer items-center">
+                            <!-- Hidden input to handle unchecked state -->
+                            <input type="hidden" name="accepts_in_app_payment" value="0">
+                            <input type="checkbox" name="accepts_in_app_payment" value="1" class="peer sr-only" {{ old('accepts_in_app_payment', $profile->accepts_in_app_payment ?? false) ? 'checked' : '' }}>
+                            <div class="h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20"></div>
+                        </label>
+                    </div>
+                </div>
+
                 @if ($profile)
                     <div class="rounded-xl bg-gray-50/80 p-4 border border-gray-100 text-xs text-gray-500 space-y-2">
                         <div class="flex justify-between">

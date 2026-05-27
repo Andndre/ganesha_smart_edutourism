@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $name
  * @property string $slug
  */
-#[Fillable(['name', 'slug'])]
+#[Fillable(['name', 'slug', 'description', 'image_path', 'icon'])]
 class UmkmProductCategory extends Model
 {
     use HasFactory;

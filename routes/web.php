@@ -55,10 +55,11 @@ Route::middleware('auth')->group(function () {
             return view('pages.ar.index');
         })->name('ar-scan');
 
-        // UMKM
-        Route::get('/umkm', function () {
-            return view('pages.umkm.index');
-        })->name('umkm');
+        // UMKM Catalog & Recommendation
+        Route::get('/umkm', [\App\Http\Controllers\UmkmCatalogController::class, 'index'])->name('umkm');
+        Route::post('/umkm/recommend', [\App\Http\Controllers\UmkmCatalogController::class, 'recommend'])->name('umkm.recommend');
+        Route::get('/umkm/recommended/{id}', [\App\Http\Controllers\UmkmCatalogController::class, 'recommended'])->name('umkm.recommended');
+        Route::get('/umkm/multi-route', [\App\Http\Controllers\UmkmCatalogController::class, 'multiRecommended'])->name('umkm.multi_recommended');
         Route::get('/umkm/product/{id}', function () {
             return view('pages.umkm.show');
         })->name('umkm-product');
