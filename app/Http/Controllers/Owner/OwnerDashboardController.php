@@ -50,6 +50,7 @@ class OwnerDashboardController extends Controller
             'business_name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'category' => ['required', 'string', 'in:culinary,craft,souvenir,service'],
+            'accepts_in_app_payment' => ['required', 'boolean'],
         ]);
 
         if (! $profile) {

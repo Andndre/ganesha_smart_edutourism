@@ -27,7 +27,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['user_id', 'owner_name', 'business_name', 'slug', 'description', 'category', 'ar_marker_id', 'rating', 'is_active'])]
+#[Fillable(['user_id', 'owner_name', 'business_name', 'slug', 'description', 'category', 'ar_marker_id', 'rating', 'is_active', 'recommendation_count', 'accepts_in_app_payment'])]
 class UmkmProfile extends Model
 {
     use HasFactory;
@@ -42,6 +42,7 @@ class UmkmProfile extends Model
         return [
             'is_active' => 'boolean',
             'rating' => 'float',
+            'accepts_in_app_payment' => 'boolean',
         ];
     }
 
