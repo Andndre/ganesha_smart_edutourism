@@ -40,16 +40,26 @@
         <div
             class="text-charcoal mx-auto flex w-full max-w-[calc(100vw-2.5rem)] translate-y-8 items-center justify-between rounded-2xl bg-white p-4 shadow-md">
             <div class="flex items-center gap-3">
-                <div class="rounded-full bg-blue-50 p-2.5 text-blue-500">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Cuaca Hari Ini</p>
-                    <p class="mt-0.5 text-sm font-bold">27°C Cerah</p>
-                </div>
+                @if (isset($weather) && $weather)
+                    <div class="rounded-full bg-gray-50 p-2.5 flex items-center justify-center shrink-0">
+                        {!! $weather->getIconHtml() !!}
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Cuaca Hari Ini</p>
+                        <p class="mt-0.5 text-sm font-bold">{{ round($weather->temperature) }}°C {{ $weather->condition }}</p>
+                    </div>
+                @else
+                    <div class="rounded-full bg-blue-50 p-2.5 text-blue-500">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Cuaca Hari Ini</p>
+                        <p class="mt-0.5 text-sm font-bold">27°C Cerah</p>
+                    </div>
+                @endif
             </div>
 
             <div class="h-10 w-[1.5px] bg-gray-100"></div>

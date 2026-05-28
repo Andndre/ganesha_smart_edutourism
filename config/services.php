@@ -39,4 +39,9 @@ return [
         'base_url' => env('ORS_BASE_URL', 'http://localhost:8080'),
     ],
 
+    'penglipuran' => [
+        'latitude' => env('PENGLIPURAN_LAT', -8.422303596762355),
+        'longitude' => env('PENGLIPURAN_LON', 115.35948833933173),
+    ],
+
 ];

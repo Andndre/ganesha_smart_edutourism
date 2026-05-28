@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\CapacityZone;
 use App\Models\TourRoute;
+use App\Models\WeatherReport;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\View\View;
 
 class HomeController extends Controller
@@ -37,6 +39,17 @@ class HomeController extends Controller
             ->take(3)
             ->get();
 
-        return view('home', \compact('densityText', 'densityClass', 'densityBg', 'recommendedRoutes'));
+        // Fetch cached weather, fallback to first-time update if empty
+        $weather = WeatherReport::first();
+        if (! $weather) {
+            try {
+                Artisan::call('app:update-weather');
+                $weather = WeatherReport::first();
+            } catch (\Exception $e) {
+                // Ignored fallback
+            }
+        }
+
+        return view('home', \compact('densityText', 'densityClass', 'densityBg', 'recommendedRoutes', 'weather'));
     }
 }
