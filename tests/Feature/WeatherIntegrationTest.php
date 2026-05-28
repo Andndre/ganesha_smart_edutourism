@@ -65,7 +65,8 @@ class WeatherIntegrationTest extends TestCase
         $response->assertStatus(200);
 
         // Check if dynamic temperature and mapped text is in home page HTML
-        $response->assertSee('26°C Berkabut');
+        $response->assertSee('26°C');
+        $response->assertSee('Berkabut');
     }
 
     /**
@@ -102,6 +103,7 @@ class WeatherIntegrationTest extends TestCase
         ]);
 
         // Verify it was rendered on the page
-        $response->assertSee('21°C Berawan');
+        $response->assertSee('21°C');
+        $response->assertSee('Berawan');
     }
 }

@@ -37,43 +37,52 @@
             @endauth
         </div>
 
+        @php
+            $densityParts = explode(' ', $densityText, 2);
+            $densityMain = $densityParts[0] ?? '';
+            $densitySub = $densityParts[1] ?? '';
+        @endphp
+
         <div
-            class="text-charcoal mx-auto flex w-full max-w-[calc(100vw-2.5rem)] translate-y-8 items-center justify-between rounded-2xl bg-white p-4 shadow-md">
-            <div class="flex items-center gap-3">
+            class="text-charcoal mx-auto flex w-full max-w-[calc(100vw-2.5rem)] translate-y-8 items-center justify-between rounded-2xl bg-white p-4 sm:p-5 shadow-lg shadow-gray-100/50 gap-2">
+            <div class="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
                 @if (isset($weather) && $weather)
-                    <div class="rounded-full bg-gray-50 p-2.5 flex items-center justify-center shrink-0">
+                    <div class="rounded-full bg-gray-50 p-2 sm:p-2.5 flex items-center justify-center shrink-0">
                         {!! $weather->getIconHtml() !!}
                     </div>
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Cuaca Hari Ini</p>
-                        <p class="mt-0.5 text-sm font-bold">{{ round($weather->temperature) }}°C {{ $weather->condition }}</p>
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 leading-none">Cuaca Hari Ini</span>
+                        <span class="text-xl sm:text-2xl font-black text-gray-800 mt-1 leading-none">{{ round($weather->temperature) }}°C</span>
+                        <span class="text-[11px] font-semibold text-gray-500 mt-1 truncate leading-none">{{ $weather->condition }}</span>
                     </div>
                 @else
-                    <div class="rounded-full bg-blue-50 p-2.5 text-blue-500">
+                    <div class="rounded-full bg-blue-50 p-2 sm:p-2.5 text-blue-500 flex items-center justify-center shrink-0">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
                         </svg>
                     </div>
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Cuaca Hari Ini</p>
-                        <p class="mt-0.5 text-sm font-bold">27°C Cerah</p>
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 leading-none">Cuaca Hari Ini</span>
+                        <span class="text-xl sm:text-2xl font-black text-gray-800 mt-1 leading-none">27°C</span>
+                        <span class="text-[11px] font-semibold text-gray-500 mt-1 truncate leading-none">Cerah</span>
                     </div>
                 @endif
             </div>
 
-            <div class="h-10 w-[1.5px] bg-gray-100"></div>
+            <div class="h-12 w-[1.5px] bg-gray-100 shrink-0 mx-1.5 sm:mx-2"></div>
 
-            <div class="flex items-center gap-3">
-                <div class="{{ $densityClass }} rounded-full {{ $densityBg }} p-2.5">
+            <div class="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
+                <div class="{{ $densityClass }} rounded-full {{ $densityBg }} p-2 sm:p-2.5 flex items-center justify-center shrink-0">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                 </div>
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Kepadatan Desa</p>
-                    <p class="{{ $densityClass }} mt-0.5 text-sm font-bold">{{ $densityText }}</p>
+                <div class="flex flex-col min-w-0">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 leading-none">Kepadatan Desa</span>
+                    <span class="{{ $densityClass }} text-xl sm:text-2xl font-black mt-1 leading-none">{{ $densityMain }}</span>
+                    <span class="text-[11px] font-semibold text-gray-500 mt-1 truncate leading-none">{{ $densitySub }}</span>
                 </div>
             </div>
         </div>
