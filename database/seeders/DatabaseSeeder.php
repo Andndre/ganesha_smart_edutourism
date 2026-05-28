@@ -28,14 +28,8 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            // Create sample data for Penglipuran Smart Edutourism
             $this->call([
-                CulturalObjectSeeder::class,
-                CulturalStorySeeder::class,
-                UmkmProfileSeeder::class,
-                ProductSeeder::class,
-                TourPackageSeeder::class,
-                LocalDevSeeder::class,
+                EventSeeder::class,
             ]);
         }
     }
