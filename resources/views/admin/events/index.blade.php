@@ -673,6 +673,7 @@
             initialView: 'dayGridMonth',
             locale: 'id',
             displayEventTime: false,
+            allDayText: 'Seharian',
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
