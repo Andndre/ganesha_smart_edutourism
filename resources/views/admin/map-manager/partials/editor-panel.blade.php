@@ -29,8 +29,8 @@
 
     {{-- DELETE BUTTON FORM (Hidden on Create) --}}
     <div id="delete-container" class="hidden pt-2 border-t border-gray-100">
-        <form id="form-delete" action="" method="POST"
-            onsubmit="return confirm('Apakah Anda yakin ingin menghapus lokasi ini?')">
+        <form id="form-delete" action="" method="POST" class="delete-form"
+            data-confirm="Apakah Anda yakin ingin menghapus lokasi ini?">
             @csrf
             @method('DELETE')
             <button type="submit"

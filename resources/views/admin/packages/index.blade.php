@@ -52,7 +52,7 @@
             </div>
             <div class="mt-4 flex gap-2">
                 <a href="{{ route('admin.packages.edit', $pkg->id) }}" class="flex-1 text-center rounded-xl border border-gray-200 py-2 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-50">Edit</a>
-                <form method="POST" action="{{ route('admin.packages.destroy', $pkg->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus paket ini?')" class="flex-1">
+                <form method="POST" action="{{ route('admin.packages.destroy', $pkg->id) }}" class="delete-form flex-1" data-confirm="Apakah Anda yakin ingin menghapus paket ini?">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="w-full rounded-xl border border-warning/30 py-2 text-xs font-semibold text-warning transition-colors hover:bg-warning/5">Hapus</button>

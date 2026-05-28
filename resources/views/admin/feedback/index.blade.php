@@ -96,8 +96,8 @@
                         </button>
                     </form>
 
-                    <form action="{{ route('admin.feedback.destroy', $f->id) }}" method="POST" class="inline"
-                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus ulasan ini?')">
+                    <form action="{{ route('admin.feedback.destroy', $f->id) }}" method="POST" class="delete-form inline"
+                        data-confirm="Apakah Anda yakin ingin menghapus ulasan ini?">
                         @csrf
                         @method('DELETE')
                         <button type="submit"
