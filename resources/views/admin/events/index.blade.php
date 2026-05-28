@@ -104,115 +104,11 @@
 
 @section('content')
 
-<div x-data="{ 
-    viewMode: 'calendar', 
-    showModal: false,
-    selectedEvent: {},
-    
-    showFormModal: false,
-    formAction: '',
-    formMethod: 'POST',
-    formTitle: 'Tambah Event Baru',
-    
-    formFields: {
-        id: @json(old('id', '')),
-        name: @json(old('name', '')),
-        description: @json(old('description', '')),
-        category: @json(old('category', 'Upacara Adat')),
-        start_date: @json(old('start_date', '')),
-        start_time: @json(old('start_time', '')),
-        end_date: @json(old('end_date', '')),
-        end_time: @json(old('end_time', '')),
-        location_name: @json(old('location_name', '')),
-        latitude: @json(old('latitude', '')),
-        longitude: @json(old('longitude', '')),
-        is_free: {{ old('is_free') !== null || !$errors->any() ? 'true' : 'false' }},
-        price: @json(old('price', '')),
-        max_participants: @json(old('max_participants', ''))
-    },
-
-    openCreate(dateStr = '', timeStr = '') {
-        this.formTitle = 'Tambah Event Baru';
-        this.formAction = '{{ route('admin.events.store') }}';
-        this.formMethod = 'POST';
-        
-        this.formFields = {
-            id: '',
-            name: '',
-            description: '',
-            category: 'Upacara Adat',
-            start_date: dateStr || new Date().toISOString().split('T')[0],
-            start_time: timeStr || '10:00',
-            end_date: dateStr || new Date().toISOString().split('T')[0],
-            end_time: timeStr ? this.addHours(timeStr, 2) : '12:00',
-            location_name: '',
-            latitude: '',
-            longitude: '',
-            is_free: true,
-            price: '',
-            max_participants: ''
-        };
-        
-        this.showFormModal = true;
-    },
-
-    openEdit(eventData) {
-        this.formTitle = 'Ubah Event';
-        this.formAction = '{{ route('admin.events.update', 'EVENT_ID') }}'.replace('EVENT_ID', eventData.id);
-        this.formMethod = 'PUT';
-        
-        this.formFields = {
-            id: eventData.id,
-            name: eventData.name,
-            description: eventData.description || '',
-            category: eventData.category,
-            start_date: eventData.start_date,
-            start_time: eventData.start_time || '',
-            end_date: eventData.end_date,
-            end_time: eventData.end_time || '',
-            location_name: eventData.location_name,
-            latitude: eventData.latitude || '',
-            longitude: eventData.longitude || '',
-            is_free: !!eventData.is_free,
-            price: eventData.price || '',
-            max_participants: eventData.max_participants || ''
-        };
-        
-        this.showFormModal = true;
-    },
-    
-    addHours(timeStr, hours) {
-        if (!timeStr) return '';
-        const parts = timeStr.split(':');
-        const h = parseInt(parts[0], 10);
-        const m = parts[1] || '00';
-        const newH = (h + hours) % 24;
-        return `${String(newH).padStart(2, '0')}:${m}`;
-    },
-
-    get isDateInvalid() {
-        if (!this.formFields.start_date || !this.formFields.end_date) return false;
-        const start = new Date(this.formFields.start_date + ' ' + (this.formFields.start_time || '00:00'));
-        const end = new Date(this.formFields.end_date + ' ' + (this.formFields.end_time || '23:59'));
-        return end < start;
-    }
-}" 
-@open-event-modal.window="selectedEvent = $event.detail; showModal = true" 
-@open-create-modal.window="openCreate($event.detail.date, $event.detail.time)"
-@open-edit-modal.window="openEdit($event.detail)"
-x-init="
-    @if($errors->any())
-        this.formTitle = '{{ old('_method') === 'PUT' ? 'Ubah Event' : 'Tambah Event Baru' }}';
-        this.formAction = '{{ old('_method') === 'PUT' ? route('admin.events.update', old('id') ?: 0) : route('admin.events.store') }}';
-        this.formMethod = '{{ old('_method', 'POST') }}';
-        this.showFormModal = true;
-    @elseif(isset($openCreateOnLoad) && $openCreateOnLoad)
-        openCreate();
-    @elseif(isset($editEventRaw))
-        openEdit(@json($editEventRaw));
-    @endif
-"
-class="space-y-6">
+<div x-data="adminEvents" 
+    @open-event-modal.window="selectedEvent = $event.detail; showModal = true" 
+    @open-create-modal.window="openCreate($event.detail.date, $event.detail.time)"
+    @open-edit-modal.window="openEdit($event.detail)"
+    class="space-y-6">
 
     {{-- Header --}}
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -660,6 +556,115 @@ class="space-y-6">
 
 @push('scripts')
 <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('adminEvents', () => ({
+            viewMode: 'calendar', 
+            showModal: false,
+            selectedEvent: {},
+            
+            showFormModal: false,
+            formAction: '',
+            formMethod: 'POST',
+            formTitle: 'Tambah Event Baru',
+            
+            formFields: {
+                id: @json(old('id', '')),
+                name: @json(old('name', '')),
+                description: @json(old('description', '')),
+                category: @json(old('category', 'Upacara Adat')),
+                start_date: @json(old('start_date', '')),
+                start_time: @json(old('start_time', '')),
+                end_date: @json(old('end_date', '')),
+                end_time: @json(old('end_time', '')),
+                location_name: @json(old('location_name', '')),
+                latitude: @json(old('latitude', '')),
+                longitude: @json(old('longitude', '')),
+                is_free: {{ old('is_free') !== null || !$errors->any() ? 'true' : 'false' }},
+                price: @json(old('price', '')),
+                max_participants: @json(old('max_participants', ''))
+            },
+
+            openCreate(dateStr = '', timeStr = '') {
+                this.formTitle = 'Tambah Event Baru';
+                this.formAction = '{{ route('admin.events.store') }}';
+                this.formMethod = 'POST';
+                
+                this.formFields = {
+                    id: '',
+                    name: '',
+                    description: '',
+                    category: 'Upacara Adat',
+                    start_date: dateStr || new Date().toISOString().split('T')[0],
+                    start_time: timeStr || '10:00',
+                    end_date: dateStr || new Date().toISOString().split('T')[0],
+                    end_time: timeStr ? this.addHours(timeStr, 2) : '12:00',
+                    location_name: '',
+                    latitude: '',
+                    longitude: '',
+                    is_free: true,
+                    price: '',
+                    max_participants: ''
+                };
+                
+                this.showFormModal = true;
+            },
+
+            openEdit(eventData) {
+                this.formTitle = 'Ubah Event';
+                this.formAction = '{{ route('admin.events.update', 'EVENT_ID') }}'.replace('EVENT_ID', eventData.id);
+                this.formMethod = 'PUT';
+                
+                this.formFields = {
+                    id: eventData.id,
+                    name: eventData.name,
+                    description: eventData.description || '',
+                    category: eventData.category,
+                    start_date: eventData.start_date,
+                    start_time: eventData.start_time || '',
+                    end_date: eventData.end_date,
+                    end_time: eventData.end_time || '',
+                    location_name: eventData.location_name,
+                    latitude: eventData.latitude || '',
+                    longitude: eventData.longitude || '',
+                    is_free: !!eventData.is_free,
+                    price: eventData.price || '',
+                    max_participants: eventData.max_participants || ''
+                };
+                
+                this.showFormModal = true;
+            },
+            
+            addHours(timeStr, hours) {
+                if (!timeStr) return '';
+                const parts = timeStr.split(':');
+                const h = parseInt(parts[0], 10);
+                const m = parts[1] || '00';
+                const newH = (h + hours) % 24;
+                return `${String(newH).padStart(2, '0')}:${m}`;
+            },
+
+            get isDateInvalid() {
+                if (!this.formFields.start_date || !this.formFields.end_date) return false;
+                const start = new Date(this.formFields.start_date + ' ' + (this.formFields.start_time || '00:00'));
+                const end = new Date(this.formFields.end_date + ' ' + (this.formFields.end_time || '23:59'));
+                return end < start;
+            },
+            
+            init() {
+                @if($errors->any())
+                    this.formTitle = '{{ old('_method') === 'PUT' ? 'Ubah Event' : 'Tambah Event Baru' }}';
+                    this.formAction = '{{ old('_method') === 'PUT' ? route('admin.events.update', old('id') ?: 0) : route('admin.events.store') }}';
+                    this.formMethod = '{{ old('_method', 'POST') }}';
+                    this.showFormModal = true;
+                @elseif(isset($openCreateOnLoad) && $openCreateOnLoad)
+                    this.openCreate();
+                @elseif(isset($editEventRaw))
+                    this.openEdit(@json($editEventRaw));
+                @endif
+            }
+        }));
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         const calendarEl = document.getElementById('calendar');
         const calendarEvents = @json($calendarEvents);
