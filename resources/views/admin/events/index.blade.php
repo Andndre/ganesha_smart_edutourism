@@ -389,7 +389,7 @@
 
     {{-- Create / Edit Event Form Modal --}}
     <div x-show="showFormModal" 
-        class="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/60 backdrop-blur-sm px-4 overflow-y-auto" 
+        class="fixed inset-0 z-50 flex items-start justify-center bg-charcoal/60 backdrop-blur-sm px-4 py-8 overflow-y-auto" 
         style="display: none;" 
         x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="opacity-0 scale-95"
@@ -398,7 +398,7 @@
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95">
         
-        <div class="bg-white rounded-3xl p-6 w-full max-w-2xl shadow-2xl relative my-8 max-h-[90vh] overflow-y-auto scrollbar-thin" @click.away="showFormModal = false">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-2xl shadow-2xl relative" @click.away="showFormModal = false">
             {{-- Modal Header --}}
             <div class="flex items-start justify-between gap-4 mb-5 pb-3 border-b border-gray-100">
                 <div>
