@@ -53,6 +53,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-surface text-charcoal antialiased">
@@ -341,6 +342,44 @@
             } else {
                 sidebar.classList.add('sidebar-hidden');
             }
+        });
+
+        // SweetAlert2 global delete confirmation handler
+        document.addEventListener('DOMContentLoaded', () => {
+            document.addEventListener('submit', (e) => {
+                const form = e.target;
+                if (form.classList.contains('delete-form') || form.hasAttribute('data-confirm')) {
+                    if (form.dataset.confirmed) {
+                        return;
+                    }
+                    
+                    e.preventDefault();
+                    
+                    const message = form.getAttribute('data-confirm') || 'Apakah Anda yakin ingin menghapus data ini?';
+                    
+                    Swal.fire({
+                        title: 'Konfirmasi Hapus',
+                        text: message,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#1E5128', // Matches primary brand color
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal',
+                        background: '#ffffff',
+                        customClass: {
+                            popup: 'rounded-2xl shadow-xl border border-gray-50',
+                            confirmButton: 'rounded-xl px-4 py-2 font-semibold text-sm',
+                            cancelButton: 'rounded-xl px-4 py-2 font-semibold text-sm'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.dataset.confirmed = 'true';
+                            form.submit();
+                        }
+                    });
+                }
+            });
         });
     </script>
     @stack('scripts')

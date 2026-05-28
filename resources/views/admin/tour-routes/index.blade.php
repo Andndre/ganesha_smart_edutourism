@@ -113,7 +113,7 @@
                         {{ $route->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
                     </button>
                 </form>
-                <form method="POST" action="{{ route('admin.tour-routes.destroy', $route->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus rute ini?')" class="inline">
+                <form method="POST" action="{{ route('admin.tour-routes.destroy', $route->id) }}" class="delete-form inline" data-confirm="Apakah Anda yakin ingin menghapus rute ini?">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="rounded-xl border border-warning/20 px-3 py-2 text-xs font-semibold text-warning transition-colors hover:bg-warning/5">
