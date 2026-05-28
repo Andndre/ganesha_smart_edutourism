@@ -2,6 +2,10 @@
 
 @section('title', 'Event & Kalender')
 
+@section('push_scripts')
+    {{-- We use push('styles') to import stylesheets or JS files if needed --}}
+@endsection
+
 @push('styles')
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     <style>
@@ -103,8 +107,112 @@
 <div x-data="{ 
     viewMode: 'calendar', 
     showModal: false,
-    selectedEvent: {} 
-}" @open-event-modal.window="selectedEvent = $event.detail; showModal = true" class="space-y-6">
+    selectedEvent: {},
+    
+    showFormModal: false,
+    formAction: '',
+    formMethod: 'POST',
+    formTitle: 'Tambah Event Baru',
+    
+    formFields: {
+        id: @json(old('id', '')),
+        name: @json(old('name', '')),
+        description: @json(old('description', '')),
+        category: @json(old('category', 'Upacara Adat')),
+        start_date: @json(old('start_date', '')),
+        start_time: @json(old('start_time', '')),
+        end_date: @json(old('end_date', '')),
+        end_time: @json(old('end_time', '')),
+        location_name: @json(old('location_name', '')),
+        latitude: @json(old('latitude', '')),
+        longitude: @json(old('longitude', '')),
+        is_free: {{ old('is_free') !== null || !$errors->any() ? 'true' : 'false' }},
+        price: @json(old('price', '')),
+        max_participants: @json(old('max_participants', ''))
+    },
+
+    openCreate(dateStr = '', timeStr = '') {
+        this.formTitle = 'Tambah Event Baru';
+        this.formAction = '{{ route('admin.events.store') }}';
+        this.formMethod = 'POST';
+        
+        this.formFields = {
+            id: '',
+            name: '',
+            description: '',
+            category: 'Upacara Adat',
+            start_date: dateStr || new Date().toISOString().split('T')[0],
+            start_time: timeStr || '10:00',
+            end_date: dateStr || new Date().toISOString().split('T')[0],
+            end_time: timeStr ? this.addHours(timeStr, 2) : '12:00',
+            location_name: '',
+            latitude: '',
+            longitude: '',
+            is_free: true,
+            price: '',
+            max_participants: ''
+        };
+        
+        this.showFormModal = true;
+    },
+
+    openEdit(eventData) {
+        this.formTitle = 'Ubah Event';
+        this.formAction = '{{ route('admin.events.update', 'EVENT_ID') }}'.replace('EVENT_ID', eventData.id);
+        this.formMethod = 'PUT';
+        
+        this.formFields = {
+            id: eventData.id,
+            name: eventData.name,
+            description: eventData.description || '',
+            category: eventData.category,
+            start_date: eventData.start_date,
+            start_time: eventData.start_time || '',
+            end_date: eventData.end_date,
+            end_time: eventData.end_time || '',
+            location_name: eventData.location_name,
+            latitude: eventData.latitude || '',
+            longitude: eventData.longitude || '',
+            is_free: !!eventData.is_free,
+            price: eventData.price || '',
+            max_participants: eventData.max_participants || ''
+        };
+        
+        this.showFormModal = true;
+    },
+    
+    addHours(timeStr, hours) {
+        if (!timeStr) return '';
+        const parts = timeStr.split(':');
+        const h = parseInt(parts[0], 10);
+        const m = parts[1] || '00';
+        const newH = (h + hours) % 24;
+        return `${String(newH).padStart(2, '0')}:${m}`;
+    },
+
+    get isDateInvalid() {
+        if (!this.formFields.start_date || !this.formFields.end_date) return false;
+        const start = new Date(this.formFields.start_date + ' ' + (this.formFields.start_time || '00:00'));
+        const end = new Date(this.formFields.end_date + ' ' + (this.formFields.end_time || '23:59'));
+        return end < start;
+    }
+}" 
+@open-event-modal.window="selectedEvent = $event.detail; showModal = true" 
+@open-create-modal.window="openCreate($event.detail.date, $event.detail.time)"
+@open-edit-modal.window="openEdit($event.detail)"
+x-init="
+    @if($errors->any())
+        this.formTitle = '{{ old('_method') === 'PUT' ? 'Ubah Event' : 'Tambah Event Baru' }}';
+        this.formAction = '{{ old('_method') === 'PUT' ? route('admin.events.update', old('id') ?: 0) : route('admin.events.store') }}';
+        this.formMethod = '{{ old('_method', 'POST') }}';
+        this.showFormModal = true;
+    @elseif(isset($openCreateOnLoad) && $openCreateOnLoad)
+        openCreate();
+    @elseif(isset($editEventRaw))
+        openEdit(@json($editEventRaw));
+    @endif
+"
+class="space-y-6">
 
     {{-- Header --}}
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -129,13 +237,13 @@
                 </button>
             </div>
 
-            <a href="{{ route('admin.events.create') }}"
+            <button type="button" @click="openCreate()"
                 class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-600 active:scale-[0.98]">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
                 Tambah Event
-            </a>
+            </button>
         </div>
     </div>
 
@@ -228,11 +336,26 @@
                                 </td>
                                 <td class="px-5 py-4">
                                     <div class="flex items-center gap-2">
-                                        <a href="{{ route('admin.events.edit', $e->id) }}" class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-primary/10 hover:text-primary" title="Edit">
+                                        <button type="button" @click="openEdit({{ json_encode([
+                                            'id' => $e->id,
+                                            'name' => $e->name,
+                                            'description' => $e->description,
+                                            'category' => $e->getCategoryLabel(),
+                                            'start_date' => $e->start_datetime->format('Y-m-d'),
+                                            'start_time' => $e->start_datetime->format('H:i'),
+                                            'end_date' => $e->end_datetime->format('Y-m-d'),
+                                            'end_time' => $e->end_datetime->format('H:i'),
+                                            'location_name' => $e->location_name,
+                                            'latitude' => $e->mapLocation->latitude ?? '',
+                                            'longitude' => $e->mapLocation->longitude ?? '',
+                                            'is_free' => $e->is_free,
+                                            'price' => $e->price,
+                                            'max_participants' => $e->max_participants,
+                                        ]) }})" class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-primary/10 hover:text-primary" title="Edit">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
-                                        </a>
+                                        </button>
                                         <form method="POST" action="{{ route('admin.events.destroy', $e->id) }}" class="delete-form inline" data-confirm="Apakah Anda yakin ingin menghapus event ini?">
                                             @csrf
                                             @method('DELETE')
@@ -347,14 +470,14 @@
 
             {{-- Modal Footer --}}
             <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
-                <a :href="selectedEvent.edit_url" class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-primary/20 bg-primary/5 px-4 py-2.5 text-xs font-bold text-primary transition-all hover:bg-primary hover:text-white">
+                <button type="button" @click="showModal = false; openEdit(selectedEvent.raw)" class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-primary/20 bg-primary/5 px-4 py-2.5 text-xs font-bold text-primary transition-all hover:bg-primary hover:text-white">
                     <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                     Ubah Event
-                </a>
+                </button>
 
-                <form :action="selectedEvent.delete_action" method="POST" class="delete-form inline">
+                <form :action="selectedEvent.delete_action" method="POST" class="delete-form inline" data-confirm="Apakah Anda yakin ingin menghapus event ini?">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="rounded-xl border border-warning/20 bg-warning/5 px-4 py-2.5 text-xs font-bold text-warning transition-all hover:bg-warning hover:text-white flex items-center gap-1.5">
@@ -365,6 +488,169 @@
                     </button>
                 </form>
             </div>
+        </div>
+    </div>
+
+    {{-- Create / Edit Event Form Modal --}}
+    <div x-show="showFormModal" 
+        class="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/60 backdrop-blur-sm px-4 overflow-y-auto" 
+        style="display: none;" 
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-95">
+        
+        <div class="bg-white rounded-3xl p-6 w-full max-w-2xl shadow-2xl relative my-8 max-h-[90vh] overflow-y-auto scrollbar-thin" @click.away="showFormModal = false">
+            {{-- Modal Header --}}
+            <div class="flex items-start justify-between gap-4 mb-5 pb-3 border-b border-gray-100">
+                <div>
+                    <h3 class="font-display text-xl font-bold text-charcoal" x-text="formTitle"></h3>
+                    <p class="text-xs text-gray-500 mt-0.5">Lengkapi detail event budaya desa di bawah ini.</p>
+                </div>
+                <button @click="showFormModal = false" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 transition-colors">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Form --}}
+            <form :action="formAction" method="POST" class="space-y-5">
+                @csrf
+                <template x-if="formMethod === 'PUT'">
+                    <input type="hidden" name="_method" value="PUT">
+                </template>
+                <input type="hidden" name="id" x-model="formFields.id">
+
+                {{-- Row 1: Nama Event & Kategori --}}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="mb-1.5 block text-xs font-semibold text-gray-700 uppercase tracking-wider">Nama Event <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" x-model="formFields.name" placeholder="Contoh: Festival Bambu Penglipuran 2026"
+                            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30" required>
+                        @error('name') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold text-gray-700 uppercase tracking-wider">Kategori <span class="text-red-500">*</span></label>
+                        <select name="category" x-model="formFields.category" class="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 bg-white">
+                            @foreach(['Upacara Adat', 'Festival', 'Workshop', 'Pameran', 'Pertunjukan Seni'] as $cat)
+                                <option value="{{ $cat }}">{{ $cat }}</option>
+                            @endforeach
+                        </select>
+                        @error('category') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+
+                {{-- Row 2: Deskripsi --}}
+                <div>
+                    <label class="mb-1.5 block text-xs font-semibold text-gray-700 uppercase tracking-wider">Deskripsi Event</label>
+                    <textarea name="description" rows="3" x-model="formFields.description" placeholder="Jelaskan latar belakang dan kegiatan dalam event ini..."
+                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none"></textarea>
+                    @error('description') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                </div>
+
+                {{-- Row 3: Waktu Mulai & Waktu Selesai --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
+                    <div>
+                        <span class="block text-xs font-bold text-primary uppercase tracking-wider mb-2">Pelaksanaan Mulai</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] font-semibold text-gray-500 uppercase">Tanggal <span class="text-red-500">*</span></label>
+                                <input type="date" name="start_date" x-model="formFields.start_date" class="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 bg-white" required>
+                                @error('start_date') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-semibold text-gray-500 uppercase">Jam</label>
+                                <input type="time" name="start_time" x-model="formFields.start_time" class="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 bg-white">
+                                @error('start_time') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-bold text-primary uppercase tracking-wider mb-2">Pelaksanaan Selesai</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] font-semibold text-gray-500 uppercase">Tanggal <span class="text-red-500">*</span></label>
+                                <input type="date" name="end_date" x-model="formFields.end_date" class="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 bg-white" required>
+                                @error('end_date') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-semibold text-gray-500 uppercase">Jam</label>
+                                <input type="time" name="end_time" x-model="formFields.end_time" class="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 bg-white">
+                                @error('end_time') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {{-- Alpine client-side date warning --}}
+                    <div x-show="isDateInvalid" class="md:col-span-2 flex items-center gap-2 text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-100 text-xs" style="display: none;">
+                        <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span>Peringatan: Tanggal & Waktu Selesai harus setelah Waktu Mulai!</span>
+                    </div>
+                </div>
+
+                {{-- Row 4: Lokasi Tempat --}}
+                <div class="space-y-3">
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold text-gray-700 uppercase tracking-wider">Lokasi Tempat <span class="text-red-500">*</span></label>
+                        <input type="text" name="location_name" x-model="formFields.location_name" placeholder="Contoh: Bale Banjar atau Pura Penataran Agung"
+                            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30" required>
+                        @error('location_name') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="mb-1.5 block text-xs font-semibold text-gray-500 uppercase tracking-wider">Latitude (opsional)</label>
+                            <input type="number" step="any" name="latitude" x-model="formFields.latitude" placeholder="Contoh: -8.4312"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
+                            @error('latitude') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="mb-1.5 block text-xs font-semibold text-gray-500 uppercase tracking-wider">Longitude (opsional)</label>
+                            <input type="number" step="any" name="longitude" x-model="formFields.longitude" placeholder="Contoh: 115.3521"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
+                            @error('longitude') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Row 5: Harga & Kapasitas --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+                    <div class="flex flex-col justify-center">
+                        <div class="flex items-center gap-2.5 py-2">
+                            <input type="checkbox" id="is_free_form" name="is_free" value="1" x-model="formFields.is_free" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
+                            <label for="is_free_form" class="text-xs font-bold text-gray-700 uppercase tracking-wider cursor-pointer">Event Gratis</label>
+                        </div>
+                    </div>
+                    <div x-show="!formFields.is_free" x-transition class="space-y-1.5" style="display: none;">
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider">Harga Tiket (Rp) <span class="text-red-500">*</span></label>
+                        <input type="number" name="price" x-model="formFields.price" placeholder="Contoh: 50000" :required="!formFields.is_free"
+                            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
+                        @error('price') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="mb-1.5 block text-xs font-semibold text-gray-700 uppercase tracking-wider">Kapasitas Maksimal (opsional)</label>
+                    <input type="number" name="max_participants" x-model="formFields.max_participants" placeholder="Maks. pengunjung"
+                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
+                    @error('max_participants') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                </div>
+
+                {{-- Modal Footer Buttons --}}
+                <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button type="button" @click="showFormModal = false" class="rounded-xl border border-gray-200 px-5 py-2.5 text-xs font-bold text-gray-500 transition-all hover:bg-gray-50">
+                        Batal
+                    </button>
+                    <button type="submit" :disabled="isDateInvalid" :class="isDateInvalid ? 'opacity-50 cursor-not-allowed' : ''"
+                        class="rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-600 active:scale-[0.98]">
+                        Simpan Event
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -393,6 +679,16 @@
                 list: 'Agenda'
             },
             events: calendarEvents,
+            selectable: true,
+            select: function(info) {
+                const datePart = info.startStr.split('T')[0];
+                const timePart = info.startStr.includes('T') ? info.startStr.split('T')[1].substring(0, 5) : '10:00';
+                
+                window.dispatchEvent(new CustomEvent('open-create-modal', { 
+                    detail: { date: datePart, time: timePart } 
+                }));
+                calendar.unselect();
+            },
             eventClick: function(info) {
                 const eventObj = info.event;
                 const props = eventObj.extendedProps;
@@ -411,7 +707,8 @@
                     price: props.price,
                     max_participants: props.max_participants,
                     edit_url: props.edit_url,
-                    delete_action: props.delete_action
+                    delete_action: props.delete_action,
+                    raw: props.raw
                 }}));
             }
         });
