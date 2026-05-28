@@ -316,7 +316,7 @@
                         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Waktu Pelaksanaan</p>
                         <p class="mt-0.5 text-charcoal font-medium" x-text="selectedEvent.start"></p>
                         <template x-if="selectedEvent.end">
-                            <p class="mt-0.5 text-gray-400 text-xs">sampai <span class="text-charcoal font-medium" x-text="selectedEvent.end"></span></p>
+                            <p class="mt-0.5 text-charcoal font-medium"><span class="text-gray-400 font-normal">sampai</span> <span x-text="selectedEvent.end"></span></p>
                         </template>
                     </div>
                 </div>
