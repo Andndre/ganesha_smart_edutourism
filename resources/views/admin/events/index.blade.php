@@ -282,8 +282,8 @@
 
     {{-- Event Detail Modal --}}
     <div x-show="showModal" 
-        class="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/60 backdrop-blur-sm px-4" 
-        style="display: none;" 
+        class="fixed -inset-10 z-50 flex items-center justify-center bg-charcoal/60 backdrop-blur-sm px-4" 
+        style="display: none; will-change: transform; transform: translate3d(0,0,0);" 
         x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="opacity-0 scale-95"
         x-transition:enter-end="opacity-100 scale-100"
@@ -389,8 +389,8 @@
 
     {{-- Create / Edit Event Form Modal --}}
     <div x-show="showFormModal" 
-        class="fixed inset-0 z-50 flex items-start justify-center bg-charcoal/60 backdrop-blur-sm px-4 py-8 overflow-y-auto" 
-        style="display: none;" 
+        class="fixed -inset-10 z-50 flex items-start justify-center bg-charcoal/60 backdrop-blur-sm px-4 py-16 overflow-y-auto" 
+        style="display: none; will-change: transform; transform: translate3d(0,0,0);" 
         x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="opacity-0 scale-95"
         x-transition:enter-end="opacity-100 scale-100"
