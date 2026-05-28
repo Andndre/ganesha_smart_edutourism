@@ -47,6 +47,21 @@
             box-shadow: 0 0 0 3px rgba(30, 81, 40, 0.2) !important;
         }
         
+        .fc .fc-toolbar-chunk {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .fc .fc-button-group {
+            gap: 0.375rem;
+        }
+        
+        .fc .fc-button-group > .fc-button {
+            margin: 0 !important;
+            border-radius: 0.75rem !important;
+        }
+        
         .fc .fc-col-header-cell-cushion {
             padding: 0.75rem 0.25rem !important;
             font-size: 0.75rem !important;
