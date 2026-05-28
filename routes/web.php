@@ -38,9 +38,6 @@ Route::middleware('guest')->group(function () {
     })->name('forgot-password');
 });
 
-// Public Routing API Proxy
-Route::post('/api/routing/directions', [RoutingController::class, 'directions'])->name('routing.directions');
-
 // Public Pages (Guest & Auth)
 Route::middleware('redirect.admin')->group(function () {
     // Home
@@ -88,6 +85,7 @@ Route::middleware('redirect.admin')->group(function () {
 // Authenticated Routes (Users)
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/api/routing/directions', [RoutingController::class, 'directions'])->name('routing.directions');
 
     Route::middleware('redirect.admin')->group(function () {
         // Feedback (Requires login)

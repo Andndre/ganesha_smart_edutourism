@@ -69,6 +69,7 @@ class UmkmOwnerTest extends TestCase
             'business_name' => 'Wayan Coffee & Craft',
             'description' => 'Fine authentic Balinese coffee.',
             'category' => 'culinary',
+            'accepts_in_app_payment' => 1,
         ]);
 
         $response->assertRedirect('/owner/profile');
@@ -78,6 +79,7 @@ class UmkmOwnerTest extends TestCase
             'user_id' => $owner->id,
             'business_name' => 'Wayan Coffee & Craft',
             'category' => 'culinary',
+            'accepts_in_app_payment' => true,
         ]);
     }
 
