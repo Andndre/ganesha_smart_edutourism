@@ -58,7 +58,32 @@ class EventController extends Controller
             $pastCount = 23;
         }
 
-        return view('admin.events.index', compact('events', 'upcomingCount', 'thisMonthCount', 'pastCount'));
+        $allEvents = (clone $query)->orderBy('start_datetime', 'desc')->get();
+        $calendarEvents = $allEvents->map(function (Event $event) {
+            return [
+                'id' => $event->id,
+                'title' => $event->name,
+                'start' => $event->start_datetime->toIso8601String(),
+                'end' => $event->end_datetime->toIso8601String(),
+                'category' => $event->getCategoryLabel(),
+                'location' => $event->location_name,
+                'description' => $event->description,
+                'is_free' => $event->is_free,
+                'price' => $event->is_free ? 'Gratis' : 'Rp '.number_format($event->price, 0, ',', '.'),
+                'max_participants' => $event->max_participants ?? '-',
+                'edit_url' => route('admin.events.edit', $event->id),
+                'delete_action' => route('admin.events.destroy', $event->id),
+                'color' => match ($event->category) {
+                    'ceremony' => '#D4AF37', // Gold / ceremony
+                    'cultural' => '#1E5128', // Green / brand
+                    'workshop' => '#1A365D', // Deep Blue
+                    'culinary' => '#C53030', // Red
+                    default => '#4A5568'
+                },
+            ];
+        });
+
+        return view('admin.events.index', compact('events', 'calendarEvents', 'upcomingCount', 'thisMonthCount', 'pastCount'));
     }
 
     /**
