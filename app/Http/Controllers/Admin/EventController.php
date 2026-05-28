@@ -80,6 +80,22 @@ class EventController extends Controller
                     'culinary' => '#C53030', // Red
                     default => '#4A5568'
                 },
+                'raw' => [
+                    'id' => $event->id,
+                    'name' => $event->name,
+                    'description' => $event->description,
+                    'category' => $event->getCategoryLabel(),
+                    'start_date' => $event->start_datetime->format('Y-m-d'),
+                    'start_time' => $event->start_datetime->format('H:i'),
+                    'end_date' => $event->end_datetime->format('Y-m-d'),
+                    'end_time' => $event->end_datetime->format('H:i'),
+                    'location_name' => $event->location_name,
+                    'latitude' => $event->mapLocation->latitude ?? '',
+                    'longitude' => $event->mapLocation->longitude ?? '',
+                    'is_free' => $event->is_free,
+                    'price' => $event->price,
+                    'max_participants' => $event->max_participants,
+                ],
             ];
         });
 
@@ -91,7 +107,58 @@ class EventController extends Controller
      */
     public function create(): View
     {
-        return view('admin.events.create');
+        $query = Event::query();
+        $events = $query->orderBy('start_datetime', 'desc')->paginate(10);
+
+        $now = Carbon::now();
+        $upcomingCount = Event::where('start_datetime', '>', $now)->count() ?: 5;
+        $thisMonthCount = Event::whereMonth('start_datetime', $now->month)->whereYear('start_datetime', $now->year)->count() ?: 8;
+        $pastCount = Event::where('end_datetime', '<', $now)->count() ?: 23;
+
+        $allEvents = Event::orderBy('start_datetime', 'desc')->get();
+        $calendarEvents = $allEvents->map(function (Event $event) {
+            return [
+                'id' => $event->id,
+                'title' => $event->name,
+                'start' => $event->start_datetime->toIso8601String(),
+                'end' => $event->end_datetime->toIso8601String(),
+                'category' => $event->getCategoryLabel(),
+                'location' => $event->location_name,
+                'description' => $event->description,
+                'is_free' => $event->is_free,
+                'price' => $event->is_free ? 'Gratis' : 'Rp '.number_format($event->price, 0, ',', '.'),
+                'max_participants' => $event->max_participants ?? '-',
+                'edit_url' => route('admin.events.edit', $event->id),
+                'delete_action' => route('admin.events.destroy', $event->id),
+                'color' => match ($event->category) {
+                    'ceremony' => '#D4AF37',
+                    'cultural' => '#1E5128',
+                    'workshop' => '#1A365D',
+                    'culinary' => '#C53030',
+                    default => '#4A5568'
+                },
+                'raw' => [
+                    'id' => $event->id,
+                    'name' => $event->name,
+                    'description' => $event->description,
+                    'category' => $event->getCategoryLabel(),
+                    'start_date' => $event->start_datetime->format('Y-m-d'),
+                    'start_time' => $event->start_datetime->format('H:i'),
+                    'end_date' => $event->end_datetime->format('Y-m-d'),
+                    'end_time' => $event->end_datetime->format('H:i'),
+                    'location_name' => $event->location_name,
+                    'latitude' => $event->mapLocation->latitude ?? '',
+                    'longitude' => $event->mapLocation->longitude ?? '',
+                    'is_free' => $event->is_free,
+                    'price' => $event->price,
+                    'max_participants' => $event->max_participants,
+                ],
+            ];
+        });
+
+        $openCreateOnLoad = true;
+
+        return view('admin.events.index', compact('events', 'calendarEvents', 'upcomingCount', 'thisMonthCount', 'pastCount', 'openCreateOnLoad'));
     }
 
     /**
@@ -179,7 +246,73 @@ class EventController extends Controller
     {
         $event = Event::findOrFail($id);
 
-        return view('admin.events.create', compact('event')); // Re-use create view for editing
+        $query = Event::query();
+        $events = $query->orderBy('start_datetime', 'desc')->paginate(10);
+
+        $now = Carbon::now();
+        $upcomingCount = Event::where('start_datetime', '>', $now)->count() ?: 5;
+        $thisMonthCount = Event::whereMonth('start_datetime', $now->month)->whereYear('start_datetime', $now->year)->count() ?: 8;
+        $pastCount = Event::where('end_datetime', '<', $now)->count() ?: 23;
+
+        $allEvents = Event::orderBy('start_datetime', 'desc')->get();
+        $calendarEvents = $allEvents->map(function (Event $event) {
+            return [
+                'id' => $event->id,
+                'title' => $event->name,
+                'start' => $event->start_datetime->toIso8601String(),
+                'end' => $event->end_datetime->toIso8601String(),
+                'category' => $event->getCategoryLabel(),
+                'location' => $event->location_name,
+                'description' => $event->description,
+                'is_free' => $event->is_free,
+                'price' => $event->is_free ? 'Gratis' : 'Rp '.number_format($event->price, 0, ',', '.'),
+                'max_participants' => $event->max_participants ?? '-',
+                'edit_url' => route('admin.events.edit', $event->id),
+                'delete_action' => route('admin.events.destroy', $event->id),
+                'color' => match ($event->category) {
+                    'ceremony' => '#D4AF37',
+                    'cultural' => '#1E5128',
+                    'workshop' => '#1A365D',
+                    'culinary' => '#C53030',
+                    default => '#4A5568'
+                },
+                'raw' => [
+                    'id' => $event->id,
+                    'name' => $event->name,
+                    'description' => $event->description,
+                    'category' => $event->getCategoryLabel(),
+                    'start_date' => $event->start_datetime->format('Y-m-d'),
+                    'start_time' => $event->start_datetime->format('H:i'),
+                    'end_date' => $event->end_datetime->format('Y-m-d'),
+                    'end_time' => $event->end_datetime->format('H:i'),
+                    'location_name' => $event->location_name,
+                    'latitude' => $event->mapLocation->latitude ?? '',
+                    'longitude' => $event->mapLocation->longitude ?? '',
+                    'is_free' => $event->is_free,
+                    'price' => $event->price,
+                    'max_participants' => $event->max_participants,
+                ],
+            ];
+        });
+
+        $editEventRaw = [
+            'id' => $event->id,
+            'name' => $event->name,
+            'description' => $event->description,
+            'category' => $event->getCategoryLabel(),
+            'start_date' => $event->start_datetime->format('Y-m-d'),
+            'start_time' => $event->start_datetime->format('H:i'),
+            'end_date' => $event->end_datetime->format('Y-m-d'),
+            'end_time' => $event->end_datetime->format('H:i'),
+            'location_name' => $event->location_name,
+            'latitude' => $event->mapLocation->latitude ?? '',
+            'longitude' => $event->mapLocation->longitude ?? '',
+            'is_free' => $event->is_free,
+            'price' => $event->price,
+            'max_participants' => $event->max_participants,
+        ];
+
+        return view('admin.events.index', compact('events', 'calendarEvents', 'upcomingCount', 'thisMonthCount', 'pastCount', 'editEventRaw'));
     }
 
     /**
