@@ -99,6 +99,11 @@
             font-size: 0.75rem !important;
             font-weight: 700 !important;
         }
+        
+        .fc .fc-timegrid-axis-cushion {
+            font-size: 0.725rem !important;
+            font-weight: 600 !important;
+        }
     </style>
 @endpush
 
@@ -673,7 +678,7 @@
             initialView: 'dayGridMonth',
             locale: 'id',
             displayEventTime: false,
-            allDayText: 'Seharian',
+            allDayText: 'Sehari',
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
