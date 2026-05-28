@@ -302,11 +302,11 @@ class AuthTest extends TestCase
     */
 
     /**
-     * Test guests are redirected to login when accessing home page.
+     * Test guests are redirected to login when accessing profile page.
      */
-    public function test_guests_are_redirected_to_login_when_accessing_home(): void
+    public function test_guests_are_redirected_to_login_when_accessing_profile(): void
     {
-        $response = $this->get('/');
+        $response = $this->get('/profile');
 
         $response->assertRedirect('/login');
     }
