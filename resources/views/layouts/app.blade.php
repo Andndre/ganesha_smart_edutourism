@@ -97,11 +97,19 @@
         ])
     @endunless
 
-    <main id="main-content" class="no-scrollbar relative flex-1 overflow-y-auto pb-24">
+    @php
+        $mainTabRoutes = ['home', 'explore', 'ar-scan', 'umkm', 'profile'];
+        $currentRouteName = Route::currentRouteName();
+        $isMainTab = in_array($currentRouteName, $mainTabRoutes);
+    @endphp
+
+    <main id="main-content" class="no-scrollbar relative flex-1 overflow-y-auto {{ $isMainTab ? 'pb-24' : '' }}">
         @yield('content')
     </main>
 
-    @include('components.navigation.bottom-nav')
+    @if($isMainTab)
+        @include('components.navigation.bottom-nav')
+    @endif
 
     <script>
         if ('serviceWorker' in navigator) {

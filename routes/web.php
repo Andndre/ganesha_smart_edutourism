@@ -22,6 +22,8 @@ use App\Http\Controllers\LearningProgressController;
 use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\Owner\OwnerProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TourPackageController;
+use App\Http\Controllers\UmkmCatalogController;
 use Illuminate\Support\Facades\Route;
 
 // Auth Routes (Guest Only)
@@ -36,64 +38,69 @@ Route::middleware('guest')->group(function () {
     })->name('forgot-password');
 });
 
+// Public Routing API Proxy
+Route::post('/api/routing/directions', [RoutingController::class, 'directions'])->name('routing.directions');
+
+// Public Pages (Guest & Auth)
+Route::middleware('redirect.admin')->group(function () {
+    // Home
+    Route::get('/', [HomeController::class, 'index'])->name('home');
+
+    // Explore/Map
+    Route::get('/explore', [ExploreController::class, 'index'])->name('explore');
+
+    // AR Scan
+    Route::get('/ar-scan', function () {
+        return view('pages.ar.index');
+    })->name('ar-scan');
+
+    // UMKM Catalog & Recommendation
+    Route::get('/umkm', [UmkmCatalogController::class, 'index'])->name('umkm');
+    Route::post('/umkm/recommend', [UmkmCatalogController::class, 'recommend'])->name('umkm.recommend');
+    Route::get('/umkm/recommended/{id}', [UmkmCatalogController::class, 'recommended'])->name('umkm.recommended');
+    Route::get('/umkm/multi-route', [UmkmCatalogController::class, 'multiRecommended'])->name('umkm.multi_recommended');
+    Route::get('/umkm/product/{id}', function () {
+        return view('pages.umkm.show');
+    })->name('umkm-product');
+
+    // Cultural Objects
+    Route::get('/cultural', function () {
+        return view('pages.cultural.index');
+    })->name('cultural-objects');
+    Route::get('/cultural/{id}', function () {
+        return view('pages.cultural.show');
+    })->name('cultural-object');
+
+    // Events
+    Route::get('/events', function () {
+        return view('pages.events.index');
+    })->name('events');
+
+    // Learning
+    Route::get('/learning', [LearningController::class, 'index'])->name('learning');
+    Route::get('/learning/{slug}', [LearningController::class, 'show'])->name('learning.show');
+
+    // Tour Packages
+    Route::get('/tour-packages', [TourPackageController::class, 'index'])->name('tour-packages');
+    Route::get('/tour-package/{id}', [TourPackageController::class, 'show'])->name('tour-package');
+});
+
 // Authenticated Routes (Users)
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Public Routing API Proxy
-    Route::post('/api/routing/directions', [RoutingController::class, 'directions'])->name('routing.directions');
-
     Route::middleware('redirect.admin')->group(function () {
-        // Home
-        Route::get('/', [HomeController::class, 'index'])->name('home');
-
-        // Explore/Map
-        Route::get('/explore', [ExploreController::class, 'index'])->name('explore');
-
-        // AR Scan
-        Route::get('/ar-scan', function () {
-            return view('pages.ar.index');
-        })->name('ar-scan');
-
-        // UMKM Catalog & Recommendation
-        Route::get('/umkm', [\App\Http\Controllers\UmkmCatalogController::class, 'index'])->name('umkm');
-        Route::post('/umkm/recommend', [\App\Http\Controllers\UmkmCatalogController::class, 'recommend'])->name('umkm.recommend');
-        Route::get('/umkm/recommended/{id}', [\App\Http\Controllers\UmkmCatalogController::class, 'recommended'])->name('umkm.recommended');
-        Route::get('/umkm/multi-route', [\App\Http\Controllers\UmkmCatalogController::class, 'multiRecommended'])->name('umkm.multi_recommended');
-        Route::get('/umkm/product/{id}', function () {
-            return view('pages.umkm.show');
-        })->name('umkm-product');
-
-        // Cultural Objects
-        Route::get('/cultural', function () {
-            return view('pages.cultural.index');
-        })->name('cultural-objects');
-        Route::get('/cultural/{id}', function () {
-            return view('pages.cultural.show');
-        })->name('cultural-object');
-
-        // Events
-        Route::get('/events', function () {
-            return view('pages.events.index');
-        })->name('events');
-
-        // Learning
-        Route::get('/learning', [LearningController::class, 'index'])->name('learning');
-        Route::get('/learning/{slug}', [LearningController::class, 'show'])->name('learning.show');
-        Route::post('/learning/{moduleSlug}/{contentSlug}/quiz', [LearningProgressController::class, 'submitQuiz'])->name('learning.quiz.submit');
-
-        // Tour Packages
-        Route::get('/tour-packages', function () {
-            return view('pages.packages.index');
-        })->name('tour-packages');
-        Route::get('/tour-package/{id}', function () {
-            return view('pages.packages.show');
-        })->name('tour-package');
-
-        // Feedback
+        // Feedback (Requires login)
         Route::get('/feedback', function () {
             return view('pages.feedback.create');
         })->name('feedback');
+
+        // Learning Quiz Submit
+        Route::post('/learning/{moduleSlug}/{contentSlug}/quiz', [LearningProgressController::class, 'submitQuiz'])->name('learning.quiz.submit');
+
+        // Tour Package Booking
+        Route::get('/tour-package/{id}/book', [App\Http\Controllers\BookingController::class, 'checkout'])->name('tour-package.book');
+        Route::post('/tour-package/{id}/process', [App\Http\Controllers\BookingController::class, 'process'])->name('tour-package.process');
 
         // Profile & E-Ticket
         Route::get('/profile', function () {
@@ -101,9 +108,7 @@ Route::middleware('auth')->group(function () {
         })->name('profile');
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        Route::get('/profile/bookings', function () {
-            return view('bookings.index');
-        })->name('bookings');
+        Route::get('/profile/bookings', [App\Http\Controllers\BookingController::class, 'index'])->name('bookings');
         Route::get('/profile/learning', function () {
             return view('learning.index');
         })->name('learning-progress');

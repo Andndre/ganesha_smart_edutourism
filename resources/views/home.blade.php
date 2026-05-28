@@ -7,19 +7,34 @@
 
         <div class="flex items-start justify-between">
             <div class="pr-4">
-                <h2 class="font-display text-2xl font-bold">{{ __('Rahajeng Rauh, :name!', ['name' => str(Auth::user()->name)->before(' ')]) }}</h2>
+                @auth
+                    <h2 class="font-display text-2xl font-bold">{{ __('Rahajeng Rauh, :name!', ['name' => str(Auth::user()->name)->before(' ')]) }}</h2>
+                @else
+                    <h2 class="font-display text-2xl font-bold">{{ __('Rahajeng Rauh!') }}</h2>
+                @endauth
                 <p class="text-primary-100/90 mt-1.5 text-sm font-medium leading-snug">
                     {{ __('Siap menjelajahi budaya & tradisi Penglipuran hari ini?') }}
                 </p>
             </div>
 
-            <a href="{{ route('profile') }}" class="tap-target -mt-1 shrink-0 transition-transform active:scale-95"
-                aria-label="Buka Profil">
-                <div class="h-12 w-12 overflow-hidden rounded-full border-2 border-white/30 bg-white/10 p-0.5 shadow-sm">
-                    <img src="https://ui-avatars.com/api/?name={{ \urlencode(Auth::user()->name) }}&background=D4AF37&color=fff&bold=true"
-                        alt="Profil {{ Auth::user()->name }}" class="h-full w-full rounded-full object-cover">
-                </div>
-            </a>
+            @auth
+                <a href="{{ route('profile') }}" class="tap-target -mt-1 shrink-0 transition-transform active:scale-95"
+                    aria-label="Buka Profil">
+                    <div class="h-12 w-12 overflow-hidden rounded-full border-2 border-white/30 bg-white/10 p-0.5 shadow-sm">
+                        <img src="https://ui-avatars.com/api/?name={{ \urlencode(Auth::user()->name) }}&background=D4AF37&color=fff&bold=true"
+                            alt="Profil {{ Auth::user()->name }}" class="h-full w-full rounded-full object-cover">
+                    </div>
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="tap-target -mt-1 shrink-0 transition-transform active:scale-95"
+                    aria-label="Masuk">
+                    <div class="h-12 w-12 overflow-hidden rounded-full border-2 border-white/30 bg-white/10 p-2 shadow-sm flex items-center justify-center text-white">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                </a>
+            @endauth
         </div>
 
         <div
@@ -133,7 +148,7 @@
                 </div>
                 <span class="text-center text-[11px] font-medium leading-tight">Info<br>Fasilitas</span>
             </a>
-            @if (Auth::user()->isUmkmOwner())
+            @if (Auth::check() && Auth::user()->isUmkmOwner())
                 <a href="{{ route('owner.dashboard') }}"
                     class="tap-target flex flex-col items-center gap-2 transition-transform active:scale-95">
                     <div

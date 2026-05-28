@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\BookingController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -10,3 +12,5 @@
 | be assigned to the "api" middleware group.
 |
 */
+
+Route::post('/midtrans/webhook', [BookingController::class, 'webhook']);
