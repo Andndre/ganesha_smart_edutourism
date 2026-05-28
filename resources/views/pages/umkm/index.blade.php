@@ -3,7 +3,7 @@
 @section('header_title', 'Katalog UMKM')
 
 @section('content')
-    <div class="px-4 pt-[calc(env(safe-area-inset-top)+6rem)] pb-24" x-data="{ showMultiStopModal: {{ session('multi_stop_recommendations') ? 'true' : 'false' }} }">
+    <div class="px-4 pt-[calc(env(safe-area-inset-top)+6rem)] pb-40" x-data="{ showMultiStopModal: {{ session('multi_stop_recommendations') ? 'true' : 'false' }} }">
         <!-- Validation Errors -->
         @if ($errors->any())
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl relative mb-4 z-20 shadow-sm" role="alert">
@@ -105,7 +105,7 @@
             </div>
 
             <!-- Sticky Bottom Bar for Button -->
-            <div class="fixed bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-200 p-4 z-40">
+            <div class="fixed bottom-[calc(env(safe-area-inset-bottom)+4rem)] left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-200 px-4 pt-4 pb-8 z-40">
                 <button type="submit" class="w-full bg-primary text-white font-semibold py-3.5 rounded-xl active:scale-[0.98] transition-transform shadow-lg flex justify-center items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
