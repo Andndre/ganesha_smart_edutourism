@@ -229,7 +229,7 @@ class EventController extends Controller
         if ($latitude !== null && $longitude !== null) {
             $event->mapLocation()->create([
                 'name' => $event->name,
-                'category' => $event->category,
+                'category' => 'cultural',
                 'latitude' => $latitude,
                 'longitude' => $longitude,
                 'is_accessible' => true,
@@ -384,7 +384,7 @@ class EventController extends Controller
                 [],
                 [
                     'name' => $event->name,
-                    'category' => $event->category,
+                    'category' => 'cultural',
                     'latitude' => $latitude,
                     'longitude' => $longitude,
                     'is_accessible' => true,
