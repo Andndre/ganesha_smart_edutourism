@@ -104,6 +104,14 @@
             font-size: 0.725rem !important;
             font-weight: 600 !important;
         }
+
+        @keyframes loading-bar {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(300%); }
+        }
+        .animate-loading-bar {
+            animation: loading-bar 1.2s infinite linear;
+        }
     </style>
 @endpush
 
@@ -182,7 +190,7 @@
         {{-- TAB 2: LIST VIEW --}}
         <div x-show="viewMode === 'list'" x-transition class="space-y-4" style="display: none;">
             {{-- Search + Filter --}}
-            <form method="GET" action="{{ route('admin.events') }}" class="flex flex-col gap-3 sm:flex-row">
+            <form id="events-search-form" @submit.prevent="searchEvents" method="GET" action="{{ route('admin.events') }}" class="flex flex-col gap-3 sm:flex-row">
                 <div class="relative flex-1">
                     <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -192,7 +200,7 @@
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari event..."
                         class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-9 pr-4 text-sm focus:outline-none focus:ring-1">
                 </div>
-                <select name="category" onchange="this.form.submit()"
+                <select name="category" @change="searchEvents"
                     class="focus:border-primary rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none">
                     <option value="Semua Kategori">Semua Kategori</option>
                     @foreach (['Upacara Adat', 'Festival', 'Workshop', 'Pameran', 'Pertunjukan Seni'] as $cat)
@@ -203,7 +211,15 @@
             </form>
 
             {{-- Table --}}
-            <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+            <div id="events-table-wrapper" class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+                @click="handlePaginationClick($event)"
+                :class="isLoadingList ? 'opacity-60 pointer-events-none transition-opacity duration-200' : 'transition-opacity duration-200'">
+                
+                {{-- Dynamic Loading Bar --}}
+                <div x-show="isLoadingList" class="absolute left-0 right-0 top-0 z-10 h-1 overflow-hidden bg-primary/10">
+                    <div class="h-full bg-primary animate-loading-bar w-1/3 rounded-full absolute top-0 left-0"></div>
+                </div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
@@ -775,6 +791,67 @@
                     return end < start;
                 },
 
+                isLoadingList: false,
+
+                searchEvents() {
+                    const form = document.querySelector('#events-search-form');
+                    const formData = new FormData(form);
+                    const searchParams = new URLSearchParams(formData).toString();
+                    const url = '{{ route('admin.events') }}?' + searchParams;
+                    this.fetchEventsFromUrl(url);
+                },
+
+                handlePaginationClick(event) {
+                    const link = event.target.closest('a');
+                    if (link && link.href) {
+                        event.preventDefault();
+                        this.fetchEventsFromUrl(link.href);
+                    }
+                },
+
+                fetchEventsFromUrl(url, shouldPushState = true) {
+                    this.isLoadingList = true;
+                    fetch(url, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.text();
+                    })
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newTable = doc.querySelector('#events-table-wrapper');
+                        const currentTable = document.querySelector('#events-table-wrapper');
+                        if (newTable && currentTable) {
+                            currentTable.innerHTML = newTable.innerHTML;
+                        }
+
+                        // Sync form input values
+                        const newSearch = doc.querySelector('input[name="search"]');
+                        const currentSearch = document.querySelector('input[name="search"]');
+                        if (newSearch && currentSearch) {
+                            currentSearch.value = newSearch.value;
+                        }
+                        const newCategory = doc.querySelector('select[name="category"]');
+                        const currentCategory = document.querySelector('select[name="category"]');
+                        if (newCategory && currentCategory) {
+                            currentCategory.value = newCategory.value;
+                        }
+
+                        if (shouldPushState) {
+                            window.history.pushState({}, '', url);
+                        }
+                        this.isLoadingList = false;
+                    })
+                    .catch(err => {
+                        console.error('AJAX Error:', err);
+                        this.isLoadingList = false;
+                    });
+                },
+
                 init() {
                     @if ($errors->any())
                         this.formTitle =
@@ -788,6 +865,17 @@
                     @elseif (isset($editEventRaw))
                         this.openEdit(@json($editEventRaw));
                     @endif
+
+                    // Check if URL parameters require switching to list view
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.has('search') || urlParams.has('category') || urlParams.has('page')) {
+                        this.viewMode = 'list';
+                    }
+
+                    // Handle back/forward navigation
+                    window.addEventListener('popstate', () => {
+                        this.fetchEventsFromUrl(window.location.href, false);
+                    });
                 }
             }));
         });
