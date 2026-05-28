@@ -33,68 +33,93 @@
             </div>
         </div>
 
+        @php
+            $latestActiveBooking = auth()->user()->reservations()
+                ->where('status', 'confirmed')
+                ->with('tourPackage')
+                ->latest()
+                ->first();
+        @endphp
+
         <h3 class="text-charcoal mb-4 text-lg font-bold">Tiket Aktif Saya</h3>
 
-        <!-- Active Ticket Card -->
-        <div class="bg-primary shadow-primary/20 mb-8 rounded-3xl p-1 shadow-lg transition-transform active:scale-[0.98]"
-            onclick="openQrModal()">
-            <div class="border-primary/20 relative overflow-hidden rounded-[1.35rem] border bg-white">
+        @if ($latestActiveBooking)
+            <!-- Active Ticket Card -->
+            <div class="bg-primary shadow-primary/20 mb-8 rounded-3xl p-1 shadow-lg transition-transform active:scale-[0.98] cursor-pointer"
+                onclick="openQrModal('{{ $latestActiveBooking->qr_code }}', '{{ addslashes($latestActiveBooking->tourPackage->name ?? 'Paket Wisata') }}', '{{ $latestActiveBooking->payment_reference }}')">
+                <div class="border-primary/20 relative overflow-hidden rounded-[1.35rem] border bg-white">
 
-                <!-- Ticket Top (Details) -->
-                <div class="relative z-10 border-b-2 border-dashed border-gray-200 p-5">
-                    <div class="mb-3 flex items-start justify-between">
-                        <span
-                            class="text-primary rounded-lg border border-green-100 bg-green-50 px-2.5 py-1 text-xs font-bold">Tour
-                            Keluarga</span>
-                        <span class="text-xs font-bold text-gray-400">ID: GPN-2026815</span>
-                    </div>
-                    <h3 class="text-charcoal mb-4 text-lg font-bold">Penglipuran Family Walk</h3>
+                    <!-- Ticket Top (Details) -->
+                    <div class="relative z-10 border-b-2 border-dashed border-gray-200 p-5">
+                        <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <span
+                                class="text-primary self-start rounded-lg border border-green-100 bg-green-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider">Tour Package</span>
+                            <span class="text-xs font-bold text-gray-400 truncate">ID: {{ $latestActiveBooking->payment_reference }}</span>
+                        </div>
+                        <h3 class="text-charcoal mb-4 text-lg font-bold">{{ $latestActiveBooking->tourPackage->name ?? 'Paket Wisata' }}</h3>
 
-                    <div class="grid grid-cols-2 gap-x-2 gap-y-4">
-                        <div>
-                            <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Tanggal</div>
-                            <div class="text-charcoal text-sm font-bold">15 Agu 2026</div>
-                        </div>
-                        <div>
-                            <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Jam</div>
-                            <div class="text-charcoal text-sm font-bold">09:00 WITA</div>
-                        </div>
-                        <div>
-                            <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Peserta</div>
-                            <div class="text-charcoal text-sm font-bold">3 Orang</div>
-                        </div>
-                        <div>
-                            <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Status</div>
-                            <div class="text-sm font-bold text-green-600">Lunas</div>
+                        <div class="grid grid-cols-2 gap-x-2 gap-y-4">
+                            <div>
+                                <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Tanggal</div>
+                                <div class="text-charcoal text-sm font-bold">{{ \Carbon\Carbon::parse($latestActiveBooking->scheduled_date)->translatedFormat('d M Y') }}</div>
+                            </div>
+                            <div>
+                                <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Jam</div>
+                                <div class="text-charcoal text-sm font-bold">{{ \Carbon\Carbon::parse($latestActiveBooking->scheduled_time)->format('H:i') }} WITA</div>
+                            </div>
+                            <div>
+                                <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Peserta</div>
+                                <div class="text-charcoal text-sm font-bold">{{ $latestActiveBooking->party_size }} Orang</div>
+                            </div>
+                            <div>
+                                <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Status</div>
+                                <div class="text-sm font-bold text-green-600">Aktif &amp; Lunas</div>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Ticket Bottom (CTA) -->
+                    <div class="flex items-center justify-between bg-gray-50 p-5">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="text-charcoal flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-white shadow-sm">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-charcoal text-sm font-bold">Ketuk untuk QR Code</div>
+                                <div class="text-[10px] text-gray-500">Tunjukkan di pintu masuk</div>
+                            </div>
+                        </div>
+                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </div>
+
+                    <!-- Left and Right cutouts (Ticket effect) -->
+                    <div class="absolute -left-3 top-[67%] h-6 w-6 rounded-full border border-gray-200 bg-gray-50"></div>
+                    <div class="absolute -right-3 top-[67%] h-6 w-6 rounded-full border border-gray-200 bg-gray-50"></div>
                 </div>
-
-                <!-- Ticket Bottom (CTA) -->
-                <div class="flex items-center justify-between bg-gray-50 p-5">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="text-charcoal flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-white shadow-sm">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <div class="text-charcoal text-sm font-bold">Ketuk untuk QR Code</div>
-                            <div class="text-[10px] text-gray-500">Tunjukkan di pintu masuk</div>
-                        </div>
-                    </div>
-                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </div>
+        @else
+            <!-- Empty State Ticket Card -->
+            <div class="mb-8 rounded-3xl border border-dashed border-gray-200 bg-white p-6 text-center">
+                <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-50 text-gray-300">
+                    <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                     </svg>
                 </div>
-
-                <!-- Left and Right cutouts (Ticket effect) -->
-                <div class="absolute -left-3 top-[67%] h-6 w-6 rounded-full border border-gray-200 bg-gray-50"></div>
-                <div class="absolute -right-3 top-[67%] h-6 w-6 rounded-full border border-gray-200 bg-gray-50"></div>
+                <h4 class="text-charcoal mb-1 text-sm font-bold">Belum Ada Tiket Aktif</h4>
+                <p class="mb-4 text-xs text-gray-500">Pesan tiket atau paket wisata menarik untuk memulai perjalanan edukasi Anda.</p>
+                <a href="{{ route('tour-packages') }}"
+                    class="bg-primary/10 text-primary active:bg-primary/20 inline-block rounded-xl px-4 py-2 text-xs font-bold transition-all">
+                    Beli Tiket Sekarang
+                </a>
             </div>
-        </div>
+        @endif
 
         <!-- Other Menu Options -->
         <h3 class="text-charcoal mb-4 text-lg font-bold">Pengaturan</h3>
@@ -133,7 +158,7 @@
                 </svg>
             </a>
 
-            <a href="#" class="flex items-center justify-between border-b border-gray-50 p-4 active:bg-gray-50">
+            <a href="{{ route('bookings') }}" class="flex items-center justify-between border-b border-gray-50 p-4 active:bg-gray-50">
                 <div class="flex items-center gap-3">
                     <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-blue-600">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -195,41 +220,20 @@
                     </svg>
                 </button>
 
-                <h3 class="text-charcoal mb-1 text-xl font-bold">Tiket Masuk</h3>
+                <h3 class="text-charcoal mb-1 text-xl font-bold" id="qr-modal-title">Tiket Masuk</h3>
                 <p class="text-xs text-gray-500">Pindai QR ini di gerbang utama</p>
             </div>
 
             <div class="flex justify-center p-8">
-                <!-- Simulated QR Code -->
-                <div
-                    class="relative aspect-square w-full rounded-2xl border-8 border-white bg-white shadow-[0_0_15px_rgba(0,0,0,0.1)]">
-                    <!-- Outer squares -->
-                    <div class="border-charcoal absolute left-2 top-2 h-12 w-12 border-4"></div>
-                    <div class="bg-charcoal absolute left-4 top-4 h-8 w-8"></div>
-
-                    <div class="border-charcoal absolute right-2 top-2 h-12 w-12 border-4"></div>
-                    <div class="bg-charcoal absolute right-4 top-4 h-8 w-8"></div>
-
-                    <div class="border-charcoal absolute bottom-2 left-2 h-12 w-12 border-4"></div>
-                    <div class="bg-charcoal absolute bottom-4 left-4 h-8 w-8"></div>
-
-                    <!-- Random QR blocks (simulated) -->
-                    <div class="bg-charcoal absolute left-[30%] top-[40%] h-6 w-6"></div>
-                    <div class="bg-charcoal absolute right-[30%] top-[60%] h-4 w-8"></div>
-                    <div class="bg-charcoal absolute bottom-[20%] right-[20%] h-10 w-10"></div>
-                    <div class="bg-charcoal absolute left-[50%] top-[20%] h-12 w-4"></div>
-
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-md">
-                            <span class="text-primary text-[10px] font-bold">GPN</span>
-                        </div>
-                    </div>
+                <!-- Dynamic QR Code Image -->
+                <div class="relative aspect-square w-full rounded-2xl border-8 border-white bg-white shadow-[0_0_15px_rgba(0,0,0,0.1)] flex items-center justify-center p-4">
+                    <img id="qr-modal-image" src="" alt="QR Code" class="h-48 w-48 rounded-lg">
                 </div>
             </div>
 
             <div class="border-t border-gray-100 bg-gray-50 p-6 text-center">
                 <div class="mb-1 text-xs font-bold uppercase tracking-wider text-gray-500">ID Pemesanan</div>
-                <div class="text-charcoal font-mono text-lg font-bold tracking-[0.2em]">GPN-2026815</div>
+                <div class="text-charcoal font-mono text-lg font-bold tracking-widest" id="qr-modal-order-id">GPN-2026815</div>
             </div>
         </div>
     </div>
@@ -237,9 +241,14 @@
 
 @push('scripts')
     <script>
-        function openQrModal() {
+        function openQrModal(qrCode, ticketName, orderId) {
             const modal = document.getElementById('qr-modal');
             const card = document.getElementById('qr-card');
+
+            // Set dynamic contents
+            document.getElementById('qr-modal-title').textContent = ticketName;
+            document.getElementById('qr-modal-order-id').textContent = orderId;
+            document.getElementById('qr-modal-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrCode)}`;
 
             modal.classList.remove('opacity-0', 'pointer-events-none');
             modal.classList.add('opacity-100', 'pointer-events-auto');
