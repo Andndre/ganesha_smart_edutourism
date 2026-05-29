@@ -181,22 +181,55 @@
                 </button>
             </div>
 
-            <!-- Custom Elegant Filter -->
-            <div class="relative shrink-0">
-                <select @change="filterCategory($event.target.value)"
-                    class="w-full sm:w-auto appearance-none focus:border-primary rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary/20">
-                    <option value="Semua">Semua Kategori</option>
-                    <option value="Upacara Adat">Upacara Adat</option>
-                    <option value="Festival">Festival</option>
-                    <option value="Workshop">Workshop</option>
-                    <option value="Kuliner">Kuliner</option>
-                </select>
-                <div class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400">
-                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <!-- Custom Dynamic Dropdown Filter -->
+            <div class="relative shrink-0 w-full sm:w-auto z-30" x-data="{ isOpen: false }">
+                <button type="button" @click="isOpen = !isOpen" @click.away="isOpen = false"
+                    class="flex w-full sm:w-56 items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-xs font-bold text-gray-700 transition-all duration-200 hover:border-primary hover:bg-gray-50/50 active:scale-[0.98]">
+                    <div class="flex items-center gap-2">
+                        <!-- Tiny visual category indicator color dot -->
+                        <span :class="{
+                            'bg-primary': selectedCategory === 'Semua',
+                            'bg-amber-500': selectedCategory === 'Upacara Adat',
+                            'bg-emerald-500': selectedCategory === 'Festival',
+                            'bg-blue-500': selectedCategory === 'Workshop',
+                            'bg-rose-500': selectedCategory === 'Kuliner'
+                        }" class="h-2 w-2 rounded-full shrink-0"></span>
+                        <span x-text="selectedCategory === 'Semua' ? 'Semua Kategori' : selectedCategory"></span>
+                    </div>
+                    <svg class="h-3.5 w-3.5 text-gray-400 transition-transform duration-200" :class="isOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
+                </button>
+
+                <!-- Floating Menu -->
+                <div x-show="isOpen"
+                    x-transition:enter="transition ease-out duration-150 transform"
+                    x-transition:enter-start="opacity-0 scale-95 translate-y-1"
+                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-100 transform"
+                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 scale-95 translate-y-1"
+                    class="absolute left-0 mt-2 w-full sm:w-56 rounded-2xl border border-gray-100 bg-white p-1.5 shadow-xl z-50"
+                    style="display: none;">
+                    
+                    <template x-for="cat in ['Semua', 'Upacara Adat', 'Festival', 'Workshop', 'Kuliner']" :key="cat">
+                        <button type="button" @click="filterCategory(cat); isOpen = false"
+                            :class="selectedCategory === cat ? 'bg-primary/8 text-primary font-bold' : 'text-gray-600 hover:bg-gray-50 hover:text-charcoal font-medium'"
+                            class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs transition-colors duration-150">
+                            <!-- Category visual color dot inside list -->
+                            <span :class="{
+                                'bg-primary': cat === 'Semua',
+                                'bg-amber-500': cat === 'Upacara Adat',
+                                'bg-emerald-500': cat === 'Festival',
+                                'bg-blue-500': cat === 'Workshop',
+                                'bg-rose-500': cat === 'Kuliner'
+                            }" class="h-2 w-2 rounded-full shrink-0"></span>
+                            <span x-text="cat === 'Semua' ? 'Semua Kategori' : cat"></span>
+                        </button>
+                    </template>
                 </div>
             </div>
+
         </div>
 
         {{-- VIEW MODE 1: INTERACTIVE CALENDAR --}}
