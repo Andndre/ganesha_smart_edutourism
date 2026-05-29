@@ -40,6 +40,14 @@
         border-color: #1E5128 !important;
         color: #ffffff !important;
     }
+    .fc .fc-button-group {
+        gap: 6px !important;
+    }
+    .fc .fc-button-group > .fc-button {
+        border-radius: 0.75rem !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
     .fc .fc-event {
         padding: 4px 8px !important;
         border-radius: 8px !important;
