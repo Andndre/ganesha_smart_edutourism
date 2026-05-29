@@ -86,6 +86,43 @@
             background: #e5e7eb;
             border-radius: 10px;
         }
+        
+        /* Mobile toolbar spacing and adjustments */
+        @media (max-width: 768px) {
+            .fc .fc-toolbar {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                gap: 0.25rem !important;
+                margin-bottom: 1rem !important;
+            }
+            .fc .fc-toolbar-title {
+                font-size: 0.95rem !important;
+                text-align: center !important;
+                flex: 1 !important;
+            }
+            .fc .fc-button {
+                padding: 0.35rem 0.5rem !important;
+                font-size: 0.7rem !important;
+            }
+            .fc .fc-daygrid-day {
+                min-height: 48px !important;
+            }
+            .fc .fc-daygrid-day-frame {
+                min-height: 48px !important;
+            }
+            .fc .fc-daygrid-day-number {
+                font-size: 0.75rem !important;
+                padding: 4px !important;
+            }
+            .fc .fc-event {
+                padding: 2px 4px !important;
+                font-size: 0.6rem !important;
+                border-radius: 4px !important;
+            }
+        }
+
         /* Custom Keyframe entrance for list items */
         @keyframes fadeInUp {
             from {
@@ -264,7 +301,7 @@
 
         {{-- PREMIUM DETAIL EVENT MODAL (MOBILE BOTTOM-SHEET / DESKTOP MODAL) --}}
         <div x-show="showModal"
-            class="bg-charcoal/60 fixed -inset-10 z-50 flex items-end justify-center px-0 md:items-center md:px-4 backdrop-blur-sm"
+            class="bg-charcoal/60 fixed inset-0 z-50 flex items-end justify-center px-0 md:items-center md:px-4 backdrop-blur-sm"
             style="display: none; will-change: transform; transform: translate3d(0,0,0);"
             x-transition:enter="transition ease-out duration-300" 
             x-transition:enter-start="opacity-0"
@@ -274,6 +311,7 @@
             x-transition:leave-end="opacity-0">
             
             <div class="relative w-full rounded-t-[2.5rem] bg-white p-6 shadow-2xl md:rounded-3xl max-w-lg pb-10 md:pb-6" 
+                style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));"
                 @click.away="showModal = false"
                 x-show="showModal"
                 x-transition:enter="transition ease-out duration-300 transform" 
@@ -453,9 +491,13 @@
             if (!calendarEl) return;
 
             const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth',
+                initialView: 'dayGridMonth',
                 locale: 'id',
-                headerToolbar: {
+                headerToolbar: window.innerWidth < 768 ? {
+                    left: 'prev,next',
+                    center: 'title',
+                    right: 'today'
+                } : {
                     left: 'prev,next today',
                     center: 'title',
                     right: 'dayGridMonth,listMonth'
