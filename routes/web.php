@@ -22,6 +22,7 @@ use App\Http\Controllers\LearningProgressController;
 use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\Owner\OwnerProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\EventController as PublicEventController;
 use App\Http\Controllers\TourPackageController;
 use App\Http\Controllers\UmkmCatalogController;
 use Illuminate\Support\Facades\Route;
@@ -69,9 +70,7 @@ Route::middleware('redirect.admin')->group(function () {
     })->name('cultural-object');
 
     // Events
-    Route::get('/events', function () {
-        return view('pages.events.index');
-    })->name('events');
+    Route::get('/events', [PublicEventController::class, 'index'])->name('events');
 
     // Learning
     Route::get('/learning', [LearningController::class, 'index'])->name('learning');
