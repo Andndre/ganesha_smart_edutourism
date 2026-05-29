@@ -482,6 +482,17 @@
                     if (window.innerWidth < 768) {
                         this.viewMode = 'list';
                     }
+
+                    // Watch viewMode changes to recalculate sizes when switching tabs
+                    this.$watch('viewMode', (value) => {
+                        if (value === 'calendar') {
+                            setTimeout(() => {
+                                if (window.fcInstance) {
+                                    window.fcInstance.updateSize();
+                                }
+                            }, 50);
+                        }
+                    });
                 }
             }));
         });
@@ -524,6 +535,11 @@
 
             calendar.render();
             window.fcInstance = calendar; // Save global reference for filtering
+
+            // Force dynamic layout sync after render to prevent initial 0px container collapse
+            setTimeout(() => {
+                calendar.updateSize();
+            }, 50);
         });
     </script>
 @endpush
