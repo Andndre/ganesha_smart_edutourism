@@ -49,19 +49,54 @@
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>                <!-- Schedule -->
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="text-charcoal mb-2.5 font-bold">Pilih Tanggal Kunjungan</h3>
+                        
+                        <!-- Horizontal Scrollable Date Cards -->
+                        <div class="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 pb-2">
+                            <template x-for="d in visitDates" :key="d.value">
+                                <button type="button" @click="selectedDate = d.value"
+                                    :class="selectedDate === d.value ? 'bg-primary border-primary text-white shadow-md shadow-primary/10 scale-[1.02] font-bold' : 'bg-white border-gray-100 text-gray-700 hover:bg-gray-50'"
+                                    class="flex flex-col items-center justify-center rounded-2xl border p-3 min-w-[72px] shrink-0 transition-all duration-200">
+                                    <span class="text-[9px] uppercase tracking-wider leading-none" :class="selectedDate === d.value ? 'text-green-100' : 'text-gray-400'" x-text="d.dayName"></span>
+                                    <span class="text-lg leading-none mt-1.5 font-extrabold" x-text="d.dayNum"></span>
+                                    <span class="text-[9px] mt-1 font-semibold" :class="selectedDate === d.value ? 'text-green-200 font-bold' : 'text-gray-400'" x-text="d.monthName"></span>
+                                </button>
+                            </template>
+                        </div>
+                        <input type="hidden" name="scheduled_date" :value="selectedDate" required>
+                    </div>
 
-                <!-- Schedule -->
-                <div>
-                    <h3 class="text-charcoal mb-3 font-bold">Jadwal Kunjungan</h3>
-                    <div class="grid grid-cols-2 gap-3">
-                        <input type="date" name="scheduled_date" required min="{{ date('Y-m-d') }}"
-                            class="focus:border-primary focus:ring-primary w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5 text-sm transition-colors focus:outline-none focus:ring-1">
-                        <input type="time" name="scheduled_time" required
-                            class="focus:border-primary focus:ring-primary w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5 text-sm transition-colors focus:outline-none focus:ring-1">
+                    <div>
+                        <h3 class="text-charcoal mb-2.5 font-bold">Pilih Waktu Kedatangan</h3>
+                        
+                        <!-- Interactive Time Grid -->
+                        <div class="grid grid-cols-3 gap-2">
+                            <template x-for="t in timeSlots" :key="t">
+                                <button type="button" @click="selectedTime = t"
+                                    :class="selectedTime === t ? 'bg-primary border-primary text-white shadow-md shadow-primary/10 font-bold' : 'bg-white border-gray-100 text-gray-700 hover:bg-gray-50'"
+                                    class="rounded-xl border px-3 py-3 text-center text-xs font-bold transition-all duration-200 active:scale-[0.98]">
+                                    <span x-text="t + ' WITA'"></span>
+                                </button>
+                            </template>
+                            
+                            <!-- Custom Time Picker Option Backup -->
+                            <div class="relative rounded-xl border border-gray-100 bg-white px-2 py-0.5 flex items-center justify-center hover:bg-gray-50">
+                                <input type="time" x-model="selectedTime"
+                                    class="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-10">
+                                <div class="flex items-center gap-1 text-[10px] font-bold text-gray-500 pointer-events-none">
+                                    <svg class="h-4.5 w-4.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span x-text="selectedTime ? selectedTime + ' *' : 'Kustom'"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="scheduled_time" :value="selectedTime" required>
                     </div>
                 </div>
-
                 <!-- Contact Info -->
                 <div>
                     <h3 class="text-charcoal mb-3 font-bold">Informasi Kontak Pemesan</h3>
@@ -102,6 +137,27 @@
             pricePerPax: {{ $package->price }},
             isLoading: false,
             errorMessage: '',
+            selectedDate: '{{ date('Y-m-d') }}',
+            selectedTime: '09:00',
+            timeSlots: ['08:00', '10:00', '12:00', '14:00', '16:00'],
+            
+            get visitDates() {
+                const dates = [];
+                const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+                for (let i = 0; i < 10; i++) {
+                    const d = new Date();
+                    d.setDate(d.getDate() + i);
+                    dates.push({
+                        value: d.toISOString().split('T')[0],
+                        dayName: days[d.getDay()],
+                        dayNum: String(d.getDate()).padStart(2, '0'),
+                        monthName: months[d.getMonth()],
+                        year: d.getFullYear()
+                    });
+                }
+                return dates;
+            },
             
             get totalAmount() {
                 return this.partySize * this.pricePerPax;
