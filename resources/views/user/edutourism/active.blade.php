@@ -204,12 +204,26 @@
                     `;
                     window.dispatchEvent(new CustomEvent('open-modal', {detail: 'quiz-modal'}));
                 } else {
-                    alert('Tidak ada kuis untuk titik ini. Rute berlanjut...');
-                    window.location.reload();
+                    Swal.fire({
+                        title: 'Info',
+                        text: 'Tidak ada kuis untuk titik ini. Rute berlanjut...',
+                        icon: 'info',
+                        confirmButtonColor: '#1E5128',
+                        confirmButtonText: 'Lanjut',
+                        customClass: { confirmButton: 'rounded-xl px-4 py-2 font-semibold text-sm' }
+                    }).then(() => {
+                        window.location.reload();
+                    });
                 }
             })
             .catch(err => {
-                alert('Gagal memuat kuis.');
+                Swal.fire({
+                    title: 'Oops!',
+                    text: 'Gagal memuat kuis.',
+                    icon: 'error',
+                    confirmButtonColor: '#1E5128',
+                    customClass: { confirmButton: 'rounded-xl px-4 py-2 font-semibold text-sm' }
+                });
                 document.getElementById('btn-arrive').disabled = false;
                 document.getElementById('btn-arrive').textContent = 'Jawab Pertanyaan & Lanjut';
             });
@@ -233,12 +247,24 @@
                     document.getElementById('quiz-options').innerHTML = '';
                     setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    alert('Jawaban Salah! Coba lagi.');
+                    Swal.fire({
+                        title: 'Salah!',
+                        text: 'Jawaban Salah! Coba lagi.',
+                        icon: 'error',
+                        confirmButtonColor: '#1E5128',
+                        customClass: { confirmButton: 'rounded-xl px-4 py-2 font-semibold text-sm' }
+                    });
                     buttons.forEach(btn => btn.disabled = false);
                 }
             })
             .catch(err => {
-                alert('Gagal mengirim jawaban.');
+                Swal.fire({
+                    title: 'Oops!',
+                    text: 'Gagal mengirim jawaban.',
+                    icon: 'error',
+                    confirmButtonColor: '#1E5128',
+                    customClass: { confirmButton: 'rounded-xl px-4 py-2 font-semibold text-sm' }
+                });
                 buttons.forEach(btn => btn.disabled = false);
             });
         }
