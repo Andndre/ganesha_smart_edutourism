@@ -92,6 +92,12 @@
     .swal2-popup.swal2-modal {
         @apply rounded-3xl! shadow-xl! border! border-gray-100!;
     }
+    .swal2-title {
+        @apply font-display! font-bold! text-charcoal! text-xl!;
+    }
+    .swal2-html-container {
+        @apply font-sans! text-sm! text-gray-600!;
+    }
     .swal2-actions button {
         @apply rounded-xl! px-6! py-2.5! font-semibold! text-sm!;
     }
