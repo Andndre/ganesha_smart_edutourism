@@ -28,7 +28,7 @@
     @include('admin.map-manager.partials.form-facility')
 
     {{-- STICKY ACTION BUTTONS --}}
-    <div class="sticky bottom-0 z-20 bg-white border-t border-gray-100 pt-4 pb-6 px-6 -mx-6 -mb-6 mt-4 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.03)] flex flex-col gap-3">
+    <div class="sticky bottom-0 z-20 bg-white border-t border-gray-100 pt-4 pb-6 px-6 -mx-6 -mb-6 mt-4 rounded-b-2xl shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.03)] flex flex-col gap-3">
         <div class="flex gap-2">
             <button type="submit" id="btn-global-submit" form="form-cultural"
                 class="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-white transition-all hover:bg-primary-600 shadow-sm">Simpan</button>
