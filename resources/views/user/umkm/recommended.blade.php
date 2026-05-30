@@ -175,15 +175,10 @@
 
 @push('modals')
     <!-- Product Detail Modal -->
-    <div x-data="{ selectedProduct: null, isOpen: false }" 
-        x-show="isOpen" 
-        @open-product-modal.window="selectedProduct = $event.detail; isOpen = true"
-        style="display: none;" 
-        class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" 
-        x-transition>
-        <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden" @click.away="isOpen = false">
+    <div x-data="{ selectedProduct: null }" @open-product-modal.window="selectedProduct = $event.detail">
+        <x-modal name="product-modal" maxWidth="sm">
             <!-- Image Header -->
-            <div class="h-48 bg-gray-100 relative">
+            <div class="h-48 bg-gray-100 relative -mx-6 -mt-6 mb-6 rounded-t-[2.5rem] overflow-hidden md:rounded-t-3xl">
                 <template x-if="selectedProduct?.image">
                     <img :src="selectedProduct.image" class="w-full h-full object-cover" alt="Product Image">
                 </template>
@@ -194,8 +189,8 @@
                         </svg>
                     </div>
                 </template>
-                <!-- Close Button -->
-                <button @click="isOpen = false" class="absolute top-3 right-3 w-8 h-8 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-black/50 transition-colors">
+                <!-- Close Button on Mobile -->
+                <button @click="isOpen = false" class="md:hidden absolute top-4 right-4 w-8 h-8 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-black/50 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -203,7 +198,7 @@
             </div>
             
             <!-- Content -->
-            <div class="p-5">
+            <div class="p-1">
                 <div class="flex justify-between items-start gap-4 mb-2">
                     <div>
                         <h3 class="text-xl font-bold text-charcoal leading-tight" x-text="selectedProduct?.name"></h3>
@@ -214,6 +209,6 @@
                 <div class="w-full h-px bg-gray-100 my-4"></div>
                 <p class="text-sm text-gray-600 leading-relaxed" x-text="selectedProduct?.description"></p>
             </div>
-        </div>
+        </x-modal>
     </div>
 @endpush

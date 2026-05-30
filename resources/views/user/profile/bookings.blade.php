@@ -129,24 +129,21 @@
 
 @push('modals')
     <!-- QR Code Modal -->
-    <div x-data="{ isOpen: false, qrUrl: '', ticketName: '' }"
-        x-show="isOpen"
-        @open-ticket-modal.window="isOpen = true; qrUrl = $event.detail.qrUrl; ticketName = $event.detail.ticketName"
-        class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm"
-        style="display: none;" x-transition>
-        <div class="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-2xl" @click.away="isOpen = false">
-            <h3 class="text-charcoal mb-1 text-xl font-bold" x-text="ticketName"></h3>
-            <p class="mb-6 text-sm text-gray-500">Tunjukkan QR Code ini kepada petugas tiket saat Anda tiba di lokasi
-                wisata.</p>
+    <div x-data="{ qrUrl: '', ticketName: '' }" @open-ticket-modal.window="qrUrl = $event.detail.qrUrl; ticketName = $event.detail.ticketName">
+        <x-modal name="ticket-modal" maxWidth="sm">
+            <div class="text-center">
+                <h3 class="text-charcoal mb-1 text-xl font-bold" x-text="ticketName"></h3>
+                <p class="mb-6 text-sm text-gray-500">Tunjukkan QR Code ini kepada petugas tiket saat Anda tiba di lokasi wisata.</p>
 
-            <div class="mb-6 flex justify-center rounded-2xl border border-gray-100 bg-gray-50 p-4 shadow-inner">
-                <img :src="qrUrl" alt="QR Code" class="h-48 w-48 rounded-lg">
+                <div class="mb-6 flex justify-center rounded-2xl border border-gray-100 bg-gray-50 p-4 shadow-inner">
+                    <img :src="qrUrl" alt="QR Code" class="h-48 w-48 rounded-lg">
+                </div>
+
+                <button @click="isOpen = false"
+                    class="bg-primary block w-full rounded-xl py-3.5 font-bold text-white shadow-lg transition-transform active:scale-[0.98]">
+                    Tutup
+                </button>
             </div>
-
-            <button @click="isOpen = false"
-                class="bg-primary block w-full rounded-xl py-3.5 font-bold text-white shadow-lg transition-transform active:scale-[0.98]">
-                Tutup
-            </button>
-        </div>
+        </x-modal>
     </div>
 @endpush

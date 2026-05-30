@@ -97,12 +97,8 @@
 @push('modals')
     <!-- Multi-Stop Recommendation Modal -->
     @if(session('multi_stop_recommendations'))
-        <div x-data="{ isOpen: true }"
-            x-show="isOpen"
-            class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
-            style="display: none;"
-            x-transition>
-            <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl" @click.away="isOpen = false">
+        <x-modal name="multi-stop" maxWidth="sm" :defaultOpen="true">
+            <div class="text-center">
                 <div class="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
@@ -119,6 +115,6 @@
                     </button>
                 </div>
             </div>
-        </div>
+        </x-modal>
     @endif
 @endpush
