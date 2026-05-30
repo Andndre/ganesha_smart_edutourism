@@ -56,7 +56,7 @@
                         <span class="text-[11px] font-semibold text-gray-500 mt-1 truncate leading-none">{{ $weather->condition }}</span>
                     </div>
                 @else
-                    <div class="rounded-full bg-blue-50 p-2 sm:p-2.5 text-blue-500 flex items-center justify-center shrink-0">
+                    <div class="rounded-full bg-gray-100 p-2 sm:p-2.5 text-gray-400 flex items-center justify-center shrink-0">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
@@ -64,8 +64,8 @@
                     </div>
                     <div class="flex flex-col min-w-0">
                         <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 leading-none">Cuaca Hari Ini</span>
-                        <span class="text-xl sm:text-2xl font-black text-gray-800 mt-1 leading-none">27°C</span>
-                        <span class="text-[11px] font-semibold text-gray-500 mt-1 truncate leading-none">Cerah</span>
+                        <span class="text-xl sm:text-2xl font-black text-gray-400 mt-1 leading-none">--°C</span>
+                        <span class="text-[11px] font-semibold text-gray-500 mt-1 truncate leading-none">Belum Diperbarui</span>
                     </div>
                 @endif
             </div>
