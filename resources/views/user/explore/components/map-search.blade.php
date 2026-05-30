@@ -74,27 +74,6 @@
                 <span class="filter-dot" style="background: #F59E0B;"></span>
             </label>
 
-            <label class="filter-toggle flex cursor-pointer items-center gap-3" data-filter="edu_route">
-                <input type="checkbox" class="sr-only" checked />
-                <span class="filter-checkbox checked">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                </span>
-                <span class="filter-label flex-1 text-sm font-medium text-gray-700">Rute Edu-Tourism</span>
-                <span class="filter-dot" style="background: #1E5128;"></span>
-            </label>
-
-            <label class="filter-toggle flex cursor-pointer items-center gap-3" data-filter="sos_route">
-                <input type="checkbox" class="sr-only" checked />
-                <span class="filter-checkbox checked">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                </span>
-                <span class="filter-label flex-1 text-sm font-medium text-gray-700">Rute Darurat (SOS)</span>
-                <span class="filter-dot" style="background: #E65100;"></span>
-            </label>
         </div>
     </div>
 </div>
