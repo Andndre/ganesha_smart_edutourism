@@ -3,7 +3,7 @@
 @section('header_title', 'Katalog UMKM')
 
 @section('content')
-    <div class="px-4 pt-[calc(env(safe-area-inset-top)+6rem)] pb-40" x-data="{ showMultiStopModal: {{ session('multi_stop_recommendations') ? 'true' : 'false' }} }">
+    <div class="px-4 pt-[calc(env(safe-area-inset-top)+6rem)] pb-40">
         <!-- Validation Errors -->
         @if ($errors->any())
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl relative mb-4 z-20 shadow-sm" role="alert">
@@ -31,29 +31,6 @@
                         <li>{{ $missingName }}</li>
                     @endforeach
                 </ul>
-            </div>
-        @endif
-
-        <!-- Multi-Stop Recommendation Modal -->
-        @if(session('multi_stop_recommendations'))
-            <div x-show="showMultiStopModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" style="display: none;" x-transition>
-                <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl" @click.away="showMultiStopModal = false">
-                    <div class="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-charcoal mb-2">Satu Tempat Tidak Cukup!</h3>
-                    <p class="text-sm text-gray-500 mb-6">Tapi jangan khawatir, kami telah menyusun <span class="font-bold text-charcoal">rute terdekat</span> agar Anda bisa mendapatkan semua barang pilihan Anda dari beberapa UMKM sekaligus.</p>
-                    <div class="space-y-3">
-                        <a href="{{ route('umkm.multi_recommended') }}" class="block w-full bg-primary text-white font-bold py-3.5 rounded-xl active:scale-[0.98] transition-transform shadow-lg">
-                            Lihat Rute Belanja
-                        </a>
-                        <button @click="showMultiStopModal = false" class="block w-full bg-gray-100 text-gray-600 font-bold py-3.5 rounded-xl active:scale-[0.98] transition-transform">
-                            Batal
-                        </button>
-                    </div>
-                </div>
             </div>
         @endif
 
@@ -116,3 +93,32 @@
         </form>
     </div>
 @endsection
+
+@push('modals')
+    <!-- Multi-Stop Recommendation Modal -->
+    @if(session('multi_stop_recommendations'))
+        <div x-data="{ isOpen: true }"
+            x-show="isOpen"
+            class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+            style="display: none;"
+            x-transition>
+            <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl" @click.away="isOpen = false">
+                <div class="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-charcoal mb-2">Satu Tempat Tidak Cukup!</h3>
+                <p class="text-sm text-gray-500 mb-6">Tapi jangan khawatir, kami telah menyusun <span class="font-bold text-charcoal">rute terdekat</span> agar Anda bisa mendapatkan semua barang pilihan Anda dari beberapa UMKM sekaligus.</p>
+                <div class="space-y-3">
+                    <a href="{{ route('umkm.multi_recommended') }}" class="block w-full bg-primary text-white font-bold py-3.5 rounded-xl active:scale-[0.98] transition-transform shadow-lg">
+                        Lihat Rute Belanja
+                    </a>
+                    <button @click="isOpen = false" class="block w-full bg-gray-100 text-gray-600 font-bold py-3.5 rounded-xl active:scale-[0.98] transition-transform">
+                        Batal
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+@endpush
