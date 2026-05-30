@@ -282,6 +282,12 @@
         const formId = `form-${type}`;
         document.getElementById(formId).classList.remove('hidden');
 
+        // Update sticky submit button to target active form
+        const submitBtn = document.getElementById('btn-global-submit');
+        if (submitBtn) {
+            submitBtn.setAttribute('form', formId);
+        }
+
         // Update temp marker color to match type
         if (tempMarker) {
             let catType = type;

@@ -110,12 +110,6 @@
             class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:border-primary focus:outline-none resize-none">Pintu masuk landai, staf siap membantu akses disabilitas.</textarea>
     </div>
 
-    <div class="flex gap-2 pt-2">
-        <button type="submit"
-            class="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-white transition-all hover:bg-primary-600">Simpan</button>
-        <button type="button" onclick="cancelEditor()"
-            class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">Batal</button>
-    </div>
 </form>
 
 <script>
