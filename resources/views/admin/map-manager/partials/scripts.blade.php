@@ -531,7 +531,8 @@
         } else {
             btn.classList.add('hidden');
             btn.classList.remove('flex');
-            list.innerHTML = '';
+            // We intentionally do not clear list.innerHTML here
+            // so if the user accidentally unchecks, the quizzes aren't lost.
         }
     }
 
