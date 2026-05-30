@@ -88,3 +88,13 @@
         scrollbar-width: none;
     }
 }
+
+@layer components {
+    /* Global SweetAlert2 Styles */
+    .swal2-popup.swal2-modal {
+        @apply rounded-3xl shadow-xl border border-gray-100 !important;
+    }
+    .swal2-actions button {
+        @apply rounded-xl px-6 py-2.5 font-semibold text-sm !important;
+    }
+}
