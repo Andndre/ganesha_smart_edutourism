@@ -47,7 +47,6 @@
 }
 
 @layer base {
-
     button,
     select {
         cursor: pointer;
@@ -55,7 +54,6 @@
 }
 
 @layer utilities {
-
     /* Tap target for mobile accessibility */
     .tap-target {
         @apply min-h-11 min-w-11 flex items-center justify-center;
@@ -92,9 +90,9 @@
 @layer components {
     /* Global SweetAlert2 Styles */
     .swal2-popup.swal2-modal {
-        @apply rounded-3xl shadow-xl border border-gray-100 !important;
+        @apply !rounded-3xl !shadow-xl !border !border-gray-100;
     }
     .swal2-actions button {
-        @apply rounded-xl px-6 py-2.5 font-semibold text-sm !important;
+        @apply !rounded-xl !px-6 !py-2.5 !font-semibold !text-sm;
     }
 }
