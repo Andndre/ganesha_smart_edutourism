@@ -17,6 +17,48 @@
     let activeMarker = null; // Currently selected/edited marker
     let tempMarker = null; // Temp marker when creating new location
     let currentMode = 'idle'; // 'idle', 'create', 'edit'
+    let hasUnsavedChanges = false;
+
+    function markUnsaved() {
+        hasUnsavedChanges = true;
+    }
+
+    function resetUnsaved() {
+        hasUnsavedChanges = false;
+    }
+
+    function checkUnsavedChanges(callback) {
+        if (hasUnsavedChanges) {
+            Swal.fire({
+                title: 'Perubahan Belum Disimpan',
+                text: 'Apakah Anda yakin ingin membuang perubahan pada form ini?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Buang',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    resetUnsaved();
+                    callback();
+                }
+            });
+        } else {
+            callback();
+        }
+    }
+
+    function attachChangeListeners() {
+        const editorPanel = document.getElementById('panel-editor');
+        const inputs = editorPanel.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.removeEventListener('input', markUnsaved);
+            input.removeEventListener('change', markUnsaved);
+            input.addEventListener('input', markUnsaved);
+            input.addEventListener('change', markUnsaved);
+        });
+    }
 
     // Set up category colors
     const categoryColors = {
@@ -174,11 +216,13 @@
             if (activeMarker) {
                 activeMarker.setLatLng([lat, lng]);
                 updateCoordinateInputs(lat, lng);
+                markUnsaved();
             }
             return;
         }
 
-        currentMode = 'create';
+        checkUnsavedChanges(() => {
+            currentMode = 'create';
 
         // Show panel & reset forms
         document.getElementById('panel-idle').classList.add('hidden');
@@ -202,6 +246,7 @@
             tempMarker.on('dragend', function (e) {
                 const pos = tempMarker.getLatLng();
                 updateCoordinateInputs(pos.lat, pos.lng);
+                markUnsaved();
             });
         }
 
@@ -215,6 +260,8 @@
         typeSelect.value = 'cultural';
 
         switchForm('cultural');
+        setTimeout(attachChangeListeners, 100);
+        });
     }
 
     function updateCoordinateInputs(lat, lng) {
@@ -261,11 +308,12 @@
     // EDIT LOCATION LOGIC
     // ==========================================
     function handleMarkerClick(marker) {
-        // Remove temp marker if it exists
-        if (tempMarker) {
-            map.removeLayer(tempMarker);
-            tempMarker = null;
-        }
+        checkUnsavedChanges(() => {
+            // Remove temp marker if it exists
+            if (tempMarker) {
+                map.removeLayer(tempMarker);
+                tempMarker = null;
+            }
 
         // Reset any previous active marker visuals
         resetSelectedMarkerVisuals();
@@ -395,24 +443,29 @@
 
         // Center map to marker
         map.panTo(marker.getLatLng());
+        
+        setTimeout(attachChangeListeners, 100);
+        });
     }
 
     // ==========================================
     // UTILITIES / RESETS
     // ==========================================
     function cancelEditor() {
-        currentMode = 'idle';
-        document.getElementById('panel-idle').classList.remove('hidden');
-        document.getElementById('panel-editor').classList.add('hidden');
+        checkUnsavedChanges(() => {
+            currentMode = 'idle';
+            document.getElementById('panel-idle').classList.remove('hidden');
+            document.getElementById('panel-editor').classList.add('hidden');
 
-        // Remove temporary marker
-        if (tempMarker) {
-            map.removeLayer(tempMarker);
-            tempMarker = null;
-        }
+            // Remove temporary marker
+            if (tempMarker) {
+                map.removeLayer(tempMarker);
+                tempMarker = null;
+            }
 
-        resetSelectedMarkerVisuals();
-        resetForms();
+            resetSelectedMarkerVisuals();
+            resetForms();
+        });
     }
 
     function resetSelectedMarkerVisuals() {
