@@ -217,8 +217,6 @@
             };
 
             // Parse URL parameters to check if a specific route is requested
-            const urlParams = new URLSearchParams(window.location.search);
-            const targetRouteId = urlParams.get('route');
 
             routesData.forEach(async (route) => {
                 if (route.coordinates && route.coordinates.length > 0) {
