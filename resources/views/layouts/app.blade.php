@@ -90,7 +90,7 @@
         </div>
     </div>
 
-    @unless (Route::is('explore'))
+    @unless (Route::is('explore') || Route::is('edutourism.active'))
         @include('components.navigation.header', [
             'showBack' => true,
             'headerTitle' => null,

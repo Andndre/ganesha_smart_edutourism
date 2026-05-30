@@ -15,7 +15,7 @@
     <div id="map" class="absolute inset-0 z-0"></div>
 
     <!-- Top Overlay -->
-    <div class="pointer-events-none absolute inset-x-0 top-0 z-20 p-4">
+    <div class="pointer-events-none absolute inset-x-0 top-0 z-20 p-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
         <div class="pointer-events-auto flex items-center justify-between rounded-2xl bg-white/90 p-4 shadow-sm backdrop-blur-sm">
             <div class="flex items-center gap-3">
                 <a href="{{ route('home') }}" class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">
