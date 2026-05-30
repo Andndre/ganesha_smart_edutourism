@@ -38,7 +38,7 @@
 
                 openDetail(eventObj) {
                     this.selectedEvent = eventObj;
-                    this.showModal = true;
+                    window.dispatchEvent(new CustomEvent('open-event-detail'));
                 },
 
                 filterCategory(cat) {

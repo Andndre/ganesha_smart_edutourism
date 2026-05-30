@@ -248,130 +248,93 @@
 
 @push('modals')
     <!-- Premium Detail Weather Modal (Mobile Bottom-Sheet / Desktop Modal) -->
-    <div x-data="{ isOpen: false }"
-        x-show="isOpen"
-        @open-weather-modal.window="isOpen = true"
-        class="bg-charcoal/60 fixed inset-0 z-100 flex items-end justify-center px-0 md:items-center md:px-4 backdrop-blur-sm"
-        style="display: none; will-change: transform; transform: translate3d(0,0,0);"
-        x-transition:enter="transition ease-out duration-300" 
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100" 
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100" 
-        x-transition:leave-end="opacity-0"
-        x-cloak>
-        
-        <div class="relative w-full rounded-t-[2.5rem] bg-white p-6 shadow-2xl md:rounded-3xl max-w-md pb-10 md:pb-6" 
-            style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));"
-            @click.away="isOpen = false"
-            x-show="isOpen"
-            x-transition:enter="transition ease-out duration-300 transform" 
-            x-transition:enter-start="translate-y-full md:translate-y-4 md:scale-95"
-            x-transition:enter-end="translate-y-0 md:translate-y-0 md:scale-100" 
-            x-transition:leave="transition ease-in duration-200 transform"
-            x-transition:leave-start="translate-y-0 md:translate-y-0 md:scale-100" 
-            x-transition:leave-end="translate-y-full md:translate-y-4 md:scale-95">
-            
-            <!-- Pull Bar on Mobile -->
-            <div class="mx-auto -mt-2 mb-5 h-1.5 w-12 rounded-full bg-gray-200 md:hidden"></div>
-            
-            <!-- Close Button on Desktop -->
-            <button type="button" @click="isOpen = false" 
-                class="absolute right-4 top-4 hidden items-center justify-center h-8 w-8 rounded-full bg-gray-50 text-gray-400 hover:text-gray-600 transition-colors md:flex"
-                title="Tutup">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+    <x-modal name="weather-modal">
+        <div class="space-y-5">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <span class="rounded-lg border px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-600 border-emerald-100">Desa Penglipuran</span>
+                <button type="button" @click="isOpen = false" class="text-xs font-bold text-gray-400 hover:text-gray-600 md:hidden">Tutup</button>
+            </div>
 
-            <!-- Modal Body -->
-            <div class="space-y-5" x-show="isOpen">
-                <div class="flex items-center justify-between flex-wrap gap-2">
-                    <span class="rounded-lg border px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-600 border-emerald-100">Desa Penglipuran</span>
-                    <button type="button" @click="isOpen = false" class="text-xs font-bold text-gray-400 hover:text-gray-600 md:hidden">Tutup</button>
+            <h3 class="font-display text-charcoal text-xl font-black tracking-tight leading-snug">Detail Cuaca Desa</h3>
+
+            @if(isset($weather) && $weather)
+                <!-- Main Status Grid -->
+                <div class="flex items-center gap-4 bg-gray-50/70 p-3.5 rounded-2xl border border-gray-100">
+                    <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm border border-gray-100">
+                        {!! $weather->getIconHtml() !!}
+                    </div>
+                    <div>
+                        <p class="text-2xl font-black text-gray-800 leading-none">{{ round($weather->temperature) }}°C</p>
+                        <p class="text-xs font-black text-gray-700 mt-1.5 leading-none">{{ $weather->condition }}</p>
+                    </div>
                 </div>
 
-                <h3 class="font-display text-charcoal text-xl font-black tracking-tight leading-snug">Detail Cuaca Desa</h3>
-
-                @if(isset($weather) && $weather)
-                    <!-- Main Status Grid -->
-                    <div class="flex items-center gap-4 bg-gray-50/70 p-3.5 rounded-2xl border border-gray-100">
-                        <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm border border-gray-100">
-                            {!! $weather->getIconHtml() !!}
-                        </div>
-                        <div>
-                            <p class="text-2xl font-black text-gray-800 leading-none">{{ round($weather->temperature) }}°C</p>
-                            <p class="text-xs font-black text-gray-700 mt-1.5 leading-none">{{ $weather->condition }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Weather Parameters Grid -->
-                    <div class="grid grid-cols-2 gap-3">
-                        <!-- Humidity -->
-                        <div class="flex items-center gap-2.5 bg-gray-50/70 p-3.5 rounded-xl border border-gray-100">
-                            <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider leading-none">Kelembapan</p>
-                                <p class="text-xs font-black text-gray-700 mt-1">{{ $weather->humidity }}%</p>
-                            </div>
-                        </div>
-
-                        <!-- Wind -->
-                        <div class="flex items-center gap-2.5 bg-gray-50/70 p-3.5 rounded-xl border border-gray-100">
-                            <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider leading-none">Angin</p>
-                                <p class="text-xs font-black text-gray-700 mt-1">{{ $weather->wind_speed }} km/h</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recommendation Box based on Weather Code -->
-                    <div class="border-t border-gray-50 pt-3">
-                        <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1.5">Rekomendasi Aktivitas</h4>
-                        <p class="text-xs text-gray-500 leading-relaxed">
-                            @if(in_array($weather->weather_code, [0, 1, 2]))
-                                Cuaca sangat bersahabat untuk berjalan-jalan menjelajahi desa. Jangan lupa menggunakan tabir surya dan membawa air minum!
-                            @elseif(in_array($weather->weather_code, [3, 45, 48]))
-                                Cuaca sejuk dan berawan, sangat ideal untuk berkeliling santai tanpa sengatan matahari.
-                            @elseif(in_array($weather->weather_code, [51, 53, 55, 61, 63]))
-                                Gerimis atau hujan ringan. Disarankan membawa payung atau jas hujan saat menjelajahi pekarangan desa.
-                            @else
-                                Hujan deras atau badai terdeteksi. Sebaiknya bersantai di cafe lokal, mengunjungi rumah adat (bale), atau menikmati kuliner lokal di area tertutup.
-                            @endif
-                        </p>
-                    </div>
-
-                    <!-- Footer Info / Updated Time -->
-                    <div class="border-t border-gray-50 pt-3 text-center">
-                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">
-                            Pembaruan Terakhir: {{ $weather->updated_at->timezone('Asia/Makassar')->format('d M Y H:i') }} WITA
-                        </p>
-                    </div>
-                @else
-                    <!-- No Weather Info State -->
-                    <div class="text-center py-8 space-y-4">
-                        <div class="mx-auto w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
-                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                <!-- Weather Parameters Grid -->
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- Humidity -->
+                    <div class="flex items-center gap-2.5 bg-gray-50/70 p-3.5 rounded-xl border border-gray-100">
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
                             </svg>
                         </div>
-                        <div class="space-y-1">
-                            <h4 class="text-sm font-bold text-gray-700">Data Cuaca Belum Tersedia</h4>
-                            <p class="text-xs text-gray-500 max-w-[240px] mx-auto leading-relaxed">Silakan jalankan update cuaca dari sistem untuk memuat laporan cuaca terkini.</p>
+                        <div>
+                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider leading-none">Kelembapan</p>
+                            <p class="text-xs font-black text-gray-700 mt-1">{{ $weather->humidity }}%</p>
                         </div>
                     </div>
-                @endif
-            </div>
+
+                    <!-- Wind -->
+                    <div class="flex items-center gap-2.5 bg-gray-50/70 p-3.5 rounded-xl border border-gray-100">
+                        <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider leading-none">Angin</p>
+                            <p class="text-xs font-black text-gray-700 mt-1">{{ $weather->wind_speed }} km/h</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendation Box based on Weather Code -->
+                <div class="border-t border-gray-50 pt-3">
+                    <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1.5">Rekomendasi Aktivitas</h4>
+                    <p class="text-xs text-gray-500 leading-relaxed">
+                        @if(in_array($weather->weather_code, [0, 1, 2]))
+                            Cuaca sangat bersahabat untuk berjalan-jalan menjelajahi desa. Jangan lupa menggunakan tabir surya dan membawa air minum!
+                        @elseif(in_array($weather->weather_code, [3, 45, 48]))
+                            Cuaca sejuk dan berawan, sangat ideal untuk berkeliling santai tanpa sengatan matahari.
+                        @elseif(in_array($weather->weather_code, [51, 53, 55, 61, 63]))
+                            Gerimis atau hujan ringan. Disarankan membawa payung atau jas hujan saat menjelajahi pekarangan desa.
+                        @else
+                            Hujan deras atau badai terdeteksi. Sebaiknya bersantai di cafe lokal, mengunjungi rumah adat (bale), atau menikmati kuliner lokal di area tertutup.
+                        @endif
+                    </p>
+                </div>
+
+                <!-- Footer Info / Updated Time -->
+                <div class="border-t border-gray-50 pt-3 text-center">
+                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">
+                        Pembaruan Terakhir: {{ $weather->updated_at->timezone('Asia/Makassar')->format('d M Y H:i') }} WITA
+                    </p>
+                </div>
+            @else
+                <!-- No Weather Info State -->
+                <div class="text-center py-8 space-y-4">
+                    <div class="mx-auto w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                        <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                        </svg>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="text-sm font-bold text-gray-700">Data Cuaca Belum Tersedia</h4>
+                        <p class="text-xs text-gray-500 max-w-[240px] mx-auto leading-relaxed">Silakan jalankan update cuaca dari sistem untuk memuat laporan cuaca terkini.</p>
+                    </div>
+                </div>
+            @endif
         </div>
-    </div>
+    </x-modal>
 @endpush
 @endsection
