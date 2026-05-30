@@ -209,11 +209,7 @@
                         text: 'Tidak ada kuis untuk titik ini. Rute berlanjut...',
                         icon: 'info',
                         confirmButtonColor: '#1E5128',
-                        confirmButtonText: 'Lanjut',
-                        customClass: { 
-                            popup: 'rounded-3xl shadow-xl border border-gray-100',
-                            confirmButton: 'rounded-xl px-6 py-2.5 font-semibold text-sm' 
-                        }
+                        confirmButtonText: 'Lanjut'
                     }).then(() => {
                         window.location.reload();
                     });
@@ -224,11 +220,7 @@
                     title: 'Oops!',
                     text: 'Gagal memuat kuis.',
                     icon: 'error',
-                    confirmButtonColor: '#1E5128',
-                    customClass: { 
-                        popup: 'rounded-3xl shadow-xl border border-gray-100',
-                        confirmButton: 'rounded-xl px-6 py-2.5 font-semibold text-sm' 
-                    }
+                    confirmButtonColor: '#1E5128'
                 });
                 document.getElementById('btn-arrive').disabled = false;
                 document.getElementById('btn-arrive').textContent = 'Jawab Pertanyaan & Lanjut';
@@ -257,11 +249,7 @@
                         title: 'Salah!',
                         text: 'Jawaban Salah! Coba lagi.',
                         icon: 'error',
-                        confirmButtonColor: '#1E5128',
-                        customClass: { 
-                            popup: 'rounded-3xl shadow-xl border border-gray-100',
-                            confirmButton: 'rounded-xl px-6 py-2.5 font-semibold text-sm' 
-                        }
+                        confirmButtonColor: '#1E5128'
                     });
                     buttons.forEach(btn => btn.disabled = false);
                 }
@@ -271,11 +259,7 @@
                     title: 'Oops!',
                     text: 'Gagal mengirim jawaban.',
                     icon: 'error',
-                    confirmButtonColor: '#1E5128',
-                    customClass: { 
-                        popup: 'rounded-3xl shadow-xl border border-gray-100',
-                        confirmButton: 'rounded-xl px-6 py-2.5 font-semibold text-sm' 
-                    }
+                    confirmButtonColor: '#1E5128'
                 });
                 buttons.forEach(btn => btn.disabled = false);
             });
