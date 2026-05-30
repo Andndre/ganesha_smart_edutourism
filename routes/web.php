@@ -22,6 +22,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\Owner\OwnerProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SmartEdutourismController;
 use App\Http\Controllers\TourPackageController;
 use App\Http\Controllers\UmkmCatalogController;
 use Illuminate\Support\Facades\Route;
@@ -73,6 +74,13 @@ Route::middleware('redirect.admin')->group(function () {
 
     // Events
     Route::get('/events', [PublicEventController::class, 'index'])->name('events');
+
+    // Smart Edutourism
+    Route::get('/edutourism/routes/{id}/preview', [SmartEdutourismController::class, 'preview'])->name('edutourism.preview');
+    Route::post('/edutourism/routes/{id}/start', [SmartEdutourismController::class, 'start'])->name('edutourism.start');
+    Route::get('/edutourism/active', [SmartEdutourismController::class, 'active'])->name('edutourism.active');
+    Route::post('/edutourism/arrive/{pointId}', [SmartEdutourismController::class, 'arrive'])->name('edutourism.arrive');
+    Route::post('/edutourism/quiz/{quizId}/submit', [SmartEdutourismController::class, 'submitQuiz'])->name('edutourism.quiz.submit');
 
     // Tour Packages
     Route::get('/tour-packages', [TourPackageController::class, 'index'])->name('tour-packages');

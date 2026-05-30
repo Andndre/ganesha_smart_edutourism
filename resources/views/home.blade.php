@@ -156,7 +156,7 @@
                 </div>
                 <span class="text-center text-[11px] font-medium leading-tight">Jadwal<br>Event</span>
             </a>
-            <a href="{{ route('explore') }}?filter=facilities"
+            <a href="{{ route('explore') }}?category=fasilitas"
                 class="tap-target flex flex-col items-center gap-2 transition-transform active:scale-95">
                 <div
                     class="flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-100 bg-white text-gray-500 shadow-sm">
@@ -221,10 +221,10 @@
                             </svg>
                         </div>
                     </div>
-                    <a href="{{ route('explore') }}?route={{ $route->id }}"
+                    <button @click="$dispatch('open-modal', 'route-preview-modal'); fetchRoutePreview({{ $route->id }})"
                         class="bg-primary mt-4 block w-full rounded-xl py-2 text-center text-sm font-medium text-white transition-transform active:scale-95">
                         Mulai Rute
-                    </a>
+                    </button>
                 </div>
             @empty
                 <div class="w-full rounded-2xl border border-gray-100 bg-white p-4 py-6 text-center text-sm text-gray-500">
@@ -326,5 +326,102 @@
             @endif
         </div>
     </x-modal>
+
+    <!-- Route Preview Modal -->
+    <x-modal name="route-preview-modal">
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <span class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-600">Smart Edutourism</span>
+                <button type="button" @click="isOpen = false" class="text-xs font-bold text-gray-400 hover:text-gray-600 md:hidden">Tutup</button>
+            </div>
+            
+            <h3 id="preview-title" class="font-display text-charcoal text-xl font-black leading-snug tracking-tight">Memuat...</h3>
+            <p id="preview-desc" class="text-sm text-gray-500"></p>
+            
+            <div class="mt-4 rounded-xl border border-gray-100 bg-gray-50 p-4 max-h-[300px] overflow-y-auto">
+                <h4 class="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">Titik Perhentian</h4>
+                <ul id="preview-points" class="space-y-3">
+                    <li class="text-sm text-gray-500">Memuat rute...</li>
+                </ul>
+            </div>
+            
+            <form id="start-route-form" method="POST" action="">
+                @csrf
+                <button type="button" onclick="startRoute()" id="btn-start-route" disabled class="bg-primary mt-6 w-full rounded-xl py-3 text-center text-sm font-bold text-white shadow-sm transition-transform active:scale-95 disabled:opacity-50">
+                    Mulai Eksplorasi
+                </button>
+            </form>
+        </div>
+    </x-modal>
+@endpush
+
+@push('scripts')
+    <script>
+        function fetchRoutePreview(id) {
+            document.getElementById('preview-title').textContent = 'Memuat...';
+            document.getElementById('preview-desc').textContent = '';
+            document.getElementById('preview-points').innerHTML = '<li class="text-sm text-gray-500">Memuat rute...</li>';
+            document.getElementById('btn-start-route').disabled = true;
+            document.getElementById('start-route-form').action = `/edutourism/routes/${id}/start`;
+
+            fetch(`/edutourism/routes/${id}/preview`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('preview-title').textContent = data.route.name;
+                    document.getElementById('preview-desc').textContent = data.route.description || `Estimasi ${data.route.estimated_duration_minutes} Menit`;
+                    
+                    const ul = document.getElementById('preview-points');
+                    ul.innerHTML = '';
+                    
+                    if (data.points && data.points.length > 0) {
+                        data.points.forEach((pt, index) => {
+                            ul.innerHTML += `
+                                <li class="flex items-center gap-3">
+                                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-700">${index + 1}</div>
+                                    <span class="text-sm font-medium text-gray-700">${pt.name}</span>
+                                </li>
+                            `;
+                        });
+                    } else {
+                        ul.innerHTML = '<li class="text-sm text-gray-500">Tidak ada titik perhentian.</li>';
+                    }
+                    
+                    document.getElementById('btn-start-route').disabled = false;
+                })
+                .catch(err => {
+                    document.getElementById('preview-title').textContent = 'Gagal memuat data';
+                });
+        }
+
+        function startRoute() {
+            const form = document.getElementById('start-route-form');
+            const btn = document.getElementById('btn-start-route');
+            btn.disabled = true;
+            btn.textContent = 'Memulai...';
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    alert(data.message || 'Terjadi kesalahan.');
+                    btn.disabled = false;
+                    btn.textContent = 'Mulai Eksplorasi';
+                }
+            })
+            .catch(err => {
+                alert('Gagal memulai rute.');
+                btn.disabled = false;
+                btn.textContent = 'Mulai Eksplorasi';
+            });
+        }
+    </script>
 @endpush
 @endsection

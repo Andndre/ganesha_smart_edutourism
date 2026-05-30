@@ -171,6 +171,10 @@
             // ==========================================
             const heatmapData = @json($heatmapData);
 
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetRouteId = urlParams.get('route');
+            const targetCategory = urlParams.get('category');
+
             const activeFilters = {
                 cultural: true,
                 umkm: true,
@@ -180,6 +184,26 @@
                 edu_route: true,
                 sos_route: true
             };
+
+            if (targetCategory === 'fasilitas') {
+                activeFilters.cultural = false;
+                activeFilters.umkm = false;
+                activeFilters.edu_route = false;
+                activeFilters.sos_route = false;
+
+                // Sync UI Checkboxes in map-search
+                setTimeout(() => {
+                    document.querySelectorAll('.filter-toggle').forEach(toggle => {
+                        const filterName = toggle.dataset.filter;
+                        if (!activeFilters[filterName]) {
+                            const checkbox = toggle.querySelector('.filter-checkbox');
+                            const input = toggle.querySelector('input');
+                            if (checkbox) checkbox.classList.remove('checked');
+                            if (input) input.checked = false;
+                        }
+                    });
+                }, 100);
+            }
 
             let heatmapVisible = false;
 

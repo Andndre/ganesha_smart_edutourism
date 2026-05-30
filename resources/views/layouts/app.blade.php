@@ -107,6 +107,30 @@
         @yield('content')
     </main>
 
+    @if(isset($activeEdutourismSession) && !Route::is('edutourism.active'))
+        <div class="pointer-events-none fixed inset-x-0 {{ $isMainTab ? 'bottom-[88px]' : 'bottom-6' }} z-50 p-4 transition-all" id="floating-route-banner">
+            <a href="{{ route('edutourism.active') }}" class="pointer-events-auto flex items-center justify-between overflow-hidden rounded-2xl bg-[#1E5128] shadow-lg shadow-[#1E5128]/30 ring-1 ring-white/20 backdrop-blur-md transition-transform active:scale-95">
+                <div class="flex items-center gap-3 p-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur-sm">
+                        <svg class="h-6 w-6 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-green-100">Smart Edutourism Aktif</p>
+                        <h4 class="font-bold text-white leading-tight truncate max-w-[150px] sm:max-w-[200px]">{{ $activeEdutourismSession->tourRoute->name }}</h4>
+                    </div>
+                </div>
+                <div class="bg-black/10 px-4 py-5 flex items-center justify-center border-l border-white/10">
+                    <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </a>
+        </div>
+    @endif
+
     @if($isMainTab)
         @include('components.navigation.bottom-nav')
     @endif
