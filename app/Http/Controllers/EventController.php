@@ -68,7 +68,7 @@ class EventController extends Controller
                 'location' => $event->location_name,
                 'description' => $event->description,
                 'is_free' => $event->is_free,
-                'price' => $event->is_free ? 'Gratis' : 'Rp ' . number_format($event->price, 0, ',', '.'),
+                'price' => $event->is_free ? 'Gratis' : 'Rp '.number_format($event->price, 0, ',', '.'),
                 'max_participants' => $event->max_participants ?? '-',
                 'color' => match ($event->category) {
                     'ceremony' => '#D4AF37', // Gold / ceremony
@@ -96,6 +96,6 @@ class EventController extends Controller
             ];
         });
 
-        return view('pages.events.index', compact('upcomingEvents', 'calendarEvents'));
+        return view('user.events.index', compact('upcomingEvents', 'calendarEvents'));
     }
 }

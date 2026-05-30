@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\UmkmCategoryController;
 use App\Http\Controllers\Admin\UmkmController;
 use App\Http\Controllers\Api\RoutingController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EventController as PublicEventController;
 use App\Http\Controllers\ExploreController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LearningController;
@@ -22,7 +23,6 @@ use App\Http\Controllers\LearningProgressController;
 use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\Owner\OwnerProductController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\EventController as PublicEventController;
 use App\Http\Controllers\TourPackageController;
 use App\Http\Controllers\UmkmCatalogController;
 use Illuminate\Support\Facades\Route;
@@ -49,7 +49,7 @@ Route::middleware('redirect.admin')->group(function () {
 
     // AR Scan
     Route::get('/ar-scan', function () {
-        return view('pages.ar.index');
+        return view('user.ar.index');
     })->name('ar-scan');
 
     // UMKM Catalog & Recommendation
@@ -58,15 +58,15 @@ Route::middleware('redirect.admin')->group(function () {
     Route::get('/umkm/recommended/{id}', [UmkmCatalogController::class, 'recommended'])->name('umkm.recommended');
     Route::get('/umkm/multi-route', [UmkmCatalogController::class, 'multiRecommended'])->name('umkm.multi_recommended');
     Route::get('/umkm/product/{id}', function () {
-        return view('pages.umkm.show');
+        return view('user.umkm.show');
     })->name('umkm-product');
 
     // Cultural Objects
     Route::get('/cultural', function () {
-        return view('pages.cultural.index');
+        return view('user.cultural.index');
     })->name('cultural-objects');
     Route::get('/cultural/{id}', function () {
-        return view('pages.cultural.show');
+        return view('user.cultural.show');
     })->name('cultural-object');
 
     // Events
@@ -89,7 +89,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('redirect.admin')->group(function () {
         // Feedback (Requires login)
         Route::get('/feedback', function () {
-            return view('pages.feedback.create');
+            return view('user.feedback.create');
         })->name('feedback');
 
         // Learning Quiz Submit
@@ -101,7 +101,7 @@ Route::middleware('auth')->group(function () {
 
         // Profile & E-Ticket
         Route::get('/profile', function () {
-            return view('pages.profile.index');
+            return view('user.profile.index');
         })->name('profile');
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -124,11 +124,11 @@ Route::middleware('auth')->group(function () {
 
 // Public Pages
 Route::get('/terms', function () {
-    return view('pages.terms');
+    return view('user.terms');
 })->name('terms');
 
 Route::get('/privacy', function () {
-    return view('pages.privacy');
+    return view('user.privacy');
 })->name('privacy');
 
 // Offline Page

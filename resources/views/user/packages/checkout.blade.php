@@ -23,21 +23,21 @@
             <form id="checkout-form" @submit.prevent="processPayment" class="space-y-6">
                 @csrf
                 
-                @include('pages.packages.partials.party-size')
+                @include('user.packages.partials.party-size')
                 
-                @include('pages.packages.partials.schedule-selector')
+                @include('user.packages.partials.schedule-selector')
                 
-                @include('pages.packages.partials.contact-info')
+                @include('user.packages.partials.contact-info')
                 
                 <!-- Error Message -->
                 <div x-show="errorMessage" class="bg-red-50 text-red-600 p-3 rounded-xl text-sm" x-text="errorMessage" style="display: none;"></div>
 
-                @include('pages.packages.partials.payment-bar')
+                @include('user.packages.partials.payment-bar')
             </form>
         </div>
 
-        @include('pages.packages.partials.calendar-modal')
-        @include('pages.packages.partials.time-modal')
+        @include('user.packages.partials.calendar-modal')
+        @include('user.packages.partials.time-modal')
     </div>
 @endsection
 

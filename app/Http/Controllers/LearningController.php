@@ -13,7 +13,7 @@ class LearningController extends Controller
     {
         $modules = LearningModule::active()->orderBy('order')->get();
 
-        return view('pages.learning.index', compact('modules'));
+        return view('user.learning.index', compact('modules'));
     }
 
     /**
@@ -25,6 +25,6 @@ class LearningController extends Controller
             $q->ordered();
         }])->firstOrFail();
 
-        return view('pages.learning.show', compact('module'));
+        return view('user.learning.show', compact('module'));
     }
 }
