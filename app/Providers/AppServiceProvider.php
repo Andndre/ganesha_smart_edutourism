@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        View::composer('layouts.app', function ($view) {
+        View::composer(['layouts.app', 'user.umkm.index'], function ($view) {
             $userId = auth()->id();
             $guestToken = session('guest_token');
             $activeSession = null;
