@@ -13,7 +13,7 @@ use Midtrans\Config;
 use Midtrans\Snap;
 use Midtrans\Transaction;
 
- // To be created
+// To be created
 
 class BookingController extends Controller
 {
@@ -69,7 +69,7 @@ class BookingController extends Controller
 
         $reservations = $query->get();
 
-        return view('pages.profile.bookings', compact('reservations', 'filter'));
+        return view('user.profile.bookings', compact('reservations', 'filter'));
     }
 
     /**
@@ -79,7 +79,7 @@ class BookingController extends Controller
     {
         $package = TourPackage::findOrFail($id);
 
-        return view('pages.packages.checkout', compact('package'));
+        return view('user.packages.checkout', compact('package'));
     }
 
     /**

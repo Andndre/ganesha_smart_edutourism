@@ -90,9 +90,9 @@
         <!-- Heatmap Overlay Container -->
         <div id="heatmap-overlay" class="heatmap-overlay"></div>
 
-        @include('pages.explore.components.map-search')
-        @include('pages.explore.components.map-fab')
-        @include('pages.explore.components.location-sheet')
+        @include('user.explore.components.map-search')
+        @include('user.explore.components.map-fab')
+        @include('user.explore.components.location-sheet')
     </div>
 @endsection
 

@@ -4,7 +4,7 @@
 
 @push('styles')
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-    @include('pages.events.partials.events-styles')
+    @include('user.events.partials.events-styles')
 @endpush
 
 @section('content')
@@ -12,15 +12,15 @@
         @open-detail-modal.window="openDetail($event.detail)" 
         class="px-4 py-6 max-w-lg mx-auto md:max-w-4xl space-y-6">
 
-        @include('pages.events.partials.events-header')
+        @include('user.events.partials.events-header')
 
-        @include('pages.events.partials.events-toolbar')
+        @include('user.events.partials.events-toolbar')
 
-        @include('pages.events.partials.events-calendar')
+        @include('user.events.partials.events-calendar')
 
-        @include('pages.events.partials.events-list')
+        @include('user.events.partials.events-list')
 
-        @include('pages.events.partials.events-detail-modal')
+        @include('user.events.partials.events-detail-modal')
 
     </div>
 @endsection

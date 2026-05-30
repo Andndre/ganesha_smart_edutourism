@@ -10,13 +10,13 @@ class TourPackageController extends Controller
     {
         $packages = TourPackage::active()->get();
 
-        return view('pages.packages.index', compact('packages'));
+        return view('user.packages.index', compact('packages'));
     }
 
     public function show($id)
     {
         $package = TourPackage::findOrFail($id);
 
-        return view('pages.packages.show', compact('package'));
+        return view('user.packages.show', compact('package'));
     }
 }
