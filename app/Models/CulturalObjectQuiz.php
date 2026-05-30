@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class RoutePointQuiz extends Model
+class CulturalObjectQuiz extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'tour_route_point_id',
+        'cultural_object_id',
         'question',
         'option_a',
         'option_b',
@@ -20,8 +20,11 @@ class RoutePointQuiz extends Model
         'correct_option',
     ];
 
-    public function routePoint(): BelongsTo
+    /**
+     * Get the cultural object that owns this quiz.
+     */
+    public function culturalObject(): BelongsTo
     {
-        return $this->belongsTo(TourRoutePoint::class, 'tour_route_point_id');
+        return $this->belongsTo(CulturalObject::class);
     }
 }

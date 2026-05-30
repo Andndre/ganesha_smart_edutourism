@@ -183,6 +183,21 @@
             return Math.floor(R * c);
         }
 
+        let currentQuizzes = [];
+        let currentQuizIndex = 0;
+
+        function showQuiz() {
+            const quiz = currentQuizzes[currentQuizIndex];
+            document.getElementById('quiz-question').textContent = `Soal ${currentQuizIndex + 1} dari ${currentQuizzes.length}: ` + quiz.question;
+            const opts = document.getElementById('quiz-options');
+            opts.innerHTML = `
+                <button onclick="submitQuiz(${quiz.id}, 'A')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">A.</span> <span class="font-medium text-gray-700">${quiz.option_a}</span></button>
+                <button onclick="submitQuiz(${quiz.id}, 'B')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">B.</span> <span class="font-medium text-gray-700">${quiz.option_b}</span></button>
+                <button onclick="submitQuiz(${quiz.id}, 'C')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">C.</span> <span class="font-medium text-gray-700">${quiz.option_c}</span></button>
+                <button onclick="submitQuiz(${quiz.id}, 'D')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">D.</span> <span class="font-medium text-gray-700">${quiz.option_d}</span></button>
+            `;
+        }
+
         window.triggerArrive = function(pointId) {
             document.getElementById('btn-arrive').disabled = true;
             document.getElementById('btn-arrive').textContent = 'Memuat Kuis...';
@@ -193,15 +208,10 @@
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success && data.quiz) {
-                    document.getElementById('quiz-question').textContent = data.quiz.question;
-                    const opts = document.getElementById('quiz-options');
-                    opts.innerHTML = `
-                        <button onclick="submitQuiz(${data.quiz.id}, 'A')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">A.</span> <span class="font-medium text-gray-700">${data.quiz.option_a}</span></button>
-                        <button onclick="submitQuiz(${data.quiz.id}, 'B')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">B.</span> <span class="font-medium text-gray-700">${data.quiz.option_b}</span></button>
-                        <button onclick="submitQuiz(${data.quiz.id}, 'C')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">C.</span> <span class="font-medium text-gray-700">${data.quiz.option_c}</span></button>
-                        <button onclick="submitQuiz(${data.quiz.id}, 'D')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">D.</span> <span class="font-medium text-gray-700">${data.quiz.option_d}</span></button>
-                    `;
+                if (data.success && data.quizzes && data.quizzes.length > 0) {
+                    currentQuizzes = data.quizzes;
+                    currentQuizIndex = 0;
+                    showQuiz();
                     window.dispatchEvent(new CustomEvent('open-modal', {detail: 'quiz-modal'}));
                 } else {
                     Swal.fire({
@@ -232,18 +242,28 @@
             const buttons = document.querySelectorAll('#quiz-options button');
             buttons.forEach(btn => btn.disabled = true);
 
+            const isLast = (currentQuizIndex === currentQuizzes.length - 1);
+
             fetch(`/edutourism/quiz/${quizId}/submit`, {
                 method: 'POST',
                 headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ answer: answer })
+                body: JSON.stringify({ answer: answer, is_last_quiz: isLast })
             })
             .then(res => res.json())
             .then(data => {
                 if (data.is_correct) {
-                    // Show success state
-                    document.getElementById('quiz-question').innerHTML = '<span class="text-green-600 text-2xl">🎉 Jawaban Benar!</span><br><span class="text-sm">+100 Poin</span>';
-                    document.getElementById('quiz-options').innerHTML = '';
-                    setTimeout(() => window.location.reload(), 1500);
+                    if (isLast) {
+                        document.getElementById('quiz-question').innerHTML = '<span class="text-green-600 text-2xl">🎉 Semua Terjawab!</span><br><span class="text-sm">Rute dilanjutkan...</span>';
+                        document.getElementById('quiz-options').innerHTML = '';
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        document.getElementById('quiz-question').innerHTML = '<span class="text-green-600 text-2xl">✅ Benar!</span><br><span class="text-sm">Lanjut ke soal berikutnya...</span>';
+                        document.getElementById('quiz-options').innerHTML = '';
+                        setTimeout(() => {
+                            currentQuizIndex++;
+                            showQuiz();
+                        }, 1200);
+                    }
                 } else {
                     Swal.fire({
                         title: 'Salah!',

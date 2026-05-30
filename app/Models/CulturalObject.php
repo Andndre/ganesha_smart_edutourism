@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -74,13 +75,13 @@ class CulturalObject extends Model
     }
 
     /**
-     * Get learning contents associated with this cultural object.
+     * Get the quizzes associated with this cultural object.
      *
-     * @return MorphMany<LearningContent>
+     * @return HasMany<CulturalObjectQuiz>
      */
-    public function learningContents(): MorphMany
+    public function quizzes(): HasMany
     {
-        return $this->morphMany(LearningContent::class, 'locationable');
+        return $this->hasMany(CulturalObjectQuiz::class);
     }
 
     /**

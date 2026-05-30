@@ -14,7 +14,7 @@ class MapManagerController extends Controller
      */
     public function index(): View
     {
-        $locations = MapLocation::with('locationable')->get();
+        $locations = MapLocation::with(['locationable', 'locationable.quizzes'])->get();
         $owners = User::where('role', 'umkm_owner')->orderBy('name')->get();
 
         return view('admin.map-manager.index', compact('locations', 'owners'));
