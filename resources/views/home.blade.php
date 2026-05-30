@@ -3,12 +3,13 @@
 @section('header_title', 'Desa Wisata Penglipuran')
 
 @section('content')
-    <section class="bg-primary relative rounded-b-3xl px-5 pb-13 pt-[calc(env(safe-area-inset-top)+8rem)] text-white">
+    <section class="bg-primary pb-13 relative rounded-b-3xl px-5 pt-[calc(env(safe-area-inset-top)+8rem)] text-white">
 
         <div class="flex items-start justify-between">
             <div class="pr-4">
                 @auth
-                    <h2 class="font-display text-2xl font-bold">{{ __('Rahajeng Rauh, :name!', ['name' => str(Auth::user()->name)->before(' ')]) }}</h2>
+                    <h2 class="font-display text-2xl font-bold">
+                        {{ __('Rahajeng Rauh, :name!', ['name' => str(Auth::user()->name)->before(' ')]) }}</h2>
                 @else
                     <h2 class="font-display text-2xl font-bold">{{ __('Rahajeng Rauh!') }}</h2>
                 @endauth
@@ -28,9 +29,11 @@
             @else
                 <a href="{{ route('login') }}" class="tap-target -mt-1 shrink-0 transition-transform active:scale-95"
                     aria-label="Masuk">
-                    <div class="h-12 w-12 overflow-hidden rounded-full border-2 border-white/30 bg-white/10 p-2 shadow-sm flex items-center justify-center text-white">
+                    <div
+                        class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border-2 border-white/30 bg-white/10 p-2 text-white shadow-sm">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                     </div>
                 </a>
@@ -44,45 +47,55 @@
         @endphp
 
         <div
-            class="text-charcoal mx-auto flex w-full max-w-[calc(100vw-2.5rem)] translate-y-8 items-center justify-between rounded-2xl bg-white p-4 sm:p-5 shadow-lg shadow-gray-100/50 gap-2">
-            <div class="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
+            class="text-charcoal mx-auto flex w-full max-w-[calc(100vw-2.5rem)] translate-y-8 items-center justify-between gap-2 rounded-2xl bg-white p-4 shadow-lg shadow-gray-100/50 sm:p-5">
+            <div class="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
                 @if (isset($weather) && $weather)
-                    <div class="rounded-full bg-gray-50 p-2 sm:p-2.5 flex items-center justify-center shrink-0">
+                    <div class="flex shrink-0 items-center justify-center rounded-full bg-gray-50 p-2 sm:p-2.5">
                         {!! $weather->getIconHtml() !!}
                     </div>
-                    <div class="flex flex-col min-w-0">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 leading-none">Cuaca Hari Ini</span>
-                        <span class="text-xl sm:text-2xl font-black text-gray-800 mt-1 leading-none">{{ round($weather->temperature) }}°C</span>
-                        <span class="text-[11px] font-semibold text-gray-500 mt-1 truncate leading-none">{{ $weather->condition }}</span>
+                    <div class="flex min-w-0 flex-col">
+                        <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">Cuaca Hari
+                            Ini</span>
+                        <span
+                            class="mt-1 text-xl font-black leading-none text-gray-800 sm:text-2xl">{{ round($weather->temperature) }}°C</span>
+                        <span
+                            class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ $weather->condition }}</span>
                     </div>
                 @else
-                    <div class="rounded-full bg-gray-100 p-2 sm:p-2.5 text-gray-400 flex items-center justify-center shrink-0">
+                    <div
+                        class="flex shrink-0 items-center justify-center rounded-full bg-gray-100 p-2 text-gray-400 sm:p-2.5">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
                         </svg>
                     </div>
-                    <div class="flex flex-col min-w-0">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 leading-none">Cuaca Hari Ini</span>
-                        <span class="text-xl sm:text-2xl font-black text-gray-400 mt-1 leading-none">--°C</span>
-                        <span class="text-[11px] font-semibold text-gray-500 mt-1 truncate leading-none">Belum Diperbarui</span>
+                    <div class="flex min-w-0 flex-col">
+                        <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">Cuaca Hari
+                            Ini</span>
+                        <span class="mt-1 text-xl font-black leading-none text-gray-400 sm:text-2xl">--°C</span>
+                        <span class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">Belum
+                            Diperbarui</span>
                     </div>
                 @endif
             </div>
 
-            <div class="h-12 w-[1.5px] bg-gray-100 shrink-0 mx-1.5 sm:mx-2"></div>
+            <div class="mx-1.5 h-12 w-[1.5px] shrink-0 bg-gray-100 sm:mx-2"></div>
 
-            <div class="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
-                <div class="{{ $densityClass }} rounded-full {{ $densityBg }} p-2 sm:p-2.5 flex items-center justify-center shrink-0">
+            <div class="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
+                <div
+                    class="{{ $densityClass }} {{ $densityBg }} flex shrink-0 items-center justify-center rounded-full p-2 sm:p-2.5">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                 </div>
-                <div class="flex flex-col min-w-0">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 leading-none">Kepadatan Desa</span>
-                    <span class="{{ $densityClass }} text-xl sm:text-2xl font-black mt-1 leading-none">{{ $densityMain }}</span>
-                    <span class="text-[11px] font-semibold text-gray-500 mt-1 truncate leading-none">{{ $densitySub }}</span>
+                <div class="flex min-w-0 flex-col">
+                    <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">Kepadatan
+                        Desa</span>
+                    <span
+                        class="{{ $densityClass }} mt-1 text-xl font-black leading-none sm:text-2xl">{{ $densityMain }}</span>
+                    <span
+                        class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ $densitySub }}</span>
                 </div>
             </div>
         </div>
@@ -171,13 +184,13 @@
                 <a href="{{ route('owner.dashboard') }}"
                     class="tap-target flex flex-col items-center gap-2 transition-transform active:scale-95">
                     <div
-                        class="text-primary flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/20 bg-primary/5 shadow-sm">
+                        class="text-primary border-primary/20 bg-primary/5 flex h-14 w-14 items-center justify-center rounded-2xl border shadow-sm">
                         <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
                         </svg>
                     </div>
-                    <span class="text-center text-[11px] font-bold text-primary leading-tight">Panel<br>UMKM</span>
+                    <span class="text-primary text-center text-[11px] font-bold leading-tight">Panel<br>UMKM</span>
                 </a>
             @endif
 
@@ -204,7 +217,8 @@
 
         <div class="no-scrollbar flex gap-4 overflow-x-auto pb-2">
             @forelse($recommendedRoutes as $route)
-                <div class="min-w-65 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm flex flex-col justify-between">
+                <div
+                    class="min-w-65 flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
                     <div class="flex items-start justify-between">
                         <div>
                             <h4 class="text-charcoal font-bold">{{ $route->name }}</h4>
@@ -214,18 +228,19 @@
                             </p>
                         </div>
                         <div class="bg-primary/10 text-primary rounded-lg p-2">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                             </svg>
                         </div>
                     </div>
                     <a href="{{ route('explore') }}?route={{ $route->id }}"
-                        class="bg-primary mt-4 block w-full text-center rounded-xl py-2 text-sm font-medium text-white transition-transform active:scale-95">
+                        class="bg-primary mt-4 block w-full rounded-xl py-2 text-center text-sm font-medium text-white transition-transform active:scale-95">
                         Mulai Rute
                     </a>
                 </div>
             @empty
-                <div class="w-full text-center py-6 text-sm text-gray-500 bg-white rounded-2xl border border-gray-100 p-4">
+                <div class="w-full rounded-2xl border border-gray-100 bg-white p-4 py-6 text-center text-sm text-gray-500">
                     Tidak ada rute rekomendasi saat ini.
                 </div>
             @endforelse
