@@ -231,6 +231,7 @@
         window.addEventListener('offline', updateOnlineStatus);
     </script>
 
+    @stack('modals')
     @stack('scripts')
 
 </body>
