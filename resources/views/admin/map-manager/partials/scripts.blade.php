@@ -343,11 +343,13 @@
             
             if (details.quizzes && details.quizzes.length > 0) {
                 form.querySelector('input[name="has_quiz"]').checked = true;
-                document.getElementById('quizzes-container').classList.remove('hidden');
+                document.getElementById('btn-manage-quizzes').classList.remove('hidden');
+                document.getElementById('btn-manage-quizzes').classList.add('flex');
                 details.quizzes.forEach(q => addQuizField(q));
             } else {
                 form.querySelector('input[name="has_quiz"]').checked = false;
-                document.getElementById('quizzes-container').classList.add('hidden');
+                document.getElementById('btn-manage-quizzes').classList.add('hidden');
+                document.getElementById('btn-manage-quizzes').classList.remove('flex');
             }
 
             // Setup Delete Action
@@ -443,7 +445,8 @@
         // Reset Quizzes
         if(culturalForm.querySelector('input[name="has_quiz"]')) {
             culturalForm.querySelector('input[name="has_quiz"]').checked = false;
-            document.getElementById('quizzes-container').classList.add('hidden');
+            document.getElementById('btn-manage-quizzes').classList.add('hidden');
+            document.getElementById('btn-manage-quizzes').classList.remove('flex');
             document.getElementById('quizzes-list').innerHTML = '';
         }
 
@@ -463,17 +466,32 @@
 
     // Quiz Functions
     function toggleQuizzes(checkbox) {
-        const container = document.getElementById('quizzes-container');
+        const btn = document.getElementById('btn-manage-quizzes');
         const list = document.getElementById('quizzes-list');
         if (checkbox.checked) {
-            container.classList.remove('hidden');
+            btn.classList.remove('hidden');
+            btn.classList.add('flex');
             if (list.children.length === 0) {
                 addQuizField();
             }
+            openQuizModal();
         } else {
-            container.classList.add('hidden');
+            btn.classList.add('hidden');
+            btn.classList.remove('flex');
             list.innerHTML = '';
         }
+    }
+
+    function openQuizModal() {
+        const modal = document.getElementById('quizzes-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeQuizModal() {
+        const modal = document.getElementById('quizzes-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
     }
 
     function addQuizField(quiz = null) {

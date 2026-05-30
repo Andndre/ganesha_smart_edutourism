@@ -56,14 +56,35 @@
             <span class="text-sm font-semibold text-gray-700">Tambahkan Kuis Edutourism?</span>
         </label>
         
-        <div id="quizzes-container" class="hidden space-y-4">
-            <div id="quizzes-list" class="space-y-4">
-                <!-- Quizzes will be appended here -->
+        <button type="button" id="btn-manage-quizzes" onclick="openQuizModal()" class="hidden w-full rounded-xl border-2 border-primary text-primary py-2.5 text-sm font-semibold hover:bg-primary/5 transition-colors items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+            Kelola Soal Kuis
+        </button>
+
+        <div id="quizzes-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-charcoal/50 backdrop-blur-sm p-4 justify-center items-center">
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                    <div>
+                        <h3 class="font-display font-bold text-lg text-charcoal">Kelola Kuis Edutourism</h3>
+                        <p class="text-xs text-gray-500 mt-1">Soal-soal ini akan muncul saat turis tiba di lokasi ini.</p>
+                    </div>
+                    <button type="button" onclick="closeQuizModal()" class="text-gray-400 hover:text-red-500 rounded-lg p-2 hover:bg-red-50 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                
+                <div class="p-6 overflow-y-auto flex-1 space-y-6" id="quizzes-list">
+                    <!-- Quizzes will be appended here -->
+                </div>
+                
+                <div class="p-5 border-t border-gray-100 bg-gray-50/50 space-y-3">
+                    <button type="button" onclick="addQuizField()" class="w-full rounded-xl border-2 border-dashed border-gray-200 py-3 text-sm font-semibold text-gray-500 hover:border-primary hover:text-primary hover:bg-green-50 transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Tambah Soal Kuis
+                    </button>
+                    <button type="button" onclick="closeQuizModal()" class="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-white hover:bg-primary-600 transition-all shadow-lg shadow-primary/20">Selesai & Tutup</button>
+                </div>
             </div>
-            <button type="button" onclick="addQuizField()" class="w-full rounded-xl border-2 border-dashed border-gray-200 py-3 text-sm font-semibold text-gray-500 hover:border-primary hover:text-primary hover:bg-green-50 transition-colors flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                Tambah Soal Kuis
-            </button>
         </div>
     </div>
 
