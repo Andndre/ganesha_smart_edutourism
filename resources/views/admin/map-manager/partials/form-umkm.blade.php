@@ -71,7 +71,8 @@
                 class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:border-primary focus:outline-none">
         </div>
         <div>
-            <label class="mb-1.5 block text-sm font-semibold text-gray-700">ID Marker AR (Opsional)</label>
+            <label class="mb-1 block text-sm font-semibold text-gray-700">ID Marker AR</label>
+            <span class="mb-2 block text-xs text-gray-500">Opsional. Digunakan untuk integrasi Augmented Reality</span>
             <input type="text" name="ar_marker_id" placeholder="Contoh: UMKM_DEDARI_01"
                 class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
         </div>
