@@ -210,7 +210,10 @@
                         icon: 'info',
                         confirmButtonColor: '#1E5128',
                         confirmButtonText: 'Lanjut',
-                        customClass: { confirmButton: 'rounded-xl px-4 py-2 font-semibold text-sm' }
+                        customClass: { 
+                            popup: 'rounded-3xl shadow-xl border border-gray-100',
+                            confirmButton: 'rounded-xl px-6 py-2.5 font-semibold text-sm' 
+                        }
                     }).then(() => {
                         window.location.reload();
                     });
@@ -222,7 +225,10 @@
                     text: 'Gagal memuat kuis.',
                     icon: 'error',
                     confirmButtonColor: '#1E5128',
-                    customClass: { confirmButton: 'rounded-xl px-4 py-2 font-semibold text-sm' }
+                    customClass: { 
+                        popup: 'rounded-3xl shadow-xl border border-gray-100',
+                        confirmButton: 'rounded-xl px-6 py-2.5 font-semibold text-sm' 
+                    }
                 });
                 document.getElementById('btn-arrive').disabled = false;
                 document.getElementById('btn-arrive').textContent = 'Jawab Pertanyaan & Lanjut';
@@ -252,7 +258,10 @@
                         text: 'Jawaban Salah! Coba lagi.',
                         icon: 'error',
                         confirmButtonColor: '#1E5128',
-                        customClass: { confirmButton: 'rounded-xl px-4 py-2 font-semibold text-sm' }
+                        customClass: { 
+                            popup: 'rounded-3xl shadow-xl border border-gray-100',
+                            confirmButton: 'rounded-xl px-6 py-2.5 font-semibold text-sm' 
+                        }
                     });
                     buttons.forEach(btn => btn.disabled = false);
                 }
@@ -263,7 +272,10 @@
                     text: 'Gagal mengirim jawaban.',
                     icon: 'error',
                     confirmButtonColor: '#1E5128',
-                    customClass: { confirmButton: 'rounded-xl px-4 py-2 font-semibold text-sm' }
+                    customClass: { 
+                        popup: 'rounded-3xl shadow-xl border border-gray-100',
+                        confirmButton: 'rounded-xl px-6 py-2.5 font-semibold text-sm' 
+                    }
                 });
                 buttons.forEach(btn => btn.disabled = false);
             });
