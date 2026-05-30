@@ -206,6 +206,9 @@
         </div>
     </div>
 
+@endsection
+
+@push('modals')
     <!-- QR Code Modal (Hidden by default) -->
     <div id="qr-modal"
         class="bg-charcoal/90 z-60 pointer-events-none fixed inset-0 flex items-center justify-center p-6 opacity-0 backdrop-blur-sm transition-opacity duration-300">
@@ -237,7 +240,7 @@
             </div>
         </div>
     </div>
-@endsection
+@endpush
 
 @push('scripts')
     <script>

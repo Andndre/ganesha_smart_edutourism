@@ -3,7 +3,7 @@
 @section('header_title', 'Tiket & Pesanan')
 
 @section('content')
-    <div class="px-4 py-6" x-data="{ showModal: false, qrUrl: '', ticketName: '' }">
+    <div class="px-4 py-6" x-data>
         <!-- Status Filter -->
         <div class="no-scrollbar mb-6 flex gap-2 overflow-x-auto">
             <a href="{{ route('bookings', ['filter' => 'semua']) }}"
@@ -85,7 +85,7 @@
                         @if ($reservation->status == 'confirmed')
                             <div class="mt-4 flex gap-2 border-t border-gray-100 pt-4">
                                 <button type="button"
-                                    @click="showModal = true; qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={{ $reservation->qr_code }}'; ticketName = '{{ addslashes($reservation->tourPackage->name ?? 'Paket Wisata') }}'"
+                                    @click="$dispatch('open-ticket-modal', { qrUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={{ $reservation->qr_code }}', ticketName: '{{ addslashes($reservation->tourPackage->name ?? 'Paket Wisata') }}' })"
                                     class="bg-primary/10 text-primary active:bg-primary/20 flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-bold transition-colors">
                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -124,24 +124,29 @@
             @endforelse
         </div>
 
-        <!-- QR Code Modal -->
-        <div x-show="showModal"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm"
-            style="display: none;" x-transition>
-            <div class="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-2xl" @click.away="showModal = false">
-                <h3 class="text-charcoal mb-1 text-xl font-bold" x-text="ticketName"></h3>
-                <p class="mb-6 text-sm text-gray-500">Tunjukkan QR Code ini kepada petugas tiket saat Anda tiba di lokasi
-                    wisata.</p>
-
-                <div class="mb-6 flex justify-center rounded-2xl border border-gray-100 bg-gray-50 p-4 shadow-inner">
-                    <img :src="qrUrl" alt="QR Code" class="h-48 w-48 rounded-lg">
-                </div>
-
-                <button @click="showModal = false"
-                    class="bg-primary block w-full rounded-xl py-3.5 font-bold text-white shadow-lg transition-transform active:scale-[0.98]">
-                    Tutup
-                </button>
-            </div>
-        </div>
     </div>
 @endsection
+
+@push('modals')
+    <!-- QR Code Modal -->
+    <div x-data="{ isOpen: false, qrUrl: '', ticketName: '' }"
+        x-show="isOpen"
+        @open-ticket-modal.window="isOpen = true; qrUrl = $event.detail.qrUrl; ticketName = $event.detail.ticketName"
+        class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm"
+        style="display: none;" x-transition>
+        <div class="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-2xl" @click.away="isOpen = false">
+            <h3 class="text-charcoal mb-1 text-xl font-bold" x-text="ticketName"></h3>
+            <p class="mb-6 text-sm text-gray-500">Tunjukkan QR Code ini kepada petugas tiket saat Anda tiba di lokasi
+                wisata.</p>
+
+            <div class="mb-6 flex justify-center rounded-2xl border border-gray-100 bg-gray-50 p-4 shadow-inner">
+                <img :src="qrUrl" alt="QR Code" class="h-48 w-48 rounded-lg">
+            </div>
+
+            <button @click="isOpen = false"
+                class="bg-primary block w-full rounded-xl py-3.5 font-bold text-white shadow-lg transition-transform active:scale-[0.98]">
+                Tutup
+            </button>
+        </div>
+    </div>
+@endpush

@@ -90,17 +90,17 @@
         </div>
 
         <!-- Products Preview -->
-        <div class="px-4 py-5 bg-white mt-2 border-t border-gray-100" x-data="{ selectedProduct: null, openProductModal: false }">
+        <div class="px-4 py-5 bg-white mt-2 border-t border-gray-100" x-data>
             <h3 class="font-bold text-charcoal mb-3">Produk yang Tersedia</h3>
             <div class="space-y-3">
                 @forelse($umkm->activeProducts as $product)
-                    <div @click="selectedProduct = {{ json_encode([
+                    <div @click="$dispatch('open-product-modal', {{ json_encode([
                             'name' => $product->name,
                             'category' => $product->category->name ?? 'Produk',
                             'price' => 'Rp ' . number_format($product->price, 0, ',', '.'),
                             'image' => $product->image_path ? asset('storage/'.$product->image_path) : '',
                             'description' => $product->description ?? 'Tidak ada deskripsi.'
-                        ]) }}; openProductModal = true" 
+                        ]) }})" 
                         class="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer active:bg-gray-50 transition-colors">
                         <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 shrink-0 overflow-hidden">
                             @if($product->image_path)
@@ -122,44 +122,6 @@
                 @empty
                     <p class="text-sm text-gray-500 text-center py-4">UMKM ini tidak memiliki produk aktif saat ini.</p>
                 @endforelse
-            </div>
-
-            <!-- Product Detail Modal -->
-            <div x-show="openProductModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" x-transition>
-                <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden" @click.away="openProductModal = false">
-                    <!-- Image Header -->
-                    <div class="h-48 bg-gray-100 relative">
-                        <template x-if="selectedProduct?.image">
-                            <img :src="selectedProduct.image" class="w-full h-full object-cover" alt="Product Image">
-                        </template>
-                        <template x-if="!selectedProduct?.image">
-                            <div class="w-full h-full flex items-center justify-center text-gray-300">
-                                <svg class="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                            </div>
-                        </template>
-                        <!-- Close Button -->
-                        <button @click="openProductModal = false" class="absolute top-3 right-3 w-8 h-8 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-black/50 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                    
-                    <!-- Content -->
-                    <div class="p-5">
-                        <div class="flex justify-between items-start gap-4 mb-2">
-                            <div>
-                                <h3 class="text-xl font-bold text-charcoal leading-tight" x-text="selectedProduct?.name"></h3>
-                                <p class="text-sm text-gray-500 mt-1" x-text="selectedProduct?.category"></p>
-                            </div>
-                            <div class="text-lg font-bold text-primary shrink-0" x-text="selectedProduct?.price"></div>
-                        </div>
-                        <div class="w-full h-px bg-gray-100 my-4"></div>
-                        <p class="text-sm text-gray-600 leading-relaxed" x-text="selectedProduct?.description"></p>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -209,4 +171,49 @@
             .addTo(map);
     @endif
 </script>
+@endpush
+
+@push('modals')
+    <!-- Product Detail Modal -->
+    <div x-data="{ selectedProduct: null, isOpen: false }" 
+        x-show="isOpen" 
+        @open-product-modal.window="selectedProduct = $event.detail; isOpen = true"
+        style="display: none;" 
+        class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" 
+        x-transition>
+        <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden" @click.away="isOpen = false">
+            <!-- Image Header -->
+            <div class="h-48 bg-gray-100 relative">
+                <template x-if="selectedProduct?.image">
+                    <img :src="selectedProduct.image" class="w-full h-full object-cover" alt="Product Image">
+                </template>
+                <template x-if="!selectedProduct?.image">
+                    <div class="w-full h-full flex items-center justify-center text-gray-300">
+                        <svg class="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                </template>
+                <!-- Close Button -->
+                <button @click="isOpen = false" class="absolute top-3 right-3 w-8 h-8 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-black/50 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Content -->
+            <div class="p-5">
+                <div class="flex justify-between items-start gap-4 mb-2">
+                    <div>
+                        <h3 class="text-xl font-bold text-charcoal leading-tight" x-text="selectedProduct?.name"></h3>
+                        <p class="text-sm text-gray-500 mt-1" x-text="selectedProduct?.category"></p>
+                    </div>
+                    <div class="text-lg font-bold text-primary shrink-0" x-text="selectedProduct?.price"></div>
+                </div>
+                <div class="w-full h-px bg-gray-100 my-4"></div>
+                <p class="text-sm text-gray-600 leading-relaxed" x-text="selectedProduct?.description"></p>
+            </div>
+        </div>
+    </div>
 @endpush
