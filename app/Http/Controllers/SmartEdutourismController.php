@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\RoutePointQuiz;
+use App\Models\CulturalObject;
+use App\Models\CulturalObjectQuiz;
 use App\Models\RouteSession;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
@@ -90,12 +91,16 @@ class SmartEdutourismController extends Controller
     public function arrive(Request $request, $pointId)
     {
         $point = TourRoutePoint::with('locationable')->findOrFail($pointId);
-        $quiz = RoutePointQuiz::where('tour_route_point_id', $pointId)->first();
+        // Check for quizzes (now global on CulturalObject)
+        $quizzes = [];
+        if ($point->locationable instanceof CulturalObject) {
+            $quizzes = $point->locationable->quizzes;
+        }
 
         return response()->json([
             'success' => true,
             'point' => $point,
-            'quiz' => $quiz,
+            'quizzes' => $quizzes,
         ]);
     }
 
@@ -103,9 +108,10 @@ class SmartEdutourismController extends Controller
     {
         $request->validate([
             'answer' => 'required|string|size:1',
+            'is_last_quiz' => 'nullable|boolean',
         ]);
 
-        $quiz = RoutePointQuiz::findOrFail($quizId);
+        $quiz = CulturalObjectQuiz::findOrFail($quizId);
         $isCorrect = strtoupper($request->answer) === strtoupper($quiz->correct_option);
 
         // Update session
@@ -127,20 +133,23 @@ class SmartEdutourismController extends Controller
         }
 
         if ($isCorrect) {
-            $session->points_completed += 1;
             $session->total_score += 100;
 
-            // Move to next point
-            $route = TourRoute::with('routePoints')->find($session->tour_route_id);
-            $points = $route->routePoints;
-            $currentIndex = $points->search(function ($p) use ($session) {
-                return $p->id === $session->current_point_id;
-            });
+            if ($request->boolean('is_last_quiz', true)) {
+                $session->points_completed += 1;
+                
+                // Move to next point
+                $route = TourRoute::with('routePoints')->find($session->tour_route_id);
+                $points = $route->routePoints;
+                $currentIndex = $points->search(function ($p) use ($session) {
+                    return $p->id === $session->current_point_id;
+                });
 
-            if ($currentIndex !== false && isset($points[$currentIndex + 1])) {
-                $session->current_point_id = $points[$currentIndex + 1]->id;
-            } else {
-                $session->status = 'completed';
+                if ($currentIndex !== false && isset($points[$currentIndex + 1])) {
+                    $session->current_point_id = $points[$currentIndex + 1]->id;
+                } else {
+                    $session->status = 'completed';
+                }
             }
 
             $session->save();

@@ -50,6 +50,23 @@
         <span id="current-audio" class="text-[10px] text-gray-400 block mt-1"></span>
     </div>
 
+    <div class="pt-4 border-t border-gray-100">
+        <label class="flex items-center space-x-2 cursor-pointer mb-3">
+            <input type="checkbox" id="has_quiz" name="has_quiz" value="1" class="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary" onchange="toggleQuizzes(this)">
+            <span class="text-sm font-semibold text-gray-700">Tambahkan Kuis Edutourism?</span>
+        </label>
+        
+        <div id="quizzes-container" class="hidden space-y-4">
+            <div id="quizzes-list" class="space-y-4">
+                <!-- Quizzes will be appended here -->
+            </div>
+            <button type="button" onclick="addQuizField()" class="w-full rounded-xl border-2 border-dashed border-gray-200 py-3 text-sm font-semibold text-gray-500 hover:border-primary hover:text-primary hover:bg-green-50 transition-colors flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Tambah Soal Kuis
+            </button>
+        </div>
+    </div>
+
     <div>
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Foto Sejarah (Dapat memilih beberapa
             file)</label>

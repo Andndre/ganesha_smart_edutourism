@@ -28,6 +28,13 @@ class CulturalObjectController extends Controller
             'audio_narration_file' => ['nullable', 'file', 'max:10240'],
             'historical_images' => ['nullable', 'array'],
             'historical_images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
+            'has_quiz' => ['nullable', 'boolean'],
+            'quiz_question' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_a' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_b' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_c' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_d' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_correct_option' => ['required_if:has_quiz,1', 'nullable', 'array'],
         ]);
 
         if ($request->hasFile('model_3d_file')) {
@@ -60,9 +67,31 @@ class CulturalObjectController extends Controller
         $longitude = $validated['longitude'] ?? 115.3590021;
 
         // Clean up temporary variables not in DB schema
-        unset($validated['model_3d_file'], $validated['audio_narration_file'], $validated['latitude'], $validated['longitude']);
+        unset($validated['model_3d_file'], $validated['audio_narration_file'], $validated['latitude'], $validated['longitude'], $validated['has_quiz'], $validated['quiz_question'], $validated['quiz_option_a'], $validated['quiz_option_b'], $validated['quiz_option_c'], $validated['quiz_option_d'], $validated['quiz_correct_option']);
 
         $object = CulturalObject::create($validated);
+
+        if ($request->has('has_quiz') && $request->has('quiz_question')) {
+            $questions = $request->input('quiz_question');
+            $optionA = $request->input('quiz_option_a');
+            $optionB = $request->input('quiz_option_b');
+            $optionC = $request->input('quiz_option_c');
+            $optionD = $request->input('quiz_option_d');
+            $correctOptions = $request->input('quiz_correct_option');
+
+            foreach ($questions as $index => $question) {
+                if (!empty($question)) {
+                    $object->quizzes()->create([
+                        'question' => $question,
+                        'option_a' => $optionA[$index] ?? '',
+                        'option_b' => $optionB[$index] ?? '',
+                        'option_c' => $optionC[$index] ?? '',
+                        'option_d' => $optionD[$index] ?? '',
+                        'correct_option' => $correctOptions[$index] ?? 'A',
+                    ]);
+                }
+            }
+        }
 
         $object->mapLocation()->create([
             'name' => $object->name,
@@ -96,6 +125,13 @@ class CulturalObjectController extends Controller
             'audio_narration_file' => ['nullable', 'file', 'max:10240'],
             'historical_images' => ['nullable', 'array'],
             'historical_images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
+            'has_quiz' => ['nullable', 'boolean'],
+            'quiz_question' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_a' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_b' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_c' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_d' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_correct_option' => ['required_if:has_quiz,1', 'nullable', 'array'],
         ]);
 
         if ($request->hasFile('model_3d_file')) {
@@ -134,9 +170,33 @@ class CulturalObjectController extends Controller
         $longitude = $validated['longitude'] ?? 115.3590021;
 
         // Clean up temporary variables not in DB schema
-        unset($validated['model_3d_file'], $validated['audio_narration_file'], $validated['latitude'], $validated['longitude']);
+        unset($validated['model_3d_file'], $validated['audio_narration_file'], $validated['latitude'], $validated['longitude'], $validated['has_quiz'], $validated['quiz_question'], $validated['quiz_option_a'], $validated['quiz_option_b'], $validated['quiz_option_c'], $validated['quiz_option_d'], $validated['quiz_correct_option']);
 
         $object->update($validated);
+
+        $object->quizzes()->delete();
+
+        if ($request->has('has_quiz') && $request->has('quiz_question')) {
+            $questions = $request->input('quiz_question');
+            $optionA = $request->input('quiz_option_a');
+            $optionB = $request->input('quiz_option_b');
+            $optionC = $request->input('quiz_option_c');
+            $optionD = $request->input('quiz_option_d');
+            $correctOptions = $request->input('quiz_correct_option');
+
+            foreach ($questions as $index => $question) {
+                if (!empty($question)) {
+                    $object->quizzes()->create([
+                        'question' => $question,
+                        'option_a' => $optionA[$index] ?? '',
+                        'option_b' => $optionB[$index] ?? '',
+                        'option_c' => $optionC[$index] ?? '',
+                        'option_d' => $optionD[$index] ?? '',
+                        'correct_option' => $correctOptions[$index] ?? 'A',
+                    ]);
+                }
+            }
+        }
 
         $object->mapLocation()->updateOrCreate(
             [],
