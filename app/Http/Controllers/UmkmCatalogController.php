@@ -6,6 +6,7 @@ use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use App\Services\UmkmRecommendationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class UmkmCatalogController extends Controller
 {
@@ -64,7 +65,7 @@ class UmkmCatalogController extends Controller
         }
 
         // Keep session for refresh
-        $request->session()->reflash();
+        Session::reflash();
 
         return view('user.umkm.multi_recommended', compact('route'));
     }
