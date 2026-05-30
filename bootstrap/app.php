@@ -3,6 +3,7 @@
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\RedirectIfAdmin;
 use App\Http\Middleware\SetUserLocale;
+use App\Http\Middleware\StaffMiddleware;
 use App\Http\Middleware\UmkmOwnerMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
             'redirect.admin' => RedirectIfAdmin::class,
             'umkm_owner' => UmkmOwnerMiddleware::class,
+            'staff' => StaffMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

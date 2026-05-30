@@ -75,13 +75,13 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the user's learning progress.
+     * Get the user's route sessions.
      *
-     * @return HasMany<UserLearningProgress>
+     * @return HasMany<RouteSession>
      */
-    public function learningProgress(): HasMany
+    public function routeSessions(): HasMany
     {
-        return $this->hasMany(UserLearningProgress::class);
+        return $this->hasMany(RouteSession::class);
     }
 
     /**
@@ -130,5 +130,13 @@ class User extends Authenticatable
     public function isUmkmOwner(): bool
     {
         return $this->role === 'umkm_owner';
+    }
+
+    /**
+     * Check if the user is a Ticket Officer.
+     */
+    public function isTicketOfficer(): bool
+    {
+        return $this->role === 'ticket_officer';
     }
 }

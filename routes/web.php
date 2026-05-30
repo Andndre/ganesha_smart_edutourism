@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\FeedbackController;
 use App\Http\Controllers\Admin\MapManagerController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\TicketingController;
 use App\Http\Controllers\Admin\TourRouteController;
 use App\Http\Controllers\Admin\UmkmCategoryController;
 use App\Http\Controllers\Admin\UmkmController;
@@ -18,8 +19,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventController as PublicEventController;
 use App\Http\Controllers\ExploreController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\LearningController;
-use App\Http\Controllers\LearningProgressController;
 use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\Owner\OwnerProductController;
 use App\Http\Controllers\ProfileController;
@@ -43,6 +42,9 @@ Route::middleware('guest')->group(function () {
 Route::middleware('redirect.admin')->group(function () {
     // Home
     Route::get('/', [HomeController::class, 'index'])->name('home');
+
+    // Guest Walk-In Access
+    Route::get('/guest-access/{reservation}/{hash}', [AuthController::class, 'guestAccess'])->name('guest.access');
 
     // Explore/Map
     Route::get('/explore', [ExploreController::class, 'index'])->name('explore');
@@ -72,10 +74,6 @@ Route::middleware('redirect.admin')->group(function () {
     // Events
     Route::get('/events', [PublicEventController::class, 'index'])->name('events');
 
-    // Learning
-    Route::get('/learning', [LearningController::class, 'index'])->name('learning');
-    Route::get('/learning/{slug}', [LearningController::class, 'show'])->name('learning.show');
-
     // Tour Packages
     Route::get('/tour-packages', [TourPackageController::class, 'index'])->name('tour-packages');
     Route::get('/tour-package/{id}', [TourPackageController::class, 'show'])->name('tour-package');
@@ -92,9 +90,6 @@ Route::middleware('auth')->group(function () {
             return view('user.feedback.create');
         })->name('feedback');
 
-        // Learning Quiz Submit
-        Route::post('/learning/{moduleSlug}/{contentSlug}/quiz', [LearningProgressController::class, 'submitQuiz'])->name('learning.quiz.submit');
-
         // Tour Package Booking
         Route::get('/tour-package/{id}/book', [App\Http\Controllers\BookingController::class, 'checkout'])->name('tour-package.book');
         Route::post('/tour-package/{id}/process', [App\Http\Controllers\BookingController::class, 'process'])->name('tour-package.process');
@@ -106,9 +101,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::get('/profile/bookings', [App\Http\Controllers\BookingController::class, 'index'])->name('bookings');
-        Route::get('/profile/learning', function () {
-            return view('learning.index');
-        })->name('learning-progress');
         Route::get('/profile/favorites', function () {
             return view('home');
         })->name('favorites');
@@ -135,6 +127,14 @@ Route::get('/privacy', function () {
 Route::get('/offline', function () {
     return view('offline');
 })->name('offline');
+
+// Staff Routes (Admin & Ticket Officer)
+Route::prefix('staff')->middleware(['auth', 'staff'])->group(function () {
+    Route::get('/ticketing', [TicketingController::class, 'index'])->name('staff.ticketing');
+    Route::post('/ticketing/walk-in', [TicketingController::class, 'storeWalkIn'])->name('staff.ticketing.walk-in');
+    Route::get('/ticketing/scan', [TicketingController::class, 'scan'])->name('staff.ticketing.scan');
+    Route::post('/ticketing/verify', [TicketingController::class, 'verify'])->name('staff.ticketing.verify');
+});
 
 // Admin Routes
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {

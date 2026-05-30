@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -71,6 +72,23 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         return redirect('/');
+    }
+
+    /**
+     * Guest Walk-In Access Logic
+     */
+    public function guestAccess($reservationId, $hash)
+    {
+        $reservation = Reservation::findOrFail($reservationId);
+
+        if (md5($reservation->qr_code) !== $hash) {
+            abort(403, 'Link akses tidak valid atau telah kadaluarsa.');
+        }
+
+        // Store guest token in session
+        session(['guest_token' => $reservation->qr_code, 'guest_name' => $reservation->guest_name]);
+
+        return redirect()->route('home')->with('success', 'Selamat datang, '.$reservation->guest_name.'! Anda dapat mulai menjelajahi Ganesha Smart Edutourism.');
     }
 
     /**
