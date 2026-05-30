@@ -30,21 +30,23 @@
     </div>
 
     <div>
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">ID Marker AR (Opsional)</label>
+        <label class="mb-1 block text-sm font-semibold text-gray-700">ID Marker AR</label>
+        <span class="mb-2 block text-xs text-gray-500">Opsional. Digunakan untuk integrasi Augmented Reality</span>
         <input type="text" name="ar_marker_id" placeholder="Contoh: MARKER_PURA_01"
             class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
     </div>
 
     <div>
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Model 3D (.glb, Max 20MB)</label>
+        <label class="mb-1 block text-sm font-semibold text-gray-700">Model 3D</label>
+        <span class="mb-2 block text-xs text-gray-500">Format .glb, maksimal 20MB</span>
         <input type="file" name="model_3d_file" accept=".glb"
             class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
         <span id="current-model-3d" class="text-[10px] text-gray-400 block mt-1"></span>
     </div>
 
     <div>
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Audio Narasi (.mp3, Max
-            10MB)</label>
+        <label class="mb-1 block text-sm font-semibold text-gray-700">Audio Narasi</label>
+        <span class="mb-2 block text-xs text-gray-500">Format .mp3, maksimal 10MB</span>
         <input type="file" name="audio_narration_file" accept="audio/*"
             class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
         <span id="current-audio" class="text-[10px] text-gray-400 block mt-1"></span>
@@ -89,8 +91,8 @@
     </div>
 
     <div>
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Foto Sejarah (Dapat memilih beberapa
-            file)</label>
+        <label class="mb-1 block text-sm font-semibold text-gray-700">Foto Sejarah</label>
+        <span class="mb-2 block text-xs text-gray-500">Dapat memilih beberapa file gambar sekaligus</span>
         <input type="file" name="historical_images[]" multiple accept="image/*"
             class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
         <div id="current-images" class="flex flex-wrap gap-1 mt-2"></div>
