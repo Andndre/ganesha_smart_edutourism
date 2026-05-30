@@ -17,6 +17,10 @@ class RedirectIfAdmin
     {
         if ($request->user()?->isAdmin()) {
             return redirect()->route('admin.dashboard');
+        } elseif ($request->user()?->isTicketOfficer()) {
+            return redirect()->route('staff.ticketing');
+        } elseif ($request->user()?->isUmkmOwner()) {
+            return redirect()->route('owner.dashboard');
         }
 
         return $next($request);
