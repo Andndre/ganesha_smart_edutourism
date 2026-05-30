@@ -221,7 +221,7 @@
                             </svg>
                         </div>
                     </div>
-                    <button @click="$dispatch('open-modal', 'route-preview-modal'); fetchRoutePreview({{ $route->id }})"
+                    <button @click="$dispatch('open-route-preview-modal'); fetchRoutePreview({{ $route->id }})"
                         class="bg-primary mt-4 block w-full rounded-xl py-2 text-center text-sm font-medium text-white transition-transform active:scale-95">
                         Mulai Rute
                     </button>
