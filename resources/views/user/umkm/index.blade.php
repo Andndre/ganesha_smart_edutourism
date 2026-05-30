@@ -81,8 +81,18 @@
                 @endforeach
             </div>
 
+            @php
+                $hasActiveSession = false;
+                if (auth()->check() || session()->has('guest_token')) {
+                    $hasActiveSession = \App\Models\RouteSession::where('status', 'active')
+                        ->where(function($q) {
+                            $q->where('user_id', auth()->id())
+                              ->orWhere('guest_token', session('guest_token'));
+                        })->exists();
+                }
+            @endphp
             <!-- Sticky Bottom Bar for Button -->
-            <div class="fixed bottom-[calc(env(safe-area-inset-bottom)+4rem)] left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-200 px-4 pt-4 pb-8 z-40">
+            <div class="fixed {{ $hasActiveSession ? 'mb-18' : '' }} bottom-[calc(env(safe-area-inset-bottom)+4rem)] left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-200 px-4 pt-4 pb-8 z-40 transition-all">
                 <button type="submit" class="w-full bg-primary text-white font-semibold py-3.5 rounded-xl active:scale-[0.98] transition-transform shadow-lg flex justify-center items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
