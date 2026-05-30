@@ -101,15 +101,16 @@
         $mainTabRoutes = ['home', 'explore', 'ar-scan', 'umkm', 'profile'];
         $currentRouteName = Route::currentRouteName();
         $isMainTab = in_array($currentRouteName, $mainTabRoutes);
+        $hasActiveSession = isset($activeEdutourismSession) && !Route::is('edutourism.active');
     @endphp
 
-    <main id="main-content" class="no-scrollbar relative flex-1 overflow-y-auto {{ $isMainTab ? 'pb-24' : '' }}">
+    <main id="main-content" class="no-scrollbar relative flex-1 overflow-y-auto {{ $isMainTab ? ($hasActiveSession ? 'pb-48' : 'pb-24') : ($hasActiveSession ? 'pb-28' : 'pb-6') }}">
         @yield('content')
     </main>
 
-    @if(isset($activeEdutourismSession) && !Route::is('edutourism.active'))
-        <div class="pointer-events-none fixed inset-x-0 {{ $isMainTab ? 'bottom-[88px]' : 'bottom-6' }} z-50 p-4 transition-all" id="floating-route-banner">
-            <a href="{{ route('edutourism.active') }}" class="pointer-events-auto flex items-center justify-between overflow-hidden rounded-2xl bg-[#1E5128] shadow-lg shadow-[#1E5128]/30 ring-1 ring-white/20 backdrop-blur-md transition-transform active:scale-95">
+    @if($hasActiveSession)
+        <div class="fixed left-0 right-0 z-40 {{ $isMainTab ? 'bottom-[calc(env(safe-area-inset-bottom)+4rem)]' : 'bottom-0' }} bg-white/80 backdrop-blur-md border-t border-gray-200 px-4 py-3" id="floating-route-banner">
+            <a href="{{ route('edutourism.active') }}" class="pointer-events-auto flex items-center justify-between overflow-hidden rounded-2xl bg-[#1E5128] shadow-lg shadow-[#1E5128]/30 transition-transform active:scale-95">
                 <div class="flex items-center gap-3 p-3">
                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur-sm">
                         <svg class="h-6 w-6 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
