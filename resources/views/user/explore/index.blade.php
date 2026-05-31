@@ -416,19 +416,21 @@
                 return html;
             }
 
-            function onLocationError(e) {
+            function onLocationError(e, silent = false) {
                 console.warn('Geolocation error:', e.message);
-                alert('Tidak dapat mendapatkan lokasi Anda. Pastikan GPS aktif dan izin diberikan.');
+                if (!silent) {
+                    alert('Tidak dapat mendapatkan lokasi Anda. Pastikan GPS aktif dan izin diberikan.');
+                }
             }
 
-            function startLocationTracking() {
+            function startLocationTracking(silent = false) {
                 if (!navigator.geolocation) {
-                    alert('Geolocation tidak didukung oleh browser ini.');
+                    if (!silent) alert('Geolocation tidak didukung oleh browser ini.');
                     return;
                 }
 
                 const btn = document.getElementById('btn-my-location');
-                btn.classList.add('fab-btn-active');
+                if (btn) btn.classList.add('fab-btn-active');
 
                 // Get initial position
                 navigator.geolocation.getCurrentPosition(
@@ -448,14 +450,14 @@
                                     heading: pos.coords.heading
                                 });
                             },
-                            onLocationError, {
+                            (err) => onLocationError(err, silent), {
                             enableHighAccuracy: true,
                             maximumAge: 1000,
                             timeout: 10000
                         }
                         );
                     },
-                    onLocationError, {
+                    (err) => onLocationError(err, silent), {
                     enableHighAccuracy: true,
                     maximumAge: 0,
                     timeout: 10000
@@ -478,17 +480,17 @@
                 locationMarker = null;
 
                 const btn = document.getElementById('btn-my-location');
-                btn.classList.remove('fab-btn-active');
+                if (btn) btn.classList.remove('fab-btn-active');
             }
 
             let isTrackingLocation = false;
 
-            function toggleMyLocation() {
+            function toggleMyLocation(silent = false) {
                 if (isTrackingLocation) {
                     stopLocationTracking();
                     isTrackingLocation = false;
                 } else {
-                    startLocationTracking();
+                    startLocationTracking(silent);
                     isTrackingLocation = true;
                 }
             }
@@ -540,13 +542,20 @@
                 }
             });
 
-            // Close filter panel when clicking elsewhere on map
+            // Close filter panel and clear active user route when clicking elsewhere on map
             map.on('click', function () {
+                if (userRouteLayer) {
+                    map.removeLayer(userRouteLayer);
+                    userRouteLayer = null;
+                }
                 const panel = document.getElementById('filter-panel');
                 if (panel && !panel.classList.contains('hidden')) {
                     panel.classList.add('hidden');
                 }
             });
+
+            // Start location tracking automatically on load (silent = true)
+            toggleMyLocation(true);
         });
 
         // ==========================================
@@ -613,10 +622,23 @@
                 }
             }
 
-            // Arahkan (Google Maps) Button
+            // Clear existing user route when showing a new location sheet
+            if (userRouteLayer) {
+                map.removeLayer(userRouteLayer);
+                userRouteLayer = null;
+            }
+
+            // Arahkan Button - Use live OpenRouteService routing if user location is active
             const routeBtn = document.getElementById('sheet-route-btn');
             if (routeBtn) {
                 routeBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}`;
+                routeBtn.onclick = function (e) {
+                    if (lastPosition) {
+                        e.preventDefault();
+                        closeSheet();
+                        drawUserToLocationRoute(lastPosition, { lat: loc.lat, lng: loc.lng });
+                    }
+                };
             }
 
             // Detail Button
@@ -635,6 +657,81 @@
 
         function closeSheet() {
             window.dispatchEvent(new CustomEvent('close-location-sheet'));
+        }
+
+        let userRouteLayer = null;
+
+        async function drawUserToLocationRoute(fromLoc, toLoc) {
+            if (userRouteLayer) {
+                map.removeLayer(userRouteLayer);
+                userRouteLayer = null;
+            }
+
+            const coords = [
+                [parseFloat(fromLoc.lng), parseFloat(fromLoc.lat)],
+                [parseFloat(toLoc.lng), parseFloat(toLoc.lat)]
+            ];
+
+            try {
+                const response = await fetch('/api/routing/directions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ coordinates: coords })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.features && data.features.length > 0) {
+                        const routeFeature = data.features[0];
+                        userRouteLayer = L.layerGroup();
+
+                        // Background shadow path
+                        L.geoJSON(routeFeature.geometry, {
+                            style: {
+                                color: '#1E5128',
+                                weight: 8,
+                                opacity: 0.2
+                            }
+                        }).addTo(userRouteLayer);
+
+                        // Foreground dashed path
+                        L.geoJSON(routeFeature.geometry, {
+                            style: {
+                                color: '#1E5128',
+                                weight: 4.5,
+                                dashArray: '6, 8',
+                                opacity: 0.95
+                            }
+                        }).addTo(userRouteLayer);
+
+                        userRouteLayer.addTo(map);
+
+                        const bounds = L.geoJSON(routeFeature.geometry).getBounds();
+                        map.fitBounds(bounds, {
+                            padding: [60, 60],
+                            animate: true,
+                            duration: 0.8
+                        });
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('ORS routing failed:', error);
+            }
+
+            // Fallback straight line
+            const polyline = L.polyline([[fromLoc.lat, fromLoc.lng], [toLoc.lat, toLoc.lng]], {
+                color: '#1E5128',
+                weight: 4.5,
+                dashArray: '6, 8',
+                opacity: 0.95
+            });
+            userRouteLayer = L.layerGroup([polyline]);
+            userRouteLayer.addTo(map);
+            map.fitBounds(polyline.getBounds(), { padding: [60, 60] });
         }
     </script>
 @endpush
