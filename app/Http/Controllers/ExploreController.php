@@ -32,11 +32,17 @@ class ExploreController extends Controller
 
             $description = '';
             $detailUrl = null;
+            $hasAr = false;
+            $image = null;
 
             if ($loc->locationable) {
                 $description = $loc->locationable->description ?? '';
                 if ($loc->locationable_type === CulturalObject::class) {
                     $detailUrl = route('cultural-object', $loc->locationable->id);
+                    $hasAr = ! empty($loc->locationable->ar_marker_id) || ! empty($loc->locationable->model_3d_path);
+                    if ($loc->locationable->historical_images && is_array($loc->locationable->historical_images) && count($loc->locationable->historical_images) > 0) {
+                        $image = asset($loc->locationable->historical_images[0]);
+                    }
                 } elseif ($loc->locationable_type === UmkmProfile::class) {
                     $detailUrl = route('umkm');
                 }
@@ -50,6 +56,8 @@ class ExploreController extends Controller
                 'desc' => $description,
                 'accessibility' => $loc->accessibility_notes ?? '',
                 'detail_url' => $detailUrl,
+                'has_ar' => $hasAr,
+                'image' => $image,
             ];
         });
 

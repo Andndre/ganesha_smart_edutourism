@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\UmkmCategoryController;
 use App\Http\Controllers\Admin\UmkmController;
 use App\Http\Controllers\Api\RoutingController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CulturalController;
 use App\Http\Controllers\EventController as PublicEventController;
 use App\Http\Controllers\ExploreController;
 use App\Http\Controllers\HomeController;
@@ -65,12 +66,8 @@ Route::middleware('redirect.admin')->group(function () {
     })->name('umkm-product');
 
     // Cultural Objects
-    Route::get('/cultural', function () {
-        return view('user.cultural.index');
-    })->name('cultural-objects');
-    Route::get('/cultural/{id}', function () {
-        return view('user.cultural.show');
-    })->name('cultural-object');
+    Route::get('/cultural', [CulturalController::class, 'index'])->name('cultural-objects');
+    Route::get('/cultural/{id}', [CulturalController::class, 'show'])->name('cultural-object');
 
     // Events
     Route::get('/events', [PublicEventController::class, 'index'])->name('events');

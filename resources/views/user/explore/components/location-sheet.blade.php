@@ -1,14 +1,28 @@
 <x-modal name="location-sheet" maxWidth="md" :hasBackdrop="false">
     <div class="px-1 py-1">
+        <!-- Dynamic Cover Image -->
+        <div id="sheet-image-container" class="mb-4 h-40 w-full overflow-hidden rounded-2xl bg-gray-100 hidden">
+            <img id="sheet-image" src="" alt="Cover" class="h-full w-full object-cover">
+        </div>
+
         <!-- Header -->
         <div class="mb-4 flex items-start justify-between">
             <div>
                 <h3 id="sheet-title" class="font-display text-charcoal text-xl font-bold tracking-tight">Nama Lokasi</h3>
-                <span id="sheet-category-badge"
-                    class="inline-flex items-center gap-1.5 mt-2 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-                    <span id="sheet-category-dot" class="h-2 w-2 rounded-full"></span>
-                    <span id="sheet-category-text">Kategori</span>
-                </span>
+                <div class="flex flex-wrap gap-2 mt-2">
+                    <span id="sheet-category-badge"
+                        class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                        <span id="sheet-category-dot" class="h-2 w-2 rounded-full"></span>
+                        <span id="sheet-category-text">Kategori</span>
+                    </span>
+                    <span id="sheet-ar-badge"
+                        class="items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2.5 py-0.5 text-[10px] font-bold text-green-700 uppercase tracking-wider hidden">
+                        <svg class="w-3 h-3 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        AR Tersedia
+                    </span>
+                </div>
             </div>
             <!-- Custom close button for mobile (desktop close button is handled by x-modal template) -->
             <button type="button" onclick="closeSheet()"
