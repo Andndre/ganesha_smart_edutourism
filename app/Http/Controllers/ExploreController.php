@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CapacityZone;
 use App\Models\CulturalObject;
+use App\Models\Facility;
 use App\Models\MapLocation;
 use App\Models\TourRoute;
 use App\Models\UmkmProfile;
@@ -19,7 +20,9 @@ class ExploreController extends Controller
         $locations = MapLocation::with('locationable')->get()->map(function ($loc) {
             // Map category to match JavaScript filters
             $category = $loc->category;
-            if ($category === 'facility') {
+            if ($loc->locationable_type === Facility::class && $loc->locationable && $loc->locationable->type === 'toilet') {
+                $category = 'toilets';
+            } elseif ($category === 'facility') {
                 $category = 'facilities';
             } elseif ($category === 'toilet') {
                 $category = 'toilets';
@@ -98,7 +101,9 @@ class ExploreController extends Controller
             }
 
             $category = $loc->category;
-            if ($category === 'facility') {
+            if ($loc->locationable_type === Facility::class && $loc->locationable && $loc->locationable->type === 'toilet') {
+                $category = 'toilets';
+            } elseif ($category === 'facility') {
                 $category = 'facilities';
             } elseif ($category === 'toilet') {
                 $category = 'toilets';
