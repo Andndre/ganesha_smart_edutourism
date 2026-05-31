@@ -643,8 +643,10 @@
             const secAcc = document.getElementById('section-accessibility');
             const sheetAcc = document.getElementById('sheet-accessibility');
             if (secAcc && sheetAcc) {
-                if (loc.accessibility && loc.accessibility.trim() !== '') {
-                    sheetAcc.textContent = loc.accessibility;
+                if (loc.is_accessible) {
+                    sheetAcc.textContent = loc.accessibility && loc.accessibility.trim() !== '' 
+                        ? loc.accessibility 
+                        : 'Akses ramah disabilitas tersedia.';
                     secAcc.style.display = 'flex';
                 } else {
                     secAcc.style.display = 'none';
