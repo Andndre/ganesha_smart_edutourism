@@ -70,3 +70,11 @@ Aplikasi ini tidak dipakai di kamar yang nyaman, melainkan di jalanan desa wisat
 2. **Fat-Finger Friendly:** Area sentuh minimum untuk semua ikon dan tombol (_tap target_) adalah 44px x 44px.
 3. **Skeleton Loading:** Jangan gunakan _spinner loader_ bulat. Gunakan _Skeleton_ abu-abu yang berkedip pelan (_pulse_) saat menunggu koneksi memuat gambar UMKM/Peta, memberikan ilusi bahwa aplikasi memuat lebih cepat.
 4. **Haptic Feedback:** Tombol aksi utama (seperti "Bayar Sekarang" atau saat Kamera AR berhasil mengenali marker) **wajib** memicu getaran pendek pada ponsel (Vibration API) untuk konfirmasi fisik di lingkungan yang mungkin berisik.
+
+## **6\. Rich Text Editor (Markdown / TipTap)**
+
+Untuk mempermudah penulisan deskripsi naratif objek budaya yang dinamis dan terstruktur, aplikasi mengintegrasikan editor **TipTap** (WYSIWYG/Markdown editor) yang elegan.
+
+- **Integrasi ESM Tanpa Bundler:** TipTap diimpor menggunakan ES Modules langsung dari `esm.sh` dalam `<script type="module">` guna performa pemuatan yang cepat dan menghindari penambahan depedensi NPM lokal yang membengkak.
+- **Visual Toolbar:** Menggunakan desain minimalis dengan garis batas halus (`border-gray-200`) dan latar belakang netral (`bg-gray-50`). Tombol aksi memiliki feedback visual dengan transisi lembut; tombol aktif disorot dengan warna brand (*Penglipuran Green* super halus: `rgba(30, 81, 40, 0.1)`).
+- **Prose Mirror Styling:** Konten editor dibatasi secara visual menggunakan elemen scroll dengan tinggi maksimal (`max-h-[300px]`) dan didesain ramah keterbacaan dengan spasi antar paragraf yang lega serta gaya list bullet/decimal yang rapi.
