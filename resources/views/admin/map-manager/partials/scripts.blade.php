@@ -366,6 +366,9 @@
             form.querySelector('input[name="name"]').value = details.name;
             form.querySelector('select[name="category"]').value = details.category;
             form.querySelector('textarea[name="description"]').value = details.description || '';
+            if (window.setCulturalEditorContent) {
+                window.setCulturalEditorContent(details.description || '');
+            }
             form.querySelector('input[name="ar_marker_id"]').value = details.ar_marker_id || '';
 
             // File previews
@@ -496,6 +499,9 @@
         const culturalForm = document.getElementById('form-cultural');
         culturalForm.reset();
         culturalForm.action = "{{ route('admin.cultural-objects.store') }}";
+        if (window.setCulturalEditorContent) {
+            window.setCulturalEditorContent('');
+        }
         document.getElementById('method-cultural').innerHTML = '';
         document.getElementById('current-model-3d').innerHTML = '';
         document.getElementById('current-audio').innerHTML = '';
