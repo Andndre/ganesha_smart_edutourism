@@ -113,6 +113,9 @@
             cultural: '#1E5128'      // Green (Default)
         };
 
+        // Shared global user GPS location variable
+        let lastPosition = null;
+
         document.addEventListener('DOMContentLoaded', function () {
             const defaultLat = {{ $defaultLat }};
             const defaultLon = {{ $defaultLon }};
@@ -317,8 +320,6 @@
             let watchId = null;
             /** @type {number} */
             let currentHeading = 0;
-            /** @type {{ lat: number, lng: number }|null} */
-            let lastPosition = null;
 
             /**
              * @param {Object} e
@@ -647,10 +648,26 @@
             if (routeBtn) {
                 routeBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}`;
                 routeBtn.onclick = function (e) {
+                    e.preventDefault();
                     if (lastPosition) {
-                        e.preventDefault();
                         closeSheet();
                         drawUserToLocationRoute(lastPosition, { lat: loc.lat, lng: loc.lng });
+                    } else {
+                        // Show premium SweetAlert2 confirmation before redirecting to external Google Maps
+                        Swal.fire({
+                            title: 'GPS Belum Aktif',
+                            text: 'Lokasi Anda belum terdeteksi di peta ini. Apakah Anda ingin membuka Google Maps untuk petunjuk arah luar?',
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#1E5128',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Ya, Buka Google Maps',
+                            cancelButtonText: 'Batal'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.open(this.href, '_blank');
+                            }
+                        });
                     }
                 };
             }
