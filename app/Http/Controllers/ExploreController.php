@@ -59,6 +59,7 @@ class ExploreController extends Controller
                 'name' => $loc->name,
                 'cat' => $category,
                 'desc' => $description,
+                'is_accessible' => (bool) $loc->is_accessible,
                 'accessibility' => $loc->accessibility_notes ?? '',
                 'detail_url' => $detailUrl,
                 'has_ar' => $hasAr,

@@ -99,7 +99,7 @@
             </div>
 
             <!-- Aksesibilitas Section -->
-            <div id="section-accessibility"
+            <div id="section-accessibility" style="display: none;"
                 class="rounded-2xl bg-amber-50/80 border border-amber-100/60 p-4 flex gap-3">
                 <div class="text-amber-600 shrink-0 mt-0.5">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
