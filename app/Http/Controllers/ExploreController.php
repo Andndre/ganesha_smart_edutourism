@@ -41,7 +41,7 @@ class ExploreController extends Controller
                     $detailUrl = route('cultural-object', $loc->locationable->id);
                     $hasAr = ! empty($loc->locationable->ar_marker_id) || ! empty($loc->locationable->model_3d_path);
                     if ($loc->locationable->historical_images && is_array($loc->locationable->historical_images) && count($loc->locationable->historical_images) > 0) {
-                        $image = asset($loc->locationable->historical_images[0]);
+                        $image = asset('storage/'.$loc->locationable->historical_images[0]);
                     }
                 } elseif ($loc->locationable_type === UmkmProfile::class) {
                     $detailUrl = route('umkm');

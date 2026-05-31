@@ -7,7 +7,7 @@
         <!-- Hero Image Area -->
         <div class="w-full h-[40dvh] bg-gray-200 relative overflow-hidden">
             @if($object->historical_images && count($object->historical_images) > 0)
-                <img src="{{ asset($object->historical_images[0]) }}" alt="{{ $object->name }}" class="w-full h-full object-cover">
+                <img src="{{ asset('storage/' . $object->historical_images[0]) }}" alt="{{ $object->name }}" class="w-full h-full object-cover">
             @else
                 <div class="absolute inset-0 flex items-center justify-center text-gray-400">
                     <svg class="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -18,34 +18,96 @@
             @endif
             <div class="absolute inset-0 bg-linear-to-t from-charcoal/90 via-charcoal/20 to-transparent z-10"></div>
 
-            <div class="absolute bottom-6 left-6 right-6 text-white z-20">
+            <div class="absolute bottom-12 left-6 right-6 text-white z-20">
                 <h1 class="text-3xl font-bold font-playfair mb-2 leading-tight">{{ $object->name }}</h1>
                 <p class="text-sm text-gray-200 font-medium tracking-wide">Jantung Spiritual Desa Penglipuran</p>
             </div>
         </div>
 
-        <!-- Audio Player (Mockup) -->
+        <!-- Audio Player -->
         @if($object->audio_narration_path)
-            <div class="px-6 -mt-6 relative z-10 mb-8">
+            <div class="px-6 -mt-6 relative z-10 mb-8" 
+                 x-data="{
+                     playing: false,
+                     audio: null,
+                     currentTime: 0,
+                     duration: 0,
+                     formatTime(secs) {
+                         if (isNaN(secs)) return '0:00';
+                         const m = Math.floor(secs / 60);
+                         const s = Math.floor(secs % 60);
+                         return m + ':' + (s < 10 ? '0' : '') + s;
+                     },
+                     togglePlay() {
+                         if (!this.audio) {
+                             this.audio = this.$refs.audioEl;
+                         }
+                         if (this.playing) {
+                             this.audio.pause();
+                         } else {
+                             this.audio.play();
+                         }
+                         this.playing = !this.playing;
+                     },
+                     init() {
+                         this.$nextTick(() => {
+                             const el = this.$refs.audioEl;
+                             el.addEventListener('timeupdate', () => {
+                                 this.currentTime = el.currentTime;
+                             });
+                             el.addEventListener('loadedmetadata', () => {
+                                 this.duration = el.duration;
+                             });
+                             el.addEventListener('ended', () => {
+                                 this.playing = false;
+                                 this.currentTime = 0;
+                             });
+                             if (el.duration) {
+                                 this.duration = el.duration;
+                             }
+                         });
+                     }
+                 }">
+                <!-- Hidden Audio Element -->
+                <audio x-ref="audioEl" src="{{ asset('storage/' . $object->audio_narration_path) }}" preload="metadata"></audio>
+
                 <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-4">
-                    <button
+                    <button @click="togglePlay()"
                         class="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shrink-0 active:scale-95 transition-all shadow-[0_4px_10px_rgba(30,81,40,0.3)]">
-                        <svg class="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                                clip-rule="evenodd" />
+                        <!-- Play Icon (Centered Play Triangle) -->
+                        <svg x-show="!playing" class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <!-- Pause Icon -->
+                        <svg x-show="playing" class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24" style="display: none;">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/>
                         </svg>
                     </button>
                     <div class="flex-1">
-                        <div class="text-sm font-bold text-charcoal">Dengarkan Kisah Ini</div>
-                        <div class="text-xs text-gray-500 mt-1">Narasi Jero Mangku (03:45)</div>
+                        <div class="text-sm font-bold text-charcoal" x-text="playing ? 'Memutar Kisah Sejarah...' : 'Dengarkan Kisah Ini'">Dengarkan Kisah Ini</div>
+                        <!-- Playback Seekbar & Timers -->
+                        <div class="flex items-center gap-3 mt-1.5">
+                            <span class="text-[10px] font-bold text-gray-500 min-w-[28px] tabular-nums" x-text="formatTime(currentTime)">0:00</span>
+                            <input type="range" 
+                                   min="0" 
+                                   :max="duration || 100" 
+                                   :value="currentTime"
+                                   @input="if (audio) { audio.currentTime = $el.value; currentTime = $el.value; }"
+                                   class="flex-1 h-1 rounded-full appearance-none bg-gray-100 cursor-pointer accent-primary outline-hidden"
+                                   :style="'background: linear-gradient(to right, #1E5128 0%, #1E5128 ' + (duration ? (currentTime / duration * 100) : 0) + '%, #f3f4f6 ' + (duration ? (currentTime / duration * 100) : 0) + '%, #f3f4f6 100%);'">
+                            <span class="text-[10px] font-bold text-gray-500 min-w-[28px] text-right tabular-nums" x-text="duration ? formatTime(duration) : '0:00'">0:00</span>
+                        </div>
                     </div>
-                    <!-- Animated bars (pseudo) -->
-                    <div class="flex items-end gap-1 h-4">
-                        <div class="w-1 bg-gray-300 h-2 rounded-full"></div>
-                        <div class="w-1 bg-gray-300 h-4 rounded-full"></div>
-                        <div class="w-1 bg-gray-300 h-3 rounded-full"></div>
-                        <div class="w-1 bg-gray-300 h-1 rounded-full"></div>
+                    <!-- Animated Waveform -->
+                    <div class="flex items-end gap-1 h-5 select-none pointer-events-none">
+                        <div class="w-1 bg-primary/70 rounded-full transition-all duration-300"
+                             :style="playing ? 'animation: audio-bounce 0.8s ease-in-out infinite alternate 0.1s; height: 16px;' : 'height: 8px;'"></div>
+                        <div class="w-1 bg-primary rounded-full transition-all duration-300"
+                             :style="playing ? 'animation: audio-bounce 0.6s ease-in-out infinite alternate 0.3s; height: 24px;' : 'height: 12px;'"></div>
+                        <div class="w-1 bg-primary/80 rounded-full transition-all duration-300"
+                             :style="playing ? 'animation: audio-bounce 0.7s ease-in-out infinite alternate 0.2s; height: 20px;' : 'height: 10px;'"></div>
+                        <div class="w-1 bg-primary/50 rounded-full transition-all duration-300"
+                             :style="playing ? 'animation: audio-bounce 0.5s ease-in-out infinite alternate 0.4s; height: 12px;' : 'height: 6px;'"></div>
                     </div>
                 </div>
             </div>
@@ -85,3 +147,12 @@
 
     </article>
 @endsection
+
+@push('styles')
+    <style>
+        @keyframes audio-bounce {
+            0% { transform: scaleY(0.4); }
+            100% { transform: scaleY(1.2); }
+        }
+    </style>
+@endpush
