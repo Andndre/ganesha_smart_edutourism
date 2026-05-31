@@ -577,6 +577,17 @@
         // LOGIKA BOTTOM SHEET
         // ==========================================
 
+        function stripHtmlAndTruncate(html, maxLength = 120) {
+            if (!html) return '';
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            let text = doc.body.textContent || '';
+            text = text.replace(/\s+/g, ' ').trim();
+            if (text.length > maxLength) {
+                return text.slice(0, maxLength) + '...';
+            }
+            return text;
+        }
+
         /**
          * @param {Object} loc
          * @param {string} loc.name
@@ -631,8 +642,9 @@
             const secDesc = document.getElementById('section-desc');
             const sheetDesc = document.getElementById('sheet-desc');
             if (secDesc && sheetDesc) {
-                if (loc.desc && loc.desc.trim() !== '') {
-                    sheetDesc.textContent = loc.desc;
+                const cleanText = stripHtmlAndTruncate(loc.desc, 120);
+                if (cleanText !== '') {
+                    sheetDesc.textContent = cleanText;
                     secDesc.style.display = 'block';
                 } else {
                     secDesc.style.display = 'none';

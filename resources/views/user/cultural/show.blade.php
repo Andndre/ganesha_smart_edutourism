@@ -164,9 +164,9 @@
         <div
             class="px-6 prose prose-p:text-gray-600 prose-p:leading-relaxed prose-h2:font-playfair prose-h2:text-charcoal prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 max-w-none">
 
-            <p class="text-lg font-medium text-charcoal leading-relaxed mb-6">
-                {{ $object->description }}
-            </p>
+            <div class="text-lg font-medium text-charcoal leading-relaxed mb-6">
+                {!! $object->description !!}
+            </div>
 
             @foreach($object->stories as $story)
                 <h2>{{ $story->title }}</h2>
