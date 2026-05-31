@@ -7,113 +7,128 @@
         <input type="text" id="search-input" placeholder="Cari objek budaya atau UMKM..."
             class="text-charcoal flex-1 bg-transparent text-sm font-medium placeholder-gray-400 outline-none" />
         <div class="mx-1 h-5 w-[1.5px] bg-gray-200"></div>
-        <button type="button" id="btn-filter-toggle" class="text-primary focus:outline-none">
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <button type="button" id="btn-filter-toggle" class="text-primary focus:outline-none transition-transform active:scale-90 duration-150">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round"
                     d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
             </svg>
         </button>
     </div>
 
-    <!-- Filter Panel -->
-    <div id="filter-panel" class="mt-3 hidden rounded-2xl bg-white px-4 py-3 shadow-md">
-        <p class="mb-3 text-xs font-semibold text-gray-500">KATEGORI</p>
-        <div class="flex flex-col gap-2">
-            <label class="filter-toggle flex cursor-pointer items-center gap-3" data-filter="cultural">
-                <input type="checkbox" class="sr-only" checked />
-                <span class="filter-checkbox checked">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+    <!-- Bento Grid Filter Panel -->
+    <div id="filter-panel" class="mt-3 hidden rounded-2xl bg-white/95 px-4 py-4 shadow-lg backdrop-blur-md border border-gray-100/50 transition-all duration-300">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Kategori Tempat</p>
+            <button type="button" id="btn-reset-filters" class="text-[10px] font-extrabold text-primary hover:text-primary/80 transition-colors active:scale-95">REKONDISI</button>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-2.5">
+            <!-- Objek Budaya -->
+            <button type="button" class="filter-card active flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200 active:scale-98" data-filter="cultural">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-50 text-[#1E5128]">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                 </span>
-                <span class="filter-label flex-1 text-sm font-medium text-gray-700">Objek Budaya</span>
-                <span class="filter-dot" style="background: #1E5128;"></span>
-            </label>
+                <div>
+                    <p class="text-xs font-bold text-gray-800 leading-tight">Objek Budaya</p>
+                    <span class="mt-0.5 inline-block h-1 w-6 rounded-full" style="background: #1E5128;"></span>
+                </div>
+            </button>
 
-            <label class="filter-toggle flex cursor-pointer items-center gap-3" data-filter="umkm">
-                <input type="checkbox" class="sr-only" checked />
-                <span class="filter-checkbox checked">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            <!-- UMKM -->
+            <button type="button" class="filter-card active flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200 active:scale-98" data-filter="umkm">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-[#8B5CF6]">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                 </span>
-                <span class="filter-label flex-1 text-sm font-medium text-gray-700">UMKM</span>
-                <span class="filter-dot" style="background: #8B5CF6;"></span>
-            </label>
+                <div>
+                    <p class="text-xs font-bold text-gray-800 leading-tight">UMKM</p>
+                    <span class="mt-0.5 inline-block h-1 w-6 rounded-full" style="background: #8B5CF6;"></span>
+                </div>
+            </button>
 
-            <label class="filter-toggle flex cursor-pointer items-center gap-3" data-filter="facilities">
-                <input type="checkbox" class="sr-only" checked />
-                <span class="filter-checkbox checked">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            <!-- Fasilitas -->
+            <button type="button" class="filter-card active flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200 active:scale-98" data-filter="facilities">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#3B82F6]">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                 </span>
-                <span class="filter-label flex-1 text-sm font-medium text-gray-700">Fasilitas</span>
-                <span class="filter-dot" style="background: #3B82F6;"></span>
-            </label>
+                <div>
+                    <p class="text-xs font-bold text-gray-800 leading-tight">Fasilitas</p>
+                    <span class="mt-0.5 inline-block h-1 w-6 rounded-full" style="background: #3B82F6;"></span>
+                </div>
+            </button>
 
-            <label class="filter-toggle flex cursor-pointer items-center gap-3" data-filter="toilets">
-                <input type="checkbox" class="sr-only" checked />
-                <span class="filter-checkbox checked">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            <!-- Toilet -->
+            <button type="button" class="filter-card active flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200 active:scale-98" data-filter="toilets">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-50 text-[#06B6D4]">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4a1 1 0 100 2 1 1 0 000-2zm-2 8h4v8h-4v-8zm8-2h-3v8h2v-8h1zM5 10h3v8H6v-8H5z" />
                     </svg>
                 </span>
-                <span class="filter-label flex-1 text-sm font-medium text-gray-700">Toilet</span>
-                <span class="filter-dot" style="background: #06B6D4;"></span>
-            </label>
+                <div>
+                    <p class="text-xs font-bold text-gray-800 leading-tight">Toilet</p>
+                    <span class="mt-0.5 inline-block h-1 w-6 rounded-full" style="background: #06B6D4;"></span>
+                </div>
+            </button>
 
-            <label class="filter-toggle flex cursor-pointer items-center gap-3" data-filter="accessibility">
-                <input type="checkbox" class="sr-only" checked />
-                <span class="filter-checkbox checked">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            <!-- Aksesibilitas -->
+            <button type="button" class="filter-card active flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200 active:scale-98 col-span-2" data-filter="accessibility">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-[#F59E0B]">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 10.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM7.5 13.5h7.5m-7.5-3.5h5a2 2 0 012 2v6m-7-6.5V6a2 2 0 012-2h1.5" />
                     </svg>
                 </span>
-                <span class="filter-label flex-1 text-sm font-medium text-gray-700">Aksesibilitas</span>
-                <span class="filter-dot" style="background: #F59E0B;"></span>
-            </label>
-
+                <div>
+                    <p class="text-xs font-bold text-gray-800 leading-tight">Aksesibilitas</p>
+                    <span class="mt-0.5 inline-block h-1 w-12 rounded-full" style="background: #F59E0B;"></span>
+                </div>
+            </button>
         </div>
     </div>
 </div>
 
 <style>
-    .filter-checkbox {
-        width: 20px;
-        height: 20px;
-        border-radius: 4px;
-        border: 2px solid #d1d5db;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-        flex-shrink: 0;
+    .filter-card {
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1.5px solid #f3f4f6;
+    }
+    
+    /* Active States */
+    .filter-card.active[data-filter="cultural"] {
+        border-color: rgba(30, 81, 40, 0.25);
+        background-color: rgba(30, 81, 40, 0.04);
+    }
+    .filter-card.active[data-filter="umkm"] {
+        border-color: rgba(139, 92, 246, 0.25);
+        background-color: rgba(139, 92, 246, 0.04);
+    }
+    .filter-card.active[data-filter="facilities"] {
+        border-color: rgba(59, 130, 246, 0.25);
+        background-color: rgba(59, 130, 246, 0.04);
+    }
+    .filter-card.active[data-filter="toilets"] {
+        border-color: rgba(6, 182, 212, 0.25);
+        background-color: rgba(6, 182, 212, 0.04);
+    }
+    .filter-card.active[data-filter="accessibility"] {
+        border-color: rgba(245, 158, 11, 0.25);
+        background-color: rgba(245, 158, 11, 0.04);
     }
 
-    .filter-checkbox.checked {
-        background: #1E5128;
-        border-color: #1E5128;
+    /* Inactive State */
+    .filter-card:not(.active) {
+        opacity: 0.5;
+        border-color: #f3f4f6;
+        background-color: #f9fafb;
     }
-
-    .filter-checkbox svg {
-        width: 12px;
-        height: 12px;
-        stroke: white;
-        stroke-width: 3;
-        opacity: 0;
-        transition: opacity 0.2s;
-    }
-
-    .filter-checkbox.checked svg {
-        opacity: 1;
-    }
-
-    .filter-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        flex-shrink: 0;
+    .filter-card:not(.active) span {
+        background-color: #f3f4f6 !important;
+        color: #9ca3af !important;
     }
 </style>
 
@@ -121,6 +136,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const filterToggleBtn = document.getElementById('btn-filter-toggle');
         const filterPanel = document.getElementById('filter-panel');
+        const resetBtn = document.getElementById('btn-reset-filters');
 
         // Toggle filter panel
         filterToggleBtn.addEventListener('click', function(e) {
@@ -128,15 +144,11 @@
             filterPanel.classList.toggle('hidden');
         });
 
-        // Filter toggle click handlers
-        document.querySelectorAll('.filter-toggle').forEach(toggle => {
-            toggle.addEventListener('click', function(e) {
-                e.preventDefault(); // Mencegah klik ganda otomatis dari elemen label
+        // Filter toggle click handlers (Bento Cards)
+        document.querySelectorAll('.filter-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const isChecked = this.classList.toggle('active');
                 
-                const checkbox = this.querySelector('.filter-checkbox');
-                const isChecked = checkbox.classList.toggle('checked');
-                this.querySelector('input[type="checkbox"]').checked = isChecked;
-
                 // Dispatch custom event for map to handle
                 const filterName = this.dataset.filter;
                 window.dispatchEvent(new CustomEvent('filter-change', {
@@ -147,5 +159,23 @@
                 }));
             });
         });
+
+        // Reset/Rekondisi filters to active
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-card').forEach(card => {
+                    if (!card.classList.contains('active')) {
+                        card.classList.add('active');
+                        const filterName = card.dataset.filter;
+                        window.dispatchEvent(new CustomEvent('filter-change', {
+                            detail: {
+                                filter: filterName,
+                                active: true
+                            }
+                        }));
+                    }
+                });
+            });
+        }
     });
 </script>

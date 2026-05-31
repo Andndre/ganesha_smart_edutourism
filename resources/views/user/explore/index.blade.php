@@ -221,11 +221,6 @@
 
                 heatmapData.forEach(point => {
                     let isFilterActive = activeFilters[point.category];
-                    if (point.category === 'accessibility') {
-                        if (point.name && point.name.toLowerCase().includes('toilet')) {
-                            isFilterActive = activeFilters['accessibility'] || activeFilters['toilets'];
-                        }
-                    }
 
                     if (!isFilterActive) return;
 
@@ -270,11 +265,6 @@
 
                 markerLayers.forEach(item => {
                     let isFilterActive = activeFilters[item.category] !== false;
-                    if (item.category === 'accessibility') {
-                        if (item.name && item.name.toLowerCase().includes('toilet')) {
-                            isFilterActive = activeFilters['accessibility'] || activeFilters['toilets'];
-                        }
-                    }
 
                     const matchesSearch = !query ||
                         item.name.toLowerCase().includes(query) ||
