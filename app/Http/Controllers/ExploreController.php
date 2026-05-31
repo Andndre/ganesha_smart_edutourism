@@ -33,18 +33,23 @@ class ExploreController extends Controller
             $description = '';
             $detailUrl = null;
             $hasAr = false;
-            $image = null;
+            $images = [];
 
             if ($loc->locationable) {
                 $description = $loc->locationable->description ?? '';
                 if ($loc->locationable_type === CulturalObject::class) {
                     $detailUrl = route('cultural-object', $loc->locationable->id);
                     $hasAr = ! empty($loc->locationable->ar_marker_id) || ! empty($loc->locationable->model_3d_path);
-                    if ($loc->locationable->historical_images && is_array($loc->locationable->historical_images) && count($loc->locationable->historical_images) > 0) {
-                        $image = asset('storage/'.$loc->locationable->historical_images[0]);
+                    if ($loc->locationable->historical_images && is_array($loc->locationable->historical_images)) {
+                        foreach ($loc->locationable->historical_images as $img) {
+                            $images[] = asset('storage/'.$img);
+                        }
                     }
                 } elseif ($loc->locationable_type === UmkmProfile::class) {
                     $detailUrl = route('umkm');
+                    if (! empty($loc->locationable->image)) {
+                        $images[] = asset('storage/'.$loc->locationable->image);
+                    }
                 }
             }
 
@@ -57,7 +62,8 @@ class ExploreController extends Controller
                 'accessibility' => $loc->accessibility_notes ?? '',
                 'detail_url' => $detailUrl,
                 'has_ar' => $hasAr,
-                'image' => $image,
+                'image' => $images[0] ?? null,
+                'images' => $images,
             ];
         });
 

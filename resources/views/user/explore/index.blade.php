@@ -602,18 +602,7 @@
                 }
             }
 
-            // Cover Image
-            const imgContainer = document.getElementById('sheet-image-container');
-            const imgEl = document.getElementById('sheet-image');
-            if (imgContainer && imgEl) {
-                if (loc.image) {
-                    imgEl.src = loc.image;
-                    imgContainer.classList.remove('hidden');
-                } else {
-                    imgEl.src = '';
-                    imgContainer.classList.add('hidden');
-                }
-            }
+            // Alpine cover images are loaded dynamically via event payload below
 
             // Kategori mapping for display
             const categoryLabels = {
@@ -708,7 +697,11 @@
                 }
             }
 
-            window.dispatchEvent(new CustomEvent('open-location-sheet'));
+            window.dispatchEvent(new CustomEvent('open-location-sheet', {
+                detail: {
+                    images: loc.images || []
+                }
+            }));
         }
 
         function closeSheet() {
