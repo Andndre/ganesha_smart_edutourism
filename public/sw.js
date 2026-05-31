@@ -72,27 +72,27 @@ self.addEventListener("fetch", (event) => {
     // Strategy 2: Static Assets -> Stale-While-Revalidate
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
-            const fetchPromise = fetch(event.request)
-                .then((networkResponse) => {
-                    if (
-                        networkResponse.status === 200 &&
-                        (event.request.url.includes("/build/") ||
-                            event.request.url.includes("/icons/") ||
-                            event.request.url.includes("/images/") ||
-                            event.request.url.includes("/fonts."))
-                    ) {
-                        const responseClone = networkResponse.clone();
-                        caches.open(CACHE_NAME).then((cache) => {
-                            cache.put(event.request, responseClone);
-                        });
-                    }
-                    return networkResponse;
-                })
-                .catch(() => {
-                    // Fail silently for static assets
-                });
-
-            return cachedResponse || fetchPromise;
+            if (cachedResponse) {
+                // Background update
+                fetch(event.request)
+                    .then((networkResponse) => {
+                        if (
+                            networkResponse.status === 200 &&
+                            (event.request.url.includes("/build/") ||
+                                event.request.url.includes("/icons/") ||
+                                event.request.url.includes("/images/") ||
+                                event.request.url.includes("/fonts."))
+                        ) {
+                            const responseClone = networkResponse.clone();
+                            caches.open(CACHE_NAME).then((cache) => {
+                                cache.put(event.request, responseClone);
+                            });
+                        }
+                    })
+                    .catch(() => {});
+                return cachedResponse;
+            }
+            return fetch(event.request);
         })
     );
 });

@@ -17,7 +17,7 @@
                     <div class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent z-10"></div>
                     
                     @if($object->historical_images && count($object->historical_images) > 0)
-                        <img src="{{ asset($object->historical_images[0]) }}" alt="{{ $object->name }}" class="w-full h-full object-cover">
+                        <img src="{{ asset('storage/' . $object->historical_images[0]) }}" alt="{{ $object->name }}" class="w-full h-full object-cover">
                     @else
                         <div class="absolute inset-0 flex items-center justify-center text-gray-400">
                             <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
