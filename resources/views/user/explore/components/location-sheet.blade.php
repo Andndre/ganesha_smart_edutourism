@@ -1,8 +1,65 @@
 <x-modal name="location-sheet" maxWidth="md" :hasBackdrop="false">
     <div class="px-1 py-1">
-        <!-- Dynamic Cover Image -->
-        <div id="sheet-image-container" class="mb-4 h-40 w-full overflow-hidden rounded-2xl bg-gray-100 hidden">
-            <img id="sheet-image" src="" alt="Cover" class="h-full w-full object-cover">
+        <!-- Dynamic Cover Image Slider -->
+        <div id="sheet-image-container" 
+             class="mb-4 h-40 w-full overflow-hidden rounded-2xl bg-gray-100 hidden relative"
+             x-data="{
+                 images: [],
+                 currentIndex: 0,
+                 next() {
+                     this.currentIndex = (this.currentIndex + 1) % this.images.length;
+                 },
+                 prev() {
+                     this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+                 }
+             }"
+             @open-location-sheet.window="
+                 images = $event.detail.images || [];
+                 currentIndex = 0;
+                 if (images.length > 0) {
+                     $el.classList.remove('hidden');
+                 } else {
+                     $el.classList.add('hidden');
+                 }
+             "
+             @close-location-sheet.window="images = []; currentIndex = 0; $el.classList.add('hidden');">
+            
+            <!-- Slides -->
+            <template x-for="(img, index) in images" :key="index">
+                <div x-show="currentIndex === index" 
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     class="absolute inset-0 w-full h-full">
+                    <img :src="img" alt="Cover" class="h-full w-full object-cover">
+                </div>
+            </template>
+
+            <!-- Navigation Chevrons (Overlay) -->
+            <template x-if="images.length > 1">
+                <div>
+                    <button @click="prev()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-1.5 active:scale-90 transition-all z-20">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button @click="next()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-1.5 active:scale-90 transition-all z-20">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </template>
+
+            <!-- Dot Indicators -->
+            <template x-if="images.length > 1">
+                <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-20">
+                    <template x-for="(img, index) in images" :key="index">
+                        <div class="w-1.5 h-1.5 rounded-full transition-all duration-300"
+                             :class="currentIndex === index ? 'bg-white w-3' : 'bg-white/50'"></div>
+                    </template>
+                </div>
+            </template>
         </div>
 
         <!-- Header -->

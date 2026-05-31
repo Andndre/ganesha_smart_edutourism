@@ -4,18 +4,65 @@
 
 @section('content')
     <article class="bg-surface pb-10">
-        <!-- Hero Image Area -->
-        <div class="w-full h-[40dvh] bg-gray-200 relative overflow-hidden">
+        <!-- Hero Image Area / Carousel -->
+        <div class="w-full h-[40dvh] bg-gray-200 relative overflow-hidden"
+             x-data="{
+                 currentIndex: 0,
+                 images: {{ json_encode(array_map(fn($img) => asset('storage/' . $img), $object->historical_images ?? [])) }},
+                 next() {
+                     this.currentIndex = (this.currentIndex + 1) % this.images.length;
+                 },
+                 prev() {
+                     this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+                 }
+             }">
+            
             @if($object->historical_images && count($object->historical_images) > 0)
-                <img src="{{ asset('storage/' . $object->historical_images[0]) }}" alt="{{ $object->name }}" class="w-full h-full object-cover">
+                <!-- Slides -->
+                <template x-for="(img, index) in images" :key="index">
+                    <div x-show="currentIndex === index"
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0"
+                         x-transition:enter-end="opacity-100"
+                         class="absolute inset-0 w-full h-full">
+                        <img :src="img" alt="{{ $object->name }}" class="w-full h-full object-cover">
+                    </div>
+                </template>
+
+                <!-- Navigation Chevrons -->
+                <template x-if="images.length > 1">
+                    <div>
+                        <button @click="prev()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 active:scale-90 transition-all z-20">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button @click="next()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 active:scale-90 transition-all z-20">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </template>
+
+                <!-- Dot Indicators -->
+                <template x-if="images.length > 1">
+                    <div class="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                        <template x-for="(img, index) in images" :key="index">
+                            <div class="w-2 h-2 rounded-full transition-all duration-300"
+                                 :class="currentIndex === index ? 'bg-white w-4' : 'bg-white/50'"></div>
+                        </template>
+                    </div>
+                </template>
             @else
                 <div class="absolute inset-0 flex items-center justify-center text-gray-400">
                     <svg class="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            d="M4 16l4.586-4.586a2 2 0 012-2h.93a2 2 0 011.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     </svg>
                 </div>
             @endif
+            
             <div class="absolute inset-0 bg-linear-to-t from-charcoal/90 via-charcoal/20 to-transparent z-10"></div>
 
             <div class="absolute bottom-12 left-6 right-6 text-white z-20">
