@@ -112,7 +112,7 @@
     </div>
 
     <div class="flex items-center gap-2 py-1">
-        <input type="checkbox" id="cultural_is_accessible" name="is_accessible" value="1" checked
+        <input type="checkbox" id="cultural_is_accessible" name="is_accessible" value="1"
             class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
         <label for="cultural_is_accessible" class="text-sm font-semibold text-gray-700">Akses Ramah
             Disabilitas</label>
