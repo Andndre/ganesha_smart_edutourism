@@ -1,23 +1,18 @@
-<div id="location-sheet"
-    class="fixed inset-x-0 bottom-0 z-50 translate-y-full transform transition-transform duration-300 ease-out">
-    <div
-        class="pointer-events-auto rounded-t-3xl border-t border-gray-100 bg-white px-5 pb-24 pt-4 shadow-[0_-8px_30px_rgba(0,0,0,0.12)]">
-        <!-- Handlebar -->
-        <div class="mx-auto mb-4 h-1.5 w-12 rounded-full bg-gray-200"></div>
-
+<x-modal name="location-sheet" maxWidth="md" :hasBackdrop="false">
+    <div class="px-1 py-1">
         <!-- Header -->
         <div class="mb-4 flex items-start justify-between">
             <div>
-                <h3 id="sheet-title" class="font-display text-charcoal text-xl font-bold tracking-tight">Nama Lokasi
-                </h3>
+                <h3 id="sheet-title" class="font-display text-charcoal text-xl font-bold tracking-tight">Nama Lokasi</h3>
                 <span id="sheet-category-badge"
                     class="inline-flex items-center gap-1.5 mt-2 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                     <span id="sheet-category-dot" class="h-2 w-2 rounded-full"></span>
                     <span id="sheet-category-text">Kategori</span>
                 </span>
             </div>
+            <!-- Custom close button for mobile (desktop close button is handled by x-modal template) -->
             <button type="button" onclick="closeSheet()"
-                class="hover:text-charcoal -mr-2 rounded-full bg-gray-50 p-2 text-gray-400 active:scale-95 transition-all">
+                class="hover:text-charcoal -mr-2 rounded-full bg-gray-50 p-2 text-gray-400 active:scale-95 transition-all md:hidden">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
@@ -49,7 +44,7 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="mt-6 flex gap-3">
+        <div class="mt-6 flex gap-3 pb-2">
             <a href="#" id="sheet-route-btn" target="_blank"
                 class="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-3.5 text-sm font-bold text-gray-700 shadow-xs hover:bg-gray-50 active:scale-95 transition-all">
                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -69,4 +64,4 @@
             </a>
         </div>
     </div>
-</div>
+</x-modal>
