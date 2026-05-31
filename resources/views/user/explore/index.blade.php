@@ -419,13 +419,27 @@
             function onLocationError(e, silent = false) {
                 console.warn('Geolocation error:', e.message);
                 if (!silent) {
-                    alert('Tidak dapat mendapatkan lokasi Anda. Pastikan GPS aktif dan izin diberikan.');
+                    Swal.fire({
+                        title: 'Akses Lokasi Gagal',
+                        text: 'Tidak dapat mendapatkan lokasi Anda. Pastikan GPS aktif dan izin lokasi telah diberikan.',
+                        icon: 'warning',
+                        confirmButtonColor: '#1E5128',
+                        confirmButtonText: 'Baik, Saya Mengerti'
+                    });
                 }
             }
 
             function startLocationTracking(silent = false) {
                 if (!navigator.geolocation) {
-                    if (!silent) alert('Geolocation tidak didukung oleh browser ini.');
+                    if (!silent) {
+                        Swal.fire({
+                            title: 'Fitur Tidak Didukung',
+                            text: 'Perangkat atau peramban Anda tidak mendukung deteksi lokasi.',
+                            icon: 'error',
+                            confirmButtonColor: '#1E5128',
+                            confirmButtonText: 'Baik'
+                        });
+                    }
                     return;
                 }
 
