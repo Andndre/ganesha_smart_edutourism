@@ -590,6 +590,31 @@
         function openSheet(loc) {
             document.getElementById('sheet-title').textContent = loc.name;
 
+            // AR Badge
+            const arBadge = document.getElementById('sheet-ar-badge');
+            if (arBadge) {
+                if (loc.has_ar) {
+                    arBadge.classList.remove('hidden');
+                    arBadge.classList.add('inline-flex');
+                } else {
+                    arBadge.classList.add('hidden');
+                    arBadge.classList.remove('inline-flex');
+                }
+            }
+
+            // Cover Image
+            const imgContainer = document.getElementById('sheet-image-container');
+            const imgEl = document.getElementById('sheet-image');
+            if (imgContainer && imgEl) {
+                if (loc.image) {
+                    imgEl.src = loc.image;
+                    imgContainer.classList.remove('hidden');
+                } else {
+                    imgEl.src = '';
+                    imgContainer.classList.add('hidden');
+                }
+            }
+
             // Kategori mapping for display
             const categoryLabels = {
                 cultural: 'Objek Budaya',
