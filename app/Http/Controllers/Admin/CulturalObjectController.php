@@ -80,7 +80,7 @@ class CulturalObjectController extends Controller
             $correctOptions = $request->input('quiz_correct_option');
 
             foreach ($questions as $index => $question) {
-                if (!empty($question)) {
+                if (! empty($question)) {
                     $object->quizzes()->create([
                         'question' => $question,
                         'option_a' => $optionA[$index] ?? '',
@@ -98,8 +98,8 @@ class CulturalObjectController extends Controller
             'category' => 'cultural',
             'latitude' => $latitude,
             'longitude' => $longitude,
-            'is_accessible' => true,
-            'accessibility_notes' => 'Akses jalan datar ramah kursi roda dan stroller bayi.',
+            'is_accessible' => $request->has('is_accessible'),
+            'accessibility_notes' => $request->input('accessibility_notes') ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.',
         ]);
 
         return redirect()->route('admin.map-manager')->with('success', 'Objek budaya berhasil ditambahkan.');
@@ -185,7 +185,7 @@ class CulturalObjectController extends Controller
             $correctOptions = $request->input('quiz_correct_option');
 
             foreach ($questions as $index => $question) {
-                if (!empty($question)) {
+                if (! empty($question)) {
                     $object->quizzes()->create([
                         'question' => $question,
                         'option_a' => $optionA[$index] ?? '',
@@ -205,8 +205,8 @@ class CulturalObjectController extends Controller
                 'category' => 'cultural',
                 'latitude' => $latitude,
                 'longitude' => $longitude,
-                'is_accessible' => true,
-                'accessibility_notes' => 'Akses jalan datar ramah kursi roda dan stroller bayi.',
+                'is_accessible' => $request->has('is_accessible'),
+                'accessibility_notes' => $request->input('accessibility_notes') ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.',
             ]
         );
 
