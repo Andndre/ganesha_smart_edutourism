@@ -1,4 +1,4 @@
-@props(['name', 'maxWidth' => 'max-w-md', 'defaultOpen' => false])
+@props(['name', 'maxWidth' => 'max-w-md', 'defaultOpen' => false, 'hasBackdrop' => true])
 
 @php
     $maxWidthClass = match($maxWidth) {
@@ -16,7 +16,7 @@
     x-show="isOpen"
     @open-{{ $name }}.window="isOpen = true"
     @close-{{ $name }}.window="isOpen = false"
-    class="bg-charcoal/60 fixed inset-0 z-100 flex items-end justify-center px-0 md:items-center md:px-4 backdrop-blur-sm"
+    class="{{ $hasBackdrop ? 'bg-charcoal/60 backdrop-blur-sm' : 'bg-transparent pointer-events-none' }} fixed inset-0 z-100 flex items-end justify-center px-0 md:items-center md:px-4"
     style="display: none; will-change: transform; transform: translate3d(0,0,0);"
     x-transition:enter="transition ease-out duration-300" 
     x-transition:enter-start="opacity-0"
@@ -26,7 +26,7 @@
     x-transition:leave-end="opacity-0"
     x-cloak>
     
-    <div class="relative w-full rounded-t-[2.5rem] bg-white p-6 shadow-2xl md:rounded-3xl {{ $maxWidthClass }} pb-10 md:pb-6" 
+    <div class="relative w-full rounded-t-[2.5rem] bg-white p-6 shadow-2xl md:rounded-3xl {{ $maxWidthClass }} pb-10 md:pb-6 pointer-events-auto" 
         style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));"
         @click.away="isOpen = false"
         x-show="isOpen"

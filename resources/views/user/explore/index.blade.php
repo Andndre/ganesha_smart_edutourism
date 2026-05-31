@@ -92,9 +92,12 @@
 
         @include('user.explore.components.map-search')
         @include('user.explore.components.map-fab')
-        @include('user.explore.components.location-sheet')
     </div>
 @endsection
+
+@push('modals')
+    @include('user.explore.components.location-sheet')
+@endpush
 
 @push('scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -146,7 +149,10 @@
                     icon: getMarkerIcon(loc.cat)
                 }).addTo(map);
 
-                marker.on('click', function () {
+                marker.on('click', function (e) {
+                    if (e && e.originalEvent) {
+                        e.originalEvent.stopPropagation();
+                    }
                     openSheet(loc);
                     map.flyTo([loc.lat - 0.0005, loc.lng], 18, {
                         animate: true,
@@ -556,7 +562,6 @@
         // ==========================================
         // LOGIKA BOTTOM SHEET
         // ==========================================
-        const sheet = document.getElementById('location-sheet');
 
         /**
          * @param {Object} loc
@@ -635,13 +640,11 @@
                 }
             }
 
-            sheet.classList.remove('translate-y-full');
-            sheet.classList.add('translate-y-0');
+            window.dispatchEvent(new CustomEvent('open-location-sheet'));
         }
 
         function closeSheet() {
-            sheet.classList.remove('translate-y-0');
-            sheet.classList.add('translate-y-full');
+            window.dispatchEvent(new CustomEvent('close-location-sheet'));
         }
     </script>
 @endpush
