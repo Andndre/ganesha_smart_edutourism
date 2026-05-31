@@ -79,6 +79,87 @@
         <input type="file" name="audio_narration_file" accept="audio/*"
             class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
         <span id="current-audio" class="text-[10px] text-gray-400 block mt-1"></span>
+        <div id="audio-preview-container" style="display: none;" class="mt-2.5 bg-gray-50/50 rounded-xl p-3 border border-gray-100"
+             x-data="{
+                 playing: false,
+                 audio: null,
+                 currentTime: 0,
+                 duration: 0,
+                 formatTime(secs) {
+                     if (isNaN(secs)) return '0:00';
+                     const m = Math.floor(secs / 60);
+                     const s = Math.floor(secs % 60);
+                     return m + ':' + (s < 10 ? '0' : '') + s;
+                 },
+                 togglePlay() {
+                     if (!this.audio) {
+                         this.audio = this.$refs.previewAudio;
+                     }
+                     if (this.playing) {
+                         this.audio.pause();
+                     } else {
+                         this.audio.play();
+                     }
+                     this.playing = !this.playing;
+                 },
+                 resetPlayer() {
+                     this.playing = false;
+                     this.currentTime = 0;
+                     if (this.audio) {
+                         this.audio.pause();
+                     }
+                 },
+                 init() {
+                     this.$nextTick(() => {
+                         const el = this.$refs.previewAudio;
+                         el.addEventListener('timeupdate', () => {
+                             this.currentTime = el.currentTime;
+                         });
+                         el.addEventListener('loadedmetadata', () => {
+                             this.duration = el.duration;
+                         });
+                         el.addEventListener('ended', () => {
+                             this.playing = false;
+                             this.currentTime = 0;
+                         });
+                         const observer = new MutationObserver(() => {
+                             this.resetPlayer();
+                             setTimeout(() => {
+                                 this.duration = el.duration || 0;
+                             }, 200);
+                         });
+                         observer.observe(el, { attributes: true, attributeFilter: ['src'] });
+                     });
+                 }
+             }">
+            <audio id="audio-preview" x-ref="previewAudio" preload="metadata" class="hidden"></audio>
+            
+            <div class="flex items-center gap-3">
+                <button type="button" @click="togglePlay()"
+                    class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shrink-0 active:scale-95 transition-all shadow-[0_4px_10px_rgba(30,81,40,0.3)]">
+                    <svg x-show="!playing" class="w-4.5 h-4.5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    <svg x-show="playing" class="w-4.5 h-4.5 text-white" fill="currentColor" viewBox="0 0 24 24" style="display: none;">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-charcoal">Audio Playback Narasi</div>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-[9px] font-bold text-gray-500 min-w-[24px] tabular-nums" x-text="formatTime(currentTime)">0:00</span>
+                        <input type="range" 
+                               min="0" 
+                               :max="duration || 100" 
+                               :value="currentTime"
+                               @input="if (audio) { audio.currentTime = $el.value; currentTime = $el.value; }"
+                               class="flex-1 h-1 rounded-full appearance-none bg-gray-100 cursor-pointer accent-primary outline-hidden"
+                               :style="'background: linear-gradient(to right, #1E5128 0%, #1E5128 ' + (duration ? (currentTime / duration * 100) : 0) + '%, #e5e7eb ' + (duration ? (currentTime / duration * 100) : 0) + '%, #e5e7eb 100%);'">
+                        <span class="text-[9px] font-bold text-gray-500 min-w-[24px] text-right tabular-nums" x-text="duration ? formatTime(duration) : '0:00'">0:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="pt-4 border-t border-gray-100">

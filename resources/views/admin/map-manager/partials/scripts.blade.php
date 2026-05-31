@@ -71,6 +71,23 @@
     document.addEventListener('DOMContentLoaded', function () {
         initCounts();
         initMap();
+
+        // Audio preview on file selection
+        const audioInput = document.querySelector('input[name="audio_narration_file"]');
+        const audioPreview = document.getElementById('audio-preview');
+        const audioPreviewContainer = document.getElementById('audio-preview-container');
+        if (audioInput && audioPreview && audioPreviewContainer) {
+            audioInput.addEventListener('change', function () {
+                const file = this.files[0];
+                if (file) {
+                    audioPreview.src = URL.createObjectURL(file);
+                    audioPreviewContainer.style.display = 'flex';
+                } else {
+                    audioPreview.src = '';
+                    audioPreviewContainer.style.display = 'none';
+                }
+            });
+        }
     });
 
     function initCounts() {
@@ -380,6 +397,18 @@
                 ? `File saat ini: <a href="${storageUrl}/${details.audio_narration_path}" target="_blank" class="text-primary hover:underline font-semibold">${details.audio_narration_path.split('/').pop()}</a>`
                 : 'Belum ada audio narasi';
 
+            const audioPreviewContainer = document.getElementById('audio-preview-container');
+            const audioPreview = document.getElementById('audio-preview');
+            if (audioPreview && audioPreviewContainer) {
+                if (details.audio_narration_path) {
+                    audioPreview.src = `${storageUrl}/${details.audio_narration_path}`;
+                    audioPreviewContainer.style.display = 'flex';
+                } else {
+                    audioPreview.src = '';
+                    audioPreviewContainer.style.display = 'none';
+                }
+            }
+
             const imgContainer = document.getElementById('current-images');
             imgContainer.innerHTML = '';
             if (details.historical_images && details.historical_images.length > 0) {
@@ -506,6 +535,13 @@
         document.getElementById('current-model-3d').innerHTML = '';
         document.getElementById('current-audio').innerHTML = '';
         document.getElementById('current-images').innerHTML = '';
+
+        const audioPreviewContainer = document.getElementById('audio-preview-container');
+        const audioPreview = document.getElementById('audio-preview');
+        if (audioPreview && audioPreviewContainer) {
+            audioPreview.src = '';
+            audioPreviewContainer.style.display = 'none';
+        }
 
         // Reset Quizzes
         if(culturalForm.querySelector('input[name="has_quiz"]')) {

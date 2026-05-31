@@ -106,11 +106,13 @@
 /* ===========================================
    RICH TEXT & WYSIWYG (TIPTAP/PROSE) FORMATTING
    =========================================== */
-.prose strong, .prose b {
+.prose strong,
+.prose b {
     font-weight: 700 !important;
     color: #191a19 !important;
 }
-.prose em, .prose i {
+.prose em,
+.prose i {
     font-style: italic !important;
 }
 .prose ul {
@@ -135,7 +137,10 @@
 .prose p:last-child {
     margin-bottom: 0 !important;
 }
-.prose h1, .prose h2, .prose h3, .prose h4 {
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
     font-weight: 700 !important;
     margin-top: 1.5rem !important;
     margin-bottom: 0.75rem !important;
