@@ -88,6 +88,23 @@
                 }
             });
         }
+
+        // 3D Model preview on file selection
+        const modelInput = document.querySelector('input[name="model_3d_file"]');
+        const modelPreview = document.getElementById('model-3d-preview');
+        const modelPreviewContainer = document.getElementById('model-3d-preview-container');
+        if (modelInput && modelPreview && modelPreviewContainer) {
+            modelInput.addEventListener('change', function () {
+                const file = this.files[0];
+                if (file) {
+                    modelPreview.src = URL.createObjectURL(file);
+                    modelPreviewContainer.style.display = 'flex';
+                } else {
+                    modelPreview.src = '';
+                    modelPreviewContainer.style.display = 'none';
+                }
+            });
+        }
     });
 
     function initCounts() {
@@ -393,6 +410,18 @@
                 ? `File saat ini: <a href="${storageUrl}/${details.model_3d_path}" target="_blank" class="text-primary hover:underline font-semibold">${details.model_3d_path.split('/').pop()}</a>`
                 : 'Belum ada model 3D';
 
+            const modelPreviewContainer = document.getElementById('model-3d-preview-container');
+            const modelPreview = document.getElementById('model-3d-preview');
+            if (modelPreview && modelPreviewContainer) {
+                if (details.model_3d_path) {
+                    modelPreview.src = `${storageUrl}/${details.model_3d_path}`;
+                    modelPreviewContainer.style.display = 'flex';
+                } else {
+                    modelPreview.src = '';
+                    modelPreviewContainer.style.display = 'none';
+                }
+            }
+
             document.getElementById('current-audio').innerHTML = details.audio_narration_path
                 ? `File saat ini: <a href="${storageUrl}/${details.audio_narration_path}" target="_blank" class="text-primary hover:underline font-semibold">${details.audio_narration_path.split('/').pop()}</a>`
                 : 'Belum ada audio narasi';
@@ -535,6 +564,13 @@
         document.getElementById('current-model-3d').innerHTML = '';
         document.getElementById('current-audio').innerHTML = '';
         document.getElementById('current-images').innerHTML = '';
+
+        const modelPreviewContainer = document.getElementById('model-3d-preview-container');
+        const modelPreview = document.getElementById('model-3d-preview');
+        if (modelPreview && modelPreviewContainer) {
+            modelPreview.src = '';
+            modelPreviewContainer.style.display = 'none';
+        }
 
         const audioPreviewContainer = document.getElementById('audio-preview-container');
         const audioPreview = document.getElementById('audio-preview');
