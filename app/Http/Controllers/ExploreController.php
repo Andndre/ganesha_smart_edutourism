@@ -38,7 +38,7 @@ class ExploreController extends Controller
             if ($loc->locationable) {
                 $description = $loc->locationable->description ?? '';
                 if ($loc->locationable_type === CulturalObject::class) {
-                    $detailUrl = route('cultural-object', $loc->locationable->id);
+                    $detailUrl = route('cultural-object', ['slug' => $loc->locationable->slug]);
                     $hasAr = ! empty($loc->locationable->ar_marker_id) || ! empty($loc->locationable->model_3d_path);
                     if ($loc->locationable->historical_images && is_array($loc->locationable->historical_images)) {
                         foreach ($loc->locationable->historical_images as $img) {

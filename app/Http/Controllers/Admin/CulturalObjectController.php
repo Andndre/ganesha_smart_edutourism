@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CulturalObject;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CulturalObjectController extends Controller
@@ -22,6 +23,7 @@ class CulturalObjectController extends Controller
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'description' => ['nullable', 'string'],
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
+            'ar_marker_patt_content' => ['nullable', 'string'],
             'model_3d_path' => ['nullable', 'string', 'max:255'],
             'audio_narration_path' => ['nullable', 'string', 'max:255'],
             'model_3d_file' => ['nullable', 'file', 'max:20480'],
@@ -63,11 +65,17 @@ class CulturalObjectController extends Controller
             $validated['ar_marker_id'] = 'MARKER_'.strtoupper(Str::random(8));
         }
 
+        if ($request->filled('ar_marker_patt_content')) {
+            $pattPath = 'ar-markers/'.$validated['ar_marker_id'].'.patt';
+            Storage::disk('public')->put($pattPath, $request->input('ar_marker_patt_content'));
+            $validated['ar_marker_patt_path'] = $pattPath;
+        }
+
         $latitude = $validated['latitude'] ?? -8.4217504;
         $longitude = $validated['longitude'] ?? 115.3590021;
 
         // Clean up temporary variables not in DB schema
-        unset($validated['model_3d_file'], $validated['audio_narration_file'], $validated['latitude'], $validated['longitude'], $validated['has_quiz'], $validated['quiz_question'], $validated['quiz_option_a'], $validated['quiz_option_b'], $validated['quiz_option_c'], $validated['quiz_option_d'], $validated['quiz_correct_option']);
+        unset($validated['model_3d_file'], $validated['audio_narration_file'], $validated['latitude'], $validated['longitude'], $validated['has_quiz'], $validated['quiz_question'], $validated['quiz_option_a'], $validated['quiz_option_b'], $validated['quiz_option_c'], $validated['quiz_option_d'], $validated['quiz_correct_option'], $validated['ar_marker_patt_content']);
 
         $object = CulturalObject::create($validated);
 
@@ -119,6 +127,7 @@ class CulturalObjectController extends Controller
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'description' => ['nullable', 'string'],
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
+            'ar_marker_patt_content' => ['nullable', 'string'],
             'model_3d_path' => ['nullable', 'string', 'max:255'],
             'audio_narration_path' => ['nullable', 'string', 'max:255'],
             'model_3d_file' => ['nullable', 'file', 'max:20480'],
@@ -166,11 +175,19 @@ class CulturalObjectController extends Controller
             $validated['ar_marker_id'] = 'MARKER_'.strtoupper(Str::random(8));
         }
 
+        if ($request->filled('ar_marker_patt_content')) {
+            $pattPath = 'ar-markers/'.$validated['ar_marker_id'].'.patt';
+            Storage::disk('public')->put($pattPath, $request->input('ar_marker_patt_content'));
+            $validated['ar_marker_patt_path'] = $pattPath;
+        } elseif (! isset($validated['ar_marker_patt_path'])) {
+            $validated['ar_marker_patt_path'] = $object->ar_marker_patt_path;
+        }
+
         $latitude = $validated['latitude'] ?? -8.4217504;
         $longitude = $validated['longitude'] ?? 115.3590021;
 
         // Clean up temporary variables not in DB schema
-        unset($validated['model_3d_file'], $validated['audio_narration_file'], $validated['latitude'], $validated['longitude'], $validated['has_quiz'], $validated['quiz_question'], $validated['quiz_option_a'], $validated['quiz_option_b'], $validated['quiz_option_c'], $validated['quiz_option_d'], $validated['quiz_correct_option']);
+        unset($validated['model_3d_file'], $validated['audio_narration_file'], $validated['latitude'], $validated['longitude'], $validated['has_quiz'], $validated['quiz_question'], $validated['quiz_option_a'], $validated['quiz_option_b'], $validated['quiz_option_c'], $validated['quiz_option_d'], $validated['quiz_correct_option'], $validated['ar_marker_patt_content']);
 
         $object->update($validated);
 
