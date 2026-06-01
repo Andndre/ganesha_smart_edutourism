@@ -11,7 +11,7 @@
 
     <!-- My Location Button -->
     <button id="btn-my-location"
-        class="tap-target flex h-12 w-12 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 shadow-md transition-all active:scale-95"
+        class="tap-target fab-btn-active flex h-12 w-12 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 shadow-md transition-all active:scale-95"
         title="Lokasi Saya">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round"
