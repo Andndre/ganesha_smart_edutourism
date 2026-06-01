@@ -34,6 +34,15 @@ self.addEventListener("fetch", (event) => {
 
     const url = new URL(event.request.url);
 
+    // Skip media requests and range requests completely to allow native browser seek/Accept-Ranges
+    if (
+        event.request.headers.has('range') ||
+        url.pathname.match(/\.(mp3|mp4|wav|ogg|webm|glb)$/i) ||
+        url.pathname.includes('/storage/')
+    ) {
+        return;
+    }
+
     // Skip admin panel, owner panel, api, authentication, and livewire requests
     if (
         url.pathname.startsWith('/admin') ||

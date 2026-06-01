@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\TourRouteController;
 use App\Http\Controllers\Admin\UmkmCategoryController;
 use App\Http\Controllers\Admin\UmkmController;
 use App\Http\Controllers\Api\RoutingController;
+use App\Http\Controllers\AudioController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CulturalController;
 use App\Http\Controllers\EventController as PublicEventController;
@@ -240,6 +241,11 @@ Route::prefix('owner')->middleware(['auth', 'umkm_owner'])->group(function () {
     Route::put('/products/{id}', [OwnerProductController::class, 'update'])->name('owner.products.update');
     Route::delete('/products/{id}', [OwnerProductController::class, 'destroy'])->name('owner.products.destroy');
 });
+
+// Audio Range Stream Route (for Chrome seeking/scrubbing support)
+Route::get('/audio-stream/{path}', [AudioController::class, 'stream'])
+    ->where('path', '.*')
+    ->name('audio.stream');
 
 // Language Switcher Route
 Route::get('/lang/{locale}', function ($locale) {

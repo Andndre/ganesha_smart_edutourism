@@ -130,6 +130,7 @@
         <div id="audio-preview-container" style="display: none;"
             class="mt-2.5 rounded-xl border border-gray-100 bg-gray-50/50 p-3" x-data="{
                 playing: false,
+                dragging: false,
                 audio: null,
                 currentTime: 0,
                 duration: 0,
@@ -159,9 +160,12 @@
                 },
                 init() {
                     this.$nextTick(() => {
-                        const el = this.$refs.previewAudio;
+                        this.audio = this.$refs.previewAudio;
+                        const el = this.audio;
                         el.addEventListener('timeupdate', () => {
-                            this.currentTime = el.currentTime;
+                            if (!this.dragging) {
+                                this.currentTime = el.currentTime;
+                            }
                         });
                         el.addEventListener('loadedmetadata', () => {
                             this.duration = el.duration;
@@ -170,6 +174,9 @@
                             this.playing = false;
                             this.currentTime = 0;
                         });
+                        if (el.duration) {
+                            this.duration = el.duration;
+                        }
                         const observer = new MutationObserver(() => {
                             this.resetPlayer();
                             setTimeout(() => {
@@ -180,7 +187,7 @@
                     });
                 }
             }">
-            <audio id="audio-preview" x-ref="previewAudio" preload="metadata" class="hidden"></audio>
+            <audio id="audio-preview" x-ref="previewAudio" preload="auto" class="hidden"></audio>
 
             <div class="flex items-center gap-3">
                 <button type="button" @click="togglePlay()"
@@ -198,12 +205,12 @@
                     <div class="mt-1 flex items-center gap-2">
                         <span class="min-w-[24px] text-[9px] font-bold tabular-nums text-gray-500"
                             x-text="formatTime(currentTime)">0:00</span>
-                        <input type="range" min="0" :max="duration || 100" :value="currentTime"
-                            @input="if (audio) { audio.currentTime = $el.value; currentTime = $el.value; }"
+                        <input type="range" min="0" :max="duration || 100" x-model.number="currentTime"
+                            @mousedown="dragging = true"
+                            @touchstart="dragging = true"
+                            @change="if (audio && duration > 0) { try { audio.currentTime = currentTime; } catch(e) {} } else { currentTime = 0; }; dragging = false;"
                             class="accent-primary outline-hidden h-1 flex-1 cursor-pointer appearance-none rounded-full bg-gray-100"
-                            :style="'background: linear-gradient(to right, #1E5128 0%, #1E5128 ' + (duration ? (currentTime /
-                                duration * 100) : 0) + '%, #e5e7eb ' + (duration ? (currentTime / duration * 100) : 0) +
-                            '%, #e5e7eb 100%);'">
+                            :style="'background: linear-gradient(to right, #1E5128 0%, #1E5128 ' + (currentTime / (duration || 100) * 100) + '%, #e5e7eb ' + (currentTime / (duration || 100) * 100) + '%, #e5e7eb 100%);'">
                         <span class="min-w-[24px] text-right text-[9px] font-bold tabular-nums text-gray-500"
                             x-text="duration ? formatTime(duration) : '0:00'">0:00</span>
                     </div>

@@ -430,7 +430,7 @@
             const audioPreview = document.getElementById('audio-preview');
             if (audioPreview && audioPreviewContainer) {
                 if (details.audio_narration_path) {
-                    audioPreview.src = `${storageUrl}/${details.audio_narration_path}`;
+                    audioPreview.src = `{{ route('audio.stream', ['path' => 'PLACEHOLDER']) }}`.replace('PLACEHOLDER', details.audio_narration_path);
                     audioPreviewContainer.style.display = 'flex';
                 } else {
                     audioPreview.src = '';
