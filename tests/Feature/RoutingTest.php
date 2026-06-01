@@ -25,9 +25,9 @@ class RoutingTest extends TestCase
     }
 
     /**
-     * Test that guest/unauthenticated users are redirected/blocked.
+     * Test that guest/unauthenticated users are blocked from admin routing.
      */
-    public function test_unauthenticated_user_cannot_access_routing(): void
+    public function test_unauthenticated_user_cannot_access_admin_routing(): void
     {
         $response = $this->postJson(route('admin.routing.directions'), [
             'coordinates' => [
@@ -36,22 +36,14 @@ class RoutingTest extends TestCase
             ],
         ]);
 
-        // Route requires auth middleware, should return 401 Unauthorized for JSON requests
+        // Admin route requires auth middleware, should return 401 Unauthorized for JSON requests
         $response->assertStatus(401);
-
-        $responsePublic = $this->postJson(route('routing.directions'), [
-            'coordinates' => [
-                [115.35824, -8.43125],
-                [115.35850, -8.43000],
-            ],
-        ]);
-        $responsePublic->assertStatus(401);
     }
 
     /**
-     * Test that a regular authenticated user can fetch routing directions from public route.
+     * Test that a guest user can fetch routing directions from public route.
      */
-    public function test_regular_user_can_get_routing_directions(): void
+    public function test_guest_can_get_routing_directions(): void
     {
         Http::fake([
             '*/ors/v2/directions/*' => Http::response([
@@ -77,17 +69,12 @@ class RoutingTest extends TestCase
             ], 200),
         ]);
 
-        $regularUser = User::factory()->create([
-            'role' => 'tourist',
+        $response = $this->postJson(route('routing.directions'), [
+            'coordinates' => [
+                [115.35824, -8.43125],
+                [115.35850, -8.43000],
+            ],
         ]);
-
-        $response = $this->actingAs($regularUser)
-            ->postJson(route('routing.directions'), [
-                'coordinates' => [
-                    [115.35824, -8.43125],
-                    [115.35850, -8.43000],
-                ],
-            ]);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
