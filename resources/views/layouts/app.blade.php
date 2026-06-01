@@ -101,7 +101,7 @@
     @endunless
 
     @php
-        $mainTabRoutes = ['home', 'explore', 'ar-scan', 'umkm', 'profile'];
+        $mainTabRoutes = ['home', 'explore', 'umkm', 'profile'];
         $currentRouteName = Route::currentRouteName();
         $isMainTab = in_array($currentRouteName, $mainTabRoutes);
         $hasActiveSession = isset($activeEdutourismSession) && !Route::is('edutourism.active');

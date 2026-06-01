@@ -22,12 +22,13 @@ use Illuminate\Support\Carbon;
  * @property string|null $ar_marker_id
  * @property string|null $ar_marker_patt_path
  * @property string|null $model_3d_path
+ * @property string|null $model_3d_usdz_path
  * @property array|null $historical_images
  * @property string|null $audio_narration_path
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'slug', 'short_description', 'description', 'category', 'ar_marker_id', 'ar_marker_patt_path', 'model_3d_path', 'historical_images', 'audio_narration_path'])]
+#[Fillable(['name', 'slug', 'short_description', 'description', 'category', 'ar_marker_id', 'ar_marker_patt_path', 'model_3d_path', 'model_3d_usdz_path', 'historical_images', 'audio_narration_path'])]
 class CulturalObject extends Model
 {
     use HasFactory;

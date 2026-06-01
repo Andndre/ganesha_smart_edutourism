@@ -1,157 +1,275 @@
 @extends('layouts.app')
-@section('title', 'Kamera AR - Penglipuran')
+@section('title', 'AR Scanner - Penglipuran')
 
 @push('styles')
-    <!-- A-Frame and AR.js -->
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-
     <style>
-        /* Sembunyikan elemen bawaan AR.js yang tidak perlu */
-        .a-enter-vr {
-            display: none !important;
+        /* Sembunyikan pesan html5-qrcode bawaan */
+        #reader__dashboard_section_csr span {
+            color: white;
+            font-size: 14px;
         }
 
-        /* Pastikan canvas video menutupi layar sepenuhnya */
-        #arjs-video {
+        #reader {
+            width: 100%;
+            height: 100vh;
+            border: none;
+        }
+
+        #reader video {
             object-fit: cover !important;
-            width: 100vw !important;
             height: 100vh !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
+            width: 100vw !important;
         }
 
-        /* Animasi target reticle */
-        @keyframes scan {
-            0% {
-                transform: translateY(-50%);
-                opacity: 0;
-            }
-
-            50% {
-                opacity: 1;
-            }
-
-            100% {
-                transform: translateY(150%);
-                opacity: 0;
-            }
-        }
-
-        .scanner-line {
-            animation: scan 2s infinite linear;
+        /* Model Viewer Styles */
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            --poster-color: transparent;
         }
     </style>
 @endpush
 
 @section('content')
-    <!-- AR Container -->
+    <!-- Container Utama -->
     <div class="fixed inset-0 z-50 flex flex-col overflow-hidden bg-black">
 
-        <!-- A-Frame Scene (z-index 0) -->
-        <div class="absolute inset-0 z-0">
-            <a-scene embedded
-                arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
-                vr-mode-ui="enabled: false">
-                <a-assets>
-                    <!-- Preload 3D model placeholder (can be .glb) -->
-                    <a-asset-item id="placeholder-model" src=""></a-asset-item>
-                </a-assets>
+        <!-- Header -->
+        <div class="pointer-events-none absolute left-0 right-0 top-0 z-20 flex items-center justify-between p-4 pt-[max(env(safe-area-inset-top),1rem)]">
+            <a href="{{ route('home') }}"
+                class="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-all active:scale-95">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
 
-                <a-marker preset="hiro" id="ar-marker">
-                    <!-- A basic 3D box as placeholder -->
-                    <a-box position="0 0.5 0" material="color: #D4AF37; opacity: 0.8;"
-                        animation="property: rotation; to: 0 360 0; loop: true; dur: 4000"></a-box>
-                </a-marker>
-
-                <a-entity camera></a-entity>
-            </a-scene>
-        </div>
-
-        <!-- HUD Overlay (z-index 10) -->
-        <div class="pointer-events-none relative z-10 flex flex-1 flex-col">
-            <!-- Top Glassmorphism Bar -->
-            <div class="flex items-center justify-between p-4">
-                <a href="{{ route('home') }}"
-                    class="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-all active:scale-95">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </a>
-
-                <div
-                    class="rounded-full border border-white/10 bg-black/40 px-4 py-2 text-sm font-medium text-white backdrop-blur-md">
-                    Arahkan ke Marker Budaya
-                </div>
-
-                <button
-                    class="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-all active:scale-95">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </button>
+            <div id="status-badge"
+                class="rounded-full border border-white/10 bg-black/40 px-4 py-2 text-sm font-medium text-white backdrop-blur-md transition-all">
+                Arahkan ke Marker QR
             </div>
 
-            <!-- Center Target Reticle -->
-            <div class="flex flex-1 items-center justify-center">
+            <div class="w-10"></div>
+        </div>
+
+        <!-- 1. Scanner View -->
+        <div id="scanner-view" class="absolute inset-0 z-0">
+            <div id="reader"></div>
+            <!-- Overlay Reticle -->
+            <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
                 <div class="relative h-64 w-64 rounded-3xl border-2 border-white/50">
-                    <!-- Corners -->
                     <div class="border-primary absolute -left-1 -top-1 h-8 w-8 rounded-tl-3xl border-l-4 border-t-4"></div>
                     <div class="border-primary absolute -right-1 -top-1 h-8 w-8 rounded-tr-3xl border-r-4 border-t-4"></div>
-                    <div class="border-primary absolute -bottom-1 -left-1 h-8 w-8 rounded-bl-3xl border-b-4 border-l-4">
-                    </div>
-                    <div class="border-primary absolute -bottom-1 -right-1 h-8 w-8 rounded-br-3xl border-b-4 border-r-4">
-                    </div>
-
-                    <!-- Scanning line -->
-                    <div
-                        class="bg-primary/70 scanner-line absolute left-4 right-4 h-0.5 shadow-[0_0_8px_rgba(30,81,40,0.8)]">
-                    </div>
+                    <div class="border-primary absolute -bottom-1 -left-1 h-8 w-8 rounded-bl-3xl border-b-4 border-l-4"></div>
+                    <div class="border-primary absolute -bottom-1 -right-1 h-8 w-8 rounded-br-3xl border-b-4 border-r-4"></div>
                 </div>
-            </div>
-
-            <!-- Bottom Controls -->
-            <div class="pb-sab flex flex-col items-center gap-4 p-6">
-                <!-- Loading Indicator (Hidden initially) -->
-                <div id="loading-indicator"
-                    class="pointer-events-auto hidden items-center gap-3 rounded-2xl border border-white/10 bg-black/60 px-5 py-3 backdrop-blur-md">
-                    <div class="border-primary h-5 w-5 animate-spin rounded-full border-2 border-t-transparent"></div>
-                    <span class="text-sm font-medium text-white">Memuat Model 3D...</span>
-                </div>
-
-                <!-- Snapshot Button -->
-                <button
-                    class="pointer-events-auto mb-4 h-16 w-16 rounded-full border-4 border-white/30 p-1 transition-all active:scale-95">
-                    <div class="h-full w-full rounded-full bg-white"></div>
-                </button>
             </div>
         </div>
+
+        <!-- 2. 3D Model View (Hidden Initially) -->
+        <div id="model-view" class="absolute inset-0 z-10 hidden bg-charcoal">
+            <model-viewer id="ar-model-viewer" 
+                src="" 
+                alt="3D Model"
+                camera-controls 
+                auto-rotate 
+                ar 
+                ar-scale="auto"
+                ar-placement="floor"
+                bounds="tight"
+                ar-modes="scene-viewer quick-look webxr"
+                environment-image="neutral" 
+                exposure="1" 
+                shadow-intensity="1"
+                shadow-softness="1">
+                
+                <!-- Custom AR Button -->
+                <button slot="ar-button" class="pointer-events-auto absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-2xl bg-primary px-6 py-4 font-bold text-white shadow-xl shadow-primary/30 transition-all active:scale-95">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Letakkan di Lantai (AR)
+                </button>
+            </model-viewer>
+
+            <!-- Metadata Overlay -->
+            <div class="pointer-events-none absolute bottom-32 left-0 right-0 p-6 text-center">
+                <h2 id="model-title" class="text-2xl font-bold text-white drop-shadow-md">Memuat...</h2>
+                <p id="model-desc" class="text-sm text-gray-300 mt-2 line-clamp-2 drop-shadow-md"></p>
+            </div>
+
+            <!-- Back to Scanner Button -->
+            <button id="btn-back-scanner" class="pointer-events-auto absolute bottom-8 left-6 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-all active:scale-95 border border-white/20">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="absolute inset-0 z-30 hidden items-center justify-center bg-black/80 backdrop-blur-sm transition-all">
+            <div class="flex flex-col items-center gap-4">
+                <div class="border-primary h-12 w-12 animate-spin rounded-full border-4 border-t-transparent shadow-lg shadow-primary/20"></div>
+                <span class="text-base font-medium text-white tracking-wide">Mengunduh Model 3D...</span>
+            </div>
+        </div>
+
     </div>
 @endsection
 
 @push('scripts')
+    <!-- HTML5 QR Code -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    
+    <!-- Model Viewer & Meshopt Decoder -->
     <script>
+        self.ModelViewerElement = self.ModelViewerElement || {};
+        self.ModelViewerElement.meshoptDecoderLocation = 'https://cdn.jsdelivr.net/npm/meshoptimizer/meshopt_decoder.js';
+    </script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+    <script>
+        let html5QrcodeScanner = null;
+        let isProcessing = false;
+
         document.addEventListener('DOMContentLoaded', function () {
-            const marker = document.querySelector('#ar-marker');
-            const loadingIndicator = document.querySelector('#loading-indicator');
+            initScanner();
 
-            if (marker) {
-                marker.addEventListener('markerFound', function () {
-                    // Get haptic feedback on marker found
-                    if (navigator.vibrate) navigator.vibrate(100);
+            document.getElementById('btn-back-scanner').addEventListener('click', () => {
+                showScanner();
+            });
 
-                    // Show loading briefly then hide (simulating model download)
-                    loadingIndicator.classList.remove('hidden');
-                    setTimeout(() => {
-                        loadingIndicator.classList.add('hidden');
-                    }, 1500);
+            // Tangani error dari model-viewer
+            const viewer = document.getElementById('ar-model-viewer');
+            viewer.addEventListener('error', (event) => {
+                console.error("ModelViewer Error:", event);
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Memuat Model',
+                    text: 'Terjadi kesalahan saat memuat model 3D. Format tidak didukung atau file tidak ditemukan.',
+                    confirmButtonColor: '#1E5128'
+                }).then(() => {
+                    showScanner();
                 });
-
-                marker.addEventListener('markerLost', function () {
-                    loadingIndicator.classList.add('hidden');
-                });
-            }
+            });
         });
+
+        function initScanner() {
+            html5QrcodeScanner = new Html5Qrcode("reader");
+            
+            const config = { 
+                fps: 10, 
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: window.innerHeight / window.innerWidth
+            };
+
+            // Start scanner using back camera
+            html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                config,
+                onScanSuccess,
+                onScanFailure
+            ).catch(err => {
+                console.error("Gagal memulai kamera", err);
+                document.getElementById('status-badge').innerText = 'Kamera tidak diizinkan';
+                document.getElementById('status-badge').classList.replace('bg-black/40', 'bg-red-500/80');
+            });
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            if (isProcessing) return;
+            
+            // Format URL yang diharapkan: https://domain.com/cultural/slug-objek
+            if (decodedText.includes('/cultural/')) {
+                isProcessing = true;
+                if(navigator.vibrate) navigator.vibrate(50);
+                
+                // Pause scanner to save battery
+                if (html5QrcodeScanner.isScanning) {
+                    html5QrcodeScanner.pause();
+                }
+
+                // Extract slug
+                const parts = decodedText.split('/cultural/');
+                const slug = parts[1].split('?')[0].replace(/\/$/, ""); // Clean trailing slash or queries
+                
+                fetchModel(slug);
+            }
+        }
+
+        function onScanFailure(error) {
+            // Berjalan terus-menerus selama tidak terdeteksi
+        }
+
+        function fetchModel(slug) {
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const statusBadge = document.getElementById('status-badge');
+            
+            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.classList.add('flex');
+            statusBadge.innerText = 'Mengunduh Model...';
+
+            fetch(`/api/ar/model?slug=${encodeURIComponent(slug)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.model_url) {
+                        showModel(data.model_url, data.usdz_url, data.name, data.description);
+                    } else {
+                        throw new Error(data.error || 'Model tidak ditemukan');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: err.message,
+                        confirmButtonColor: '#1E5128'
+                    }).then(() => {
+                        showScanner();
+                    });
+                })
+                .finally(() => {
+                    loadingOverlay.classList.add('hidden');
+                    loadingOverlay.classList.remove('flex');
+                });
+        }
+
+        function showModel(url, usdzUrl, name, desc) {
+            document.getElementById('scanner-view').classList.add('hidden');
+            document.getElementById('model-view').classList.remove('hidden');
+            document.getElementById('status-badge').innerText = 'Sentuh untuk memutar/zoom';
+            
+            const viewer = document.getElementById('ar-model-viewer');
+            // Ensure absolute URL for Scene Viewer intent
+            const absoluteUrl = new URL(url, window.location.href).href;
+            viewer.src = absoluteUrl;
+            
+            if (usdzUrl) {
+                viewer.iosSrc = new URL(usdzUrl, window.location.href).href;
+            } else {
+                viewer.removeAttribute('ios-src');
+            }
+            
+            document.getElementById('model-title').innerText = name || '';
+            document.getElementById('model-desc').innerText = desc || '';
+        }
+
+        function showScanner() {
+            document.getElementById('model-view').classList.add('hidden');
+            document.getElementById('scanner-view').classList.remove('hidden');
+            document.getElementById('status-badge').innerText = 'Arahkan ke Marker QR';
+            document.getElementById('status-badge').classList.replace('bg-red-500/80', 'bg-black/40');
+            
+            isProcessing = false;
+            
+            // Clear viewer memory
+            document.getElementById('ar-model-viewer').src = '';
+            
+            if (html5QrcodeScanner && html5QrcodeScanner.getState() === Html5QrcodeScannerState.PAUSED) {
+                html5QrcodeScanner.resume();
+            }
+        }
     </script>
 @endpush

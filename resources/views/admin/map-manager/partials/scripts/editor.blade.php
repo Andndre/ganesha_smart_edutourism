@@ -186,6 +186,10 @@ function handleMarkerClick(marker) {
                 ? `File saat ini: <a href="${storageUrl}/${details.model_3d_path}" target="_blank" class="text-primary hover:underline font-semibold">${details.model_3d_path.split('/').pop()}</a>`
                 : 'Belum ada model 3D';
 
+            document.getElementById('current-model-3d-usdz').innerHTML = details.model_3d_usdz_path
+                ? `File saat ini: <a href="${storageUrl}/${details.model_3d_usdz_path}" target="_blank" class="text-primary hover:underline font-semibold">${details.model_3d_usdz_path.split('/').pop()}</a>`
+                : 'Belum ada model 3D iOS (.usdz)';
+
             const modelPreviewContainer = document.getElementById('model-3d-preview-container');
             const modelPreview = document.getElementById('model-3d-preview');
             if (modelPreview && modelPreviewContainer) {
@@ -345,6 +349,8 @@ function resetForms() {
         }
         document.getElementById('method-cultural').innerHTML = '';
         document.getElementById('current-model-3d').innerHTML = '';
+        const usdzEl = document.getElementById('current-model-3d-usdz');
+        if (usdzEl) usdzEl.innerHTML = '';
         document.getElementById('current-audio').innerHTML = '';
         document.getElementById('current-images').innerHTML = '';
 

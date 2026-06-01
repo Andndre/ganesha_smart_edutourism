@@ -26,8 +26,10 @@ class CulturalObjectController extends Controller
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
             'ar_marker_patt_content' => ['nullable', 'string'],
             'model_3d_path' => ['nullable', 'string', 'max:255'],
+            'model_3d_usdz_path' => ['nullable', 'string', 'max:255'],
             'audio_narration_path' => ['nullable', 'string', 'max:255'],
             'model_3d_file' => ['nullable', 'file', 'max:20480'],
+            'model_3d_usdz_file' => ['nullable', 'file', 'max:20480'],
             'audio_narration_file' => ['nullable', 'file', 'max:10240'],
             'historical_images' => ['nullable', 'array'],
             'historical_images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
@@ -42,6 +44,10 @@ class CulturalObjectController extends Controller
 
         if ($request->hasFile('model_3d_file')) {
             $validated['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
+        }
+
+        if ($request->hasFile('model_3d_usdz_file')) {
+            $validated['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')->store('models_usdz', 'public');
         }
 
         if ($request->hasFile('audio_narration_file')) {
@@ -131,8 +137,10 @@ class CulturalObjectController extends Controller
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
             'ar_marker_patt_content' => ['nullable', 'string'],
             'model_3d_path' => ['nullable', 'string', 'max:255'],
+            'model_3d_usdz_path' => ['nullable', 'string', 'max:255'],
             'audio_narration_path' => ['nullable', 'string', 'max:255'],
             'model_3d_file' => ['nullable', 'file', 'max:20480'],
+            'model_3d_usdz_file' => ['nullable', 'file', 'max:20480'],
             'audio_narration_file' => ['nullable', 'file', 'max:10240'],
             'historical_images' => ['nullable', 'array'],
             'historical_images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
@@ -149,6 +157,12 @@ class CulturalObjectController extends Controller
             $validated['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
         } elseif (! isset($validated['model_3d_path'])) {
             $validated['model_3d_path'] = $object->model_3d_path;
+        }
+
+        if ($request->hasFile('model_3d_usdz_file')) {
+            $validated['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')->store('models_usdz', 'public');
+        } elseif (! isset($validated['model_3d_usdz_path'])) {
+            $validated['model_3d_usdz_path'] = $object->model_3d_usdz_path;
         }
 
         if ($request->hasFile('audio_narration_file')) {

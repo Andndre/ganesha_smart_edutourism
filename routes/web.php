@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\TourRouteController;
 use App\Http\Controllers\Admin\UmkmCategoryController;
 use App\Http\Controllers\Admin\UmkmController;
 use App\Http\Controllers\Api\RoutingController;
+use App\Http\Controllers\ARController;
 use App\Http\Controllers\AudioController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CulturalController;
@@ -53,9 +54,7 @@ Route::middleware('redirect.admin')->group(function () {
     Route::get('/explore', [ExploreController::class, 'index'])->name('explore');
 
     // AR Scan
-    Route::get('/ar-scan', function () {
-        return view('user.ar.index');
-    })->name('ar-scan');
+    Route::get('/ar-scan', [ARController::class, 'index'])->name('ar-scan');
 
     // UMKM Catalog & Recommendation
     Route::get('/umkm', [UmkmCatalogController::class, 'index'])->name('umkm');
