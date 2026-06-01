@@ -5,7 +5,7 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "host": "npx -y cloudflared tunnel --url http://localhost:8000"
+        "host": "cloudflared tunnel run --url http://localhost:8000 ganesha-tunnel"
     },
     "devDependencies": {
         "@tailwindcss/vite": "4.3.0",
