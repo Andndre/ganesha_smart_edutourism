@@ -46,7 +46,7 @@
 
                 <!-- Dot Indicators -->
                 <template x-if="images.length > 1">
-                    <div class="absolute bottom-16 left-1/2 z-20 flex -translate-x-1/2 gap-1.5">
+                    <div class="absolute bottom-12 left-1/2 z-20 flex -translate-x-1/2 gap-1.5">
                         <template x-for="(img, index) in images" :key="index">
                             <div class="h-2 w-2 rounded-full transition-all duration-300"
                                 :class="currentIndex === index ? 'bg-white w-4' : 'bg-white/50'"></div>
@@ -64,10 +64,10 @@
 
             <div class="bg-linear-to-t from-charcoal/90 via-charcoal/20 absolute inset-0 z-10 to-transparent"></div>
 
-            <div class="pointer-events-none absolute bottom-12 left-6 right-6 z-20 text-white">
+            <div class="bottom-18 pointer-events-none absolute left-6 right-6 z-20 text-white">
                 <h1 class="font-playfair mb-2 text-3xl font-bold leading-tight">{{ $object->name }}</h1>
-                @if($object->short_description)
-                    <p class="text-sm text-gray-200 font-medium tracking-wide">{{ $object->short_description }}</p>
+                @if ($object->short_description)
+                    <p class="text-sm font-medium tracking-wide text-gray-200">{{ $object->short_description }}</p>
                 @endif
             </div>
         </div>
