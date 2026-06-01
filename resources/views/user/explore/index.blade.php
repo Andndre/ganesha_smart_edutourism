@@ -115,6 +115,7 @@
 
         // Shared global user GPS location variable
         let lastPosition = null;
+        let shouldCenterOnNextLocation = false;
 
         document.addEventListener('DOMContentLoaded', function () {
             const defaultLat = {{ $defaultLat }};
@@ -371,11 +372,14 @@
                     lng: latlng.lng
                 };
 
-                // Center map on user location
-                map.flyTo(latlng, 17, {
-                    animate: true,
-                    duration: 0.5
-                });
+                // Center map on user location if explicitly requested via button click
+                if (shouldCenterOnNextLocation) {
+                    map.flyTo(latlng, 17, {
+                        animate: true,
+                        duration: 0.5
+                    });
+                    shouldCenterOnNextLocation = false;
+                }
             }
 
             function calculateHeading(from, to) {
@@ -419,6 +423,7 @@
 
             function onLocationError(e, silent = false) {
                 console.warn('Geolocation error:', e.message);
+                shouldCenterOnNextLocation = false;
                 if (!silent) {
                     Swal.fire({
                         title: 'Akses Lokasi Gagal',
@@ -443,9 +448,6 @@
                     }
                     return;
                 }
-
-                const btn = document.getElementById('btn-my-location');
-                if (btn) btn.classList.add('fab-btn-active');
 
                 // Get initial position
                 navigator.geolocation.getCurrentPosition(
@@ -480,36 +482,6 @@
                 );
             }
 
-            function stopLocationTracking() {
-                if (watchId !== null) {
-                    navigator.geolocation.clearWatch(watchId);
-                    watchId = null;
-                }
-
-                if (locationPulse) locationPulse.remove();
-                if (locationArrow) locationArrow.remove();
-                if (locationMarker) map.removeLayer(locationMarker);
-
-                locationPulse = null;
-                locationArrow = null;
-                locationMarker = null;
-
-                const btn = document.getElementById('btn-my-location');
-                if (btn) btn.classList.remove('fab-btn-active');
-            }
-
-            let isTrackingLocation = false;
-
-            function toggleMyLocation(silent = false) {
-                if (isTrackingLocation) {
-                    stopLocationTracking();
-                    isTrackingLocation = false;
-                } else {
-                    startLocationTracking(silent);
-                    isTrackingLocation = true;
-                }
-            }
-
             // ==========================================
             // BUTTON EVENT LISTENERS
             // ==========================================
@@ -520,7 +492,25 @@
 
             document.getElementById('btn-my-location').addEventListener('click', function (e) {
                 e.stopPropagation();
-                toggleMyLocation();
+                if (lastPosition) {
+                    map.flyTo([lastPosition.lat, lastPosition.lng], 17, {
+                        animate: true,
+                        duration: 0.5
+                    });
+                } else {
+                    shouldCenterOnNextLocation = true;
+                    if (watchId === null) {
+                        startLocationTracking(false);
+                    } else {
+                        Swal.fire({
+                            title: 'Mencari Lokasi...',
+                            text: 'Sedang mengambil koordinat GPS Anda. Mohon tunggu sebentar.',
+                            icon: 'info',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    }
+                }
             });
 
             document.getElementById('btn-locate').addEventListener('click', function () {
@@ -570,7 +560,7 @@
             });
 
             // Start location tracking automatically on load (silent = true)
-            toggleMyLocation(true);
+            startLocationTracking(true);
         });
 
         // ==========================================
