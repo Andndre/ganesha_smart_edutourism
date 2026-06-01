@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property string $name
  * @property string $slug
+ * @property string|null $short_description
  * @property string|null $description
  * @property string|null $category
  * @property string|null $ar_marker_id
@@ -26,7 +27,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'slug', 'description', 'category', 'ar_marker_id', 'ar_marker_patt_path', 'model_3d_path', 'historical_images', 'audio_narration_path'])]
+#[Fillable(['name', 'slug', 'short_description', 'description', 'category', 'ar_marker_id', 'ar_marker_patt_path', 'model_3d_path', 'historical_images', 'audio_narration_path'])]
 class CulturalObject extends Model
 {
     use HasFactory;

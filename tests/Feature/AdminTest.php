@@ -125,6 +125,7 @@ class AdminTest extends TestCase
             ->post(route('admin.cultural-objects.store'), [
                 'name' => 'Pura Luhur',
                 'category' => 'temple',
+                'short_description' => 'Jantung spiritual Pura Luhur',
                 'description' => 'Tempat pemujaan suci.',
                 'latitude' => -8.234,
                 'longitude' => 115.345,
@@ -136,6 +137,7 @@ class AdminTest extends TestCase
         $responseCreateSuccess->assertRedirect();
 
         $object = CulturalObject::where('name', 'Pura Luhur')->firstOrFail();
+        $this->assertEquals('Jantung spiritual Pura Luhur', $object->short_description);
         $this->assertNotNull($object->model_3d_path);
         $this->assertNotNull($object->audio_narration_path);
         $this->assertCount(2, $object->historical_images);
@@ -161,6 +163,7 @@ class AdminTest extends TestCase
             ->put(route('admin.cultural-objects.update', $object->id), [
                 'name' => 'Pura Luhur Updated',
                 'category' => 'house',
+                'short_description' => 'Jantung spiritual Pura Luhur Updated',
                 'description' => 'Tempat pemujaan suci terupdate.',
                 'latitude' => -8.555,
                 'longitude' => 115.666,
@@ -173,6 +176,7 @@ class AdminTest extends TestCase
 
         $object->refresh();
         $this->assertEquals('Pura Luhur Updated', $object->name);
+        $this->assertEquals('Jantung spiritual Pura Luhur Updated', $object->short_description);
         Storage::disk('public')->assertExists($object->model_3d_path);
         Storage::disk('public')->assertExists($object->audio_narration_path);
         $this->assertCount(1, $object->historical_images);

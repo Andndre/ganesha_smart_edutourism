@@ -12,6 +12,13 @@
     </div>
 
     <div>
+        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi Singkat <span
+                class="text-warning">*</span></label>
+        <input type="text" name="short_description" required placeholder="Contoh: Jantung Spiritual Desa Penglipuran"
+            class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+    </div>
+
+    <div>
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Kategori Budaya <span
                 class="text-warning">*</span></label>
         <select name="category" required

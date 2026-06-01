@@ -20,6 +20,7 @@ class CulturalPublicTest extends TestCase
         CulturalObject::create([
             'name' => 'Pura Penataran Agung',
             'slug' => 'pura-penataran-agung',
+            'short_description' => 'Jantung Spiritual Desa Penglipuran',
             'description' => 'Pura utama di desa Penglipuran.',
             'category' => 'temple',
             'ar_marker_id' => 'marker_pura_penataran',
@@ -52,6 +53,7 @@ class CulturalPublicTest extends TestCase
         $object = CulturalObject::create([
             'name' => 'Pura Penataran Agung',
             'slug' => 'pura-penataran-agung',
+            'short_description' => 'Jantung Spiritual Desa Penglipuran',
             'description' => 'Pura utama di desa Penglipuran.',
             'category' => 'temple',
             'ar_marker_id' => 'marker_pura_penataran',
@@ -72,6 +74,7 @@ class CulturalPublicTest extends TestCase
         // Assert
         $response->assertStatus(200);
         $response->assertSee('Pura Penataran Agung');
+        $response->assertSee('Jantung Spiritual Desa Penglipuran');
         $response->assertSee('Asal Usul Pura Penataran');
         $response->assertSee('Kisah pendirian pura penataran agung oleh leluhur.');
         $response->assertSee('Jelajahi dalam Mode AR');
