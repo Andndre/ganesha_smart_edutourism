@@ -83,12 +83,14 @@ Route::middleware('redirect.admin')->group(function () {
     // Tour Packages
     Route::get('/tour-packages', [TourPackageController::class, 'index'])->name('tour-packages');
     Route::get('/tour-package/{id}', [TourPackageController::class, 'show'])->name('tour-package');
+
+    // Routing API (public — used by /explore which is also public)
+    Route::post('/api/routing/directions', [RoutingController::class, 'directions'])->name('routing.directions');
 });
 
 // Authenticated Routes (Users)
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::post('/api/routing/directions', [RoutingController::class, 'directions'])->name('routing.directions');
 
     Route::middleware('redirect.admin')->group(function () {
         // Feedback (Requires login)
