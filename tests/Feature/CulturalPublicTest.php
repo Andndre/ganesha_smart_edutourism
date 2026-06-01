@@ -67,7 +67,7 @@ class CulturalPublicTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get(route('cultural-object', $object->id));
+        $response = $this->get(route('cultural-object', ['slug' => $object->slug]));
 
         // Assert
         $response->assertStatus(200);
@@ -93,7 +93,7 @@ class CulturalPublicTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get(route('cultural-object', $object->id));
+        $response = $this->get(route('cultural-object', ['slug' => $object->slug]));
 
         // Assert
         $response->assertStatus(200);
@@ -107,7 +107,7 @@ class CulturalPublicTest extends TestCase
     public function test_public_cultural_object_detail_page_returns_404_if_not_found(): void
     {
         // Act
-        $response = $this->get(route('cultural-object', 9999));
+        $response = $this->get(route('cultural-object', ['slug' => 'non-existent-slug']));
 
         // Assert
         $response->assertStatus(404);

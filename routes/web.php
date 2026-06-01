@@ -68,7 +68,7 @@ Route::middleware('redirect.admin')->group(function () {
 
     // Cultural Objects
     Route::get('/cultural', [CulturalController::class, 'index'])->name('cultural-objects');
-    Route::get('/cultural/{id}', [CulturalController::class, 'show'])->name('cultural-object');
+    Route::get('/cultural/{slug}', [CulturalController::class, 'show'])->name('cultural-object');
 
     // Events
     Route::get('/events', [PublicEventController::class, 'index'])->name('events');

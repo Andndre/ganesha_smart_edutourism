@@ -7,9 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -21,13 +19,14 @@ use Illuminate\Support\Carbon;
  * @property string|null $description
  * @property string|null $category
  * @property string|null $ar_marker_id
+ * @property string|null $ar_marker_patt_path
  * @property string|null $model_3d_path
  * @property array|null $historical_images
  * @property string|null $audio_narration_path
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'slug', 'description', 'category', 'ar_marker_id', 'model_3d_path', 'historical_images', 'audio_narration_path'])]
+#[Fillable(['name', 'slug', 'description', 'category', 'ar_marker_id', 'ar_marker_patt_path', 'model_3d_path', 'historical_images', 'audio_narration_path'])]
 class CulturalObject extends Model
 {
     use HasFactory;

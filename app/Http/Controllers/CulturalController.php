@@ -20,9 +20,9 @@ class CulturalController extends Controller
     /**
      * Display the specified cultural object with its stories.
      */
-    public function show(int $id): View
+    public function show(string $slug): View
     {
-        $object = CulturalObject::with('stories')->findOrFail($id);
+        $object = CulturalObject::with('stories')->where('slug', $slug)->firstOrFail();
 
         return view('user.cultural.show', compact('object'));
     }

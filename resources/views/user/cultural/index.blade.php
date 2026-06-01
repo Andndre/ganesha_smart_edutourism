@@ -11,7 +11,7 @@
         </div>
 
         @forelse($objects as $object)
-            <a href="{{ route('cultural-object', $object->id) }}"
+            <a href="{{ route('cultural-object', ['slug' => $object->slug]) }}"
                 class="block bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden active:scale-[0.98] transition-all">
                 <div class="h-48 bg-gray-200 relative">
                     <div class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent z-10"></div>

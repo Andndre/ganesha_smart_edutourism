@@ -100,8 +100,23 @@
     <div>
         <label class="mb-1 block text-sm font-semibold text-gray-700">ID Marker AR</label>
         <span class="mb-2 block text-xs text-gray-500">Opsional. Digunakan untuk integrasi Augmented Reality</span>
-        <input type="text" name="ar_marker_id" placeholder="Contoh: MARKER_PURA_01"
-            class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+        <input type="text" name="ar_marker_id" id="ar_marker_id" placeholder="Contoh: MARKER_PURA_01"
+            class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"
+            oninput="generateARMarker()">
+        <input type="hidden" name="ar_marker_patt_content" id="ar_marker_patt_content">
+
+        <!-- Premium Download Button -->
+        <div id="ar-download-container" class="mt-2" style="display: none;">
+            <button type="button" onclick="downloadARMarker()"
+                class="border-primary text-primary hover:bg-primary/5 flex w-full items-center justify-center gap-2 rounded-xl border-2 py-2.5 text-sm font-semibold transition-colors active:scale-95">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                Unduh QR Marker AR (.png)
+            </button>
+            <span class="mt-1 block text-[10px] text-gray-500">Unduh gambar QR Marker berpola AR (.png). Pola (.patt) akan otomatis tersimpan ke server.</span>
+        </div>
     </div>
 
     <div>
