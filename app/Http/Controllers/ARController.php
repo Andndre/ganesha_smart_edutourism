@@ -39,8 +39,8 @@ class ARController extends Controller
         return response()->json([
             'success' => true,
             'name' => $object->name,
-            'model_url' => '/storage/' . $object->model_3d_path,
-            'usdz_url' => $object->model_3d_usdz_path ? '/storage/' . $object->model_3d_usdz_path : null,
+            'model_url' => '/storage/'.$object->model_3d_path,
+            'usdz_url' => $object->model_3d_usdz_path ? '/storage/'.$object->model_3d_usdz_path : null,
             'description' => $object->description,
         ]);
     }
