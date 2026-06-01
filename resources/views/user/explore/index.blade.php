@@ -116,13 +116,14 @@
         // Shared global user GPS location variable
         let lastPosition = null;
         let shouldCenterOnNextLocation = false;
+        let map = null;
 
         document.addEventListener('DOMContentLoaded', function () {
             const defaultLat = {{ $defaultLat }};
             const defaultLon = {{ $defaultLon }};
 
             // 1. Inisialisasi Peta
-            const map = L.map('map', {
+            map = L.map('map', {
                 zoomControl: false
             }).setView([defaultLat, defaultLon], 17);
 
@@ -730,6 +731,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify({ coordinates: coords })
