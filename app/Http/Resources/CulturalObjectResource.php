@@ -22,6 +22,7 @@ class CulturalObjectResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
+            'short_description' => $this->short_description,
             'description' => $this->description,
             'category' => $this->category,
             'location' => $this->whenLoaded('mapLocation', fn () => [

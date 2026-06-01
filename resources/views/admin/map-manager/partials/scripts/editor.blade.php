@@ -168,6 +168,7 @@ function handleMarkerClick(marker) {
             document.getElementById('method-cultural').innerHTML = '@method("PUT")';
 
             form.querySelector('input[name="name"]').value = details.name;
+            form.querySelector('input[name="short_description"]').value = details.short_description || '';
             form.querySelector('select[name="category"]').value = details.category;
             form.querySelector('textarea[name="description"]').value = details.description || '';
             if (window.setCulturalEditorContent) {
