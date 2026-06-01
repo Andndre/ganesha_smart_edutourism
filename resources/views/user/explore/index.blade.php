@@ -737,7 +737,9 @@
                     body: JSON.stringify({ coordinates: coords })
                 });
 
-                if (response.ok) {
+                const contentType = response.headers.get('content-type') || '';
+
+                if (response.ok && contentType.includes('application/json')) {
                     const data = await response.json();
                     if (data.features && data.features.length > 0) {
                         const routeFeature = data.features[0];
