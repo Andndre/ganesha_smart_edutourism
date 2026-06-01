@@ -65,7 +65,7 @@
             
             <div class="absolute inset-0 bg-linear-to-t from-charcoal/90 via-charcoal/20 to-transparent z-10"></div>
 
-            <div class="absolute bottom-12 left-6 right-6 text-white z-20">
+            <div class="absolute bottom-12 left-6 right-6 text-white z-20 pointer-events-none">
                 <h1 class="text-3xl font-bold font-playfair mb-2 leading-tight">{{ $object->name }}</h1>
                 <p class="text-sm text-gray-200 font-medium tracking-wide">Jantung Spiritual Desa Penglipuran</p>
             </div>
@@ -73,10 +73,10 @@
 
         <!-- Audio Player -->
         @if($object->audio_narration_path)
-            <div class="px-6 -mt-6 relative z-10 mb-8" 
+            <div class="px-6 -mt-6 relative z-30 mb-8" 
                  x-data="{
                      playing: false,
-                     audio: null,
+                     dragging: false,
                      currentTime: 0,
                      duration: 0,
                      formatTime(secs) {
@@ -86,13 +86,11 @@
                          return m + ':' + (s < 10 ? '0' : '') + s;
                      },
                      togglePlay() {
-                         if (!this.audio) {
-                             this.audio = this.$refs.audioEl;
-                         }
+                         const audio = this.$refs.audioEl;
                          if (this.playing) {
-                             this.audio.pause();
+                             audio.pause();
                          } else {
-                             this.audio.play();
+                             audio.play();
                          }
                          this.playing = !this.playing;
                      },
@@ -100,7 +98,9 @@
                          this.$nextTick(() => {
                              const el = this.$refs.audioEl;
                              el.addEventListener('timeupdate', () => {
-                                 this.currentTime = el.currentTime;
+                                 if (!this.dragging) {
+                                     this.currentTime = el.currentTime;
+                                 }
                              });
                              el.addEventListener('loadedmetadata', () => {
                                  this.duration = el.duration;
@@ -116,7 +116,7 @@
                      }
                  }">
                 <!-- Hidden Audio Element -->
-                <audio x-ref="audioEl" src="{{ asset('storage/' . $object->audio_narration_path) }}" preload="metadata"></audio>
+                <audio x-ref="audioEl" src="{{ route('audio.stream', $object->audio_narration_path) }}" preload="auto"></audio>
 
                 <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-4">
                     <button @click="togglePlay()"
@@ -138,10 +138,12 @@
                             <input type="range" 
                                    min="0" 
                                    :max="duration || 100" 
-                                   :value="currentTime"
-                                   @input="if (audio) { audio.currentTime = $el.value; currentTime = $el.value; }"
+                                   x-model.number="currentTime"
+                                   @mousedown="dragging = true"
+                                   @touchstart="dragging = true"
+                                   @change="if ($refs.audioEl && duration > 0) { try { $refs.audioEl.currentTime = currentTime; } catch(e) {} } else { currentTime = 0; }; dragging = false;"
                                    class="flex-1 h-1 rounded-full appearance-none bg-gray-100 cursor-pointer accent-primary outline-hidden"
-                                   :style="'background: linear-gradient(to right, #1E5128 0%, #1E5128 ' + (duration ? (currentTime / duration * 100) : 0) + '%, #f3f4f6 ' + (duration ? (currentTime / duration * 100) : 0) + '%, #f3f4f6 100%);'">
+                                   :style="'background: linear-gradient(to right, #1E5128 0%, #1E5128 ' + (currentTime / (duration || 100) * 100) + '%, #f3f4f6 ' + (currentTime / (duration || 100) * 100) + '%, #f3f4f6 100%);'">
                             <span class="text-[10px] font-bold text-gray-500 min-w-[28px] text-right tabular-nums" x-text="duration ? formatTime(duration) : '0:00'">0:00</span>
                         </div>
                     </div>
