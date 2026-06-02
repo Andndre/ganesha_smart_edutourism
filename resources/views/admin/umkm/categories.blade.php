@@ -37,8 +37,6 @@
                                 <div class="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-center text-primary">
                                     @if($cat->image_path)
                                         <img src="{{ asset('storage/' . $cat->image_path) }}" alt="{{ $cat->name }}" class="h-full w-full object-cover">
-                                    @elseif($cat->icon)
-                                        <i class="{{ $cat->icon }} text-lg"></i>
                                     @else
                                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -109,11 +107,7 @@
                     <label class="block text-sm font-semibold text-gray-700 font-display">Deskripsi</label>
                     <textarea name="description" id="field-description" placeholder="Deskripsi singkat tentang kategori..." rows="3" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none"></textarea>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 font-display">Icon Class (FontAwesome)</label>
-                    <input type="text" name="icon" id="field-icon" placeholder="Contoh: fas fa-utensils, fas fa-tshirt" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                    <span class="text-[10px] text-gray-400 mt-1 block">Gunakan nama class FontAwesome untuk icon kategori.</span>
-                </div>
+
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 font-display">Gambar Kategori</label>
                     <input type="file" name="image" id="field-image" accept="image/*" class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
@@ -144,7 +138,6 @@
     const methodContainer = document.getElementById('method-container');
     const fieldName = document.getElementById('field-name');
     const fieldDescription = document.getElementById('field-description');
-    const fieldIcon = document.getElementById('field-icon');
     const fieldImage = document.getElementById('field-image');
     const imagePreviewContainer = document.getElementById('image-preview-container');
     const imagePreview = document.getElementById('image-preview');
@@ -155,7 +148,6 @@
         methodContainer.innerHTML = "";
         fieldName.value = "";
         fieldDescription.value = "";
-        fieldIcon.value = "";
         fieldImage.value = "";
         imagePreviewContainer.classList.add('hidden');
         imagePreview.src = "";
@@ -170,7 +162,6 @@
         methodContainer.innerHTML = `@method('PUT')`;
         fieldName.value = cat.name;
         fieldDescription.value = cat.description || "";
-        fieldIcon.value = cat.icon || "";
         fieldImage.value = "";
         
         if (cat.image_path) {
