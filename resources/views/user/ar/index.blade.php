@@ -160,8 +160,7 @@
             
             const config = { 
                 fps: 10, 
-                qrbox: { width: 250, height: 250 },
-                aspectRatio: window.innerHeight / window.innerWidth
+                qrbox: { width: 250, height: 250 }
             };
 
             // Start scanner using back camera
@@ -180,21 +179,51 @@
         function onScanSuccess(decodedText, decodedResult) {
             if (isProcessing) return;
             
-            // Format URL yang diharapkan: https://domain.com/cultural/slug-objek
+            console.log("QR Terdeteksi:", decodedText);
+            
+            let slug = '';
+            let marker = '';
+
             if (decodedText.includes('/cultural/')) {
+                // Format: https://domain.com/cultural/slug-objek
+                const parts = decodedText.split('/cultural/');
+                slug = parts[1].split('?')[0].replace(/\/$/, "");
+            } else if (decodedText.includes('marker=')) {
+                // Format: https://domain.com/explore?marker=MARKER_ID
+                try {
+                    const urlObj = new URL(decodedText);
+                    marker = urlObj.searchParams.get('marker') || '';
+                } catch (e) {
+                    console.error(e);
+                }
+            } else if (decodedText.startsWith('MARKER_')) {
+                // Format: Raw text MARKER_ID
+                marker = decodedText;
+            }
+
+            if (slug || marker) {
                 isProcessing = true;
-                if(navigator.vibrate) navigator.vibrate(50);
+                if (navigator.vibrate) navigator.vibrate(50);
                 
                 // Pause scanner to save battery
                 if (html5QrcodeScanner.isScanning) {
                     html5QrcodeScanner.pause();
                 }
-
-                // Extract slug
-                const parts = decodedText.split('/cultural/');
-                const slug = parts[1].split('?')[0].replace(/\/$/, ""); // Clean trailing slash or queries
                 
-                fetchModel(slug);
+                fetchModel(slug, marker);
+            } else {
+                console.warn("Format QR Code tidak dikenali:", decodedText);
+                const statusBadge = document.getElementById('status-badge');
+                statusBadge.innerText = 'QR Tidak Dikenali!';
+                statusBadge.classList.replace('bg-black/40', 'bg-red-500/80');
+                
+                // Kembalikan ke teks normal setelah 2 detik
+                setTimeout(() => {
+                    if (!isProcessing) {
+                        statusBadge.innerText = 'Arahkan ke Marker QR';
+                        statusBadge.classList.replace('bg-red-500/80', 'bg-black/40');
+                    }
+                }, 2000);
             }
         }
 
@@ -202,7 +231,7 @@
             // Berjalan terus-menerus selama tidak terdeteksi
         }
 
-        function fetchModel(slug) {
+        function fetchModel(slug, marker) {
             const loadingOverlay = document.getElementById('loading-overlay');
             const statusBadge = document.getElementById('status-badge');
             
@@ -210,7 +239,14 @@
             loadingOverlay.classList.add('flex');
             statusBadge.innerText = 'Mengunduh Model...';
 
-            fetch(`/api/ar/model?slug=${encodeURIComponent(slug)}`)
+            let query = '';
+            if (slug) {
+                query = `slug=${encodeURIComponent(slug)}`;
+            } else if (marker) {
+                query = `marker=${encodeURIComponent(marker)}`;
+            }
+
+            fetch(`/api/ar/model?${query}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.success && data.model_url) {
