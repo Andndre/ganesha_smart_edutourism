@@ -160,11 +160,13 @@ input[type="range"]::-webkit-slider-thumb {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #1E5128 !important; /* Brand Penglipuran Green */
+    background: #1e5128 !important; /* Brand Penglipuran Green */
     cursor: pointer;
     border: 2px solid #ffffff;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    transition: transform 0.1s ease, background-color 0.1s ease;
+    transition:
+        transform 0.1s ease,
+        background-color 0.1s ease;
     margin-top: -5px; /* Centers the thumb on the track */
 }
 
@@ -181,11 +183,13 @@ input[type="range"]::-moz-range-thumb {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #1E5128 !important;
+    background: #1e5128 !important;
     cursor: pointer;
     border: 2px solid #ffffff;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    transition: transform 0.1s ease, background-color 0.1s ease;
+    transition:
+        transform 0.1s ease,
+        background-color 0.1s ease;
 }
 
 input[type="range"]::-moz-range-thumb:hover {
@@ -203,4 +207,55 @@ input[type="range"]::-webkit-slider-runnable-track {
     height: 4px;
     cursor: pointer;
     border-radius: 9999px;
+}
+
+/* Make all checkbox inputs circular globally with custom design & transitions */
+input[type="checkbox"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 1.375rem; /* w-5.5 equivalent */
+    height: 1.375rem; /* h-5.5 equivalent */
+    border: 2px solid #d1d5db; /* border-gray-300 */
+    border-radius: 9999px !important; /* bulat sempurna */
+    outline: none;
+    background-color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    vertical-align: middle;
+}
+
+/* Checked state */
+input[type="checkbox"]:checked {
+    background-color: #1e5128 !important; /* Brand Primary: Penglipuran Green */
+    border-color: #1e5128 !important;
+}
+
+/* Custom CSS checkmark vector */
+input[type="checkbox"]::after {
+    content: "";
+    width: 0.35rem;
+    height: 0.6rem;
+    border: solid #ffffff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin-bottom: 2px; /* Visual centering adjustment */
+}
+
+input[type="checkbox"]:checked::after {
+    transform: rotate(45deg) scale(1);
+}
+
+/* Hover & Focus states */
+input[type="checkbox"]:hover {
+    border-color: #1e5128;
+}
+
+input[type="checkbox"]:focus-visible {
+    box-shadow: 0 0 0 2px rgba(30, 81, 40, 0.2);
 }
