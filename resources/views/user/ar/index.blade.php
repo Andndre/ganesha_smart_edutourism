@@ -247,7 +247,9 @@
             viewer.src = absoluteUrl;
             
             if (usdzUrl) {
-                viewer.iosSrc = new URL(usdzUrl, window.location.href).href;
+                const absoluteUsdzUrl = new URL(usdzUrl, window.location.href).href;
+                viewer.setAttribute('ios-src', absoluteUsdzUrl);
+                viewer.iosSrc = absoluteUsdzUrl;
             } else {
                 viewer.removeAttribute('ios-src');
             }
