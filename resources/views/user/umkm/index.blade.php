@@ -127,37 +127,35 @@
     @endif
 
     <!-- Category Detail Modal -->
-    <div id="category-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-charcoal/50 backdrop-blur-sm transition-all duration-300">
-        <div class="relative w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl transition-all scale-95 opacity-0 duration-300" id="category-modal-content">
-            <!-- Close Button -->
-            <button type="button" onclick="closeCategoryModal()" class="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm text-gray-500 shadow-sm border border-gray-100 hover:bg-gray-100 transition-colors">
-                <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+    <x-modal name="category-detail" maxWidth="sm">
+        <!-- Close Button (Mobile only, desktop has close button in x-modal) -->
+        <button type="button" onclick="closeCategoryModal()" class="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm text-gray-500 shadow-sm border border-gray-100 hover:bg-gray-100 transition-colors md:hidden">
+            <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
 
-            <!-- Category Image -->
-            <div class="aspect-video w-full overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 flex items-center justify-center text-primary" id="modal-category-image-container">
-                <img id="modal-category-image" src="" alt="" class="h-full w-full object-cover hidden">
-                <svg id="modal-category-fallback" class="w-14 h-14 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-            </div>
-
-            <!-- Content -->
-            <div class="mt-4">
-                <h3 id="modal-category-name" class="font-display text-xl font-bold text-charcoal">Nama Kategori</h3>
-                <p id="modal-category-description" class="mt-2 text-sm text-gray-500 leading-relaxed min-h-[50px]">Deskripsi kategori...</p>
-            </div>
-
-            <!-- Action Button -->
-            <div class="mt-6">
-                <button type="button" id="modal-toggle-select-btn" onclick="toggleSelectFromModal()" class="w-full bg-primary text-white font-semibold py-3.5 rounded-xl active:scale-[0.98] transition-transform shadow-lg shadow-primary/20 flex justify-center items-center gap-2">
-                    Pilih Kategori Ini
-                </button>
-            </div>
+        <!-- Category Image -->
+        <div class="aspect-video w-full overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 flex items-center justify-center text-primary" id="modal-category-image-container">
+            <img id="modal-category-image" src="" alt="" class="h-full w-full object-cover hidden">
+            <svg id="modal-category-fallback" class="w-14 h-14 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
         </div>
-    </div>
+
+        <!-- Content -->
+        <div class="mt-4">
+            <h3 id="modal-category-name" class="font-display text-xl font-bold text-charcoal">Nama Kategori</h3>
+            <p id="modal-category-description" class="mt-2 text-sm text-gray-500 leading-relaxed min-h-[50px]">Deskripsi kategori...</p>
+        </div>
+
+        <!-- Action Button -->
+        <div class="mt-6">
+            <button type="button" id="modal-toggle-select-btn" onclick="toggleSelectFromModal()" class="w-full bg-primary text-white font-semibold py-3.5 rounded-xl active:scale-[0.98] transition-transform shadow-lg shadow-primary/20 flex justify-center items-center gap-2">
+                Pilih Kategori Ini
+            </button>
+        </div>
+    </x-modal>
 @endpush
 
 @push('scripts')
@@ -214,32 +212,13 @@
             btn.className = 'w-full bg-primary hover:bg-primary-600 text-white font-semibold py-3.5 rounded-xl active:scale-[0.98] transition-transform shadow-lg shadow-primary/20 flex justify-center items-center gap-2';
         }
         
-        // Show modal with animation
-        const modal = document.getElementById('category-detail-modal');
-        const content = document.getElementById('category-modal-content');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        
-        // Force reflow
-        void modal.offsetWidth;
-        
-        content.classList.remove('scale-95', 'opacity-0');
-        content.classList.add('scale-100', 'opacity-100');
+        // Show modal with Alpine.js
+        window.dispatchEvent(new CustomEvent('open-category-detail'));
     }
 
     function closeCategoryModal() {
-        const modal = document.getElementById('category-detail-modal');
-        const content = document.getElementById('category-modal-content');
-        if (!modal || !content) return;
-        
-        content.classList.remove('scale-100', 'opacity-100');
-        content.classList.add('scale-95', 'opacity-0');
-        
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            activeModalCategoryId = null;
-        }, 200);
+        window.dispatchEvent(new CustomEvent('close-category-detail'));
+        activeModalCategoryId = null;
     }
 
     function toggleSelectFromModal() {
@@ -253,13 +232,6 @@
         
         closeCategoryModal();
     }
-
-    // Close modal when clicking outside content area
-    document.getElementById('category-detail-modal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeCategoryModal();
-        }
-    });
 
     // Check highlights on load for pre-selected items (if any)
     document.addEventListener('DOMContentLoaded', () => {
