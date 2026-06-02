@@ -218,7 +218,6 @@ class UmkmOwnerTest extends TestCase
         $response = $this->actingAs($admin)->post('/admin/umkm/categories', [
             'name' => 'Makanan Ringan',
             'description' => 'Aneka camilan khas Bali.',
-            'icon' => 'fas fa-cookie',
             'image' => $image,
         ]);
         $response->assertRedirect('/admin/umkm/categories');
@@ -228,7 +227,6 @@ class UmkmOwnerTest extends TestCase
         $this->assertNotNull($category);
         $this->assertEquals('Makanan Ringan', $category->name);
         $this->assertEquals('Aneka camilan khas Bali.', $category->description);
-        $this->assertEquals('fas fa-cookie', $category->icon);
         $this->assertNotNull($category->image_path);
         Storage::disk('public')->assertExists($category->image_path);
 
@@ -239,7 +237,6 @@ class UmkmOwnerTest extends TestCase
         $response = $this->actingAs($admin)->put('/admin/umkm/categories/'.$category->id, [
             'name' => 'Jajanan Khas Bali',
             'description' => 'Jajanan basah tradisional.',
-            'icon' => 'fas fa-cookie-bite',
             'image' => $newImage,
         ]);
         $response->assertRedirect('/admin/umkm/categories');
@@ -248,7 +245,6 @@ class UmkmOwnerTest extends TestCase
         $category = $category->fresh();
         $this->assertEquals('Jajanan Khas Bali', $category->name);
         $this->assertEquals('Jajanan basah tradisional.', $category->description);
-        $this->assertEquals('fas fa-cookie-bite', $category->icon);
         Storage::disk('public')->assertExists($category->image_path);
         Storage::disk('public')->assertMissing($oldImagePath);
 

@@ -31,7 +31,6 @@ class UmkmCategoryController extends Controller
             'name' => ['required', 'string', 'max:255', 'unique:umkm_product_categories,name'],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'max:2048'],
-            'icon' => ['nullable', 'string', 'max:255'],
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -56,7 +55,6 @@ class UmkmCategoryController extends Controller
             'name' => ['required', 'string', 'max:255', 'unique:umkm_product_categories,name,'.$id],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'max:2048'],
-            'icon' => ['nullable', 'string', 'max:255'],
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
