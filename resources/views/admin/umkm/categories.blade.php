@@ -119,6 +119,18 @@
                         </div>
                     </div>
                 </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 font-display">Model 3D (.glb)</label>
+                    <input type="file" name="model_3d_file" id="field-model-3d" accept=".glb" class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                    <span class="text-[10px] text-gray-400 mt-1 block">Format model GLB (kompresi Draco didukung), maks 20MB.</span>
+                    <span id="current-model-3d" class="mt-1 block text-[10px] text-primary font-semibold"></span>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 font-display">Model 3D iOS (.usdz)</label>
+                    <input type="file" name="model_3d_usdz_file" id="field-model-3d-usdz" accept=".usdz" class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                    <span class="text-[10px] text-gray-400 mt-1 block">Format model USDZ untuk iOS Apple Quick Look, maks 20MB.</span>
+                    <span id="current-model-3d-usdz" class="mt-1 block text-[10px] text-primary font-semibold"></span>
+                </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
                 <button type="button" onclick="closeModal()" class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">Batal</button>
@@ -141,6 +153,10 @@
     const fieldImage = document.getElementById('field-image');
     const imagePreviewContainer = document.getElementById('image-preview-container');
     const imagePreview = document.getElementById('image-preview');
+    const fieldModel3d = document.getElementById('field-model-3d');
+    const fieldModel3dUsdz = document.getElementById('field-model-3d-usdz');
+    const currentModel3d = document.getElementById('current-model-3d');
+    const currentModel3dUsdz = document.getElementById('current-model-3d-usdz');
 
     function openCreateModal() {
         modalTitle.innerText = "Tambah Kategori Produk";
@@ -149,8 +165,12 @@
         fieldName.value = "";
         fieldDescription.value = "";
         fieldImage.value = "";
+        fieldModel3d.value = "";
+        fieldModel3dUsdz.value = "";
         imagePreviewContainer.classList.add('hidden');
         imagePreview.src = "";
+        currentModel3d.innerText = "";
+        currentModel3dUsdz.innerText = "";
         
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -163,6 +183,10 @@
         fieldName.value = cat.name;
         fieldDescription.value = cat.description || "";
         fieldImage.value = "";
+        fieldModel3d.value = "";
+        fieldModel3dUsdz.value = "";
+        currentModel3d.innerText = cat.model_3d_path ? "File aktif: " + cat.model_3d_path.split('/').pop() : "";
+        currentModel3dUsdz.innerText = cat.model_3d_usdz_path ? "File aktif: " + cat.model_3d_usdz_path.split('/').pop() : "";
         
         if (cat.image_path) {
             imagePreview.src = `/storage/${cat.image_path}`;
