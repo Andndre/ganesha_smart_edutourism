@@ -7,7 +7,9 @@ use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class UmkmOwnerTest extends TestCase
@@ -205,13 +207,19 @@ class UmkmOwnerTest extends TestCase
             'role' => 'admin',
         ]);
 
+        Storage::fake('public');
+
         // View categories index
         $response = $this->actingAs($admin)->get('/admin/umkm/categories');
         $response->assertStatus(200);
 
         // Store category
+        $image = UploadedFile::fake()->image('category.jpg');
         $response = $this->actingAs($admin)->post('/admin/umkm/categories', [
             'name' => 'Makanan Ringan',
+            'description' => 'Aneka camilan khas Bali.',
+            'icon' => 'fas fa-cookie',
+            'image' => $image,
         ]);
         $response->assertRedirect('/admin/umkm/categories');
         $response->assertSessionHas('success', 'Kategori produk berhasil ditambahkan.');
@@ -219,20 +227,38 @@ class UmkmOwnerTest extends TestCase
         $category = UmkmProductCategory::first();
         $this->assertNotNull($category);
         $this->assertEquals('Makanan Ringan', $category->name);
+        $this->assertEquals('Aneka camilan khas Bali.', $category->description);
+        $this->assertEquals('fas fa-cookie', $category->icon);
+        $this->assertNotNull($category->image_path);
+        Storage::disk('public')->assertExists($category->image_path);
 
         // Update category
+        $newImage = UploadedFile::fake()->image('new_category.jpg');
+        $oldImagePath = $category->image_path;
+
         $response = $this->actingAs($admin)->put('/admin/umkm/categories/'.$category->id, [
             'name' => 'Jajanan Khas Bali',
+            'description' => 'Jajanan basah tradisional.',
+            'icon' => 'fas fa-cookie-bite',
+            'image' => $newImage,
         ]);
         $response->assertRedirect('/admin/umkm/categories');
         $response->assertSessionHas('success', 'Kategori produk berhasil diperbarui.');
-        $this->assertEquals('Jajanan Khas Bali', $category->fresh()->name);
+
+        $category = $category->fresh();
+        $this->assertEquals('Jajanan Khas Bali', $category->name);
+        $this->assertEquals('Jajanan basah tradisional.', $category->description);
+        $this->assertEquals('fas fa-cookie-bite', $category->icon);
+        Storage::disk('public')->assertExists($category->image_path);
+        Storage::disk('public')->assertMissing($oldImagePath);
 
         // Delete category
+        $deletedImagePath = $category->image_path;
         $response = $this->actingAs($admin)->delete('/admin/umkm/categories/'.$category->id);
         $response->assertRedirect('/admin/umkm/categories');
         $response->assertSessionHas('success', 'Kategori produk berhasil dihapus.');
         $this->assertDatabaseMissing('umkm_product_categories', ['id' => $category->id]);
+        Storage::disk('public')->assertMissing($deletedImagePath);
     }
 
     /**

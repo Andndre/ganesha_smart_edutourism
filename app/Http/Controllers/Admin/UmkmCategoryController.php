@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\UmkmProductCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -28,9 +29,16 @@ class UmkmCategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:umkm_product_categories,name'],
+            'description' => ['nullable', 'string'],
+            'image' => ['nullable', 'image', 'max:2048'],
+            'icon' => ['nullable', 'string', 'max:255'],
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
+
+        if ($request->hasFile('image')) {
+            $validated['image_path'] = $request->file('image')->store('categories', 'public');
+        }
 
         UmkmProductCategory::create($validated);
 
@@ -46,9 +54,19 @@ class UmkmCategoryController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:umkm_product_categories,name,'.$id],
+            'description' => ['nullable', 'string'],
+            'image' => ['nullable', 'image', 'max:2048'],
+            'icon' => ['nullable', 'string', 'max:255'],
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
+
+        if ($request->hasFile('image')) {
+            if ($category->image_path) {
+                Storage::disk('public')->delete($category->image_path);
+            }
+            $validated['image_path'] = $request->file('image')->store('categories', 'public');
+        }
 
         $category->update($validated);
 
@@ -61,6 +79,11 @@ class UmkmCategoryController extends Controller
     public function destroy(int $id): RedirectResponse
     {
         $category = UmkmProductCategory::findOrFail($id);
+
+        if ($category->image_path) {
+            Storage::disk('public')->delete($category->image_path);
+        }
+
         $category->delete();
 
         return redirect()->route('admin.umkm.categories')->with('success', 'Kategori produk berhasil dihapus.');

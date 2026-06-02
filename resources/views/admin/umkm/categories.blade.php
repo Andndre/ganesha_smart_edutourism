@@ -32,7 +32,27 @@
             <tbody class="divide-y divide-gray-50">
                 @forelse ($categories as $cat)
                     <tr class="hover:bg-gray-50/50">
-                        <td class="px-5 py-4 font-semibold text-charcoal">{{ $cat->name }}</td>
+                        <td class="px-5 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-center text-primary">
+                                    @if($cat->image_path)
+                                        <img src="{{ asset('storage/' . $cat->image_path) }}" alt="{{ $cat->name }}" class="h-full w-full object-cover">
+                                    @elseif($cat->icon)
+                                        <i class="{{ $cat->icon }} text-lg"></i>
+                                    @else
+                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                        </svg>
+                                    @endif
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-charcoal">{{ $cat->name }}</div>
+                                    @if($cat->description)
+                                        <div class="text-xs text-gray-400 mt-0.5 max-w-xs truncate" title="{{ $cat->description }}">{{ $cat->description }}</div>
+                                    @endif
+                                </div>
+                            </div>
+                        </td>
                         <td class="px-5 py-4 text-gray-500 font-mono text-xs">{{ $cat->slug }}</td>
                         <td class="px-5 py-4">
                             <span class="rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary-800">{{ $cat->products_count }} produk</span>
@@ -77,13 +97,33 @@
                 </svg>
             </button>
         </div>
-        <form id="modal-form" method="POST" action="">
+        <form id="modal-form" method="POST" action="" enctype="multipart/form-data">
             @csrf
             <div id="method-container"></div>
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Nama Kategori <span class="text-warning">*</span></label>
                     <input type="text" name="name" id="field-name" required placeholder="Contoh: Pakaian Adat, Makanan Ringan" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 font-display">Deskripsi</label>
+                    <textarea name="description" id="field-description" placeholder="Deskripsi singkat tentang kategori..." rows="3" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 font-display">Icon Class (FontAwesome)</label>
+                    <input type="text" name="icon" id="field-icon" placeholder="Contoh: fas fa-utensils, fas fa-tshirt" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    <span class="text-[10px] text-gray-400 mt-1 block">Gunakan nama class FontAwesome untuk icon kategori.</span>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 font-display">Gambar Kategori</label>
+                    <input type="file" name="image" id="field-image" accept="image/*" class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                    <span class="text-[10px] text-gray-400 mt-1 block">Format gambar (jpg, jpeg, png), maks 2MB.</span>
+                    <div id="image-preview-container" class="mt-2.5 hidden">
+                        <span class="text-[10px] font-bold text-primary uppercase tracking-wider block">Gambar Saat Ini:</span>
+                        <div class="relative mt-1 h-20 w-32 overflow-hidden rounded-lg border border-gray-200">
+                            <img id="image-preview" src="" alt="Pratinjau" class="h-full w-full object-cover">
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
@@ -103,12 +143,22 @@
     const modalTitle = document.getElementById('modal-title');
     const methodContainer = document.getElementById('method-container');
     const fieldName = document.getElementById('field-name');
+    const fieldDescription = document.getElementById('field-description');
+    const fieldIcon = document.getElementById('field-icon');
+    const fieldImage = document.getElementById('field-image');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+    const imagePreview = document.getElementById('image-preview');
 
     function openCreateModal() {
         modalTitle.innerText = "Tambah Kategori Produk";
         form.action = "{{ route('admin.umkm.categories.store') }}";
         methodContainer.innerHTML = "";
         fieldName.value = "";
+        fieldDescription.value = "";
+        fieldIcon.value = "";
+        fieldImage.value = "";
+        imagePreviewContainer.classList.add('hidden');
+        imagePreview.src = "";
         
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -119,6 +169,17 @@
         form.action = `/admin/umkm/categories/${cat.id}`;
         methodContainer.innerHTML = `@method('PUT')`;
         fieldName.value = cat.name;
+        fieldDescription.value = cat.description || "";
+        fieldIcon.value = cat.icon || "";
+        fieldImage.value = "";
+        
+        if (cat.image_path) {
+            imagePreview.src = `/storage/${cat.image_path}`;
+            imagePreviewContainer.classList.remove('hidden');
+        } else {
+            imagePreviewContainer.classList.add('hidden');
+            imagePreview.src = "";
+        }
 
         modal.classList.remove('hidden');
         modal.classList.add('flex');
