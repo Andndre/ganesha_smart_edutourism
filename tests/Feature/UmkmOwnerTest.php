@@ -215,10 +215,15 @@ class UmkmOwnerTest extends TestCase
 
         // Store category
         $image = UploadedFile::fake()->image('category.jpg');
+        $model3d = UploadedFile::fake()->create('model.glb', 1024, 'model/gltf-binary');
+        $model3dUsdz = UploadedFile::fake()->create('model.usdz', 1024, 'model/vnd.usdz+zip');
+
         $response = $this->actingAs($admin)->post('/admin/umkm/categories', [
             'name' => 'Makanan Ringan',
             'description' => 'Aneka camilan khas Bali.',
             'image' => $image,
+            'model_3d_file' => $model3d,
+            'model_3d_usdz_file' => $model3dUsdz,
         ]);
         $response->assertRedirect('/admin/umkm/categories');
         $response->assertSessionHas('success', 'Kategori produk berhasil ditambahkan.');
@@ -228,16 +233,26 @@ class UmkmOwnerTest extends TestCase
         $this->assertEquals('Makanan Ringan', $category->name);
         $this->assertEquals('Aneka camilan khas Bali.', $category->description);
         $this->assertNotNull($category->image_path);
+        $this->assertNotNull($category->model_3d_path);
+        $this->assertNotNull($category->model_3d_usdz_path);
         Storage::disk('public')->assertExists($category->image_path);
+        Storage::disk('public')->assertExists($category->model_3d_path);
+        Storage::disk('public')->assertExists($category->model_3d_usdz_path);
 
         // Update category
         $newImage = UploadedFile::fake()->image('new_category.jpg');
+        $newModel3d = UploadedFile::fake()->create('new_model.glb', 1024, 'model/gltf-binary');
+        $newModel3dUsdz = UploadedFile::fake()->create('new_model.usdz', 1024, 'model/vnd.usdz+zip');
         $oldImagePath = $category->image_path;
+        $oldModelPath = $category->model_3d_path;
+        $oldModelUsdzPath = $category->model_3d_usdz_path;
 
         $response = $this->actingAs($admin)->put('/admin/umkm/categories/'.$category->id, [
             'name' => 'Jajanan Khas Bali',
             'description' => 'Jajanan basah tradisional.',
             'image' => $newImage,
+            'model_3d_file' => $newModel3d,
+            'model_3d_usdz_file' => $newModel3dUsdz,
         ]);
         $response->assertRedirect('/admin/umkm/categories');
         $response->assertSessionHas('success', 'Kategori produk berhasil diperbarui.');
@@ -246,15 +261,23 @@ class UmkmOwnerTest extends TestCase
         $this->assertEquals('Jajanan Khas Bali', $category->name);
         $this->assertEquals('Jajanan basah tradisional.', $category->description);
         Storage::disk('public')->assertExists($category->image_path);
+        Storage::disk('public')->assertExists($category->model_3d_path);
+        Storage::disk('public')->assertExists($category->model_3d_usdz_path);
         Storage::disk('public')->assertMissing($oldImagePath);
+        Storage::disk('public')->assertMissing($oldModelPath);
+        Storage::disk('public')->assertMissing($oldModelUsdzPath);
 
         // Delete category
         $deletedImagePath = $category->image_path;
+        $deletedModelPath = $category->model_3d_path;
+        $deletedModelUsdzPath = $category->model_3d_usdz_path;
         $response = $this->actingAs($admin)->delete('/admin/umkm/categories/'.$category->id);
         $response->assertRedirect('/admin/umkm/categories');
         $response->assertSessionHas('success', 'Kategori produk berhasil dihapus.');
         $this->assertDatabaseMissing('umkm_product_categories', ['id' => $category->id]);
         Storage::disk('public')->assertMissing($deletedImagePath);
+        Storage::disk('public')->assertMissing($deletedModelPath);
+        Storage::disk('public')->assertMissing($deletedModelUsdzPath);
     }
 
     /**

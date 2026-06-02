@@ -135,12 +135,29 @@
             </svg>
         </button>
 
-        <!-- Category Image -->
+        <!-- Premium Tab Switcher (Only visible if 3D model is active) -->
+        <div id="modal-tabs-container" class="mb-4 hidden border-b border-gray-100 pb-2.5 justify-center gap-2">
+            <button type="button" id="tab-btn-image" onclick="switchModalTab('image')" class="rounded-xl px-4 py-2 text-xs font-bold transition-all bg-primary text-white shadow-sm">
+                Gambar
+            </button>
+            <button type="button" id="tab-btn-3d" onclick="switchModalTab('3d')" class="rounded-xl px-4 py-2 text-xs font-bold transition-all bg-gray-50 text-gray-500 hover:bg-gray-100">
+                Tampilan 3D
+            </button>
+        </div>
+
+        <!-- Category Image Container -->
         <div class="aspect-video w-full overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 flex items-center justify-center text-primary" id="modal-category-image-container">
             <img id="modal-category-image" src="" alt="" class="h-full w-full object-cover hidden">
             <svg id="modal-category-fallback" class="w-14 h-14 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
+        </div>
+
+        <!-- Category 3D Viewer Container -->
+        <div class="aspect-video w-full overflow-hidden rounded-2xl border border-gray-100 bg-gray-100 relative hidden" id="modal-category-3d-container">
+            <model-viewer id="modal-category-3d" class="h-full w-full" camera-controls auto-rotate shadow-intensity="1" touch-action="pan-y"
+                draco-decoder-location="https://www.gstatic.com/draco/versioned/decoders/1.5.6/">
+            </model-viewer>
         </div>
 
         <!-- Content -->
@@ -176,6 +193,31 @@
         }
     }
 
+    let currentModalTab = 'image';
+
+    function switchModalTab(tab) {
+        currentModalTab = tab;
+        
+        const imageContainer = document.getElementById('modal-category-image-container');
+        const modelContainer = document.getElementById('modal-category-3d-container');
+        const tabImageBtn = document.getElementById('tab-btn-image');
+        const tab3dBtn = document.getElementById('tab-btn-3d');
+        
+        if (tab === 'image') {
+            imageContainer.classList.remove('hidden');
+            modelContainer.classList.add('hidden');
+            
+            tabImageBtn.className = 'rounded-xl px-4 py-2 text-xs font-bold transition-all bg-primary text-white shadow-sm';
+            tab3dBtn.className = 'rounded-xl px-4 py-2 text-xs font-bold transition-all bg-gray-50 text-gray-500 hover:bg-gray-100';
+        } else {
+            imageContainer.classList.add('hidden');
+            modelContainer.classList.remove('hidden');
+            
+            tabImageBtn.className = 'rounded-xl px-4 py-2 text-xs font-bold transition-all bg-gray-50 text-gray-500 hover:bg-gray-100';
+            tab3dBtn.className = 'rounded-xl px-4 py-2 text-xs font-bold transition-all bg-primary text-white shadow-sm';
+        }
+    }
+
     function openCategoryModal(category, event) {
         // Prevent opening modal if clicking checkbox container
         if (event.target.closest('[onclick="event.stopPropagation()"]')) {
@@ -200,6 +242,29 @@
             imgEl.classList.add('hidden');
             fallbackEl.classList.remove('hidden');
         }
+
+        // Configure 3D Model Viewer
+        const modelViewer = document.getElementById('modal-category-3d');
+        const tabsContainer = document.getElementById('modal-tabs-container');
+        
+        if (category.model_3d_path) {
+            modelViewer.src = `/storage/${category.model_3d_path}`;
+            if (category.model_3d_usdz_path) {
+                modelViewer.setAttribute('ios-src', `/storage/${category.model_3d_usdz_path}`);
+            } else {
+                modelViewer.removeAttribute('ios-src');
+            }
+            tabsContainer.classList.remove('hidden');
+            tabsContainer.classList.add('flex');
+        } else {
+            modelViewer.src = '';
+            modelViewer.removeAttribute('ios-src');
+            tabsContainer.classList.remove('flex');
+            tabsContainer.classList.add('hidden');
+        }
+
+        // Default to Image tab
+        switchModalTab('image');
         
         // Update action button text and style based on select state
         const checkbox = document.getElementById(`checkbox-cat-${category.id}`);
@@ -219,6 +284,15 @@
     function closeCategoryModal() {
         window.dispatchEvent(new CustomEvent('close-category-detail'));
         activeModalCategoryId = null;
+        
+        // Clear 3D Model viewer source when closed to prevent performance leaks
+        setTimeout(() => {
+            const modelViewer = document.getElementById('modal-category-3d');
+            if (modelViewer) {
+                modelViewer.src = '';
+                modelViewer.removeAttribute('ios-src');
+            }
+        }, 300);
     }
 
     function toggleSelectFromModal() {
@@ -239,6 +313,16 @@
             const id = box.value;
             updateCardHighlight(id);
         });
+
+        // Configure Meshopt Decoder before model-viewer renders
+        const ModelViewerElement = customElements.get('model-viewer');
+        if (ModelViewerElement) {
+            ModelViewerElement.meshoptDecoderLocation =
+                'https://unpkg.com/meshoptimizer@0.17.0/meshopt_decoder.js';
+        }
     });
 </script>
+
+<!-- Google model-viewer for 3D GLB models with Meshopt/Draco compression -->
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
 @endpush

@@ -31,12 +31,22 @@ class UmkmCategoryController extends Controller
             'name' => ['required', 'string', 'max:255', 'unique:umkm_product_categories,name'],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'max:2048'],
+            'model_3d_file' => ['nullable', 'file', 'max:20480'],
+            'model_3d_usdz_file' => ['nullable', 'file', 'max:20480'],
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
 
         if ($request->hasFile('image')) {
             $validated['image_path'] = $request->file('image')->store('categories', 'public');
+        }
+
+        if ($request->hasFile('model_3d_file')) {
+            $validated['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
+        }
+
+        if ($request->hasFile('model_3d_usdz_file')) {
+            $validated['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')->store('models', 'public');
         }
 
         UmkmProductCategory::create($validated);
@@ -55,6 +65,8 @@ class UmkmCategoryController extends Controller
             'name' => ['required', 'string', 'max:255', 'unique:umkm_product_categories,name,'.$id],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'max:2048'],
+            'model_3d_file' => ['nullable', 'file', 'max:20480'],
+            'model_3d_usdz_file' => ['nullable', 'file', 'max:20480'],
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -64,6 +76,20 @@ class UmkmCategoryController extends Controller
                 Storage::disk('public')->delete($category->image_path);
             }
             $validated['image_path'] = $request->file('image')->store('categories', 'public');
+        }
+
+        if ($request->hasFile('model_3d_file')) {
+            if ($category->model_3d_path) {
+                Storage::disk('public')->delete($category->model_3d_path);
+            }
+            $validated['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
+        }
+
+        if ($request->hasFile('model_3d_usdz_file')) {
+            if ($category->model_3d_usdz_path) {
+                Storage::disk('public')->delete($category->model_3d_usdz_path);
+            }
+            $validated['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')->store('models', 'public');
         }
 
         $category->update($validated);
@@ -80,6 +106,14 @@ class UmkmCategoryController extends Controller
 
         if ($category->image_path) {
             Storage::disk('public')->delete($category->image_path);
+        }
+
+        if ($category->model_3d_path) {
+            Storage::disk('public')->delete($category->model_3d_path);
+        }
+
+        if ($category->model_3d_usdz_path) {
+            Storage::disk('public')->delete($category->model_3d_usdz_path);
         }
 
         $category->delete();
