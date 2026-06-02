@@ -128,7 +128,7 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 font-display">Model 3D iOS (.usdz)</label>
                     <input type="file" name="model_3d_usdz_file" id="field-model-3d-usdz" accept=".usdz" class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
-                    <span class="text-[10px] text-gray-400 mt-1 block">Format model USDZ untuk iOS Apple Quick Look, maks 20MB.</span>
+                    <span class="text-[10px] text-gray-400 mt-1 block">Format model USDZ untuk iOS Apple Quick Look, maks 50MB.</span>
                     <span id="current-model-3d-usdz" class="mt-1 block text-[10px] text-primary font-semibold"></span>
                 </div>
             </div>
