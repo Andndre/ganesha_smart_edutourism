@@ -32,7 +32,7 @@ class UmkmCategoryController extends Controller
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'max:2048'],
             'model_3d_file' => ['nullable', 'file', 'max:20480'],
-            'model_3d_usdz_file' => ['nullable', 'file', 'max:20480'],
+            'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -66,7 +66,7 @@ class UmkmCategoryController extends Controller
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'max:2048'],
             'model_3d_file' => ['nullable', 'file', 'max:20480'],
-            'model_3d_usdz_file' => ['nullable', 'file', 'max:20480'],
+            'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
