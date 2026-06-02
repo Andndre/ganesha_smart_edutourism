@@ -23,10 +23,19 @@ class ARController extends Controller
     public function getModel(Request $request): JsonResponse
     {
         $request->validate([
-            'slug' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255',
+            'marker' => 'nullable|string|max:255',
         ]);
 
-        $object = CulturalObject::where('slug', $request->slug)->first();
+        $object = null;
+
+        if ($request->filled('slug')) {
+            $object = CulturalObject::where('slug', $request->slug)->first();
+        }
+
+        if (! $object && $request->filled('marker')) {
+            $object = CulturalObject::where('ar_marker_id', $request->marker)->first();
+        }
 
         if (! $object) {
             return response()->json(['error' => 'Objek tidak ditemukan'], 404);
