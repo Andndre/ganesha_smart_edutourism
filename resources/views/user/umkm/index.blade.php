@@ -64,7 +64,7 @@
                             <label class="flex items-center justify-center cursor-pointer">
                                 <input type="checkbox" name="category_ids[]" value="{{ $category->id }}" 
                                        id="checkbox-cat-{{ $category->id }}"
-                                       class="w-5.5 h-5.5 rounded-md text-primary border-gray-300 focus:ring-primary focus:ring-offset-0 transition-all cursor-pointer accent-primary"
+                                       class="w-5.5 h-5.5 rounded-full text-primary border-gray-300 focus:ring-primary focus:ring-offset-0 transition-all cursor-pointer accent-primary"
                                        onchange="updateCardHighlight({{ $category->id }})">
                             </label>
                         </div>
