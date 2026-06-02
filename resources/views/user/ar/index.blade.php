@@ -11,14 +11,21 @@
 
         #reader {
             width: 100%;
-            height: 100vh;
+            height: 100%;
             border: none;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #reader video {
             object-fit: cover !important;
-            height: 100vh !important;
-            width: 100vw !important;
+            width: 100% !important;
+            height: 100% !important;
+            min-width: 100% !important;
+            min-height: 100% !important;
+            display: block !important;
         }
 
         /* Model Viewer Styles */
@@ -280,7 +287,7 @@
                 fps: 10, 
                 qrbox: { width: 250, height: 250 },
                 experimentalFeatures: {
-                    useBarCodeDetectorIfSupported: true
+                    useBarCodeDetectorIfSupported: false // Disabled: causes black screen on some Androids
                 }
             };
             
