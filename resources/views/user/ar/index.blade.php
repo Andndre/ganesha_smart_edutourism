@@ -129,10 +129,109 @@
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <script>
+        // ========================================
+        // ON-SCREEN DEBUG PANEL (for iOS Safari)
+        // ========================================
+        (function() {
+            const panel = document.createElement('div');
+            panel.id = 'debug-panel';
+            panel.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;max-height:35vh;overflow-y:auto;background:rgba(0,0,0,0.85);color:#0f0;font:11px/1.4 monospace;padding:8px 10px;pointer-events:auto;-webkit-overflow-scrolling:touch;';
+            
+            const header = document.createElement('div');
+            header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;position:sticky;top:0;background:rgba(0,0,0,0.95);padding:2px 0;';
+            header.innerHTML = '<b style="color:#0ff;">🐛 DEBUG LOG (iOS)</b>';
+            
+            const clearBtn = document.createElement('button');
+            clearBtn.textContent = 'Clear';
+            clearBtn.style.cssText = 'background:#333;color:#fff;border:1px solid #555;border-radius:4px;padding:2px 8px;font-size:10px;';
+            clearBtn.onclick = () => { logContainer.innerHTML = ''; };
+            header.appendChild(clearBtn);
+            
+            const logContainer = document.createElement('div');
+            logContainer.id = 'debug-log';
+            
+            panel.appendChild(header);
+            panel.appendChild(logContainer);
+            document.body.appendChild(panel);
+            
+            let logCount = 0;
+            
+            function addLog(type, args) {
+                logCount++;
+                const line = document.createElement('div');
+                line.style.cssText = 'border-bottom:1px solid #222;padding:2px 0;word-break:break-all;';
+                
+                const colors = { log: '#0f0', warn: '#ff0', error: '#f44', info: '#0af' };
+                const prefix = { log: '📗', warn: '⚠️', error: '❌', info: 'ℹ️' };
+                
+                const timestamp = new Date().toLocaleTimeString('en-GB');
+                const message = Array.from(args).map(a => {
+                    if (a === null) return 'null';
+                    if (a === undefined) return 'undefined';
+                    if (typeof a === 'object') {
+                        try { return JSON.stringify(a, null, 0).substring(0, 300); }
+                        catch(e) { return String(a); }
+                    }
+                    return String(a);
+                }).join(' ');
+                
+                line.innerHTML = `<span style="color:#888;">${logCount} [${timestamp}]</span> ${prefix[type] || ''} <span style="color:${colors[type] || '#fff'};">${message}</span>`;
+                logContainer.appendChild(line);
+                panel.scrollTop = panel.scrollHeight;
+            }
+            
+            // Intercept console methods
+            const origLog = console.log;
+            const origWarn = console.warn;
+            const origError = console.error;
+            const origInfo = console.info;
+            
+            console.log = function() { origLog.apply(console, arguments); addLog('log', arguments); };
+            console.warn = function() { origWarn.apply(console, arguments); addLog('warn', arguments); };
+            console.error = function() { origError.apply(console, arguments); addLog('error', arguments); };
+            console.info = function() { origInfo.apply(console, arguments); addLog('info', arguments); };
+            
+            // Catch unhandled errors
+            window.addEventListener('error', (e) => {
+                addLog('error', ['UNCAUGHT:', e.message, 'at', e.filename + ':' + e.lineno]);
+            });
+            window.addEventListener('unhandledrejection', (e) => {
+                addLog('error', ['UNHANDLED PROMISE:', e.reason]);
+            });
+        })();
+
+        // ========================================
+        // AR SCANNER LOGIC
+        // ========================================
         let html5QrcodeScanner = null;
         let isProcessing = false;
+        let scanFailCount = 0;
+
+        console.info('=== AR Scanner Page Loaded ===');
+        console.info('User Agent: ' + navigator.userAgent);
+        console.info('Protocol: ' + window.location.protocol);
+        console.info('Host: ' + window.location.host);
+        console.info('Secure Context: ' + window.isSecureContext);
+        console.info('getUserMedia support: ' + !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
 
         document.addEventListener('DOMContentLoaded', function () {
+            console.log('DOM Ready - starting init...');
+            
+            // Log available camera devices
+            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+                navigator.mediaDevices.enumerateDevices()
+                    .then(devices => {
+                        const cameras = devices.filter(d => d.kind === 'videoinput');
+                        console.info('Cameras found: ' + cameras.length);
+                        cameras.forEach((cam, i) => {
+                            console.info('  Camera ' + i + ': ' + (cam.label || '(no label - permission pending)') + ' id=' + cam.deviceId.substring(0, 8) + '...');
+                        });
+                    })
+                    .catch(err => console.error('enumerateDevices error:', err.message));
+            } else {
+                console.warn('enumerateDevices NOT available');
+            }
+
             initScanner();
 
             document.getElementById('btn-back-scanner').addEventListener('click', () => {
@@ -156,21 +255,48 @@
         });
 
         function initScanner() {
-            html5QrcodeScanner = new Html5Qrcode("reader");
+            console.log('initScanner() called');
+            
+            try {
+                console.log('Creating Html5Qrcode instance...');
+                html5QrcodeScanner = new Html5Qrcode("reader");
+                console.log('Html5Qrcode instance created OK');
+            } catch (e) {
+                console.error('FAILED to create Html5Qrcode:', e.message);
+                return;
+            }
             
             const config = { 
                 fps: 10, 
                 qrbox: { width: 250, height: 250 }
             };
+            
+            console.log('Scanner config:', config);
+            console.log('Calling html5QrcodeScanner.start() with facingMode=environment...');
 
-            // Start scanner using back camera
             html5QrcodeScanner.start(
                 { facingMode: "environment" },
                 config,
                 onScanSuccess,
                 onScanFailure
-            ).catch(err => {
-                console.error("Gagal memulai kamera", err);
+            ).then(() => {
+                console.log('✅ Scanner started SUCCESSFULLY');
+                console.info('Scanner state: ' + html5QrcodeScanner.getState());
+                
+                // Log periodic scan status
+                setInterval(() => {
+                    if (!isProcessing && html5QrcodeScanner) {
+                        try {
+                            const state = html5QrcodeScanner.getState();
+                            console.log('Scanner heartbeat - state: ' + state + ', failScans: ' + scanFailCount);
+                            scanFailCount = 0;
+                        } catch(e) {}
+                    }
+                }, 10000);
+            }).catch(err => {
+                console.error("❌ Scanner start FAILED:", err);
+                console.error("Error name:", err.name);
+                console.error("Error message:", err.message);
                 document.getElementById('status-badge').innerText = 'Kamera tidak diizinkan';
                 document.getElementById('status-badge').classList.replace('bg-black/40', 'bg-red-500/80');
             });
@@ -179,35 +305,36 @@
         function onScanSuccess(decodedText, decodedResult) {
             if (isProcessing) return;
             
-            console.log("QR Terdeteksi:", decodedText);
+            console.log("🎯 QR Terdeteksi:", decodedText);
+            console.log("Format:", decodedResult?.result?.format?.formatName || 'unknown');
             
             let slug = '';
             let marker = '';
 
             if (decodedText.includes('/cultural/')) {
-                // Format: https://domain.com/cultural/slug-objek
                 const parts = decodedText.split('/cultural/');
                 slug = parts[1].split('?')[0].replace(/\/$/, "");
+                console.log("Extracted slug:", slug);
             } else if (decodedText.includes('marker=')) {
-                // Format: https://domain.com/explore?marker=MARKER_ID
                 try {
                     const urlObj = new URL(decodedText);
                     marker = urlObj.searchParams.get('marker') || '';
+                    console.log("Extracted marker:", marker);
                 } catch (e) {
-                    console.error(e);
+                    console.error("URL parse error:", e.message);
                 }
             } else if (decodedText.startsWith('MARKER_')) {
-                // Format: Raw text MARKER_ID
                 marker = decodedText;
+                console.log("Raw marker:", marker);
             }
 
             if (slug || marker) {
                 isProcessing = true;
                 if (navigator.vibrate) navigator.vibrate(50);
                 
-                // Pause scanner to save battery
                 if (html5QrcodeScanner.isScanning) {
                     html5QrcodeScanner.pause();
+                    console.log("Scanner paused");
                 }
                 
                 fetchModel(slug, marker);
@@ -217,7 +344,6 @@
                 statusBadge.innerText = 'QR Tidak Dikenali!';
                 statusBadge.classList.replace('bg-black/40', 'bg-red-500/80');
                 
-                // Kembalikan ke teks normal setelah 2 detik
                 setTimeout(() => {
                     if (!isProcessing) {
                         statusBadge.innerText = 'Arahkan ke Marker QR';
@@ -228,10 +354,13 @@
         }
 
         function onScanFailure(error) {
-            // Berjalan terus-menerus selama tidak terdeteksi
+            // Runs continuously while no QR is detected - count silently
+            scanFailCount++;
         }
 
         function fetchModel(slug, marker) {
+            console.log("fetchModel() slug=" + slug + " marker=" + marker);
+            
             const loadingOverlay = document.getElementById('loading-overlay');
             const statusBadge = document.getElementById('status-badge');
             
@@ -246,9 +375,16 @@
                 query = `marker=${encodeURIComponent(marker)}`;
             }
 
-            fetch(`/api/ar/model?${query}`)
-                .then(res => res.json())
+            const fetchUrl = `/api/ar/model?${query}`;
+            console.log("Fetching:", fetchUrl);
+
+            fetch(fetchUrl)
+                .then(res => {
+                    console.log("Fetch response status:", res.status);
+                    return res.json();
+                })
                 .then(data => {
+                    console.log("API response:", data);
                     if (data.success && data.model_url) {
                         showModel(data.model_url, data.usdz_url, data.name, data.description);
                     } else {
@@ -256,7 +392,7 @@
                     }
                 })
                 .catch(err => {
-                    console.error(err);
+                    console.error("fetchModel error:", err);
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
@@ -273,21 +409,25 @@
         }
 
         function showModel(url, usdzUrl, name, desc) {
+            console.log("showModel() url=" + url + " usdzUrl=" + usdzUrl);
+            
             document.getElementById('scanner-view').classList.add('hidden');
             document.getElementById('model-view').classList.remove('hidden');
             document.getElementById('status-badge').innerText = 'Sentuh untuk memutar/zoom';
             
             const viewer = document.getElementById('ar-model-viewer');
-            // Ensure absolute URL for Scene Viewer intent
             const absoluteUrl = new URL(url, window.location.href).href;
             viewer.src = absoluteUrl;
+            console.log("model-viewer src set to:", absoluteUrl);
             
             if (usdzUrl) {
                 const absoluteUsdzUrl = new URL(usdzUrl, window.location.href).href;
                 viewer.setAttribute('ios-src', absoluteUsdzUrl);
                 viewer.iosSrc = absoluteUsdzUrl;
+                console.log("ios-src set to:", absoluteUsdzUrl);
             } else {
                 viewer.removeAttribute('ios-src');
+                console.warn("No USDZ URL provided - iOS AR will not work");
             }
             
             document.getElementById('model-title').innerText = name || '';
@@ -295,6 +435,8 @@
         }
 
         function showScanner() {
+            console.log("showScanner() called");
+            
             document.getElementById('model-view').classList.add('hidden');
             document.getElementById('scanner-view').classList.remove('hidden');
             document.getElementById('status-badge').innerText = 'Arahkan ke Marker QR';
@@ -302,11 +444,11 @@
             
             isProcessing = false;
             
-            // Clear viewer memory
             document.getElementById('ar-model-viewer').src = '';
             
             if (html5QrcodeScanner && html5QrcodeScanner.getState() === Html5QrcodeScannerState.PAUSED) {
                 html5QrcodeScanner.resume();
+                console.log("Scanner resumed");
             }
         }
     </script>
