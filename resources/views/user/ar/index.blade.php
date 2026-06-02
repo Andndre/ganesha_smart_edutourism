@@ -11,21 +11,17 @@
 
         #reader {
             width: 100%;
-            height: 100%;
             border: none;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         #reader video {
             object-fit: cover !important;
-            width: 100% !important;
-            height: 100% !important;
-            min-width: 100% !important;
-            min-height: 100% !important;
-            display: block !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 1 !important;
         }
 
         /* Model Viewer Styles */
@@ -63,7 +59,7 @@
         <div id="scanner-view" class="absolute inset-0 z-0">
             <div id="reader"></div>
             <!-- Overlay Reticle -->
-            <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <div class="pointer-events-none absolute inset-0 flex items-center justify-center z-10">
                 <div class="relative h-64 w-64 rounded-3xl border-2 border-white/50">
                     <div class="border-primary absolute -left-1 -top-1 h-8 w-8 rounded-tl-3xl border-l-4 border-t-4"></div>
                     <div class="border-primary absolute -right-1 -top-1 h-8 w-8 rounded-tr-3xl border-r-4 border-t-4"></div>
@@ -285,26 +281,68 @@
             
             const config = { 
                 fps: 10, 
-                qrbox: { width: 250, height: 250 },
                 experimentalFeatures: {
                     useBarCodeDetectorIfSupported: false // Disabled: causes black screen on some Androids
                 }
             };
             
             console.log('Scanner config:', config);
-            console.log('Using decoder: ' + (hasBarcodeDetector ? 'NATIVE BarcodeDetector' : 'JS ZXing fallback'));
-            console.log('Calling html5QrcodeScanner.start() with facingMode=environment...');
+            console.log('Calling html5QrcodeScanner.start()...');
 
-            html5QrcodeScanner.start(
-                { facingMode: "environment" },
-                config,
-                onScanSuccess,
-                onScanFailure
-            ).then(() => {
-                console.log('✅ Scanner started SUCCESSFULLY');
-                console.info('Scanner state: ' + html5QrcodeScanner.getState());
-                
-                // Log periodic scan status
+            Html5Qrcode.getCameras().then(devices => {
+                if (devices && devices.length) {
+                    // Try to find a back camera
+                    let cameraId = devices[0].id; // Default to first
+                    for (let i = 0; i < devices.length; i++) {
+                        let label = devices[i].label.toLowerCase();
+                        if (label.includes('back') || label.includes('environment') || label.includes('rear') || label.includes('kamera belakang') || label.includes('0, facing back')) {
+                            cameraId = devices[i].id;
+                            break;
+                        }
+                    }
+                    
+                    console.log('Selected camera ID:', cameraId);
+                    
+                    html5QrcodeScanner.start(
+                        cameraId,
+                        config,
+                        onScanSuccess,
+                        onScanFailure
+                    ).then(() => {
+                        console.log('✅ Scanner started SUCCESSFULLY');
+                        console.info('Scanner state: ' + html5QrcodeScanner.getState());
+                        startHeartbeat();
+                    }).catch(err => {
+                        console.warn("❌ Failed with cameraId, falling back to facingMode:", err);
+                        startWithFacingMode();
+                    });
+                } else {
+                    console.warn("No cameras found via getCameras, falling back to facingMode");
+                    startWithFacingMode();
+                }
+            }).catch(err => {
+                console.warn("getCameras failed, falling back to facingMode:", err);
+                startWithFacingMode();
+            });
+
+            function startWithFacingMode() {
+                html5QrcodeScanner.start(
+                    { facingMode: "environment" },
+                    config,
+                    onScanSuccess,
+                    onScanFailure
+                ).then(() => {
+                    console.log('✅ Scanner started SUCCESSFULLY (facingMode)');
+                    console.info('Scanner state: ' + html5QrcodeScanner.getState());
+                    startHeartbeat();
+                }).catch(err => {
+                    console.error("❌ Scanner start FAILED:", err);
+                    document.getElementById('status-badge').innerText = 'Kamera tidak diizinkan';
+                    document.getElementById('status-badge').classList.replace('bg-black/40', 'bg-red-500/80');
+                });
+            }
+
+            function startHeartbeat() {
                 setInterval(() => {
                     if (!isProcessing && html5QrcodeScanner) {
                         try {
@@ -314,13 +352,7 @@
                         } catch(e) {}
                     }
                 }, 10000);
-            }).catch(err => {
-                console.error("❌ Scanner start FAILED:", err);
-                console.error("Error name:", err.name);
-                console.error("Error message:", err.message);
-                document.getElementById('status-badge').innerText = 'Kamera tidak diizinkan';
-                document.getElementById('status-badge').classList.replace('bg-black/40', 'bg-red-500/80');
-            });
+            }
         }
 
         function onScanSuccess(decodedText, decodedResult) {
