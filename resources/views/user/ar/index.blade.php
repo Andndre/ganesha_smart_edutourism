@@ -257,6 +257,16 @@
         function initScanner() {
             console.log('initScanner() called');
             
+            // Check native BarcodeDetector support
+            const hasBarcodeDetector = 'BarcodeDetector' in window;
+            console.info('Native BarcodeDetector API: ' + (hasBarcodeDetector ? 'AVAILABLE ✅' : 'NOT available (will use JS fallback)'));
+            
+            if (hasBarcodeDetector) {
+                BarcodeDetector.getSupportedFormats().then(formats => {
+                    console.info('Supported barcode formats: ' + formats.join(', '));
+                }).catch(e => console.warn('getSupportedFormats error:', e.message));
+            }
+            
             try {
                 console.log('Creating Html5Qrcode instance...');
                 html5QrcodeScanner = new Html5Qrcode("reader");
@@ -268,10 +278,14 @@
             
             const config = { 
                 fps: 10, 
-                qrbox: { width: 250, height: 250 }
+                qrbox: { width: 250, height: 250 },
+                experimentalFeatures: {
+                    useBarCodeDetectorIfSupported: true
+                }
             };
             
             console.log('Scanner config:', config);
+            console.log('Using decoder: ' + (hasBarcodeDetector ? 'NATIVE BarcodeDetector' : 'JS ZXing fallback'));
             console.log('Calling html5QrcodeScanner.start() with facingMode=environment...');
 
             html5QrcodeScanner.start(
