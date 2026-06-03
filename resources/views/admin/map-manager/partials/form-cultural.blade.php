@@ -461,6 +461,10 @@
     } from 'https://esm.sh/@tiptap/core';
     import StarterKit from 'https://esm.sh/@tiptap/starter-kit';
 
+    // Expose TipTap modules globally for dynamic storytelling editors
+    window.TipTapEditor = Editor;
+    window.TipTapStarterKit = StarterKit;
+
     document.addEventListener('DOMContentLoaded', () => {
         const textarea = document.querySelector('#form-cultural textarea[name="description"]');
         const editorEl = document.getElementById('cultural-editor');
