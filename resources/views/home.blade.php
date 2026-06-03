@@ -156,17 +156,6 @@
                 </div>
                 <span class="text-center text-[11px] font-medium leading-tight">Jadwal<br>Event</span>
             </a>
-            <a href="{{ route('explore') }}?category=fasilitas"
-                class="tap-target flex flex-col items-center gap-2 transition-transform active:scale-95">
-                <div
-                    class="flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-100 bg-white text-gray-500 shadow-sm">
-                    <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <span class="text-center text-[11px] font-medium leading-tight">Info<br>Fasilitas</span>
-            </a>
             @if (Auth::check() && Auth::user()->isUmkmOwner())
                 <a href="{{ route('owner.dashboard') }}"
                     class="tap-target flex flex-col items-center gap-2 transition-transform active:scale-95">
