@@ -3,7 +3,7 @@
 @section('header_title', 'Smart Edutourism')
 
 @section('content')
-<div class="space-y-5 px-4 py-6">
+<div class="space-y-5 px-4 py-6" x-data>
 
     <div class="mb-4">
         <h2 class="font-display text-charcoal text-xl font-bold">Jalur Edukasi & Budaya</h2>
