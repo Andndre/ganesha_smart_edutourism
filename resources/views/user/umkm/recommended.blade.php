@@ -128,12 +128,26 @@
 
     <!-- Sticky Bottom CTA -->
     <div class="fixed bottom-0 pb-[calc(1rem+env(safe-area-inset-bottom))] inset-x-0 p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 z-30 shadow-[0_-8px_20px_rgba(0,0,0,0.06)]">
-        <button class="w-full bg-primary text-white font-bold h-12 rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2" onclick="scrollToMap()">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            Lihat Peta untuk Bayar di Tempat
-        </button>
+        @if($umkm->mapLocation)
+            <a href="{{ route('explore', [
+                'lat' => $umkm->mapLocation->latitude,
+                'lng' => $umkm->mapLocation->longitude,
+                'name' => $umkm->business_name,
+                'action' => 'route'
+            ]) }}" class="w-full bg-primary text-white font-bold h-12 rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Lihat Peta untuk Bayar di Tempat
+            </a>
+        @else
+            <button class="w-full bg-primary text-white font-bold h-12 rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2" onclick="scrollToMap()">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Lihat Peta untuk Bayar di Tempat
+            </button>
+        @endif
         <p class="text-xs text-center text-gray-500 mt-2">UMKM ini melayani pembayaran langsung di lokasi (Bayar di Tempat).</p>
     </div>
 @endsection
