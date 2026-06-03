@@ -231,6 +231,7 @@ function handleMarkerClick(marker) {
 
             form.querySelector('input[name="is_accessible"]').checked = loc.is_accessible;
             form.querySelector('textarea[name="accessibility_notes"]').value = loc.accessibility_notes || '';
+            updateAccessibilityNotesVisibility(form);
 
             // Populate Quizzes
             const quizzesList = document.getElementById('quizzes-list');
@@ -299,6 +300,7 @@ function handleMarkerClick(marker) {
             form.querySelector('input[name="is_active"]').checked = details.is_active;
             form.querySelector('input[name="is_accessible"]').checked = loc.is_accessible;
             form.querySelector('textarea[name="accessibility_notes"]').value = loc.accessibility_notes || '';
+            updateAccessibilityNotesVisibility(form);
 
             // Setup Delete Action
             document.getElementById('form-delete').action = `/admin/umkm/profiles/${details.id}`;
@@ -315,6 +317,7 @@ function handleMarkerClick(marker) {
             form.querySelector('input[name="is_active"]').checked = details.is_active;
             form.querySelector('input[name="is_accessible"]').checked = loc.is_accessible;
             form.querySelector('textarea[name="accessibility_notes"]').value = loc.accessibility_notes || '';
+            updateAccessibilityNotesVisibility(form);
 
             // Setup Delete Action
             document.getElementById('form-delete').action = `/admin/facilities/${details.id}`;
@@ -431,6 +434,7 @@ function resetForms() {
                 switchStoryTab('history');
             }
         }
+        updateAccessibilityNotesVisibility(culturalForm);
     }
 
     const umkmForm = document.getElementById('form-umkm');
@@ -442,6 +446,7 @@ function resetForms() {
         document.getElementById('umkm-owner-search').value = '';
         const ownerNameEl = document.getElementById('umkm-owner-name');
         if (ownerNameEl) ownerNameEl.value = '';
+        updateAccessibilityNotesVisibility(umkmForm);
     }
 
     const facilityForm = document.getElementById('form-facility');
@@ -449,6 +454,33 @@ function resetForms() {
         facilityForm.reset();
         facilityForm.action = "{{ route('admin.facilities.store') }}";
         document.getElementById('method-facility').innerHTML = '';
+        updateAccessibilityNotesVisibility(facilityForm);
     }
 }
+
+function updateAccessibilityNotesVisibility(formElement) {
+    if (!formElement) return;
+    const checkbox = formElement.querySelector('input[name="is_accessible"]');
+    const container = formElement.querySelector('.accessibility-notes-container');
+    if (!checkbox || !container) return;
+    
+    container.style.display = checkbox.checked ? 'block' : 'none';
+}
+
+// Initialize accessibility notes toggle event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    ['form-cultural', 'form-umkm', 'form-facility'].forEach(formId => {
+        const form = document.getElementById(formId);
+        if (!form) return;
+        
+        const checkbox = form.querySelector('input[name="is_accessible"]');
+        if (checkbox) {
+            checkbox.addEventListener('change', () => {
+                updateAccessibilityNotesVisibility(form);
+            });
+            // Initial call to set correct state
+            updateAccessibilityNotesVisibility(form);
+        }
+    });
+});
 </script>
