@@ -201,7 +201,7 @@ class EdutourismTest extends TestCase
         $response->assertStatus(200);
 
         $session->refresh();
-        $this->assertEquals($point->id, $session->current_point_id);
+        $this->assertNull($session->current_point_id);
         $this->assertEquals(1, $session->points_completed);
         $this->assertEquals('completed', $session->status);
     }

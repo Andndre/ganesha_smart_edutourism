@@ -91,7 +91,9 @@ class SmartEdutourismController extends Controller
         }
 
         $sessionQuery = RouteSession::with(['tourRoute', 'currentPoint.locationable.mapLocation', 'tourRoute.routePoints.locationable.mapLocation'])
-            ->where('status', 'active');
+            ->whereIn('status', ['active', 'completed'])
+            ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
+            ->orderBy('updated_at', 'desc');
 
         if ($userId) {
             $sessionQuery->where('user_id', $userId);
@@ -151,6 +153,7 @@ class SmartEdutourismController extends Controller
                         $session->current_point_id = $points[$currentIndex + 1]->id;
                     } else {
                         $session->status = 'completed';
+                        $session->current_point_id = null;
                     }
 
                     $session->save();
@@ -216,6 +219,7 @@ class SmartEdutourismController extends Controller
                     $session->current_point_id = $points[$currentIndex + 1]->id;
                 } else {
                     $session->status = 'completed';
+                    $session->current_point_id = null;
                 }
             }
 
