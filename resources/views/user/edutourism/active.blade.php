@@ -199,21 +199,35 @@
         }
 
         window.triggerArrive = function(pointId) {
+            console.log("triggerArrive called for point ID:", pointId);
             document.getElementById('btn-arrive').disabled = true;
             document.getElementById('btn-arrive').textContent = 'Memuat Kuis...';
             
-            fetch(`/edutourism/arrive/${pointId}`, {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
+            const url = `/edutourism/arrive/${pointId}`;
+            console.log("Fetching URL:", url);
+
+            fetch(url, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
             })
-            .then(res => res.json())
+            .then(res => {
+                console.log("Response received. Status:", res.status);
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
             .then(data => {
+                console.log("Data received successfully:", data);
                 if (data.success && data.quizzes && data.quizzes.length > 0) {
                     currentQuizzes = data.quizzes;
                     currentQuizIndex = 0;
                     showQuiz();
-                    window.dispatchEvent(new CustomEvent('open-modal', {detail: 'quiz-modal'}));
+                    window.dispatchEvent(new CustomEvent('open-quiz-modal'));
+                    document.getElementById('btn-arrive').disabled = false;
+                    document.getElementById('btn-arrive').textContent = 'Jawab Pertanyaan & Lanjut';
                 } else {
+                    console.log("No quizzes found for this point. Showing SweetAlert info...");
                     Swal.fire({
                         title: 'Info',
                         text: 'Tidak ada kuis untuk titik ini. Rute berlanjut...',
@@ -226,14 +240,15 @@
                 }
             })
             .catch(err => {
+                console.error("Error occurred in triggerArrive:", err);
+                document.getElementById('btn-arrive').disabled = false;
+                document.getElementById('btn-arrive').textContent = 'Jawab Pertanyaan & Lanjut';
                 Swal.fire({
                     title: 'Oops!',
                     text: 'Gagal memuat kuis.',
                     icon: 'error',
                     confirmButtonColor: '#1E5128'
                 });
-                document.getElementById('btn-arrive').disabled = false;
-                document.getElementById('btn-arrive').textContent = 'Jawab Pertanyaan & Lanjut';
             });
         }
 
