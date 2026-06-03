@@ -15,6 +15,10 @@ class AuthController extends Controller
      */
     public function showLogin()
     {
+        if (request()->has('redirect')) {
+            session(['url.intended' => request()->input('redirect')]);
+        }
+
         return view('auth.login');
     }
 

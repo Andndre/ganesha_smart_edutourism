@@ -28,7 +28,13 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer(['layouts.app', 'user.umkm.index'], function ($view) {
             $userId = auth()->id();
-            $guestToken = session('guest_token');
+            $guestToken = session('guest_token') ?? request()->cookie('visitor_token');
+
+            // Sync session if cookie exists but session is empty
+            if (! $userId && $guestToken && ! session()->has('guest_token')) {
+                session(['guest_token' => $guestToken, 'guest_name' => 'Wisatawan']);
+            }
+
             $activeSession = null;
             if ($userId || $guestToken) {
                 $query = RouteSession::with('tourRoute')->where('status', 'active');

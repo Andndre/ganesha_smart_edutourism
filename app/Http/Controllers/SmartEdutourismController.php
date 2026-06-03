@@ -8,6 +8,7 @@ use App\Models\RouteSession;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class SmartEdutourismController extends Controller
@@ -46,10 +47,11 @@ class SmartEdutourismController extends Controller
         $firstPoint = $route->routePoints->first();
 
         $userId = auth()->id();
-        $guestToken = session('guest_token');
+        $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
 
         if (! $userId && ! $guestToken) {
-            return response()->json(['success' => false, 'message' => 'Silakan login atau gunakan akses Walk-in untuk memulai rute ini.'], 403);
+            $guestToken = 'visitor_'.Str::random(32);
+            session(['guest_token' => $guestToken, 'guest_name' => 'Wisatawan']);
         }
 
         if ($userId) {
@@ -70,13 +72,23 @@ class SmartEdutourismController extends Controller
             ]);
         }
 
-        return response()->json(['success' => true, 'redirect' => route('edutourism.active')]);
+        $response = response()->json(['success' => true, 'redirect' => route('edutourism.active')]);
+
+        if (! $userId) {
+            $response->withCookie(cookie()->forever('visitor_token', $guestToken));
+        }
+
+        return $response;
     }
 
     public function active(Request $request)
     {
         $userId = auth()->id();
-        $guestToken = session('guest_token');
+        $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
+
+        if (! $userId && $guestToken && ! session()->has('guest_token')) {
+            session(['guest_token' => $guestToken, 'guest_name' => 'Wisatawan']);
+        }
 
         $sessionQuery = RouteSession::with(['tourRoute', 'currentPoint.locationable.mapLocation', 'tourRoute.routePoints.locationable.mapLocation'])
             ->where('status', 'active');
@@ -126,7 +138,11 @@ class SmartEdutourismController extends Controller
 
         // Update session
         $userId = auth()->id();
-        $guestToken = session('guest_token');
+        $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
+
+        if (! $userId && $guestToken && ! session()->has('guest_token')) {
+            session(['guest_token' => $guestToken, 'guest_name' => 'Wisatawan']);
+        }
 
         $sessionQuery = RouteSession::where('status', 'active');
         if ($userId) {

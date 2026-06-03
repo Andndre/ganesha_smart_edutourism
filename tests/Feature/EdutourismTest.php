@@ -75,4 +75,32 @@ class EdutourismTest extends TestCase
             'redirect' => route('edutourism.active'),
         ]);
     }
+
+    /**
+     * Test guest can access starting a route preview and get active session redirection with cookie.
+     */
+    public function test_guest_can_start_route_session_and_receives_cookie(): void
+    {
+        // Arrange
+        $route = TourRoute::create([
+            'name' => 'Rute Budaya',
+            'description' => 'Mengenal adat istiadat desa.',
+            'difficulty' => 'moderate',
+            'estimated_duration_minutes' => 60,
+            'distance_meters' => 800,
+            'is_smart_route' => true,
+            'is_active' => true,
+        ]);
+
+        // Act
+        $response = $this->postJson(route('edutourism.start', ['id' => $route->id]));
+
+        // Assert
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'redirect' => route('edutourism.active'),
+        ]);
+        $response->assertCookieNotExpired('visitor_token');
+    }
 }
