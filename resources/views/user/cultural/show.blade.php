@@ -186,24 +186,25 @@
             </div>
 
             @if ($object->stories->isNotEmpty())
-                <div class="mt-12 border-t border-gray-100 pt-8 max-w-none">
-                    <h2 class="font-playfair text-charcoal text-2xl font-bold mb-1">Storytelling & Warisan Budaya</h2>
-                    <p class="text-xs text-gray-500 mb-6">Mendalami nilai sejarah, makna filosofi, dan kearifan lokal yang terkandung di dalamnya.</p>
+                <div class="mt-10 border-t border-gray-100 pt-8 max-w-none">
+                    <h2 class="font-playfair text-charcoal text-xl font-bold mb-1">Storytelling & Warisan Budaya</h2>
+                    <p class="text-xs text-gray-500 mb-6">Mendalami nilai sejarah, makna filosofi, dan kearifan lokal objek budaya ini.</p>
                     
-                    <div class="space-y-6">
+                    <!-- Timeline Container -->
+                    <div class="relative border-l-2 border-gray-100 ml-3.5 pl-6 space-y-6">
                         @foreach ($object->stories as $story)
                             @php
                                 $typeColor = match($story->story_type) {
-                                    'history' => 'from-amber-500/10 to-amber-600/5 text-amber-700 border-amber-200/60 shadow-amber-100/50',
-                                    'philosophy' => 'from-emerald-500/10 to-emerald-600/5 text-emerald-700 border-emerald-200/60 shadow-emerald-100/50',
-                                    'value' => 'from-blue-500/10 to-blue-600/5 text-blue-700 border-blue-200/60 shadow-blue-100/50',
-                                    default => 'from-gray-500/10 to-gray-600/5 text-gray-700 border-gray-200/60 shadow-gray-100/50',
+                                    'history' => 'bg-amber-500 border-amber-200 text-amber-500',
+                                    'philosophy' => 'bg-emerald-500 border-emerald-200 text-emerald-500',
+                                    'value' => 'bg-blue-500 border-blue-200 text-blue-500',
+                                    default => 'bg-gray-500 border-gray-200 text-gray-500',
                                 };
-                                $typeIcon = match($story->story_type) {
-                                    'history' => '<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
-                                    'philosophy' => '<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>',
-                                    'value' => '<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z"></path></svg>',
-                                    default => '<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+                                $typeBadgeColor = match($story->story_type) {
+                                    'history' => 'bg-amber-50 text-amber-700 border-amber-100/60',
+                                    'philosophy' => 'bg-emerald-50 text-emerald-700 border-emerald-100/60',
+                                    'value' => 'bg-blue-50 text-blue-700 border-blue-100/60',
+                                    default => 'bg-gray-50 text-gray-700 border-gray-100/60',
                                 };
                                 $typeName = match($story->story_type) {
                                     'history' => 'Sejarah',
@@ -212,14 +213,24 @@
                                     default => 'Cerita',
                                 };
                             @endphp
-                            <div class="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md flex gap-4">
-                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br {{ $typeColor }} border shadow-sm">
-                                    {!! $typeIcon !!}
+                            <!-- Timeline Item -->
+                            <div class="relative group">
+                                <!-- Timeline Dot -->
+                                <div class="absolute -left-[31px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white border-2 {{ $typeColor }} transition-all duration-300 group-hover:scale-125">
+                                    <div class="h-1.5 w-1.5 rounded-full bg-current"></div>
                                 </div>
-                                <div class="flex-1">
-                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-gray-400 leading-none">{{ $typeName }}</span>
-                                    <h3 class="font-playfair text-charcoal text-lg font-bold leading-tight mt-0.5 mb-2.5 group-hover:text-primary transition-colors duration-300">{{ $story->title }}</h3>
-                                    <div class="story-content-prose text-sm leading-relaxed text-gray-600">
+                                
+                                <!-- Card -->
+                                <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-2xs transition-all duration-300 hover:shadow-xs hover:border-gray-200">
+                                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase border {{ $typeBadgeColor }} tracking-wider leading-none">
+                                            {{ $typeName }}
+                                        </span>
+                                    </div>
+                                    <h3 class="font-playfair text-charcoal text-base font-bold leading-tight group-hover:text-primary transition-colors duration-300 mb-2">
+                                        {{ $story->title }}
+                                    </h3>
+                                    <div class="story-content-prose text-xs leading-relaxed text-gray-600 whitespace-normal">
                                         {!! $story->content !!}
                                     </div>
                                 </div>
