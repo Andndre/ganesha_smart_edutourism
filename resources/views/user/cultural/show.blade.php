@@ -184,70 +184,70 @@
             <div class="text-charcoal mb-6 text-lg font-medium leading-relaxed">
                 {!! $object->description !!}
             </div>
+        </div>
 
-            @if ($object->stories->isNotEmpty())
-                <div class="mt-10 border-t border-gray-100 pt-8 max-w-none">
-                    <h2 class="font-playfair text-charcoal text-xl font-bold mb-1">Storytelling & Warisan Budaya</h2>
-                    <p class="text-xs text-gray-500 mb-8">Mendalami nilai sejarah, makna filosofi, dan kearifan lokal objek budaya ini.</p>
-                    
-                    @php
-                        $groupedStories = $object->stories->groupBy('story_type');
-                        $categories = [
-                            'history' => [
-                                'title' => 'Sejarah & Asal-Usul',
-                                'color' => 'bg-amber-500 border-amber-200 text-amber-500',
-                                'border' => 'border-amber-500 text-amber-700'
-                            ],
-                            'philosophy' => [
-                                'title' => 'Makna Filosofi',
-                                'color' => 'bg-emerald-500 border-emerald-200 text-emerald-500',
-                                'border' => 'border-emerald-500 text-emerald-700'
-                            ],
-                            'value' => [
-                                'title' => 'Nilai-Nilai Luhur',
-                                'color' => 'bg-blue-500 border-blue-200 text-blue-500',
-                                'border' => 'border-blue-500 text-blue-700'
-                            ],
-                        ];
-                    @endphp
+        @if ($object->stories->isNotEmpty())
+            <div class="mt-10 border-t border-gray-100 pt-8 max-w-none px-6">
+                <h2 class="font-playfair text-charcoal text-xl font-bold mb-1">Storytelling & Warisan Budaya</h2>
+                <p class="text-xs text-gray-500 mb-8">Mendalami nilai sejarah, makna filosofi, dan kearifan lokal objek budaya ini.</p>
+                
+                @php
+                    $groupedStories = $object->stories->groupBy('story_type');
+                    $categories = [
+                        'history' => [
+                            'title' => 'Sejarah & Asal-Usul',
+                            'color' => 'bg-amber-500 border-amber-200 text-amber-500',
+                            'border' => 'border-amber-500 text-amber-700'
+                        ],
+                        'philosophy' => [
+                            'title' => 'Makna Filosofi',
+                            'color' => 'bg-emerald-500 border-emerald-200 text-emerald-500',
+                            'border' => 'border-emerald-500 text-emerald-700'
+                        ],
+                        'value' => [
+                            'title' => 'Nilai-Nilai Luhur',
+                            'color' => 'bg-blue-500 border-blue-200 text-blue-500',
+                            'border' => 'border-blue-500 text-blue-700'
+                        ],
+                    ];
+                @endphp
 
-                    <div class="space-y-8">
-                        @foreach ($categories as $type => $config)
-                            @if (isset($groupedStories[$type]) && $groupedStories[$type]->isNotEmpty())
-                                <div class="space-y-4">
-                                    <h3 class="text-xs font-bold uppercase tracking-wider border-l-4 pl-2.5 {{ $config['border'] }}">
-                                        {{ $config['title'] }}
-                                    </h3>
-                                    
-                                    <!-- Timeline Container for this category -->
-                                    <div class="relative border-l-2 border-gray-100 ml-3.5 pl-6 space-y-5">
-                                        @foreach ($groupedStories[$type] as $story)
-                                            <!-- Timeline Item -->
-                                            <div class="relative group">
-                                                <!-- Timeline Dot -->
-                                                <div class="absolute -left-[31px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white border-2 {{ $config['color'] }} transition-all duration-300 group-hover:scale-125">
-                                                    <div class="h-1.5 w-1.5 rounded-full bg-current"></div>
-                                                </div>
-                                                
-                                                <!-- Card -->
-                                                <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-2xs transition-all duration-300 hover:shadow-xs hover:border-gray-200">
-                                                    <h4 class="font-playfair text-charcoal text-base font-bold leading-tight group-hover:text-primary transition-colors duration-300 mb-2">
-                                                        {{ $story->title }}
-                                                    </h4>
-                                                    <div class="story-content-prose text-xs leading-relaxed text-gray-600 whitespace-normal">
-                                                        {!! $story->content !!}
-                                                    </div>
+                <div class="space-y-8">
+                    @foreach ($categories as $type => $config)
+                        @if (isset($groupedStories[$type]) && $groupedStories[$type]->isNotEmpty())
+                            <div class="space-y-4">
+                                <h3 class="text-xs font-bold uppercase tracking-wider border-l-4 pl-2.5 {{ $config['border'] }}">
+                                    {{ $config['title'] }}
+                                </h3>
+                                
+                                <!-- Timeline Container for this category -->
+                                <div class="relative border-l-2 border-gray-100 ml-3.5 pl-6 space-y-5">
+                                    @foreach ($groupedStories[$type] as $story)
+                                        <!-- Timeline Item -->
+                                        <div class="relative group">
+                                            <!-- Timeline Dot -->
+                                            <div class="absolute -left-[31px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white border-2 {{ $config['color'] }} transition-all duration-300 group-hover:scale-125">
+                                                <div class="h-1.5 w-1.5 rounded-full bg-current"></div>
+                                            </div>
+                                            
+                                            <!-- Card -->
+                                            <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-2xs transition-all duration-300 hover:shadow-xs hover:border-gray-200">
+                                                <h4 class="font-playfair text-charcoal text-base font-bold leading-tight group-hover:text-primary transition-colors duration-300 mb-2">
+                                                    {{ $story->title }}
+                                                </h4>
+                                                <div class="story-content-prose text-xs leading-relaxed text-gray-600 whitespace-normal">
+                                                    {!! $story->content !!}
                                                 </div>
                                             </div>
-                                        @endforeach
-                                    </div>
+                                        </div>
+                                    @endforeach
                                 </div>
-                            @endif
-                        @endforeach
-                    </div>
+                            </div>
+                        @endif
+                    @endforeach
                 </div>
-            @endif
-        </div>
+            </div>
+        @endif
 
         <!-- AR Button -->
         @if ($object->ar_marker_id || $object->model_3d_path)
