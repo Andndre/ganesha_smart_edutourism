@@ -155,6 +155,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('/cultural-objects', [CulturalObjectController::class, 'store'])->name('admin.cultural-objects.store');
     Route::put('/cultural-objects/{id}', [CulturalObjectController::class, 'update'])->name('admin.cultural-objects.update');
     Route::delete('/cultural-objects/{id}', [CulturalObjectController::class, 'destroy'])->name('admin.cultural-objects.destroy');
+    Route::post('/cultural-objects/upload-image', [CulturalObjectController::class, 'uploadEditorImage'])->name('admin.cultural-objects.upload-image');
 
     // Facility Routes
     Route::post('/facilities', [FacilityController::class, 'store'])->name('admin.facilities.store');

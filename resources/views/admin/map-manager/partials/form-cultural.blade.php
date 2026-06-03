@@ -95,6 +95,16 @@
                         d="M21 10H11a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path>
                 </svg>
             </button>
+            <span class="mx-1 my-auto h-5 w-px bg-gray-200"></span>
+            <button type="button" data-action="image"
+                class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
+                title="Unggah Gambar">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M4 16l4.586-4.586a2 2 0 012-2h.93a2 2 0 011.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                    <circle cx="12" cy="13" r="3"></circle>
+                </svg>
+            </button>
         </div>
 
         <!-- TipTap Editor Container -->
@@ -489,10 +499,12 @@
         Editor
     } from 'https://esm.sh/@tiptap/core';
     import StarterKit from 'https://esm.sh/@tiptap/starter-kit';
+    import Image from 'https://esm.sh/@tiptap/extension-image';
 
     // Expose TipTap modules globally for dynamic storytelling editors
     window.TipTapEditor = Editor;
     window.TipTapStarterKit = StarterKit;
+    window.TipTapImage = Image;
 
     document.addEventListener('DOMContentLoaded', () => {
         const textarea = document.querySelector('#form-cultural textarea[name="description"]');
@@ -501,7 +513,7 @@
 
         const editor = new Editor({
             element: editorEl,
-            extensions: [StarterKit],
+            extensions: [StarterKit, Image],
             content: textarea ? textarea.value : '',
             editorProps: {
                 attributes: {
@@ -547,6 +559,46 @@
                     .toggleOrderedList().run();
                     else if (action === 'undo') editor.chain().focus().undo().run();
                     else if (action === 'redo') editor.chain().focus().redo().run();
+                    else if (action === 'image') {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = 'image/*';
+                        input.onchange = async () => {
+                            const file = input.files[0];
+                            if (!file) return;
+
+                            Swal.fire({
+                                title: 'Mengunggah Gambar...',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            const formData = new FormData();
+                            formData.append('image', file);
+                            formData.append('_token', '{{ csrf_token() }}');
+
+                            try {
+                                const response = await fetch('{{ route("admin.cultural-objects.upload-image") }}', {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                                const data = await response.json();
+                                Swal.close();
+
+                                if (data.url) {
+                                    editor.chain().focus().setImage({ src: data.url }).run();
+                                } else {
+                                    Swal.fire('Gagal', 'Terjadi kesalahan saat mengunggah gambar.', 'error');
+                                }
+                            } catch (error) {
+                                Swal.close();
+                                Swal.fire('Gagal', 'Koneksi ke server terputus.', 'error');
+                            }
+                        };
+                        input.click();
+                    }
 
                     updateToolbarStates();
                 });

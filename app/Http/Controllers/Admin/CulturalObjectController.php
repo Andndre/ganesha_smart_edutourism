@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CulturalObject;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -335,5 +336,25 @@ class CulturalObjectController extends Controller
         $object->delete();
 
         return redirect()->route('admin.map-manager')->with('success', 'Objek budaya berhasil dihapus.');
+    }
+
+    /**
+     * Upload an image from TipTap editor and return its public URL.
+     */
+    public function uploadEditorImage(Request $request): JsonResponse
+    {
+        $request->validate([
+            'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'],
+        ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('editor-images', 'public');
+
+            return response()->json([
+                'url' => asset('storage/'.$path),
+            ]);
+        }
+
+        return response()->json(['error' => 'Gagal mengunggah gambar.'], 400);
     }
 }
