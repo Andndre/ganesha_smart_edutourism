@@ -67,7 +67,29 @@
         <!-- Itinerary / Route Steps -->
         <div class="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-linear-to-b before:from-transparent before:via-slate-200 before:to-transparent">
             @foreach($route as $index => $stop)
-            @php $umkm = $stop['umkm']; @endphp
+            @php 
+                $umkm = $stop['umkm']; 
+                if (is_object($umkm) && !($umkm instanceof \App\Models\UmkmProfile)) {
+                    $umkm = json_decode(json_encode($umkm), true);
+                }
+                if (is_array($umkm)) {
+                    $umkmModel = new \App\Models\UmkmProfile();
+                    $umkmModel->exists = true;
+                    $umkmModel->forceFill($umkm);
+                    if (isset($umkm['products'])) {
+                        $products = collect($umkm['products'])->map(function($p) {
+                            return (new \App\Models\UmkmProduct())->forceFill($p);
+                        });
+                        $umkmModel->setRelation('products', $products);
+                        $umkmModel->setRelation('activeProducts', $products);
+                    }
+                    if (isset($umkm['map_location'])) {
+                        $loc = (new \App\Models\MapLocation())->forceFill($umkm['map_location']);
+                        $umkmModel->setRelation('mapLocation', $loc);
+                    }
+                    $umkm = $umkmModel;
+                }
+            @endphp
             <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
                 <!-- Icon -->
                 <div class="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-primary text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
