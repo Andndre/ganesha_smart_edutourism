@@ -1,6 +1,6 @@
 <div class="absolute top-[env(safe-area-inset-top)] mt-4 inset-x-4 z-40">
     <div
-        class="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white/95 px-4 py-3.5 shadow-md backdrop-blur-md">
+        class="flex h-14 items-center gap-3 rounded-full border border-white bg-white/90 px-5 shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-md">
         <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
