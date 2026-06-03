@@ -77,7 +77,7 @@ Route::middleware('redirect.admin')->group(function () {
     Route::get('/edutourism/routes/{id}/preview', [SmartEdutourismController::class, 'preview'])->name('edutourism.preview');
     Route::post('/edutourism/routes/{id}/start', [SmartEdutourismController::class, 'start'])->name('edutourism.start');
     Route::get('/edutourism/active', [SmartEdutourismController::class, 'active'])->name('edutourism.active');
-    Route::post('/edutourism/arrive/{pointId}', [SmartEdutourismController::class, 'arrive'])->name('edutourism.arrive');
+    Route::get('/edutourism/arrive/{pointId}', [SmartEdutourismController::class, 'arrive'])->name('edutourism.arrive');
     Route::post('/edutourism/quiz/{quizId}/submit', [SmartEdutourismController::class, 'submitQuiz'])->name('edutourism.quiz.submit');
 
     // Tour Packages
