@@ -139,6 +139,10 @@ function addStoryField(story = null, forcedCategory = null) {
                 <button type="button" data-action="orderedList" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Ordered List">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5h11M9 12h11M9 19h11M4 4h2v4H4V4zm0 6h2a1 1 0 011 1v1a1 1 0 01-1 1H4v-1h2v-1H4v-1zm0 6h2v3H4v-3z"></path></svg>
                 </button>
+                <span class="mx-1 my-auto h-4 w-px bg-gray-200"></span>
+                <button type="button" data-action="image" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Unggah Gambar">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012-2h.93a2 2 0 011.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+                </button>
             </div>
             
             <!-- Editor Container -->
@@ -157,10 +161,10 @@ function addStoryField(story = null, forcedCategory = null) {
     
     // Initialize TipTap Editor
     let editor = null;
-    if (window.TipTapEditor && window.TipTapStarterKit) {
+    if (window.TipTapEditor && window.TipTapStarterKit && window.TipTapImage) {
         editor = new window.TipTapEditor({
             element: document.getElementById(editorId),
-            extensions: [window.TipTapStarterKit],
+            extensions: [window.TipTapStarterKit, window.TipTapImage],
             content: contentVal,
             editorProps: {
                 attributes: {
@@ -187,6 +191,46 @@ function addStoryField(story = null, forcedCategory = null) {
                     else if (action === 'italic') editor.chain().focus().toggleItalic().run();
                     else if (action === 'bulletList') editor.chain().focus().toggleBulletList().run();
                     else if (action === 'orderedList') editor.chain().focus().toggleOrderedList().run();
+                    else if (action === 'image') {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = 'image/*';
+                        input.onchange = async () => {
+                            const file = input.files[0];
+                            if (!file) return;
+
+                            Swal.fire({
+                                title: 'Mengunggah Gambar...',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            const formData = new FormData();
+                            formData.append('image', file);
+                            formData.append('_token', '{{ csrf_token() }}');
+
+                            try {
+                                const response = await fetch('{{ route("admin.cultural-objects.upload-image") }}', {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                                const data = await response.json();
+                                Swal.close();
+
+                                if (data.url) {
+                                    editor.chain().focus().setImage({ src: data.url }).run();
+                                } else {
+                                    Swal.fire('Gagal', 'Terjadi kesalahan saat mengunggah gambar.', 'error');
+                                }
+                            } catch (error) {
+                                Swal.close();
+                                Swal.fire('Gagal', 'Koneksi ke server terputus.', 'error');
+                            }
+                        };
+                        input.click();
+                    }
                     
                     updateToolbarStates();
                 });
