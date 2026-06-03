@@ -429,7 +429,7 @@
             Disabilitas</label>
     </div>
 
-    <div>
+    <div class="accessibility-notes-container">
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas</label>
         <textarea name="accessibility_notes" rows="2" placeholder="Contoh: Pintu masuk landai, ramah kursi roda..."
             class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 px-4 py-2 text-sm focus:outline-none">Akses jalan datar ramah kursi roda dan stroller bayi.</textarea>

@@ -57,7 +57,7 @@
         </label>
     </div>
 
-    <div>
+    <div class="accessibility-notes-container">
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas</label>
         <textarea name="accessibility_notes" rows="2"
             placeholder="Contoh: Toilet dilengkapi dengan pegangan besi..."
