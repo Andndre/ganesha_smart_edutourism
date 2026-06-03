@@ -439,7 +439,7 @@
                 .then(data => {
                     console.log("API response:", data);
                     if (data.success && data.model_url) {
-                        showModel(data.model_url, data.usdz_url, data.name, data.description);
+                        showModel(data.model_url, data.usdz_url, data.name, data.short_description);
                     } else {
                         throw new Error(data.error || 'Model tidak ditemukan');
                     }

@@ -35,10 +35,11 @@ class ARScannerTest extends TestCase
         $response = $this->getJson('/api/ar/model?slug=test-cultural-object');
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'success' => true,
-                     'name' => $object->name,
-                 ]);
+            ->assertJson([
+                'success' => true,
+                'name' => $object->name,
+                'short_description' => 'Short desc',
+            ]);
     }
 
     public function test_api_ar_model_returns_404_for_invalid_slug()
@@ -46,9 +47,9 @@ class ARScannerTest extends TestCase
         $response = $this->getJson('/api/ar/model?slug=invalid-slug');
 
         $response->assertStatus(404)
-                 ->assertJson([
-                     'error' => 'Objek tidak ditemukan',
-                 ]);
+            ->assertJson([
+                'error' => 'Objek tidak ditemukan',
+            ]);
     }
 
     public function test_api_ar_model_returns_404_when_model_is_null()
@@ -68,8 +69,8 @@ class ARScannerTest extends TestCase
         $response = $this->getJson('/api/ar/model?slug=no-model-object');
 
         $response->assertStatus(404)
-                 ->assertJson([
-                     'error' => 'Model 3D tidak tersedia untuk objek ini',
-                 ]);
+            ->assertJson([
+                'error' => 'Model 3D tidak tersedia untuk objek ini',
+            ]);
     }
 }
