@@ -13,13 +13,28 @@ use Illuminate\View\View;
 
 class SmartEdutourismController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $routes = TourRoute::where('is_active', true)
             ->withCount('routePoints')
             ->get();
 
-        return view('user.edutourism.index', compact('routes'));
+        $userId = auth()->id();
+        $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
+        
+        $completedRouteIds = collect();
+        
+        if ($userId) {
+            $completedRouteIds = RouteSession::where('user_id', $userId)
+                ->where('status', 'completed')
+                ->pluck('tour_route_id');
+        } elseif ($guestToken) {
+            $completedRouteIds = RouteSession::where('guest_token', $guestToken)
+                ->where('status', 'completed')
+                ->pluck('tour_route_id');
+        }
+
+        return view('user.edutourism.index', compact('routes', 'completedRouteIds'));
     }
 
     public function preview($id)
