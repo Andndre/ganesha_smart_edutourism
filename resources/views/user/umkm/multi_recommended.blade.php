@@ -53,6 +53,7 @@
 @endpush
 
 @section('content')
+    @php $totalPrice = 0; @endphp
     <div class="px-4 pt-[calc(env(safe-area-inset-top)+6rem)] pb-32">
         <div class="mb-6">
             <h2 class="text-xl font-bold text-charcoal">Rute Belanja Anda</h2>
@@ -117,8 +118,14 @@
                     <div class="mt-3 pt-3 border-t border-gray-100">
                         <p class="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">Beli di sini:</p>
                         <div class="space-y-2">
+                            @php
+                                $stopCategoryIds = collect($stop['categories'])->map(function($c) {
+                                    return is_array($c) ? ($c['id'] ?? $c) : (is_object($c) ? ($c->id ?? $c) : $c);
+                                })->toArray();
+                            @endphp
                             @foreach($umkm->activeProducts as $product)
-                                @if(in_array($product->umkm_product_category_id, collect($stop['categories'])->pluck('id')->toArray() ?? $stop['categories']))
+                                @if(in_array($product->umkm_product_category_id, $stopCategoryIds))
+                                @php $totalPrice += $product->price; @endphp
                                 <div class="flex items-center justify-between text-sm">
                                     <span class="text-charcoal">{{ $product->name }}</span>
                                     <span class="font-bold text-primary">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
@@ -134,7 +141,11 @@
     </div>
 
     <!-- Sticky Bottom CTA -->
-    <div class="fixed bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] inset-x-0 p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 z-30 shadow-[0_-8px_20px_rgba(0,0,0,0.06)]">
+    <div class="fixed bottom-0 pb-[calc(1rem+env(safe-area-inset-bottom))] inset-x-0 p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 z-30 shadow-[0_-8px_20px_rgba(0,0,0,0.06)]">
+        <div class="flex justify-between items-center mb-3">
+            <span class="text-sm font-semibold text-gray-500">Total Estimasi Belanja</span>
+            <span class="text-base font-extrabold text-primary font-display">Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
+        </div>
         <button class="w-full bg-primary text-white font-bold h-12 rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2" onclick="startNavigation()">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
