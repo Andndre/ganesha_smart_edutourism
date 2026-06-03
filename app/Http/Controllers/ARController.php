@@ -51,6 +51,7 @@ class ARController extends Controller
             'model_url' => '/storage/'.$object->model_3d_path,
             'usdz_url' => $object->model_3d_usdz_path ? '/storage/'.$object->model_3d_usdz_path : null,
             'description' => $object->description,
+            'short_description' => $object->short_description,
         ]);
     }
 }
