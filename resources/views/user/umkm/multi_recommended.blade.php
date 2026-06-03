@@ -159,7 +159,12 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     const routeData = @json($route);
-    const mapCoordinates = routeData.map(stop => [stop.umkm.map_location.latitude, stop.umkm.map_location.longitude]);
+    const mapCoordinates = routeData.map(stop => {
+        const umkm = stop.umkm;
+        if (!umkm) return null;
+        const loc = umkm.map_location || umkm.mapLocation;
+        return loc ? [parseFloat(loc.latitude), parseFloat(loc.longitude)] : null;
+    }).filter(coord => coord !== null);
 
     // Initialize Map
     const map = L.map('map', {
@@ -176,8 +181,13 @@
     const bounds = L.latLngBounds();
     
     routeData.forEach((stop, index) => {
-        const lat = stop.umkm.map_location.latitude;
-        const lng = stop.umkm.map_location.longitude;
+        const umkm = stop.umkm;
+        if (!umkm) return;
+        const loc = umkm.map_location || umkm.mapLocation;
+        if (!loc) return;
+        
+        const lat = parseFloat(loc.latitude);
+        const lng = parseFloat(loc.longitude);
         bounds.extend([lat, lng]);
 
         const iconHtml = `
@@ -193,7 +203,7 @@
         });
 
         L.marker([lat, lng], {icon: customIcon})
-            .bindPopup(`<b>${stop.umkm.business_name}</b>`)
+            .bindPopup(`<b>${umkm.business_name || 'UMKM'}</b>`)
             .addTo(map);
     });
 
@@ -248,8 +258,12 @@
 
     function startNavigation() {
         if(navigator.vibrate) navigator.vibrate(50);
-        // Simple alert for now, could integrate with real navigation
-        alert("Mengaktifkan mode navigasi rute...");
+        
+        // Extract coordinate strings: "lat,lng|lat,lng"
+        const coordsStr = mapCoordinates.map(coord => coord.join(',')).join('|');
+        
+        // Redirect to explore page with action=multi_route and coordinates
+        window.location.href = `/explore?action=multi_route&stops=${encodeURIComponent(coordsStr)}`;
     }
 </script>
 @endpush

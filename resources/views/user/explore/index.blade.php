@@ -652,6 +652,60 @@
                     }
                 }, 800);
             }
+
+            if (action === 'multi_route') {
+                const stopsParam = urlParams.get('stops');
+                if (stopsParam) {
+                    const stops = stopsParam.split('|').map(s => {
+                        const parts = s.split(',');
+                        return [parseFloat(parts[0]), parseFloat(parts[1])];
+                    });
+
+                    // Trigger drawing the route after map and user GPS load
+                    setTimeout(() => {
+                        // Fit bounds to all stops to center map
+                        const bounds = L.latLngBounds(stops);
+                        map.fitBounds(bounds, { padding: [50, 50] });
+
+                        // Show SweetAlert GPS loading spinner
+                        Swal.fire({
+                            title: 'Mendeteksi Lokasi...',
+                            text: 'Mohon tunggu, sedang memuat rute navigasi belanja...',
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // Wait for user GPS location
+                        let checkCount = 0;
+                        const checkInterval = setInterval(() => {
+                            checkCount++;
+                            if (lastPosition) {
+                                clearInterval(checkInterval);
+                                Swal.close();
+                                
+                                // Draw the route from user's current position through all stops
+                                const allCoords = [[parseFloat(lastPosition.lng), parseFloat(lastPosition.lat)]];
+                                // ORS route coordinates are [lng, lat]
+                                stops.forEach(stop => {
+                                    allCoords.push([stop[1], stop[0]]);
+                                });
+
+                                drawMultiStopRoute(allCoords);
+                            } else if (!isGpsLoading || checkCount >= 16) {
+                                // Timeout fallback: just draw lines between the stops (without user position)
+                                clearInterval(checkInterval);
+                                Swal.close();
+                                
+                                const allCoords = stops.map(stop => [stop[1], stop[0]]);
+                                drawMultiStopRoute(allCoords);
+                            }
+                        }, 500);
+                    }, 800);
+                }
+            }
         });
 
         // ==========================================
@@ -907,6 +961,78 @@
             // Fallback straight line
             const polyline = L.polyline([[fromLoc.lat, fromLoc.lng], [toLoc.lat, toLoc.lng]], {
                 color: '#1E5128',
+                weight: 4.5,
+                dashArray: '6, 8',
+                opacity: 0.95
+            });
+            userRouteLayer = L.layerGroup([polyline]);
+            userRouteLayer.addTo(map);
+            map.fitBounds(polyline.getBounds(), { padding: [60, 60] });
+        }
+
+        async function drawMultiStopRoute(coords) {
+            if (userRouteLayer) {
+                map.removeLayer(userRouteLayer);
+                userRouteLayer = null;
+            }
+
+            try {
+                const response = await fetch('/api/routing/directions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ coordinates: coords })
+                });
+
+                const contentType = response.headers.get('content-type') || '';
+
+                if (response.ok && contentType.includes('application/json')) {
+                    const data = await response.json();
+                    if (data.features && data.features.length > 0) {
+                        const routeFeature = data.features[0];
+                        userRouteLayer = L.layerGroup();
+
+                        // Background shadow path
+                        L.geoJSON(routeFeature.geometry, {
+                            style: {
+                                color: '#F97316',
+                                weight: 8,
+                                opacity: 0.2
+                            }
+                        }).addTo(userRouteLayer);
+
+                        // Foreground dashed path
+                        L.geoJSON(routeFeature.geometry, {
+                            style: {
+                                color: '#F97316',
+                                weight: 4.5,
+                                dashArray: '6, 8',
+                                opacity: 0.95
+                            }
+                        }).addTo(userRouteLayer);
+
+                        userRouteLayer.addTo(map);
+
+                        const bounds = L.geoJSON(routeFeature.geometry).getBounds();
+                        map.fitBounds(bounds, {
+                            padding: [60, 60],
+                            animate: true,
+                            duration: 0.8
+                        });
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('ORS routing failed:', error);
+            }
+
+            // Fallback straight lines
+            const leafletCoords = coords.map(c => [c[1], c[0]]);
+            const polyline = L.polyline(leafletCoords, {
+                color: '#F97316',
                 weight: 4.5,
                 dashArray: '6, 8',
                 opacity: 0.95
