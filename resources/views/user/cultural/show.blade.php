@@ -3,7 +3,7 @@
 @section('header_title', 'Storytelling')
 
 @section('content')
-    <article class="bg-surface pb-10">
+    <article class="bg-surface {{ ($object->ar_marker_id || $object->model_3d_path) ? ((isset($activeEdutourismSession) && !Route::is('edutourism.active')) ? 'pb-52' : 'pb-32') : 'pb-10' }}">
         <!-- Hero Image Area / Carousel -->
         <div class="relative h-[40dvh] w-full overflow-hidden bg-gray-200" x-data="{
             currentIndex: 0,
@@ -251,7 +251,7 @@
 
         <!-- AR Button -->
         @if ($object->ar_marker_id || $object->model_3d_path)
-            <div class="mt-10 px-6">
+            <div class="fixed inset-x-0 z-30 border-t border-gray-100 bg-white p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] {{ (isset($activeEdutourismSession) && !Route::is('edutourism.active')) ? 'bottom-[88px] pb-4' : 'bottom-0 pb-[calc(1rem+env(safe-area-inset-bottom))]' }}">
                 <a href="{{ route('ar-scan') }}"
                     class="bg-primary flex w-full items-center justify-center gap-2 rounded-xl py-4 font-bold text-white shadow-[0_4px_14px_rgba(30,81,40,0.3)] transition-all active:scale-[0.98]">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
