@@ -326,11 +326,11 @@
 
         <div id="stories-modal"
             class="bg-charcoal/50 fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto p-4 backdrop-blur-sm">
-            <div class="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
+            <div class="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl animate-fade-in">
                 <div class="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 p-5">
                     <div>
                         <h3 class="font-display text-charcoal text-lg font-bold">Kelola Kisah Budaya</h3>
-                        <p class="mt-1 text-xs text-gray-500">Tambahkan informasi sejarah, filosofi, atau nilai luhur terkait objek ini.</p>
+                        <p class="mt-1 text-xs text-gray-500">Kelola dan urutkan informasi sejarah, filosofi, atau nilai luhur terkait objek ini.</p>
                     </div>
                     <button type="button" onclick="closeStoryModal()"
                         class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500">
@@ -341,8 +341,37 @@
                     </button>
                 </div>
 
-                <div class="flex-1 space-y-6 overflow-y-auto p-6" id="stories-list">
-                    <!-- Stories will be appended here -->
+                <!-- Tabs navigation inside modal -->
+                <div class="flex border-b border-gray-100 bg-gray-50 px-5 py-1">
+                    <button type="button" id="tab-btn-history" onclick="switchStoryTab('history')"
+                        class="story-tab-btn border-b-2 border-primary text-primary px-4 py-2.5 text-xs font-bold transition-all focus:outline-none">
+                        Sejarah
+                    </button>
+                    <button type="button" id="tab-btn-philosophy" onclick="switchStoryTab('philosophy')"
+                        class="story-tab-btn border-b-2 border-transparent text-gray-500 hover:text-charcoal px-4 py-2.5 text-xs font-bold transition-all focus:outline-none">
+                        Filosofi
+                    </button>
+                    <button type="button" id="tab-btn-value" onclick="switchStoryTab('value')"
+                        class="story-tab-btn border-b-2 border-transparent text-gray-500 hover:text-charcoal px-4 py-2.5 text-xs font-bold transition-all focus:outline-none">
+                        Nilai Luhur
+                    </button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-6">
+                    <!-- History Stories -->
+                    <div id="stories-list-history" class="story-tab-content space-y-4">
+                        <!-- History stories will go here -->
+                    </div>
+                    
+                    <!-- Philosophy Stories -->
+                    <div id="stories-list-philosophy" class="story-tab-content hidden space-y-4">
+                        <!-- Philosophy stories will go here -->
+                    </div>
+                    
+                    <!-- Value Stories -->
+                    <div id="stories-list-value" class="story-tab-content hidden space-y-4">
+                        <!-- Value stories will go here -->
+                    </div>
                 </div>
 
                 <div class="space-y-3 border-t border-gray-100 bg-gray-50/50 p-5">
