@@ -119,6 +119,45 @@ class SmartEdutourismController extends Controller
             $quizzes = $point->locationable->quizzes;
         }
 
+        if (count($quizzes) === 0) {
+            $userId = auth()->id();
+            $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
+
+            if (! $userId && $guestToken && ! session()->has('guest_token')) {
+                session(['guest_token' => $guestToken, 'guest_name' => 'Wisatawan']);
+            }
+
+            $sessionQuery = RouteSession::where('status', 'active');
+            if ($userId) {
+                $sessionQuery->where('user_id', $userId);
+            } elseif ($guestToken) {
+                $sessionQuery->where('guest_token', $guestToken);
+            } else {
+                $sessionQuery = null;
+            }
+
+            if ($sessionQuery) {
+                $session = $sessionQuery->first();
+                if ($session && $session->current_point_id == $pointId) {
+                    $session->points_completed += 1;
+
+                    $route = TourRoute::with('routePoints')->find($session->tour_route_id);
+                    $points = $route->routePoints;
+                    $currentIndex = $points->search(function ($p) use ($session) {
+                        return $p->id == $session->current_point_id;
+                    });
+
+                    if ($currentIndex !== false && isset($points[$currentIndex + 1])) {
+                        $session->current_point_id = $points[$currentIndex + 1]->id;
+                    } else {
+                        $session->status = 'completed';
+                    }
+
+                    $session->save();
+                }
+            }
+        }
+
         return response()->json([
             'success' => true,
             'point' => $point,
