@@ -25,17 +25,6 @@
             <div class="mb-4 flex items-start justify-between gap-2">
                 <div>
                     <h3 class="font-semibold text-charcoal">{{ $route->name }}</h3>
-                    <span class="mt-1 inline-block rounded-lg bg-primary/8 px-2.5 py-0.5 text-xs font-semibold text-primary">
-                        @if ($route->difficulty === 'easy')
-                            Mudah
-                        @elseif ($route->difficulty === 'moderate')
-                            Sedang
-                        @elseif ($route->difficulty === 'challenging')
-                            Sulit
-                        @else
-                            {{ $route->difficulty }}
-                        @endif
-                    </span>
                     @if ($route->is_smart_route)
                         <span class="mt-1 inline-block rounded-lg bg-secondary/10 px-2.5 py-0.5 text-xs font-semibold text-secondary-800">
                             Smart Route

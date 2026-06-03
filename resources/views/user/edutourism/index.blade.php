@@ -16,24 +16,6 @@
                 <div class="flex items-start justify-between gap-3">
                     <div class="space-y-1">
                         <div class="flex flex-wrap items-center gap-2">
-                            @if($route->difficulty === 'easy')
-                                <span class="rounded-lg bg-emerald-50 border border-emerald-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600">
-                                    Mudah
-                                </span>
-                            @elseif($route->difficulty === 'medium')
-                                <span class="rounded-lg bg-amber-50 border border-amber-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-600">
-                                    Sedang
-                                </span>
-                            @elseif($route->difficulty === 'hard')
-                                <span class="rounded-lg bg-red-50 border border-red-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-red-600">
-                                    Sulit
-                                </span>
-                            @else
-                                <span class="rounded-lg bg-gray-50 border border-gray-200 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gray-500">
-                                    {{ ucfirst($route->difficulty ?? 'Menengah') }}
-                                </span>
-                            @endif
-
                             @if($route->is_smart_route)
                                 <span class="rounded-lg bg-blue-50 border border-blue-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-600">
                                     Smart GPS
