@@ -133,6 +133,10 @@ class AdminTest extends TestCase
                 'model_3d_file' => $modelFile,
                 'audio_narration_file' => $audioFile,
                 'historical_images' => [$image1, $image2],
+                'has_story' => '1',
+                'story_title' => ['Kisah Sejarah Pura', 'Filosofi Bangunan'],
+                'story_content' => ['Ini adalah sejarah pura luhur.', 'Filosofi arsitektur pura.'],
+                'story_type' => ['history', 'philosophy'],
             ]);
         $responseCreateSuccess->assertRedirect();
 
@@ -141,6 +145,22 @@ class AdminTest extends TestCase
         $this->assertNotNull($object->model_3d_path);
         $this->assertNotNull($object->audio_narration_path);
         $this->assertCount(2, $object->historical_images);
+
+        // Assert Cultural Stories were created
+        $this->assertDatabaseHas('cultural_stories', [
+            'cultural_object_id' => $object->id,
+            'title' => 'Kisah Sejarah Pura',
+            'content' => 'Ini adalah sejarah pura luhur.',
+            'story_type' => 'history',
+            'order' => 1,
+        ]);
+        $this->assertDatabaseHas('cultural_stories', [
+            'cultural_object_id' => $object->id,
+            'title' => 'Filosofi Bangunan',
+            'content' => 'Filosofi arsitektur pura.',
+            'story_type' => 'philosophy',
+            'order' => 2,
+        ]);
 
         // Assert MapLocation was created and synchronized
         $this->assertNotNull($object->mapLocation);
@@ -171,6 +191,10 @@ class AdminTest extends TestCase
                 'model_3d_file' => $newModelFile,
                 'audio_narration_file' => $newAudioFile,
                 'historical_images' => [$newImage],
+                'has_story' => '1',
+                'story_title' => ['Kisah Sejarah Pura Updated'],
+                'story_content' => ['Sejarah yang telah diperbarui.'],
+                'story_type' => ['history'],
             ]);
         $responseUpdate->assertRedirect();
 
@@ -181,6 +205,19 @@ class AdminTest extends TestCase
         Storage::disk('public')->assertExists($object->audio_narration_path);
         $this->assertCount(1, $object->historical_images);
         Storage::disk('public')->assertExists($object->historical_images[0]);
+
+        // Assert Cultural Stories were updated/deleted
+        $this->assertDatabaseHas('cultural_stories', [
+            'cultural_object_id' => $object->id,
+            'title' => 'Kisah Sejarah Pura Updated',
+            'content' => 'Sejarah yang telah diperbarui.',
+            'story_type' => 'history',
+            'order' => 1,
+        ]);
+        $this->assertDatabaseMissing('cultural_stories', [
+            'cultural_object_id' => $object->id,
+            'title' => 'Filosofi Bangunan',
+        ]);
 
         // Assert MapLocation was updated and synchronized
         $this->assertNotNull($object->mapLocation);
@@ -197,6 +234,11 @@ class AdminTest extends TestCase
         $responseDelete->assertRedirect();
         $this->assertDatabaseMissing('cultural_objects', [
             'id' => $objectId,
+        ]);
+
+        // Assert Cultural Stories were deleted on cascade
+        $this->assertDatabaseMissing('cultural_stories', [
+            'cultural_object_id' => $objectId,
         ]);
 
         // Assert MapLocation was deleted

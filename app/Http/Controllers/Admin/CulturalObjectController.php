@@ -40,6 +40,11 @@ class CulturalObjectController extends Controller
             'quiz_option_c' => ['required_if:has_quiz,1', 'nullable', 'array'],
             'quiz_option_d' => ['required_if:has_quiz,1', 'nullable', 'array'],
             'quiz_correct_option' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'has_story' => ['nullable', 'boolean'],
+            'story_title' => ['required_if:has_story,1', 'nullable', 'array'],
+            'story_content' => ['required_if:has_story,1', 'nullable', 'array'],
+            'story_type' => ['required_if:has_story,1', 'nullable', 'array'],
+            'story_type.*' => ['in:history,philosophy,value'],
         ]);
 
         if ($request->hasFile('model_3d_file')) {
@@ -82,9 +87,43 @@ class CulturalObjectController extends Controller
         $longitude = $validated['longitude'] ?? 115.3590021;
 
         // Clean up temporary variables not in DB schema
-        unset($validated['model_3d_file'], $validated['audio_narration_file'], $validated['latitude'], $validated['longitude'], $validated['has_quiz'], $validated['quiz_question'], $validated['quiz_option_a'], $validated['quiz_option_b'], $validated['quiz_option_c'], $validated['quiz_option_d'], $validated['quiz_correct_option'], $validated['ar_marker_patt_content']);
+        unset(
+            $validated['model_3d_file'],
+            $validated['audio_narration_file'],
+            $validated['latitude'],
+            $validated['longitude'],
+            $validated['has_quiz'],
+            $validated['quiz_question'],
+            $validated['quiz_option_a'],
+            $validated['quiz_option_b'],
+            $validated['quiz_option_c'],
+            $validated['quiz_option_d'],
+            $validated['quiz_correct_option'],
+            $validated['ar_marker_patt_content'],
+            $validated['has_story'],
+            $validated['story_title'],
+            $validated['story_content'],
+            $validated['story_type']
+        );
 
         $object = CulturalObject::create($validated);
+
+        if ($request->has('has_story') && $request->has('story_title')) {
+            $titles = $request->input('story_title');
+            $contents = $request->input('story_content');
+            $types = $request->input('story_type');
+
+            foreach ($titles as $index => $title) {
+                if (! empty($title)) {
+                    $object->stories()->create([
+                        'title' => $title,
+                        'content' => $contents[$index] ?? '',
+                        'story_type' => $types[$index] ?? 'history',
+                        'order' => $index + 1,
+                    ]);
+                }
+            }
+        }
 
         if ($request->has('has_quiz') && $request->has('quiz_question')) {
             $questions = $request->input('quiz_question');
@@ -151,6 +190,11 @@ class CulturalObjectController extends Controller
             'quiz_option_c' => ['required_if:has_quiz,1', 'nullable', 'array'],
             'quiz_option_d' => ['required_if:has_quiz,1', 'nullable', 'array'],
             'quiz_correct_option' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'has_story' => ['nullable', 'boolean'],
+            'story_title' => ['required_if:has_story,1', 'nullable', 'array'],
+            'story_content' => ['required_if:has_story,1', 'nullable', 'array'],
+            'story_type' => ['required_if:has_story,1', 'nullable', 'array'],
+            'story_type.*' => ['in:history,philosophy,value'],
         ]);
 
         if ($request->hasFile('model_3d_file')) {
@@ -203,9 +247,45 @@ class CulturalObjectController extends Controller
         $longitude = $validated['longitude'] ?? 115.3590021;
 
         // Clean up temporary variables not in DB schema
-        unset($validated['model_3d_file'], $validated['audio_narration_file'], $validated['latitude'], $validated['longitude'], $validated['has_quiz'], $validated['quiz_question'], $validated['quiz_option_a'], $validated['quiz_option_b'], $validated['quiz_option_c'], $validated['quiz_option_d'], $validated['quiz_correct_option'], $validated['ar_marker_patt_content']);
+        unset(
+            $validated['model_3d_file'],
+            $validated['audio_narration_file'],
+            $validated['latitude'],
+            $validated['longitude'],
+            $validated['has_quiz'],
+            $validated['quiz_question'],
+            $validated['quiz_option_a'],
+            $validated['quiz_option_b'],
+            $validated['quiz_option_c'],
+            $validated['quiz_option_d'],
+            $validated['quiz_correct_option'],
+            $validated['ar_marker_patt_content'],
+            $validated['has_story'],
+            $validated['story_title'],
+            $validated['story_content'],
+            $validated['story_type']
+        );
 
         $object->update($validated);
+
+        $object->stories()->delete();
+
+        if ($request->has('has_story') && $request->has('story_title')) {
+            $titles = $request->input('story_title');
+            $contents = $request->input('story_content');
+            $types = $request->input('story_type');
+
+            foreach ($titles as $index => $title) {
+                if (! empty($title)) {
+                    $object->stories()->create([
+                        'title' => $title,
+                        'content' => $contents[$index] ?? '',
+                        'story_type' => $types[$index] ?? 'history',
+                        'order' => $index + 1,
+                    ]);
+                }
+            }
+        }
 
         $object->quizzes()->delete();
 
