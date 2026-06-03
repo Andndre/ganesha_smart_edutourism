@@ -188,53 +188,61 @@
             @if ($object->stories->isNotEmpty())
                 <div class="mt-10 border-t border-gray-100 pt-8 max-w-none">
                     <h2 class="font-playfair text-charcoal text-xl font-bold mb-1">Storytelling & Warisan Budaya</h2>
-                    <p class="text-xs text-gray-500 mb-6">Mendalami nilai sejarah, makna filosofi, dan kearifan lokal objek budaya ini.</p>
+                    <p class="text-xs text-gray-500 mb-8">Mendalami nilai sejarah, makna filosofi, dan kearifan lokal objek budaya ini.</p>
                     
-                    <!-- Timeline Container -->
-                    <div class="relative border-l-2 border-gray-100 ml-3.5 pl-6 space-y-6">
-                        @foreach ($object->stories as $story)
-                            @php
-                                $typeColor = match($story->story_type) {
-                                    'history' => 'bg-amber-500 border-amber-200 text-amber-500',
-                                    'philosophy' => 'bg-emerald-500 border-emerald-200 text-emerald-500',
-                                    'value' => 'bg-blue-500 border-blue-200 text-blue-500',
-                                    default => 'bg-gray-500 border-gray-200 text-gray-500',
-                                };
-                                $typeBadgeColor = match($story->story_type) {
-                                    'history' => 'bg-amber-50 text-amber-700 border-amber-100/60',
-                                    'philosophy' => 'bg-emerald-50 text-emerald-700 border-emerald-100/60',
-                                    'value' => 'bg-blue-50 text-blue-700 border-blue-100/60',
-                                    default => 'bg-gray-50 text-gray-700 border-gray-100/60',
-                                };
-                                $typeName = match($story->story_type) {
-                                    'history' => 'Sejarah',
-                                    'philosophy' => 'Filosofi',
-                                    'value' => 'Nilai Luhur',
-                                    default => 'Cerita',
-                                };
-                            @endphp
-                            <!-- Timeline Item -->
-                            <div class="relative group">
-                                <!-- Timeline Dot -->
-                                <div class="absolute -left-[31px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white border-2 {{ $typeColor }} transition-all duration-300 group-hover:scale-125">
-                                    <div class="h-1.5 w-1.5 rounded-full bg-current"></div>
-                                </div>
-                                
-                                <!-- Card -->
-                                <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-2xs transition-all duration-300 hover:shadow-xs hover:border-gray-200">
-                                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-                                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase border {{ $typeBadgeColor }} tracking-wider leading-none">
-                                            {{ $typeName }}
-                                        </span>
-                                    </div>
-                                    <h3 class="font-playfair text-charcoal text-base font-bold leading-tight group-hover:text-primary transition-colors duration-300 mb-2">
-                                        {{ $story->title }}
+                    @php
+                        $groupedStories = $object->stories->groupBy('story_type');
+                        $categories = [
+                            'history' => [
+                                'title' => 'Sejarah & Asal-Usul',
+                                'color' => 'bg-amber-500 border-amber-200 text-amber-500',
+                                'border' => 'border-amber-500 text-amber-700'
+                            ],
+                            'philosophy' => [
+                                'title' => 'Makna Filosofi',
+                                'color' => 'bg-emerald-500 border-emerald-200 text-emerald-500',
+                                'border' => 'border-emerald-500 text-emerald-700'
+                            ],
+                            'value' => [
+                                'title' => 'Nilai-Nilai Luhur',
+                                'color' => 'bg-blue-500 border-blue-200 text-blue-500',
+                                'border' => 'border-blue-500 text-blue-700'
+                            ],
+                        ];
+                    @endphp
+
+                    <div class="space-y-8">
+                        @foreach ($categories as $type => $config)
+                            @if (isset($groupedStories[$type]) && $groupedStories[$type]->isNotEmpty())
+                                <div class="space-y-4">
+                                    <h3 class="text-xs font-bold uppercase tracking-wider border-l-4 pl-2.5 {{ $config['border'] }}">
+                                        {{ $config['title'] }}
                                     </h3>
-                                    <div class="story-content-prose text-xs leading-relaxed text-gray-600 whitespace-normal">
-                                        {!! $story->content !!}
+                                    
+                                    <!-- Timeline Container for this category -->
+                                    <div class="relative border-l-2 border-gray-100 ml-3.5 pl-6 space-y-5">
+                                        @foreach ($groupedStories[$type] as $story)
+                                            <!-- Timeline Item -->
+                                            <div class="relative group">
+                                                <!-- Timeline Dot -->
+                                                <div class="absolute -left-[31px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white border-2 {{ $config['color'] }} transition-all duration-300 group-hover:scale-125">
+                                                    <div class="h-1.5 w-1.5 rounded-full bg-current"></div>
+                                                </div>
+                                                
+                                                <!-- Card -->
+                                                <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-2xs transition-all duration-300 hover:shadow-xs hover:border-gray-200">
+                                                    <h4 class="font-playfair text-charcoal text-base font-bold leading-tight group-hover:text-primary transition-colors duration-300 mb-2">
+                                                        {{ $story->title }}
+                                                    </h4>
+                                                    <div class="story-content-prose text-xs leading-relaxed text-gray-600 whitespace-normal">
+                                                        {!! $story->content !!}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
                                     </div>
                                 </div>
-                            </div>
+                            @endif
                         @endforeach
                     </div>
                 </div>

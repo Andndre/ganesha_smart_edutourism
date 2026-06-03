@@ -2,16 +2,23 @@
 // ==========================================
 // STORY MANAGEMENT
 // ==========================================
+let currentActiveStoryTab = 'history';
+
 function toggleStories(checkbox) {
     const btn = document.getElementById('btn-manage-stories');
-    const list = document.getElementById('stories-list');
-    if (!btn || !list) return;
+    if (!btn) return;
     
     if (checkbox.checked) {
         btn.classList.remove('hidden');
         btn.classList.add('flex');
-        if (list.children.length === 0) {
-            addStoryField();
+        
+        // Check if all lists are empty
+        const hEmpty = document.getElementById('stories-list-history').children.length === 0;
+        const pEmpty = document.getElementById('stories-list-philosophy').children.length === 0;
+        const vEmpty = document.getElementById('stories-list-value').children.length === 0;
+        
+        if (hEmpty && pEmpty && vEmpty) {
+            addStoryField(null, 'history');
         }
         openStoryModal();
     } else {
@@ -36,19 +43,48 @@ function closeStoryModal() {
     }
 }
 
+function switchStoryTab(category) {
+    currentActiveStoryTab = category;
+    
+    // Hide all contents
+    document.querySelectorAll('.story-tab-content').forEach(el => el.classList.add('hidden'));
+    
+    // Show target content
+    const targetContent = document.getElementById(`stories-list-${category}`);
+    if (targetContent) {
+        targetContent.classList.remove('hidden');
+    }
+    
+    // Update button styles
+    document.querySelectorAll('.story-tab-btn').forEach(btn => {
+        btn.classList.remove('border-primary', 'text-primary');
+        btn.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    const activeBtn = document.getElementById(`tab-btn-${category}`);
+    if (activeBtn) {
+        activeBtn.classList.add('border-primary', 'text-primary');
+        activeBtn.classList.remove('border-transparent', 'text-gray-500');
+    }
+}
+
 function updateStoryIndexes() {
-    const list = document.getElementById('stories-list');
-    if (!list) return;
-    Array.from(list.children).forEach((item, index) => {
-        const indexSpan = item.querySelector('.story-index');
-        if (indexSpan) {
-            indexSpan.textContent = index + 1;
+    ['history', 'philosophy', 'value'].forEach(category => {
+        const list = document.getElementById(`stories-list-${category}`);
+        if (list) {
+            Array.from(list.children).forEach((item, index) => {
+                const indexSpan = item.querySelector('.story-index');
+                if (indexSpan) {
+                    indexSpan.textContent = index + 1;
+                }
+            });
         }
     });
 }
 
-function addStoryField(story = null) {
-    const list = document.getElementById('stories-list');
+function addStoryField(story = null, forcedCategory = null) {
+    const typeVal = story ? story.story_type : (forcedCategory || currentActiveStoryTab);
+    const list = document.getElementById(`stories-list-${typeVal}`);
     if (!list) return;
     
     const index = list.children.length;
@@ -59,11 +95,12 @@ function addStoryField(story = null) {
     
     const titleVal = story ? story.title : '';
     const contentVal = story ? story.content : '';
-    const typeVal = story ? story.story_type : 'history';
+    
+    const categoryLabel = typeVal === 'history' ? 'Sejarah' : (typeVal === 'philosophy' ? 'Filosofi' : 'Nilai Luhur');
     
     item.innerHTML = `
         <div class="flex items-center justify-between border-b border-gray-100 pb-2">
-            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Kisah <span class="story-index">${index + 1}</span></span>
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">${categoryLabel} <span class="story-index">${index + 1}</span></span>
             <div class="flex items-center gap-1.5">
                 <!-- Move Up Button -->
                 <button type="button" class="btn-move-up p-1 text-gray-400 hover:text-primary hover:bg-white rounded-lg transition-colors border border-transparent hover:border-gray-200" title="Geser ke Atas">
@@ -79,20 +116,11 @@ function addStoryField(story = null) {
                 </button>
             </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-                <label class="mb-1 block text-xs font-semibold text-gray-600">Judul Kisah</label>
-                <input type="text" name="story_title[]" required placeholder="Contoh: Asal Usul Pura" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none bg-white">
-            </div>
-            <div>
-                <label class="mb-1 block text-xs font-semibold text-gray-600">Tipe Kisah</label>
-                <select name="story_type[]" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none bg-white">
-                    <option value="history">Sejarah (History)</option>
-                    <option value="philosophy">Filosofi (Philosophy)</option>
-                    <option value="value">Nilai-Nilai Luhur (Value)</option>
-                </select>
-            </div>
+        <div>
+            <label class="mb-1 block text-xs font-semibold text-gray-600">Judul Kisah</label>
+            <input type="text" name="story_title[]" required placeholder="Contoh: Asal Usul Pura" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none bg-white">
         </div>
+        <input type="hidden" name="story_type[]" value="${typeVal}">
         <div>
             <label class="mb-1 block text-xs font-semibold text-gray-600">Konten Kisah</label>
             
@@ -121,7 +149,6 @@ function addStoryField(story = null) {
     
     // Set initial values
     item.querySelector('input[name="story_title[]"]').value = titleVal;
-    item.querySelector('select[name="story_type[]"]').value = typeVal;
     
     const textarea = item.querySelector('textarea[name="story_content[]"]');
     textarea.value = contentVal;

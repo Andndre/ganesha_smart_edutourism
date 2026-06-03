@@ -254,8 +254,13 @@ function handleMarkerClick(marker) {
             }
 
             // Populate Stories
-            const storiesList = document.getElementById('stories-list');
-            if (storiesList) storiesList.innerHTML = '';
+            ['history', 'philosophy', 'value'].forEach(cat => {
+                const list = document.getElementById(`stories-list-${cat}`);
+                if (list) list.innerHTML = '';
+            });
+            if (typeof switchStoryTab === 'function') {
+                switchStoryTab('history');
+            }
             
             if (details.stories && details.stories.length > 0) {
                 form.querySelector('input[name="has_story"]').checked = true;
@@ -418,8 +423,13 @@ function resetForms() {
                 manageBtn.classList.add('hidden');
                 manageBtn.classList.remove('flex');
             }
-            const storiesList = document.getElementById('stories-list');
-            if (storiesList) storiesList.innerHTML = '';
+            ['history', 'philosophy', 'value'].forEach(cat => {
+                const storiesList = document.getElementById(`stories-list-${cat}`);
+                if (storiesList) storiesList.innerHTML = '';
+            });
+            if (typeof switchStoryTab === 'function') {
+                switchStoryTab('history');
+            }
         }
     }
 
