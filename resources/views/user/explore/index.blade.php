@@ -117,6 +117,32 @@
         let lastPosition = null;
         let shouldCenterOnNextLocation = false;
         let map = null;
+        let isGpsLoading = false;
+        let activeLocation = null;
+
+        function updateRouteButtonUI() {
+            const iconEl = document.getElementById('route-btn-icon');
+            const textEl = document.getElementById('route-btn-text');
+            if (!iconEl || !textEl) return;
+
+            if (isGpsLoading) {
+                iconEl.innerHTML = `
+                    <svg class="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                `;
+                textEl.textContent = 'Mencari GPS...';
+            } else {
+                iconEl.innerHTML = `
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                `;
+                textEl.textContent = 'Arahkan';
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', function () {
             const defaultLat = {{ $defaultLat }};
@@ -425,6 +451,8 @@
             function onLocationError(e, silent = false) {
                 console.warn('Geolocation error:', e.message);
                 shouldCenterOnNextLocation = false;
+                isGpsLoading = false;
+                updateRouteButtonUI();
                 if (!silent) {
                     Swal.fire({
                         title: 'Akses Lokasi Gagal',
@@ -437,7 +465,12 @@
             }
 
             function startLocationTracking(silent = false) {
+                isGpsLoading = true;
+                updateRouteButtonUI();
+
                 if (!navigator.geolocation) {
+                    isGpsLoading = false;
+                    updateRouteButtonUI();
                     if (!silent) {
                         Swal.fire({
                             title: 'Fitur Tidak Didukung',
@@ -453,6 +486,9 @@
                 // Get initial position
                 navigator.geolocation.getCurrentPosition(
                     (pos) => {
+                        isGpsLoading = false;
+                        updateRouteButtonUI();
+
                         const latlng = L.latLng(pos.coords.latitude, pos.coords.longitude);
                         onLocationFound({
                             latlng: latlng,
@@ -475,7 +511,11 @@
                         }
                         );
                     },
-                    (err) => onLocationError(err, silent), {
+                    (err) => {
+                        isGpsLoading = false;
+                        updateRouteButtonUI();
+                        onLocationError(err, silent);
+                    }, {
                     enableHighAccuracy: true,
                     maximumAge: 0,
                     timeout: 10000
@@ -500,7 +540,15 @@
                     });
                 } else {
                     shouldCenterOnNextLocation = true;
-                    if (watchId === null) {
+                    if (isGpsLoading) {
+                        Swal.fire({
+                            title: 'Mencari Lokasi...',
+                            text: 'Sedang mengambil koordinat GPS Anda. Mohon tunggu sebentar.',
+                            icon: 'info',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    } else if (watchId === null) {
                         startLocationTracking(false);
                     } else {
                         Swal.fire({
@@ -589,7 +637,26 @@
          * @param {number} loc.lng
          * @param {string} [loc.detail_url]
          */
+        function showGpsFallbackAlert(href) {
+            Swal.fire({
+                title: 'GPS Belum Aktif',
+                text: 'Lokasi Anda belum terdeteksi di peta ini. Apakah Anda ingin membuka Google Maps untuk petunjuk arah luar?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#1E5128',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Buka Google Maps',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.open(href, '_blank');
+                }
+            });
+        }
+
         function openSheet(loc) {
+            activeLocation = loc;
+            updateRouteButtonUI();
             document.getElementById('sheet-title').textContent = loc.name;
 
             // AR Badge
@@ -671,22 +738,37 @@
                     if (lastPosition) {
                         closeSheet();
                         drawUserToLocationRoute(lastPosition, { lat: loc.lat, lng: loc.lng });
-                    } else {
-                        // Show premium SweetAlert2 confirmation before redirecting to external Google Maps
+                    } else if (isGpsLoading) {
+                        // Show premium loading SweetAlert and wait for location to load
                         Swal.fire({
-                            title: 'GPS Belum Aktif',
-                            text: 'Lokasi Anda belum terdeteksi di peta ini. Apakah Anda ingin membuka Google Maps untuk petunjuk arah luar?',
-                            icon: 'question',
-                            showCancelButton: true,
-                            confirmButtonColor: '#1E5128',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: 'Ya, Buka Google Maps',
-                            cancelButtonText: 'Batal'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.open(this.href, '_blank');
+                            title: 'Mendeteksi Lokasi...',
+                            text: 'Mohon tunggu, sedang menghubungkan ke satelit GPS...',
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
                             }
                         });
+
+                        // Poll every 500ms for up to 8 seconds to see if GPS becomes available
+                        let checkCount = 0;
+                        const checkInterval = setInterval(() => {
+                            checkCount++;
+                            if (lastPosition) {
+                                clearInterval(checkInterval);
+                                Swal.close();
+                                closeSheet();
+                                drawUserToLocationRoute(lastPosition, { lat: loc.lat, lng: loc.lng });
+                            } else if (!isGpsLoading || checkCount >= 16) {
+                                // Timeout or error occurred
+                                clearInterval(checkInterval);
+                                Swal.close();
+                                // Show fallback confirmation
+                                showGpsFallbackAlert(this.href);
+                            }
+                        }, 500);
+                    } else {
+                        showGpsFallbackAlert(this.href);
                     }
                 };
             }
@@ -710,6 +792,7 @@
         }
 
         function closeSheet() {
+            activeLocation = null;
             window.dispatchEvent(new CustomEvent('close-location-sheet'));
         }
 
