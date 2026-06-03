@@ -154,6 +154,7 @@ class SmartEdutourismController extends Controller
                     }
 
                     $session->save();
+                    $sessionStatus = $session->status;
                 }
             }
         }
@@ -162,6 +163,7 @@ class SmartEdutourismController extends Controller
             'success' => true,
             'point' => $point,
             'quizzes' => $quizzes,
+            'session_status' => $sessionStatus ?? 'active',
         ]);
     }
 

@@ -61,16 +61,20 @@
         </div>
     </div>
     @else
-    <div class="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-4 pb-24">
-        <div class="pointer-events-auto rounded-3xl border border-emerald-200 bg-emerald-50 p-6 text-center shadow-2xl">
-            <div class="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 shadow-inner">
-                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <div class="absolute inset-0 z-50 flex items-center justify-center bg-white/90 p-4 backdrop-blur-md">
+        <div class="w-full max-w-sm rounded-3xl border border-emerald-200 bg-emerald-50 p-8 text-center shadow-2xl">
+            <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 shadow-inner">
+                <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             </div>
-            <h2 class="mt-1 text-2xl font-black text-emerald-900">Misi Selesai!</h2>
-            <p class="mt-2 text-sm text-emerald-700">Selamat! Anda telah menyelesaikan seluruh rute ini dengan luar biasa. Skor akhir Anda: <strong>{{ $activeSession->total_score }} Poin</strong>.</p>
-            <a href="{{ route('home') }}" class="mt-6 block w-full rounded-xl bg-emerald-600 py-3 text-center text-sm font-bold text-white shadow-sm transition-transform hover:bg-emerald-700 active:scale-95">Selesai & Kembali ke Beranda</a>
+            <h2 class="mt-2 text-3xl font-black text-emerald-900">Misi Selesai!</h2>
+            <p class="mt-4 text-base leading-relaxed text-emerald-700">Selamat! Anda telah menyelesaikan seluruh rute ini dengan luar biasa. Skor akhir Anda:</p>
+            <div class="my-6 rounded-2xl bg-white py-4 shadow-sm">
+                <span class="block text-4xl font-black text-emerald-600">{{ $activeSession->total_score }}</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Total Poin</span>
+            </div>
+            <a href="{{ route('home') }}" class="block w-full rounded-xl bg-emerald-600 py-4 text-center text-base font-bold text-white shadow-md transition-transform hover:bg-emerald-700 active:scale-95">Kembali ke Beranda</a>
         </div>
     </div>
     @endif
@@ -94,6 +98,7 @@
 
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         @if($activeSession->currentPoint)
@@ -102,6 +107,27 @@
         @else
         const targetLat = 0;
         const targetLng = 0;
+        
+        // Fire confetti when mission is completed
+        var duration = 3 * 1000;
+        var animationEnd = Date.now() + duration;
+        var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        var interval = setInterval(function() {
+            var timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+
+            var particleCount = 50 * (timeLeft / duration);
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+        }, 250);
         @endif
 
         const map = L.map('map', {zoomControl: false}).setView([-8.4223, 115.3595], 17);
@@ -227,16 +253,20 @@
                     document.getElementById('btn-arrive').disabled = false;
                     document.getElementById('btn-arrive').textContent = 'Jawab Pertanyaan & Lanjut';
                 } else {
-                    console.log("No quizzes found for this point. Showing SweetAlert info...");
-                    Swal.fire({
-                        title: 'Info',
-                        text: 'Tidak ada kuis untuk titik ini. Rute berlanjut...',
-                        icon: 'info',
-                        confirmButtonColor: '#1E5128',
-                        confirmButtonText: 'Lanjut'
-                    }).then(() => {
+                    if (data.session_status === 'completed') {
                         window.location.reload();
-                    });
+                    } else {
+                        console.log("No quizzes found for this point. Showing SweetAlert info...");
+                        Swal.fire({
+                            title: 'Info',
+                            text: 'Tidak ada kuis untuk titik ini. Rute berlanjut...',
+                            icon: 'info',
+                            confirmButtonColor: '#1E5128',
+                            confirmButtonText: 'Lanjut'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    }
                 }
             })
             .catch(err => {
