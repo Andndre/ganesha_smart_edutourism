@@ -104,6 +104,11 @@
             @endphp
             <!-- Sticky Bottom Bar for Button -->
             <div class="fixed {{ $hasActiveSession ? 'mb-18' : '' }} bottom-[calc(env(safe-area-inset-bottom)+4rem)] left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-200 px-4 pt-4 pb-8 z-40 transition-all">
+                <!-- Selected Categories Pills Container -->
+                <div id="selected-categories-pills" class="flex flex-row flex-nowrap gap-2 mb-3 overflow-x-auto hidden no-scrollbar pb-1">
+                    <!-- Dynamic pills will be injected here -->
+                </div>
+
                 <button type="submit" class="w-full bg-primary text-white font-semibold py-3.5 rounded-xl active:scale-[0.98] transition-transform shadow-lg flex justify-center items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -204,6 +209,57 @@
             card.classList.remove('ring-2', 'ring-primary', 'border-primary', 'bg-primary/[0.01]');
             card.classList.add('border-gray-100');
         }
+
+        updateSelectedPills();
+    }
+
+    function deselectCategory(id, event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        const checkbox = document.getElementById(`checkbox-cat-${id}`);
+        if (checkbox) {
+            checkbox.checked = false;
+            checkbox.dispatchEvent(new Event('change'));
+        }
+    }
+
+    function updateSelectedPills() {
+        const container = document.getElementById('selected-categories-pills');
+        if (!container) return;
+
+        const checkedBoxes = document.querySelectorAll('input[name="category_ids[]"]:checked');
+        
+        if (checkedBoxes.length === 0) {
+            container.innerHTML = '';
+            container.classList.add('hidden');
+            container.classList.remove('flex');
+            return;
+        }
+
+        container.classList.remove('hidden');
+        container.classList.add('flex');
+
+        let html = '';
+        checkedBoxes.forEach(box => {
+            const id = box.value;
+            const card = document.getElementById(`card-cat-${id}`);
+            const name = card ? card.querySelector('h3').innerText : 'Kategori';
+            
+            html += `
+                <div class="flex items-center gap-1.5 bg-primary/[0.08] text-primary text-xs font-bold px-3 py-1.5 rounded-full border border-primary/20 transition-all select-none shrink-0">
+                    <span>${name}</span>
+                    <button type="button" onclick="deselectCategory(${id}, event)" class="hover:text-primary-700 hover:bg-primary/10 rounded-full p-0.5 transition-colors focus:outline-none ml-0.5">
+                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
     }
 
     let currentModalTab = 'image';
