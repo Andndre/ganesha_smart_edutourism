@@ -15,18 +15,7 @@
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Kategori / Tema <span class="text-warning">*</span></label>
-                <select name="difficulty" required class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                    <option>Mudah</option>
-                    <option>Sedang</option>
-                    <option>Sulit</option>
-                    <option>Edukasi</option>
-                    <option>Alam</option>
-                    <option>Belanja</option>
-                    <option>Difabel</option>
-                </select>
-            </div>
+            <input type="hidden" name="difficulty" value="easy">
             <div class="flex flex-col justify-end pb-2">
                 <label class="relative flex items-center gap-2 cursor-pointer select-none">
                     <input type="checkbox" name="is_smart_route" value="1" class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4">

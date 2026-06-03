@@ -15,18 +15,7 @@
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Kategori / Tema <span class="text-warning">*</span></label>
-                <select name="difficulty" required class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                    <option value="Mudah" {{ old('difficulty', $route->difficulty) === 'easy' ? 'selected' : '' }}>Mudah / Easy</option>
-                    <option value="Sedang" {{ old('difficulty', $route->difficulty) === 'moderate' ? 'selected' : '' }}>Sedang / Moderate</option>
-                    <option value="Sulit" {{ old('difficulty', $route->difficulty) === 'challenging' ? 'selected' : '' }}>Sulit / Challenging</option>
-                    <option value="Edukasi" {{ old('difficulty', $route->difficulty) === 'Edukasi' ? 'selected' : '' }}>Edukasi</option>
-                    <option value="Alam" {{ old('difficulty', $route->difficulty) === 'Alam' ? 'selected' : '' }}>Alam</option>
-                    <option value="Belanja" {{ old('difficulty', $route->difficulty) === 'Belanja' ? 'selected' : '' }}>Belanja</option>
-                    <option value="Difabel" {{ old('difficulty', $route->difficulty) === 'Difabel' ? 'selected' : '' }}>Difabel</option>
-                </select>
-            </div>
+            <input type="hidden" name="difficulty" value="{{ old('difficulty', $route->difficulty) }}">
             <div class="flex flex-col gap-2 justify-end pb-1.5">
                 <label class="relative flex items-center gap-2 cursor-pointer select-none">
                     <input type="checkbox" name="is_smart_route" value="1" {{ old('is_smart_route', $route->is_smart_route) ? 'checked' : '' }} class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4">
