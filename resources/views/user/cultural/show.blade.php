@@ -194,16 +194,16 @@
                         @foreach ($object->stories as $story)
                             @php
                                 $typeColor = match($story->story_type) {
-                                    'history' => 'from-amber-500/10 to-amber-600/5 text-amber-700 border-amber-200/60',
-                                    'philosophy' => 'from-emerald-500/10 to-emerald-600/5 text-emerald-700 border-emerald-200/60',
-                                    'value' => 'from-blue-500/10 to-blue-600/5 text-blue-700 border-blue-200/60',
-                                    default => 'from-gray-500/10 to-gray-600/5 text-gray-700 border-gray-200/60',
+                                    'history' => 'from-amber-500/10 to-amber-600/5 text-amber-700 border-amber-200/60 shadow-amber-100/50',
+                                    'philosophy' => 'from-emerald-500/10 to-emerald-600/5 text-emerald-700 border-emerald-200/60 shadow-emerald-100/50',
+                                    'value' => 'from-blue-500/10 to-blue-600/5 text-blue-700 border-blue-200/60 shadow-blue-100/50',
+                                    default => 'from-gray-500/10 to-gray-600/5 text-gray-700 border-gray-200/60 shadow-gray-100/50',
                                 };
                                 $typeIcon = match($story->story_type) {
-                                    'history' => '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
-                                    'philosophy' => '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>',
-                                    'value' => '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z"></path></svg>',
-                                    default => '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+                                    'history' => '<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+                                    'philosophy' => '<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>',
+                                    'value' => '<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z"></path></svg>',
+                                    default => '<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
                                 };
                                 $typeName = match($story->story_type) {
                                     'history' => 'Sejarah',
@@ -212,17 +212,17 @@
                                     default => 'Cerita',
                                 };
                             @endphp
-                            <div class="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
-                                <div class="flex items-center gap-3.5 mb-3">
-                                    <div class="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br {{ $typeColor }} border shadow-2xs">
-                                        {!! $typeIcon !!}
-                                    </div>
-                                    <div>
-                                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-gray-400">{{ $typeName }}</span>
-                                        <h3 class="font-playfair text-charcoal text-lg font-bold leading-tight mt-0.5 group-hover:text-primary transition-colors duration-300">{{ $story->title }}</h3>
+                            <div class="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md flex gap-4">
+                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br {{ $typeColor }} border shadow-sm">
+                                    {!! $typeIcon !!}
+                                </div>
+                                <div class="flex-1">
+                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-gray-400 leading-none">{{ $typeName }}</span>
+                                    <h3 class="font-playfair text-charcoal text-lg font-bold leading-tight mt-0.5 mb-2.5 group-hover:text-primary transition-colors duration-300">{{ $story->title }}</h3>
+                                    <div class="story-content-prose text-sm leading-relaxed text-gray-600">
+                                        {!! $story->content !!}
                                     </div>
                                 </div>
-                                <div class="text-sm leading-relaxed text-gray-600 whitespace-pre-line">{{ $story->content }}</div>
                             </div>
                         @endforeach
                     </div>
@@ -259,6 +259,31 @@
             100% {
                 transform: scaleY(1.2);
             }
+        }
+
+        /* Custom typography styling for rich text stories and main body */
+        .story-content-prose ul, .prose ul {
+            list-style-type: disc !important;
+            padding-left: 1.5rem !important;
+            margin-top: 0.5rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .story-content-prose ol, .prose ol {
+            list-style-type: decimal !important;
+            padding-left: 1.5rem !important;
+            margin-top: 0.5rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .story-content-prose li, .prose li {
+            margin-bottom: 0.35rem !important;
+            line-height: 1.6 !important;
+        }
+        .story-content-prose p, .prose p {
+            margin-bottom: 0.75rem !important;
+            line-height: 1.6 !important;
+        }
+        .story-content-prose p:last-child {
+            margin-bottom: 0 !important;
         }
     </style>
 @endpush
