@@ -14,6 +14,10 @@ class UmkmCatalogController extends Controller
     {
         $categories = UmkmProductCategory::all();
 
+        if (session()->has('multi_stop_recommendations')) {
+            session()->keep(['multi_stop_recommendations', 'missing_categories']);
+        }
+
         return view('user.umkm.index', compact('categories'));
     }
 
