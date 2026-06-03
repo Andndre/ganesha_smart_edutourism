@@ -45,7 +45,9 @@
             <div class="grid grid-cols-2 gap-4">
                 @foreach($categories as $category)
                 <div id="card-cat-{{ $category->id }}" 
-                     class="relative bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col transition-all h-full cursor-pointer hover:shadow-md hover:border-gray-200"
+                     class="relative bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col transition-all h-full cursor-pointer hover:shadow-md hover:border-gray-200 category-card"
+                     data-name="{{ strtolower($category->name) }}"
+                     data-description="{{ strtolower($category->description ?? '') }}"
                      onclick="openCategoryModal({{ json_encode($category) }}, event)">
                     <div class="aspect-square bg-gray-100 relative">
                         @if($category->image_path)
@@ -77,6 +79,17 @@
                     </div>
                 </div>
                 @endforeach
+            </div>
+
+            <!-- Empty State for Search -->
+            <div id="empty-state" class="hidden flex-col items-center justify-center py-12 text-center">
+                <div class="w-16 h-16 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mb-4 mx-auto">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-base font-bold text-charcoal">Kategori Tidak Ditemukan</h3>
+                <p class="text-xs text-gray-500 mt-1">Coba gunakan kata kunci pencarian yang lain.</p>
             </div>
 
             @php
@@ -319,6 +332,60 @@
         if (ModelViewerElement) {
             ModelViewerElement.meshoptDecoderLocation =
                 'https://unpkg.com/meshoptimizer@0.17.0/meshopt_decoder.js';
+        }
+
+        // Realtime Search and Clear Search Logic
+        const searchInput = document.getElementById('search-input');
+        const clearBtn = document.getElementById('clear-search-btn');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                
+                // Show or hide clear button
+                if (clearBtn) {
+                    if (query.length > 0) {
+                        clearBtn.classList.remove('hidden');
+                    } else {
+                        clearBtn.classList.add('hidden');
+                    }
+                }
+
+                // Filter cards
+                let visibleCount = 0;
+                const cards = document.querySelectorAll('.category-card');
+                cards.forEach(card => {
+                    const name = card.getAttribute('data-name');
+                    const description = card.getAttribute('data-description');
+                    if (!query || name.includes(query) || description.includes(query)) {
+                        card.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+
+                // Toggle empty state
+                const emptyState = document.getElementById('empty-state');
+                if (emptyState) {
+                    if (visibleCount === 0) {
+                        emptyState.classList.remove('hidden');
+                        emptyState.classList.add('flex');
+                    } else {
+                        emptyState.classList.add('hidden');
+                        emptyState.classList.remove('flex');
+                    }
+                }
+            });
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    searchInput.value = '';
+                    clearBtn.classList.add('hidden');
+                    searchInput.dispatchEvent(new Event('input'));
+                    searchInput.focus();
+                });
+            }
         }
     });
 </script>
