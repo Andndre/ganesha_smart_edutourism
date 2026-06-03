@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\CapacityZone;
-use App\Models\TourRoute;
 use App\Models\WeatherReport;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\View\View;
@@ -34,11 +33,6 @@ class HomeController extends Controller
             $densityBg = 'bg-green-50';
         }
 
-        $recommendedRoutes = TourRoute::where('is_active', true)
-            ->withCount('routePoints')
-            ->take(3)
-            ->get();
-
         // Fetch cached weather, fallback to first-time update if empty
         $weather = WeatherReport::first();
         if (! $weather) {
@@ -50,6 +44,6 @@ class HomeController extends Controller
             }
         }
 
-        return view('home', \compact('densityText', 'densityClass', 'densityBg', 'recommendedRoutes', 'weather'));
+        return view('home', \compact('densityText', 'densityClass', 'densityBg', 'weather'));
     }
 }
