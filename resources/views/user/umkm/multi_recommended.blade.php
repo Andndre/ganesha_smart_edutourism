@@ -54,7 +54,7 @@
 
 @section('content')
     @php $totalPrice = 0; @endphp
-    <div class="px-4 pt-[calc(env(safe-area-inset-top)+6rem)] pb-32">
+    <div class="px-4 pt-6 pb-32">
         <div class="mb-6">
             <h2 class="text-xl font-bold text-charcoal">Rute Belanja Anda</h2>
             <p class="text-sm text-gray-500 mt-1">Kami telah menemukan beberapa UMKM terdekat agar Anda mendapatkan semua pesanan Anda.</p>
