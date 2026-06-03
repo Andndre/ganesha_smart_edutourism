@@ -8,9 +8,19 @@ use App\Models\RouteSession;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class SmartEdutourismController extends Controller
 {
+    public function index(): View
+    {
+        $routes = TourRoute::where('is_active', true)
+            ->withCount('routePoints')
+            ->get();
+
+        return view('user.edutourism.index', compact('routes'));
+    }
+
     public function preview($id)
     {
         $route = TourRoute::with(['routePoints.locationable.mapLocation'])->findOrFail($id);
@@ -137,7 +147,7 @@ class SmartEdutourismController extends Controller
 
             if ($request->boolean('is_last_quiz', true)) {
                 $session->points_completed += 1;
-                
+
                 // Move to next point
                 $route = TourRoute::with('routePoints')->find($session->tour_route_id);
                 $points = $route->routePoints;

@@ -73,6 +73,7 @@ Route::middleware('redirect.admin')->group(function () {
     Route::get('/events', [PublicEventController::class, 'index'])->name('events');
 
     // Smart Edutourism
+    Route::get('/edutourism', [SmartEdutourismController::class, 'index'])->name('edutourism.index');
     Route::get('/edutourism/routes/{id}/preview', [SmartEdutourismController::class, 'preview'])->name('edutourism.preview');
     Route::post('/edutourism/routes/{id}/start', [SmartEdutourismController::class, 'start'])->name('edutourism.start');
     Route::get('/edutourism/active', [SmartEdutourismController::class, 'active'])->name('edutourism.active');

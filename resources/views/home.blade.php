@@ -111,6 +111,17 @@
                 </div>
                 <span class="text-center text-[11px] font-medium leading-tight">Peta<br>Wisata</span>
             </a>
+            <a href="{{ route('edutourism.index') }}"
+                class="tap-target flex flex-col items-center gap-2 transition-transform active:scale-95">
+                <div
+                    class="flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-100 bg-white text-[#1E5128] shadow-sm">
+                    <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479L12 21l-6.825-3.943a12.083 12.083 0 01.665-6.479L12 14z" />
+                    </svg>
+                </div>
+                <span class="text-center text-[11px] font-medium leading-tight">Edutourism</span>
+            </a>
             <a href="{{ route('umkm') }}"
                 class="tap-target flex flex-col items-center gap-2 transition-transform active:scale-95">
                 <div
@@ -170,44 +181,6 @@
                 </a>
             @endif
 
-        </div>
-    </section>
-
-    <section class="mb-4 px-4 py-4">
-        <div class="mb-3 flex items-center justify-between">
-            <h3 class="text-charcoal text-lg font-bold">Jalur Rekomendasi</h3>
-            <a href="{{ route('explore') }}" class="text-primary text-sm font-medium">Lihat Peta</a>
-        </div>
-
-        <div class="no-scrollbar flex gap-4 overflow-x-auto pb-2">
-            @forelse($recommendedRoutes as $route)
-                <div
-                    class="min-w-65 flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <h4 class="text-charcoal font-bold">{{ $route->name }}</h4>
-                            <p class="mt-1 text-xs text-gray-500">
-                                Estimasi {{ $route->estimated_duration_minutes ?? 60 }} Menit •
-                                {{ $route->route_points_count ?? 0 }} Objek
-                            </p>
-                        </div>
-                        <div class="bg-primary/10 text-primary rounded-lg p-2">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                            </svg>
-                        </div>
-                    </div>
-                    <button @click="$dispatch('open-route-preview-modal'); fetchRoutePreview({{ $route->id }})"
-                        class="bg-primary mt-4 block w-full rounded-xl py-2 text-center text-sm font-medium text-white transition-transform active:scale-95">
-                        Mulai Rute
-                    </button>
-                </div>
-            @empty
-                <div class="w-full rounded-2xl border border-gray-100 bg-white p-4 py-6 text-center text-sm text-gray-500">
-                    Tidak ada rute rekomendasi saat ini.
-                </div>
-            @endforelse
         </div>
     </section>
 
@@ -303,102 +276,5 @@
             @endif
         </div>
     </x-modal>
-
-    <!-- Route Preview Modal -->
-    <x-modal name="route-preview-modal">
-        <div class="space-y-4">
-            <div class="flex items-center justify-between">
-                <span class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-600">Smart Edutourism</span>
-                <button type="button" @click="isOpen = false" class="text-xs font-bold text-gray-400 hover:text-gray-600 md:hidden">Tutup</button>
-            </div>
-            
-            <h3 id="preview-title" class="font-display text-charcoal text-xl font-black leading-snug tracking-tight">Memuat...</h3>
-            <p id="preview-desc" class="text-sm text-gray-500"></p>
-            
-            <div class="mt-4 rounded-xl border border-gray-100 bg-gray-50 p-4 max-h-[300px] overflow-y-auto">
-                <h4 class="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">Titik Perhentian</h4>
-                <ul id="preview-points" class="space-y-3">
-                    <li class="text-sm text-gray-500">Memuat rute...</li>
-                </ul>
-            </div>
-            
-            <form id="start-route-form" method="POST" action="">
-                @csrf
-                <button type="button" onclick="startRoute()" id="btn-start-route" disabled class="bg-primary mt-6 w-full rounded-xl py-3 text-center text-sm font-bold text-white shadow-sm transition-transform active:scale-95 disabled:opacity-50">
-                    Mulai Eksplorasi
-                </button>
-            </form>
-        </div>
-    </x-modal>
-@endpush
-
-@push('scripts')
-    <script>
-        function fetchRoutePreview(id) {
-            document.getElementById('preview-title').textContent = 'Memuat...';
-            document.getElementById('preview-desc').textContent = '';
-            document.getElementById('preview-points').innerHTML = '<li class="text-sm text-gray-500">Memuat rute...</li>';
-            document.getElementById('btn-start-route').disabled = true;
-            document.getElementById('start-route-form').action = `/edutourism/routes/${id}/start`;
-
-            fetch(`/edutourism/routes/${id}/preview`)
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('preview-title').textContent = data.route.name;
-                    document.getElementById('preview-desc').textContent = data.route.description || `Estimasi ${data.route.estimated_duration_minutes} Menit`;
-                    
-                    const ul = document.getElementById('preview-points');
-                    ul.innerHTML = '';
-                    
-                    if (data.points && data.points.length > 0) {
-                        data.points.forEach((pt, index) => {
-                            ul.innerHTML += `
-                                <li class="flex items-center gap-3">
-                                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-700">${index + 1}</div>
-                                    <span class="text-sm font-medium text-gray-700">${pt.name}</span>
-                                </li>
-                            `;
-                        });
-                    } else {
-                        ul.innerHTML = '<li class="text-sm text-gray-500">Tidak ada titik perhentian.</li>';
-                    }
-                    
-                    document.getElementById('btn-start-route').disabled = false;
-                })
-                .catch(err => {
-                    document.getElementById('preview-title').textContent = 'Gagal memuat data';
-                });
-        }
-
-        function startRoute() {
-            const form = document.getElementById('start-route-form');
-            const btn = document.getElementById('btn-start-route');
-            btn.disabled = true;
-            btn.textContent = 'Memulai...';
-
-            fetch(form.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = data.redirect;
-                } else {
-                    alert(data.message || 'Terjadi kesalahan.');
-                    btn.disabled = false;
-                    btn.textContent = 'Mulai Eksplorasi';
-                }
-            })
-            .catch(err => {
-                alert('Gagal memulai rute.');
-                btn.disabled = false;
-                btn.textContent = 'Mulai Eksplorasi';
-            });
-        }
-    </script>
 @endpush
 @endsection
