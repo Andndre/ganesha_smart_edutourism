@@ -610,6 +610,48 @@
 
             // Start location tracking automatically on load (silent = true)
             startLocationTracking(true);
+
+            // Auto-routing redirect support from UMKM Recommended page
+            const targetLat = urlParams.get('lat');
+            const targetLng = urlParams.get('lng');
+            const targetName = urlParams.get('name');
+            const action = urlParams.get('action');
+
+            if (action === 'route' && targetLat && targetLng) {
+                const latNum = parseFloat(targetLat);
+                const lngNum = parseFloat(targetLng);
+                
+                // Find matching location in locations array (allowing a small tolerance)
+                const targetLoc = locations.find(loc => 
+                    Math.abs(parseFloat(loc.lat) - latNum) < 0.0001 && 
+                    Math.abs(parseFloat(loc.lng) - lngNum) < 0.0001
+                ) || {
+                    lat: latNum,
+                    lng: lngNum,
+                    name: targetName || 'Tujuan',
+                    cat: 'umkm',
+                    desc: '',
+                    is_accessible: false,
+                    accessibility: '',
+                    detail_url: null,
+                    images: []
+                };
+
+                // Trigger opening the sheet and route calculation after a short timeout to let Leaflet load
+                setTimeout(() => {
+                    openSheet(targetLoc);
+                    map.flyTo([targetLoc.lat - 0.0005, targetLoc.lng], 18, {
+                        animate: true,
+                        duration: 0.8
+                    });
+
+                    // Auto-trigger click on the route directions button
+                    const routeBtn = document.getElementById('sheet-route-btn');
+                    if (routeBtn) {
+                        routeBtn.click();
+                    }
+                }, 800);
+            }
         });
 
         // ==========================================
