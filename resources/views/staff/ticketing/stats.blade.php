@@ -16,12 +16,12 @@
 
 @section('content')
 <div class="max-w-6xl pb-12">
-    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
             <h1 class="font-display text-2xl font-bold text-charcoal">Statistik Penjualan Tiket</h1>
             <p class="mt-0.5 text-sm text-gray-500">Laporan ringkasan penjualan tiket dan pendapatan wisata.</p>
         </div>
-        <div>
+        <div class="flex flex-wrap gap-2.5 justify-start lg:justify-end">
             <a href="{{ route('staff.ticketing') }}" class="inline-flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition-all active:scale-[0.98]">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
