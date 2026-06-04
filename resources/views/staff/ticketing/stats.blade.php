@@ -2,9 +2,21 @@
 
 @section('title', 'Statistik Penjualan Tiket')
 
+@push('styles')
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+@endpush
+
 @section('content')
 <div class="max-w-6xl pb-12">
-    <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="font-display text-2xl font-bold text-charcoal">Statistik Penjualan Tiket</h1>
             <p class="mt-0.5 text-sm text-gray-500">Laporan ringkasan penjualan tiket dan pendapatan wisata.</p>
@@ -19,22 +31,22 @@
         </div>
     </div>
 
-    <!-- Date Presets Navigation -->
-    <div class="flex flex-wrap gap-2 mb-6">
+    <!-- Date Presets Navigation (Horizontal Scrollable on Mobile) -->
+    <div class="flex overflow-x-auto gap-2 mb-6 no-scrollbar pb-1.5 sm:flex-wrap sm:pb-0">
         <a href="{{ route('staff.ticketing.stats', ['preset' => 'today']) }}" 
-           class="rounded-xl px-4 py-2.5 text-xs font-semibold shadow-sm transition-all {{ $preset === 'today' ? 'bg-primary text-white shadow-primary/10' : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50' }}">
+           class="shrink-0 rounded-xl px-4 py-2.5 text-xs font-semibold shadow-sm transition-all {{ $preset === 'today' ? 'bg-primary text-white shadow-primary/10' : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50' }}">
             Hari Ini
         </a>
         <a href="{{ route('staff.ticketing.stats', ['preset' => 'month']) }}" 
-           class="rounded-xl px-4 py-2.5 text-xs font-semibold shadow-sm transition-all {{ $preset === 'month' ? 'bg-primary text-white shadow-primary/10' : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50' }}">
+           class="shrink-0 rounded-xl px-4 py-2.5 text-xs font-semibold shadow-sm transition-all {{ $preset === 'month' ? 'bg-primary text-white shadow-primary/10' : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50' }}">
             1 Bulan Terakhir
         </a>
         <a href="{{ route('staff.ticketing.stats', ['preset' => 'all']) }}" 
-           class="rounded-xl px-4 py-2.5 text-xs font-semibold shadow-sm transition-all {{ $preset === 'all' ? 'bg-primary text-white shadow-primary/10' : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50' }}">
+           class="shrink-0 rounded-xl px-4 py-2.5 text-xs font-semibold shadow-sm transition-all {{ $preset === 'all' ? 'bg-primary text-white shadow-primary/10' : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50' }}">
             Keseluruhan
         </a>
         <a href="{{ route('staff.ticketing.stats', ['preset' => 'custom']) }}" 
-           class="rounded-xl px-4 py-2.5 text-xs font-semibold shadow-sm transition-all {{ $preset === 'custom' ? 'bg-primary text-white shadow-primary/10' : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50' }}">
+           class="shrink-0 rounded-xl px-4 py-2.5 text-xs font-semibold shadow-sm transition-all {{ $preset === 'custom' ? 'bg-primary text-white shadow-primary/10' : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50' }}">
             Pilih Rentang Tanggal
         </a>
     </div>
@@ -63,7 +75,7 @@
         </form>
     @endif
 
-    <!-- Statistics Cards Grid -->
+    <!-- Statistics Cards Grid (1 Column on Mobile) -->
     <div class="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <!-- Tiket Terjual -->
         <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm flex items-center gap-4">
@@ -118,11 +130,12 @@
         </div>
     </div>
 
-    <!-- Rincian Tiket Terjual Table -->
-    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+    <!-- Rincian Tiket Terjual Container -->
+    <div class="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm">
         <h3 class="font-display text-lg font-bold text-charcoal mb-4">Rincian Tiket Terjual</h3>
         
-        <div class="overflow-x-auto rounded-xl border border-gray-100">
+        <!-- Desktop Table (Hidden on Mobile) -->
+        <div class="hidden sm:block overflow-x-auto rounded-xl border border-gray-100">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-gray-100 bg-gray-50/50">
@@ -159,6 +172,46 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        <!-- Mobile Card List (Visible only on Mobile) -->
+        <div class="space-y-4 sm:hidden">
+            @forelse ($reservationsList as $res)
+                <div class="rounded-xl border border-gray-100 p-4 shadow-sm bg-white space-y-3">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h4 class="font-bold text-charcoal text-sm">{{ $res['guest_name'] }}</h4>
+                            <div class="mt-0.5 flex items-center gap-1.5">
+                                @if ($res['is_walkin'])
+                                    <span class="inline-flex items-center rounded bg-primary/10 px-1.5 py-0.2 text-[8px] font-semibold text-primary">Walk-in</span>
+                                @endif
+                            </div>
+                        </div>
+                        <span class="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-gray-600">{{ $res['payment_method'] }}</span>
+                    </div>
+
+                    <div class="rounded-xl bg-gray-50/55 p-3 text-xs space-y-1.5">
+                        <div class="flex justify-between text-gray-500">
+                            <span>Tanggal Kunjungan</span>
+                            <span class="font-semibold text-charcoal">{{ \Carbon\Carbon::parse($res['scheduled_date'])->translatedFormat('d M Y') }}</span>
+                        </div>
+                        <div class="flex justify-between text-gray-500">
+                            <span>Paket Wisata</span>
+                            <span class="font-semibold text-charcoal text-right max-w-[150px] truncate">{{ $res['package_name'] }}</span>
+                        </div>
+                        <div class="flex justify-between text-gray-500">
+                            <span>Jumlah Peserta</span>
+                            <span class="font-semibold text-charcoal">{{ $res['party_size'] }} Orang</span>
+                        </div>
+                        <div class="flex justify-between text-gray-500">
+                            <span>Total Pembayaran</span>
+                            <span class="font-bold text-primary">Rp {{ number_format($res['total_amount'], 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="rounded-xl border border-dashed border-gray-200 py-8 text-center text-gray-400 text-sm">Tidak ada data transaksi untuk rentang ini.</div>
+            @endforelse
         </div>
     </div>
 </div>
