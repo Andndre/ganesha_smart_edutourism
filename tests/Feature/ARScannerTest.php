@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\CulturalObject;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ARScannerTest extends TestCase
@@ -30,6 +31,7 @@ class ARScannerTest extends TestCase
             'longitude' => 115.359,
             'ar_marker_id' => 'marker-1',
             'model_3d_path' => 'models/test-model.glb',
+            'model_3d_usdz_path' => 'models_usdz/test-model.usdz',
         ]);
 
         $response = $this->getJson('/api/ar/model?slug=test-cultural-object');
@@ -39,6 +41,7 @@ class ARScannerTest extends TestCase
                 'success' => true,
                 'name' => $object->name,
                 'short_description' => 'Short desc',
+                'usdz_url' => route('usdz.serve', ['path' => 'models_usdz/test-model.usdz']),
             ]);
     }
 
@@ -72,5 +75,26 @@ class ARScannerTest extends TestCase
             ->assertJson([
                 'error' => 'Model 3D tidak tersedia untuk objek ini',
             ]);
+    }
+
+    public function test_serve_usdz_returns_correct_response()
+    {
+        Storage::disk('public')->put('models_usdz/test-model.usdz', 'dummy content');
+
+        $response = $this->get('/usdz-file/models_usdz/test-model.usdz');
+
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Type', 'model/vnd.usdz+zip');
+        $file = $response->getFile();
+        $this->assertEquals('dummy content', file_get_contents($file->getPathname()));
+
+        Storage::disk('public')->delete('models_usdz/test-model.usdz');
+    }
+
+    public function test_serve_usdz_returns_404_for_non_existent_file()
+    {
+        $response = $this->get('/usdz-file/models_usdz/non-existent.usdz');
+
+        $response->assertStatus(404);
     }
 }
