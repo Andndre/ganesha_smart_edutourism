@@ -1,5 +1,5 @@
 <IfModule mod_mime.c>
-    AddType model/vnd.usdz+zip .usdz
+    AddType model/vnd.pixar.usd .usdz
     AddType model/gltf-binary .glb
 </IfModule>
 
