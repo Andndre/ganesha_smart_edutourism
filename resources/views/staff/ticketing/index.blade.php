@@ -3,7 +3,7 @@
 @section('title', 'Layanan Tiket (POS)')
 
 @section('content')
-<div x-data class="max-w-6xl pb-24 sm:pb-0">
+<div x-data='ticketingApp({ reservationsList: @json($reservationsList) })' class="max-w-6xl pb-24 sm:pb-0">
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="font-display text-2xl font-bold text-charcoal">Ticketing Point of Sale</h1>
@@ -35,151 +35,250 @@
         </div>
     @endif
 
-    <!-- Tabel Transaksi Hari Ini -->
-    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h3 class="mb-4 font-display text-lg font-bold text-charcoal">Tiket Terjual Hari Ini</h3>
-            <!-- Desktop Table (Hidden on Mobile) -->
-            <div class="hidden sm:block overflow-x-auto rounded-xl border border-gray-100">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="border-b border-gray-100 bg-gray-50/50">
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Pembeli</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Paket</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Jumlah & Total</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Status</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Waktu</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-50">
-                        @forelse($reservations as $res)
-                            <tr class="hover:bg-gray-50/30">
-                                <td class="px-4 py-3.5 font-semibold text-charcoal">
-                                    {{ $res->user ? $res->user->name : $res->guest_name }}
-                                    @if (!$res->user)
-                                        <span class="ml-1 inline-flex items-center rounded-lg bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">Walk-in</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3.5 text-gray-600">
-                                    {{ $res->tourPackage->name ?? 'N/A' }}
-                                </td>
-                                <td class="px-4 py-3.5 text-gray-600">
-                                    {{ $res->party_size }} Org <br>
-                                    <span class="text-xs font-semibold text-charcoal">Rp {{ number_format($res->total_amount, 0, ',', '.') }}</span>
-                                </td>
-                                <td class="px-4 py-3.5">
-                                    @if ($res->status === 'completed')
-                                        <span class="inline-flex rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">Selesai/Masuk</span>
-                                    @elseif($res->status === 'confirmed')
-                                        <span class="inline-flex rounded-lg bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">Menunggu</span>
-                                    @else
-                                        <span class="inline-flex rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600">{{ ucfirst($res->status) }}</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3.5 text-gray-400 text-xs">
-                                    {{ $res->created_at->format('H:i') }}
-                                </td>
-                                <td class="px-4 py-3.5">
-                                    <div class="flex gap-1.5">
-                                        @if($res->status === 'confirmed')
-                                            <button onclick="checkInReservation({{ $res->id }})" class="inline-flex items-center rounded-lg bg-primary px-2.5 py-1 text-xs font-bold text-white hover:bg-primary-600 transition-all shadow-sm">
-                                                Check In
-                                            </button>
-                                        @elseif($res->status === 'pending')
-                                            @if($res->payment_method === 'qris')
-                                                <button onclick="payQRIS({{ $res->id }})" class="inline-flex items-center rounded-lg bg-amber-500 px-2.5 py-1 text-xs font-bold text-white hover:bg-amber-600 transition-all shadow-sm">
-                                                    Bayar
-                                                </button>
-                                                <button onclick="syncReservation({{ $res->id }})" class="inline-flex items-center rounded-lg bg-gray-100 px-2 py-1 text-xs font-bold text-gray-700 hover:bg-gray-200 transition-all" title="Sync Status">
-                                                    Sync
-                                                </button>
-                                            @endif
-                                            <button onclick="cancelReservation({{ $res->id }})" class="inline-flex items-center rounded-lg bg-red-50 px-2 py-1 text-xs font-bold text-red-700 hover:bg-red-100 transition-all" title="Batalkan">
-                                                Batal
-                                            </button>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="px-4 py-8 text-center text-gray-400">Belum ada transaksi hari ini.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+    <!-- Statistics Cards Grid (ui-ux-pro-max) -->
+    <div class="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <!-- Card 1 -->
+        <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm flex items-center gap-4">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                </svg>
             </div>
-
-            <!-- Mobile Card List (Visible only on Mobile) -->
-            <div class="space-y-4 sm:hidden">
-                @forelse($reservations as $res)
-                    <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm space-y-3">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <h4 class="font-bold text-charcoal text-sm">
-                                    {{ $res->user ? $res->user->name : $res->guest_name }}
-                                </h4>
-                                <div class="mt-0.5 flex items-center gap-1.5">
-                                    <span class="text-[10px] text-gray-400">Pukul {{ $res->created_at->format('H:i') }}</span>
-                                    @if (!$res->user)
-                                        <span class="inline-flex items-center rounded bg-primary/10 px-1.5 py-0.2 text-[8px] font-semibold text-primary">Walk-in</span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div>
-                                @if ($res->status === 'completed')
-                                    <span class="inline-flex rounded-lg bg-primary/10 px-2.5 py-1 text-[10px] font-semibold text-primary">Selesai</span>
-                                @elseif($res->status === 'confirmed')
-                                    <span class="inline-flex rounded-lg bg-amber-50 px-2.5 py-1 text-[10px] font-semibold text-amber-700">Menunggu</span>
-                                @else
-                                    <span class="inline-flex rounded-lg bg-gray-100 px-2.5 py-1 text-[10px] font-semibold text-gray-600">{{ ucfirst($res->status) }}</span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="rounded-xl bg-gray-50/55 p-3 text-xs space-y-1.5">
-                            <div class="flex justify-between text-gray-500">
-                                <span>Paket Wisata</span>
-                                <span class="font-semibold text-charcoal text-right max-w-[150px] truncate">{{ $res->tourPackage->name ?? 'N/A' }}</span>
-                            </div>
-                            <div class="flex justify-between text-gray-500">
-                                <span>Jumlah Peserta</span>
-                                <span class="font-semibold text-charcoal">{{ $res->party_size }} Orang</span>
-                            </div>
-                            <div class="flex justify-between text-gray-500">
-                                <span>Total Pembayaran</span>
-                                <span class="font-bold text-primary">Rp {{ number_format($res->total_amount, 0, ',', '.') }}</span>
-                            </div>
-                        </div>
-
-                        <!-- Actions for Mobile -->
-                        @if($res->status === 'confirmed' || $res->status === 'pending')
-                            <div class="flex gap-2 pt-1">
-                                @if($res->status === 'confirmed')
-                                    <button onclick="checkInReservation({{ $res->id }})" class="w-full text-center rounded-xl bg-primary py-2.5 text-xs font-bold text-white shadow-md shadow-primary/15 active:scale-[0.98] transition-all">
-                                        Check In / Masuk
-                                    </button>
-                                @elseif($res->status === 'pending')
-                                    @if($res->payment_method === 'qris')
-                                        <button onclick="payQRIS({{ $res->id }})" class="flex-1 text-center rounded-xl bg-amber-500 py-2.5 text-xs font-bold text-white shadow-md shadow-amber-500/15 active:scale-[0.98] transition-all">
-                                            Bayar
-                                        </button>
-                                        <button onclick="syncReservation({{ $res->id }})" class="flex-1 text-center rounded-xl bg-gray-100 py-2.5 text-xs font-semibold text-gray-700 active:scale-[0.98] transition-all">
-                                            Sync
-                                        </button>
-                                    @endif
-                                    <button onclick="cancelReservation({{ $res->id }})" class="flex-1 text-center rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-700 active:scale-[0.98] transition-all">
-                                        Batal
-                                    </button>
-                                @endif
-                            </div>
-                        @endif
-                    </div>
-                @empty
-                    <div class="rounded-xl border border-dashed border-gray-200 py-8 text-center text-gray-400 text-sm">Belum ada transaksi hari ini.</div>
-                @endforelse
+            <div>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Tiket Terjual</p>
+                <h4 class="text-xl font-bold text-charcoal mt-0.5">{{ $totalTicketsSold }} <span class="text-xs font-medium text-gray-500">Tiket</span></h4>
             </div>
         </div>
+
+        <!-- Card 2 -->
+        <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm flex items-center gap-4">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M12 16v1m0-2h.01" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Pendapatan</p>
+                <h4 class="text-lg font-bold text-charcoal mt-0.5">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h4>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm flex items-center gap-4">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Tunai (Cash)</p>
+                <h4 class="text-lg font-bold text-charcoal mt-0.5">Rp {{ number_format($cashRevenue, 0, ',', '.') }}</h4>
+            </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm flex items-center gap-4">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M4 8h.01M4 16h.01M4 20h.01m1.99-16h.01M12 4h.01M16 4h.01" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">QRIS</p>
+                <h4 class="text-lg font-bold text-charcoal mt-0.5">Rp {{ number_format($qrisRevenue, 0, ',', '.') }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabel Transaksi Hari Ini -->
+    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h3 class="font-display text-lg font-bold text-charcoal">Tiket Terjual Hari Ini</h3>
+            
+            <!-- Filters & Sorting (ui-ux-pro-max) -->
+            <div class="grid grid-cols-1 gap-3 sm:flex sm:items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold text-gray-400 uppercase">Status:</span>
+                    <select x-model="filterStatus" class="rounded-xl border border-gray-200 px-3 py-1.5 text-xs bg-white focus:border-primary focus:outline-none">
+                        <option value="all">Semua</option>
+                        <option value="completed">Selesai</option>
+                        <option value="confirmed">Menunggu</option>
+                        <option value="pending">Pending</option>
+                        <option value="cancelled">Batal</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold text-gray-400 uppercase">Metode:</span>
+                    <select x-model="filterPayment" class="rounded-xl border border-gray-200 px-3 py-1.5 text-xs bg-white focus:border-primary focus:outline-none">
+                        <option value="all">Semua</option>
+                        <option value="cash">Tunai</option>
+                        <option value="qris">QRIS</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold text-gray-400 uppercase">Urut:</span>
+                    <select x-model="sortBy" class="rounded-xl border border-gray-200 px-3 py-1.5 text-xs bg-white focus:border-primary focus:outline-none">
+                        <option value="time_desc">Terbaru</option>
+                        <option value="time_asc">Terlama</option>
+                        <option value="amount_desc">Total Terbesar</option>
+                        <option value="amount_asc">Total Terkecil</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Table (Hidden on Mobile) -->
+        <div class="hidden sm:block overflow-x-auto rounded-xl border border-gray-100">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-100 bg-gray-50/50">
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Pembeli</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Paket</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Jumlah & Total</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Waktu</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    <template x-for="res in filteredAndSortedReservations()" :key="res.id">
+                        <tr class="hover:bg-gray-50/30">
+                            <td class="px-4 py-3.5 font-semibold text-charcoal">
+                                <span x-text="res.guest_name"></span>
+                                <template x-if="res.is_walkin">
+                                    <span class="ml-1 inline-flex items-center rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">Walk-in</span>
+                                </template>
+                            </td>
+                            <td class="px-4 py-3.5 text-gray-600" x-text="res.package_name"></td>
+                            <td class="px-4 py-3.5 text-gray-600">
+                                <span x-text="res.party_size + ' Org'"></span> <br>
+                                <span class="text-xs font-semibold text-charcoal" x-text="formatRupiah(res.total_amount)"></span>
+                            </td>
+                            <td class="px-4 py-3.5">
+                                <template x-if="res.status === 'completed'">
+                                    <span class="inline-flex rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">Selesai/Masuk</span>
+                                </template>
+                                <template x-if="res.status === 'confirmed'">
+                                    <span class="inline-flex rounded-lg bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">Menunggu</span>
+                                </template>
+                                <template x-if="res.status !== 'completed' && res.status !== 'confirmed'">
+                                    <span class="inline-flex rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600" x-text="capitalize(res.status)"></span>
+                                </template>
+                            </td>
+                            <td class="px-4 py-3.5 text-gray-400 text-xs" x-text="res.time"></td>
+                            <td class="px-4 py-3.5">
+                                <div class="flex gap-1.5">
+                                    <template x-if="res.status === 'confirmed'">
+                                        <button @click="checkInReservation(res.id)" class="inline-flex items-center rounded-lg bg-primary px-2.5 py-1 text-xs font-bold text-white hover:bg-primary-600 transition-all shadow-sm">
+                                            Check In
+                                        </button>
+                                    </template>
+                                    <template x-if="res.status === 'pending'">
+                                        <div class="flex gap-1.5">
+                                            <template x-if="res.payment_method === 'qris'">
+                                                <div class="flex gap-1.5">
+                                                    <button @click="payQRIS(res.id)" class="inline-flex items-center rounded-lg bg-amber-500 px-2.5 py-1 text-xs font-bold text-white hover:bg-amber-600 transition-all shadow-sm">
+                                                        Bayar
+                                                    </button>
+                                                    <button @click="syncReservation(res.id)" class="inline-flex items-center rounded-lg bg-gray-100 px-2 py-1 text-xs font-bold text-gray-700 hover:bg-gray-200 transition-all" title="Sync Status">
+                                                        Sync
+                                                    </button>
+                                                </div>
+                                            </template>
+                                            <button @click="cancelReservation(res.id)" class="inline-flex items-center rounded-lg bg-red-50 px-2 py-1 text-xs font-bold text-red-700 hover:bg-red-100 transition-all" title="Batalkan">
+                                                Batal
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                    <template x-if="filteredAndSortedReservations().length === 0">
+                        <tr>
+                            <td colspan="6" class="px-4 py-8 text-center text-gray-400">Tidak ada transaksi yang cocok dengan filter.</td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Card List (Visible only on Mobile) -->
+        <div class="space-y-4 sm:hidden">
+            <template x-for="res in filteredAndSortedReservations()" :key="'mob-' + res.id">
+                <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm space-y-3">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h4 class="font-bold text-charcoal text-sm" x-text="res.guest_name"></h4>
+                            <div class="mt-0.5 flex items-center gap-1.5">
+                                <span class="text-[10px] text-gray-400" x-text="'Pukul ' + res.time"></span>
+                                <template x-if="res.is_walkin">
+                                    <span class="inline-flex items-center rounded bg-primary/10 px-1.5 py-0.2 text-[8px] font-semibold text-primary">Walk-in</span>
+                                </template>
+                            </div>
+                        </div>
+                        <div>
+                            <template x-if="res.status === 'completed'">
+                                <span class="inline-flex rounded-lg bg-primary/10 px-2.5 py-1 text-[10px] font-semibold text-primary">Selesai</span>
+                            </template>
+                            <template x-if="res.status === 'confirmed'">
+                                <span class="inline-flex rounded-lg bg-amber-50 px-2.5 py-1 text-[10px] font-semibold text-amber-700">Menunggu</span>
+                            </template>
+                            <template x-if="res.status !== 'completed' && res.status !== 'confirmed'">
+                                <span class="inline-flex rounded-lg bg-gray-100 px-2.5 py-1 text-[10px] font-semibold text-gray-600" x-text="capitalize(res.status)"></span>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl bg-gray-50/55 p-3 text-xs space-y-1.5">
+                        <div class="flex justify-between text-gray-500">
+                            <span>Paket Wisata</span>
+                            <span class="font-semibold text-charcoal text-right max-w-[150px] truncate" x-text="res.package_name"></span>
+                        </div>
+                        <div class="flex justify-between text-gray-500">
+                            <span>Jumlah Peserta</span>
+                            <span class="font-semibold text-charcoal" x-text="res.party_size + ' Orang'"></span>
+                        </div>
+                        <div class="flex justify-between text-gray-500">
+                            <span>Total Pembayaran</span>
+                            <span class="font-bold text-primary" x-text="formatRupiah(res.total_amount)"></span>
+                        </div>
+                    </div>
+
+                    <!-- Actions for Mobile -->
+                    <template x-if="res.status === 'confirmed' || res.status === 'pending'">
+                        <div class="flex gap-2 pt-1">
+                            <template x-if="res.status === 'confirmed'">
+                                <button @click="checkInReservation(res.id)" class="w-full text-center rounded-xl bg-primary py-2.5 text-xs font-bold text-white shadow-md shadow-primary/15 active:scale-[0.98] transition-all">
+                                    Check In / Masuk
+                                </button>
+                            </template>
+                            <template x-if="res.status === 'pending'">
+                                <div class="flex gap-2 w-full">
+                                    <template x-if="res.payment_method === 'qris'">
+                                        <div class="flex gap-2 flex-1">
+                                            <button @click="payQRIS(res.id)" class="flex-1 text-center rounded-xl bg-amber-500 py-2.5 text-xs font-bold text-white shadow-md shadow-amber-500/15 active:scale-[0.98] transition-all">
+                                                Bayar
+                                            </button>
+                                            <button @click="syncReservation(res.id)" class="flex-1 text-center rounded-xl bg-gray-100 py-2.5 text-xs font-semibold text-gray-700 active:scale-[0.98] transition-all">
+                                                Sync
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <button @click="cancelReservation(res.id)" class="flex-1 text-center rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-700 active:scale-[0.98] transition-all">
+                                        Batal
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </template>
+            <template x-if="filteredAndSortedReservations().length === 0">
+                <div class="rounded-xl border border-dashed border-gray-200 py-8 text-center text-gray-400 text-sm">Tidak ada transaksi yang cocok dengan filter.</div>
+            </template>
+        </div>
+    </div>
 
         <!-- Walk-in Purchase Modal -->
         <x-modal name="walkin-modal" maxWidth="md">
@@ -276,6 +375,38 @@
     @endif
 
     <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('ticketingApp', (config) => ({
+                reservations: config.reservationsList || [],
+                filterStatus: 'all',
+                filterPayment: 'all',
+                sortBy: 'time_desc',
+                filteredAndSortedReservations() {
+                    return this.reservations
+                        .filter(res => {
+                            const statusMatch = this.filterStatus === 'all' || res.status === this.filterStatus;
+                            const paymentMatch = this.filterPayment === 'all' || 
+                                (this.filterPayment === 'cash' ? res.payment_method === 'cash' : res.payment_method !== 'cash');
+                            return statusMatch && paymentMatch;
+                        })
+                        .sort((a, b) => {
+                            if (this.sortBy === 'time_desc') return b.timestamp - a.timestamp;
+                            if (this.sortBy === 'time_asc') return a.timestamp - b.timestamp;
+                            if (this.sortBy === 'amount_desc') return b.total_amount - a.total_amount;
+                            if (this.sortBy === 'amount_asc') return a.total_amount - b.total_amount;
+                            return 0;
+                        });
+                },
+                formatRupiah(amount) {
+                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(amount);
+                },
+                capitalize(val) {
+                    if (!val) return '';
+                    return val.charAt(0).toUpperCase() + val.slice(1);
+                }
+            }));
+        });
+
         async function checkInReservation(id) {
             const { isConfirmed } = await Swal.fire({
                 title: 'Konfirmasi Masuk',
