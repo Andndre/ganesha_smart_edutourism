@@ -2,6 +2,18 @@
 
 @section('title', 'Layanan Tiket (POS)')
 
+@push('styles')
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+@endpush
+
 @section('content')
 <div x-data='ticketingApp({ reservationsList: @json($reservationsList) })' class="max-w-6xl pb-24 sm:pb-0">
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -96,8 +108,8 @@
             <h3 class="font-display text-lg font-bold text-charcoal">Tiket Terjual Hari Ini</h3>
             
             <!-- Filters & Sorting (ui-ux-pro-max) -->
-            <div class="grid grid-cols-3 gap-2 w-full sm:flex sm:w-auto sm:items-center sm:gap-3">
-                <select x-model="filterStatus" class="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 focus:border-primary focus:bg-white focus:outline-none shadow-sm transition-all sm:w-auto">
+            <div class="flex overflow-x-auto gap-2 w-full pb-2 no-scrollbar sm:flex-wrap sm:pb-0 sm:justify-end">
+                <select x-model="filterStatus" class="shrink-0 min-w-[130px] rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 focus:border-primary focus:bg-white focus:outline-none shadow-sm transition-all sm:w-auto">
                     <option value="all">Semua Status</option>
                     <option value="completed">Selesai</option>
                     <option value="confirmed">Menunggu</option>
@@ -105,17 +117,17 @@
                     <option value="cancelled">Batal</option>
                 </select>
                 
-                <select x-model="filterPayment" class="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 focus:border-primary focus:bg-white focus:outline-none shadow-sm transition-all sm:w-auto">
+                <select x-model="filterPayment" class="shrink-0 min-w-[135px] rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 focus:border-primary focus:bg-white focus:outline-none shadow-sm transition-all sm:w-auto">
                     <option value="all">Semua Metode</option>
                     <option value="cash">Tunai</option>
                     <option value="qris">QRIS</option>
                 </select>
 
-                <select x-model="sortBy" class="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 focus:border-primary focus:bg-white focus:outline-none shadow-sm transition-all sm:w-auto">
-                    <option value="time_desc">Terbaru</option>
-                    <option value="time_asc">Terlama</option>
-                    <option value="amount_desc">Terbesar</option>
-                    <option value="amount_asc">Terkecil</option>
+                <select x-model="sortBy" class="shrink-0 min-w-[125px] rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 focus:border-primary focus:bg-white focus:outline-none shadow-sm transition-all sm:w-auto">
+                    <option value="time_desc">Urut: Terbaru</option>
+                    <option value="time_asc">Urut: Terlama</option>
+                    <option value="amount_desc">Urut: Terbesar</option>
+                    <option value="amount_asc">Urut: Terkecil</option>
                 </select>
             </div>
         </div>
