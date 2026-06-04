@@ -36,7 +36,7 @@
     @endif
 
     <!-- Statistics Cards Grid (ui-ux-pro-max) -->
-    <div class="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div class="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <!-- Card 1 -->
         <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm flex items-center gap-4">
             <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -96,34 +96,27 @@
             <h3 class="font-display text-lg font-bold text-charcoal">Tiket Terjual Hari Ini</h3>
             
             <!-- Filters & Sorting (ui-ux-pro-max) -->
-            <div class="grid grid-cols-1 gap-3 sm:flex sm:items-center">
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-semibold text-gray-400 uppercase">Status:</span>
-                    <select x-model="filterStatus" class="rounded-xl border border-gray-200 px-3 py-1.5 text-xs bg-white focus:border-primary focus:outline-none">
-                        <option value="all">Semua</option>
-                        <option value="completed">Selesai</option>
-                        <option value="confirmed">Menunggu</option>
-                        <option value="pending">Pending</option>
-                        <option value="cancelled">Batal</option>
-                    </select>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-semibold text-gray-400 uppercase">Metode:</span>
-                    <select x-model="filterPayment" class="rounded-xl border border-gray-200 px-3 py-1.5 text-xs bg-white focus:border-primary focus:outline-none">
-                        <option value="all">Semua</option>
-                        <option value="cash">Tunai</option>
-                        <option value="qris">QRIS</option>
-                    </select>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-semibold text-gray-400 uppercase">Urut:</span>
-                    <select x-model="sortBy" class="rounded-xl border border-gray-200 px-3 py-1.5 text-xs bg-white focus:border-primary focus:outline-none">
-                        <option value="time_desc">Terbaru</option>
-                        <option value="time_asc">Terlama</option>
-                        <option value="amount_desc">Total Terbesar</option>
-                        <option value="amount_asc">Total Terkecil</option>
-                    </select>
-                </div>
+            <div class="grid grid-cols-3 gap-2 w-full sm:flex sm:w-auto sm:items-center sm:gap-3">
+                <select x-model="filterStatus" class="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 focus:border-primary focus:bg-white focus:outline-none shadow-sm transition-all sm:w-auto">
+                    <option value="all">Semua Status</option>
+                    <option value="completed">Selesai</option>
+                    <option value="confirmed">Menunggu</option>
+                    <option value="pending">Pending</option>
+                    <option value="cancelled">Batal</option>
+                </select>
+                
+                <select x-model="filterPayment" class="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 focus:border-primary focus:bg-white focus:outline-none shadow-sm transition-all sm:w-auto">
+                    <option value="all">Semua Metode</option>
+                    <option value="cash">Tunai</option>
+                    <option value="qris">QRIS</option>
+                </select>
+
+                <select x-model="sortBy" class="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 focus:border-primary focus:bg-white focus:outline-none shadow-sm transition-all sm:w-auto">
+                    <option value="time_desc">Terbaru</option>
+                    <option value="time_asc">Terlama</option>
+                    <option value="amount_desc">Terbesar</option>
+                    <option value="amount_asc">Terkecil</option>
+                </select>
             </div>
         </div>
 
@@ -255,16 +248,12 @@
                             </template>
                             <template x-if="res.status === 'pending'">
                                 <div class="flex gap-2 w-full">
-                                    <template x-if="res.payment_method === 'qris'">
-                                        <div class="flex gap-2 flex-1">
-                                            <button @click="payQRIS(res.id)" class="flex-1 text-center rounded-xl bg-amber-500 py-2.5 text-xs font-bold text-white shadow-md shadow-amber-500/15 active:scale-[0.98] transition-all">
-                                                Bayar
-                                            </button>
-                                            <button @click="syncReservation(res.id)" class="flex-1 text-center rounded-xl bg-gray-100 py-2.5 text-xs font-semibold text-gray-700 active:scale-[0.98] transition-all">
-                                                Sync
-                                            </button>
-                                        </div>
-                                    </template>
+                                    <button x-show="res.payment_method === 'qris'" @click="payQRIS(res.id)" class="flex-1 text-center rounded-xl bg-amber-500 py-2.5 text-xs font-bold text-white shadow-md shadow-amber-500/15 active:scale-[0.98] transition-all">
+                                        Bayar
+                                    </button>
+                                    <button x-show="res.payment_method === 'qris'" @click="syncReservation(res.id)" class="flex-1 text-center rounded-xl bg-gray-100 py-2.5 text-xs font-semibold text-gray-700 active:scale-[0.98] transition-all">
+                                        Sync
+                                    </button>
                                     <button @click="cancelReservation(res.id)" class="flex-1 text-center rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-700 active:scale-[0.98] transition-all">
                                         Batal
                                     </button>
