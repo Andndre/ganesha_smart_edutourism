@@ -346,7 +346,7 @@
                         x-text="selectedEvent.category"></span>
                     <h3 class="font-display text-charcoal mt-2 text-xl font-bold" x-text="selectedEvent.title"></h3>
                 </div>
-                <button @click="$dispatch('close-event-detail-modal')" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100">
+                <button @click="$dispatch('close-event-detail-modal')" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 md:hidden">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -462,7 +462,7 @@
                     <p class="mt-0.5 text-xs text-gray-500">Lengkapi detail event budaya desa di bawah ini.</p>
                 </div>
                 <button @click="$dispatch('close-event-form-modal')"
-                    class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100">
+                    class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 md:hidden">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
