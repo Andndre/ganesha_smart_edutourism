@@ -41,7 +41,7 @@ class BookingController extends Controller
 
                     if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
                         $reservation->payment_status = 'paid';
-                        $reservation->status = 'confirmed';
+                        $reservation->status = Str::startsWith($reservation->payment_reference, 'WALKIN-') ? 'completed' : 'confirmed';
                         $reservation->payment_method = $paymentType;
                         $reservation->save();
                     } elseif ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
@@ -193,7 +193,7 @@ class BookingController extends Controller
             if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
                 if ($reservation->payment_status != 'paid') {
                     $reservation->payment_status = 'paid';
-                    $reservation->status = 'confirmed';
+                    $reservation->status = Str::startsWith($reservation->payment_reference, 'WALKIN-') ? 'completed' : 'confirmed';
                     $reservation->payment_method = $request->payment_type;
                     $reservation->save();
 

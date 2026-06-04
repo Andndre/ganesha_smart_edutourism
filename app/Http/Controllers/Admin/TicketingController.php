@@ -6,12 +6,50 @@ use App\Http\Controllers\Controller;
 use App\Models\Reservation;
 use App\Models\TourPackage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Midtrans\Config;
+use Midtrans\Snap;
+use Midtrans\Transaction;
 
 class TicketingController extends Controller
 {
     public function index()
     {
+        // Auto-sync pending walk-in QRIS reservations directly with Midtrans
+        $pendingWalkIns = Reservation::where('status', 'pending')
+            ->where('payment_method', 'qris')
+            ->whereNotNull('payment_reference')
+            ->whereDate('scheduled_date', today())
+            ->get();
+
+        if ($pendingWalkIns->count() > 0) {
+            Config::$serverKey = config('midtrans.server_key');
+            Config::$isProduction = config('midtrans.is_production');
+
+            foreach ($pendingWalkIns as $reservation) {
+                try {
+                    $statusResponse = Transaction::status($reservation->payment_reference);
+
+                    $transactionStatus = \is_array($statusResponse) ? ($statusResponse['transaction_status'] ?? null) : ($statusResponse->transaction_status ?? null);
+                    $paymentType = \is_array($statusResponse) ? ($statusResponse['payment_type'] ?? 'unknown') : ($statusResponse->payment_type ?? 'unknown');
+
+                    if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
+                        $reservation->payment_status = 'paid';
+                        $reservation->status = 'completed';
+                        $reservation->payment_method = $paymentType;
+                        $reservation->save();
+                    } elseif ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
+                        $reservation->payment_status = 'unpaid';
+                        $reservation->status = 'cancelled';
+                        $reservation->save();
+                    }
+                } catch (\Exception $e) {
+                    // Ignored (Midtrans throws Exception if transaction doesn't exist yet)
+                }
+            }
+        }
+
         $packages = TourPackage::all();
         $reservations = Reservation::with(['user', 'tourPackage'])
             ->whereDate('scheduled_date', today())
@@ -40,18 +78,74 @@ class TicketingController extends Controller
         $reservation->scheduled_date = today();
         $reservation->scheduled_time = now()->format('H:i:00');
         $reservation->total_amount = $package->price * $validated['party_size'];
-        $reservation->status = 'confirmed';
-        $reservation->payment_status = 'paid';
         $reservation->qr_code = 'WALKIN-'.strtoupper(Str::random(10));
-        $reservation->save();
 
-        // Generate Guest Access Token
-        $guestUrl = route('guest.access', ['reservation' => $reservation->id, 'hash' => md5($reservation->qr_code)]);
+        if ($validated['payment_method'] === 'cash') {
+            $reservation->status = 'completed';
+            $reservation->payment_status = 'paid';
+            $reservation->payment_method = 'cash';
+            $reservation->save();
 
-        return redirect()->route('staff.ticketing')
-            ->with('success', 'Tiket Walk-in berhasil dibuat!')
-            ->with('guestUrl', $guestUrl)
-            ->with('guestQr', $reservation->qr_code);
+            return response()->json([
+                'success' => true,
+                'payment_method' => 'cash',
+                'message' => 'Tiket Walk-in (Tunai) berhasil dibuat!',
+            ]);
+        } else {
+            $orderId = 'WALKIN-'.strtoupper(Str::random(8)).'-'.time();
+            $reservation->status = 'pending';
+            $reservation->payment_status = 'unpaid';
+            $reservation->payment_method = 'qris';
+            $reservation->payment_reference = $orderId;
+            $reservation->save();
+
+            // Set Midtrans configuration
+            Config::$serverKey = config('midtrans.server_key');
+            Config::$isProduction = config('midtrans.is_production');
+            Config::$isSanitized = config('midtrans.is_sanitized');
+            Config::$is3ds = config('midtrans.is_3ds');
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $orderId,
+                    'gross_amount' => $reservation->total_amount,
+                ],
+                'customer_details' => [
+                    'first_name' => $reservation->guest_name,
+                    'email' => $reservation->guest_email ?? 'walkin@example.com',
+                    'phone' => $reservation->guest_phone ?? '0000000000',
+                ],
+                'item_details' => [
+                    [
+                        'id' => 'PKG-'.$package->id,
+                        'price' => $package->price,
+                        'quantity' => $validated['party_size'],
+                        'name' => $package->name,
+                    ],
+                ],
+            ];
+
+            try {
+                $snapToken = Snap::getSnapToken($params);
+
+                return response()->json([
+                    'success' => true,
+                    'payment_method' => 'qris',
+                    'snap_token' => $snapToken,
+                    'order_id' => $orderId,
+                    'reservation_id' => $reservation->id,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Midtrans Snap Walkin Error: '.$e->getMessage());
+                // Rollback reservation
+                $reservation->delete();
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal terhubung ke Midtrans. Silakan coba lagi.',
+                ], 500);
+            }
+        }
     }
 
     public function scan()
@@ -96,6 +190,46 @@ class TicketingController extends Controller
             'success' => true,
             'message' => 'Tiket berhasil diverifikasi! Selamat datang '.($reservation->user->name ?? $reservation->guest_name),
             'reservation' => $reservation,
+        ]);
+    }
+
+    public function syncStatus(Reservation $reservation)
+    {
+        if ($reservation->payment_method !== 'qris' || $reservation->status !== 'pending') {
+            return response()->json([
+                'success' => true,
+                'status' => $reservation->status,
+                'payment_status' => $reservation->payment_status,
+            ]);
+        }
+
+        Config::$serverKey = config('midtrans.server_key');
+        Config::$isProduction = config('midtrans.is_production');
+
+        try {
+            $statusResponse = Transaction::status($reservation->payment_reference);
+
+            $transactionStatus = \is_array($statusResponse) ? ($statusResponse['transaction_status'] ?? null) : ($statusResponse->transaction_status ?? null);
+            $paymentType = \is_array($statusResponse) ? ($statusResponse['payment_type'] ?? 'unknown') : ($statusResponse->payment_type ?? 'unknown');
+
+            if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
+                $reservation->payment_status = 'paid';
+                $reservation->status = 'completed';
+                $reservation->payment_method = $paymentType;
+                $reservation->save();
+            } elseif ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
+                $reservation->payment_status = 'unpaid';
+                $reservation->status = 'cancelled';
+                $reservation->save();
+            }
+        } catch (\Exception $e) {
+            Log::error('Midtrans walk-in syncStatus error: '.$e->getMessage());
+        }
+
+        return response()->json([
+            'success' => true,
+            'status' => $reservation->status,
+            'payment_status' => $reservation->payment_status,
         ]);
     }
 }

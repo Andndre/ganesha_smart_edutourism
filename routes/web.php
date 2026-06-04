@@ -143,6 +143,7 @@ Route::prefix('staff')->middleware(['auth', 'staff'])->group(function () {
     Route::post('/ticketing/walk-in', [TicketingController::class, 'storeWalkIn'])->name('staff.ticketing.walk-in');
     Route::get('/ticketing/scan', [TicketingController::class, 'scan'])->name('staff.ticketing.scan');
     Route::post('/ticketing/verify', [TicketingController::class, 'verify'])->name('staff.ticketing.verify');
+    Route::post('/ticketing/sync/{reservation}', [TicketingController::class, 'syncStatus'])->name('staff.ticketing.sync');
 });
 
 // Admin Routes

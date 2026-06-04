@@ -28,6 +28,12 @@ class TourPackageBookingTest extends TestCase
 
                 return 'mocked-snap-token-abc-123';
             });
+
+        // Mock Midtrans\Transaction statically
+        $transactionMock = \Mockery::mock('alias:Midtrans\Transaction');
+        $transactionMock->shouldReceive('status')
+            ->byDefault()
+            ->andThrow(new \Exception('Midtrans status mock exception'));
     }
 
     /**
