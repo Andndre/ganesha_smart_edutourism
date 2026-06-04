@@ -75,19 +75,6 @@ class ARController extends Controller
             abort(404);
         }
 
-        // Generate repackaged path: we repackage any .zip files to be level-0 uncompressed USDZ compliant files
-        $repackagedPath = $fullPath.'.repackaged.usdz';
-        $needRepackage = ! file_exists($repackagedPath) || filemtime($fullPath) > filemtime($repackagedPath);
-
-        if ($needRepackage) {
-            try {
-                $this->repackageToUsdz($fullPath, $repackagedPath);
-            } catch (\Exception $e) {
-                // Fallback to serving the original file if repackaging fails
-                $repackagedPath = $fullPath;
-            }
-        }
-
         $filename = basename($path);
         if (str_ends_with($filename, '.zip.usdz')) {
             $filename = substr($filename, 0, -5);
@@ -96,38 +83,9 @@ class ARController extends Controller
             $filename = substr($filename, 0, -4).'.usdz';
         }
 
-        return response()->file($repackagedPath, [
+        return response()->file($fullPath, [
             'Content-Type' => 'model/vnd.usdz+zip',
             'Content-Disposition' => 'inline; filename="'.$filename.'"',
         ]);
-    }
-
-    /**
-     * Repackage a standard zip file to use zero compression (store method) for USDZ compliance.
-     */
-    private function repackageToUsdz(string $sourcePath, string $destPath): void
-    {
-        $sourceZip = new \ZipArchive;
-        if ($sourceZip->open($sourcePath) !== true) {
-            throw new \Exception('Failed to open source zip');
-        }
-
-        $destZip = new \ZipArchive;
-        if ($destZip->open($destPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
-            $sourceZip->close();
-            throw new \Exception('Failed to create destination zip');
-        }
-
-        for ($i = 0; $i < $sourceZip->numFiles; $i++) {
-            $stat = $sourceZip->statIndex($i);
-            $name = $stat['name'];
-            $content = $sourceZip->getFromIndex($i);
-
-            $destZip->addFromString($name, $content);
-            $destZip->setCompressionName($name, \ZipArchive::CM_STORE);
-        }
-
-        $sourceZip->close();
-        $destZip->close();
     }
 }

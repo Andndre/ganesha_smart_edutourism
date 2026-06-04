@@ -113,38 +113,4 @@ class ARScannerTest extends TestCase
 
         Storage::disk('public')->delete('models_usdz/test-model.zip');
     }
-
-    public function test_serve_usdz_repackages_compressed_zip()
-    {
-        $zipPath = storage_path('app/public/models_usdz/compressed.zip');
-        if (! is_dir(dirname($zipPath))) {
-            mkdir(dirname($zipPath), 0755, true);
-        }
-        $zip = new \ZipArchive;
-        $zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-        $zip->addFromString('model.usda', 'usda file content');
-        $zip->close();
-
-        $repackagedPath = $zipPath.'.repackaged.usdz';
-        if (file_exists($repackagedPath)) {
-            unlink($repackagedPath);
-        }
-
-        $response = $this->get('/usdz-file/models_usdz/compressed.zip.usdz');
-
-        $response->assertStatus(200);
-        $response->assertHeader('Content-Type', 'model/vnd.usdz+zip');
-        $response->assertHeader('Content-Disposition', 'inline; filename="compressed.usdz"');
-
-        $this->assertFileExists($repackagedPath);
-        $repackagedZip = new \ZipArchive;
-        $repackagedZip->open($repackagedPath);
-        $stat = $repackagedZip->statName('model.usda');
-        $this->assertEquals(\ZipArchive::CM_STORE, $stat['comp_method']);
-        $this->assertEquals('usda file content', $repackagedZip->getFromName('model.usda'));
-        $repackagedZip->close();
-
-        unlink($zipPath);
-        unlink($repackagedPath);
-    }
 }
