@@ -31,7 +31,7 @@
         <!-- Form Pembelian -->
         <div class="col-span-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
             <h3 class="mb-4 font-display text-lg font-bold text-charcoal">Pembelian Tiket Walk-in</h3>
-            <form action="{{ route('staff.ticketing.walk-in') }}" method="POST">
+            <form id="walkin-form" action="{{ route('staff.ticketing.walk-in') }}" method="POST">
                 @csrf
 
                 <div class="space-y-4">
@@ -140,3 +140,150 @@
 </div>
 
 @endsection
+
+@push('scripts')
+    @if(config('midtrans.is_production'))
+        <script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+    @else
+        <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+    @endif
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('walkin-form');
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    
+                    // Disable button and show spinner
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `
+                        <svg class="animate-spin h-5 w-5 text-white mx-auto inline-block" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="ml-2">Memproses...</span>
+                    `;
+                    
+                    const formData = new FormData(form);
+                    
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: formData
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            if (data.payment_method === 'cash') {
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: data.message,
+                                    icon: 'success',
+                                    confirmButtonColor: '#1E5128',
+                                    confirmButtonText: 'OK'
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            } else if (data.payment_method === 'qris' && data.snap_token) {
+                                snap.pay(data.snap_token, {
+                                    onSuccess: async function(result) {
+                                        try {
+                                            await fetch(`/staff/ticketing/sync/${data.reservation_id}`, {
+                                                method: 'POST',
+                                                headers: {
+                                                    'X-Requested-With': 'XMLHttpRequest',
+                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                                }
+                                            });
+                                        } catch (e) {
+                                            console.error('Sync error:', e);
+                                        }
+                                        Swal.fire({
+                                            title: 'Pembayaran Berhasil!',
+                                            text: 'Tiket QRIS walk-in berhasil divalidasi.',
+                                            icon: 'success',
+                                            confirmButtonColor: '#1E5128',
+                                            confirmButtonText: 'OK'
+                                        }).then(() => {
+                                            window.location.reload();
+                                        });
+                                    },
+                                    onPending: async function(result) {
+                                        try {
+                                            await fetch(`/staff/ticketing/sync/${data.reservation_id}`, {
+                                                method: 'POST',
+                                                headers: {
+                                                    'X-Requested-With': 'XMLHttpRequest',
+                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                                }
+                                            });
+                                        } catch (e) {
+                                            console.error('Sync error:', e);
+                                        }
+                                        Swal.fire({
+                                            title: 'Menunggu Pembayaran',
+                                            text: 'Silakan selesaikan pembayaran QRIS pada aplikasi Anda.',
+                                            icon: 'info',
+                                            confirmButtonColor: '#1E5128',
+                                            confirmButtonText: 'OK'
+                                        }).then(() => {
+                                            window.location.reload();
+                                        });
+                                    },
+                                    onError: function(result) {
+                                        Swal.fire({
+                                            title: 'Gagal',
+                                            text: 'Pembayaran QRIS gagal diproses.',
+                                            icon: 'error',
+                                            confirmButtonColor: '#1E5128'
+                                        });
+                                        submitBtn.disabled = false;
+                                        submitBtn.innerHTML = originalText;
+                                    },
+                                    onClose: function() {
+                                        Swal.fire({
+                                            title: 'Info',
+                                            text: 'Pop-up pembayaran QRIS ditutup.',
+                                            icon: 'info',
+                                            confirmButtonColor: '#1E5128'
+                                        });
+                                        submitBtn.disabled = false;
+                                        submitBtn.innerHTML = originalText;
+                                    }
+                                });
+                            }
+                        } else {
+                            Swal.fire({
+                                title: 'Gagal',
+                                text: data.message || 'Terjadi kesalahan sistem.',
+                                icon: 'error',
+                                confirmButtonColor: '#1E5128'
+                            });
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalText;
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        Swal.fire({
+                            title: 'Terjadi Kesalahan',
+                            text: 'Gagal memproses pembayaran. Coba lagi.',
+                            icon: 'error',
+                            confirmButtonColor: '#1E5128'
+                        });
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                });
+            }
+        });
+    </script>
+@endpush
