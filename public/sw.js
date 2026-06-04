@@ -43,10 +43,11 @@ self.addEventListener("fetch", (event) => {
         return;
     }
 
-    // Skip admin panel, owner panel, api, authentication, and livewire requests
+    // Skip admin panel, owner panel, staff panel, api, authentication, and livewire requests
     if (
         url.pathname.startsWith('/admin') ||
         url.pathname.startsWith('/owner') ||
+        url.pathname.startsWith('/staff') ||
         url.pathname.startsWith('/api') ||
         url.pathname.startsWith('/login') ||
         url.pathname.startsWith('/logout') ||
