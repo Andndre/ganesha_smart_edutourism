@@ -81,6 +81,7 @@
                 ar-placement="floor"
                 bounds="tight"
                 ar-modes="scene-viewer quick-look webxr"
+                quick-look-browsers="safari chrome"
                 environment-image="neutral" 
                 exposure="1" 
                 shadow-intensity="1"
@@ -476,11 +477,9 @@
             if (usdzUrl) {
                 const absoluteUsdzUrl = new URL(usdzUrl, window.location.href).href;
                 viewer.setAttribute('ios-src', absoluteUsdzUrl);
-                viewer.iosSrc = absoluteUsdzUrl;
                 console.log("ios-src set to:", absoluteUsdzUrl);
             } else {
                 viewer.removeAttribute('ios-src');
-                console.warn("No USDZ URL provided - iOS AR will not work");
             }
             
             document.getElementById('model-title').innerText = name || '';
