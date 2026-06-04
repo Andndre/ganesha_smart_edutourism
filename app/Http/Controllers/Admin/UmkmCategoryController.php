@@ -46,7 +46,9 @@ class UmkmCategoryController extends Controller
         }
 
         if ($request->hasFile('model_3d_usdz_file')) {
-            $validated['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')->store('models', 'public');
+            $file = $request->file('model_3d_usdz_file');
+            $filename = Str::random(40).'.usdz';
+            $validated['model_3d_usdz_path'] = $file->storeAs('models', $filename, 'public');
         }
 
         UmkmProductCategory::create($validated);
@@ -89,7 +91,9 @@ class UmkmCategoryController extends Controller
             if ($category->model_3d_usdz_path) {
                 Storage::disk('public')->delete($category->model_3d_usdz_path);
             }
-            $validated['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')->store('models', 'public');
+            $file = $request->file('model_3d_usdz_file');
+            $filename = Str::random(40).'.usdz';
+            $validated['model_3d_usdz_path'] = $file->storeAs('models', $filename, 'public');
         }
 
         $category->update($validated);

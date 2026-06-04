@@ -319,7 +319,11 @@
         if (category.model_3d_path) {
             modelViewer.src = `/storage/${category.model_3d_path}`;
             if (category.model_3d_usdz_path) {
-                modelViewer.setAttribute('ios-src', `/usdz-file/${category.model_3d_usdz_path}`);
+                let usdzPath = category.model_3d_usdz_path;
+                if (!usdzPath.endsWith('.usdz')) {
+                    usdzPath += '.usdz';
+                }
+                modelViewer.setAttribute('ios-src', `/usdz-file/${usdzPath}`);
             } else {
                 modelViewer.removeAttribute('ios-src');
             }

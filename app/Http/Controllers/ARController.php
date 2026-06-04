@@ -50,7 +50,7 @@ class ARController extends Controller
             'success' => true,
             'name' => $object->name,
             'model_url' => '/storage/'.$object->model_3d_path,
-            'usdz_url' => $object->model_3d_usdz_path ? route('usdz.serve', ['path' => $object->model_3d_usdz_path]) : null,
+            'usdz_url' => $object->model_3d_usdz_path ? route('usdz.serve', ['path' => str_ends_with($object->model_3d_usdz_path, '.usdz') ? $object->model_3d_usdz_path : $object->model_3d_usdz_path.'.usdz']) : null,
             'description' => $object->description,
             'short_description' => $object->short_description,
         ]);
@@ -62,6 +62,14 @@ class ARController extends Controller
     public function serveUsdz(string $path): BinaryFileResponse
     {
         $fullPath = storage_path('app/public/'.$path);
+
+        if (! file_exists($fullPath)) {
+            // Support serving legacy/incorrectly named .zip USDZ files
+            if (str_ends_with($path, '.zip.usdz')) {
+                $strippedPath = substr($path, 0, -5);
+                $fullPath = storage_path('app/public/'.$strippedPath);
+            }
+        }
 
         if (! file_exists($fullPath)) {
             abort(404);
