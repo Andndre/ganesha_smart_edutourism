@@ -85,6 +85,7 @@ class ARScannerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'model/vnd.usdz+zip');
+        $response->assertHeader('Content-Disposition', 'inline; filename="test-model.usdz"');
         $file = $response->getFile();
         $this->assertEquals('dummy content', file_get_contents($file->getPathname()));
 
@@ -106,6 +107,7 @@ class ARScannerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'model/vnd.usdz+zip');
+        $response->assertHeader('Content-Disposition', 'inline; filename="test-model.usdz"');
         $file = $response->getFile();
         $this->assertEquals('zip content', file_get_contents($file->getPathname()));
 

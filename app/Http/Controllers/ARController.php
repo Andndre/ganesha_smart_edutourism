@@ -75,8 +75,17 @@ class ARController extends Controller
             abort(404);
         }
 
+        $filename = basename($path);
+        if (str_ends_with($filename, '.zip.usdz')) {
+            $filename = substr($filename, 0, -5);
+        }
+        if (str_ends_with($filename, '.zip')) {
+            $filename = substr($filename, 0, -4).'.usdz';
+        }
+
         return response()->file($fullPath, [
             'Content-Type' => 'model/vnd.usdz+zip',
+            'Content-Disposition' => 'inline; filename="'.$filename.'"',
         ]);
     }
 }
