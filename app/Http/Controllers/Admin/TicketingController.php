@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Reservation;
 use App\Models\TourPackage;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -56,13 +57,6 @@ class TicketingController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Calculate statistics for confirmed and completed tickets today
-        $todayPaidReservations = $reservations->whereIn('status', ['confirmed', 'completed']);
-        $totalTicketsSold = $todayPaidReservations->sum('party_size');
-        $totalRevenue = $todayPaidReservations->sum('total_amount');
-        $cashRevenue = $todayPaidReservations->where('payment_method', 'cash')->sum('total_amount');
-        $qrisRevenue = $todayPaidReservations->where('payment_method', '!=', 'cash')->sum('total_amount');
-
         $reservationsList = $reservations->map(function ($res) {
             return [
                 'id' => $res->id,
@@ -81,11 +75,76 @@ class TicketingController extends Controller
         return view('staff.ticketing.index', compact(
             'packages',
             'reservations',
-            'reservationsList',
+            'reservationsList'
+        ));
+    }
+
+    public function stats(Request $request)
+    {
+        $preset = $request->query('preset', 'today');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        // Default dates if custom range is selected but not complete
+        if ($preset === 'custom') {
+            if (! $startDate) {
+                $startDate = today()->subDays(7)->format('Y-m-d');
+            }
+            if (! $endDate) {
+                $endDate = today()->format('Y-m-d');
+            }
+        }
+
+        $query = Reservation::with(['user', 'tourPackage'])
+            ->whereIn('status', ['confirmed', 'completed']);
+
+        if ($preset === 'today') {
+            $query->whereDate('scheduled_date', today()->format('Y-m-d'));
+        } elseif ($preset === 'month') {
+            $query->whereBetween('scheduled_date', [
+                today()->subDays(30)->startOfDay()->format('Y-m-d H:i:s'),
+                today()->endOfDay()->format('Y-m-d H:i:s'),
+            ]);
+        } elseif ($preset === 'custom') {
+            $query->whereBetween('scheduled_date', [
+                Carbon::parse($startDate)->startOfDay()->format('Y-m-d H:i:s'),
+                Carbon::parse($endDate)->endOfDay()->format('Y-m-d H:i:s'),
+            ]);
+        }
+
+        $reservations = $query->orderBy('scheduled_date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $totalTicketsSold = $reservations->sum('party_size');
+        $totalRevenue = $reservations->sum('total_amount');
+        $cashRevenue = $reservations->where('payment_method', 'cash')->sum('total_amount');
+        $qrisRevenue = $reservations->where('payment_method', '!=', 'cash')->sum('total_amount');
+
+        $reservationsList = $reservations->map(function ($res) {
+            return [
+                'id' => $res->id,
+                'guest_name' => $res->user ? $res->user->name : $res->guest_name,
+                'is_walkin' => ! $res->user,
+                'package_name' => $res->tourPackage->name ?? 'N/A',
+                'party_size' => $res->party_size,
+                'total_amount' => $res->total_amount,
+                'status' => $res->status,
+                'payment_method' => $res->payment_method,
+                'scheduled_date' => $res->scheduled_date ? $res->scheduled_date->format('Y-m-d') : '-',
+                'time' => $res->created_at->format('H:i'),
+            ];
+        })->values();
+
+        return view('staff.ticketing.stats', compact(
+            'preset',
+            'startDate',
+            'endDate',
             'totalTicketsSold',
             'totalRevenue',
             'cashRevenue',
-            'qrisRevenue'
+            'qrisRevenue',
+            'reservationsList'
         ));
     }
 

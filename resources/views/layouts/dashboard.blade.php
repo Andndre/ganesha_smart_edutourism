@@ -126,6 +126,12 @@
                             'label' => 'Layanan Tiket (POS)'
                         ],
                         [
+                            'url' => route('staff.ticketing.stats'),
+                            'route' => 'staff.ticketing.stats',
+                            'icon' => 'M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z',
+                            'label' => 'Statistik Tiket'
+                        ],
+                        [
                             'type' => 'header',
                             'label' => 'Sektor UMKM'
                         ],
@@ -227,6 +233,12 @@
                             'route' => 'staff.ticketing.scan',
                             'icon' => 'M12 4v1m0 11v1m9-6h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z',
                             'label' => 'Scan Tiket'
+                        ],
+                        [
+                            'url' => route('staff.ticketing.stats'),
+                            'route' => 'staff.ticketing.stats',
+                            'icon' => 'M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z',
+                            'label' => 'Statistik Tiket'
                         ],
                     ];
                 }

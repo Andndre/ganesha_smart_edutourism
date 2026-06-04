@@ -486,4 +486,111 @@ class StaffTicketingTest extends TestCase
 
         $this->assertEquals('cancelled', $reservation->fresh()->status);
     }
+
+    /**
+     * Test guests and tourists cannot access staff ticketing stats.
+     */
+    public function test_guests_and_tourists_cannot_access_stats(): void
+    {
+        // Guest
+        $response = $this->get('/staff/ticketing/stats');
+        $response->assertRedirect('/login');
+
+        // Tourist
+        $tourist = User::factory()->create(['role' => 'tourist']);
+        $responseTourist = $this->actingAs($tourist)->get('/staff/ticketing/stats');
+        $responseTourist->assertStatus(403);
+    }
+
+    /**
+     * Test staff can access stats page and filter by presets.
+     */
+    public function test_staff_can_access_stats_with_presets(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+        $package = TourPackage::create([
+            'name' => 'Stats Package',
+            'slug' => 'stats-package',
+            'price' => 50000.00,
+            'duration_hours' => 2.0,
+            'max_capacity' => 10,
+            'min_capacity' => 1,
+            'is_active' => true,
+        ]);
+
+        // Create a reservation for today (should be counted in today, month, all)
+        Reservation::create([
+            'guest_name' => 'Guest Today',
+            'guest_email' => 'today@example.com',
+            'guest_phone' => '08123456789',
+            'tour_package_id' => $package->id,
+            'reservation_type' => 'package',
+            'scheduled_date' => today(),
+            'scheduled_time' => '10:00',
+            'party_size' => 2,
+            'total_amount' => 100000.00,
+            'status' => 'completed',
+            'payment_status' => 'paid',
+            'payment_method' => 'cash',
+            'qr_code' => 'TKT-TODAY',
+        ]);
+
+        // Create a reservation for 15 days ago (should be counted in month, all)
+        Reservation::create([
+            'guest_name' => 'Guest Mid',
+            'guest_email' => 'mid@example.com',
+            'guest_phone' => '08123456789',
+            'tour_package_id' => $package->id,
+            'reservation_type' => 'package',
+            'scheduled_date' => today()->subDays(15),
+            'scheduled_time' => '10:00',
+            'party_size' => 3,
+            'total_amount' => 150000.00,
+            'status' => 'completed',
+            'payment_status' => 'paid',
+            'payment_method' => 'qris',
+            'qr_code' => 'TKT-MID',
+        ]);
+
+        // Create a reservation for 45 days ago (should be counted only in all)
+        Reservation::create([
+            'guest_name' => 'Guest Old',
+            'guest_email' => 'old@example.com',
+            'guest_phone' => '08123456789',
+            'tour_package_id' => $package->id,
+            'reservation_type' => 'package',
+            'scheduled_date' => today()->subDays(45),
+            'scheduled_time' => '10:00',
+            'party_size' => 4,
+            'total_amount' => 200000.00,
+            'status' => 'completed',
+            'payment_status' => 'paid',
+            'payment_method' => 'cash',
+            'qr_code' => 'TKT-OLD',
+        ]);
+
+        // Test Today Preset
+        $responseToday = $this->actingAs($officer)->get('/staff/ticketing/stats?preset=today');
+        $responseToday->assertStatus(200);
+        $responseToday->assertViewHas('totalTicketsSold', 2);
+        $responseToday->assertViewHas('totalRevenue', 100000.00);
+
+        // Test Month Preset (Today + 15 days ago)
+        $responseMonth = $this->actingAs($officer)->get('/staff/ticketing/stats?preset=month');
+        $responseMonth->assertStatus(200);
+        $responseMonth->assertViewHas('totalTicketsSold', 5);
+        $responseMonth->assertViewHas('totalRevenue', 250000.00);
+
+        // Test All Preset (Today + 15 days ago + 45 days ago)
+        $responseAll = $this->actingAs($officer)->get('/staff/ticketing/stats?preset=all');
+        $responseAll->assertStatus(200);
+        $responseAll->assertViewHas('totalTicketsSold', 9);
+        $responseAll->assertViewHas('totalRevenue', 450000.00);
+
+        // Test Custom Preset (Range covering 15 days ago to today)
+        $responseCustom = $this->actingAs($officer)->get('/staff/ticketing/stats?preset=custom&start_date='.today()->subDays(20)->format('Y-m-d').'&end_date='.today()->format('Y-m-d'));
+        $responseCustom->assertStatus(200);
+        $responseCustom->assertViewHas('totalTicketsSold', 5);
+        $responseCustom->assertViewHas('totalRevenue', 250000.00);
+    }
 }
