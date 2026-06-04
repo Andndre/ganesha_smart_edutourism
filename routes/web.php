@@ -144,6 +144,9 @@ Route::prefix('staff')->middleware(['auth', 'staff'])->group(function () {
     Route::get('/ticketing/scan', [TicketingController::class, 'scan'])->name('staff.ticketing.scan');
     Route::post('/ticketing/verify', [TicketingController::class, 'verify'])->name('staff.ticketing.verify');
     Route::post('/ticketing/sync/{reservation}', [TicketingController::class, 'syncStatus'])->name('staff.ticketing.sync');
+    Route::post('/ticketing/check-in/{reservation}', [TicketingController::class, 'checkIn'])->name('staff.ticketing.check-in');
+    Route::post('/ticketing/pay/{reservation}', [TicketingController::class, 'getSnapToken'])->name('staff.ticketing.pay');
+    Route::post('/ticketing/cancel/{reservation}', [TicketingController::class, 'cancel'])->name('staff.ticketing.cancel');
 });
 
 // Admin Routes
