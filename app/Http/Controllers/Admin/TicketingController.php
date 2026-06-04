@@ -56,7 +56,37 @@ class TicketingController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('staff.ticketing.index', compact('packages', 'reservations'));
+        // Calculate statistics for confirmed and completed tickets today
+        $todayPaidReservations = $reservations->whereIn('status', ['confirmed', 'completed']);
+        $totalTicketsSold = $todayPaidReservations->sum('party_size');
+        $totalRevenue = $todayPaidReservations->sum('total_amount');
+        $cashRevenue = $todayPaidReservations->where('payment_method', 'cash')->sum('total_amount');
+        $qrisRevenue = $todayPaidReservations->where('payment_method', '!=', 'cash')->sum('total_amount');
+
+        $reservationsList = $reservations->map(function ($res) {
+            return [
+                'id' => $res->id,
+                'guest_name' => $res->user ? $res->user->name : $res->guest_name,
+                'is_walkin' => ! $res->user,
+                'package_name' => $res->tourPackage->name ?? 'N/A',
+                'party_size' => $res->party_size,
+                'total_amount' => $res->total_amount,
+                'status' => $res->status,
+                'payment_method' => $res->payment_method,
+                'time' => $res->created_at->format('H:i'),
+                'timestamp' => $res->created_at->timestamp,
+            ];
+        })->values();
+
+        return view('staff.ticketing.index', compact(
+            'packages',
+            'reservations',
+            'reservationsList',
+            'totalTicketsSold',
+            'totalRevenue',
+            'cashRevenue',
+            'qrisRevenue'
+        ));
     }
 
     public function storeWalkIn(Request $request)
