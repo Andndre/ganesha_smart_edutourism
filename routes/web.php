@@ -140,6 +140,7 @@ Route::get('/offline', function () {
 // Staff Routes (Admin & Ticket Officer)
 Route::prefix('staff')->middleware(['auth', 'staff'])->group(function () {
     Route::get('/ticketing', [TicketingController::class, 'index'])->name('staff.ticketing');
+    Route::get('/ticketing/stats', [TicketingController::class, 'stats'])->name('staff.ticketing.stats');
     Route::post('/ticketing/walk-in', [TicketingController::class, 'storeWalkIn'])->name('staff.ticketing.walk-in');
     Route::get('/ticketing/scan', [TicketingController::class, 'scan'])->name('staff.ticketing.scan');
     Route::post('/ticketing/verify', [TicketingController::class, 'verify'])->name('staff.ticketing.verify');
