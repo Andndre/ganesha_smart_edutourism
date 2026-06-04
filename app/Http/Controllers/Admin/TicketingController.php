@@ -18,7 +18,7 @@ class TicketingController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('admin.ticketing.index', compact('packages', 'reservations'));
+        return view('staff.ticketing.index', compact('packages', 'reservations'));
     }
 
     public function storeWalkIn(Request $request)
@@ -56,7 +56,7 @@ class TicketingController extends Controller
 
     public function scan()
     {
-        return view('admin.ticketing.scan');
+        return view('staff.ticketing.scan');
     }
 
     public function verify(Request $request)
