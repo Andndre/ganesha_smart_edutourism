@@ -288,59 +288,58 @@
             };
             
             console.log('Scanner config:', config);
-            console.log('Calling html5QrcodeScanner.start()...');
+            console.log('Calling html5QrcodeScanner.start() with facingMode: environment...');
 
-            Html5Qrcode.getCameras().then(devices => {
-                if (devices && devices.length) {
-                    // Try to find a back camera
-                    let cameraId = devices[0].id; // Default to first
-                    for (let i = 0; i < devices.length; i++) {
-                        let label = devices[i].label.toLowerCase();
-                        if (label.includes('back') || label.includes('environment') || label.includes('rear') || label.includes('kamera belakang') || label.includes('0, facing back')) {
-                            cameraId = devices[i].id;
-                            break;
-                        }
-                    }
-                    
-                    console.log('Selected camera ID:', cameraId);
-                    
-                    html5QrcodeScanner.start(
-                        cameraId,
-                        config,
-                        onScanSuccess,
-                        onScanFailure
-                    ).then(() => {
-                        console.log('✅ Scanner started SUCCESSFULLY');
-                        console.info('Scanner state: ' + html5QrcodeScanner.getState());
-                        startHeartbeat();
-                    }).catch(err => {
-                        console.warn("❌ Failed with cameraId, falling back to facingMode:", err);
-                        startWithFacingMode();
-                    });
-                } else {
-                    console.warn("No cameras found via getCameras, falling back to facingMode");
-                    startWithFacingMode();
-                }
+            // On iOS Safari, getCameras() often fails or returns empty before permission is granted.
+            // Requesting { facingMode: "environment" } directly handles the permission prompt correctly.
+            html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                config,
+                onScanSuccess,
+                onScanFailure
+            ).then(() => {
+                console.log('✅ Scanner started SUCCESSFULLY (facingMode)');
+                console.info('Scanner state: ' + html5QrcodeScanner.getState());
+                startHeartbeat();
             }).catch(err => {
-                console.warn("getCameras failed, falling back to facingMode:", err);
-                startWithFacingMode();
+                console.warn("❌ Failed with facingMode, trying getCameras fallback:", err);
+                
+                // Fallback: If facingMode fails, try to manually get cameras
+                Html5Qrcode.getCameras().then(devices => {
+                    if (devices && devices.length) {
+                        let cameraId = devices[devices.length - 1].id; // Often the back camera is last
+                        // Try to find specifically a back camera
+                        for (let i = 0; i < devices.length; i++) {
+                            let label = devices[i].label.toLowerCase();
+                            if (label.includes('back') || label.includes('environment') || label.includes('rear') || label.includes('kamera belakang')) {
+                                cameraId = devices[i].id;
+                                break;
+                            }
+                        }
+                        
+                        html5QrcodeScanner.start(
+                            cameraId,
+                            config,
+                            onScanSuccess,
+                            onScanFailure
+                        ).then(() => {
+                            console.log('✅ Scanner started SUCCESSFULLY (cameraId)');
+                            startHeartbeat();
+                        }).catch(e => {
+                            showCameraError();
+                        });
+                    } else {
+                        showCameraError();
+                    }
+                }).catch(e => {
+                    showCameraError();
+                });
             });
 
-            function startWithFacingMode() {
-                html5QrcodeScanner.start(
-                    { facingMode: "environment" },
-                    config,
-                    onScanSuccess,
-                    onScanFailure
-                ).then(() => {
-                    console.log('✅ Scanner started SUCCESSFULLY (facingMode)');
-                    console.info('Scanner state: ' + html5QrcodeScanner.getState());
-                    startHeartbeat();
-                }).catch(err => {
-                    console.error("❌ Scanner start FAILED:", err);
-                    document.getElementById('status-badge').innerText = 'Kamera tidak diizinkan';
-                    document.getElementById('status-badge').classList.replace('bg-black/40', 'bg-red-500/80');
-                });
+            function showCameraError() {
+                console.error("❌ All scanner start attempts FAILED.");
+                document.getElementById('status-badge').innerText = 'Kamera tidak diizinkan/ditemukan';
+                document.getElementById('status-badge').classList.replace('bg-black/40', 'bg-red-500/80');
             }
 
             function startHeartbeat() {
