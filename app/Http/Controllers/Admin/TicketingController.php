@@ -232,4 +232,93 @@ class TicketingController extends Controller
             'payment_status' => $reservation->payment_status,
         ]);
     }
+
+    public function checkIn(Reservation $reservation)
+    {
+        if ($reservation->status !== 'confirmed') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya tiket dengan status Menunggu yang dapat di-check-in.',
+            ], 400);
+        }
+
+        $reservation->status = 'completed';
+        $reservation->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Check-in berhasil! Pengunjung silakan masuk.',
+        ]);
+    }
+
+    public function getSnapToken(Reservation $reservation)
+    {
+        if ($reservation->status !== 'pending' || $reservation->payment_method !== 'qris') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya tiket pending QRIS yang dapat diproses pembayarannya.',
+            ], 400);
+        }
+
+        Config::$serverKey = config('midtrans.server_key');
+        Config::$isProduction = config('midtrans.is_production');
+        Config::$isSanitized = config('midtrans.is_sanitized');
+        Config::$is3ds = config('midtrans.is_3ds');
+
+        $package = $reservation->tourPackage;
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $reservation->payment_reference,
+                'gross_amount' => $reservation->total_amount,
+            ],
+            'customer_details' => [
+                'first_name' => $reservation->guest_name,
+                'email' => $reservation->guest_email ?? 'walkin@example.com',
+                'phone' => $reservation->guest_phone ?? '0000000000',
+            ],
+            'item_details' => [
+                [
+                    'id' => 'PKG-'.$package->id,
+                    'price' => $package->price,
+                    'quantity' => $reservation->party_size,
+                    'name' => $package->name,
+                ],
+            ],
+        ];
+
+        try {
+            $snapToken = Snap::getSnapToken($params);
+
+            return response()->json([
+                'success' => true,
+                'snap_token' => $snapToken,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Midtrans Snap Walkin Repay Error: '.$e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal terhubung ke Midtrans. Silakan coba lagi.',
+            ], 500);
+        }
+    }
+
+    public function cancel(Reservation $reservation)
+    {
+        if ($reservation->status !== 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya tiket pending yang dapat dibatalkan.',
+            ], 400);
+        }
+
+        $reservation->status = 'cancelled';
+        $reservation->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tiket berhasil dibatalkan.',
+        ]);
+    }
 }

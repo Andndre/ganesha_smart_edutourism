@@ -356,4 +356,134 @@ class StaffTicketingTest extends TestCase
         $this->assertEquals('completed', $reservation->fresh()->status);
         $this->assertEquals('paid', $reservation->fresh()->payment_status);
     }
+
+    /**
+     * Test staff can check-in a confirmed reservation.
+     */
+    public function test_staff_can_check_in_confirmed_reservation(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+        $package = TourPackage::create([
+            'name' => 'Checkin Package',
+            'slug' => 'checkin-package',
+            'price' => 50000.00,
+            'duration_hours' => 2.0,
+            'max_capacity' => 10,
+            'min_capacity' => 1,
+            'is_active' => true,
+        ]);
+
+        $reservation = Reservation::create([
+            'guest_name' => 'Guest Checkin',
+            'guest_email' => 'checkin@example.com',
+            'guest_phone' => '08123456789',
+            'tour_package_id' => $package->id,
+            'reservation_type' => 'package',
+            'scheduled_date' => today(),
+            'scheduled_time' => '10:00',
+            'party_size' => 1,
+            'total_amount' => 50000.00,
+            'status' => 'confirmed',
+            'payment_status' => 'paid',
+            'qr_code' => 'TKT-TEST-CHECKIN-QR',
+        ]);
+
+        $response = $this->actingAs($officer)->postJson("/staff/ticketing/check-in/{$reservation->id}");
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment([
+            'success' => true,
+            'message' => 'Check-in berhasil! Pengunjung silakan masuk.',
+        ]);
+
+        $this->assertEquals('completed', $reservation->fresh()->status);
+    }
+
+    /**
+     * Test staff can get snap token for pending QRIS reservation.
+     */
+    public function test_staff_can_get_snap_token_for_pending_qris_reservation(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+        $package = TourPackage::create([
+            'name' => 'Repay Package',
+            'slug' => 'repay-package',
+            'price' => 50000.00,
+            'duration_hours' => 2.0,
+            'max_capacity' => 10,
+            'min_capacity' => 1,
+            'is_active' => true,
+        ]);
+
+        $reservation = Reservation::create([
+            'guest_name' => 'Guest Repay',
+            'guest_email' => 'repay@example.com',
+            'guest_phone' => '08123456789',
+            'tour_package_id' => $package->id,
+            'reservation_type' => 'package',
+            'scheduled_date' => today(),
+            'scheduled_time' => '10:00',
+            'party_size' => 1,
+            'total_amount' => 50000.00,
+            'status' => 'pending',
+            'payment_status' => 'unpaid',
+            'payment_method' => 'qris',
+            'payment_reference' => 'WALKIN-TEST-REPAY-1',
+            'qr_code' => 'TKT-TEST-REPAY-QR',
+        ]);
+
+        config(['midtrans.server_key' => 'test-server-key']);
+
+        $response = $this->actingAs($officer)->postJson("/staff/ticketing/pay/{$reservation->id}");
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment([
+            'success' => true,
+            'snap_token' => 'mocked-snap-token-abc-123',
+        ]);
+    }
+
+    /**
+     * Test staff can cancel pending reservation.
+     */
+    public function test_staff_can_cancel_pending_reservation(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+        $package = TourPackage::create([
+            'name' => 'Cancel Package',
+            'slug' => 'cancel-package',
+            'price' => 50000.00,
+            'duration_hours' => 2.0,
+            'max_capacity' => 10,
+            'min_capacity' => 1,
+            'is_active' => true,
+        ]);
+
+        $reservation = Reservation::create([
+            'guest_name' => 'Guest Cancel',
+            'guest_email' => 'cancel@example.com',
+            'guest_phone' => '08123456789',
+            'tour_package_id' => $package->id,
+            'reservation_type' => 'package',
+            'scheduled_date' => today(),
+            'scheduled_time' => '10:00',
+            'party_size' => 1,
+            'total_amount' => 50000.00,
+            'status' => 'pending',
+            'payment_status' => 'unpaid',
+            'payment_method' => 'qris',
+            'payment_reference' => 'WALKIN-TEST-CANCEL-1',
+            'qr_code' => 'TKT-TEST-CANCEL-QR',
+        ]);
+
+        $response = $this->actingAs($officer)->postJson("/staff/ticketing/cancel/{$reservation->id}");
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment([
+            'success' => true,
+            'message' => 'Tiket berhasil dibatalkan.',
+        ]);
+
+        $this->assertEquals('cancelled', $reservation->fresh()->status);
+    }
 }
