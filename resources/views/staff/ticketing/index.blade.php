@@ -3,22 +3,29 @@
 @section('title', 'Layanan Tiket (POS)')
 
 @section('content')
-
-<div class="mb-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-    <div>
-        <h1 class="font-display text-2xl font-bold text-charcoal">Ticketing Point of Sale</h1>
-        <p class="mt-0.5 text-sm text-gray-500">Layanan pembelian tiket walk-in dan verifikasi pengunjung.</p>
+<div x-data class="max-w-6xl">
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="font-display text-2xl font-bold text-charcoal">Ticketing Point of Sale</h1>
+            <p class="mt-0.5 text-sm text-gray-500">Layanan pembelian tiket walk-in dan verifikasi pengunjung.</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <button type="button" @click="$dispatch('open-walkin-modal')" class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-600 active:scale-[0.98]">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Beli Tiket Walk-in
+            </button>
+            <a href="{{ route('staff.ticketing.scan') }}" class="inline-flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition-all active:scale-[0.98]">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Buka Scanner QR
+            </a>
+        </div>
     </div>
-    <a href="{{ route('staff.ticketing.scan') }}" class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-600 active:scale-[0.98]">
-        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-        Buka Scanner QR
-    </a>
-</div>
 
-<div class="max-w-6xl">
     @if (session('success'))
         <div class="mb-6 flex items-center gap-3 rounded-xl bg-primary/10 border border-primary/20 p-4 text-sm text-primary">
             <svg class="h-5 w-5 shrink-0 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -28,66 +35,9 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <!-- Form Pembelian -->
-        <div class="col-span-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-            <h3 class="mb-4 font-display text-lg font-bold text-charcoal">Pembelian Tiket Walk-in</h3>
-            <form id="walkin-form" action="{{ route('staff.ticketing.walk-in') }}" method="POST">
-                @csrf
-
-                <div class="space-y-4">
-                    <div>
-                        <label for="guest_name" class="block text-sm font-semibold text-gray-700">Nama Pengunjung <span class="text-warning">*</span></label>
-                        <input type="text" name="guest_name" id="guest_name" required placeholder="Nama lengkap pengunjung"
-                            class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                    </div>
-
-                    <div>
-                        <label for="guest_email" class="block text-sm font-semibold text-gray-700">Email (Opsional)</label>
-                        <input type="email" name="guest_email" id="guest_email" placeholder="email@contoh.com"
-                            class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                    </div>
-
-                    <div>
-                        <label for="tour_package_id" class="block text-sm font-semibold text-gray-700">Paket Wisata <span class="text-warning">*</span></label>
-                        <select id="tour_package_id" name="tour_package_id" required
-                            class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none bg-white">
-                            <option value="">Pilih paket...</option>
-                            @foreach ($packages as $package)
-                                <option value="{{ $package->id }}">{{ $package->name }} - Rp {{ number_format($package->price, 0, ',', '.') }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label for="party_size" class="block text-sm font-semibold text-gray-700">Jumlah Orang <span class="text-warning">*</span></label>
-                            <input type="number" name="party_size" id="party_size" min="1" value="1" required
-                                class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                        </div>
-                        <div>
-                            <label for="payment_method" class="block text-sm font-semibold text-gray-700">Metode Bayar <span class="text-warning">*</span></label>
-                            <select id="payment_method" name="payment_method" required
-                                class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none bg-white">
-                                <option value="cash">Tunai (Cash)</option>
-                                <option value="qris">QRIS</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="pt-4">
-                        <button type="submit"
-                            class="flex w-full justify-center rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 hover:bg-primary-600 active:scale-[0.99] transition-all">
-                            Proses & Cetak Tiket
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <!-- Tabel Transaksi Hari Ini -->
-        <div class="col-span-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm lg:col-span-2">
-            <h3 class="mb-4 font-display text-lg font-bold text-charcoal">Tiket Terjual Hari Ini</h3>
+    <!-- Tabel Transaksi Hari Ini -->
+    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h3 class="mb-4 font-display text-lg font-bold text-charcoal">Tiket Terjual Hari Ini</h3>
             <!-- Desktop Table (Hidden on Mobile) -->
             <div class="hidden sm:block overflow-x-auto rounded-xl border border-gray-100">
                 <table class="w-full text-sm">
@@ -230,6 +180,70 @@
                 @endforelse
             </div>
         </div>
+
+        <!-- Walk-in Purchase Modal -->
+        <x-modal name="walkin-modal" maxWidth="md">
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <h3 class="font-display text-lg font-bold text-charcoal">Pembelian Tiket Walk-in</h3>
+                </div>
+                
+                <form id="walkin-form" action="{{ route('staff.ticketing.walk-in') }}" method="POST" class="mt-4">
+                    @csrf
+
+                    <div class="space-y-4 text-left">
+                        <div>
+                            <label for="guest_name" class="block text-sm font-semibold text-gray-700">Nama Pengunjung <span class="text-warning">*</span></label>
+                            <input type="text" name="guest_name" id="guest_name" required placeholder="Nama lengkap pengunjung"
+                                class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label for="guest_email" class="block text-sm font-semibold text-gray-700">Email (Opsional)</label>
+                            <input type="email" name="guest_email" id="guest_email" placeholder="email@contoh.com"
+                                class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label for="tour_package_id" class="block text-sm font-semibold text-gray-700">Paket Wisata <span class="text-warning">*</span></label>
+                            <select id="tour_package_id" name="tour_package_id" required
+                                class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none bg-white">
+                                <option value="">Pilih paket...</option>
+                                @foreach ($packages as $package)
+                                    <option value="{{ $package->id }}">{{ $package->name }} - Rp {{ number_format($package->price, 0, ',', '.') }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="party_size" class="block text-sm font-semibold text-gray-700">Jumlah Orang <span class="text-warning">*</span></label>
+                                <input type="number" name="party_size" id="party_size" min="1" value="1" required
+                                    class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                            </div>
+                            <div>
+                                <label for="payment_method" class="block text-sm font-semibold text-gray-700">Metode Bayar <span class="text-warning">*</span></label>
+                                <select id="payment_method" name="payment_method" required
+                                    class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none bg-white">
+                                    <option value="cash">Tunai (Cash)</option>
+                                    <option value="qris">QRIS</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 flex gap-3">
+                            <button type="button" @click="isOpen = false" class="flex-1 justify-center rounded-xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-200 active:scale-[0.99] transition-all">
+                                Batal
+                            </button>
+                            <button type="submit" style="flex: 2;"
+                                class="justify-center rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 hover:bg-primary-600 active:scale-[0.99] transition-all">
+                                Proses & Cetak Tiket
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </x-modal>
     </div>
 </div>
 
@@ -467,6 +481,7 @@
                         
                         if (data.success) {
                             if (data.payment_method === 'cash') {
+                                window.dispatchEvent(new CustomEvent('close-walkin-modal'));
                                 Swal.fire({
                                     title: 'Berhasil!',
                                     text: data.message,
@@ -477,6 +492,7 @@
                                     window.location.reload();
                                 });
                             } else if (data.payment_method === 'qris' && data.snap_token) {
+                                window.dispatchEvent(new CustomEvent('close-walkin-modal'));
                                 snap.pay(data.snap_token, {
                                     onSuccess: async function(result) {
                                         try {
