@@ -25,35 +25,6 @@
             </svg>
             <span class="font-semibold">{{ session('success') }}</span>
         </div>
-
-        @if (session('guestUrl'))
-            <div class="mb-6 rounded-2xl border border-primary/20 bg-primary/5 p-6 text-center shadow-sm max-w-xl mx-auto">
-                <h3 class="text-lg font-bold text-primary-800">Akses Guest Web App</h3>
-                <p class="mt-2 text-sm text-gray-600">Arahkan pengunjung untuk memindai QR Code di bawah ini untuk mengakses Smart Edutourism tanpa mendaftar akun.</p>
-                <div class="mt-4 flex justify-center">
-                    <div class="rounded-xl bg-white p-4 shadow-md border border-gray-100" id="qrcode"></div>
-                </div>
-                <div class="mt-4">
-                    <p class="text-xs text-gray-500">Atau akses URL berikut: <br>
-                        <a href="{{ session('guestUrl') }}" class="font-medium text-primary underline break-all" target="_blank">{{ session('guestUrl') }}</a>
-                    </p>
-                </div>
-
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        new QRCode(document.getElementById("qrcode"), {
-                            text: "{{ session('guestUrl') }}",
-                            width: 180,
-                            height: 180,
-                            colorDark: "#1E5128",
-                            colorLight: "#ffffff",
-                            correctLevel: QRCode.CorrectLevel.H
-                        });
-                    });
-                </script>
-            </div>
-        @endif
     @endif
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
