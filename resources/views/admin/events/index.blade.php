@@ -117,7 +117,7 @@
 
 @section('content')
 
-    <div x-data="adminEvents" @open-event-modal.window="selectedEvent = $event.detail; showModal = true"
+    <div x-data="adminEvents" @open-event-modal.window="selectedEvent = $event.detail; $dispatch('open-event-detail-modal')"
         @open-create-modal.window="openCreate($event.detail.date, $event.detail.time)"
         @open-edit-modal.window="openEdit($event.detail)" class="space-y-6">
 
