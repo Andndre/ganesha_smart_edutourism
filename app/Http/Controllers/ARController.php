@@ -6,6 +6,7 @@ use App\Models\CulturalObject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ARController extends Controller
 {
@@ -49,9 +50,25 @@ class ARController extends Controller
             'success' => true,
             'name' => $object->name,
             'model_url' => '/storage/'.$object->model_3d_path,
-            'usdz_url' => $object->model_3d_usdz_path ? '/storage/'.$object->model_3d_usdz_path : null,
+            'usdz_url' => $object->model_3d_usdz_path ? route('usdz.serve', ['path' => $object->model_3d_usdz_path]) : null,
             'description' => $object->description,
             'short_description' => $object->short_description,
+        ]);
+    }
+
+    /**
+     * Serve USDZ files with the correct MIME type for iOS Quick Look.
+     */
+    public function serveUsdz(string $path): BinaryFileResponse
+    {
+        $fullPath = storage_path('app/public/'.$path);
+
+        if (! file_exists($fullPath)) {
+            abort(404);
+        }
+
+        return response()->file($fullPath, [
+            'Content-Type' => 'model/vnd.usdz+zip',
         ]);
     }
 }

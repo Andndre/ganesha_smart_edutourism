@@ -1,3 +1,8 @@
+<IfModule mod_mime.c>
+    AddType model/vnd.usdz+zip .usdz
+    AddType model/gltf-binary .glb
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
