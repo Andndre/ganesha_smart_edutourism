@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\MapManagerController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TicketingController;
+use App\Http\Controllers\Admin\TicketOfficerController;
 use App\Http\Controllers\Admin\TourRouteController;
 use App\Http\Controllers\Admin\UmkmCategoryController;
 use App\Http\Controllers\Admin\UmkmController;
@@ -183,6 +184,12 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('/umkm/owners', [UmkmController::class, 'storeOwner'])->name('admin.umkm.owners.store');
     Route::put('/umkm/owners/{id}', [UmkmController::class, 'updateOwner'])->name('admin.umkm.owners.update');
     Route::delete('/umkm/owners/{id}', [UmkmController::class, 'destroyOwner'])->name('admin.umkm.owners.destroy');
+
+    // Ticket Officer Routes
+    Route::get('/ticket-officers', [TicketOfficerController::class, 'index'])->name('admin.ticket-officers');
+    Route::post('/ticket-officers', [TicketOfficerController::class, 'store'])->name('admin.ticket-officers.store');
+    Route::put('/ticket-officers/{id}', [TicketOfficerController::class, 'update'])->name('admin.ticket-officers.update');
+    Route::delete('/ticket-officers/{id}', [TicketOfficerController::class, 'destroy'])->name('admin.ticket-officers.destroy');
 
     // Map Manager Routes
     Route::get('/map-manager', [MapManagerController::class, 'index'])->name('admin.map-manager');
