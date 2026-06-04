@@ -36,23 +36,22 @@ self.addEventListener("fetch", (event) => {
 
     // Skip media requests and range requests completely to allow native browser seek/Accept-Ranges
     if (
-        event.request.headers.has('range') ||
+        event.request.headers.has("range") ||
         url.pathname.match(/\.(mp3|mp4|wav|ogg|webm|glb)$/i) ||
-        url.pathname.includes('/storage/')
+        url.pathname.includes("/storage/")
     ) {
         return;
     }
 
     // Skip admin panel, owner panel, staff panel, api, authentication, and livewire requests
     if (
-        url.pathname.startsWith('/admin') ||
-        url.pathname.startsWith('/owner') ||
-        url.pathname.startsWith('/staff') ||
-        url.pathname.startsWith('/api') ||
-        url.pathname.startsWith('/login') ||
-        url.pathname.startsWith('/logout') ||
-        url.pathname.startsWith('/register') ||
-        url.pathname.includes('/livewire/')
+        url.pathname.startsWith("/admin") ||
+        url.pathname.startsWith("/owner") ||
+        url.pathname.startsWith("/staff") ||
+        url.pathname.startsWith("/api") ||
+        url.pathname.startsWith("/login") ||
+        url.pathname.startsWith("/logout") ||
+        url.pathname.startsWith("/register")
     ) {
         return;
     }
@@ -74,7 +73,7 @@ self.addEventListener("fetch", (event) => {
                     // Fallback to cache if offline, otherwise show offline page
                     const cachedResponse = await caches.match(event.request);
                     return cachedResponse || caches.match(OFFLINE_URL);
-                })
+                }),
         );
         return;
     }
@@ -103,6 +102,6 @@ self.addEventListener("fetch", (event) => {
                 return cachedResponse;
             }
             return fetch(event.request);
-        })
+        }),
     );
 });
