@@ -97,4 +97,18 @@ class ARScannerTest extends TestCase
 
         $response->assertStatus(404);
     }
+
+    public function test_serve_usdz_resolves_zip_stored_file()
+    {
+        Storage::disk('public')->put('models_usdz/test-model.zip', 'zip content');
+
+        $response = $this->get('/usdz-file/models_usdz/test-model.zip.usdz');
+
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Type', 'model/vnd.usdz+zip');
+        $file = $response->getFile();
+        $this->assertEquals('zip content', file_get_contents($file->getPathname()));
+
+        Storage::disk('public')->delete('models_usdz/test-model.zip');
+    }
 }

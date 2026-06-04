@@ -53,7 +53,9 @@ class CulturalObjectController extends Controller
         }
 
         if ($request->hasFile('model_3d_usdz_file')) {
-            $validated['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')->store('models_usdz', 'public');
+            $file = $request->file('model_3d_usdz_file');
+            $filename = Str::random(40).'.usdz';
+            $validated['model_3d_usdz_path'] = $file->storeAs('models_usdz', $filename, 'public');
         }
 
         if ($request->hasFile('audio_narration_file')) {
@@ -205,7 +207,9 @@ class CulturalObjectController extends Controller
         }
 
         if ($request->hasFile('model_3d_usdz_file')) {
-            $validated['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')->store('models_usdz', 'public');
+            $file = $request->file('model_3d_usdz_file');
+            $filename = Str::random(40).'.usdz';
+            $validated['model_3d_usdz_path'] = $file->storeAs('models_usdz', $filename, 'public');
         } elseif (! isset($validated['model_3d_usdz_path'])) {
             $validated['model_3d_usdz_path'] = $object->model_3d_usdz_path;
         }
