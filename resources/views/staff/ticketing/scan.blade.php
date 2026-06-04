@@ -29,17 +29,37 @@
     </div>
 </div>
 
+@push('styles')
+<style>
+    #reader {
+        width: 100%;
+        max-width: 400px;
+        aspect-ratio: 1 / 1;
+        background-color: #f9fafb;
+    }
+    #reader video {
+        object-fit: cover;
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 16px;
+    }
+    /* Hide the library scan region box or modify it */
+    #reader__scan_region {
+        background: transparent !important;
+    }
+</style>
+@endpush
+
 <!-- Include html5-qrcode library -->
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        let html5QrcodeScanner;
+        let html5QrCode;
+        let isScanning = true;
 
         function onScanSuccess(decodedText, decodedResult) {
-            // stop scanning temporary
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.pause();
-            }
+            if (!isScanning) return;
+            isScanning = false;
 
             fetch('{{ route('staff.ticketing.verify') }}', {
                     method: 'POST',
@@ -90,31 +110,72 @@
                 .catch(error => {
                     console.error(error);
                     alert('Terjadi kesalahan pada server. Coba lagi.');
-                    if (html5QrcodeScanner) {
-                        html5QrcodeScanner.resume();
-                    }
+                    isScanning = true;
                 });
         }
 
         function onScanFailure(error) {
-            // Ignore failure, keep scanning
+            // Ignore scan failure to keep polling the camera
         }
 
-        html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", {
-                fps: 10,
-                qrbox: {
-                    width: 250,
-                    height: 250
-                }
-            },
-            /* verbose= */
-            false);
-        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        html5QrCode = new Html5Qrcode("reader");
+
+        // Request permission and start camera scanning automatically
+        Html5Qrcode.getCameras().then(devices => {
+            if (devices && devices.length) {
+                // Try to find environment (back) camera
+                const backCamera = devices.find(device => device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('environment') || device.label.toLowerCase().includes('rear'));
+                const cameraId = backCamera ? backCamera.id : devices[0].id;
+                
+                html5QrCode.start(
+                    cameraId,
+                    {
+                        fps: 10,
+                        qrbox: { width: 220, height: 220 }
+                    },
+                    onScanSuccess,
+                    onScanFailure
+                ).catch(err => {
+                    console.error("Gagal memulai kamera: ", err);
+                    fallbackFacingMode();
+                });
+            } else {
+                fallbackFacingMode();
+            }
+        }).catch(err => {
+            console.warn("Gagal mendeteksi kamera, mencoba facingMode langsung: ", err);
+            fallbackFacingMode();
+        });
+
+        function fallbackFacingMode() {
+            html5QrCode.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: { width: 220, height: 220 }
+                },
+                onScanSuccess,
+                onScanFailure
+            ).catch(err2 => {
+                showCameraError("Izin akses kamera ditolak atau kamera tidak tersedia.");
+            });
+        }
+
+        function showCameraError(msg) {
+            document.getElementById('reader').innerHTML = `
+                <div class="p-6 text-center text-warning-800 bg-warning/5 border border-warning/10 rounded-2xl">
+                    <svg class="h-10 w-10 mx-auto text-warning mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <p class="font-semibold text-sm">${msg}</p>
+                    <p class="text-xs mt-2 text-gray-500">Pastikan izin kamera diaktifkan untuk situs ini di pengaturan browser Anda, lalu muat ulang halaman.</p>
+                </div>
+            `;
+        }
 
         window.resumeScan = function() {
             document.getElementById('scan-result').classList.add('hidden');
-            html5QrcodeScanner.resume();
+            isScanning = true;
         };
     });
 </script>

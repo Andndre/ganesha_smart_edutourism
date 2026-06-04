@@ -121,6 +121,7 @@
                         [
                             'url' => route('staff.ticketing'),
                             'route' => 'staff.ticketing',
+                            'exact' => true,
                             'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01',
                             'label' => 'Layanan Tiket (POS)'
                         ],
@@ -217,6 +218,7 @@
                         [
                             'url' => route('staff.ticketing'),
                             'route' => 'staff.ticketing',
+                            'exact' => true,
                             'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01',
                             'label' => 'Ticketing POS'
                         ],
@@ -235,7 +237,7 @@
                     <div class="px-4 pt-4 pb-1 text-[10px] font-bold uppercase tracking-wider text-white/30">{{ $item['label'] }}</div>
                 @else
                     @php
-                        $isActive = Route::is($item['route']) || Route::is($item['route'] . '.*');
+                        $isActive = Route::is($item['route']) || (!($item['exact'] ?? false) && Route::is($item['route'] . '.*'));
                         $activeClass = $isActive
                             ? 'bg-primary text-white shadow-lg shadow-primary/30'
                             : 'text-white/60 hover:bg-white/8 hover:text-white';
