@@ -9,7 +9,13 @@
                 'bg-rose-50 text-rose-600 border-rose-100': selectedEvent.category && selectedEvent.category.toLowerCase().includes('kuliner')
             }" class="rounded-lg border px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider" x-text="selectedEvent.category"></span>
             
-            <button type="button" @click="isOpen = false" class="text-xs font-bold text-gray-400 hover:text-gray-600 md:hidden">Tutup</button>
+            <button type="button" @click="isOpen = false"
+                class="flex items-center justify-center h-8 w-8 rounded-full bg-gray-50 text-gray-400 hover:text-gray-600 active:scale-95 transition-all md:hidden"
+                title="Tutup">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
         </div>
 
         <h3 class="font-display text-charcoal text-xl font-black tracking-tight leading-snug" x-text="selectedEvent.name"></h3>
