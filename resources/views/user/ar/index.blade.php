@@ -11,6 +11,7 @@
 
         #reader {
             width: 100%;
+            height: 100%;
             border: none;
         }
 
@@ -22,6 +23,20 @@
             top: 0 !important;
             left: 0 !important;
             z-index: 1 !important;
+        }
+
+        /* Hide html5-qrcode internal scanning region UI */
+        #reader__scan_region {
+            min-height: 100vh !important;
+        }
+
+        #reader__scan_region > canvas,
+        #reader__scan_region > img {
+            display: none !important;
+        }
+
+        #qr-shaded-region {
+            display: none !important;
         }
 
         /* Model Viewer Styles */
@@ -212,8 +227,19 @@
 
             const config = {
                 fps: 10,
+                qrbox: function(viewfinderWidth, viewfinderHeight) {
+                    const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+                    const size = Math.floor(minEdge * 0.7);
+                    return { width: size, height: size };
+                },
+                aspectRatio: 1.0,
+                videoConstraints: {
+                    facingMode: { ideal: "environment" },
+                    width: { min: 640, ideal: 1280 },
+                    height: { min: 480, ideal: 720 }
+                },
                 experimentalFeatures: {
-                    useBarCodeDetectorIfSupported: false // Disabled: causes black screen on some Androids
+                    useBarCodeDetectorIfSupported: true
                 }
             };
 
