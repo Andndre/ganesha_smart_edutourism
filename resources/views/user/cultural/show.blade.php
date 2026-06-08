@@ -230,7 +230,7 @@
                                         <div class="group relative">
                                             <!-- Timeline Dot -->
                                             <div
-                                                class="{{ $config['color'] }} absolute -left-[31px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full border-2 bg-white transition-all duration-300 group-hover:scale-125">
+                                                class="{{ $config['color'] }} absolute left-[-31px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full border-2 bg-white transition-all duration-300 group-hover:scale-125">
                                                 <div class="h-1.5 w-1.5 rounded-full bg-current"></div>
                                             </div>
 
