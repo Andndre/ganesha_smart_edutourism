@@ -106,11 +106,11 @@
     <script>
         // Category colors mapping matching the filter panel dots
         const categoryColors = {
-            umkm: '#8B5CF6',         // Violet
-            facilities: '#3B82F6',   // Blue
-            toilets: '#06B6D4',      // Cyan
-            accessibility: '#F59E0B',// Amber
-            cultural: '#1E5128'      // Green (Default)
+            umkm: '#8B5CF6', // Violet
+            facilities: '#3B82F6', // Blue
+            toilets: '#06B6D4', // Cyan
+            accessibility: '#F59E0B', // Amber
+            cultural: '#1E5128' // Green (Default)
         };
 
         // Shared global user GPS location variable
@@ -144,7 +144,7 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const defaultLat = {{ $defaultLat }};
             const defaultLon = {{ $defaultLon }};
 
@@ -180,7 +180,7 @@
                     icon: getMarkerIcon(loc.cat)
                 }).addTo(map);
 
-                marker.on('click', function (e) {
+                marker.on('click', function(e) {
                     if (e && e.originalEvent) {
                         e.originalEvent.stopPropagation();
                     }
@@ -320,7 +320,7 @@
             }
 
             // Listen for filter changes from map-search component
-            window.addEventListener('filter-change', function (e) {
+            window.addEventListener('filter-change', function(e) {
                 const {
                     filter,
                     active
@@ -505,10 +505,10 @@
                                 });
                             },
                             (err) => onLocationError(err, silent), {
-                            enableHighAccuracy: true,
-                            maximumAge: 1000,
-                            timeout: 10000
-                        }
+                                enableHighAccuracy: true,
+                                maximumAge: 1000,
+                                timeout: 10000
+                            }
                         );
                     },
                     (err) => {
@@ -516,22 +516,22 @@
                         updateRouteButtonUI();
                         onLocationError(err, silent);
                     }, {
-                    enableHighAccuracy: true,
-                    maximumAge: 0,
-                    timeout: 10000
-                }
+                        enableHighAccuracy: true,
+                        maximumAge: 0,
+                        timeout: 10000
+                    }
                 );
             }
 
             // ==========================================
             // BUTTON EVENT LISTENERS
             // ==========================================
-            document.getElementById('btn-layer-map').addEventListener('click', function (e) {
+            document.getElementById('btn-layer-map').addEventListener('click', function(e) {
                 e.stopPropagation();
                 toggleHeatmap();
             });
 
-            document.getElementById('btn-my-location').addEventListener('click', function (e) {
+            document.getElementById('btn-my-location').addEventListener('click', function(e) {
                 e.stopPropagation();
                 if (lastPosition) {
                     map.flyTo([lastPosition.lat, lastPosition.lng], 17, {
@@ -562,7 +562,7 @@
                 }
             });
 
-            document.getElementById('btn-locate').addEventListener('click', function () {
+            document.getElementById('btn-locate').addEventListener('click', function() {
                 // Focus bounds only on visible markers
                 const visibleCoords = markerLayers
                     .filter(item => map.hasLayer(item.marker))
@@ -584,20 +584,20 @@
             });
 
             // Update heatmap on map move/zoom
-            map.on('moveend', function () {
+            map.on('moveend', function() {
                 if (heatmapVisible) {
                     renderHeatmap();
                 }
             });
 
-            map.on('zoomend', function () {
+            map.on('zoomend', function() {
                 if (heatmapVisible) {
                     renderHeatmap();
                 }
             });
 
             // Close filter panel and clear active user route when clicking elsewhere on map
-            map.on('click', function () {
+            map.on('click', function() {
                 if (userRouteLayer) {
                     map.removeLayer(userRouteLayer);
                     userRouteLayer = null;
@@ -620,10 +620,10 @@
             if (action === 'route' && targetLat && targetLng) {
                 const latNum = parseFloat(targetLat);
                 const lngNum = parseFloat(targetLng);
-                
+
                 // Find matching location in locations array (allowing a small tolerance)
-                const targetLoc = locations.find(loc => 
-                    Math.abs(parseFloat(loc.lat) - latNum) < 0.0001 && 
+                const targetLoc = locations.find(loc =>
+                    Math.abs(parseFloat(loc.lat) - latNum) < 0.0001 &&
                     Math.abs(parseFloat(loc.lng) - lngNum) < 0.0001
                 ) || {
                     lat: latNum,
@@ -665,7 +665,9 @@
                     setTimeout(() => {
                         // Fit bounds to all stops to center map
                         const bounds = L.latLngBounds(stops);
-                        map.fitBounds(bounds, { padding: [50, 50] });
+                        map.fitBounds(bounds, {
+                            padding: [50, 50]
+                        });
 
                         // Show SweetAlert GPS loading spinner
                         Swal.fire({
@@ -685,9 +687,11 @@
                             if (lastPosition) {
                                 clearInterval(checkInterval);
                                 Swal.close();
-                                
+
                                 // Draw the route from user's current position through all stops
-                                const allCoords = [[parseFloat(lastPosition.lng), parseFloat(lastPosition.lat)]];
+                                const allCoords = [
+                                    [parseFloat(lastPosition.lng), parseFloat(lastPosition.lat)]
+                                ];
                                 // ORS route coordinates are [lng, lat]
                                 stops.forEach(stop => {
                                     allCoords.push([stop[1], stop[0]]);
@@ -698,7 +702,7 @@
                                 // Timeout fallback: just draw lines between the stops (without user position)
                                 clearInterval(checkInterval);
                                 Swal.close();
-                                
+
                                 const allCoords = stops.map(stop => [stop[1], stop[0]]);
                                 drawMultiStopRoute(allCoords);
                             }
@@ -810,9 +814,9 @@
             const sheetAcc = document.getElementById('sheet-accessibility');
             if (secAcc && sheetAcc) {
                 if (loc.is_accessible) {
-                    sheetAcc.textContent = loc.accessibility && loc.accessibility.trim() !== '' 
-                        ? loc.accessibility 
-                        : 'Akses ramah disabilitas tersedia.';
+                    sheetAcc.textContent = loc.accessibility && loc.accessibility.trim() !== '' ?
+                        loc.accessibility :
+                        'Akses ramah disabilitas tersedia.';
                     secAcc.style.display = 'flex';
                 } else {
                     secAcc.style.display = 'none';
@@ -829,11 +833,14 @@
             const routeBtn = document.getElementById('sheet-route-btn');
             if (routeBtn) {
                 routeBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}`;
-                routeBtn.onclick = function (e) {
+                routeBtn.onclick = function(e) {
                     e.preventDefault();
                     if (lastPosition) {
                         closeSheet();
-                        drawUserToLocationRoute(lastPosition, { lat: loc.lat, lng: loc.lng });
+                        drawUserToLocationRoute(lastPosition, {
+                            lat: loc.lat,
+                            lng: loc.lng
+                        });
                     } else if (isGpsLoading) {
                         // Show premium loading SweetAlert and wait for location to load
                         Swal.fire({
@@ -854,7 +861,10 @@
                                 clearInterval(checkInterval);
                                 Swal.close();
                                 closeSheet();
-                                drawUserToLocationRoute(lastPosition, { lat: loc.lat, lng: loc.lng });
+                                drawUserToLocationRoute(lastPosition, {
+                                    lat: loc.lat,
+                                    lng: loc.lng
+                                });
                             } else if (!isGpsLoading || checkCount >= 16) {
                                 // Timeout or error occurred
                                 clearInterval(checkInterval);
@@ -911,9 +921,12 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
                     },
-                    body: JSON.stringify({ coordinates: coords })
+                    body: JSON.stringify({
+                        coordinates: coords
+                    })
                 });
 
                 const contentType = response.headers.get('content-type') || '';
@@ -959,7 +972,10 @@
             }
 
             // Fallback straight line
-            const polyline = L.polyline([[fromLoc.lat, fromLoc.lng], [toLoc.lat, toLoc.lng]], {
+            const polyline = L.polyline([
+                [fromLoc.lat, fromLoc.lng],
+                [toLoc.lat, toLoc.lng]
+            ], {
                 color: '#1E5128',
                 weight: 4.5,
                 dashArray: '6, 8',
@@ -967,7 +983,9 @@
             });
             userRouteLayer = L.layerGroup([polyline]);
             userRouteLayer.addTo(map);
-            map.fitBounds(polyline.getBounds(), { padding: [60, 60] });
+            map.fitBounds(polyline.getBounds(), {
+                padding: [60, 60]
+            });
         }
 
         async function drawMultiStopRoute(coords) {
@@ -982,9 +1000,12 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
                     },
-                    body: JSON.stringify({ coordinates: coords })
+                    body: JSON.stringify({
+                        coordinates: coords
+                    })
                 });
 
                 const contentType = response.headers.get('content-type') || '';
@@ -1039,7 +1060,9 @@
             });
             userRouteLayer = L.layerGroup([polyline]);
             userRouteLayer.addTo(map);
-            map.fitBounds(polyline.getBounds(), { padding: [60, 60] });
+            map.fitBounds(polyline.getBounds(), {
+                padding: [60, 60]
+            });
         }
     </script>
 @endpush

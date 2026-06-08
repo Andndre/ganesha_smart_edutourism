@@ -4,7 +4,7 @@
     <div class="mb-4 flex items-center justify-between">
         <h3 class="text-charcoal text-lg font-bold">Pilih Tanggal Kunjungan</h3>
         <button type="button" @click="isOpen = false"
-            class="flex items-center justify-center h-8 w-8 rounded-full bg-gray-50 text-gray-400 hover:text-gray-600 active:scale-95 transition-all md:hidden"
+            class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:text-gray-600 active:scale-95 md:hidden"
             title="Tutup">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -15,14 +15,15 @@
     <!-- Calendar Controller -->
     <div class="mb-4 flex items-center justify-between rounded-xl bg-gray-50 p-2">
         <button type="button" @click="prevMonth()" :disabled="isPrevMonthDisabled()"
-            class="flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 hover:bg-white hover:shadow-xs disabled:opacity-30">
+            class="hover:shadow-xs flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 hover:bg-white disabled:opacity-30">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
         </button>
-        <span class="text-charcoal text-sm font-bold uppercase tracking-wider" x-text="currentMonthName + ' ' + currentYear"></span>
+        <span class="text-charcoal text-sm font-bold uppercase tracking-wider"
+            x-text="currentMonthName + ' ' + currentYear"></span>
         <button type="button" @click="nextMonth()"
-            class="flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 hover:bg-white hover:shadow-xs">
+            class="hover:shadow-xs flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 hover:bg-white">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
@@ -43,22 +44,23 @@
     <!-- Calendar Grid -->
     <div class="grid grid-cols-7 gap-1 text-center text-sm font-medium">
         <template x-for="day in calendarDays">
-            <div class="aspect-square flex items-center justify-center p-0.5">
+            <div class="flex aspect-square items-center justify-center p-0.5">
                 <!-- Empty/Previous/Next Month Cells -->
                 <template x-if="!day.isCurrentMonth">
-                    <span class="text-gray-300 w-full h-full flex items-center justify-center text-xs" x-text="day.dayNum"></span>
+                    <span class="flex h-full w-full items-center justify-center text-xs text-gray-300"
+                        x-text="day.dayNum"></span>
                 </template>
-                
+
                 <!-- Current Month Date Selection -->
                 <template x-if="day.isCurrentMonth">
-                    <button type="button" 
-                        @click="if(!day.disabled) { selectedDate = day.value; isOpen = false; }"
+                    <button type="button" @click="if(!day.disabled) { selectedDate = day.value; isOpen = false; }"
                         :disabled="day.disabled"
-                        class="relative w-full h-full rounded-full flex flex-col items-center justify-center text-xs font-bold transition-all"
+                        class="relative flex h-full w-full flex-col items-center justify-center rounded-full text-xs font-bold transition-all"
                         :class="{
                             'bg-primary text-white shadow-md shadow-primary/30': selectedDate === day.value,
                             'text-gray-300 cursor-not-allowed line-through': day.disabled,
-                            'text-charcoal hover:bg-green-50 hover:text-primary': selectedDate !== day.value && !day.disabled
+                            'text-charcoal hover:bg-green-50 hover:text-primary': selectedDate !== day.value && !day
+                                .disabled
                         }">
                         <span x-text="day.dayNum"></span>
                     </button>
@@ -66,10 +68,10 @@
             </div>
         </template>
     </div>
-    
-    <div class="mt-6 border-t border-gray-100 pt-4 flex justify-between items-center text-xs text-gray-500">
+
+    <div class="mt-6 flex items-center justify-between border-t border-gray-100 pt-4 text-xs text-gray-500">
         <span class="flex items-center gap-1.5">
-            <span class="h-2 w-2 rounded-full bg-primary"></span> Terpilih
+            <span class="bg-primary h-2 w-2 rounded-full"></span> Terpilih
         </span>
         <span class="flex items-center gap-1.5">
             <span class="h-2 w-2 rounded-full bg-gray-200"></span> Tidak Tersedia

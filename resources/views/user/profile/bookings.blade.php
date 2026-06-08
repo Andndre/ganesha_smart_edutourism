@@ -7,11 +7,11 @@
         <!-- Status Filter -->
         <div class="no-scrollbar mb-6 flex gap-2 overflow-x-auto">
             <a href="{{ route('bookings', ['filter' => 'semua']) }}"
-                class="{{ (!isset($filter) || $filter === 'semua') ? 'bg-primary font-bold text-white border-primary' : 'border-gray-200 bg-white font-medium text-gray-500 hover:bg-gray-50' }} whitespace-nowrap rounded-full border px-4 py-2 text-sm transition-colors">Semua</a>
+                class="{{ !isset($filter) || $filter === 'semua' ? 'bg-primary font-bold text-white border-primary' : 'border-gray-200 bg-white font-medium text-gray-500 hover:bg-gray-50' }} whitespace-nowrap rounded-full border px-4 py-2 text-sm transition-colors">Semua</a>
             <a href="{{ route('bookings', ['filter' => 'aktif']) }}"
-                class="{{ (isset($filter) && $filter === 'aktif') ? 'bg-primary font-bold text-white border-primary' : 'border-gray-200 bg-white font-medium text-gray-500 hover:bg-gray-50' }} whitespace-nowrap rounded-full border px-4 py-2 text-sm transition-colors">Aktif</a>
+                class="{{ isset($filter) && $filter === 'aktif' ? 'bg-primary font-bold text-white border-primary' : 'border-gray-200 bg-white font-medium text-gray-500 hover:bg-gray-50' }} whitespace-nowrap rounded-full border px-4 py-2 text-sm transition-colors">Aktif</a>
             <a href="{{ route('bookings', ['filter' => 'selesai']) }}"
-                class="{{ (isset($filter) && $filter === 'selesai') ? 'bg-primary font-bold text-white border-primary' : 'border-gray-200 bg-white font-medium text-gray-500 hover:bg-gray-50' }} whitespace-nowrap rounded-full border px-4 py-2 text-sm transition-colors">Selesai</a>
+                class="{{ isset($filter) && $filter === 'selesai' ? 'bg-primary font-bold text-white border-primary' : 'border-gray-200 bg-white font-medium text-gray-500 hover:bg-gray-50' }} whitespace-nowrap rounded-full border px-4 py-2 text-sm transition-colors">Selesai</a>
         </div>
 
         <div class="space-y-4">
@@ -64,7 +64,8 @@
                             <div>
                                 <p class="mb-0.5 text-xs text-gray-500">Tanggal</p>
                                 <p class="text-charcoal font-medium">
-                                    {{ \Carbon\Carbon::parse($reservation->scheduled_date)->translatedFormat('d M Y') }}</p>
+                                    {{ \Carbon\Carbon::parse($reservation->scheduled_date)->translatedFormat('d M Y') }}
+                                </p>
                             </div>
                             <div>
                                 <p class="mb-0.5 text-xs text-gray-500">Waktu</p>
@@ -129,11 +130,13 @@
 
 @push('modals')
     <!-- QR Code Modal -->
-    <div x-data="{ qrUrl: '', ticketName: '' }" @open-ticket-modal.window="qrUrl = $event.detail.qrUrl; ticketName = $event.detail.ticketName">
+    <div x-data="{ qrUrl: '', ticketName: '' }"
+        @open-ticket-modal.window="qrUrl = $event.detail.qrUrl; ticketName = $event.detail.ticketName">
         <x-modal name="ticket-modal" maxWidth="sm">
             <div class="text-center">
                 <h3 class="text-charcoal mb-1 text-xl font-bold" x-text="ticketName"></h3>
-                <p class="mb-6 text-sm text-gray-500">Tunjukkan QR Code ini kepada petugas tiket saat Anda tiba di lokasi wisata.</p>
+                <p class="mb-6 text-sm text-gray-500">Tunjukkan QR Code ini kepada petugas tiket saat Anda tiba di lokasi
+                    wisata.</p>
 
                 <div class="mb-6 flex justify-center rounded-2xl border border-gray-100 bg-gray-50 p-4 shadow-inner">
                     <img :src="qrUrl" alt="QR Code" class="h-48 w-48 rounded-lg">

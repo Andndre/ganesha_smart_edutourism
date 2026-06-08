@@ -187,7 +187,9 @@
         </div>
 
         <h1>{{ __('Anda Sedang Luring') }}</h1>
-        <p class="desc">{{ __('Koneksi internet terputus. Jangan khawatir, Anda masih bisa menggunakan beberapa fitur penting desa yang telah disimpan di perangkat Anda.') }}</p>
+        <p class="desc">
+            {{ __('Koneksi internet terputus. Jangan khawatir, Anda masih bisa menggunakan beberapa fitur penting desa yang telah disimpan di perangkat Anda.') }}
+        </p>
 
         <button onclick="window.location.reload()" class="btn">{{ __('Coba Muat Ulang') }}</button>
 

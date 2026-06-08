@@ -1,5 +1,6 @@
 <!-- Sticky Bottom Payment Bar -->
-<div class="fixed inset-x-0 bottom-0 z-30 border-t border-gray-100 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+<div
+    class="fixed inset-x-0 bottom-0 z-30 border-t border-gray-100 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
     <div class="mb-3 flex items-center justify-between px-1">
         <span class="text-sm font-medium text-gray-500">Total Harga</span>
         <span class="text-primary text-lg font-bold">Rp <span x-text="formattedTotal"></span></span>
