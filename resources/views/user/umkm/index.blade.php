@@ -105,7 +105,7 @@
             <!-- Sticky Bottom Bar for Button -->
             <div class="fixed {{ $hasActiveSession ? 'mb-18' : '' }} bottom-[calc(env(safe-area-inset-bottom)+4rem)] left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-200 px-4 pt-4 pb-8 z-40 transition-all">
                 <!-- Selected Categories Pills Container -->
-                <div id="selected-categories-pills" class="flex flex-row flex-nowrap gap-2 mb-3 overflow-x-auto hidden no-scrollbar pb-1">
+                <div id="selected-categories-pills" class="flex-row flex-nowrap gap-2 mb-3 overflow-x-auto hidden no-scrollbar pb-1">
                     <!-- Dynamic pills will be injected here -->
                 </div>
 
@@ -147,8 +147,8 @@
     <!-- Category Detail Modal -->
     <x-modal name="category-detail" maxWidth="sm">
         <!-- Close Button (Mobile only, desktop has close button in x-modal) -->
-        <button type="button" onclick="closeCategoryModal()" class="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm text-gray-500 shadow-sm border border-gray-100 hover:bg-gray-100 transition-colors md:hidden">
-            <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <button type="button" onclick="closeCategoryModal()" class="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:text-gray-600 active:scale-95 transition-all md:hidden" title="Tutup">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
         </button>

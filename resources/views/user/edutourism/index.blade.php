@@ -83,7 +83,13 @@
         <div class="space-y-4">
             <div class="flex items-center justify-between">
                 <span class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-600">Smart Edutourism</span>
-                <button type="button" @click="isOpen = false" class="text-xs font-bold text-gray-400 hover:text-gray-600 md:hidden">Tutup</button>
+                <button type="button" @click="isOpen = false"
+                    class="flex items-center justify-center h-8 w-8 rounded-full bg-gray-50 text-gray-400 hover:text-gray-600 active:scale-95 transition-all md:hidden"
+                    title="Tutup">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
             
             <h3 id="preview-title" class="font-display text-charcoal text-xl font-black leading-snug tracking-tight">Memuat...</h3>

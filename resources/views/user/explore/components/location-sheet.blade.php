@@ -83,7 +83,8 @@
             </div>
             <!-- Custom close button for mobile (desktop close button is handled by x-modal template) -->
             <button type="button" onclick="closeSheet()"
-                class="hover:text-charcoal -mr-2 rounded-full bg-gray-50 p-2 text-gray-400 active:scale-95 transition-all md:hidden">
+                class="flex items-center justify-center h-8 w-8 rounded-full bg-gray-50 text-gray-400 hover:text-gray-600 active:scale-95 transition-all md:hidden"
+                title="Tutup">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
