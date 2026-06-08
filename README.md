@@ -1,58 +1,107 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<div align="center">
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Ganesha Smart Edutourism
 
-## About Laravel
+**Desa Wisata Penglipuran - Smart Sustainable Edutourism App**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<br>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+![Laravel](https://img.shields.io/badge/Laravel-v13-FF2D20?style=flat-square&logo=laravel&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-v8.3-777BB4?style=flat-square&logo=php&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+</div>
 
-## Learning Laravel
+## Overview
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Ganesha Smart Edutourism is a smart sustainable edutourism web application designed specifically for **Desa Wisata Penglipuran**. The application adopts a **"Super App / Modular Grid-Based Utility"** design philosophy (inspired by Grab/Gojek) to provide an outdoor mobile-first experience. It is built to be fast, neat, and highly functional, serving as a versatile tool rather than just a digital brochure.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Features
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+- **Mobile-First Super App Interface**: Features a Bento-Grid menu for instant access to specific tools (Maps, UMKM, AR Camera).
+- **AR Camera Module**: An integrated glassmorphism HUD that provides interactive experiences over the camera viewfinder.
+- **Interactive Maps & Bottom Sheets**: Google Maps-style interaction pattern with progressive disclosure for points of interest.
+- **High Accessibility & Anti-Fatigue UI**: Optimized for outdoor readability under direct sunlight, featuring a clean off-white background, high contrast typography, and minimum 44px tap targets.
+- **Rich Digital Storytelling**: Uses TipTap editor for managing elegant cultural narrative descriptions.
+- **Integrated Payments**: Support for transactions via Midtrans.
 
-## Agentic Development
+## Architecture & Technology Stack
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+- **Backend**: Laravel framework (v13) utilizing PHP 8.3/8.4
+- **Frontend**: Vite, TailwindCSS (v4)
+- **Database**: SQLite (default for development)
+- **Other Integrations**:
+  - Laravel IDE Helper
+  - Pail & Pint for code formatting and debugging
+  - Cloudflared tunnel for sharing local server
+  - TipTap (ES Modules) for rich text editing
+
+## Getting Started
+
+### Prerequisites
+
+Ensure you have the following installed:
+- PHP >= 8.3
+- Composer
+- Node.js & npm
+- SQLite extension enabled
+
+### Installation
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone git@github.com:Andndre/ganesha_smart_edutourism.git
+   cd ganesha_smart_edutourism
+   ```
+
+2. **Run setup script (via Composer):**
+
+   This project includes a convenient setup script defined in `composer.json` which will install dependencies, create the environment file, generate the app key, run migrations, and build frontend assets.
+
+   ```bash
+   composer setup
+   ```
+
+### Development
+
+To start the local development server (which concurrently runs Laravel server, queue listener, log tailing, and Vite dev server):
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer dev
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### Testing
+
+To run the test suite:
+
+```bash
+composer test
+```
+
+## Design Philosophy
+
+The UI/UX is deeply rooted in efficiency and progressive disclosure. 
+
+- **Color Palette**: 
+  - **Penglipuran Green** (`#1E5128`) for primary CTAs.
+  - **Bali Gold** (`#D4AF37`) for accents and premium labels.
+- **Typography**: 
+  - **Plus Jakarta Sans / Inter** for high legibility in small UI elements.
+  - **Playfair Display** strictly for cultural storytelling and headlines.
+- **Haptic Feedback**: Core actions trigger short vibrations to provide physical confirmation in potentially noisy outdoor environments.
+
+For a complete breakdown of the design system, refer to the `DESIGN.md` file in the root directory.
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Please review the existing code conventions. 
+Code should be formatted using Laravel Pint before committing:
+```bash
+vendor/bin/pint --dirty --format agent
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is licensed under the MIT License.
