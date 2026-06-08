@@ -8,9 +8,8 @@
 @endpush
 
 @section('content')
-    <div x-data="publicEvents" 
-        @open-detail-modal.window="openDetail($event.detail)" 
-        class="px-4 py-6 max-w-lg mx-auto md:max-w-4xl space-y-6">
+    <div x-data="publicEvents" @open-detail-modal.window="openDetail($event.detail)"
+        class="mx-auto max-w-lg space-y-6 px-4 py-6 md:max-w-4xl">
 
         @include('user.events.partials.events-header')
 
@@ -61,9 +60,14 @@
                 },
 
                 formatDateCard(dateStr) {
-                    if (!dateStr) return { month: 'JAN', day: '01' };
+                    if (!dateStr) return {
+                        month: 'JAN',
+                        day: '01'
+                    };
                     const d = new Date(dateStr);
-                    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGS', 'SEP', 'OKT', 'NOV', 'DES'];
+                    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGS', 'SEP',
+                        'OKT', 'NOV', 'DES'
+                    ];
                     return {
                         month: months[d.getMonth()],
                         day: String(d.getDate()).padStart(2, '0')
@@ -74,7 +78,9 @@
                     if (!dateStr) return '';
                     const d = new Date(dateStr);
                     const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-                    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli',
+                        'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                    ];
                     return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
                 },
 

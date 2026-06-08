@@ -6,8 +6,10 @@
     <div class="px-4 pb-24 pt-[calc(env(safe-area-inset-top)+6rem)]">
 
         @if (session('success'))
-            <div class="mb-4 rounded-2xl bg-green-50 p-4 border border-green-100 text-sm text-green-700 flex items-center gap-2">
-                <svg class="h-5 w-5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <div
+                class="mb-4 flex items-center gap-2 rounded-2xl border border-green-100 bg-green-50 p-4 text-sm text-green-700">
+                <svg class="h-5 w-5 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>{{ session('success') }}</span>
@@ -25,7 +27,9 @@
             </div>
             <div>
                 <h2 class="text-charcoal text-xl font-bold">{{ Auth::user()->name }}</h2>
-                <p class="text-sm text-gray-500">{{ str(Auth::user()->email)->before('@')->substr(0, 2)->append('***@')->append(str(Auth::user()->email)->after('@')) }}</p>
+                <p class="text-sm text-gray-500">
+                    {{ str(Auth::user()->email)->before('@')->substr(0, 2)->append('***@')->append(str(Auth::user()->email)->after('@')) }}
+                </p>
                 <div class="mt-1 flex items-center gap-1">
                     <span class="h-2 w-2 rounded-full bg-green-500"></span>
                     <span class="text-xs font-semibold text-green-600">Akun Terverifikasi</span>
@@ -34,7 +38,9 @@
         </div>
 
         @php
-            $latestActiveBooking = auth()->user()->reservations()
+            $latestActiveBooking = auth()
+                ->user()
+                ->reservations()
                 ->where('status', 'confirmed')
                 ->with('tourPackage')
                 ->latest()
@@ -45,7 +51,7 @@
 
         @if ($latestActiveBooking)
             <!-- Active Ticket Card -->
-            <div class="bg-primary shadow-primary/20 mb-8 rounded-3xl p-1 shadow-lg transition-transform active:scale-[0.98] cursor-pointer"
+            <div class="bg-primary shadow-primary/20 mb-8 cursor-pointer rounded-3xl p-1 shadow-lg transition-transform active:scale-[0.98]"
                 onclick="openQrModal('{{ $latestActiveBooking->qr_code }}', '{{ addslashes($latestActiveBooking->tourPackage->name ?? 'Paket Wisata') }}', '{{ $latestActiveBooking->payment_reference }}')">
                 <div class="border-primary/20 relative overflow-hidden rounded-[1.35rem] border bg-white">
 
@@ -53,23 +59,31 @@
                     <div class="relative z-10 border-b-2 border-dashed border-gray-200 p-5">
                         <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                             <span
-                                class="text-primary self-start rounded-lg border border-green-100 bg-green-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider">Tour Package</span>
-                            <span class="text-xs font-bold text-gray-400 truncate">ID: {{ $latestActiveBooking->payment_reference }}</span>
+                                class="text-primary self-start rounded-lg border border-green-100 bg-green-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider">Tour
+                                Package</span>
+                            <span class="truncate text-xs font-bold text-gray-400">ID:
+                                {{ $latestActiveBooking->payment_reference }}</span>
                         </div>
-                        <h3 class="text-charcoal mb-4 text-lg font-bold">{{ $latestActiveBooking->tourPackage->name ?? 'Paket Wisata' }}</h3>
+                        <h3 class="text-charcoal mb-4 text-lg font-bold">
+                            {{ $latestActiveBooking->tourPackage->name ?? 'Paket Wisata' }}</h3>
 
                         <div class="grid grid-cols-2 gap-x-2 gap-y-4">
                             <div>
                                 <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Tanggal</div>
-                                <div class="text-charcoal text-sm font-bold">{{ \Carbon\Carbon::parse($latestActiveBooking->scheduled_date)->translatedFormat('d M Y') }}</div>
+                                <div class="text-charcoal text-sm font-bold">
+                                    {{ \Carbon\Carbon::parse($latestActiveBooking->scheduled_date)->translatedFormat('d M Y') }}
+                                </div>
                             </div>
                             <div>
                                 <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Jam</div>
-                                <div class="text-charcoal text-sm font-bold">{{ \Carbon\Carbon::parse($latestActiveBooking->scheduled_time)->format('H:i') }} WITA</div>
+                                <div class="text-charcoal text-sm font-bold">
+                                    {{ \Carbon\Carbon::parse($latestActiveBooking->scheduled_time)->format('H:i') }} WITA
+                                </div>
                             </div>
                             <div>
                                 <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Peserta</div>
-                                <div class="text-charcoal text-sm font-bold">{{ $latestActiveBooking->party_size }} Orang</div>
+                                <div class="text-charcoal text-sm font-bold">{{ $latestActiveBooking->party_size }} Orang
+                                </div>
                             </div>
                             <div>
                                 <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Status</div>
@@ -113,7 +127,8 @@
                     </svg>
                 </div>
                 <h4 class="text-charcoal mb-1 text-sm font-bold">Belum Ada Tiket Aktif</h4>
-                <p class="mb-4 text-xs text-gray-500">Pesan tiket atau paket wisata menarik untuk memulai perjalanan edukasi Anda.</p>
+                <p class="mb-4 text-xs text-gray-500">Pesan tiket atau paket wisata menarik untuk memulai perjalanan edukasi
+                    Anda.</p>
                 <a href="{{ route('tour-packages') }}"
                     class="bg-primary/10 text-primary active:bg-primary/20 inline-block rounded-xl px-4 py-2 text-xs font-bold transition-all">
                     Beli Tiket Sekarang
@@ -126,9 +141,9 @@
         <div class="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
             @if (Auth::user()->isUmkmOwner())
                 <a href="{{ route('owner.dashboard') }}"
-                    class="flex items-center justify-between border-b border-gray-50 p-4 active:bg-gray-50 bg-primary/5 hover:bg-primary/10 transition-colors">
+                    class="bg-primary/5 hover:bg-primary/10 flex items-center justify-between border-b border-gray-50 p-4 transition-colors active:bg-gray-50">
                     <div class="flex items-center gap-3">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary">
+                        <div class="bg-primary/20 text-primary flex h-8 w-8 items-center justify-center rounded-full">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
@@ -136,7 +151,7 @@
                         </div>
                         <span class="text-charcoal text-sm font-semibold">Panel Pemilik UMKM</span>
                     </div>
-                    <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="text-primary h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                 </a>
@@ -158,7 +173,8 @@
                 </svg>
             </a>
 
-            <a href="{{ route('bookings') }}" class="flex items-center justify-between border-b border-gray-50 p-4 active:bg-gray-50">
+            <a href="{{ route('bookings') }}"
+                class="flex items-center justify-between border-b border-gray-50 p-4 active:bg-gray-50">
                 <div class="flex items-center gap-3">
                     <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-blue-600">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -229,14 +245,16 @@
 
             <div class="flex justify-center p-8">
                 <!-- Dynamic QR Code Image -->
-                <div class="relative aspect-square w-full rounded-2xl border-8 border-white bg-white shadow-[0_0_15px_rgba(0,0,0,0.1)] flex items-center justify-center p-4">
+                <div
+                    class="relative flex aspect-square w-full items-center justify-center rounded-2xl border-8 border-white bg-white p-4 shadow-[0_0_15px_rgba(0,0,0,0.1)]">
                     <img id="qr-modal-image" src="" alt="QR Code" class="h-48 w-48 rounded-lg">
                 </div>
             </div>
 
             <div class="border-t border-gray-100 bg-gray-50 p-6 text-center">
                 <div class="mb-1 text-xs font-bold uppercase tracking-wider text-gray-500">ID Pemesanan</div>
-                <div class="text-charcoal font-mono text-lg font-bold tracking-widest" id="qr-modal-order-id">GPN-2026815</div>
+                <div class="text-charcoal font-mono text-lg font-bold tracking-widest" id="qr-modal-order-id">GPN-2026815
+                </div>
             </div>
         </div>
     </div>
@@ -251,7 +269,8 @@
             // Set dynamic contents
             document.getElementById('qr-modal-title').textContent = ticketName;
             document.getElementById('qr-modal-order-id').textContent = orderId;
-            document.getElementById('qr-modal-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrCode)}`;
+            document.getElementById('qr-modal-image').src =
+                `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrCode)}`;
 
             modal.classList.remove('opacity-0', 'pointer-events-none');
             modal.classList.add('opacity-100', 'pointer-events-auto');

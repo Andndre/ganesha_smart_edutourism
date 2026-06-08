@@ -3,7 +3,8 @@
 @section('header_title', 'Storytelling')
 
 @section('content')
-    <article class="bg-surface {{ ($object->ar_marker_id || $object->model_3d_path) ? ((isset($activeEdutourismSession) && !Route::is('edutourism.active')) ? 'pb-52' : 'pb-32') : 'pb-10' }}">
+    <article
+        class="bg-surface {{ $object->ar_marker_id || $object->model_3d_path ? (isset($activeEdutourismSession) && !Route::is('edutourism.active') ? 'pb-52' : 'pb-32') : 'pb-10' }}">
         <!-- Hero Image Area / Carousel -->
         <div class="relative h-[40dvh] w-full overflow-hidden bg-gray-200" x-data="{
             currentIndex: 0,
@@ -187,27 +188,28 @@
         </div>
 
         @if ($object->stories->isNotEmpty())
-            <div class="mt-10 border-t border-gray-100 pt-8 max-w-none px-6">
-                <h2 class="font-playfair text-charcoal text-xl font-bold mb-1">Storytelling & Warisan Budaya</h2>
-                <p class="text-xs text-gray-500 mb-8">Mendalami nilai sejarah, makna filosofi, dan kearifan lokal objek budaya ini.</p>
-                
+            <div class="mt-10 max-w-none border-t border-gray-100 px-6 pt-8">
+                <h2 class="font-playfair text-charcoal mb-1 text-xl font-bold">Storytelling & Warisan Budaya</h2>
+                <p class="mb-8 text-xs text-gray-500">Mendalami nilai sejarah, makna filosofi, dan kearifan lokal objek
+                    budaya ini.</p>
+
                 @php
                     $groupedStories = $object->stories->groupBy('story_type');
                     $categories = [
                         'history' => [
                             'title' => 'Sejarah & Asal-Usul',
                             'color' => 'bg-amber-500 border-amber-200 text-amber-500',
-                            'border' => 'border-amber-500 text-amber-700'
+                            'border' => 'border-amber-500 text-amber-700',
                         ],
                         'philosophy' => [
                             'title' => 'Makna Filosofi',
                             'color' => 'bg-emerald-500 border-emerald-200 text-emerald-500',
-                            'border' => 'border-emerald-500 text-emerald-700'
+                            'border' => 'border-emerald-500 text-emerald-700',
                         ],
                         'value' => [
                             'title' => 'Nilai-Nilai Luhur',
                             'color' => 'bg-blue-500 border-blue-200 text-blue-500',
-                            'border' => 'border-blue-500 text-blue-700'
+                            'border' => 'border-blue-500 text-blue-700',
                         ],
                     ];
                 @endphp
@@ -216,26 +218,31 @@
                     @foreach ($categories as $type => $config)
                         @if (isset($groupedStories[$type]) && $groupedStories[$type]->isNotEmpty())
                             <div class="space-y-4">
-                                <h3 class="text-xs font-bold uppercase tracking-wider border-l-4 pl-2.5 {{ $config['border'] }}">
+                                <h3
+                                    class="{{ $config['border'] }} border-l-4 pl-2.5 text-xs font-bold uppercase tracking-wider">
                                     {{ $config['title'] }}
                                 </h3>
-                                
+
                                 <!-- Timeline Container for this category -->
-                                <div class="relative border-l-2 border-gray-100 ml-3.5 pl-6 space-y-5">
+                                <div class="relative ml-3.5 space-y-5 border-l-2 border-gray-100 pl-6">
                                     @foreach ($groupedStories[$type] as $story)
                                         <!-- Timeline Item -->
-                                        <div class="relative group">
+                                        <div class="group relative">
                                             <!-- Timeline Dot -->
-                                            <div class="absolute -left-[31px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white border-2 {{ $config['color'] }} transition-all duration-300 group-hover:scale-125">
+                                            <div
+                                                class="{{ $config['color'] }} absolute -left-[31px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full border-2 bg-white transition-all duration-300 group-hover:scale-125">
                                                 <div class="h-1.5 w-1.5 rounded-full bg-current"></div>
                                             </div>
-                                            
+
                                             <!-- Card -->
-                                            <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-2xs transition-all duration-300 hover:shadow-xs hover:border-gray-200">
-                                                <h4 class="font-playfair text-charcoal text-base font-bold leading-tight group-hover:text-primary transition-colors duration-300 mb-2">
+                                            <div
+                                                class="shadow-2xs hover:shadow-xs rounded-xl border border-gray-100 bg-white p-4 transition-all duration-300 hover:border-gray-200">
+                                                <h4
+                                                    class="font-playfair text-charcoal group-hover:text-primary mb-2 text-base font-bold leading-tight transition-colors duration-300">
                                                     {{ $story->title }}
                                                 </h4>
-                                                <div class="story-content-prose text-xs leading-relaxed text-gray-600 whitespace-normal">
+                                                <div
+                                                    class="story-content-prose whitespace-normal text-xs leading-relaxed text-gray-600">
                                                     {!! $story->content !!}
                                                 </div>
                                             </div>
@@ -251,7 +258,8 @@
 
         <!-- AR Button -->
         @if ($object->ar_marker_id || $object->model_3d_path)
-            <div class="fixed inset-x-0 z-30 border-t border-gray-100 bg-white p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] {{ (isset($activeEdutourismSession) && !Route::is('edutourism.active')) ? 'bottom-[88px] pb-4' : 'bottom-0 pb-[calc(1rem+env(safe-area-inset-bottom))]' }}">
+            <div
+                class="{{ isset($activeEdutourismSession) && !Route::is('edutourism.active') ? 'bottom-[88px] pb-4' : 'bottom-0 pb-[calc(1rem+env(safe-area-inset-bottom))]' }} fixed inset-x-0 z-30 border-t border-gray-100 bg-white p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
                 <a href="{{ route('ar-scan') }}"
                     class="bg-primary flex w-full items-center justify-center gap-2 rounded-xl py-4 font-bold text-white shadow-[0_4px_14px_rgba(30,81,40,0.3)] transition-all active:scale-[0.98]">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -281,30 +289,40 @@
         }
 
         /* Custom typography styling for rich text stories and main body */
-        .story-content-prose ul, .prose ul {
+        .story-content-prose ul,
+        .prose ul {
             list-style-type: disc !important;
             padding-left: 1.5rem !important;
             margin-top: 0.5rem !important;
             margin-bottom: 0.5rem !important;
         }
-        .story-content-prose ol, .prose ol {
+
+        .story-content-prose ol,
+        .prose ol {
             list-style-type: decimal !important;
             padding-left: 1.5rem !important;
             margin-top: 0.5rem !important;
             margin-bottom: 0.5rem !important;
         }
-        .story-content-prose li, .prose li {
+
+        .story-content-prose li,
+        .prose li {
             margin-bottom: 0.35rem !important;
             line-height: 1.6 !important;
         }
-        .story-content-prose p, .prose p {
+
+        .story-content-prose p,
+        .prose p {
             margin-bottom: 0.75rem !important;
             line-height: 1.6 !important;
         }
+
         .story-content-prose p:last-child {
             margin-bottom: 0 !important;
         }
-        .story-content-prose img, .prose img {
+
+        .story-content-prose img,
+        .prose img {
             max-width: 100% !important;
             height: auto !important;
             border-radius: 0.75rem !important;
