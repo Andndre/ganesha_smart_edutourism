@@ -25,18 +25,22 @@
             z-index: 1 !important;
         }
 
-        /* Hide html5-qrcode internal scanning region UI */
+        /* Hide html5-qrcode internal scanning region UI visually,
+           but keep elements functional for frame processing */
         #reader__scan_region {
             min-height: 100vh !important;
         }
 
-        #reader__scan_region > canvas,
-        #reader__scan_region > img {
-            display: none !important;
+        #reader__scan_region>canvas,
+        #reader__scan_region>img {
+            opacity: 0 !important;
+            position: absolute !important;
+            pointer-events: none !important;
         }
 
         #qr-shaded-region {
-            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
         }
 
         /* Model Viewer Styles */
@@ -225,21 +229,23 @@
                 return;
             }
 
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
             const config = {
                 fps: 10,
                 qrbox: function(viewfinderWidth, viewfinderHeight) {
                     const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
                     const size = Math.floor(minEdge * 0.7);
-                    return { width: size, height: size };
-                },
-                aspectRatio: 1.0,
-                videoConstraints: {
-                    facingMode: { ideal: "environment" },
-                    width: { min: 640, ideal: 1280 },
-                    height: { min: 480, ideal: 720 }
+                    return {
+                        width: size,
+                        height: size
+                    };
                 },
                 experimentalFeatures: {
-                    useBarCodeDetectorIfSupported: true
+                    // Native BarcodeDetector causes black screen on Android Chrome,
+                    // but works well on iOS (WebKit engine)
+                    useBarCodeDetectorIfSupported: isIOS
                 }
             };
 
