@@ -12,6 +12,7 @@
 /.phpunit.cache
 /.vscode/*
 !/.vscode/settings.json
+!/.vscode/extensions.json
 /.zed
 /auth.json
 /node_modules

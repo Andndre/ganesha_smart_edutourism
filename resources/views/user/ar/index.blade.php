@@ -26,7 +26,7 @@
         }
 
         /* Hide html5-qrcode internal scanning region UI visually,
-           but keep elements functional for frame processing */
+               but keep elements functional for frame processing */
         #reader__scan_region {
             min-height: 100vh !important;
         }
