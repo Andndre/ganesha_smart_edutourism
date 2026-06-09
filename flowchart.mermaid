@@ -3,63 +3,79 @@ flowchart TD
     classDef startEnd fill:#1b5e20,stroke:#fff,stroke-width:2px,color:#fff;
     classDef process fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px,color:#000;
     classDef decision fill:#fff3e0,stroke:#e65100,stroke-width:1px,color:#000;
+    classDef actor fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000;
 
-    Start([Mulai: Buka Aplikasi Wisata]):::startEnd --> PusatInfo[Smart Tourism Information Center]:::process
+    Start([Mulai: Buka Aplikasi Wisata]):::startEnd --> Auth{Pilih Akses}:::decision
+    Auth -->|Login / Register| UserDashboard[User / Profile Dashboard]:::process
+    Auth -->|Guest Access| GuestPanel[Guest Mode / Offline Mode]:::process
 
-    %% ================= FASE 1 =================
+    UserDashboard --> PusatInfo[Smart Tourism Information Center]:::process
+    GuestPanel --> PusatInfo
+
+    %% ================= FASE 1: PRE-VISIT =================
     subgraph Fase1 ["Fase 1: Persiapan & Pemesanan Tiket (Pre-Visit)"]
         direction TB
         PusatInfo --> CekEvent[Lihat Event & Cultural Calendar]:::process
-        CekEvent --> PesanTiket{Pilih Cara Pesan Tour?}:::decision
+        PusatInfo --> Explore[Eksplorasi Desa & Fasilitas]:::process
         
-        PesanTiket -->|Pilih Paket Jadi| Reservasi[Online Reservation System]:::process
-        PesanTiket -->|Rancang Rute Sendiri| CustomTour[Custom Tour Builder]:::process
+        CekEvent --> PesanTiket{Pilih Cara Pesan?}:::decision
+        Explore --> PesanTiket
         
-        Reservasi --> Jadwal[Smart Scheduling System \n Rekomendasi Waktu]:::process
-        CustomTour --> Jadwal
+        PesanTiket -->|Paket Tour| Reservasi[Pilih & Booking Tour Package]:::process
+        PesanTiket -->|Walk-in| WalkIn["Beli di Staff Ticketing (On-site)"]:::process
         
-        Jadwal --> BayarTiket[Digital Payment \n Pembayaran Tiket/Paket]:::process
-        BayarTiket --> TiketDigital[Terima Digital Ticketing \n QR Code Masuk]:::process
+        Reservasi --> BayarTiket[Digital Payment via Midtrans]:::process
+        BayarTiket --> TiketDigital[Terima E-Ticket & QR Code]:::process
     end
 
-    TiketDigital --> TibaLokasi([Scan QR: Tiba di Desa Penglipuran]):::startEnd
-
-    %% ================= FASE 2 =================
-    subgraph Fase2 ["Fase 2: Navigasi, Edukasi & Budaya (On-Site)"]
+    %% ================= FASE 2: ARRIVAL =================
+    subgraph Fase2 ["Fase 2: Kedatangan & Check-In"]
         direction TB
-        TibaLokasi --> BukaPeta[Buka Interactive Digital Map]:::process
-        
-        %% Peta Digital Sub-features
-        BukaPeta -.-> CekKepadatan[Cek Crowd Density Heatmap]:::process
-        BukaPeta -.-> CekAkses[Cek Accessibility & Emergency Route]:::process
-        
-        BukaPeta --> IkutiRute[Ikuti Smart Edu-Tourism Route]:::process
-        
-        IkutiRute --> TibaDiObjek{Tiba di Titik Objek Wisata}:::decision
-        
-        %% Percabangan Eksplorasi
-        TibaDiObjek -->|Eksplorasi Budaya| ScanBudaya[Gunakan AR Marker Budaya]:::process
-        ScanBudaya --> Storytelling[Nikmati Digital Storytelling \n Audio & Teks]:::process
-        
-        TibaDiObjek -->|Eksplorasi Edukasi| TitikBelajar[Akses Virtual Learning Point \n 360° & AR]:::process
-        TitikBelajar --> ModulBelajar[Buka Interactive Learning Module \n Video, Audio, Quiz]:::process
-        TitikBelajar --> BukuSaku[Buka Digital Pocket Book]:::process
+        TiketDigital --> StaffScan[Staff Memindai QR Code Tiket]:::process
+        WalkIn --> StaffScan
+        StaffScan --> Validasi[Validasi & Check-in Sukses]:::process
     end
 
-    Storytelling --> KeUMKM([Lanjut ke Area Belanja]):::startEnd
-    ModulBelajar --> KeUMKM
-    BukuSaku --> KeUMKM
+    Validasi --> MulaiTour([Mulai Tour di Desa Penglipuran]):::startEnd
 
-    %% ================= FASE 3 =================
-    subgraph Fase3 ["Fase 3: UMKM & Transaksi"]
+    %% ================= FASE 3: ON-SITE & EDUTOURISM =================
+    subgraph Fase3 ["Fase 3: Smart Edutourism, Navigasi & AR (On-Site)"]
         direction TB
-        KeUMKM --> ScanUMKM[Gunakan AR Marker Produk UMKM]:::process
-        ScanUMKM --> KatalogUMKM[Lihat Katalog Digital UMKM]:::process
-        KatalogUMKM --> Marketplace[Masuk ke UMKM Marketplace Integration]:::process
-        Marketplace --> BayarUMKM[Digital Payment Integration \n Bayar Produk]:::process
+        MulaiTour --> PilihRute[Preview & Pilih Rute Edutourism]:::process
+        PilihRute --> MulaiNavigasi["Mulai Rute (Smart Routing / Map)"]:::process
+        
+        MulaiNavigasi -.-> AksesOffline[Offline Mode Tersedia jika Sinyal Hilang]:::process
+        
+        MulaiNavigasi --> TibaDiTitik{Tiba di Titik / Objek}:::decision
+        
+        %% AR & Edukasi
+        TibaDiTitik -->|Budaya/Objek| BukaAR["Buka AR Scanner (WebAR/iOS Quick Look)"]:::process
+        BukaAR --> AudioStory[Dengarkan Audio Storytelling]:::process
+        
+        TibaDiTitik -->|Pos Edukasi| EduQuiz[Akses Materi Edukasi & Jawab Quiz]:::process
+        
+        AudioStory --> CekKapasitas[Cek Crowd/Capacity di Titik Berikutnya]:::process
+        EduQuiz --> CekKapasitas
     end
 
-    %% ================= FASE 4 =================
-    BayarUMKM --> BeriFeedback[Isi Feedback & Kepuasan Wisatawan]:::process
-    BeriFeedback --> Selesai([Selesai Kunjungan]):::startEnd
-    
+    CekKapasitas --> LanjutTour{Lanjut Rute?}:::decision
+    LanjutTour -->|Ya| MulaiNavigasi
+    LanjutTour -->|Selesai / Belanja| KeUMKM([Lanjut ke Area Belanja UMKM]):::startEnd
+
+    %% ================= FASE 4: UMKM & TRANSAKSI =================
+    subgraph Fase4 ["Fase 4: UMKM & Marketplace"]
+        direction TB
+        KeUMKM --> ScanUMKM[Lihat Katalog / Multi-route UMKM]:::process
+        ScanUMKM --> Rekomendasi[Dapat Rekomendasi UMKM]:::process
+        Rekomendasi --> Marketplace[Lihat Produk dari UMKM Owner]:::process
+        Marketplace --> BeliProduk[Transaksi / Pemesanan]:::process
+    end
+
+    %% ================= FASE 5: POST-VISIT =================
+    subgraph Fase5 ["Fase 5: Evaluasi (Post-Visit)"]
+        direction TB
+        BeliProduk --> BeriFeedback[Isi Form Feedback & Rating]:::process
+        BeriFeedback --> ProfileUpdate[Update Profile: Visited & Favorites]:::process
+    end
+
+    ProfileUpdate --> Selesai([Selesai Kunjungan]):::startEnd
