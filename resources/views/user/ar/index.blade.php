@@ -11,7 +11,6 @@
 
         #reader {
             width: 100%;
-            height: 100%;
             border: none;
         }
 
@@ -23,23 +22,6 @@
             top: 0 !important;
             left: 0 !important;
             z-index: 1 !important;
-        }
-
-        /* Hide html5-qrcode internal scanning region UI visually, but keep elements functional for frame processing */
-        #reader__scan_region {
-            min-height: 100vh !important;
-        }
-
-        #reader__scan_region>canvas,
-        #reader__scan_region>img {
-            opacity: 0 !important;
-            position: absolute !important;
-            pointer-events: none !important;
-        }
-
-        #qr-shaded-region {
-            opacity: 0 !important;
-            pointer-events: none !important;
         }
 
         /* Model Viewer Styles */
@@ -233,26 +215,33 @@
 
             const config = {
                 fps: 10,
-                qrbox: function(viewfinderWidth, viewfinderHeight) {
-                    const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-                    const size = Math.floor(minEdge * 0.7);
-                    return {
-                        width: size,
-                        height: size
-                    };
-                },
                 experimentalFeatures: {
-                    // Native BarcodeDetector causes black screen on Android Chrome,
-                    // but works well on iOS (WebKit engine)
-                    useBarCodeDetectorIfSupported: isIOS
+                    useBarCodeDetectorIfSupported: false
                 }
             };
 
+            // iOS defaults to 480x640 which is too low for reliable JS QR decoding.
+            // Add videoConstraints to request higher resolution only on iOS.
+            if (isIOS) {
+                config.videoConstraints = {
+                    facingMode: {
+                        exact: "environment"
+                    },
+                    width: {
+                        ideal: 1280
+                    },
+                    height: {
+                        ideal: 720
+                    }
+                };
+            }
+
             console.log('Scanner config:', config);
-            console.log('Calling html5QrcodeScanner.start() with facingMode: environment...');
+            console.log('Platform: ' + (isIOS ? 'iOS' : 'non-iOS'));
+            console.log('Calling html5QrcodeScanner.start()...');
 
             // On iOS Safari, getCameras() often fails or returns empty before permission is granted.
-            // Requesting { facingMode: "environment" } directly handles the permission prompt correctly.
+            // Requesting facingMode directly handles the permission prompt correctly.
             html5QrcodeScanner.start({
                     facingMode: "environment"
                 },
@@ -262,6 +251,48 @@
             ).then(() => {
                 console.log('✅ Scanner started SUCCESSFULLY (facingMode)');
                 console.info('Scanner state: ' + html5QrcodeScanner.getState());
+
+                // Diagnostic: log video and container dimensions
+                setTimeout(() => {
+                    const video = document.querySelector('#reader video');
+                    const reader = document.getElementById('reader');
+                    const canvas = document.querySelector('#reader canvas');
+                    const scanRegion = document.getElementById('reader__scan_region');
+
+                    if (video) {
+                        console.info('VIDEO: videoWidth=' + video.videoWidth +
+                            ' videoHeight=' + video.videoHeight +
+                            ' clientWidth=' + video.clientWidth +
+                            ' clientHeight=' + video.clientHeight +
+                            ' readyState=' + video.readyState);
+                    } else {
+                        console.warn('VIDEO element NOT found');
+                    }
+
+                    if (reader) {
+                        console.info('READER: clientWidth=' + reader.clientWidth +
+                            ' clientHeight=' + reader.clientHeight +
+                            ' offsetWidth=' + reader.offsetWidth +
+                            ' offsetHeight=' + reader.offsetHeight);
+                    }
+
+                    if (canvas) {
+                        console.info('CANVAS: width=' + canvas.width +
+                            ' height=' + canvas.height +
+                            ' clientWidth=' + canvas.clientWidth +
+                            ' clientHeight=' + canvas.clientHeight +
+                            ' display=' + getComputedStyle(canvas).display +
+                            ' visibility=' + getComputedStyle(canvas).visibility);
+                    } else {
+                        console.warn('CANVAS element NOT found in #reader');
+                    }
+
+                    if (scanRegion) {
+                        console.info('SCAN_REGION: clientWidth=' + scanRegion.clientWidth +
+                            ' clientHeight=' + scanRegion.clientHeight);
+                    }
+                }, 2000);
+
                 startHeartbeat();
             }).catch(err => {
                 console.warn("❌ Failed with facingMode, trying getCameras fallback:", err);
