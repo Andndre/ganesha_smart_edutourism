@@ -182,3 +182,62 @@ Di VPS, semua dijalankan di dalam Docker Compose agar jalannya stabil dan tidak 
      - Migrasi database baru akan otomatis dijalankan jika ada penambahan tabel baru (`php artisan migrate --force`).
      - Cache Laravel akan dibersihkan dan dibuat ulang secara otomatis untuk mempercepat performa.
 
+---
+
+## Integrasi dengan Traefik Hostinger (HTTPS / SSL Otomatis)
+
+Hostinger menyediakan template **Traefik** bawaan untuk mengelola HTTPS dan routing multi-project. Berikut cara menghubungkan project ini ke Traefik setelah Anda membeli domain:
+
+### Langkah 1: Hubungkan Domain ke VPS
+Di control panel domain Anda, arahkan DNS A Record ke IP VPS Anda:
+- Host: `@` -> Value: `IP_VPS_ANDA`
+- Host: `www` -> Value: `IP_VPS_ANDA`
+
+### Langkah 2: Deploy Traefik di Hostinger
+1. Masuk ke **Docker Manager Hostinger**.
+2. Klik tombol **Deploy Traefik** (masukkan email ACME Anda untuk pemberitahuan sertifikat Let's Encrypt).
+3. Setelah deploy, Traefik akan membuat network external bernama `traefik-proxy` yang berjalan di port 80 & 443 VPS Anda.
+
+### Langkah 3: Konfigurasi File `docker-compose.yml`
+Buka file `docker-compose.yml` di VPS Anda (`nano docker-compose.yml`):
+
+1. **Matikan Port Fisik App & phpMyAdmin** (berikan tanda `#` di depannya):
+   ```yaml
+   # ports:
+   #   - "${APP_PORT:-80}:80"
+   ```
+   *(Hal ini dilakukan agar port 80 tidak bentrok dengan Traefik yang berjalan di host).*
+
+2. **Aktifkan Labels Traefik** (hapus tanda `#` di depannya) pada service `penglipuran-app`:
+   ```yaml
+   labels:
+     - "traefik.enable=true"
+     - "traefik.http.routers.penglipuran.rule=Host(`domain-anda.com`)"
+     - "traefik.http.routers.penglipuran.entrypoints=websecure"
+     - "traefik.http.routers.penglipuran.tls.certresolver=letsencrypt"
+     - "traefik.http.services.penglipuran.loadbalancer.server.port=80"
+   ```
+   *(Ganti `domain-anda.com` dengan nama domain yang sudah Anda beli).*
+
+3. **Aktifkan Network Traefik** pada service `penglipuran-app` (dan `penglipuran-pma` jika ingin):
+   ```yaml
+   networks:
+     - penglipuran-network
+     - traefik-proxy
+   ```
+
+4. **Aktifkan Konfigurasi Network External** di bagian paling bawah file:
+   ```yaml
+   networks:
+     penglipuran-network:
+       driver: bridge
+     traefik-proxy:
+       external: true
+   ```
+
+### Langkah 4: Terapkan Perubahan
+Jalankan kembali script deploy untuk merestart container dengan konfigurasi baru:
+```bash
+./deploy.sh
+```
+Traefik Hostinger akan otomatis mendeteksi perubahan ini, meminta sertifikat SSL Let's Encrypt untuk domain Anda, dan meroute trafik HTTPS dengan aman ke aplikasi Anda!
