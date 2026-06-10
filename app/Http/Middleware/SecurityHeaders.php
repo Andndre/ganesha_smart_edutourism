@@ -35,7 +35,7 @@ class SecurityHeaders
         if (app()->environment('local')) {
             $scriptSrc .= ' http://127.0.0.1:5173 http://localhost:5173';
             $styleSrc .= ' http://127.0.0.1:5173 http://localhost:5173 https://fonts.bunny.net';
-            $fontSrc .= ' http://127.0.0.1:5173 http://localhost:5173 https://fonts.bunny.net';
+            $fontSrc .= ' http://127.0.0.1:5173 http://localhost:5173 https://fonts.bunny.net data:';
             $connectSrc .= ' http://127.0.0.1:5173 http://localhost:5173 ws://127.0.0.1:5173 ws://localhost:5173 https://cdn.jsdelivr.net https://unpkg.com';
         }
 
