@@ -66,6 +66,21 @@ services:
     networks:
       - penglipuran-network
 
+  penglipuran-pma:
+    image: phpmyadmin:latest
+    container_name: penglipuran-pma
+    restart: unless-stopped
+    ports:
+      - "${PMA_PORT:-8081}:80"
+    environment:
+      PMA_HOST: penglipuran-db
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      - penglipuran-db
+    networks:
+      - penglipuran-network
+
+
 networks:
   penglipuran-network:
     driver: bridge
