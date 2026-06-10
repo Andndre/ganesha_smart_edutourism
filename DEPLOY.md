@@ -219,21 +219,7 @@ Buka file `docker-compose.yml` di VPS Anda (`nano docker-compose.yml`):
    ```
    *(Ganti `domain-anda.com` dengan nama domain yang sudah Anda beli).*
 
-3. **Aktifkan Network Traefik** pada service `penglipuran-app` (dan `penglipuran-pma` jika ingin):
-   ```yaml
-   networks:
-     - penglipuran-network
-     - traefik-proxy
-   ```
-
-4. **Aktifkan Konfigurasi Network External** di bagian paling bawah file:
-   ```yaml
-   networks:
-     penglipuran-network:
-       driver: bridge
-     traefik-proxy:
-       external: true
-   ```
+*(Catatan: Karena Traefik bawaan Hostinger dikonfigurasi menggunakan mode network `host`, kita tidak perlu menambahkan network external tambahan seperti `traefik-proxy` ke dalam container. Traefik otomatis terhubung ke IP bridge container).*
 
 ### Langkah 4: Terapkan Perubahan
 Jalankan kembali script deploy untuk merestart container dengan konfigurasi baru:
