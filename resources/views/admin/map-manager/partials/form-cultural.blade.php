@@ -630,7 +630,7 @@
 </script>
 
 <!-- Google model-viewer for 3D GLB models with Meshopt compression -->
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+<script type="module" src="{{ asset('js/model-viewer.min.js') }}"></script>
 <script type="module">
     // Configure Meshopt Decoder before model-viewer renders
     document.addEventListener('DOMContentLoaded', () => {
