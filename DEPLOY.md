@@ -38,8 +38,9 @@ nano .env
 Sesuaikan beberapa konfigurasi penting berikut agar kompatibel dengan Docker:
 
 ```env
-# 1. Port Web Aplikasi (Bisa disesuaikan jika port 80 bentrok)
+# 1. Port Web Aplikasi & phpMyAdmin
 APP_PORT=80
+PMA_PORT=8081
 
 # 2. Pengaturan Database (WAJIB menggunakan nama container db: penglipuran-db)
 DB_CONNECTION=mysql
