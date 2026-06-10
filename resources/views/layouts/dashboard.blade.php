@@ -16,8 +16,6 @@
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
         rel="stylesheet">
 
-    {{-- FontAwesome Icons --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     {{-- Shortcut icon --}}
     <link rel="shortcut icon" href="{{ asset('icons/logo-color-notext-shortcut.ico') }}">
@@ -55,10 +53,7 @@
     </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @stack('styles')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-surface text-charcoal antialiased">
