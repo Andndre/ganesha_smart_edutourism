@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\RedirectIfAdmin;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetUserLocale;
 use App\Http\Middleware\StaffMiddleware;
 use App\Http\Middleware\UmkmOwnerMiddleware;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
         $middleware->web(append: [
+            SecurityHeaders::class,
             SetUserLocale::class,
         ]);
         $middleware->alias([
