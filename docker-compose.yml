@@ -24,7 +24,6 @@ services:
       - penglipuran-ors
     networks:
       - penglipuran-network
-      - traefik-proxy
 
   penglipuran-queue:
     build:
@@ -96,14 +95,11 @@ services:
       - penglipuran-db
     networks:
       - penglipuran-network
-      - traefik-proxy
 
 
 networks:
   penglipuran-network:
     driver: bridge
-  traefik-proxy:
-    external: true
 
 volumes:
   penglipuran-storage:
