@@ -1,0 +1,75 @@
+services:
+  penglipuran-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: penglipuran-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-80}:80"
+    volumes:
+      - ./.env:/var/www/.env
+      - penglipuran-storage:/var/www/storage
+    depends_on:
+      - penglipuran-db
+      - penglipuran-ors
+    networks:
+      - penglipuran-network
+
+  penglipuran-queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: penglipuran-queue
+    restart: unless-stopped
+    command: php artisan queue:work --verbose --tries=3 --timeout=90
+    volumes:
+      - ./.env:/var/www/.env
+      - penglipuran-storage:/var/www/storage
+    depends_on:
+      - penglipuran-db
+    networks:
+      - penglipuran-network
+
+  penglipuran-db:
+    image: mysql:8.0
+    container_name: penglipuran-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-db_ganesha_smart_edutourism}
+      MYSQL_USER: ${DB_USERNAME:-admin}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-999}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password_here}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - penglipuran-db-data:/var/lib/mysql
+    networks:
+      - penglipuran-network
+
+  penglipuran-ors:
+    image: openrouteservice/openrouteservice:latest
+    container_name: penglipuran-ors
+    restart: unless-stopped
+    ports:
+      - "${ORS_PORT:-8080}:8082"
+    volumes:
+      - ./openrouteservice/graphs:/home/ors/graphs
+      - ./openrouteservice/config:/home/ors/config
+      - ./openrouteservice/files:/home/ors/files
+      - ./openrouteservice/logs:/home/ors/logs
+    environment:
+      - BUILD_GRAPHS=True
+      - XMS=512m
+      - XMX=1g
+      - ORS_CONFIG_LOCATION=/home/ors/config/ors-config.yml
+    networks:
+      - penglipuran-network
+
+networks:
+  penglipuran-network:
+    driver: bridge
+
+volumes:
+  penglipuran-storage:
+  penglipuran-db-data:
