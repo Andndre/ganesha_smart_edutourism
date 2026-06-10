@@ -36,7 +36,7 @@ docker compose up -d --build
 
 # 4. Wait for MySQL to be ready
 echo "Waiting for database connection to be established..."
-until docker compose exec -T penglipuran-db mysqladmin ping -h"127.0.0.1" -u"$(grep DB_USERNAME .env | cut -d '=' -f2 | tr -d '"'\''')" -p"$(grep DB_PASSWORD .env | cut -d '=' -f2 | tr -d '"'\''')" --silent; do
+until docker compose exec -e MYSQL_PWD="$(grep DB_PASSWORD .env | cut -d '=' -f2 | tr -d '"'\'')" -T penglipuran-db mysqladmin ping -h"127.0.0.1" -u"$(grep DB_USERNAME .env | cut -d '=' -f2 | tr -d '"'\'')" --silent; do
     echo -n "."
     sleep 2
 done
