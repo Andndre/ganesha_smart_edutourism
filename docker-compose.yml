@@ -5,8 +5,18 @@ services:
       dockerfile: Dockerfile
     container_name: penglipuran-app
     restart: unless-stopped
+    # --- JIKA MENGGUNAKAN TRAEFIK HOSTINGER (HTTPS / MULTI-PROJECT) ---
+    # 1. Hapus/comment bagian ports di bawah ini agar tidak bentrok dengan Traefik:
     ports:
       - "${APP_PORT:-80}:80"
+    # 2. Hapus tanda '#' (uncomment) pada baris labels di bawah ini untuk mengaktifkan Traefik:
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.penglipuran.rule=Host(`domain-anda.com`)"
+    #   - "traefik.http.routers.penglipuran.entrypoints=websecure"
+    #   - "traefik.http.routers.penglipuran.tls.certresolver=letsencrypt"
+    #   - "traefik.http.services.penglipuran.loadbalancer.server.port=80"
+    # -----------------------------------------------------------------
     volumes:
       - ./.env:/var/www/.env
       - penglipuran-storage:/var/www/storage
@@ -15,6 +25,8 @@ services:
       - penglipuran-ors
     networks:
       - penglipuran-network
+      # 3. Hapus tanda '#' di bawah ini jika menggunakan Traefik agar terhubung dengan proxy Hostinger:
+      # - traefik-proxy
 
   penglipuran-queue:
     build:
@@ -70,8 +82,18 @@ services:
     image: phpmyadmin:latest
     container_name: penglipuran-pma
     restart: unless-stopped
+    # --- JIKA MENGGUNAKAN TRAEFIK HOSTINGER ---
+    # 1. Hapus/comment bagian ports di bawah ini:
     ports:
       - "${PMA_PORT:-8081}:80"
+    # 2. Hapus tanda '#' (uncomment) pada labels di bawah ini (misal untuk pma.domain-anda.com):
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.penglipuran-pma.rule=Host(`pma.domain-anda.com`)"
+    #   - "traefik.http.routers.penglipuran-pma.entrypoints=websecure"
+    #   - "traefik.http.routers.penglipuran-pma.tls.certresolver=letsencrypt"
+    #   - "traefik.http.services.penglipuran-pma.loadbalancer.server.port=80"
+    # ------------------------------------------
     environment:
       PMA_HOST: penglipuran-db
       UPLOAD_LIMIT: 64M
@@ -79,11 +101,15 @@ services:
       - penglipuran-db
     networks:
       - penglipuran-network
+      # 3. Hapus tanda '#' di bawah ini jika menggunakan Traefik:
+      # - traefik-proxy
 
 
 networks:
   penglipuran-network:
     driver: bridge
+  # traefik-proxy:
+  #   external: true
 
 volumes:
   penglipuran-storage:
