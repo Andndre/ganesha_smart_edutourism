@@ -334,7 +334,7 @@
 @endsection
 
 @push('scripts')
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+    <script type="module" src="{{ asset('js/model-viewer.min.js') }}"></script>
     <script>
         const modal = document.getElementById('product-modal');
         const form = document.getElementById('modal-form');
