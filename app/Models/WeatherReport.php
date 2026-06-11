@@ -47,13 +47,24 @@ class WeatherReport extends Model
      */
     public function getIconHtml(): string
     {
+        $time = $this->updated_at ?? now();
+        $hour = $time->timezone('Asia/Makassar')->hour;
+        $isNight = $hour >= 18 || $hour < 6;
+
         return match ($this->weather_code) {
-            0 => '
+            0 => $isNight ? '
+                <svg class="h-6 w-6 text-indigo-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                </svg>' : '
                <svg class="h-6 w-6 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="4" />
                     <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
                 </svg>',
-            1, 2 => '
+            1, 2 => $isNight ? '
+                <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path class="text-indigo-300" d="M10.188 8.5A6 6 0 0 1 16 4a5 5 0 0 1 6 6 7 7 0 0 1-11.813 5.188" />
+                    <path class="text-blue-400" d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+                </svg>' : '
                 <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path class="text-amber-500" d="M12 2v2M4.93 4.93l1.41 1.41M20 12h2M19.07 4.93l-1.41 1.41" />
                     <path class="text-amber-500" d="M15.947 12.65a4 4 0 00-5.925-4.128" />
