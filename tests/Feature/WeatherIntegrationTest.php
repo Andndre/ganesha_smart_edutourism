@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\WeatherReport;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -105,5 +106,50 @@ class WeatherIntegrationTest extends TestCase
         // Verify it was rendered on the page
         $response->assertSee('21°C');
         $response->assertSee('Berawan');
+    }
+
+    /**
+     * Test weather report returns correct icons for day and night.
+     */
+    public function test_weather_report_returns_correct_icons_for_day_and_night(): void
+    {
+        $report = new WeatherReport([
+            'weather_code' => 0,
+            'temperature' => 30.0,
+            'condition' => 'Cerah',
+        ]);
+
+        // 1. Day time: 12:00 PM WITA
+        Carbon::setTestNow(Carbon::create(2026, 6, 11, 12, 0, 0, 'Asia/Makassar'));
+        $dayIcon = $report->getIconHtml();
+        $this->assertStringContainsString('text-amber-500', $dayIcon);
+        $this->assertStringContainsString('circle cx="12"', $dayIcon);
+
+        // 2. Night time: 8:00 PM WITA
+        Carbon::setTestNow(Carbon::create(2026, 6, 11, 20, 0, 0, 'Asia/Makassar'));
+        $nightIcon = $report->getIconHtml();
+        $this->assertStringContainsString('text-indigo-300', $nightIcon);
+        $this->assertStringContainsString('path d="M12 3a6', $nightIcon);
+
+        $cloudReport = new WeatherReport([
+            'weather_code' => 1,
+            'temperature' => 28.0,
+            'condition' => 'Cerah Berawan',
+        ]);
+
+        // 3. Day time: 12:00 PM WITA
+        Carbon::setTestNow(Carbon::create(2026, 6, 11, 12, 0, 0, 'Asia/Makassar'));
+        $dayCloudIcon = $cloudReport->getIconHtml();
+        $this->assertStringContainsString('text-amber-500', $dayCloudIcon);
+        $this->assertStringContainsString('text-blue-400', $dayCloudIcon);
+
+        // 4. Night time: 8:00 PM WITA
+        Carbon::setTestNow(Carbon::create(2026, 6, 11, 20, 0, 0, 'Asia/Makassar'));
+        $nightCloudIcon = $cloudReport->getIconHtml();
+        $this->assertStringContainsString('text-indigo-300', $nightCloudIcon);
+        $this->assertStringContainsString('text-blue-400', $nightCloudIcon);
+
+        // Clean up test time
+        Carbon::setTestNow();
     }
 }
