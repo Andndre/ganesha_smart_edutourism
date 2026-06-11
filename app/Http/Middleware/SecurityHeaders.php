@@ -30,13 +30,13 @@ class SecurityHeaders
         $scriptSrc = "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com https://esm.sh https://app.midtrans.com https://api.midtrans.com";
         $styleSrc = "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com";
         $fontSrc = "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com";
-        $connectSrc = "connect-src 'self' blob: https://nominatim.openstreetmap.org https://router.project-osrm.org https://overpass-api.de https://api.midtrans.com https://app.midtrans.com";
+        $connectSrc = "connect-src 'self' blob: https://nominatim.openstreetmap.org https://router.project-osrm.org https://overpass-api.de https://api.midtrans.com https://app.midtrans.com https://esm.sh https://cdnjs.cloudflare.com";
 
         if (app()->environment('local')) {
             $scriptSrc .= ' http://127.0.0.1:5173 http://localhost:5173';
             $styleSrc .= ' http://127.0.0.1:5173 http://localhost:5173 https://fonts.bunny.net';
             $fontSrc .= ' http://127.0.0.1:5173 http://localhost:5173 https://fonts.bunny.net data:';
-            $connectSrc .= ' http://127.0.0.1:5173 http://localhost:5173 ws://127.0.0.1:5173 ws://localhost:5173 https://cdn.jsdelivr.net https://unpkg.com';
+            $connectSrc .= ' http://127.0.0.1:5173 http://localhost:5173 ws://127.0.0.1:5173 ws://localhost:5173 http://127.0.0.1:8000 http://localhost:8000 ws://127.0.0.1:8000 ws://localhost:8000 https://cdn.jsdelivr.net https://unpkg.com';
         }
 
         $response->headers->set(
