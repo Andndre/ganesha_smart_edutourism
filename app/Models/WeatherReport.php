@@ -47,8 +47,9 @@ class WeatherReport extends Model
      */
     public function getIconHtml(): string
     {
+        $timezone = config('services.penglipuran.timezone', 'Asia/Makassar');
         $time = $this->updated_at ?? now();
-        $hour = $time->timezone('Asia/Makassar')->hour;
+        $hour = $time->timezone($timezone)->hour;
         $isNight = $hour >= 18 || $hour < 6;
 
         return match ($this->weather_code) {

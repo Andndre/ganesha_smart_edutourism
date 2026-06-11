@@ -113,6 +113,8 @@ class WeatherIntegrationTest extends TestCase
      */
     public function test_weather_report_returns_correct_icons_for_day_and_night(): void
     {
+        $timezone = config('services.penglipuran.timezone', 'Asia/Makassar');
+
         $report = new WeatherReport([
             'weather_code' => 0,
             'temperature' => 30.0,
@@ -120,13 +122,13 @@ class WeatherIntegrationTest extends TestCase
         ]);
 
         // 1. Day time: 12:00 PM WITA
-        Carbon::setTestNow(Carbon::create(2026, 6, 11, 12, 0, 0, 'Asia/Makassar'));
+        Carbon::setTestNow(Carbon::create(2026, 6, 11, 12, 0, 0, $timezone));
         $dayIcon = $report->getIconHtml();
         $this->assertStringContainsString('text-amber-500', $dayIcon);
         $this->assertStringContainsString('circle cx="12"', $dayIcon);
 
         // 2. Night time: 8:00 PM WITA
-        Carbon::setTestNow(Carbon::create(2026, 6, 11, 20, 0, 0, 'Asia/Makassar'));
+        Carbon::setTestNow(Carbon::create(2026, 6, 11, 20, 0, 0, $timezone));
         $nightIcon = $report->getIconHtml();
         $this->assertStringContainsString('text-indigo-300', $nightIcon);
         $this->assertStringContainsString('path d="M12 3a6', $nightIcon);
@@ -138,13 +140,13 @@ class WeatherIntegrationTest extends TestCase
         ]);
 
         // 3. Day time: 12:00 PM WITA
-        Carbon::setTestNow(Carbon::create(2026, 6, 11, 12, 0, 0, 'Asia/Makassar'));
+        Carbon::setTestNow(Carbon::create(2026, 6, 11, 12, 0, 0, $timezone));
         $dayCloudIcon = $cloudReport->getIconHtml();
         $this->assertStringContainsString('text-amber-500', $dayCloudIcon);
         $this->assertStringContainsString('text-blue-400', $dayCloudIcon);
 
         // 4. Night time: 8:00 PM WITA
-        Carbon::setTestNow(Carbon::create(2026, 6, 11, 20, 0, 0, 'Asia/Makassar'));
+        Carbon::setTestNow(Carbon::create(2026, 6, 11, 20, 0, 0, $timezone));
         $nightCloudIcon = $cloudReport->getIconHtml();
         $this->assertStringContainsString('text-indigo-300', $nightCloudIcon);
         $this->assertStringContainsString('text-blue-400', $nightCloudIcon);

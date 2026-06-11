@@ -82,7 +82,7 @@
                                 'package_name' => $b->tourPackage ? $b->tourPackage->name : 'Tiket Masuk Mandiri',
                                 'party_size' => $b->party_size,
                                 'scheduled_date' => $b->scheduled_date ? $b->scheduled_date->format('d M Y') : '-',
-                                'scheduled_time' => $b->scheduled_time ? \Illuminate\Support\Carbon::parse($b->scheduled_time)->format('H:i') : '',
+                                'scheduled_time' => $b->scheduled_time ? \Carbon\Carbon::parse($b->scheduled_time)->format('H:i') : '',
                                 'total_amount_formatted' => 'Rp ' . number_format($b->total_amount, 0, ',', '.'),
                                 'payment_method' => $b->payment_method,
                                 'payment_reference' => $b->payment_reference,
