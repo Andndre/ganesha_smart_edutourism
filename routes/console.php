@@ -9,4 +9,4 @@ Artisan::command('inspire', function () {
 
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('app:update-weather')->everyThirtyMinutes();
+Schedule::command('app:update-weather')->everyTenMinutes();
