@@ -74,6 +74,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
     @stack('styles')
+    @stack('head-scripts')
 </head>
 
 <body class="flex h-full w-full items-center justify-center overflow-hidden bg-gray-50 antialiased">
@@ -179,7 +180,7 @@
             @include('components.navigation.bottom-nav')
         @endif
 
-        <script>
+        <script data-navigate-once>
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('/sw.js')
@@ -187,7 +188,9 @@
                         .catch(err => console.error('Pendaftaran Service Worker gagal:', err));
                 });
             }
-
+        </script>
+        
+        <script data-navigate-once>
             // Visual transitions and tab synchronization are handled by livewire:navigating and livewire:navigated below.
 
             // Livewire bottom navigation synchronization for smooth SPA transitions
@@ -352,7 +355,7 @@
             </script>
         @endenv
 
-        <script>
+        <script data-navigate-once>
             // ==========================================
             // NOTIFICATION MANAGER
             // ==========================================
@@ -472,7 +475,7 @@
             }
         </script>
 
-        <script>
+        <script data-navigate-once>
             // ==========================================
             // GLOBAL GPS TRACKING + GEOFENCE CHECK
             // ==========================================
@@ -575,7 +578,7 @@
             })();
         </script>
 
-        <script>
+        <script data-navigate-once>
             // ==========================================
             // REVERB WEBSOCKET NOTIFICATION LISTENERS
             // ==========================================
