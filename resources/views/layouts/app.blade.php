@@ -68,6 +68,7 @@
     </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lRIxbboDG3iFR8m1t16WXkhTXQTm5w70qVxipnFqh67UTc69Msp1R22cC6+6" crossorigin="anonymous"></script>
 
     @stack('styles')
 </head>
@@ -78,7 +79,12 @@
         style="transform: translateZ(0);">
 
         <!-- Content Area Wrapper -->
-        <div class="relative flex h-full w-full flex-1 flex-col overflow-hidden">
+        <div id="main-page-container"
+             hx-boost="true"
+             hx-target="this"
+             hx-select="#main-page-container"
+             hx-swap="innerHTML"
+             class="relative flex h-full w-full flex-1 flex-col overflow-hidden">
 
         <!-- Global Offline Coaching Modal -->
         <div id="offline-coaching-modal"
@@ -245,6 +251,63 @@
                         }
                     });
                 });
+            });
+
+            // HTMX integration for smooth SPA transitions
+            function updateActiveBottomNavTab() {
+                const currentPath = window.location.pathname;
+                const bottomNavLinks = document.querySelectorAll('nav a');
+                
+                bottomNavLinks.forEach(link => {
+                    const isARScan = link.pathname.includes('/ar-scan');
+                    if (isARScan) return;
+                    
+                    const isHome = link.pathname === '/' || link.pathname === '/home';
+                    const isExplore = link.pathname === '/explore';
+                    const isUmkm = link.pathname.startsWith('/umkm');
+                    const isProfile = link.pathname.startsWith('/profile');
+                    const isLogin = link.pathname.startsWith('/login') || link.pathname.startsWith('/register');
+                    
+                    let isActive = false;
+                    if (isHome && (currentPath === '/' || currentPath === '/home')) isActive = true;
+                    else if (isExplore && currentPath === '/explore') isActive = true;
+                    else if (isUmkm && currentPath.startsWith('/umkm')) isActive = true;
+                    else if (isProfile && currentPath.startsWith('/profile')) isActive = true;
+                    else if (isLogin && (currentPath.startsWith('/login') || currentPath.startsWith('/register'))) isActive = true;
+                    
+                    const svg = link.querySelector('svg');
+                    if (isActive) {
+                        link.classList.remove('text-gray-400', 'hover:text-gray-600', 'lg:hover:bg-gray-100');
+                        link.classList.add('text-primary', 'lg:bg-primary/10', 'lg:text-primary-700');
+                        if (svg) svg.setAttribute('stroke-width', '2.5');
+                    } else {
+                        link.classList.remove('text-primary', 'lg:bg-primary/10', 'lg:text-primary-700');
+                        link.classList.add('text-gray-400', 'hover:text-gray-600', 'lg:hover:bg-gray-100');
+                        if (svg) svg.setAttribute('stroke-width', '2');
+                    }
+                });
+            }
+
+            document.addEventListener('htmx:afterRequest', (e) => {
+                // Complete loading bar
+                const loadingBar = document.getElementById('global-loading-bar');
+                if (loadingBar) {
+                    loadingBar.classList.add('finished');
+                    loadingBar.style.width = '100%';
+                }
+
+                // Smooth main content fade back in
+                const mainContent = document.getElementById('main-content');
+                if (mainContent) {
+                    mainContent.style.opacity = '1';
+                }
+
+                // Update bottom nav tab state to match new URL
+                updateActiveBottomNavTab();
+            });
+
+            document.addEventListener('htmx:historyRestore', () => {
+                updateActiveBottomNavTab();
             });
 
             // Online/Offline status and Coaching Modal detection

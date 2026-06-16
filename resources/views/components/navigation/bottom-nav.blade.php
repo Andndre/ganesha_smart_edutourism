@@ -1,4 +1,8 @@
 <nav class="pb-sab w-full bg-white shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] md:static md:w-20 lg:w-64 md:h-full md:shrink-0 md:border-r md:border-gray-200 md:shadow-none md:pb-0"
+    hx-boost="true"
+    hx-target="#main-page-container"
+    hx-select="#main-page-container"
+    hx-swap="innerHTML"
     role="navigation" aria-label="Main navigation">
     <div class="relative flex h-16 items-center justify-around px-2 md:h-full md:flex-col md:justify-start md:pt-10 md:gap-4 lg:px-4">
 
@@ -14,7 +18,7 @@
 
         <!-- AR Scan Button Desktop Position -->
         <div class="hidden md:flex w-full mb-6">
-            <a href="{{ route('ar-scan') }}"
+            <a href="{{ route('ar-scan') }}" hx-boost="false"
                 class="bg-primary flex w-full flex-col lg:flex-row items-center justify-center lg:justify-start gap-2 rounded-xl py-3 text-white shadow-md transition-transform hover:bg-primary-dark active:scale-95 lg:px-4">
                 <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -46,7 +50,7 @@
 
         <!-- AR Scan Button Mobile Position (Floating on mobile) -->
         <div class="relative z-50 flex h-full w-20 shrink-0 items-center justify-center md:hidden">
-            <a href="{{ route('ar-scan') }}"
+            <a href="{{ route('ar-scan') }}" hx-boost="false"
                 class="bg-primary absolute -top-6 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-[0_8px_16px_-4px_rgba(30,81,40,0.4)] ring-4 ring-white transition-all duration-200 active:scale-95"
                 aria-label="Buka Kamera AR">
                 <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
