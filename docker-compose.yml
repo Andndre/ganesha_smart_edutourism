@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: penglipuran-app
+    container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-app
     restart: unless-stopped
     # --- JIKA MENGGUNAKAN TRAEFIK HOSTINGER (HTTPS / MULTI-PROJECT) ---
     # Ports dinonaktifkan agar port 80 tidak bentrok dengan Traefik pada VPS host:
@@ -11,10 +11,10 @@ services:
     #   - "${APP_PORT:-80}:80"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.penglipuran.rule=Host(`penglipuran.digowave.com`)"
-      - "traefik.http.routers.penglipuran.entrypoints=websecure"
-      - "traefik.http.routers.penglipuran.tls.certresolver=letsencrypt"
-      - "traefik.http.services.penglipuran.loadbalancer.server.port=80"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:-penglipuran}.rule=Host(`${APP_DOMAIN:-penglipuran.digowave.com}`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:-penglipuran}.entrypoints=websecure"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:-penglipuran}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME:-penglipuran}.loadbalancer.server.port=80"
     # -----------------------------------------------------------------
     volumes:
       - ./.env:/var/www/.env
@@ -29,7 +29,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: penglipuran-queue
+    container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-queue
     restart: unless-stopped
     command: php artisan queue:work --verbose --tries=3 --timeout=90
     volumes:
@@ -44,7 +44,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: penglipuran-reverb
+    container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-reverb
     restart: unless-stopped
     command: php artisan reverb:start --host=0.0.0.0 --port=8081
     ports:
@@ -58,7 +58,7 @@ services:
 
   penglipuran-db:
     image: mysql:8.0
-    container_name: penglipuran-db
+    container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-db
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-db_ganesha_smart_edutourism}
@@ -74,7 +74,7 @@ services:
 
   penglipuran-ors:
     image: openrouteservice/openrouteservice:latest
-    container_name: penglipuran-ors
+    container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-ors
     restart: unless-stopped
     ports:
       - "${ORS_PORT:-8080}:8082"
@@ -93,19 +93,19 @@ services:
 
   penglipuran-pma:
     image: phpmyadmin:latest
-    container_name: penglipuran-pma
+    container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-pma
     restart: unless-stopped
     # Ports dinonaktifkan agar port 8081 tidak terekspos secara publik di luar Traefik:
     # ports:
     #   - "${PMA_PORT:-8081}:80"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.penglipuran-pma.rule=Host(`pma-penglipuran.digowave.com`)"
-      - "traefik.http.routers.penglipuran-pma.entrypoints=websecure"
-      - "traefik.http.routers.penglipuran-pma.tls.certresolver=letsencrypt"
-      - "traefik.http.services.penglipuran-pma.loadbalancer.server.port=80"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:-penglipuran}-pma.rule=Host(`${PMA_DOMAIN:-pma-penglipuran.digowave.com}`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:-penglipuran}-pma.entrypoints=websecure"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:-penglipuran}-pma.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME:-penglipuran}-pma.loadbalancer.server.port=80"
     environment:
-      PMA_HOST: penglipuran-db
+      PMA_HOST: ${COMPOSE_PROJECT_NAME:-penglipuran}-db
       UPLOAD_LIMIT: 64M
     depends_on:
       - penglipuran-db
