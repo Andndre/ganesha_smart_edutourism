@@ -1,10 +1,6 @@
-import Alpine from 'alpinejs';
 import Swal from 'sweetalert2';
 
-window.Alpine = Alpine;
 window.Swal = Swal;
-
-Alpine.start();
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

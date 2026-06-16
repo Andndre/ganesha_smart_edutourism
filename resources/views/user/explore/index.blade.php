@@ -100,52 +100,71 @@
     <script>
         // Execution wrapper to handle Livewire and page navigation
         (function() {
+            // Category colors mapping matching the filter panel dots
+            const categoryColors = {
+                umkm: '#8B5CF6', // Violet
+                facilities: '#3B82F6', // Blue
+                toilets: '#06B6D4', // Cyan
+                accessibility: '#F59E0B', // Amber
+                cultural: '#1E5128' // Green (Default)
+            };
+
+            // Shared variables across wrapper
+            let lastPosition = null;
+            let shouldCenterOnNextLocation = false;
+            let map = null;
+            let isGpsLoading = false;
+            let activeLocation = null;
+            let userRouteLayer = null;
+            let watchId = null;
+            let currentHeading = 0;
+            let locationMarker = null;
+            let locationArrow = null;
+            let locationPulse = null;
+            const markerLayers = [];
+            
+            const activeFilters = {
+                cultural: true,
+                umkm: true,
+                facilities: true,
+                toilets: true,
+                accessibility: true
+            };
+
+            let heatmapVisible = false;
+            const liveUserMarkers = {};
+            let heatmapData = [];
+
+            function updateRouteButtonUI() {
+                const iconEl = document.getElementById('route-btn-icon');
+                const textEl = document.getElementById('route-btn-text');
+                if (!iconEl || !textEl) return;
+
+                if (isGpsLoading) {
+                    iconEl.innerHTML = `
+                        <svg class="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    `;
+                    textEl.textContent = 'Mencari GPS...';
+                } else {
+                    iconEl.innerHTML = `
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    `;
+                    textEl.textContent = 'Arahkan';
+                }
+            }
+
             function initMap() {
                 // Return early if map container doesn't exist
                 if (!document.getElementById('map')) return;
                 
                 // If map is already initialized, don't re-initialize
                 if (window.mapInstance) return;
-
-                // Category colors mapping matching the filter panel dots
-                const categoryColors = {
-                    umkm: '#8B5CF6', // Violet
-                    facilities: '#3B82F6', // Blue
-                    toilets: '#06B6D4', // Cyan
-                    accessibility: '#F59E0B', // Amber
-                    cultural: '#1E5128' // Green (Default)
-                };
-
-                // Shared global user GPS location variable
-                let lastPosition = null;
-                let shouldCenterOnNextLocation = false;
-                let map = null;
-                let isGpsLoading = false;
-                let activeLocation = null;
-
-                function updateRouteButtonUI() {
-                    const iconEl = document.getElementById('route-btn-icon');
-                    const textEl = document.getElementById('route-btn-text');
-                    if (!iconEl || !textEl) return;
-
-                    if (isGpsLoading) {
-                        iconEl.innerHTML = `
-                            <svg class="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        `;
-                        textEl.textContent = 'Mencari GPS...';
-                    } else {
-                        iconEl.innerHTML = `
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        `;
-                        textEl.textContent = 'Arahkan';
-                    }
-                }
 
                 const defaultLat = {{ $defaultLat }};
                 const defaultLon = {{ $defaultLon }};
@@ -162,92 +181,280 @@
                     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 }).addTo(map);
 
-            // 3. Data from ExploreController
-            const locations = @json($locations);
+                // 3. Data from ExploreController
+                const locations = @json($locations);
 
-            function getMarkerIcon(category) {
-                const color = categoryColors[category] || '#1E5128';
-                return L.divIcon({
-                    className: 'custom-pin',
-                    html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
-                    iconSize: [24, 24],
-                    iconAnchor: [12, 12]
-                });
-            }
-
-            const markerLayers = [];
-
-            // 5. Render Marker
-            locations.forEach(loc => {
-                const marker = L.marker([loc.lat, loc.lng], {
-                    icon: getMarkerIcon(loc.cat)
-                }).addTo(map);
-
-                marker.on('click', function(e) {
-                    if (e && e.originalEvent) {
-                        e.originalEvent.stopPropagation();
-                    }
-                    openSheet(loc);
-                    map.flyTo([loc.lat - 0.0005, loc.lng], 18, {
-                        animate: true,
-                        duration: 0.5
+                function getMarkerIcon(category) {
+                    const color = categoryColors[category] || '#1E5128';
+                    return L.divIcon({
+                        className: 'custom-pin',
+                        html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
                     });
-                });
+                }
 
-                markerLayers.push({
-                    marker: marker,
-                    category: loc.cat,
-                    name: loc.name,
-                    desc: loc.desc,
-                    lat: loc.lat,
-                    lng: loc.lng,
-                    accessibility: loc.accessibility,
-                    detail_url: loc.detail_url
-                });
-            });
+                // 5. Render Marker
+                locations.forEach(loc => {
+                    const marker = L.marker([loc.lat, loc.lng], {
+                        icon: getMarkerIcon(loc.cat)
+                    }).addTo(map);
 
-            // ==========================================
-            // HEATMAP OVERLAY DATA (from controller)
-            // ==========================================
-            const heatmapData = @json($heatmapData);
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const targetRouteId = urlParams.get('route');
-            const targetCategory = urlParams.get('category');
-
-            const activeFilters = {
-                cultural: true,
-                umkm: true,
-                facilities: true,
-                toilets: true,
-                accessibility: true
-            };
-
-            if (targetCategory === 'fasilitas') {
-                activeFilters.cultural = false;
-                activeFilters.umkm = false;
-
-                // Sync UI Checkboxes in map-search
-                setTimeout(() => {
-                    document.querySelectorAll('.filter-toggle').forEach(toggle => {
-                        const filterName = toggle.dataset.filter;
-                        if (!activeFilters[filterName]) {
-                            const checkbox = toggle.querySelector('.filter-checkbox');
-                            const input = toggle.querySelector('input');
-                            if (checkbox) checkbox.classList.remove('checked');
-                            if (input) input.checked = false;
+                    marker.on('click', function(e) {
+                        if (e && e.originalEvent) {
+                            e.originalEvent.stopPropagation();
                         }
+                        openSheet(loc);
+                        map.flyTo([loc.lat - 0.0005, loc.lng], 18, {
+                            animate: true,
+                            duration: 0.5
+                        });
                     });
-                }, 100);
+
+                    markerLayers.push({
+                        marker: marker,
+                        category: loc.cat,
+                        name: loc.name,
+                        desc: loc.desc,
+                        lat: loc.lat,
+                        lng: loc.lng,
+                        accessibility: loc.accessibility,
+                        detail_url: loc.detail_url
+                    });
+                });
+
+                // ==========================================
+                // HEATMAP OVERLAY DATA (from controller)
+                // ==========================================
+                heatmapData = @json($heatmapData);
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const targetRouteId = urlParams.get('route');
+                const targetCategory = urlParams.get('category');
+
+                if (targetCategory === 'fasilitas') {
+                    activeFilters.cultural = false;
+                    activeFilters.umkm = false;
+
+                    // Sync UI Checkboxes in map-search
+                    setTimeout(() => {
+                        document.querySelectorAll('.filter-toggle').forEach(toggle => {
+                            const filterName = toggle.dataset.filter;
+                            if (!activeFilters[filterName]) {
+                                const checkbox = toggle.querySelector('.filter-checkbox');
+                                const input = toggle.querySelector('input');
+                                if (checkbox) checkbox.classList.remove('checked');
+                                if (input) input.checked = false;
+                            }
+                        });
+                    }, 100);
+                }
+
+                // Real-time GPS Tracking updates via Laravel Reverb
+                setupExploreEchoListener();
+
+                // Listen for search input typing
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) {
+                    searchInput.addEventListener('input', updateVisibleMarkers);
+                }
+
+                // Listen for filter changes from map-search component
+                window.addEventListener('filter-change', onFilterChange);
+
+                // ==========================================
+                // BUTTON EVENT LISTENERS
+                // ==========================================
+                document.getElementById('btn-layer-map').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleHeatmap();
+                });
+
+                document.getElementById('btn-my-location').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (lastPosition) {
+                        map.flyTo([lastPosition.lat, lastPosition.lng], 17, {
+                            animate: true,
+                            duration: 0.5
+                        });
+                    } else {
+                        shouldCenterOnNextLocation = true;
+                        if (isGpsLoading) {
+                            Swal.fire({
+                                title: 'Mencari Lokasi...',
+                                text: 'Sedang mengambil koordinat GPS Anda. Mohon tunggu sebentar.',
+                                icon: 'info',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                        } else if (watchId === null) {
+                            startLocationTracking(false);
+                        } else {
+                            Swal.fire({
+                                title: 'Mencari Lokasi...',
+                                text: 'Sedang mengambil koordinat GPS Anda. Mohon tunggu sebentar.',
+                                icon: 'info',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                        }
+                    }
+                });
+
+                document.getElementById('btn-locate').addEventListener('click', function() {
+                    // Focus bounds only on visible markers
+                    const visibleCoords = markerLayers
+                        .filter(item => map.hasLayer(item.marker))
+                        .map(item => [item.lat, item.lng]);
+
+                    if (visibleCoords.length > 0) {
+                        const bounds = L.latLngBounds(visibleCoords);
+                        map.fitBounds(bounds, {
+                            padding: [50, 50],
+                            animate: true,
+                            duration: 0.5
+                        });
+                    } else {
+                        map.flyTo([defaultLat, defaultLon], 17, {
+                            animate: true,
+                            duration: 0.5
+                        });
+                    }
+                });
+
+                // Update heatmap on map move/zoom
+                map.on('moveend', function() {
+                    if (heatmapVisible) {
+                        renderHeatmap();
+                    }
+                });
+
+                map.on('zoomend', function() {
+                    if (heatmapVisible) {
+                        renderHeatmap();
+                    }
+                });
+
+                // Close filter panel and clear active user route when clicking elsewhere on map
+                map.on('click', function() {
+                    if (userRouteLayer) {
+                        map.removeLayer(userRouteLayer);
+                        userRouteLayer = null;
+                    }
+                    const panel = document.getElementById('filter-panel');
+                    if (panel && !panel.classList.contains('hidden')) {
+                        panel.classList.add('hidden');
+                    }
+                });
+
+                // Start location tracking automatically on load (silent = true)
+                startLocationTracking(true);
+
+                // Auto-routing redirect support from UMKM Recommended page
+                const targetLat = urlParams.get('lat');
+                const targetLng = urlParams.get('lng');
+                const targetName = urlParams.get('name');
+                const action = urlParams.get('action');
+
+                if (action === 'route' && targetLat && targetLng) {
+                    const latNum = parseFloat(targetLat);
+                    const lngNum = parseFloat(targetLng);
+
+                    // Find matching location in locations array (allowing a small tolerance)
+                    const targetLoc = locations.find(loc =>
+                        Math.abs(parseFloat(loc.lat) - latNum) < 0.0001 &&
+                        Math.abs(parseFloat(loc.lng) - lngNum) < 0.0001
+                    ) || {
+                        lat: latNum,
+                        lng: lngNum,
+                        name: targetName || 'Tujuan',
+                        cat: 'umkm',
+                        desc: '',
+                        is_accessible: false,
+                        accessibility: '',
+                        detail_url: null,
+                        images: []
+                    };
+
+                    // Trigger opening the sheet and route calculation after a short timeout to let Leaflet load
+                    setTimeout(() => {
+                        openSheet(targetLoc);
+                        map.flyTo([targetLoc.lat - 0.0005, targetLoc.lng], 18, {
+                            animate: true,
+                            duration: 0.8
+                        });
+
+                        // Auto-trigger click on the route directions button
+                        const routeBtn = document.getElementById('sheet-route-btn');
+                        if (routeBtn) {
+                            routeBtn.click();
+                        }
+                    }, 800);
+                }
+
+                if (action === 'multi_route') {
+                    const stopsParam = urlParams.get('stops');
+                    if (stopsParam) {
+                        const stops = stopsParam.split('|').map(s => {
+                            const parts = s.split(',');
+                            return [parseFloat(parts[0]), parseFloat(parts[1])];
+                        });
+
+                        // Trigger drawing the route after map and user GPS load
+                        setTimeout(() => {
+                            // Fit bounds to all stops to center map
+                            const bounds = L.latLngBounds(stops);
+                            map.fitBounds(bounds, {
+                                padding: [50, 50]
+                            });
+
+                            // Show SweetAlert GPS loading spinner
+                            Swal.fire({
+                                title: 'Mendeteksi Lokasi...',
+                                text: 'Mohon tunggu, sedang memuat rute navigasi belanja...',
+                                allowOutsideClick: false,
+                                showConfirmButton: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            // Wait for user GPS location
+                            let checkCount = 0;
+                            const checkInterval = setInterval(() => {
+                                checkCount++;
+                                if (lastPosition) {
+                                    clearInterval(checkInterval);
+                                    Swal.close();
+
+                                    // Draw the route from user's current position through all stops
+                                    const allCoords = [
+                                        [parseFloat(lastPosition.lng), parseFloat(lastPosition.lat)]
+                                    ];
+                                    // ORS route coordinates are [lng, lat]
+                                    stops.forEach(stop => {
+                                        allCoords.push([stop[1], stop[0]]);
+                                    });
+
+                                    drawMultiStopRoute(allCoords);
+                                } else if (!isGpsLoading || checkCount >= 16) {
+                                    // Timeout fallback: just draw lines between the stops (without user position)
+                                    clearInterval(checkInterval);
+                                    Swal.close();
+
+                                    const allCoords = stops.map(stop => [stop[1], stop[0]]);
+                                    drawMultiStopRoute(allCoords);
+                                }
+                            }, 500);
+                        }, 800);
+                    }
+                }
             }
-
-            let heatmapVisible = false;
-
-
 
             // Generate Heatmap Cells
             function renderHeatmap() {
                 const overlay = document.getElementById('heatmap-overlay');
+                if (!overlay) return;
                 overlay.innerHTML = '';
 
                 const mapBounds = map.getBounds();
@@ -292,8 +499,6 @@
                 }
             }
 
-            // Real-time GPS Tracking updates via Laravel Reverb
-            const liveUserMarkers = {};
             function setupExploreEchoListener() {
                 if (window.Echo) {
                     // Listen for other visitors' locations
@@ -349,21 +554,6 @@
                     setTimeout(setupExploreEchoListener, 500);
                 }
             }
-            
-            setupExploreEchoListener();
-
-            // Clean up Reverb subscription and window listeners when navigating away via Livewire
-            document.addEventListener('livewire:navigating', function cleanupExplore() {
-                if (window.Echo) {
-                    window.Echo.leave('village-map');
-                }
-                if (watchId !== null) {
-                    navigator.geolocation.clearWatch(watchId);
-                    watchId = null;
-                }
-                window.removeEventListener('filter-change', onFilterChange);
-                document.removeEventListener('livewire:navigating', cleanupExplore);
-            });
 
             // Update marker visibility based on active filters and search query
             function updateVisibleMarkers() {
@@ -389,13 +579,6 @@
                 });
             }
 
-            // Listen for search input typing
-            const searchInput = document.getElementById('search-input');
-            if (searchInput) {
-                searchInput.addEventListener('input', updateVisibleMarkers);
-            }
-
-            // Listen for filter changes from map-search component
             function onFilterChange(e) {
                 const {
                     filter,
@@ -410,27 +593,7 @@
                     renderHeatmap();
                 }
             }
-            window.addEventListener('filter-change', onFilterChange);
 
-            // ==========================================
-            // MY LOCATION FUNCTIONALITY
-            // ==========================================
-            /** @type {L.Marker|null} */
-            let locationMarker = null;
-            /** @type {L.Marker|null} */
-            let locationArrow = null;
-            /** @type {L.Marker|null} */
-            let locationPulse = null;
-            /** @type {number|null} */
-            let watchId = null;
-            /** @type {number} */
-            let currentHeading = 0;
-
-            /**
-             * @param {Object} e
-             * @param {L.LatLng} e.latlng
-             * @param {number|null} [e.heading]
-             */
             function onLocationFound(e) {
                 const latlng = e.latlng;
 
@@ -582,7 +745,7 @@
                                 });
                             },
                             (err) => onLocationError(err, silent), {
-                                enableHighAccuracy: false, // Diganti false sementara agar lebih cepat / tidak timeout
+                                enableHighAccuracy: false,
                                 maximumAge: 10000,
                                 timeout: 15000
                             }
@@ -601,561 +764,365 @@
             }
 
             // ==========================================
-            // BUTTON EVENT LISTENERS
+            // LOGIKA BOTTOM SHEET
             // ==========================================
-            document.getElementById('btn-layer-map').addEventListener('click', function(e) {
-                e.stopPropagation();
-                toggleHeatmap();
-            });
 
-            document.getElementById('btn-my-location').addEventListener('click', function(e) {
-                e.stopPropagation();
-                if (lastPosition) {
-                    map.flyTo([lastPosition.lat, lastPosition.lng], 17, {
-                        animate: true,
-                        duration: 0.5
-                    });
-                } else {
-                    shouldCenterOnNextLocation = true;
-                    if (isGpsLoading) {
-                        Swal.fire({
-                            title: 'Mencari Lokasi...',
-                            text: 'Sedang mengambil koordinat GPS Anda. Mohon tunggu sebentar.',
-                            icon: 'info',
-                            showConfirmButton: false,
-                            timer: 2000
-                        });
-                    } else if (watchId === null) {
-                        startLocationTracking(false);
+            function stripHtmlAndTruncate(html, maxLength = 120) {
+                if (!html) return '';
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                let text = doc.body.textContent || '';
+                text = text.replace(/\s+/g, ' ').trim();
+                if (text.length > maxLength) {
+                    return text.slice(0, maxLength) + '...';
+                }
+                return text;
+            }
+
+            function showGpsFallbackAlert(href) {
+                Swal.fire({
+                    title: 'GPS Belum Aktif',
+                    text: 'Lokasi Anda belum terdeteksi di peta ini. Apakah Anda ingin membuka Google Maps untuk petunjuk arah luar?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#1E5128',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Buka Google Maps',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.open(href, '_blank');
+                    }
+                });
+            }
+
+            function openSheet(loc) {
+                activeLocation = loc;
+                updateRouteButtonUI();
+                document.getElementById('sheet-title').textContent = loc.name;
+
+                // AR Badge
+                const arBadge = document.getElementById('sheet-ar-badge');
+                if (arBadge) {
+                    if (loc.has_ar) {
+                        arBadge.classList.remove('hidden');
+                        arBadge.classList.add('inline-flex');
                     } else {
-                        Swal.fire({
-                            title: 'Mencari Lokasi...',
-                            text: 'Sedang mengambil koordinat GPS Anda. Mohon tunggu sebentar.',
-                            icon: 'info',
-                            showConfirmButton: false,
-                            timer: 2000
-                        });
+                        arBadge.classList.add('hidden');
+                        arBadge.classList.remove('inline-flex');
                     }
                 }
-            });
 
-            document.getElementById('btn-locate').addEventListener('click', function() {
-                // Focus bounds only on visible markers
-                const visibleCoords = markerLayers
-                    .filter(item => map.hasLayer(item.marker))
-                    .map(item => [item.lat, item.lng]);
+                // Kategori mapping for display
+                const categoryLabels = {
+                    cultural: 'Objek Budaya',
+                    umkm: 'UMKM',
+                    facilities: 'Fasilitas',
+                    toilets: 'Toilet',
+                    accessibility: 'Aksesibilitas'
+                };
+                const label = categoryLabels[loc.cat] || 'Lokasi';
+                const color = categoryColors[loc.cat] || '#1E5128';
 
-                if (visibleCoords.length > 0) {
-                    const bounds = L.latLngBounds(visibleCoords);
-                    map.fitBounds(bounds, {
-                        padding: [50, 50],
-                        animate: true,
-                        duration: 0.5
-                    });
-                } else {
-                    map.flyTo([defaultLat, defaultLon], 17, {
-                        animate: true,
-                        duration: 0.5
-                    });
+                // Style category badge dynamically
+                const badge = document.getElementById('sheet-category-badge');
+                const dot = document.getElementById('sheet-category-dot');
+                const text = document.getElementById('sheet-category-text');
+
+                if (badge && dot && text) {
+                    text.textContent = label;
+                    dot.style.backgroundColor = color;
+                    badge.style.borderColor = color + '30'; // subtle border opacity
+                    badge.style.color = color;
                 }
-            });
 
-            // Update heatmap on map move/zoom
-            map.on('moveend', function() {
-                if (heatmapVisible) {
-                    renderHeatmap();
+                // Description Section
+                const secDesc = document.getElementById('section-desc');
+                const sheetDesc = document.getElementById('sheet-desc');
+                if (secDesc && sheetDesc) {
+                    const cleanText = stripHtmlAndTruncate(loc.desc, 120);
+                    if (cleanText !== '') {
+                        sheetDesc.textContent = cleanText;
+                        secDesc.style.display = 'block';
+                    } else {
+                        secDesc.style.display = 'none';
+                    }
                 }
-            });
 
-            map.on('zoomend', function() {
-                if (heatmapVisible) {
-                    renderHeatmap();
+                // Accessibility Section
+                const secAcc = document.getElementById('section-accessibility');
+                const sheetAcc = document.getElementById('sheet-accessibility');
+                if (secAcc && sheetAcc) {
+                    if (loc.is_accessible) {
+                        sheetAcc.textContent = loc.accessibility && loc.accessibility.trim() !== '' ?
+                            loc.accessibility :
+                            'Akses ramah disabilitas tersedia.';
+                        secAcc.style.display = 'flex';
+                    } else {
+                        secAcc.style.display = 'none';
+                    }
                 }
-            });
 
-            // Close filter panel and clear active user route when clicking elsewhere on map
-            map.on('click', function() {
+                // Clear existing user route when showing a new location sheet
                 if (userRouteLayer) {
                     map.removeLayer(userRouteLayer);
                     userRouteLayer = null;
                 }
-                const panel = document.getElementById('filter-panel');
-                if (panel && !panel.classList.contains('hidden')) {
-                    panel.classList.add('hidden');
+
+                // Arahkan Button - Use live OpenRouteService routing if user location is active
+                const routeBtn = document.getElementById('sheet-route-btn');
+                if (routeBtn) {
+                    routeBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}`;
+                    routeBtn.onclick = function(e) {
+                        e.preventDefault();
+                        if (lastPosition) {
+                            closeSheet();
+                            drawUserToLocationRoute(lastPosition, {
+                                lat: loc.lat,
+                                lng: loc.lng
+                            });
+                        } else if (isGpsLoading) {
+                            // Show premium loading SweetAlert and wait for location to load
+                            Swal.fire({
+                                title: 'Mendeteksi Lokasi...',
+                                text: 'Mohon tunggu, sedang menghubungkan ke satelit GPS...',
+                                allowOutsideClick: false,
+                                showConfirmButton: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            // Poll every 500ms for up to 8 seconds to see if GPS becomes available
+                            let checkCount = 0;
+                            const checkInterval = setInterval(() => {
+                                checkCount++;
+                                if (lastPosition) {
+                                    clearInterval(checkInterval);
+                                    Swal.close();
+                                    closeSheet();
+                                    drawUserToLocationRoute(lastPosition, {
+                                        lat: loc.lat,
+                                        lng: loc.lng
+                                    });
+                                } else if (!isGpsLoading || checkCount >= 16) {
+                                    // Timeout or error occurred
+                                    clearInterval(checkInterval);
+                                    Swal.close();
+                                    // Show fallback confirmation
+                                    showGpsFallbackAlert(this.href);
+                                }
+                            }, 500);
+                        } else {
+                            showGpsFallbackAlert(this.href);
+                        }
+                    };
                 }
-            });
 
-            // Start location tracking automatically on load (silent = true)
-            startLocationTracking(true);
-
-            // Auto-routing redirect support from UMKM Recommended page
-            const targetLat = urlParams.get('lat');
-            const targetLng = urlParams.get('lng');
-            const targetName = urlParams.get('name');
-            const action = urlParams.get('action');
-
-            if (action === 'route' && targetLat && targetLng) {
-                const latNum = parseFloat(targetLat);
-                const lngNum = parseFloat(targetLng);
-
-                // Find matching location in locations array (allowing a small tolerance)
-                const targetLoc = locations.find(loc =>
-                    Math.abs(parseFloat(loc.lat) - latNum) < 0.0001 &&
-                    Math.abs(parseFloat(loc.lng) - lngNum) < 0.0001
-                ) || {
-                    lat: latNum,
-                    lng: lngNum,
-                    name: targetName || 'Tujuan',
-                    cat: 'umkm',
-                    desc: '',
-                    is_accessible: false,
-                    accessibility: '',
-                    detail_url: null,
-                    images: []
-                };
-
-                // Trigger opening the sheet and route calculation after a short timeout to let Leaflet load
-                setTimeout(() => {
-                    openSheet(targetLoc);
-                    map.flyTo([targetLoc.lat - 0.0005, targetLoc.lng], 18, {
-                        animate: true,
-                        duration: 0.8
-                    });
-
-                    // Auto-trigger click on the route directions button
-                    const routeBtn = document.getElementById('sheet-route-btn');
-                    if (routeBtn) {
-                        routeBtn.click();
-                    }
-                }, 800);
-            }
-
-            if (action === 'multi_route') {
-                const stopsParam = urlParams.get('stops');
-                if (stopsParam) {
-                    const stops = stopsParam.split('|').map(s => {
-                        const parts = s.split(',');
-                        return [parseFloat(parts[0]), parseFloat(parts[1])];
-                    });
-
-                    // Trigger drawing the route after map and user GPS load
-                    setTimeout(() => {
-                        // Fit bounds to all stops to center map
-                        const bounds = L.latLngBounds(stops);
-                        map.fitBounds(bounds, {
-                            padding: [50, 50]
-                        });
-
-                        // Show SweetAlert GPS loading spinner
-                        Swal.fire({
-                            title: 'Mendeteksi Lokasi...',
-                            text: 'Mohon tunggu, sedang memuat rute navigasi belanja...',
-                            allowOutsideClick: false,
-                            showConfirmButton: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-
-                        // Wait for user GPS location
-                        let checkCount = 0;
-                        const checkInterval = setInterval(() => {
-                            checkCount++;
-                            if (lastPosition) {
-                                clearInterval(checkInterval);
-                                Swal.close();
-
-                                // Draw the route from user's current position through all stops
-                                const allCoords = [
-                                    [parseFloat(lastPosition.lng), parseFloat(lastPosition.lat)]
-                                ];
-                                // ORS route coordinates are [lng, lat]
-                                stops.forEach(stop => {
-                                    allCoords.push([stop[1], stop[0]]);
-                                });
-
-                                drawMultiStopRoute(allCoords);
-                            } else if (!isGpsLoading || checkCount >= 16) {
-                                // Timeout fallback: just draw lines between the stops (without user position)
-                                clearInterval(checkInterval);
-                                Swal.close();
-
-                                const allCoords = stops.map(stop => [stop[1], stop[0]]);
-                                drawMultiStopRoute(allCoords);
-                            }
-                        }, 500);
-                    }, 800);
-                }
-            }
-        });
-
-        // ==========================================
-        // LOGIKA BOTTOM SHEET
-        // ==========================================
-
-        function stripHtmlAndTruncate(html, maxLength = 120) {
-            if (!html) return '';
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-            let text = doc.body.textContent || '';
-            text = text.replace(/\s+/g, ' ').trim();
-            if (text.length > maxLength) {
-                return text.slice(0, maxLength) + '...';
-            }
-            return text;
-        }
-
-        /**
-         * @param {Object} loc
-         * @param {string} loc.name
-         * @param {string} loc.cat
-         * @param {string} [loc.desc]
-         * @param {string} [loc.accessibility]
-         * @param {number} loc.lat
-         * @param {number} loc.lng
-         * @param {string} [loc.detail_url]
-         */
-        function showGpsFallbackAlert(href) {
-            Swal.fire({
-                title: 'GPS Belum Aktif',
-                text: 'Lokasi Anda belum terdeteksi di peta ini. Apakah Anda ingin membuka Google Maps untuk petunjuk arah luar?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#1E5128',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Buka Google Maps',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.open(href, '_blank');
-                }
-            });
-        }
-
-        function openSheet(loc) {
-            activeLocation = loc;
-            updateRouteButtonUI();
-            document.getElementById('sheet-title').textContent = loc.name;
-
-            // AR Badge
-            const arBadge = document.getElementById('sheet-ar-badge');
-            if (arBadge) {
-                if (loc.has_ar) {
-                    arBadge.classList.remove('hidden');
-                    arBadge.classList.add('inline-flex');
-                } else {
-                    arBadge.classList.add('hidden');
-                    arBadge.classList.remove('inline-flex');
-                }
-            }
-
-            // Alpine cover images are loaded dynamically via event payload below
-
-            // Kategori mapping for display
-            const categoryLabels = {
-                cultural: 'Objek Budaya',
-                umkm: 'UMKM',
-                facilities: 'Fasilitas',
-                toilets: 'Toilet',
-                accessibility: 'Aksesibilitas'
-            };
-            const label = categoryLabels[loc.cat] || 'Lokasi';
-            const color = categoryColors[loc.cat] || '#1E5128';
-
-            // Style category badge dynamically
-            const badge = document.getElementById('sheet-category-badge');
-            const dot = document.getElementById('sheet-category-dot');
-            const text = document.getElementById('sheet-category-text');
-
-            if (badge && dot && text) {
-                text.textContent = label;
-                dot.style.backgroundColor = color;
-                badge.style.borderColor = color + '30'; // subtle border opacity
-                badge.style.color = color;
-            }
-
-            // Description Section
-            const secDesc = document.getElementById('section-desc');
-            const sheetDesc = document.getElementById('sheet-desc');
-            if (secDesc && sheetDesc) {
-                const cleanText = stripHtmlAndTruncate(loc.desc, 120);
-                if (cleanText !== '') {
-                    sheetDesc.textContent = cleanText;
-                    secDesc.style.display = 'block';
-                } else {
-                    secDesc.style.display = 'none';
-                }
-            }
-
-            // Accessibility Section
-            const secAcc = document.getElementById('section-accessibility');
-            const sheetAcc = document.getElementById('sheet-accessibility');
-            if (secAcc && sheetAcc) {
-                if (loc.is_accessible) {
-                    sheetAcc.textContent = loc.accessibility && loc.accessibility.trim() !== '' ?
-                        loc.accessibility :
-                        'Akses ramah disabilitas tersedia.';
-                    secAcc.style.display = 'flex';
-                } else {
-                    secAcc.style.display = 'none';
-                }
-            }
-
-            // Clear existing user route when showing a new location sheet
-            if (userRouteLayer) {
-                map.removeLayer(userRouteLayer);
-                userRouteLayer = null;
-            }
-
-            // Arahkan Button - Use live OpenRouteService routing if user location is active
-            const routeBtn = document.getElementById('sheet-route-btn');
-            if (routeBtn) {
-                routeBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}`;
-                routeBtn.onclick = function(e) {
-                    e.preventDefault();
-                    if (lastPosition) {
-                        closeSheet();
-                        drawUserToLocationRoute(lastPosition, {
-                            lat: loc.lat,
-                            lng: loc.lng
-                        });
-                    } else if (isGpsLoading) {
-                        // Show premium loading SweetAlert and wait for location to load
-                        Swal.fire({
-                            title: 'Mendeteksi Lokasi...',
-                            text: 'Mohon tunggu, sedang menghubungkan ke satelit GPS...',
-                            allowOutsideClick: false,
-                            showConfirmButton: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-
-                        // Poll every 500ms for up to 8 seconds to see if GPS becomes available
-                        let checkCount = 0;
-                        const checkInterval = setInterval(() => {
-                            checkCount++;
-                            if (lastPosition) {
-                                clearInterval(checkInterval);
-                                Swal.close();
-                                closeSheet();
-                                drawUserToLocationRoute(lastPosition, {
-                                    lat: loc.lat,
-                                    lng: loc.lng
-                                });
-                            } else if (!isGpsLoading || checkCount >= 16) {
-                                // Timeout or error occurred
-                                clearInterval(checkInterval);
-                                Swal.close();
-                                // Show fallback confirmation
-                                showGpsFallbackAlert(this.href);
-                            }
-                        }, 500);
+                // Detail Button
+                const detailBtn = document.getElementById('sheet-detail-btn');
+                if (detailBtn) {
+                    if (loc.detail_url) {
+                        detailBtn.href = loc.detail_url;
+                        detailBtn.style.display = 'flex';
                     } else {
-                        showGpsFallbackAlert(this.href);
+                        detailBtn.style.display = 'none';
                     }
-                };
-            }
-
-            // Detail Button
-            const detailBtn = document.getElementById('sheet-detail-btn');
-            if (detailBtn) {
-                if (loc.detail_url) {
-                    detailBtn.href = loc.detail_url;
-                    detailBtn.style.display = 'flex';
-                } else {
-                    detailBtn.style.display = 'none';
                 }
+
+                window.dispatchEvent(new CustomEvent('open-location-sheet', {
+                    detail: {
+                        images: loc.images || []
+                    }
+                }));
             }
 
-            window.dispatchEvent(new CustomEvent('open-location-sheet', {
-                detail: {
-                    images: loc.images || []
+            function closeSheet() {
+                activeLocation = null;
+                window.dispatchEvent(new CustomEvent('close-location-sheet'));
+            }
+
+            async function drawUserToLocationRoute(fromLoc, toLoc) {
+                if (userRouteLayer) {
+                    map.removeLayer(userRouteLayer);
+                    userRouteLayer = null;
                 }
-            }));
-        }
 
-        function closeSheet() {
-            activeLocation = null;
-            window.dispatchEvent(new CustomEvent('close-location-sheet'));
-        }
+                const coords = [
+                    [parseFloat(fromLoc.lng), parseFloat(fromLoc.lat)],
+                    [parseFloat(toLoc.lng), parseFloat(toLoc.lat)]
+                ];
 
-        let userRouteLayer = null;
+                try {
+                    const response = await fetch('/api/routing/directions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                'content')
+                        },
+                        body: JSON.stringify({
+                            coordinates: coords
+                        })
+                    });
 
-        async function drawUserToLocationRoute(fromLoc, toLoc) {
-            if (userRouteLayer) {
-                map.removeLayer(userRouteLayer);
-                userRouteLayer = null;
-            }
+                    const contentType = response.headers.get('content-type') || '';
 
-            const coords = [
-                [parseFloat(fromLoc.lng), parseFloat(fromLoc.lat)],
-                [parseFloat(toLoc.lng), parseFloat(toLoc.lat)]
-            ];
+                    if (response.ok && contentType.includes('application/json')) {
+                        const data = await response.json();
+                        if (data.features && data.features.length > 0) {
+                            const routeFeature = data.features[0];
+                            userRouteLayer = L.layerGroup();
 
-            try {
-                const response = await fetch('/api/routing/directions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                            'content')
-                    },
-                    body: JSON.stringify({
-                        coordinates: coords
-                    })
+                            // Background shadow path
+                            L.geoJSON(routeFeature.geometry, {
+                                style: {
+                                    color: '#1E5128',
+                                    weight: 8,
+                                    opacity: 0.2
+                                }
+                            }).addTo(userRouteLayer);
+
+                            // Foreground dashed path
+                            L.geoJSON(routeFeature.geometry, {
+                                style: {
+                                    color: '#1E5128',
+                                    weight: 4.5,
+                                    dashArray: '6, 8',
+                                    opacity: 0.95
+                                }
+                            }).addTo(userRouteLayer);
+
+                            userRouteLayer.addTo(map);
+
+                            const bounds = L.geoJSON(routeFeature.geometry).getBounds();
+                            map.fitBounds(bounds, {
+                                padding: [60, 60],
+                                animate: true,
+                                duration: 0.8
+                            });
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('ORS routing failed:', error);
+                }
+
+                // Fallback straight line
+                const polyline = L.polyline([
+                    [fromLoc.lat, fromLoc.lng],
+                    [toLoc.lat, toLoc.lng]
+                ], {
+                    color: '#1E5128',
+                    weight: 4.5,
+                    dashArray: '6, 8',
+                    opacity: 0.95
                 });
-
-                const contentType = response.headers.get('content-type') || '';
-
-                if (response.ok && contentType.includes('application/json')) {
-                    const data = await response.json();
-                    if (data.features && data.features.length > 0) {
-                        const routeFeature = data.features[0];
-                        userRouteLayer = L.layerGroup();
-
-                        // Background shadow path
-                        L.geoJSON(routeFeature.geometry, {
-                            style: {
-                                color: '#1E5128',
-                                weight: 8,
-                                opacity: 0.2
-                            }
-                        }).addTo(userRouteLayer);
-
-                        // Foreground dashed path
-                        L.geoJSON(routeFeature.geometry, {
-                            style: {
-                                color: '#1E5128',
-                                weight: 4.5,
-                                dashArray: '6, 8',
-                                opacity: 0.95
-                            }
-                        }).addTo(userRouteLayer);
-
-                        userRouteLayer.addTo(map);
-
-                        const bounds = L.geoJSON(routeFeature.geometry).getBounds();
-                        map.fitBounds(bounds, {
-                            padding: [60, 60],
-                            animate: true,
-                            duration: 0.8
-                        });
-                        return;
-                    }
-                }
-            } catch (error) {
-                console.error('ORS routing failed:', error);
-            }
-
-            // Fallback straight line
-            const polyline = L.polyline([
-                [fromLoc.lat, fromLoc.lng],
-                [toLoc.lat, toLoc.lng]
-            ], {
-                color: '#1E5128',
-                weight: 4.5,
-                dashArray: '6, 8',
-                opacity: 0.95
-            });
-            userRouteLayer = L.layerGroup([polyline]);
-            userRouteLayer.addTo(map);
-            map.fitBounds(polyline.getBounds(), {
-                padding: [60, 60]
-            });
-        }
-
-        async function drawMultiStopRoute(coords) {
-            if (userRouteLayer) {
-                map.removeLayer(userRouteLayer);
-                userRouteLayer = null;
-            }
-
-            try {
-                const response = await fetch('/api/routing/directions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                            'content')
-                    },
-                    body: JSON.stringify({
-                        coordinates: coords
-                    })
+                userRouteLayer = L.layerGroup([polyline]);
+                userRouteLayer.addTo(map);
+                map.fitBounds(polyline.getBounds(), {
+                    padding: [60, 60]
                 });
-
-                const contentType = response.headers.get('content-type') || '';
-
-                if (response.ok && contentType.includes('application/json')) {
-                    const data = await response.json();
-                    if (data.features && data.features.length > 0) {
-                        const routeFeature = data.features[0];
-                        userRouteLayer = L.layerGroup();
-
-                        // Background shadow path
-                        L.geoJSON(routeFeature.geometry, {
-                            style: {
-                                color: '#F97316',
-                                weight: 8,
-                                opacity: 0.2
-                            }
-                        }).addTo(userRouteLayer);
-
-                        // Foreground dashed path
-                        L.geoJSON(routeFeature.geometry, {
-                            style: {
-                                color: '#F97316',
-                                weight: 4.5,
-                                dashArray: '6, 8',
-                                opacity: 0.95
-                            }
-                        }).addTo(userRouteLayer);
-
-                        userRouteLayer.addTo(map);
-
-                        const bounds = L.geoJSON(routeFeature.geometry).getBounds();
-                        map.fitBounds(bounds, {
-                            padding: [60, 60],
-                            animate: true,
-                            duration: 0.8
-                        });
-                        return;
-                    }
-                }
-            } catch (error) {
-                console.error('ORS routing failed:', error);
             }
 
-            // Fallback straight lines
-            const leafletCoords = coords.map(c => [c[1], c[0]]);
-            const polyline = L.polyline(leafletCoords, {
-                color: '#F97316',
-                weight: 4.5,
-                dashArray: '6, 8',
-                opacity: 0.95
-            });
-            userRouteLayer = L.layerGroup([polyline]);
-            userRouteLayer.addTo(map);
-            map.fitBounds(polyline.getBounds(), {
-                padding: [60, 60]
-            });
-            // Make globals accessible for the bottom sheet and route functions
-            window.activeLocation = activeLocation;
-            window.userRouteLayer = userRouteLayer;
-        }
-    }
+            async function drawMultiStopRoute(coords) {
+                if (userRouteLayer) {
+                    map.removeLayer(userRouteLayer);
+                    userRouteLayer = null;
+                }
 
-    // Execute immediately on script load (DOM is already ready during initial load and wire:navigate)
-    initMap();
+                try {
+                    const response = await fetch('/api/routing/directions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                'content')
+                        },
+                        body: JSON.stringify({
+                            coordinates: coords
+                        })
+                    });
 
-    document.addEventListener('livewire:navigating', function cleanupMap(e) {
-        if (window.mapInstance) {
-            window.mapInstance.remove();
-            window.mapInstance = null;
-        }
-        document.removeEventListener('livewire:navigating', cleanupMap);
-    });
-    })();
+                    const contentType = response.headers.get('content-type') || '';
+
+                    if (response.ok && contentType.includes('application/json')) {
+                        const data = await response.json();
+                        if (data.features && data.features.length > 0) {
+                            const routeFeature = data.features[0];
+                            userRouteLayer = L.layerGroup();
+
+                            // Background shadow path
+                            L.geoJSON(routeFeature.geometry, {
+                                style: {
+                                    color: '#F97316',
+                                    weight: 8,
+                                    opacity: 0.2
+                                }
+                            }).addTo(userRouteLayer);
+
+                            // Foreground dashed path
+                            L.geoJSON(routeFeature.geometry, {
+                                style: {
+                                    color: '#F97316',
+                                    weight: 4.5,
+                                    dashArray: '6, 8',
+                                    opacity: 0.95
+                                }
+                            }).addTo(userRouteLayer);
+
+                            userRouteLayer.addTo(map);
+
+                            const bounds = L.geoJSON(routeFeature.geometry).getBounds();
+                            map.fitBounds(bounds, {
+                                padding: [60, 60],
+                                animate: true,
+                                duration: 0.8
+                            });
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('ORS routing failed:', error);
+                }
+
+                // Fallback straight lines
+                const leafletCoords = coords.map(c => [c[1], c[0]]);
+                const polyline = L.polyline(leafletCoords, {
+                    color: '#F97316',
+                    weight: 4.5,
+                    dashArray: '6, 8',
+                    opacity: 0.95
+                });
+                userRouteLayer = L.layerGroup([polyline]);
+                userRouteLayer.addTo(map);
+                map.fitBounds(polyline.getBounds(), {
+                    padding: [60, 60]
+                });
+            }
+
+            // Expose required sheet functions to window for inline HTML onclick attributes
+            window.openSheet = openSheet;
+            window.closeSheet = closeSheet;
+
+            // Execute immediately on script load (DOM is already ready during initial load and wire:navigate)
+            initMap();
+
+            document.addEventListener('livewire:navigating', function cleanupMap(e) {
+                if (window.mapInstance) {
+                    window.mapInstance.remove();
+                    window.mapInstance = null;
+                }
+                if (watchId !== null) {
+                    navigator.geolocation.clearWatch(watchId);
+                    watchId = null;
+                }
+                window.removeEventListener('filter-change', onFilterChange);
+                delete window.openSheet;
+                delete window.closeSheet;
+                document.removeEventListener('livewire:navigating', cleanupMap);
+            });
+        })();
     </script>
 @endsection
