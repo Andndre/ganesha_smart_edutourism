@@ -59,6 +59,14 @@
         }
     </style>
 
+    <script>
+        window.Laravel = {
+            reverbKey: "{{ config('broadcasting.connections.reverb.key') }}",
+            reverbHost: "{{ config('broadcasting.connections.reverb.options.host') }}",
+            reverbPort: "{{ config('broadcasting.connections.reverb.options.port', 8081) }}"
+        };
+    </script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @stack('styles')
