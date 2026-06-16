@@ -54,7 +54,7 @@
         </div>
 
         <!-- 1. Scanner View -->
-        <div id="scanner-view" class="absolute inset-0 z-0">
+        <div id="scanner-view" wire:ignore class="absolute inset-0 z-0">
             <div id="reader"></div>
 
             <div id="start-camera-overlay"
@@ -89,7 +89,7 @@
         </div>
 
         <!-- 2. 3D Model View (Hidden Initially) -->
-        <div id="model-view" class="bg-charcoal absolute inset-0 z-10 hidden">
+        <div id="model-view" wire:ignore class="bg-charcoal absolute inset-0 z-10 hidden">
             <model-viewer id="ar-model-viewer" src="" alt="3D Model" camera-controls auto-rotate ar ar-scale="auto"
                 ar-placement="floor" bounds="tight" ar-modes="scene-viewer quick-look webxr"
                 quick-look-browsers="safari chrome" environment-image="neutral" exposure="1" shadow-intensity="1"
