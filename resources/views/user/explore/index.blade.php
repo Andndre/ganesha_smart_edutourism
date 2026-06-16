@@ -1134,20 +1134,21 @@
             map.fitBounds(polyline.getBounds(), {
                 padding: [60, 60]
             });
-                // Make globals accessible for the bottom sheet and route functions
+            // Make globals accessible for the bottom sheet and route functions
             window.activeLocation = activeLocation;
             window.userRouteLayer = userRouteLayer;
         }
+    }
 
-        // Delay slightly for HTMX DOM injection
-        setTimeout(() => {
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initMap);
-            } else {
-                initMap();
-            }
-        }, 50);
-        })();
+    // Delay slightly for HTMX DOM injection
+    setTimeout(() => {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initMap);
+        } else {
+            initMap();
+        }
+    }, 50);
+    })();
 
         // Map Cleanup on HTMX Leave
         document.addEventListener('htmx:beforeRequest', function cleanupMap(e) {
