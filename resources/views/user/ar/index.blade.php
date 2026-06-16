@@ -201,9 +201,7 @@
 
                 if (isIOS) {
                     config.videoConstraints = {
-                        facingMode: {
-                            exact: "environment"
-                        },
+                        facingMode: "environment",
                         width: {
                             ideal: 1280
                         },
@@ -236,9 +234,16 @@
                                 }
                             }
 
+                            // Clone config and strip facingMode constraint from videoConstraints to avoid conflict with specific cameraId
+                            const fallbackConfig = { ...config };
+                            if (fallbackConfig.videoConstraints) {
+                                fallbackConfig.videoConstraints = { ...fallbackConfig.videoConstraints };
+                                delete fallbackConfig.videoConstraints.facingMode;
+                            }
+
                             html5QrcodeScanner.start(
                                 cameraId,
-                                config,
+                                fallbackConfig,
                                 onScanSuccess,
                                 onScanFailure
                             ).then(() => {
