@@ -349,6 +349,14 @@
             
             setupExploreEchoListener();
 
+            // Clean up Reverb subscription when navigating away via HTMX
+            document.addEventListener('htmx:beforeRequest', function cleanupExploreEcho() {
+                if (window.Echo) {
+                    window.Echo.leave('village-map');
+                }
+                document.removeEventListener('htmx:beforeRequest', cleanupExploreEcho);
+            });
+
             // Update marker visibility based on active filters and search query
             function updateVisibleMarkers() {
                 const searchInput = document.getElementById('search-input');
