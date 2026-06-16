@@ -50,7 +50,27 @@ class CapacityController extends Controller
             }
         }
 
-        return view('admin.capacity.index', compact('zones', 'totalCurrentCount', 'totalMaxCapacity', 'hourlyData'));
+        // Add live tracked visitors from Cache for heatmap
+        $heatmapData = [];
+        $activeVisitors = \Illuminate\Support\Facades\Cache::get('active_visitors', []);
+        foreach ($activeVisitors as $sessionId => $visitor) {
+            if ((now()->timestamp - $visitor['last_seen']) < 300) {
+                $heatmapData[] = [
+                    'lat' => (float) $visitor['lat'],
+                    'lng' => (float) $visitor['lng'],
+                    'intensity' => 0.9,
+                    'category' => 'cultural',
+                    'name' => 'Pengunjung Aktif',
+                    'is_live_user' => true,
+                    'session_id' => $sessionId,
+                ];
+            }
+        }
+
+        $defaultLat = (float) env('PENGLIPURAN_LAT', -8.422303596762355);
+        $defaultLon = (float) env('PENGLIPURAN_LON', 115.35948833933173);
+
+        return view('admin.capacity.index', compact('zones', 'totalCurrentCount', 'totalMaxCapacity', 'hourlyData', 'heatmapData', 'defaultLat', 'defaultLon'));
     }
 
     /**

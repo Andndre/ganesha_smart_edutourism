@@ -128,6 +128,15 @@
     @endforeach
 </div>
 
+{{-- Real-time Map --}}
+<div class="mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm relative">
+    <h3 class="mb-4 font-semibold text-charcoal">Pemantauan Lokasi Real-time</h3>
+    <div class="relative w-full h-[400px] rounded-xl overflow-hidden border border-gray-200">
+        <div id="map" class="h-full w-full z-10 relative"></div>
+        <div id="heatmap-overlay" class="absolute inset-0 pointer-events-none z-[1000] overflow-hidden"></div>
+    </div>
+</div>
+
 {{-- Historical 24h chart --}}
 <div class="mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
     <h3 class="mb-4 font-semibold text-charcoal">Tren Kunjungan 24 Jam Terakhir</h3>
@@ -178,7 +187,26 @@
 
 @endsection
 
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<style>
+    .leaflet-control-attribution {
+        display: none !important;
+    }
+    .heatmap-cell {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(239,68,68,0.8) 0%, rgba(249,115,22,0.6) 40%, rgba(250,204,21,0.3) 70%, transparent 100%);
+        mix-blend-mode: multiply;
+        transition: all 0.5s ease;
+    }
+</style>
+@endpush
+
 @push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
     function openThresholdModal(data) {
         document.getElementById('modal-zone-name').innerText = data.name;
@@ -254,5 +282,124 @@
             ctx.fillText(h + ':00', x, H - 6);
         });
     })();
+
+    // Initialize Leaflet Map
+    const defaultLat = {{ $defaultLat }};
+    const defaultLon = {{ $defaultLon }};
+    
+    const map = L.map('map', {
+        zoomControl: true
+    }).setView([defaultLat, defaultLon], 16);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+    }).addTo(map);
+
+    let heatmapData = @json($heatmapData);
+    const liveUserMarkers = {};
+
+    // Initial markers for live users loaded from server
+    heatmapData.forEach(point => {
+        if (point.is_live_user) {
+            const liveIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `
+                    <div class="relative flex h-4 w-4">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-4 w-4 bg-blue-600 border-2 border-white shadow"></span>
+                    </div>
+                `,
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            });
+            
+            const marker = L.marker([point.lat, point.lng], { icon: liveIcon })
+                .bindPopup('Wisatawan (Live)')
+                .addTo(map);
+            
+            liveUserMarkers[point.session_id] = marker;
+        }
+    });
+
+    function renderHeatmap() {
+        const overlay = document.getElementById('heatmap-overlay');
+        overlay.innerHTML = '';
+
+        const mapBounds = map.getBounds();
+
+        heatmapData.forEach(point => {
+            const latLng = L.latLng(point.lat, point.lng);
+            if (!mapBounds.contains(latLng)) return;
+
+            const pointPos = map.latLngToContainerPoint(latLng);
+            const size = 80 + (point.intensity * 60);
+
+            const cell = document.createElement('div');
+            cell.className = 'heatmap-cell';
+            cell.style.left = (pointPos.x - size / 2) + 'px';
+            cell.style.top = (pointPos.y - size / 2) + 'px';
+            cell.style.width = size + 'px';
+            cell.style.height = size + 'px';
+            cell.style.opacity = point.intensity * 0.6;
+
+            overlay.appendChild(cell);
+        });
+    }
+
+    // Re-render heatmap when map moves
+    map.on('moveend', renderHeatmap);
+    map.on('zoomend', renderHeatmap);
+
+    // Initial render
+    renderHeatmap();
+
+    // Listen for WebSocket updates
+    if (window.Echo) {
+        window.Echo.channel('village-map')
+            .listen('VisitorLocationUpdated', (e) => {
+                const existingIndex = heatmapData.findIndex(p => p.session_id === e.session_id);
+                
+                const newPoint = {
+                    lat: parseFloat(e.latitude),
+                    lng: parseFloat(e.longitude),
+                    intensity: 0.9,
+                    category: 'cultural',
+                    name: 'Pengunjung Aktif',
+                    is_live_user: true,
+                    session_id: e.session_id
+                };
+
+                if (existingIndex !== -1) {
+                    heatmapData[existingIndex] = newPoint;
+                } else {
+                    heatmapData.push(newPoint);
+                }
+
+                renderHeatmap();
+
+                // Create or update marker for the live user
+                if (liveUserMarkers[e.session_id]) {
+                    liveUserMarkers[e.session_id].setLatLng([e.latitude, e.longitude]);
+                } else {
+                    const liveIcon = L.divIcon({
+                        className: 'custom-div-icon',
+                        html: `
+                            <div class="relative flex h-4 w-4">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-4 w-4 bg-blue-600 border-2 border-white shadow"></span>
+                            </div>
+                        `,
+                        iconSize: [16, 16],
+                        iconAnchor: [8, 8]
+                    });
+                    
+                    const marker = L.marker([e.latitude, e.longitude], { icon: liveIcon })
+                        .bindPopup('Wisatawan (Live)')
+                        .addTo(map);
+                    
+                    liveUserMarkers[e.session_id] = marker;
+                }
+            });
+    }
 </script>
 @endpush
