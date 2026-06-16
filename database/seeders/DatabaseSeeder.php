@@ -2,6 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\CapacityZone;
+use App\Models\CulturalObject;
+use App\Models\Event;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -28,9 +31,23 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            $this->call([
-                EventSeeder::class,
-            ]);
+            if (Event::where('name', 'Panglipuran Cultural Festival 2026')->doesntExist()) {
+                $this->call([
+                    EventSeeder::class,
+                ]);
+            }
+
+            if (CapacityZone::where('zone_identifier', 'main_street')->doesntExist()) {
+                $this->call([
+                    CapacityZoneSeeder::class,
+                ]);
+            }
+
+            if (CulturalObject::where('slug', 'pura-pande-test')->doesntExist()) {
+                $this->call([
+                    TestSimulationSeeder::class,
+                ]);
+            }
         }
     }
 }
