@@ -28,10 +28,6 @@
 </template>
 
 <style>
-    .notification-toast.toast-visible {
-        transform: translateY(0);
-        opacity: 1;
-    }
 
     /* Warning level */
     .notification-toast.toast-warning .toast-icon {
