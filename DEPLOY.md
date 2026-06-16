@@ -188,6 +188,93 @@ Di VPS, semua dijalankan di dalam Docker Compose agar jalannya stabil dan tidak 
 
 ---
 
+## C. Multi-Environment Deployment di Satu VPS (Production & Staging/Dev)
+
+Jika Anda ingin menjalankan dua environment secara bersamaan di satu VPS (misalnya, Production menggunakan branch `main` dan Development/Testing menggunakan branch `dev`), Anda bisa melakukannya dengan sangat mudah tanpa adanya tabrakan port atau routing database.
+
+Docker Compose akan secara otomatis memisahkan container, network, dan volume berdasarkan variabel `COMPOSE_PROJECT_NAME` yang Anda definisikan di dalam file `.env` masing-masing folder project.
+
+### Langkah-langkah Setup:
+
+1. **Clone repository ke folder berbeda di VPS**:
+   - Folder Production (misal: `/var/www/wisata-penglipuran`):
+     ```bash
+     git clone <URL_REPO> /var/www/wisata-penglipuran
+     cd /var/www/wisata-penglipuran
+     git checkout main
+     ```
+   - Folder Development (misal: `/var/www/wisata-penglipuran-dev`):
+     ```bash
+     git clone <URL_REPO> /var/www/wisata-penglipuran-dev
+     cd /var/www/wisata-penglipuran-dev
+     git checkout dev
+     ```
+
+2. **Konfigurasi file `.env` masing-masing environment**:
+   Salin `.env.example` ke `.env` di masing-masing folder dan sesuaikan variabel konfigurasi di bawah ini agar **tidak terjadi tabrakan port & subdomain**:
+
+   #### A. File `.env` untuk Production:
+   ```env
+   # Identitas Project Compose (Menentukan prefix nama container & volume)
+   COMPOSE_PROJECT_NAME=penglipuran-prod
+
+   # Domain Utama & phpMyAdmin
+   APP_DOMAIN=penglipuran.digowave.com
+   PMA_DOMAIN=pma-penglipuran.digowave.com
+
+   # Port Binding Host (Gunakan port default)
+   REVERB_PORT=8081
+   FORWARD_DB_PORT=3306
+   ORS_PORT=8080
+
+   # Database Settings
+   DB_HOST=penglipuran-db
+   DB_PORT=3306
+   DB_DATABASE=db_ganesha_smart_edutourism
+   DB_USERNAME=admin
+   DB_PASSWORD=password_produksi_anda
+   ```
+
+   #### B. File `.env` untuk Development / Staging:
+   ```env
+   # Identitas Project Compose (PENTING: Harus berbeda dari production!)
+   COMPOSE_PROJECT_NAME=penglipuran-dev
+
+   # Subdomain Dev & phpMyAdmin Dev
+   APP_DOMAIN=dev.penglipuran.digowave.com
+   PMA_DOMAIN=pma-dev.penglipuran.digowave.com
+
+   # Port Binding Host (PENTING: Gunakan port unik agar tidak bentrok di host VPS!)
+   REVERB_PORT=8083
+   FORWARD_DB_PORT=3308
+   ORS_PORT=8085
+
+   # Database Settings (Tetap arahkan ke 'penglipuran-db' karena diselesaikan via Docker DNS internal di internal network stack ini)
+   DB_HOST=penglipuran-db
+   DB_PORT=3306
+   DB_DATABASE=db_ganesha_smart_edutourism_dev
+   DB_USERNAME=admin
+   DB_PASSWORD=password_dev_anda
+   ```
+
+3. **Jalankan Deployment**:
+   Karena script `./deploy.sh` sudah mendukung auto-pull branch yang aktif, Anda hanya perlu menjalankan:
+   - Di folder Production:
+     ```bash
+     ./deploy.sh --seed  # (untuk setup pertama kali) atau ./deploy.sh (update biasa)
+     ```
+   - Di folder Development:
+     ```bash
+     ./deploy.sh --seed  # (untuk setup pertama kali dengan data simulasi) atau ./deploy.sh (update biasa)
+     ```
+
+### Mengapa workflow ini aman & terisolasi?
+- **Routing Domain**: Traefik secara dinamis akan meroute traffic `penglipuran.digowave.com` ke container `penglipuran-prod-app`, dan `dev.penglipuran.digowave.com` ke container `penglipuran-dev-app`.
+- **WebSocket Reverb**: Masing-masing aplikasi menggunakan port Reverb yang berbeda pada host (8081 dan 8083), sehingga tracking real-time di kedua environment bisa aktif secara independen.
+- **Database & Data**: Volume database yang dibuat akan terpisah secara otomatis oleh Docker menjadi `penglipuran-prod_penglipuran-db-data` and `penglipuran-dev_penglipuran-db-data`. Data testing Anda di dev tidak akan pernah mengganggu database production.
+
+---
+
 ## Integrasi dengan Traefik Hostinger (HTTPS / SSL Otomatis)
 
 Hostinger menyediakan template **Traefik** bawaan untuk mengelola HTTPS dan routing multi-project. Berikut cara menghubungkan project ini ke Traefik setelah Anda membeli domain:
