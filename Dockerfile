@@ -38,6 +38,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
+# Configure git safe directory to prevent dubious ownership warnings
+RUN git config --global --add safe.directory /var/www
+
 # Copy existing application directory contents
 COPY . .
 
