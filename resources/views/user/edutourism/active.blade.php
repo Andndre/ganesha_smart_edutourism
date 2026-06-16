@@ -3,7 +3,6 @@
 @section('title', 'Smart Edutourism - ' . $activeSession->tourRoute->name)
 
 @push('styles')
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
     <style>
         .leaflet-control-attribution {
             display: none !important;
@@ -115,9 +114,6 @@
         </div>
     </x-modal>
 
-@push('head-scripts')
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-@endpush
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>

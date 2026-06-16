@@ -2,10 +2,6 @@
 @section('title', 'Rekomendasi UMKM - Penglipuran')
 @section('header_title', 'Rekomendasi UMKM')
 
-@push('styles')
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-@endpush
-
 @section('content')
     <style>
         #map {
@@ -241,9 +237,7 @@
         </x-modal>
     </div>
 
-@push('head-scripts')
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-@endpush
+
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
         (function() {
