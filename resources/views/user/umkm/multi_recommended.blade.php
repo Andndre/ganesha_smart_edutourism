@@ -3,7 +3,6 @@
 @section('header_title', 'Rute Belanja UMKM')
 
 @push('styles')
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         #map {
             height: 300px;
@@ -182,9 +181,6 @@
     </div>
 @endsection
 
-@push('head-scripts')
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-@endpush
 
 @push('scripts')
     <script>
