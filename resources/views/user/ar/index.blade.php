@@ -137,7 +137,6 @@
                 if (readerEl && !html5QrcodeScanner) {
                     console.log('DOM Ready - starting init...');
 
-                    // Check if secure context and mediaDevices is supported
                     const isSecure = window.isSecureContext;
                     const hasMediaDevices = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 
@@ -146,34 +145,9 @@
                         return;
                     }
 
-                    // Use Html5Qrcode's native method to get cameras and prompt for permission
-                    Html5Qrcode.getCameras().then(devices => {
-                        if (devices && devices.length) {
-                            console.info('Cameras found: ' + devices.length);
-                            const isMobile =
-                                /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-                                    navigator.userAgent);
-                            // Default: first camera on PC (usually main webcam), last camera on Mobile (usually back camera)
-                            let cameraId = isMobile ? devices[devices.length - 1].id : devices[0].id;
-
-                            for (let i = 0; i < devices.length; i++) {
-                                let label = devices[i].label.toLowerCase();
-                                console.info('  Camera ' + i + ': ' + (devices[i].label || '(no label)') +
-                                    ' id=' + devices[i].id.substring(0, 8) + '...');
-                                if (label.includes('back') || label.includes('environment') || label
-                                    .includes('rear') || label.includes('kamera belakang')) {
-                                    cameraId = devices[i].id;
-                                    break;
-                                }
-                            }
-                            initScanner(cameraId, devices);
-                        } else {
-                            showCameraError();
-                        }
-                    }).catch(err => {
-                        console.error("Camera permission request failed:", err);
-                        showCameraPermissionDeniedError();
-                    });
+                    // LANGSUNG panggil mode environment (Kamera Belakang Utama)
+                    // Tidak perlu mencari ID kamera satu per satu yang berisiko nyasar ke lensa Macro
+                    initScanner({ facingMode: "environment" });
 
                     const backBtn = document.getElementById('btn-back-scanner');
                     if (backBtn) {
@@ -186,7 +160,6 @@
                     if (viewer) {
                         viewer.addEventListener('error', (event) => {
                             console.error("ModelViewer Error:", event);
-
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal Memuat Model',
@@ -200,8 +173,8 @@
                 }
             };
 
-            function initScanner(cameraId, devices = []) {
-                console.log('initScanner() called with cameraId: ' + cameraId);
+            function initScanner(cameraConfig) {
+                console.log('initScanner() called with config:', cameraConfig);
                 try {
                     html5QrcodeScanner = new Html5Qrcode("reader");
                     console.log('Html5Qrcode instance created OK');
@@ -222,25 +195,22 @@
 
                 if (isIOS) {
                     config.videoConstraints = {
-                        width: {
-                            ideal: 1280
-                        },
-                        height: {
-                            ideal: 720
-                        }
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
                     };
                 }
 
+                // Coba gunakan kamera belakang utama (Environment)
                 html5QrcodeScanner.start(
-                    cameraId,
+                    cameraConfig,
                     config,
                     onScanSuccess,
                     onScanFailure
                 ).then(() => {
-                    console.log('✅ Scanner started SUCCESSFULLY');
+                    console.log('✅ Scanner started SUCCESSFULLY (Environment Mode)');
                     startHeartbeat();
                 }).catch(err => {
-                    console.warn("❌ Failed to start scanner:", err);
+                    console.warn("❌ Failed with environment mode, trying fallback...", err);
 
                     const isPermissionDenied = err.toString().includes("NotAllowedError") ||
                         err.toString().includes("Permission denied") ||
@@ -249,59 +219,49 @@
                     if (isPermissionDenied) {
                         showCameraPermissionDeniedError();
                     } else {
-                        // Fallback: try starting with the first available camera if this one failed (e.g. OBS Virtual Camera NotReadableError)
-                        const fallbackCameraId = (devices && devices.length > 0 && devices[0].id !== cameraId) ?
-                            devices[0].id : null;
-
-                        const fallbackConfig = {
-                            ...config
-                        };
-                        delete fallbackConfig.videoConstraints;
-
-                        if (fallbackCameraId) {
-                            console.log('Trying fallback camera: ' + fallbackCameraId);
-                            html5QrcodeScanner.start(
-                                fallbackCameraId,
-                                fallbackConfig,
-                                onScanSuccess,
-                                onScanFailure
-                            ).then(() => {
-                                console.log('✅ Scanner started SUCCESSFULLY (fallback camera)');
-                                startHeartbeat();
-                            }).catch(fallbackErr => {
-                                console.error('❌ Fallback camera failed too:', fallbackErr);
+                        // Fallback: Jika environment gagal (misal di PC/Laptop), cari kamera pertama yang tersedia
+                        Html5Qrcode.getCameras().then(devices => {
+                            if (devices && devices.length > 0) {
+                                const fallbackConfig = { ...config };
+                                delete fallbackConfig.videoConstraints; // Hapus constraint agar tidak bentrok
+                                
+                                html5QrcodeScanner.start(
+                                    devices[0].id,
+                                    fallbackConfig,
+                                    onScanSuccess,
+                                    onScanFailure
+                                ).then(() => {
+                                    console.log('✅ Scanner started SUCCESSFULLY (Fallback Camera)');
+                                    startHeartbeat();
+                                }).catch(fallbackErr => {
+                                    console.error('❌ Fallback camera failed too:', fallbackErr);
+                                    showCameraError();
+                                });
+                            } else {
                                 showCameraError();
-                            });
-                        } else {
-                            showCameraError();
-                        }
+                            }
+                        }).catch(e => {
+                            showCameraPermissionDeniedError();
+                        });
                     }
                 });
             }
+
             window.retryCameraInit = function() {
-                // Restore reticles
                 const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
                 reticles.forEach(r => r.style.display = 'block');
-
-                // Clear the reader content so Html5Qrcode can mount again
                 document.getElementById('reader').innerHTML = '';
-
-                // Re-run initialization
                 initAr();
             };
 
             function showCameraPermissionDeniedError() {
-                console.error("❌ Camera permission was denied.");
                 const badge = document.getElementById('status-badge');
                 if (badge) {
                     badge.innerText = 'Izin kamera ditolak / Tertahan';
                     badge.classList.replace('bg-black/40', 'bg-red-500/80');
                 }
-
-                // Hide the scanner reticle overlay
                 const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
                 reticles.forEach(r => r.style.display = 'none');
-
                 document.getElementById('reader').innerHTML = `
                     <div class="flex flex-col items-center justify-center min-h-screen w-full p-8 text-center text-white bg-black/95">
                         <div class="w-16 h-16 mb-4 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
@@ -318,26 +278,19 @@
                             <button onclick="window.retryCameraInit()" class="w-full bg-green-700 hover:bg-green-600 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-green-700/20 pointer-events-auto">
                                 Izinkan Kamera & Coba Lagi
                             </button>
-                            <button onclick="navigator.clipboard.writeText(window.location.href); Swal.fire({icon:'success', title:'Tautan Disalin', text:'Silakan tempel di Google Chrome atau Safari.', confirmButtonColor: '#1E5128'})" class="w-full bg-white/10 hover:bg-white/20 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 pointer-events-auto border border-white/10">
-                                Salin Tautan Halaman
-                            </button>
                         </div>
                     </div>
                 `;
             }
 
             function showCameraError() {
-                console.error("❌ All scanner start attempts FAILED.");
                 const badge = document.getElementById('status-badge');
                 if (badge) {
                     badge.innerText = 'Kamera tidak ditemukan';
                     badge.classList.replace('bg-black/40', 'bg-red-500/80');
                 }
-
-                // Hide the scanner reticle overlay
                 const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
                 reticles.forEach(r => r.style.display = 'none');
-
                 document.getElementById('reader').innerHTML = `
                     <div class="flex flex-col items-center justify-center min-h-screen w-full p-8 text-center text-white bg-black/95">
                         <div class="w-16 h-16 mb-4 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500">
@@ -347,16 +300,11 @@
                         </div>
                         <h3 class="font-bold text-lg text-white mb-2">Kamera Tidak Tersedia</h3>
                         <p class="text-sm text-gray-400 mb-6 max-w-xs leading-relaxed">
-                            Pastikan perangkat Anda memiliki kamera belakang yang aktif. Jika Anda menggunakan in-app browser dari aplikasi sosial media, silakan buka langsung di aplikasi <b>Google Chrome</b> atau <b>Safari</b> utama.
+                            Pastikan perangkat Anda memiliki kamera belakang yang aktif.
                         </p>
-                        <div class="flex flex-col gap-3 w-full max-w-xs">
-                            <button onclick="window.location.reload()" class="w-full bg-green-700 hover:bg-green-600 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-green-700/20 pointer-events-auto">
-                                Coba Lagi
-                            </button>
-                            <button onclick="navigator.clipboard.writeText(window.location.href); Swal.fire({icon:'success', title:'Tautan Disalin', text:'Silakan tempel di Google Chrome atau Safari.', confirmButtonColor: '#1E5128'})" class="w-full bg-white/10 hover:bg-white/20 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 pointer-events-auto border border-white/10">
-                                Salin Tautan Halaman
-                            </button>
-                        </div>
+                        <button onclick="window.location.reload()" class="w-full bg-green-700 hover:bg-green-600 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-green-700/20 pointer-events-auto max-w-xs">
+                            Coba Lagi
+                        </button>
                     </div>
                 `;
             }
@@ -367,19 +315,13 @@
                     badge.innerText = insecure ? 'Koneksi HTTP' : 'Browser Tidak Didukung';
                     badge.classList.replace('bg-black/40', 'bg-red-500/80');
                 }
-
-                // Hide the scanner reticle overlay
                 const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
                 reticles.forEach(r => r.style.display = 'none');
-
-                let title = 'Browser Tidak Didukung';
-                let desc =
-                    'Browser ini tidak mendukung pemindaian kamera. Harap salin tautan di bawah dan buka menggunakan Google Chrome atau Safari utama Anda.';
-                if (insecure) {
-                    title = 'Koneksi Tidak Aman';
-                    desc = 'Fitur kamera memerlukan koneksi HTTPS (SSL) yang aman. Silakan hubungi pengelola sistem.';
-                }
-
+                let title = insecure ? 'Koneksi Tidak Aman' : 'Browser Tidak Didukung';
+                let desc = insecure 
+                    ? 'Fitur kamera memerlukan koneksi HTTPS (SSL) yang aman.' 
+                    : 'Browser ini tidak mendukung pemindaian kamera.';
+                
                 document.getElementById('reader').innerHTML = `
                     <div class="flex flex-col items-center justify-center min-h-screen w-full p-8 text-center text-white bg-black/95">
                         <div class="w-16 h-16 mb-4 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
@@ -389,9 +331,6 @@
                         </div>
                         <h3 class="font-bold text-lg text-white mb-2">${title}</h3>
                         <p class="text-sm text-gray-400 mb-6 max-w-xs">${desc}</p>
-                        <button onclick="navigator.clipboard.writeText(window.location.href); Swal.fire({icon:'success', title:'Tautan Disalin', text:'Silakan tempel di Google Chrome atau Safari.', confirmButtonColor: '#1E5128'})" class="bg-green-700 hover:bg-green-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-all active:scale-95 shadow-lg shadow-green-700/20 pointer-events-auto">
-                            Salin Tautan Halaman
-                        </button>
                     </div>
                 `;
             }
@@ -401,8 +340,6 @@
                     if (!isProcessing && html5QrcodeScanner) {
                         try {
                             const state = html5QrcodeScanner.getState();
-                            console.log('Scanner heartbeat - state: ' + state + ', failScans: ' +
-                                scanFailCount);
                             scanFailCount = 0;
                         } catch (e) {}
                     }
@@ -411,7 +348,6 @@
 
             function onScanSuccess(decodedText, decodedResult) {
                 if (isProcessing) return;
-
                 console.log("🎯 QR Terdeteksi:", decodedText);
 
                 let slug = '';
@@ -424,9 +360,7 @@
                     try {
                         const urlObj = new URL(decodedText);
                         marker = urlObj.searchParams.get('marker') || '';
-                    } catch (e) {
-                        console.error("URL parse error:", e.message);
-                    }
+                    } catch (e) {}
                 } else if (decodedText.startsWith('MARKER_')) {
                     marker = decodedText;
                 }
@@ -435,20 +369,18 @@
                     isProcessing = true;
                     if (navigator.vibrate) navigator.vibrate(50);
 
-                    if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
+                    // BENAR: Menggunakan getState()
+                    if (html5QrcodeScanner && html5QrcodeScanner.getState() === 2) {
                         html5QrcodeScanner.pause();
-                        console.log("Scanner paused");
                     }
 
                     fetchModel(slug, marker);
                 } else {
-                    console.warn("Format QR Code tidak dikenali:", decodedText);
                     const statusBadge = document.getElementById('status-badge');
                     if (statusBadge) {
                         statusBadge.innerText = 'QR Tidak Dikenali!';
                         statusBadge.classList.replace('bg-black/40', 'bg-red-500/80');
                     }
-
                     setTimeout(() => {
                         if (!isProcessing && statusBadge) {
                             statusBadge.innerText = 'Arahkan ke Marker QR';
@@ -458,9 +390,7 @@
                 }
             }
 
-            function onScanFailure(error) {
-                scanFailCount++;
-            }
+            function onScanFailure(error) { scanFailCount++; }
 
             function fetchModel(slug, marker) {
                 const loadingOverlay = document.getElementById('loading-overlay');
@@ -472,12 +402,7 @@
                 }
                 if (statusBadge) statusBadge.innerText = 'Mengunduh Model...';
 
-                let query = '';
-                if (slug) {
-                    query = `slug=${encodeURIComponent(slug)}`;
-                } else if (marker) {
-                    query = `marker=${encodeURIComponent(marker)}`;
-                }
+                let query = slug ? `slug=${encodeURIComponent(slug)}` : `marker=${encodeURIComponent(marker)}`;
 
                 fetch(`/api/ar/model?${query}`)
                     .then(res => res.json())
@@ -495,9 +420,7 @@
                             title: 'Oops...',
                             text: err.message,
                             confirmButtonColor: '#1E5128'
-                        }).then(() => {
-                            showScanner();
-                        });
+                        }).then(() => { showScanner(); });
                     })
                     .finally(() => {
                         if (loadingOverlay) {
@@ -511,6 +434,7 @@
                 const scanView = document.getElementById('scanner-view');
                 const modelView = document.getElementById('model-view');
                 const badge = document.getElementById('status-badge');
+                
                 if (scanView) scanView.classList.add('hidden');
                 if (modelView) modelView.classList.remove('hidden');
                 if (badge) badge.innerText = 'Sentuh untuk memutar/zoom';
@@ -546,33 +470,45 @@
                 }
 
                 isProcessing = false;
-
                 const viewer = document.getElementById('ar-model-viewer');
                 if (viewer) viewer.src = '';
 
-                if (html5QrcodeScanner && html5QrcodeScanner.getState() === 2) {
+                if (html5QrcodeScanner && html5QrcodeScanner.getState() === 3) {
                     html5QrcodeScanner.resume();
                 }
             }
 
-            // Run immediately
+            // Eksekusi AR Scanner
             initAr();
 
-            // Clean up scanner camera stream and heartbeat on Livewire navigation
+            // PENTING: Perbaikan Cleanup Livewire agar kamera tidak nyangkut (Layar Hitam) saat pindah halaman
             document.addEventListener('livewire:navigating', function cleanup(e) {
                 if (heartbeatInterval) {
                     clearInterval(heartbeatInterval);
                     heartbeatInterval = null;
                 }
+                
                 if (html5QrcodeScanner) {
-                    if (html5QrcodeScanner.isScanning) {
-                        html5QrcodeScanner.stop().then(() => {
-                            console.log("Scanner stopped successfully");
+                    try {
+                        // KOREKSI: Gunakan getState() bukan isScanning
+                        const currentState = html5QrcodeScanner.getState();
+                        
+                        // Jika kamera sedang menyala (2) atau di-pause (3), matikan secara hardware
+                        if (currentState === 2 || currentState === 3) {
+                            html5QrcodeScanner.stop().then(() => {
+                                console.log("✅ Hardware camera released.");
+                                html5QrcodeScanner.clear();
+                                html5QrcodeScanner = null;
+                            }).catch(err => {
+                                console.error("Error stopping scanner:", err);
+                                html5QrcodeScanner.clear();
+                                html5QrcodeScanner = null;
+                            });
+                        } else {
+                            html5QrcodeScanner.clear();
                             html5QrcodeScanner = null;
-                        }).catch(err => {
-                            console.error("Error stopping scanner:", err);
-                        });
-                    } else {
+                        }
+                    } catch (error) {
                         html5QrcodeScanner = null;
                     }
                 }
