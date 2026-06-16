@@ -160,7 +160,7 @@
                                     cameraId = devices[i].id;
                                 }
                             }
-                            initScanner(cameraId);
+                            initScanner(cameraId, devices);
                         } else {
                             showCameraError();
                         }
@@ -194,7 +194,7 @@
                 }
             };
 
-            function initScanner(cameraId) {
+            function initScanner(cameraId, devices = []) {
                 console.log('initScanner() called with cameraId: ' + cameraId);
                 try {
                     html5QrcodeScanner = new Html5Qrcode("reader");
@@ -243,24 +243,32 @@
                     if (isPermissionDenied) {
                         showCameraPermissionDeniedError();
                     } else {
-                        // Fallback: try starting without specific videoConstraints just in case constraints are the issue
+                        // Fallback: try starting with the first available camera if this one failed (e.g. OBS Virtual Camera NotReadableError)
+                        const fallbackCameraId = (devices && devices.length > 0 && devices[0].id !== cameraId) ?
+                            devices[0].id : null;
+
                         const fallbackConfig = {
                             ...config
                         };
                         delete fallbackConfig.videoConstraints;
 
-                        html5QrcodeScanner.start(
-                            cameraId,
-                            fallbackConfig,
-                            onScanSuccess,
-                            onScanFailure
-                        ).then(() => {
-                            console.log('✅ Scanner started SUCCESSFULLY (fallback config)');
-                            startHeartbeat();
-                        }).catch(fallbackErr => {
-                            console.error('❌ Fallback failed too:', fallbackErr);
+                        if (fallbackCameraId) {
+                            console.log('Trying fallback camera: ' + fallbackCameraId);
+                            html5QrcodeScanner.start(
+                                fallbackCameraId,
+                                fallbackConfig,
+                                onScanSuccess,
+                                onScanFailure
+                            ).then(() => {
+                                console.log('✅ Scanner started SUCCESSFULLY (fallback camera)');
+                                startHeartbeat();
+                            }).catch(fallbackErr => {
+                                console.error('❌ Fallback camera failed too:', fallbackErr);
+                                showCameraError();
+                            });
+                        } else {
                             showCameraError();
-                        });
+                        }
                     }
                 });
             }
@@ -377,7 +385,7 @@
                         try {
                             const state = html5QrcodeScanner.getState();
                             console.log('Scanner heartbeat - state: ' + state + ', failScans: ' +
-                            scanFailCount);
+                                scanFailCount);
                             scanFailCount = 0;
                         } catch (e) {}
                     }
