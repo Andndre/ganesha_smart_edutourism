@@ -20,16 +20,12 @@
                 return;
             }
 
-            // Ikat ke tombol overlay agar Chrome menerima "User Gesture Token".
-            const startBtn = document.getElementById("btn-start-camera");
+            // Secara otomatis mengeksekusi kamera saat halaman dimuat
             const overlay = document.getElementById("start-camera-overlay");
-
-            if (startBtn && overlay) {
-                startBtn.addEventListener("click", () => {
-                    overlay.classList.add("hidden");
-                    initScanner();
-                });
+            if (overlay) {
+                overlay.classList.add("hidden");
             }
+            initScanner();
 
             // Back Button Logic & Exit Confirmation
             const backBtn = document.getElementById("btn-back-scanner");
