@@ -33,7 +33,11 @@
 
         html,
         body {
-            height: 100dvh;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
             overflow: hidden;
             overscroll-behavior: none;
             /* Mencegah pull-to-refresh bawaan browser */
@@ -73,7 +77,7 @@
     @stack('styles')
 </head>
 
-<body class="flex h-dvh items-center justify-center overflow-hidden bg-gray-50 antialiased">
+<body class="flex h-full w-full items-center justify-center overflow-hidden bg-gray-50 antialiased">
 
     <div class="bg-surface text-charcoal relative flex h-full w-full flex-col md:flex-row-reverse overflow-hidden"
         style="transform: translateZ(0);">
