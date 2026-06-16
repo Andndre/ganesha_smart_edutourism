@@ -446,13 +446,19 @@
             badge.classList.replace("bg-red-500/80", "bg-black/40");
         }
 
-        isProcessing = false;
         const viewer = document.getElementById("ar-model-viewer");
         if (viewer) viewer.src = "";
 
         if (html5QrcodeScanner && html5QrcodeScanner.getState() === 3) {
             html5QrcodeScanner.resume();
         }
+
+        // Beri jeda 1.5 detik sebelum scanner bisa memproses QR lagi.
+        // Ini mencegah "Instant Scan Loop" ketika user menekan OK pada pesan error
+        // namun kamera masih menyorot QR code yang sama.
+        setTimeout(() => {
+            isProcessing = false;
+        }, 1500);
     }
 
     // Eksekusi AR Scanner saat DOM Ready
