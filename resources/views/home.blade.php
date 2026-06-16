@@ -111,7 +111,7 @@
         </section>
 
         <section class="mb-6 mt-12 px-4">
-            <div class="grid grid-cols-4 items-start gap-x-2 gap-y-6">
+            <div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 items-start gap-x-2 gap-y-6 md:gap-x-6 md:gap-y-8">
                 <a href="{{ route('explore') }}"
                     class="tap-target flex flex-col items-center gap-2 transition-transform active:scale-95">
                     <div

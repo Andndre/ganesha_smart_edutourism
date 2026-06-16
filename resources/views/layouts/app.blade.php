@@ -57,10 +57,13 @@
     @stack('styles')
 </head>
 
-<body class="flex h-dvh items-center justify-center overflow-hidden bg-gray-100 antialiased">
+<body class="flex h-dvh items-center justify-center overflow-hidden bg-gray-50 antialiased">
 
-    <div class="bg-surface text-charcoal relative flex h-full w-full max-w-[480px] flex-col overflow-hidden sm:border sm:border-gray-200 sm:shadow-2xl"
+    <div class="bg-surface text-charcoal relative flex h-full w-full flex-col md:flex-row-reverse overflow-hidden"
         style="transform: translateZ(0);">
+
+        <!-- Content Area Wrapper -->
+        <div class="relative flex h-full w-full flex-1 flex-col overflow-hidden">
 
         <!-- Global Offline Coaching Modal -->
         <div id="offline-coaching-modal"
@@ -118,7 +121,7 @@
         </main>
 
         @if ($hasActiveSession)
-            <div class="{{ $isMainTab ? 'bottom-[calc(env(safe-area-inset-bottom)+4rem)]' : 'bottom-0' }} fixed left-0 right-0 z-40 border-t border-gray-200 bg-white/80 px-4 py-3 backdrop-blur-md"
+            <div class="{{ $isMainTab ? 'bottom-[calc(env(safe-area-inset-bottom)+4rem)] md:bottom-0' : 'bottom-0' }} fixed md:absolute left-0 right-0 z-40 border-t border-gray-200 bg-white/80 px-4 py-3 backdrop-blur-md"
                 id="floating-route-banner">
                 <a href="{{ route('edutourism.active') }}"
                     class="pointer-events-auto flex items-center justify-between overflow-hidden rounded-2xl bg-[#1E5128] shadow-lg shadow-[#1E5128]/30 transition-transform active:scale-95">
@@ -149,6 +152,8 @@
                 </a>
             </div>
         @endif
+        
+        </div> <!-- End of Content Area Wrapper -->
 
         @if ($isMainTab)
             @include('components.navigation.bottom-nav')
@@ -196,8 +201,8 @@
                             if (!loadingBar) {
                                 loadingBar = document.createElement('div');
                                 loadingBar.id = 'global-loading-bar';
-                                // Append to our container so it gets the absolute positioning properly
-                                document.querySelector('.max-w-\\[480px\\]').appendChild(loadingBar);
+                                // Append to body so it stays at the top of the viewport
+                                document.body.appendChild(loadingBar);
                             }
 
                             // Reset loading bar state

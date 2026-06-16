@@ -46,7 +46,7 @@
         <form action="{{ route('umkm.recommend') }}" method="POST">
             @csrf
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
                 @foreach ($categories as $category)
                     <div id="card-cat-{{ $category->id }}"
                         class="category-card relative flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:border-gray-200 hover:shadow-md"
