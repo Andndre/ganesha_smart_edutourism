@@ -43,6 +43,7 @@ return [
         'latitude' => env('PENGLIPURAN_LAT', -8.422303596762355),
         'longitude' => env('PENGLIPURAN_LON', 115.35948833933173),
         'timezone' => env('PENGLIPURAN_TIMEZONE', 'Asia/Makassar'),
+        'geofence_radius' => (int) env('PENGLIPURAN_GEOFENCE_RADIUS', 500),
     ],
 
 ];
