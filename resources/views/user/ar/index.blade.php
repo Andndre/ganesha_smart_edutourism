@@ -150,10 +150,12 @@
                     Html5Qrcode.getCameras().then(devices => {
                         if (devices && devices.length) {
                             console.info('Cameras found: ' + devices.length);
-                            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                            const isMobile =
+                                /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+                                    navigator.userAgent);
                             // Default: first camera on PC (usually main webcam), last camera on Mobile (usually back camera)
                             let cameraId = isMobile ? devices[devices.length - 1].id : devices[0].id;
-                            
+
                             for (let i = 0; i < devices.length; i++) {
                                 let label = devices[i].label.toLowerCase();
                                 console.info('  Camera ' + i + ': ' + (devices[i].label || '(no label)') +
@@ -276,14 +278,14 @@
                     }
                 });
             }
-                window.retryCameraInit = function() {
+            window.retryCameraInit = function() {
                 // Restore reticles
                 const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
                 reticles.forEach(r => r.style.display = 'block');
-                
+
                 // Clear the reader content so Html5Qrcode can mount again
                 document.getElementById('reader').innerHTML = '';
-                
+
                 // Re-run initialization
                 initAr();
             };
@@ -295,7 +297,7 @@
                     badge.innerText = 'Izin kamera ditolak / Tertahan';
                     badge.classList.replace('bg-black/40', 'bg-red-500/80');
                 }
-                
+
                 // Hide the scanner reticle overlay
                 const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
                 reticles.forEach(r => r.style.display = 'none');
