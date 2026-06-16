@@ -2,9 +2,12 @@
 
 @section('title', 'Peta Interaktif - Penglipuran Smart Tour')
 
-@section('content')
+@push('styles')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+@endpush
+
+@section('content')
     <style>
         /* Sembunyikan atribusi leaflet yang terlalu besar di HP */
         .leaflet-control-attribution {
@@ -94,8 +97,10 @@
 
     @include('user.explore.components.location-sheet')
 
+@push('head-scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+@endpush
 
     <script>
         // Execution wrapper to handle Livewire and page navigation

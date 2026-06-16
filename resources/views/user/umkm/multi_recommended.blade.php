@@ -182,8 +182,11 @@
     </div>
 @endsection
 
-@push('scripts')
+@push('head-scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+@endpush
+
+@push('scripts')
     <script>
         const routeData = @json($route);
         const mapCoordinates = routeData.map(stop => {
