@@ -104,7 +104,8 @@
                             'name' => $zone->name,
                             'warning_threshold' => $zone->warning_threshold,
                             'critical_threshold' => $zone->critical_threshold,
-                            'max_capacity' => $zone->max_capacity
+                            'max_capacity' => $zone->max_capacity,
+                            'radius_meters' => $zone->radius_meters ?? 0
                         ]) }})" class="text-gray-400 hover:text-primary transition-colors focus:outline-none" title="Edit Ambang Batas">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -158,9 +159,15 @@
             @csrf
             @method('PUT')
             <div class="p-6 space-y-4">
-                <div>
-                    <label for="modal-max-capacity" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Kapasitas Maksimal (Orang)</label>
-                    <input type="number" name="max_capacity" id="modal-max-capacity" required min="1" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="modal-max-capacity" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Kapasitas Maksimal</label>
+                        <input type="number" name="max_capacity" id="modal-max-capacity" required min="1" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
+                    </div>
+                    <div>
+                        <label for="modal-radius-meters" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Radius (Meter)</label>
+                        <input type="number" name="radius_meters" id="modal-radius-meters" required min="1" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -213,6 +220,10 @@
         document.getElementById('modal-max-capacity').value = data.max_capacity;
         document.getElementById('modal-warning-threshold').value = data.warning_threshold;
         document.getElementById('modal-critical-threshold').value = data.critical_threshold;
+        
+        if(document.getElementById('modal-radius-meters')) {
+            document.getElementById('modal-radius-meters').value = data.radius_meters;
+        }
 
         const form = document.getElementById('modal-threshold-form');
         form.action = `/admin/capacity/${data.id}/thresholds`;

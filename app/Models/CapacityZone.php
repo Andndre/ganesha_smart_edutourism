@@ -19,11 +19,12 @@ use Illuminate\Support\Carbon;
  * @property int $warning_threshold
  * @property int $critical_threshold
  * @property int $current_count
+ * @property int $radius_meters
  * @property bool $is_active
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'zone_identifier', 'max_capacity', 'warning_threshold', 'critical_threshold', 'current_count', 'is_active'])]
+#[Fillable(['name', 'zone_identifier', 'latitude', 'longitude', 'radius_meters', 'max_capacity', 'warning_threshold', 'critical_threshold', 'current_count', 'is_active'])]
 class CapacityZone extends Model
 {
     use HasFactory;
