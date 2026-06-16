@@ -150,7 +150,10 @@
                     Html5Qrcode.getCameras().then(devices => {
                         if (devices && devices.length) {
                             console.info('Cameras found: ' + devices.length);
-                            let cameraId = devices[devices.length - 1].id;
+                            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                            // Default: first camera on PC (usually main webcam), last camera on Mobile (usually back camera)
+                            let cameraId = isMobile ? devices[devices.length - 1].id : devices[0].id;
+                            
                             for (let i = 0; i < devices.length; i++) {
                                 let label = devices[i].label.toLowerCase();
                                 console.info('  Camera ' + i + ': ' + (devices[i].label || '(no label)') +
@@ -158,6 +161,7 @@
                                 if (label.includes('back') || label.includes('environment') || label
                                     .includes('rear') || label.includes('kamera belakang')) {
                                     cameraId = devices[i].id;
+                                    break;
                                 }
                             }
                             initScanner(cameraId, devices);
