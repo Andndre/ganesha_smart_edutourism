@@ -276,15 +276,26 @@
                     }
                 });
             }
+                window.retryCameraInit = function() {
+                // Restore reticles
+                const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
+                reticles.forEach(r => r.style.display = 'block');
+                
+                // Clear the reader content so Html5Qrcode can mount again
+                document.getElementById('reader').innerHTML = '';
+                
+                // Re-run initialization
+                initAr();
+            };
 
             function showCameraPermissionDeniedError() {
                 console.error("❌ Camera permission was denied.");
                 const badge = document.getElementById('status-badge');
                 if (badge) {
-                    badge.innerText = 'Izin kamera ditolak';
+                    badge.innerText = 'Izin kamera ditolak / Tertahan';
                     badge.classList.replace('bg-black/40', 'bg-red-500/80');
                 }
-
+                
                 // Hide the scanner reticle overlay
                 const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
                 reticles.forEach(r => r.style.display = 'none');
@@ -293,17 +304,17 @@
                     <div class="flex flex-col items-center justify-center min-h-screen w-full p-8 text-center text-white bg-black/95">
                         <div class="w-16 h-16 mb-4 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
                             <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                             </svg>
                         </div>
-                        <h3 class="font-bold text-lg text-white mb-2">Akses Kamera Ditolak / Bermasalah</h3>
+                        <h3 class="font-bold text-lg text-white mb-2">Akses Kamera Tertahan / Ditolak</h3>
                         <p class="text-sm text-gray-400 mb-6 max-w-xs leading-relaxed">
-                            Browser memblokir akses kamera. Jika Anda membuka halaman ini dari dalam aplikasi media sosial (Telegram, Discord, dll.), silakan salin tautan dan buka di aplikasi <b>Google Chrome</b> atau <b>Safari</b> utama.<br><br>
-                            Jika sudah di browser utama, pastikan izin kamera diaktifkan di pengaturan browser Anda.
+                            Browser membutuhkan izin Anda untuk mengaktifkan kamera. Ketuk tombol di bawah untuk meminta ulang izin akses kamera.<br><br>
+                            Jika tetap tidak bisa, pastikan Anda telah memberikan Izin Kamera di pengaturan <b>Google Chrome</b> atau <b>Safari</b> Anda.
                         </p>
                         <div class="flex flex-col gap-3 w-full max-w-xs">
-                            <button onclick="window.location.reload()" class="w-full bg-green-700 hover:bg-green-600 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-green-700/20 pointer-events-auto">
-                                Muat Ulang Halaman
+                            <button onclick="window.retryCameraInit()" class="w-full bg-green-700 hover:bg-green-600 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-green-700/20 pointer-events-auto">
+                                Izinkan Kamera & Coba Lagi
                             </button>
                             <button onclick="navigator.clipboard.writeText(window.location.href); Swal.fire({icon:'success', title:'Tautan Disalin', text:'Silakan tempel di Google Chrome atau Safari.', confirmButtonColor: '#1E5128'})" class="w-full bg-white/10 hover:bg-white/20 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 pointer-events-auto border border-white/10">
                                 Salin Tautan Halaman
