@@ -54,7 +54,7 @@
             @php
                 $levels = [
                     ['label' => 'Aman',   'range' => '< 60%',  'color' => 'bg-primary/10 text-primary'],
-                    ['label' => 'Sedang', 'range' => '60–80%', 'color' => 'bg-secondary/15 text-secondary'],
+                    ['label' => 'Sedang', 'range' => '60-80%', 'color' => 'bg-secondary/15 text-secondary'],
                     ['label' => 'Penuh',  'range' => '> 80%',  'color' => 'bg-warning/10 text-warning'],
                 ];
             @endphp

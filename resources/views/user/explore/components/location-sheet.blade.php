@@ -1,5 +1,5 @@
-<x-modal name="location-sheet" maxWidth="md" :hasBackdrop="false">
-    <div class="px-1 py-1">
+<x-modal name="location-sheet" maxWidth="md" :hasBackdrop="false" desktopLayout="drawer">
+    <div class="px-1 py-1 h-full flex flex-col">
         <!-- Dynamic Cover Image Slider -->
         <div id="sheet-image-container" class="relative mb-4 hidden h-40 w-full overflow-hidden rounded-2xl bg-gray-100"
             x-data="{
@@ -94,7 +94,7 @@
         </div>
 
         <!-- Content Area -->
-        <div class="max-h-[30dvh] space-y-4 overflow-y-auto pr-1">
+        <div class="flex-1 space-y-4 overflow-y-auto pr-1 pb-20">
             <!-- Deskripsi Section -->
             <div id="section-desc">
                 <h4 class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Deskripsi</h4>
@@ -118,7 +118,7 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="mt-6 flex gap-3 pb-2">
+        <div class="mt-4 pt-4 border-t border-gray-100 flex gap-3 pb-2 shrink-0">
             <a href="#" id="sheet-route-btn" target="_blank"
                 class="shadow-xs flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-3.5 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 active:scale-95">
                 <span id="route-btn-icon" class="flex items-center justify-center">
