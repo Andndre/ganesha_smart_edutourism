@@ -377,7 +377,6 @@
                         }
                     }, 10000);
                 }
-            }
 
             function onScanSuccess(decodedText, decodedResult) {
                 if (isProcessing) return;
