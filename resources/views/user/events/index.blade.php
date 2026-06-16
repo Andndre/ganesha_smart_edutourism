@@ -12,21 +12,6 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     @include('user.events.partials.events-styles')
 
-    <div x-data="publicEvents" @open-detail-modal.window="openDetail($event.detail)"
-        class="mx-auto max-w-lg space-y-6 px-4 py-6 md:max-w-4xl">
-
-        @include('user.events.partials.events-header')
-
-        @include('user.events.partials.events-toolbar')
-
-        @include('user.events.partials.events-calendar')
-
-        @include('user.events.partials.events-list')
-
-        @include('user.events.partials.events-detail-modal')
-
-    </div>
-
     <script>
         (function() {
             // Register Alpine Component
@@ -175,4 +160,19 @@
             }, 50);
         })();
     </script>
+
+    <div x-data="publicEvents" @open-detail-modal.window="openDetail($event.detail)"
+        class="mx-auto max-w-lg space-y-6 px-4 py-6 md:max-w-4xl">
+
+        @include('user.events.partials.events-header')
+
+        @include('user.events.partials.events-toolbar')
+
+        @include('user.events.partials.events-calendar')
+
+        @include('user.events.partials.events-list')
+
+        @include('user.events.partials.events-detail-modal')
+
+    </div>
 @endsection
