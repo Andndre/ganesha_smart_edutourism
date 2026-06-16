@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ARController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\TrackingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +18,5 @@ use App\Http\Controllers\BookingController;
 Route::post('/midtrans/webhook', [BookingController::class, 'webhook']);
 
 Route::get('/ar/model', [ARController::class, 'getModel']);
+
+Route::post('/tracking/ping', [TrackingController::class, 'ping']);

@@ -1,0 +1,6 @@
+services:
+  penglipuran-app:
+    ports:
+      - "${APP_PORT:-8000}:80"
+    volumes:
+      - .:/var/www

@@ -289,6 +289,65 @@
                 }
             }
 
+            // Real-time GPS Tracking updates via Laravel Reverb
+            const liveUserMarkers = {};
+            if (window.Echo) {
+                // Listen for other visitors' locations
+                window.Echo.channel('village-map')
+                    .listen('VisitorLocationUpdated', (e) => {
+                        // Check if this session already exists in heatmapData
+                        const existingIndex = heatmapData.findIndex(p => p.session_id === e.session_id);
+                        
+                        const newPoint = {
+                            lat: parseFloat(e.latitude),
+                            lng: parseFloat(e.longitude),
+                            intensity: 0.9,
+                            category: 'cultural', // To match default active filter
+                            name: 'Pengunjung Aktif',
+                            is_live_user: true,
+                            session_id: e.session_id
+                        };
+
+                        if (existingIndex !== -1) {
+                            heatmapData[existingIndex] = newPoint;
+                        } else {
+                            heatmapData.push(newPoint);
+                        }
+
+                        // Re-render heatmap if visible
+                        if (heatmapVisible) {
+                            renderHeatmap();
+                        }
+                        
+                        // Create or update marker for the live user
+                        if (liveUserMarkers[e.session_id]) {
+                            liveUserMarkers[e.session_id].setLatLng([e.latitude, e.longitude]);
+                        } else {
+                            // Don't show marker for our own session
+                            const mySessionId = localStorage.getItem('gps_session_id');
+                            if (e.session_id !== mySessionId) {
+                                const liveIcon = L.divIcon({
+                                    className: 'custom-div-icon',
+                                    html: `
+                                        <div class="relative flex h-4 w-4">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-4 w-4 bg-blue-600 border-2 border-white shadow"></span>
+                                        </div>
+                                    `,
+                                    iconSize: [16, 16],
+                                    iconAnchor: [8, 8]
+                                });
+                                
+                                const marker = L.marker([e.latitude, e.longitude], { icon: liveIcon })
+                                    .bindPopup('Pengunjung Lainnya')
+                                    .addTo(map);
+                                
+                                liveUserMarkers[e.session_id] = marker;
+                            }
+                        }
+                    });
+            }
+
             // Update marker visibility based on active filters and search query
             function updateVisibleMarkers() {
                 const searchInput = document.getElementById('search-input');
@@ -505,9 +564,9 @@
                                 });
                             },
                             (err) => onLocationError(err, silent), {
-                                enableHighAccuracy: true,
-                                maximumAge: 1000,
-                                timeout: 10000
+                                enableHighAccuracy: false, // Diganti false sementara agar lebih cepat / tidak timeout
+                                maximumAge: 10000,
+                                timeout: 15000
                             }
                         );
                     },

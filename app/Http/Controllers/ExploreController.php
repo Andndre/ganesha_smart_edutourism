@@ -8,6 +8,7 @@ use App\Models\Facility;
 use App\Models\MapLocation;
 use App\Models\TourRoute;
 use App\Models\UmkmProfile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class ExploreController extends Controller
@@ -132,8 +133,25 @@ class ExploreController extends Controller
                 'intensity' => \round($intensity, 2),
                 'category' => $category,
                 'name' => $loc->name,
+                'is_live_user' => false,
             ];
-        });
+        })->toArray();
+
+        // Add live tracked visitors from Cache
+        $activeVisitors = Cache::get('active_visitors', []);
+        foreach ($activeVisitors as $sessionId => $visitor) {
+            if ((now()->timestamp - $visitor['last_seen']) < 300) {
+                $heatmapData[] = [
+                    'lat' => (float) $visitor['lat'],
+                    'lng' => (float) $visitor['lng'],
+                    'intensity' => 0.9, // High intensity for live users
+                    'category' => 'cultural', // Map to cultural for now so it shows up in default filters, or we can make it always visible
+                    'name' => 'Pengunjung Aktif',
+                    'is_live_user' => true,
+                    'session_id' => $sessionId,
+                ];
+            }
+        }
 
         $defaultLat = (float) env('PENGLIPURAN_LAT', -8.422303596762355);
         $defaultLon = (float) env('PENGLIPURAN_LON', 115.35948833933173);
