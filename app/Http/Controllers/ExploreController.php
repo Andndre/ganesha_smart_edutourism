@@ -102,40 +102,8 @@ class ExploreController extends Controller
             ];
         });
 
-        // Build crowd density heatmap data
-        $heatmapData = MapLocation::with('locationable')->get()->map(function ($loc) {
-            $intensity = 0.5;
-            if ($loc->locationable_type === CapacityZone::class) {
-                $zone = $loc->locationable;
-                if ($zone) {
-                    $intensity = $zone->max_capacity > 0 ? ($zone->current_count / $zone->max_capacity) : 0.5;
-                }
-            } elseif ($loc->locationable_type === UmkmProfile::class) {
-                $intensity = 0.6;
-            } elseif ($loc->locationable_type === CulturalObject::class) {
-                $intensity = 0.8;
-            }
-
-            $category = $loc->category;
-            if ($loc->locationable_type === Facility::class && $loc->locationable && $loc->locationable->type === 'toilet') {
-                $category = 'toilets';
-            } elseif ($category === 'facility') {
-                $category = 'facilities';
-            } elseif ($category === 'toilet') {
-                $category = 'toilets';
-            } elseif ($category === 'emergency') {
-                $category = 'facilities';
-            }
-
-            return [
-                'lat' => (float) $loc->latitude,
-                'lng' => (float) $loc->longitude,
-                'intensity' => \round($intensity, 2),
-                'category' => $category,
-                'name' => $loc->name,
-                'is_live_user' => false,
-            ];
-        })->toArray();
+        // Initialize empty heatmap data array for real-time live visitors only
+        $heatmapData = [];
 
         // Add live tracked visitors from Cache
         $activeVisitors = Cache::get('active_visitors', []);
