@@ -391,7 +391,8 @@
 
                 // Close button
                 toastEl.querySelector('.toast-close').addEventListener('click', () => {
-                    toastEl.classList.remove('toast-visible');
+                    toastEl.classList.remove('translate-y-0', 'opacity-100');
+                    toastEl.classList.add('-translate-y-full', 'opacity-0');
                     setTimeout(() => toastEl.remove(), 500);
                 });
 
@@ -400,14 +401,16 @@
                 // Animate in
                 requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
-                        toastEl.classList.add('toast-visible');
+                        toastEl.classList.remove('-translate-y-full', 'opacity-0');
+                        toastEl.classList.add('translate-y-0', 'opacity-100');
                     });
                 });
 
                 // Auto-dismiss after 6 seconds
                 setTimeout(() => {
                     if (toastEl.parentNode) {
-                        toastEl.classList.remove('toast-visible');
+                        toastEl.classList.remove('translate-y-0', 'opacity-100');
+                        toastEl.classList.add('-translate-y-full', 'opacity-0');
                         setTimeout(() => toastEl.remove(), 500);
                     }
                 }, 6000);
