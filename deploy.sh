@@ -39,14 +39,14 @@ fi
 
 # 3. Pull/Build and start docker containers
 echo "Starting Docker Compose services..."
-docker compose up -d --build
+docker compose -f docker-compose.yml up -d --build
 
 # 4. Wait for MySQL to be ready
 echo "Waiting for database connection to be established..."
 DB_USER=$(grep DB_USERNAME .env | cut -d '=' -f2 | tr -d '"' | tr -d "'")
 DB_PASS=$(grep DB_PASSWORD .env | cut -d '=' -f2 | tr -d '"' | tr -d "'")
 
-until docker compose exec -e MYSQL_PWD="$DB_PASS" -T penglipuran-db mysqladmin ping -h"127.0.0.1" -u"$DB_USER" --silent; do
+until docker compose -f docker-compose.yml exec -e MYSQL_PWD="$DB_PASS" -T penglipuran-db mysqladmin ping -h"127.0.0.1" -u"$DB_USER" --silent; do
     echo -n "."
     sleep 2
 done
@@ -57,29 +57,29 @@ echo "Database is ready!"
 APP_KEY=$(grep '^APP_KEY=' .env | cut -d '=' -f 2)
 if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "null" ]; then
     echo "Generating Application Key..."
-    docker compose exec -T penglipuran-app php artisan key:generate
+    docker compose -f docker-compose.yml exec -T penglipuran-app php artisan key:generate
 fi
 
 # 6. Run database migrations
 echo "Running database migrations..."
-docker compose exec -T penglipuran-app php artisan migrate --force
+docker compose -f docker-compose.yml exec -T penglipuran-app php artisan migrate --force
 
 # 7. Check for seeding request
 if [[ "$1" == "--seed" ]]; then
     echo "Seeding the database..."
-    docker compose exec -T penglipuran-app php artisan db:seed --force
+    docker compose -f docker-compose.yml exec -T penglipuran-app php artisan db:seed --force
 fi
 
 # 8. Optimize Laravel
 echo "Optimizing Laravel configurations and routes..."
-docker compose exec -T penglipuran-app php artisan config:cache
-docker compose exec -T penglipuran-app php artisan route:cache
-docker compose exec -T penglipuran-app php artisan view:cache
+docker compose -f docker-compose.yml exec -T penglipuran-app php artisan config:cache
+docker compose -f docker-compose.yml exec -T penglipuran-app php artisan route:cache
+docker compose -f docker-compose.yml exec -T penglipuran-app php artisan view:cache
 
 echo "=========================================================="
 echo " Deployment Successful!"
 echo "=========================================================="
 echo "Your application is running on port: $(grep APP_PORT .env | cut -d '=' -f2 || echo 80)"
 echo "You can check container logs using:"
-echo "  docker compose logs -f"
+echo "  docker compose -f docker-compose.yml logs -f"
 echo "=========================================================="
