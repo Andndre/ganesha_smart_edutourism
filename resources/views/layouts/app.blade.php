@@ -72,8 +72,7 @@
     </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="{{ asset('js/htmx.min.js') }}"></script>
-
+    @livewireStyles
     @stack('styles')
 </head>
 
@@ -84,10 +83,6 @@
 
         <!-- Content Area Wrapper -->
         <div id="main-page-container"
-             hx-boost="true"
-             hx-target="this"
-             hx-select="#main-page-container"
-             hx-swap="innerHTML"
              class="relative flex h-full w-full flex-1 flex-col overflow-hidden">
 
         <!-- Global Offline Coaching Modal -->
@@ -193,72 +188,9 @@
                 });
             }
 
-            // Instant visual feedback for Bottom Nav and loading bar
-            document.addEventListener('DOMContentLoaded', () => {
-                updateActiveBottomNavTab();
-                const bottomNavLinks = document.querySelectorAll('nav a');
+            // Visual transitions and tab synchronization are handled by livewire:navigating and livewire:navigated below.
 
-                bottomNavLinks.forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        // Only process normal clicks on same-origin pages (excluding AR scan which goes to camera)
-                        const isSameOrigin = link.host === window.location.host;
-                        const isARScan = link.pathname.includes('/ar-scan');
-
-                        if (e.button === 0 && isSameOrigin && !isARScan && !e.metaKey && !e.ctrlKey) {
-                            // 1. Instantly swap active style on bottom nav tabs (0ms feedback)
-                            bottomNavLinks.forEach(l => {
-                                l.classList.remove('text-primary');
-                                l.classList.add('text-gray-400', 'hover:text-gray-600');
-                                const svg = l.querySelector('svg');
-                                if (svg) {
-                                    svg.setAttribute('stroke-width', '2');
-                                }
-                            });
-
-                            link.classList.remove('text-gray-400', 'hover:text-gray-600');
-                            link.classList.add('text-primary');
-                            const svg = link.querySelector('svg');
-                            if (svg) {
-                                svg.setAttribute('stroke-width', '2.5');
-                            }
-
-                            // 2. Trigger loading bar animation
-                            let loadingBar = document.getElementById('global-loading-bar');
-                            if (!loadingBar) {
-                                loadingBar = document.createElement('div');
-                                loadingBar.id = 'global-loading-bar';
-                                // Append to body so it stays at the top of the viewport
-                                document.body.appendChild(loadingBar);
-                            }
-
-                            // Reset loading bar state
-                            loadingBar.classList.remove('finished');
-                            loadingBar.style.width = '0%';
-
-                            // Force reflow
-                            void loadingBar.offsetWidth;
-
-                            // Progressively animate
-                            loadingBar.style.width = '20%';
-                            setTimeout(() => {
-                                loadingBar.style.width = '60%';
-                            }, 150);
-                            setTimeout(() => {
-                                loadingBar.style.width = '85%';
-                            }, 400);
-
-                            // 3. Smooth main content fade
-                            const mainContent = document.getElementById('main-content');
-                            if (mainContent) {
-                                mainContent.style.opacity = '0.5';
-                                mainContent.style.transition = 'opacity 0.2s ease';
-                            }
-                        }
-                    });
-                });
-            });
-
-            // HTMX integration for smooth SPA transitions
+            // Livewire bottom navigation synchronization for smooth SPA transitions
             function updateActiveBottomNavTab() {
                 const nav = document.querySelector('nav[role="navigation"]');
                 if (!nav) return;
@@ -306,7 +238,38 @@
                 });
             }
 
-            document.addEventListener('htmx:afterRequest', (e) => {
+            document.addEventListener('livewire:navigating', () => {
+                // 1. Trigger loading bar animation
+                let loadingBar = document.getElementById('global-loading-bar');
+                if (!loadingBar) {
+                    loadingBar = document.createElement('div');
+                    loadingBar.id = 'global-loading-bar';
+                    document.body.appendChild(loadingBar);
+                }
+
+                loadingBar.classList.remove('finished');
+                loadingBar.style.width = '0%';
+
+                // Force reflow
+                void loadingBar.offsetWidth;
+
+                loadingBar.style.width = '20%';
+                setTimeout(() => {
+                    loadingBar.style.width = '60%';
+                }, 150);
+                setTimeout(() => {
+                    loadingBar.style.width = '85%';
+                }, 400);
+
+                // 2. Smooth main content fade out
+                const mainContent = document.getElementById('main-content');
+                if (mainContent) {
+                    mainContent.style.opacity = '0.5';
+                    mainContent.style.transition = 'opacity 0.2s ease';
+                }
+            });
+
+            document.addEventListener('livewire:navigated', () => {
                 // Complete loading bar
                 const loadingBar = document.getElementById('global-loading-bar');
                 if (loadingBar) {
@@ -319,13 +282,8 @@
                 if (mainContent) {
                     mainContent.style.opacity = '1';
                 }
-            });
 
-            document.addEventListener('htmx:afterSwap', () => {
-                updateActiveBottomNavTab();
-            });
-
-            document.addEventListener('htmx:historyRestore', () => {
+                // Update active bottom nav highlight/visibility
                 updateActiveBottomNavTab();
             });
 
@@ -662,6 +620,7 @@
         </script>
 
     </div>
+    @livewireScripts
 </body>
 
 </html>

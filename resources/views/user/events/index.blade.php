@@ -58,18 +58,7 @@
 
             // Execution flow
 
-            const handleEventsLoad = function(evt) {
-                const container = evt.detail.elt;
-                if (container.querySelector('#calendar-public') || container.id === 'calendar-public') {
-                    initCalendar();
-                }
-            };
-            document.body.addEventListener('htmx:load', handleEventsLoad);
-
-            document.addEventListener('htmx:beforeSwap', function cleanup(e) {
-                document.body.removeEventListener('htmx:load', handleEventsLoad);
-                document.removeEventListener('htmx:beforeSwap', cleanup);
-            });
+            initCalendar();
         })();
     </script>
 

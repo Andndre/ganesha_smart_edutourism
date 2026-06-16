@@ -122,9 +122,8 @@
             let mapInstance = null;
             let watchId = null;
 
-            const handleActiveEdutourismLoad = function(evt) {
-                const container = evt.detail.elt;
-                const mapEl = container.querySelector('#map') || (container.id === 'map' ? container : null);
+            const initActiveEdutourism = function() {
+                const mapEl = document.getElementById('map');
                 if (mapEl && !mapInstance) {
             @if ($activeSession->currentPoint)
                 const targetLat = {{ $activeSession->currentPoint->locationable->mapLocation->latitude ?? 0 }};
@@ -192,7 +191,6 @@
             }
 
             let userMarker = null;
-            let watchId = null;
 
             // FOR TESTING PURPOSES ONLY! Delete in production if actual GPS is strictly needed.
             // Simulasi click on map to move GPS to test arrive trigger since dev GPS might be far
@@ -217,8 +215,8 @@
 
                 if (targetLat !== 0) {
                     const dist = calculateDistance(lat, lng, targetLat, targetLng);
-                    const infoText = container.querySelector('#distance-info') || document.getElementById('distance-info');
-                    const arriveBtn = container.querySelector('#btn-arrive') || document.getElementById('btn-arrive');
+                    const infoText = document.getElementById('distance-info');
+                    const arriveBtn = document.getElementById('btn-arrive');
 
                     if (dist < 30) {
                         infoText.innerHTML = `Lokasi Ditemukan! (Jarak: ${dist}m)`;
@@ -397,10 +395,13 @@
                         buttons.forEach(btn => btn.disabled = false);
                     });
             }
+            };
 
-            document.body.addEventListener('htmx:load', handleActiveEdutourismLoad);
+            // Run immediately
+            initActiveEdutourism();
 
-            document.addEventListener('htmx:beforeSwap', function cleanup(e) {
+            // Clean up GPS watch position and map instance when navigating away via Livewire
+            document.addEventListener('livewire:navigating', function cleanup(e) {
                 if (watchId !== null) {
                     navigator.geolocation.clearWatch(watchId);
                     watchId = null;
@@ -411,8 +412,7 @@
                 }
                 delete window.triggerArrive;
                 delete window.submitQuiz;
-                document.body.removeEventListener('htmx:load', handleActiveEdutourismLoad);
-                document.removeEventListener('htmx:beforeSwap', cleanup);
+                document.removeEventListener('livewire:navigating', cleanup);
             });
         })();
     </script>

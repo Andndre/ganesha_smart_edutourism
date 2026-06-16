@@ -158,12 +158,8 @@
                 }
                 // Navigate back to home after successful submission
                 setTimeout(() => {
-                    if (window.htmx) {
-                        htmx.ajax('GET', "{{ route('home') }}", {
-                            target: '#main-page-container',
-                            select: '#main-page-container',
-                            swap: 'innerHTML'
-                        });
+                    if (window.Livewire) {
+                        Livewire.navigate("{{ route('home') }}");
                     } else {
                         window.location.href = "{{ route('home') }}";
                     }
