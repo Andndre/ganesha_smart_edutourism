@@ -1,5 +1,5 @@
 <!-- Status Badge -->
-<div class="pointer-events-none absolute inset-x-0 top-12 z-50 flex justify-center">
+<div class="pointer-events-none absolute inset-x-0 top-6 z-50 flex justify-center">
     <div id="status-badge"
         class="rounded-full bg-black/40 px-4 py-1.5 text-xs font-bold text-white shadow-lg backdrop-blur-md transition-colors">
         Arahkan ke Marker QR
@@ -8,7 +8,7 @@
 
 <!-- Back Button -->
 <button id="btn-back-scanner"
-    class="absolute left-4 top-12 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-white shadow-lg backdrop-blur-md transition-transform hover:bg-black/60 active:scale-95">
+    class="absolute left-4 top-6 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-white shadow-lg backdrop-blur-md transition-transform hover:bg-black/60 active:scale-95">
     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
     </svg>
@@ -16,7 +16,7 @@
 
 <!-- Exit Confirmation Overlay -->
 <div id="exit-confirm-overlay"
-    class="absolute inset-0 z-[100] hidden flex-col items-center justify-center bg-black/80 p-6 backdrop-blur-sm transition-all">
+    class="absolute inset-0 z-100 hidden flex-col items-center justify-center bg-black/80 p-6 backdrop-blur-sm transition-all">
     <div class="w-full max-w-xs rounded-3xl bg-white p-6 shadow-2xl">
         <div class="mb-4 flex justify-center">
             <div class="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-500">
