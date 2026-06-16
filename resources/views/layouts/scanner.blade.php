@@ -35,8 +35,24 @@
             top: 0;
             left: 0;
             overflow: hidden;
-            overscroll-behavior: none;
-            background-color: #000;
+            background-color: black;
+            overscroll-behavior-y: none;
+        }
+
+        /* Force Html5Qrcode video to cover full screen */
+        #reader {
+            width: 100% !important;
+            height: 100% !important;
+            border: none !important;
+        }
+        #reader > div {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        #reader video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
         }
     </style>
 

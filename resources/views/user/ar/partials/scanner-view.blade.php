@@ -1,6 +1,6 @@
 <!-- 1. Scanner View -->
 <div id="scanner-view" class="absolute inset-0 z-0 bg-black">
-    <div id="reader" class="h-full w-full object-cover"></div>
+    <div id="reader" class="h-full w-full [&>video]:h-full [&>video]:w-full [&>video]:object-cover"></div>
 
     <!-- Scanner overlay removed since it auto-starts -->
 
