@@ -153,8 +153,10 @@
                             let cameraId = devices[devices.length - 1].id;
                             for (let i = 0; i < devices.length; i++) {
                                 let label = devices[i].label.toLowerCase();
-                                console.info('  Camera ' + i + ': ' + (devices[i].label || '(no label)') + ' id=' + devices[i].id.substring(0, 8) + '...');
-                                if (label.includes('back') || label.includes('environment') || label.includes('rear') || label.includes('kamera belakang')) {
+                                console.info('  Camera ' + i + ': ' + (devices[i].label || '(no label)') +
+                                    ' id=' + devices[i].id.substring(0, 8) + '...');
+                                if (label.includes('back') || label.includes('environment') || label
+                                    .includes('rear') || label.includes('kamera belakang')) {
                                     cameraId = devices[i].id;
                                 }
                             }
@@ -233,16 +235,18 @@
                     startHeartbeat();
                 }).catch(err => {
                     console.warn("❌ Failed to start scanner:", err);
-                    
-                    const isPermissionDenied = err.toString().includes("NotAllowedError") || 
-                                               err.toString().includes("Permission denied") ||
-                                               (err.name && err.name === "NotAllowedError");
+
+                    const isPermissionDenied = err.toString().includes("NotAllowedError") ||
+                        err.toString().includes("Permission denied") ||
+                        (err.name && err.name === "NotAllowedError");
 
                     if (isPermissionDenied) {
                         showCameraPermissionDeniedError();
                     } else {
                         // Fallback: try starting without specific videoConstraints just in case constraints are the issue
-                        const fallbackConfig = { ...config };
+                        const fallbackConfig = {
+                            ...config
+                        };
                         delete fallbackConfig.videoConstraints;
 
                         html5QrcodeScanner.start(
@@ -268,7 +272,7 @@
                     badge.innerText = 'Izin kamera ditolak';
                     badge.classList.replace('bg-black/40', 'bg-red-500/80');
                 }
-                
+
                 // Hide the scanner reticle overlay
                 const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
                 reticles.forEach(r => r.style.display = 'none');
@@ -304,7 +308,7 @@
                     badge.innerText = 'Kamera tidak ditemukan';
                     badge.classList.replace('bg-black/40', 'bg-red-500/80');
                 }
-                
+
                 // Hide the scanner reticle overlay
                 const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
                 reticles.forEach(r => r.style.display = 'none');
@@ -344,7 +348,8 @@
                 reticles.forEach(r => r.style.display = 'none');
 
                 let title = 'Browser Tidak Didukung';
-                let desc = 'Browser ini tidak mendukung pemindaian kamera. Harap salin tautan di bawah dan buka menggunakan Google Chrome atau Safari utama Anda.';
+                let desc =
+                    'Browser ini tidak mendukung pemindaian kamera. Harap salin tautan di bawah dan buka menggunakan Google Chrome atau Safari utama Anda.';
                 if (insecure) {
                     title = 'Koneksi Tidak Aman';
                     desc = 'Fitur kamera memerlukan koneksi HTTPS (SSL) yang aman. Silakan hubungi pengelola sistem.';
@@ -366,17 +371,18 @@
                 `;
             }
 
-                function startHeartbeat() {
-                    heartbeatInterval = setInterval(() => {
-                        if (!isProcessing && html5QrcodeScanner) {
-                            try {
-                                const state = html5QrcodeScanner.getState();
-                                console.log('Scanner heartbeat - state: ' + state + ', failScans: ' + scanFailCount);
-                                scanFailCount = 0;
-                            } catch (e) {}
-                        }
-                    }, 10000);
-                }
+            function startHeartbeat() {
+                heartbeatInterval = setInterval(() => {
+                    if (!isProcessing && html5QrcodeScanner) {
+                        try {
+                            const state = html5QrcodeScanner.getState();
+                            console.log('Scanner heartbeat - state: ' + state + ', failScans: ' +
+                            scanFailCount);
+                            scanFailCount = 0;
+                        } catch (e) {}
+                    }
+                }, 10000);
+            }
 
             function onScanSuccess(decodedText, decodedResult) {
                 if (isProcessing) return;
@@ -506,7 +512,7 @@
                 const scanView = document.getElementById('scanner-view');
                 const modelView = document.getElementById('model-view');
                 const badge = document.getElementById('status-badge');
-                
+
                 if (modelView) modelView.classList.add('hidden');
                 if (scanView) scanView.classList.remove('hidden');
                 if (badge) {
