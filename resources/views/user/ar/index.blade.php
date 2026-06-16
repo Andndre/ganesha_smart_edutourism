@@ -131,9 +131,8 @@
             let scanFailCount = 0;
             let heartbeatInterval = null;
 
-            const handleArLoad = function(evt) {
-                const container = evt.detail.elt;
-                const readerEl = container.querySelector('#reader') || (container.id === 'reader' ? container : null);
+            const initAr = function() {
+                const readerEl = document.getElementById('reader');
 
                 if (readerEl && !html5QrcodeScanner) {
                     console.log('DOM Ready - starting init...');
@@ -155,14 +154,14 @@
 
                     initScanner();
 
-                    const backBtn = container.querySelector('#btn-back-scanner');
+                    const backBtn = document.getElementById('btn-back-scanner');
                     if (backBtn) {
                         backBtn.addEventListener('click', () => {
                             showScanner();
                         });
                     }
 
-                    const viewer = container.querySelector('#ar-model-viewer');
+                    const viewer = document.getElementById('ar-model-viewer');
                     if (viewer) {
                         viewer.addEventListener('error', (event) => {
                             console.error("ModelViewer Error:", event);
@@ -424,9 +423,11 @@
                 }
             }
 
-            document.body.addEventListener('htmx:load', handleArLoad);
+            // Run immediately
+            initAr();
 
-            document.addEventListener('htmx:beforeSwap', function cleanup(e) {
+            // Clean up scanner camera stream and heartbeat on Livewire navigation
+            document.addEventListener('livewire:navigating', function cleanup(e) {
                 if (heartbeatInterval) {
                     clearInterval(heartbeatInterval);
                     heartbeatInterval = null;
@@ -443,8 +444,7 @@
                         html5QrcodeScanner = null;
                     }
                 }
-                document.body.removeEventListener('htmx:load', handleArLoad);
-                document.removeEventListener('htmx:beforeSwap', cleanup);
+                document.removeEventListener('livewire:navigating', cleanup);
             });
         })();
     </script>

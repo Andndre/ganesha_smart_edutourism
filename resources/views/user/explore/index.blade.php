@@ -98,7 +98,7 @@
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
-        // Execution wrapper to handle HTMX
+        // Execution wrapper to handle Livewire and page navigation
         (function() {
             function initMap() {
                 // Return early if map container doesn't exist
@@ -352,8 +352,8 @@
             
             setupExploreEchoListener();
 
-            // Clean up Reverb subscription and window listeners when navigating away via HTMX
-            document.addEventListener('htmx:beforeSwap', function cleanupExplore() {
+            // Clean up Reverb subscription and window listeners when navigating away via Livewire
+            document.addEventListener('livewire:navigating', function cleanupExplore() {
                 if (window.Echo) {
                     window.Echo.leave('village-map');
                 }
@@ -362,7 +362,7 @@
                     watchId = null;
                 }
                 window.removeEventListener('filter-change', onFilterChange);
-                document.removeEventListener('htmx:beforeSwap', cleanupExplore);
+                document.removeEventListener('livewire:navigating', cleanupExplore);
             });
 
             // Update marker visibility based on active filters and search query
@@ -1146,21 +1146,15 @@
         }
     }
 
-    const handleExploreLoad = function(evt) {
-        const container = evt.detail.elt;
-        if (container.querySelector('#map') || container.id === 'map') {
-            initMap();
-        }
-    };
-    document.body.addEventListener('htmx:load', handleExploreLoad);
+    // Execute immediately on script load (DOM is already ready during initial load and wire:navigate)
+    initMap();
 
-    document.addEventListener('htmx:beforeSwap', function cleanupMap(e) {
+    document.addEventListener('livewire:navigating', function cleanupMap(e) {
         if (window.mapInstance) {
             window.mapInstance.remove();
             window.mapInstance = null;
         }
-        document.body.removeEventListener('htmx:load', handleExploreLoad);
-        document.removeEventListener('htmx:beforeSwap', cleanupMap);
+        document.removeEventListener('livewire:navigating', cleanupMap);
     });
     })();
     </script>

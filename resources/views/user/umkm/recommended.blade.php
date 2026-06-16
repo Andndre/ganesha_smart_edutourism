@@ -244,11 +244,9 @@
         (function() {
             let mapInstance = null;
 
-            const handleRecommendedLoad = function(evt) {
-                const container = evt.detail.elt;
-                
+            const initRecommended = function() {
                 // 1. Confetti trigger
-                const hasConfetti = container.querySelector('.bg-primary/10') || (container.classList && container.classList.contains('bg-primary/10'));
+                const hasConfetti = document.querySelector('.bg-primary/10');
                 if (hasConfetti) {
                     var duration = 3 * 1000;
                     var animationEnd = Date.now() + duration;
@@ -289,7 +287,7 @@
                 }
 
                 // 2. Map trigger
-                const mapEl = container.querySelector('#map') || (container.id === 'map' ? container : null);
+                const mapEl = document.getElementById('map');
                 if (mapEl && !mapInstance) {
                     @if ($umkm->mapLocation)
                         const lat = {{ $umkm->mapLocation->latitude }};
@@ -320,15 +318,16 @@
                 }
             };
 
-            document.body.addEventListener('htmx:load', handleRecommendedLoad);
+            // Run immediately
+            initRecommended();
 
-            document.addEventListener('htmx:beforeSwap', function cleanup(e) {
+            // Clean up Leaflet map instance on Livewire navigation
+            document.addEventListener('livewire:navigating', function cleanup(e) {
                 if (mapInstance) {
                     mapInstance.remove();
                     mapInstance = null;
                 }
-                document.body.removeEventListener('htmx:load', handleRecommendedLoad);
-                document.removeEventListener('htmx:beforeSwap', cleanup);
+                document.removeEventListener('livewire:navigating', cleanup);
             });
         })();
 
