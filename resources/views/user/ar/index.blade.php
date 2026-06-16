@@ -57,16 +57,21 @@
         <div id="scanner-view" class="absolute inset-0 z-0">
             <div id="reader"></div>
 
-            <div id="start-camera-overlay" class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/80 p-6 backdrop-blur-md transition-all">
+            <div id="start-camera-overlay"
+                class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/80 p-6 backdrop-blur-md transition-all">
                 <div class="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-white/10">
                     <svg class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                 </div>
                 <h3 class="mb-2 text-xl font-bold text-white">Mulai Pemindaian AR</h3>
-                <p class="mb-8 max-w-xs text-center text-sm text-gray-300">Ketuk tombol di bawah untuk mengaktifkan kamera dan mulai memindai marker QR.</p>
-                <button id="btn-start-camera" class="rounded-xl bg-[#1E5128] px-8 py-3.5 font-semibold text-white shadow-lg shadow-[#1E5128]/30 transition-all active:scale-95">
+                <p class="mb-8 max-w-xs text-center text-sm text-gray-300">Ketuk tombol di bawah untuk mengaktifkan kamera
+                    dan mulai memindai marker QR.</p>
+                <button id="btn-start-camera"
+                    class="rounded-xl bg-[#1E5128] px-8 py-3.5 font-semibold text-white shadow-lg shadow-[#1E5128]/30 transition-all active:scale-95">
                     Buka Kamera
                 </button>
             </div>
@@ -75,8 +80,10 @@
                 <div class="relative h-64 w-64 rounded-3xl border-2 border-white/50">
                     <div class="border-primary absolute -left-1 -top-1 h-8 w-8 rounded-tl-3xl border-l-4 border-t-4"></div>
                     <div class="border-primary absolute -right-1 -top-1 h-8 w-8 rounded-tr-3xl border-r-4 border-t-4"></div>
-                    <div class="border-primary absolute -bottom-1 -left-1 h-8 w-8 rounded-bl-3xl border-b-4 border-l-4"></div>
-                    <div class="border-primary absolute -bottom-1 -right-1 h-8 w-8 rounded-br-3xl border-b-4 border-r-4"></div>
+                    <div class="border-primary absolute -bottom-1 -left-1 h-8 w-8 rounded-bl-3xl border-b-4 border-l-4">
+                    </div>
+                    <div class="border-primary absolute -bottom-1 -right-1 h-8 w-8 rounded-br-3xl border-b-4 border-r-4">
+                    </div>
                 </div>
             </div>
         </div>
@@ -167,7 +174,9 @@
                             // Sembunyikan tombol
                             overlay.classList.add('hidden');
                             // Eksekusi kamera (Browser sekarang tahu ini diinisiasi oleh user)
-                            initScanner({ facingMode: "environment" });
+                            initScanner({
+                                facingMode: "environment"
+                            });
                         });
                     }
 
@@ -217,8 +226,12 @@
 
                 if (isIOS) {
                     config.videoConstraints = {
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
+                        width: {
+                            ideal: 1280
+                        },
+                        height: {
+                            ideal: 720
+                        }
                     };
                 }
 
@@ -244,16 +257,20 @@
                         // Fallback: Jika environment gagal (misal di PC/Laptop), cari kamera pertama yang tersedia
                         Html5Qrcode.getCameras().then(devices => {
                             if (devices && devices.length > 0) {
-                                const fallbackConfig = { ...config };
-                                delete fallbackConfig.videoConstraints; // Hapus constraint agar tidak bentrok
-                                
+                                const fallbackConfig = {
+                                    ...config
+                                };
+                                delete fallbackConfig
+                                    .videoConstraints; // Hapus constraint agar tidak bentrok
+
                                 html5QrcodeScanner.start(
                                     devices[0].id,
                                     fallbackConfig,
                                     onScanSuccess,
                                     onScanFailure
                                 ).then(() => {
-                                    console.log('✅ Scanner started SUCCESSFULLY (Fallback Camera)');
+                                    console.log(
+                                        '✅ Scanner started SUCCESSFULLY (Fallback Camera)');
                                     startHeartbeat();
                                 }).catch(fallbackErr => {
                                     console.error('❌ Fallback camera failed too:', fallbackErr);
@@ -340,10 +357,10 @@
                 const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
                 reticles.forEach(r => r.style.display = 'none');
                 let title = insecure ? 'Koneksi Tidak Aman' : 'Browser Tidak Didukung';
-                let desc = insecure 
-                    ? 'Fitur kamera memerlukan koneksi HTTPS (SSL) yang aman.' 
-                    : 'Browser ini tidak mendukung pemindaian kamera.';
-                
+                let desc = insecure ?
+                    'Fitur kamera memerlukan koneksi HTTPS (SSL) yang aman.' :
+                    'Browser ini tidak mendukung pemindaian kamera.';
+
                 document.getElementById('reader').innerHTML = `
                     <div class="flex flex-col items-center justify-center min-h-screen w-full p-8 text-center text-white bg-black/95">
                         <div class="w-16 h-16 mb-4 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
@@ -412,7 +429,9 @@
                 }
             }
 
-            function onScanFailure(error) { scanFailCount++; }
+            function onScanFailure(error) {
+                scanFailCount++;
+            }
 
             function fetchModel(slug, marker) {
                 const loadingOverlay = document.getElementById('loading-overlay');
@@ -442,7 +461,9 @@
                             title: 'Oops...',
                             text: err.message,
                             confirmButtonColor: '#1E5128'
-                        }).then(() => { showScanner(); });
+                        }).then(() => {
+                            showScanner();
+                        });
                     })
                     .finally(() => {
                         if (loadingOverlay) {
@@ -456,7 +477,7 @@
                 const scanView = document.getElementById('scanner-view');
                 const modelView = document.getElementById('model-view');
                 const badge = document.getElementById('status-badge');
-                
+
                 if (scanView) scanView.classList.add('hidden');
                 if (modelView) modelView.classList.remove('hidden');
                 if (badge) badge.innerText = 'Sentuh untuk memutar/zoom';
@@ -503,36 +524,41 @@
             // Eksekusi AR Scanner
             initAr();
 
-            // PENTING: Perbaikan Cleanup Livewire agar kamera tidak nyangkut (Layar Hitam) saat pindah halaman
+            // PENTING: Perbaikan Cleanup Livewire "Force Kill"
             document.addEventListener('livewire:navigating', function cleanup(e) {
                 if (heartbeatInterval) {
                     clearInterval(heartbeatInterval);
                     heartbeatInterval = null;
                 }
-                
+
+                // 1. JALUR PINTAS: Matikan hardware kamera secara paksa (Synchronous)
+                // Ini mencegah "Orphaned Track" di mana Livewire menghancurkan DOM
+                // sebelum kamera benar-benar mati secara async.
+                try {
+                    const videoEl = document.querySelector('#reader video');
+                    if (videoEl && videoEl.srcObject) {
+                        const tracks = videoEl.srcObject.getTracks();
+                        tracks.forEach(track => {
+                            track.stop();
+                            console.log("✅ Track hardware diputus paksa.");
+                        });
+                        videoEl.srcObject = null;
+                    }
+                } catch (err) {
+                    console.error("Force kill error:", err);
+                }
+
+                // 2. Bereskan sisa objek library html5-qrcode
                 if (html5QrcodeScanner) {
                     try {
-                        // KOREKSI: Gunakan getState() bukan isScanning
                         const currentState = html5QrcodeScanner.getState();
-                        
-                        // Jika kamera sedang menyala (2) atau di-pause (3), matikan secara hardware
                         if (currentState === 2 || currentState === 3) {
-                            html5QrcodeScanner.stop().then(() => {
-                                console.log("✅ Hardware camera released.");
-                                html5QrcodeScanner.clear();
-                                html5QrcodeScanner = null;
-                            }).catch(err => {
-                                console.error("Error stopping scanner:", err);
-                                html5QrcodeScanner.clear();
-                                html5QrcodeScanner = null;
-                            });
-                        } else {
-                            html5QrcodeScanner.clear();
-                            html5QrcodeScanner = null;
+                            // Abaikan error promise karena hardware sudah kita matikan paksa di atas
+                            html5QrcodeScanner.stop().catch(() => {});
                         }
-                    } catch (error) {
-                        html5QrcodeScanner = null;
-                    }
+                        html5QrcodeScanner.clear();
+                    } catch (error) {}
+                    html5QrcodeScanner = null;
                 }
                 document.removeEventListener('livewire:navigating', cleanup);
             });
