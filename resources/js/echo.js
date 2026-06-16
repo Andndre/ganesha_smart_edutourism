@@ -8,7 +8,7 @@ const reverbHost = window.Laravel?.reverbHost || import.meta.env.VITE_REVERB_HOS
 const reverbPort = window.Laravel?.reverbPort || import.meta.env.VITE_REVERB_PORT || 8081;
 
 let wsHost = reverbHost;
-if (!wsHost || wsHost === 'localhost') {
+if (!wsHost || wsHost === 'localhost' || wsHost === '127.0.0.1' || !wsHost.includes('.')) {
     wsHost = window.location.hostname;
 }
 
