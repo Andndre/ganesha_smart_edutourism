@@ -29,9 +29,12 @@ class WeatherIntegrationTest extends TestCase
             ], 200),
         ]);
 
+        $latitude = config('services.penglipuran.latitude', -8.422303596762355);
+        $longitude = config('services.penglipuran.longitude', 115.35948833933173);
+
         // Run the Artisan command
         $this->artisan('app:update-weather')
-            ->expectsOutput('Fetching weather forecast for coordinates: -8.422303596762355, 115.35948833933173...')
+            ->expectsOutput("Fetching weather forecast for coordinates: {$latitude}, {$longitude}...")
             ->expectsOutput('Weather cache updated successfully!')
             ->assertSuccessful();
 

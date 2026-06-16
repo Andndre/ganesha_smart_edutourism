@@ -429,7 +429,7 @@
                 }
 
                 // Geofence: Desa Penglipuran center + radius (circle-based)
-                const VILLAGE_CENTER = { lat: -8.422303, lng: 115.359488 };
+                const VILLAGE_CENTER = { lat: {{ config('services.penglipuran.latitude', -8.48858951350677) }}, lng: {{ config('services.penglipuran.longitude', 115.38392483153403) }} };
                 const VILLAGE_RADIUS_METERS = 500; // ~500m radius for the village
                 let lastGeofenceAlert = 0;
                 const GEOFENCE_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
