@@ -16,6 +16,13 @@ if [ ! -f ".env" ]; then
     exit 1
 fi
 
+# 1.5. Pull latest code from the active git branch
+if [ -d ".git" ]; then
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
+    echo "Git repository detected. Pulling latest updates from branch: $CURRENT_BRANCH..."
+    git pull origin "$CURRENT_BRANCH"
+fi
+
 # 2. Set up OpenRouteService map file (Bali OSM extract)
 mkdir -p openrouteservice/config openrouteservice/graphs openrouteservice/files openrouteservice/logs
 
