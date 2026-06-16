@@ -284,6 +284,8 @@
             window.addEventListener('offline', updateOnlineStatus);
         </script>
 
+        @include('components.notification-toast')
+
         @stack('modals')
         @stack('scripts')
 
@@ -296,38 +298,196 @@
         @endenv
 
         <script>
-            // Global GPS Tracking for Reverb Heatmap
+            // ==========================================
+            // NOTIFICATION MANAGER
+            // ==========================================
+            const NOTIF_STORAGE_KEY = 'penglipuran_notifications';
+            const NOTIF_MAX_ITEMS = 20;
+
+            function getStoredNotifications() {
+                try {
+                    return JSON.parse(localStorage.getItem(NOTIF_STORAGE_KEY) || '[]');
+                } catch { return []; }
+            }
+
+            function storeNotifications(items) {
+                localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(items.slice(0, NOTIF_MAX_ITEMS)));
+            }
+
+            function addNotification(notif) {
+                const items = getStoredNotifications();
+                items.unshift(notif);
+                storeNotifications(items);
+                // Dispatch event so Alpine bell component reacts
+                window.dispatchEvent(new CustomEvent('notification-received', { detail: notif }));
+                // Show toast
+                showNotificationToast(notif);
+            }
+
+            // Alpine.js component for the bell + dropdown
+            function notificationBell() {
+                return {
+                    open: false,
+                    notifications: getStoredNotifications(),
+                    get unreadCount() {
+                        return this.notifications.filter(n => !n.read).length;
+                    },
+                    toggle() {
+                        this.open = !this.open;
+                        if (this.open) {
+                            // Mark all as read
+                            this.notifications.forEach(n => n.read = true);
+                            storeNotifications(this.notifications);
+                        }
+                    },
+                    onNewNotification(notif) {
+                        this.notifications = getStoredNotifications();
+                    },
+                    dismissNotification(index) {
+                        this.notifications.splice(index, 1);
+                        storeNotifications(this.notifications);
+                    },
+                    clearAllNotifications() {
+                        this.notifications = [];
+                        storeNotifications([]);
+                        this.open = false;
+                    },
+                    timeAgo(timestamp) {
+                        const seconds = Math.floor((Date.now() - timestamp) / 1000);
+                        if (seconds < 60) return 'Baru saja';
+                        const minutes = Math.floor(seconds / 60);
+                        if (minutes < 60) return minutes + ' menit lalu';
+                        const hours = Math.floor(minutes / 60);
+                        if (hours < 24) return hours + ' jam lalu';
+                        return Math.floor(hours / 24) + ' hari lalu';
+                    }
+                };
+            }
+
+            // Toast display system
+            function showNotificationToast(notif) {
+                const container = document.getElementById('notification-toast-container');
+                const template = document.getElementById('notification-toast-template');
+                if (!container || !template) return;
+
+                const clone = template.content.cloneNode(true);
+                const toastEl = clone.querySelector('.notification-toast');
+
+                // Set level class
+                toastEl.classList.add('toast-' + (notif.level || 'info'));
+
+                // Set icon
+                const iconContainer = toastEl.querySelector('.toast-icon');
+                const icons = {
+                    crowd: '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>',
+                    event: '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>',
+                    geofence: '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>'
+                };
+                iconContainer.innerHTML = icons[notif.type] || icons.geofence;
+
+                // Set text
+                toastEl.querySelector('.toast-title').textContent = notif.title;
+                toastEl.querySelector('.toast-body').textContent = notif.body;
+
+                // Close button
+                toastEl.querySelector('.toast-close').addEventListener('click', () => {
+                    toastEl.classList.remove('toast-visible');
+                    setTimeout(() => toastEl.remove(), 500);
+                });
+
+                container.appendChild(toastEl);
+
+                // Animate in
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        toastEl.classList.add('toast-visible');
+                    });
+                });
+
+                // Auto-dismiss after 6 seconds
+                setTimeout(() => {
+                    if (toastEl.parentNode) {
+                        toastEl.classList.remove('toast-visible');
+                        setTimeout(() => toastEl.remove(), 500);
+                    }
+                }, 6000);
+            }
+        </script>
+
+        <script>
+            // ==========================================
+            // GLOBAL GPS TRACKING + GEOFENCE CHECK
+            // ==========================================
             (function() {
-                // Only run tracking if geolocation is supported
                 if (!navigator.geolocation) return;
 
                 // Generate a persistent session ID for tracking
                 let sessionId = localStorage.getItem('gps_session_id');
                 if (!sessionId) {
-                    sessionId = crypto.randomUUID ? crypto.randomUUID() : 'session-' + Math.random().toString(36).substr(2,
-                        9);
+                    sessionId = crypto.randomUUID ? crypto.randomUUID() : 'session-' + Math.random().toString(36).substr(2, 9);
                     localStorage.setItem('gps_session_id', sessionId);
                 }
 
+                // Geofence: Desa Penglipuran center + radius (circle-based)
+                const VILLAGE_CENTER = { lat: -8.422303, lng: 115.359488 };
+                const VILLAGE_RADIUS_METERS = 500; // ~500m radius for the village
+                let lastGeofenceAlert = 0;
+                const GEOFENCE_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+                let wasInsideVillage = true;
+
+                function haversineDistance(lat1, lon1, lat2, lon2) {
+                    const R = 6371000;
+                    const dLat = (lat2 - lat1) * Math.PI / 180;
+                    const dLon = (lon2 - lon1) * Math.PI / 180;
+                    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                }
+
+                function checkGeofence(lat, lng) {
+                    const distance = haversineDistance(lat, lng, VILLAGE_CENTER.lat, VILLAGE_CENTER.lng);
+                    const isInside = distance <= VILLAGE_RADIUS_METERS;
+                    const now = Date.now();
+
+                    // Only alert when transitioning from inside to outside
+                    if (!isInside && wasInsideVillage && (now - lastGeofenceAlert) > GEOFENCE_COOLDOWN_MS) {
+                        lastGeofenceAlert = now;
+                        addNotification({
+                            id: 'geofence-' + now,
+                            type: 'geofence',
+                            level: 'warning',
+                            title: 'Peringatan Batas Area',
+                            body: 'Anda telah keluar dari area wisata Desa Penglipuran. Harap kembali ke jalur utama untuk keamanan Anda.',
+                            timestamp: now,
+                            read: false
+                        });
+                    }
+
+                    wasInsideVillage = isInside;
+                }
+
                 let lastKnownPos = null;
-                
-                // Keep track of the latest position
+
+                // Keep track of the latest position + geofence check
                 navigator.geolocation.watchPosition(
                     (pos) => {
                         lastKnownPos = {
                             latitude: pos.coords.latitude,
                             longitude: pos.coords.longitude
                         };
+                        // Check geofence on every GPS update
+                        checkGeofence(pos.coords.latitude, pos.coords.longitude);
                     },
                     (err) => {
-                        console.debug("Background GPS tracking error:", err.message);
+                        console.debug('Background GPS tracking error:', err.message);
                     }, {
                         enableHighAccuracy: true,
                         maximumAge: 1000,
                         timeout: 10000
                     }
                 );
-                
+
                 // Ping the server every 10 seconds with the last known position
                 setInterval(() => {
                     if (lastKnownPos) {
@@ -346,6 +506,50 @@
                         }).catch(() => { /* silent fail for tracking */ });
                     }
                 }, 10000);
+            })();
+        </script>
+
+        <script>
+            // ==========================================
+            // REVERB WEBSOCKET NOTIFICATION LISTENERS
+            // ==========================================
+            (function() {
+                function setupNotificationListeners() {
+                    if (!window.Echo) {
+                        setTimeout(setupNotificationListeners, 500);
+                        return;
+                    }
+
+                    window.Echo.channel('village-notifications')
+                        .listen('CrowdAlertSent', (e) => {
+                            const levelLabels = {
+                                warning: 'cukup padat',
+                                critical: 'sangat padat'
+                            };
+                            addNotification({
+                                id: 'crowd-' + Date.now(),
+                                type: 'crowd',
+                                level: e.level,
+                                title: 'Kepadatan ' + (e.level === 'critical' ? 'Kritis' : 'Tinggi') + ': ' + e.zone_name,
+                                body: 'Area ' + e.zone_name + ' sedang ' + (levelLabels[e.level] || 'padat') + ' (' + e.occupancy_percentage + '% kapasitas). Pertimbangkan untuk mengunjungi area lain terlebih dahulu.',
+                                timestamp: Date.now(),
+                                read: false
+                            });
+                        })
+                        .listen('EventReminderSent', (e) => {
+                            addNotification({
+                                id: 'event-' + Date.now(),
+                                type: 'event',
+                                level: 'info',
+                                title: '🎭 ' + e.event_name,
+                                body: 'Acara akan dimulai pukul ' + e.start_time + ' di ' + e.location_name + '. Jangan sampai ketinggalan!',
+                                timestamp: Date.now(),
+                                read: false
+                            });
+                        });
+                }
+
+                setupNotificationListeners();
             })();
         </script>
 

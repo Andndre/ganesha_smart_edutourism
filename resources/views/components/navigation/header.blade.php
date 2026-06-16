@@ -74,19 +74,22 @@
                 </span>
 
                 @if ($isMainTab)
-                    <button class="hover:text-primary relative p-1.5 text-gray-500 transition-colors active:scale-95"
-                        aria-label="Notifikasi">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                        <!-- Notification Dot -->
-                        <span class="absolute right-2 top-1 flex h-2 w-2">
-                            <span
-                                class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-                            <span class="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
-                        </span>
-                    </button>
+                    <div class="relative" x-data="notificationBell()" @notification-received.window="onNewNotification($event.detail)">
+                        <button @click="toggle()" class="hover:text-primary relative p-1.5 text-gray-500 transition-colors active:scale-95"
+                            aria-label="Notifikasi">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            {{-- Notification Badge --}}
+                            <span x-show="unreadCount > 0" x-transition
+                                  class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
+                                <span x-text="unreadCount > 9 ? '9+' : unreadCount"></span>
+                            </span>
+                        </button>
+
+                        @include('components.notification-panel')
+                    </div>
                 @endif
             </div>
         @endif

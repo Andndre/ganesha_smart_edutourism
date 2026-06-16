@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('app:update-weather')->everyTenMinutes();
+Schedule::command('events:send-reminders')->everyMinute();
