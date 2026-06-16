@@ -26,12 +26,8 @@
 
             if (startBtn && overlay) {
                 startBtn.addEventListener("click", () => {
-                    // Sembunyikan tombol
                     overlay.classList.add("hidden");
-                    // Eksekusi kamera (Browser sekarang tahu ini diinisiasi oleh user)
-                    initScanner({
-                        facingMode: "environment",
-                    });
+                    initScanner();
                 });
             }
 
@@ -136,8 +132,8 @@
         }
     }
 
-    function initScanner(cameraConfig) {
-        console.log("initScanner() called with config:", cameraConfig);
+    function initScanner() {
+        console.log("initScanner() called");
         try {
             html5QrcodeScanner = new Html5Qrcode("reader");
             console.log("Html5Qrcode instance created OK");
@@ -168,66 +164,40 @@
             };
         }
 
-        // Coba gunakan kamera belakang utama (Environment)
-        html5QrcodeScanner
-            .start(cameraConfig, config, onScanSuccess, onScanFailure)
-            .then(() => {
-                console.log(
-                    "✅ Scanner started SUCCESSFULLY (Environment Mode)",
-                );
-                startHeartbeat();
+        // This method will trigger user permissions natively via the library
+        Html5Qrcode.getCameras()
+            .then((devices) => {
+                if (devices && devices.length) {
+                    // Try to find the back camera
+                    let cameraId = devices[0].id; // Fallback to first camera
+                    for (const device of devices) {
+                        if (device.label.toLowerCase().includes("back") || device.label.toLowerCase().includes("environment")) {
+                            cameraId = device.id;
+                            break;
+                        }
+                    }
+
+                    console.log("Starting scanner with cameraId:", cameraId);
+                    
+                    // Once we have camera ID, start scanning
+                    html5QrcodeScanner
+                        .start(cameraId, config, onScanSuccess, onScanFailure)
+                        .then(() => {
+                            console.log("✅ Scanner started SUCCESSFULLY");
+                            startHeartbeat();
+                        })
+                        .catch((err) => {
+                            console.error("❌ Failed to start scanner:", err);
+                            showCameraError();
+                        });
+                } else {
+                    console.warn("No cameras found.");
+                    showCameraError();
+                }
             })
             .catch((err) => {
-                console.warn(
-                    "❌ Failed with environment mode, trying fallback...",
-                    err,
-                );
-
-                const isPermissionDenied =
-                    err.toString().includes("NotAllowedError") ||
-                    err.toString().includes("Permission denied") ||
-                    (err.name && err.name === "NotAllowedError");
-
-                if (isPermissionDenied) {
-                    showCameraPermissionDeniedError();
-                } else {
-                    // Fallback: Jika environment gagal (misal di PC/Laptop), cari kamera pertama yang tersedia
-                    Html5Qrcode.getCameras()
-                        .then((devices) => {
-                            if (devices && devices.length > 0) {
-                                const fallbackConfig = {
-                                    ...config,
-                                };
-                                delete fallbackConfig.videoConstraints; // Hapus constraint agar tidak bentrok
-
-                                html5QrcodeScanner
-                                    .start(
-                                        devices[0].id,
-                                        fallbackConfig,
-                                        onScanSuccess,
-                                        onScanFailure,
-                                    )
-                                    .then(() => {
-                                        console.log(
-                                            "✅ Scanner started SUCCESSFULLY (Fallback Camera)",
-                                        );
-                                        startHeartbeat();
-                                    })
-                                    .catch((fallbackErr) => {
-                                        console.error(
-                                            "❌ Fallback camera failed too:",
-                                            fallbackErr,
-                                        );
-                                        showCameraError();
-                                    });
-                            } else {
-                                showCameraError();
-                            }
-                        })
-                        .catch((e) => {
-                            showCameraPermissionDeniedError();
-                        });
-                }
+                console.error("Error getting cameras (Permission Denied):", err);
+                showCameraPermissionDeniedError();
             });
     }
 
