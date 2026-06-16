@@ -5,6 +5,9 @@ echo "=========================================================="
 echo " Starting Local Development Deployment (Docker) "
 echo "=========================================================="
 
+# Set up trap to stop docker compose services when the script is stopped/exited
+trap "echo ''; echo 'Stopping Docker compose services...'; docker compose down" EXIT INT TERM
+
 echo "Starting Docker Compose services..."
 docker compose up -d --build
 
@@ -17,10 +20,13 @@ docker compose exec -T penglipuran-app composer install
 echo "Linking storage..."
 docker compose exec -T penglipuran-app php artisan storage:link || true
 
-echo "Running database migrations and seeders..."
-docker compose exec -T penglipuran-app php artisan migrate:fresh --seed
+echo "Running database migrations..."
+docker compose exec -T penglipuran-app php artisan migrate --force
+
+echo "Running database seeders..."
+docker compose exec -T penglipuran-app php artisan db:seed --force
 
 echo "=========================================================="
-echo " Local Deployment Successful!"
+echo " Running Cloudflare Tunnel & Vite (docker:share)..."
 echo "=========================================================="
-echo "Now run 'composer docker:share' to expose the app via Cloudflare and start Vite."
+composer docker:share
