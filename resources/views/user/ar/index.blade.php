@@ -146,22 +146,33 @@
                         return;
                     }
 
-                    // Log available camera devices
-                    if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-                        navigator.mediaDevices.enumerateDevices()
-                            .then(devices => {
-                                const cameras = devices.filter(d => d.kind === 'videoinput');
-                                console.info('Cameras found: ' + cameras.length);
-                                cameras.forEach((cam, i) => {
-                                    console.info('  Camera ' + i + ': ' + (cam.label ||
-                                            '(no label - permission pending)') + ' id=' + cam.deviceId
-                                        .substring(0, 8) + '...');
-                                });
-                            })
-                            .catch(err => console.error('enumerateDevices error:', err.message));
-                    }
+                    // Explicitly request camera permission first to trigger the browser prompt
+                    navigator.mediaDevices.getUserMedia({ video: true })
+                        .then((stream) => {
+                            // Stop the stream immediately, we just needed the permission
+                            stream.getTracks().forEach(track => track.stop());
+                            
+                            // Permission granted, log available devices
+                            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+                                navigator.mediaDevices.enumerateDevices()
+                                    .then(devices => {
+                                        const cameras = devices.filter(d => d.kind === 'videoinput');
+                                        console.info('Cameras found: ' + cameras.length);
+                                        cameras.forEach((cam, i) => {
+                                            console.info('  Camera ' + i + ': ' + (cam.label ||
+                                                    '(no label)') + ' id=' + cam.deviceId
+                                                .substring(0, 8) + '...');
+                                        });
+                                    })
+                                    .catch(err => console.error('enumerateDevices error:', err.message));
+                            }
 
-                    initScanner();
+                            initScanner();
+                        })
+                        .catch((err) => {
+                            console.error("Camera permission request failed:", err);
+                            showCameraPermissionDeniedError();
+                        });
 
                     const backBtn = document.getElementById('btn-back-scanner');
                     if (backBtn) {
@@ -277,111 +288,112 @@
                         showCameraError();
                     });
                 });
+            }
 
-                function showCameraPermissionDeniedError() {
-                    console.error("❌ Camera permission was denied.");
-                    const badge = document.getElementById('status-badge');
-                    if (badge) {
-                        badge.innerText = 'Izin kamera ditolak';
-                        badge.classList.replace('bg-black/40', 'bg-red-500/80');
-                    }
-                    
-                    // Hide the scanner reticle overlay
-                    const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
-                    reticles.forEach(r => r.style.display = 'none');
-
-                    document.getElementById('reader').innerHTML = `
-                        <div class="flex flex-col items-center justify-center min-h-screen w-full p-8 text-center text-white bg-black/95">
-                            <div class="w-16 h-16 mb-4 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
-                                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                            </div>
-                            <h3 class="font-bold text-lg text-white mb-2">Akses Kamera Ditolak / Bermasalah</h3>
-                            <p class="text-sm text-gray-400 mb-6 max-w-xs leading-relaxed">
-                                Browser memblokir akses kamera. Jika Anda membuka halaman ini dari dalam aplikasi media sosial (Telegram, Discord, dll.), silakan salin tautan dan buka di aplikasi <b>Google Chrome</b> atau <b>Safari</b> utama.<br><br>
-                                Jika sudah di browser utama, pastikan izin kamera diaktifkan di pengaturan browser Anda.
-                            </p>
-                            <div class="flex flex-col gap-3 w-full max-w-xs">
-                                <button onclick="window.location.reload()" class="w-full bg-green-700 hover:bg-green-600 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-green-700/20 pointer-events-auto">
-                                    Muat Ulang Halaman
-                                </button>
-                                <button onclick="navigator.clipboard.writeText(window.location.href); Swal.fire({icon:'success', title:'Tautan Disalin', text:'Silakan tempel di Google Chrome atau Safari.', confirmButtonColor: '#1E5128'})" class="w-full bg-white/10 hover:bg-white/20 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 pointer-events-auto border border-white/10">
-                                    Salin Tautan Halaman
-                                </button>
-                            </div>
-                        </div>
-                    `;
+            function showCameraPermissionDeniedError() {
+                console.error("❌ Camera permission was denied.");
+                const badge = document.getElementById('status-badge');
+                if (badge) {
+                    badge.innerText = 'Izin kamera ditolak';
+                    badge.classList.replace('bg-black/40', 'bg-red-500/80');
                 }
+                
+                // Hide the scanner reticle overlay
+                const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
+                reticles.forEach(r => r.style.display = 'none');
 
-                function showCameraError() {
-                    console.error("❌ All scanner start attempts FAILED.");
-                    const badge = document.getElementById('status-badge');
-                    if (badge) {
-                        badge.innerText = 'Kamera tidak ditemukan';
-                        badge.classList.replace('bg-black/40', 'bg-red-500/80');
-                    }
-                    
-                    // Hide the scanner reticle overlay
-                    const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
-                    reticles.forEach(r => r.style.display = 'none');
-
-                    document.getElementById('reader').innerHTML = `
-                        <div class="flex flex-col items-center justify-center min-h-screen w-full p-8 text-center text-white bg-black/95">
-                            <div class="w-16 h-16 mb-4 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500">
-                                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                            </div>
-                            <h3 class="font-bold text-lg text-white mb-2">Kamera Tidak Tersedia</h3>
-                            <p class="text-sm text-gray-400 mb-6 max-w-xs leading-relaxed">
-                                Pastikan perangkat Anda memiliki kamera belakang yang aktif. Jika Anda menggunakan in-app browser dari aplikasi sosial media, silakan buka langsung di aplikasi <b>Google Chrome</b> atau <b>Safari</b> utama.
-                            </p>
-                            <div class="flex flex-col gap-3 w-full max-w-xs">
-                                <button onclick="window.location.reload()" class="w-full bg-green-700 hover:bg-green-600 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-green-700/20 pointer-events-auto">
-                                    Coba Lagi
-                                </button>
-                                <button onclick="navigator.clipboard.writeText(window.location.href); Swal.fire({icon:'success', title:'Tautan Disalin', text:'Silakan tempel di Google Chrome atau Safari.', confirmButtonColor: '#1E5128'})" class="w-full bg-white/10 hover:bg-white/20 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 pointer-events-auto border border-white/10">
-                                    Salin Tautan Halaman
-                                </button>
-                            </div>
+                document.getElementById('reader').innerHTML = `
+                    <div class="flex flex-col items-center justify-center min-h-screen w-full p-8 text-center text-white bg-black/95">
+                        <div class="w-16 h-16 mb-4 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
                         </div>
-                    `;
-                }
-
-                function showInsecureOrUnsupportedError(insecure) {
-                    const badge = document.getElementById('status-badge');
-                    if (badge) {
-                        badge.innerText = insecure ? 'Koneksi HTTP' : 'Browser Tidak Didukung';
-                        badge.classList.replace('bg-black/40', 'bg-red-500/80');
-                    }
-
-                    // Hide the scanner reticle overlay
-                    const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
-                    reticles.forEach(r => r.style.display = 'none');
-
-                    let title = 'Browser Tidak Didukung';
-                    let desc = 'Browser ini tidak mendukung pemindaian kamera. Harap salin tautan di bawah dan buka menggunakan Google Chrome atau Safari utama Anda.';
-                    if (insecure) {
-                        title = 'Koneksi Tidak Aman';
-                        desc = 'Fitur kamera memerlukan koneksi HTTPS (SSL) yang aman. Silakan hubungi pengelola sistem.';
-                    }
-
-                    document.getElementById('reader').innerHTML = `
-                        <div class="flex flex-col items-center justify-center min-h-screen w-full p-8 text-center text-white bg-black/95">
-                            <div class="w-16 h-16 mb-4 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
-                                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                            </div>
-                            <h3 class="font-bold text-lg text-white mb-2">${title}</h3>
-                            <p class="text-sm text-gray-400 mb-6 max-w-xs">${desc}</p>
-                            <button onclick="navigator.clipboard.writeText(window.location.href); Swal.fire({icon:'success', title:'Tautan Disalin', text:'Silakan tempel di Google Chrome atau Safari.', confirmButtonColor: '#1E5128'})" class="bg-green-700 hover:bg-green-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-all active:scale-95 shadow-lg shadow-green-700/20 pointer-events-auto">
+                        <h3 class="font-bold text-lg text-white mb-2">Akses Kamera Ditolak / Bermasalah</h3>
+                        <p class="text-sm text-gray-400 mb-6 max-w-xs leading-relaxed">
+                            Browser memblokir akses kamera. Jika Anda membuka halaman ini dari dalam aplikasi media sosial (Telegram, Discord, dll.), silakan salin tautan dan buka di aplikasi <b>Google Chrome</b> atau <b>Safari</b> utama.<br><br>
+                            Jika sudah di browser utama, pastikan izin kamera diaktifkan di pengaturan browser Anda.
+                        </p>
+                        <div class="flex flex-col gap-3 w-full max-w-xs">
+                            <button onclick="window.location.reload()" class="w-full bg-green-700 hover:bg-green-600 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-green-700/20 pointer-events-auto">
+                                Muat Ulang Halaman
+                            </button>
+                            <button onclick="navigator.clipboard.writeText(window.location.href); Swal.fire({icon:'success', title:'Tautan Disalin', text:'Silakan tempel di Google Chrome atau Safari.', confirmButtonColor: '#1E5128'})" class="w-full bg-white/10 hover:bg-white/20 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 pointer-events-auto border border-white/10">
                                 Salin Tautan Halaman
                             </button>
                         </div>
-                    `;
+                    </div>
+                `;
+            }
+
+            function showCameraError() {
+                console.error("❌ All scanner start attempts FAILED.");
+                const badge = document.getElementById('status-badge');
+                if (badge) {
+                    badge.innerText = 'Kamera tidak ditemukan';
+                    badge.classList.replace('bg-black/40', 'bg-red-500/80');
                 }
+                
+                // Hide the scanner reticle overlay
+                const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
+                reticles.forEach(r => r.style.display = 'none');
+
+                document.getElementById('reader').innerHTML = `
+                    <div class="flex flex-col items-center justify-center min-h-screen w-full p-8 text-center text-white bg-black/95">
+                        <div class="w-16 h-16 mb-4 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500">
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-lg text-white mb-2">Kamera Tidak Tersedia</h3>
+                        <p class="text-sm text-gray-400 mb-6 max-w-xs leading-relaxed">
+                            Pastikan perangkat Anda memiliki kamera belakang yang aktif. Jika Anda menggunakan in-app browser dari aplikasi sosial media, silakan buka langsung di aplikasi <b>Google Chrome</b> atau <b>Safari</b> utama.
+                        </p>
+                        <div class="flex flex-col gap-3 w-full max-w-xs">
+                            <button onclick="window.location.reload()" class="w-full bg-green-700 hover:bg-green-600 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-green-700/20 pointer-events-auto">
+                                Coba Lagi
+                            </button>
+                            <button onclick="navigator.clipboard.writeText(window.location.href); Swal.fire({icon:'success', title:'Tautan Disalin', text:'Silakan tempel di Google Chrome atau Safari.', confirmButtonColor: '#1E5128'})" class="w-full bg-white/10 hover:bg-white/20 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 pointer-events-auto border border-white/10">
+                                Salin Tautan Halaman
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function showInsecureOrUnsupportedError(insecure) {
+                const badge = document.getElementById('status-badge');
+                if (badge) {
+                    badge.innerText = insecure ? 'Koneksi HTTP' : 'Browser Tidak Didukung';
+                    badge.classList.replace('bg-black/40', 'bg-red-500/80');
+                }
+
+                // Hide the scanner reticle overlay
+                const reticles = document.querySelectorAll('#scanner-view .pointer-events-none');
+                reticles.forEach(r => r.style.display = 'none');
+
+                let title = 'Browser Tidak Didukung';
+                let desc = 'Browser ini tidak mendukung pemindaian kamera. Harap salin tautan di bawah dan buka menggunakan Google Chrome atau Safari utama Anda.';
+                if (insecure) {
+                    title = 'Koneksi Tidak Aman';
+                    desc = 'Fitur kamera memerlukan koneksi HTTPS (SSL) yang aman. Silakan hubungi pengelola sistem.';
+                }
+
+                document.getElementById('reader').innerHTML = `
+                    <div class="flex flex-col items-center justify-center min-h-screen w-full p-8 text-center text-white bg-black/95">
+                        <div class="w-16 h-16 mb-4 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-lg text-white mb-2">${title}</h3>
+                        <p class="text-sm text-gray-400 mb-6 max-w-xs">${desc}</p>
+                        <button onclick="navigator.clipboard.writeText(window.location.href); Swal.fire({icon:'success', title:'Tautan Disalin', text:'Silakan tempel di Google Chrome atau Safari.', confirmButtonColor: '#1E5128'})" class="bg-green-700 hover:bg-green-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-all active:scale-95 shadow-lg shadow-green-700/20 pointer-events-auto">
+                            Salin Tautan Halaman
+                        </button>
+                    </div>
+                `;
+            }
 
                 function startHeartbeat() {
                     heartbeatInterval = setInterval(() => {
