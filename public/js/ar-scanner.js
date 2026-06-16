@@ -155,49 +155,52 @@
 
         if (isIOS) {
             config.videoConstraints = {
-                width: {
-                    ideal: 1280,
-                },
-                height: {
-                    ideal: 720,
-                },
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
             };
         }
 
-        // This method will trigger user permissions natively via the library
-        Html5Qrcode.getCameras()
-            .then((devices) => {
-                if (devices && devices.length) {
-                    // Try to find the back camera
-                    let cameraId = devices[0].id; // Fallback to first camera
-                    for (const device of devices) {
-                        if (device.label.toLowerCase().includes("back") || device.label.toLowerCase().includes("environment")) {
-                            cameraId = device.id;
-                            break;
-                        }
-                    }
+        console.log(
+            "Memulai request kamera tunggal (Mencegah Double-Request Bug)...",
+        );
 
-                    console.log("Starting scanner with cameraId:", cameraId);
-                    
-                    // Once we have camera ID, start scanning
-                    html5QrcodeScanner
-                        .start(cameraId, config, onScanSuccess, onScanFailure)
-                        .then(() => {
-                            console.log("✅ Scanner started SUCCESSFULLY");
-                            startHeartbeat();
-                        })
-                        .catch((err) => {
-                            console.error("❌ Failed to start scanner:", err);
-                            showCameraError();
-                        });
-                } else {
-                    console.warn("No cameras found.");
-                    showCameraError();
-                }
+        // LANGSUNG eksekusi mode environment tanpa memanggil getCameras()
+        html5QrcodeScanner
+            .start(
+                { facingMode: "environment" },
+                config,
+                onScanSuccess,
+                onScanFailure,
+            )
+            .then(() => {
+                console.log("✅ Scanner started SUCCESSFULLY");
+                startHeartbeat();
             })
             .catch((err) => {
-                console.error("Error getting cameras (Permission Denied):", err);
-                showCameraPermissionDeniedError();
+                console.error("❌ Library gagal memulai kamera:", err);
+
+                // ==========================================
+                // BLOK DIAGNOSTIK (VANILLA JS BYPASS)
+                // ==========================================
+                navigator.mediaDevices
+                    .getUserMedia({ video: { facingMode: "environment" } })
+                    .then((stream) => {
+                        // Jika masuk ke sini, artinya HP dan Chrome MENGIZINKAN kamera.
+                        // Masalahnya 100% ada di dalam file library html5-qrcode.
+                        stream.getTracks().forEach((track) => track.stop()); // Matikan stream diagnostik
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Library Bentrok",
+                            text: "Kamera sebenarnya diizinkan, tetapi engine scanner mengalami kegagalan internal.",
+                            confirmButtonColor: "#1E5128",
+                        });
+                    })
+                    .catch((vanillaErr) => {
+                        // Jika masuk ke sini, artinya sistem OS Android/Hardware Anda yang MENGUNCI kamera.
+                        // Penyebab paling umum: Aplikasi lain di latar belakang sedang merebut kamera (seperti Link to Windows / WhatsApp Call nyangkut).
+                        console.error("Vanilla JS Ditolak OS:", vanillaErr);
+                        showCameraPermissionDeniedError();
+                    });
             });
     }
 
