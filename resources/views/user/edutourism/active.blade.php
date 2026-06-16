@@ -115,13 +115,17 @@
         </div>
     </x-modal>
 
-@endsection
-
-@push('scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        (function() {
+            let mapInstance = null;
+            let watchId = null;
+
+            const handleActiveEdutourismLoad = function(evt) {
+                const container = evt.detail.elt;
+                const mapEl = container.querySelector('#map') || (container.id === 'map' ? container : null);
+                if (mapEl && !mapInstance) {
             @if ($activeSession->currentPoint)
                 const targetLat = {{ $activeSession->currentPoint->locationable->mapLocation->latitude ?? 0 }};
                 const targetLng = {{ $activeSession->currentPoint->locationable->mapLocation->longitude ?? 0 }};
@@ -168,12 +172,13 @@
                 }, 250);
             @endif
 
-            const map = L.map('map', {
-                zoomControl: false
-            }).setView([-8.4223, 115.3595], 17);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19
-            }).addTo(map);
+                    const map = L.map(mapEl, {
+                        zoomControl: false
+                    }).setView([-8.4223, 115.3595], 17);
+                    mapInstance = map;
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19
+                    }).addTo(map);
 
             if (targetLat !== 0 && targetLng !== 0) {
                 L.marker([targetLat, targetLng], {
@@ -212,8 +217,8 @@
 
                 if (targetLat !== 0) {
                     const dist = calculateDistance(lat, lng, targetLat, targetLng);
-                    const infoText = document.getElementById('distance-info');
-                    const arriveBtn = document.getElementById('btn-arrive');
+                    const infoText = container.querySelector('#distance-info') || document.getElementById('distance-info');
+                    const arriveBtn = container.querySelector('#btn-arrive') || document.getElementById('btn-arrive');
 
                     if (dist < 30) {
                         infoText.innerHTML = `Lokasi Ditemukan! (Jarak: ${dist}m)`;
@@ -258,21 +263,28 @@
 
             function showQuiz() {
                 const quiz = currentQuizzes[currentQuizIndex];
-                document.getElementById('quiz-question').textContent =
-                    `Soal ${currentQuizIndex + 1} dari ${currentQuizzes.length}: ` + quiz.question;
+                const quizQuestionEl = document.getElementById('quiz-question');
+                if (quizQuestionEl) {
+                    quizQuestionEl.textContent = `Soal ${currentQuizIndex + 1} dari ${currentQuizzes.length}: ` + quiz.question;
+                }
                 const opts = document.getElementById('quiz-options');
-                opts.innerHTML = `
-                <button onclick="submitQuiz(${quiz.id}, 'A')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">A.</span> <span class="font-medium text-gray-700">${quiz.option_a}</span></button>
-                <button onclick="submitQuiz(${quiz.id}, 'B')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">B.</span> <span class="font-medium text-gray-700">${quiz.option_b}</span></button>
-                <button onclick="submitQuiz(${quiz.id}, 'C')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">C.</span> <span class="font-medium text-gray-700">${quiz.option_c}</span></button>
-                <button onclick="submitQuiz(${quiz.id}, 'D')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">D.</span> <span class="font-medium text-gray-700">${quiz.option_d}</span></button>
-            `;
+                if (opts) {
+                    opts.innerHTML = `
+                        <button onclick="submitQuiz(${quiz.id}, 'A')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">A.</span> <span class="font-medium text-gray-700">${quiz.option_a}</span></button>
+                        <button onclick="submitQuiz(${quiz.id}, 'B')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">B.</span> <span class="font-medium text-gray-700">${quiz.option_b}</span></button>
+                        <button onclick="submitQuiz(${quiz.id}, 'C')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">C.</span> <span class="font-medium text-gray-700">${quiz.option_c}</span></button>
+                        <button onclick="submitQuiz(${quiz.id}, 'D')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">D.</span> <span class="font-medium text-gray-700">${quiz.option_d}</span></button>
+                    `;
+                }
             }
 
             window.triggerArrive = function(pointId) {
                 console.log("triggerArrive called for point ID:", pointId);
-                document.getElementById('btn-arrive').disabled = true;
-                document.getElementById('btn-arrive').textContent = 'Memuat Kuis...';
+                const btnArrive = document.getElementById('btn-arrive');
+                if (btnArrive) {
+                    btnArrive.disabled = true;
+                    btnArrive.textContent = 'Memuat Kuis...';
+                }
 
                 const url = `/edutourism/arrive/${pointId}`;
                 console.log("Fetching URL:", url);
@@ -385,6 +397,23 @@
                         buttons.forEach(btn => btn.disabled = false);
                     });
             }
-        });
+
+            document.body.addEventListener('htmx:load', handleActiveEdutourismLoad);
+
+            document.addEventListener('htmx:beforeSwap', function cleanup(e) {
+                if (watchId !== null) {
+                    navigator.geolocation.clearWatch(watchId);
+                    watchId = null;
+                }
+                if (mapInstance) {
+                    mapInstance.remove();
+                    mapInstance = null;
+                }
+                delete window.triggerArrive;
+                delete window.submitQuiz;
+                document.body.removeEventListener('htmx:load', handleActiveEdutourismLoad);
+                document.removeEventListener('htmx:beforeSwap', cleanup);
+            });
+        })();
     </script>
-@endpush
+@endsection

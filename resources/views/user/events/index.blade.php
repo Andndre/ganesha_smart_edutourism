@@ -2,11 +2,6 @@
 @section('title', 'Kalender Event & Budaya')
 @section('header_title', 'Kalender Event')
 
-@push('styles')
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-    @include('user.events.partials.events-styles')
-@endpush
-
 @section('content')
     <!-- FullCalendar CDN and Styles -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
@@ -149,15 +144,19 @@
 
             // Execution flow
             registerAlpineComponent();
-            
-            // Allow CDN script a moment to parse if loaded via HTMX
-            setTimeout(() => {
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', initCalendar);
-                } else {
+
+            const handleEventsLoad = function(evt) {
+                const container = evt.detail.elt;
+                if (container.querySelector('#calendar-public') || container.id === 'calendar-public') {
                     initCalendar();
                 }
-            }, 50);
+            };
+            document.body.addEventListener('htmx:load', handleEventsLoad);
+
+            document.addEventListener('htmx:beforeSwap', function cleanup(e) {
+                document.body.removeEventListener('htmx:load', handleEventsLoad);
+                document.removeEventListener('htmx:beforeSwap', cleanup);
+            });
         })();
     </script>
 

@@ -102,60 +102,73 @@
             <p class="text-xs text-gray-300">Ulasan Anda berhasil dikirim.</p>
         </div>
     </div>
-@endsection
-
-@push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const stars = document.querySelectorAll('.star-btn');
-            const ratingText = document.getElementById('rating-text');
+        (function() {
+            if (!window.feedbackListenersRegistered) {
+                document.body.addEventListener('click', function(e) {
+                    const star = e.target.closest('.star-btn');
+                    if (star) {
+                        const starsContainer = star.closest('.flex');
+                        if (starsContainer) {
+                            const stars = starsContainer.querySelectorAll('.star-btn');
+                            const value = parseInt(star.getAttribute('data-value'));
 
-            const ratingLabels = [
-                "Sangat Buruk",
-                "Kurang Memuaskan",
-                "Cukup Baik",
-                "Memuaskan",
-                "Sangat Memuaskan!"
-            ];
+                            // Update star visuals
+                            stars.forEach(s => {
+                                if (parseInt(s.getAttribute('data-value')) <= value) {
+                                    s.classList.remove('text-gray-200');
+                                    s.classList.add('text-accent');
+                                } else {
+                                    s.classList.remove('text-accent');
+                                    s.classList.add('text-gray-200');
+                                }
+                            });
 
-            let currentRating = 0;
-
-            stars.forEach(star => {
-                star.addEventListener('click', function() {
-                    const value = parseInt(this.getAttribute('data-value'));
-                    currentRating = value;
-
-                    // Update star visuals
-                    stars.forEach(s => {
-                        if (parseInt(s.getAttribute('data-value')) <= value) {
-                            s.classList.remove('text-gray-200');
-                            s.classList.add('text-accent');
-                        } else {
-                            s.classList.remove('text-accent');
-                            s.classList.add('text-gray-200');
+                            // Update text
+                            const ratingText = document.getElementById('rating-text');
+                            const ratingLabels = [
+                                "Sangat Buruk",
+                                "Kurang Memuaskan",
+                                "Cukup Baik",
+                                "Memuaskan",
+                                "Sangat Memuaskan!"
+                            ];
+                            if (ratingText) {
+                                ratingText.textContent = ratingLabels[value - 1];
+                                ratingText.classList.remove('opacity-0');
+                            }
                         }
-                    });
-
-                    // Update text
-                    ratingText.textContent = ratingLabels[value - 1];
-                    ratingText.classList.remove('opacity-0');
+                    }
                 });
-            });
-        });
+                window.feedbackListenersRegistered = true;
+            }
+        })();
 
         function submitFeedback() {
             if (navigator.vibrate) navigator.vibrate(100);
 
             const toast = document.getElementById('toast');
-            toast.classList.remove('-translate-y-[150%]');
+            if (toast) {
+                toast.classList.remove('-translate-y-[150%]');
+            }
 
             setTimeout(() => {
-                toast.classList.add('-translate-y-[150%]');
+                if (toast) {
+                    toast.classList.add('-translate-y-[150%]');
+                }
                 // Navigate back to home after successful submission
                 setTimeout(() => {
-                    window.location.href = "{{ route('home') }}";
+                    if (window.htmx) {
+                        htmx.ajax('GET', "{{ route('home') }}", {
+                            target: '#main-page-container',
+                            select: '#main-page-container',
+                            swap: 'innerHTML'
+                        });
+                    } else {
+                        window.location.href = "{{ route('home') }}";
+                    }
                 }, 500);
             }, 2500);
         }
     </script>
-@endpush
+@endsection

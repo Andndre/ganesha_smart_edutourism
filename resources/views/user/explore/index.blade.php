@@ -352,12 +352,17 @@
             
             setupExploreEchoListener();
 
-            // Clean up Reverb subscription when navigating away via HTMX
-            document.addEventListener('htmx:beforeRequest', function cleanupExploreEcho() {
+            // Clean up Reverb subscription and window listeners when navigating away via HTMX
+            document.addEventListener('htmx:beforeSwap', function cleanupExplore() {
                 if (window.Echo) {
                     window.Echo.leave('village-map');
                 }
-                document.removeEventListener('htmx:beforeRequest', cleanupExploreEcho);
+                if (watchId !== null) {
+                    navigator.geolocation.clearWatch(watchId);
+                    watchId = null;
+                }
+                window.removeEventListener('filter-change', onFilterChange);
+                document.removeEventListener('htmx:beforeSwap', cleanupExplore);
             });
 
             // Update marker visibility based on active filters and search query
@@ -391,7 +396,7 @@
             }
 
             // Listen for filter changes from map-search component
-            window.addEventListener('filter-change', function(e) {
+            function onFilterChange(e) {
                 const {
                     filter,
                     active
@@ -404,7 +409,8 @@
                 if (heatmapVisible) {
                     renderHeatmap();
                 }
-            });
+            }
+            window.addEventListener('filter-change', onFilterChange);
 
             // ==========================================
             // MY LOCATION FUNCTIONALITY
@@ -1140,25 +1146,22 @@
         }
     }
 
-    // Delay slightly for HTMX DOM injection
-    setTimeout(() => {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initMap);
-        } else {
+    const handleExploreLoad = function(evt) {
+        const container = evt.detail.elt;
+        if (container.querySelector('#map') || container.id === 'map') {
             initMap();
         }
-    }, 50);
-    })();
+    };
+    document.body.addEventListener('htmx:load', handleExploreLoad);
 
-        // Map Cleanup on HTMX Leave
-        document.addEventListener('htmx:beforeRequest', function cleanupMap(e) {
-            if (e.target && e.target.id === 'main-page-container') {
-                if (window.mapInstance) {
-                    window.mapInstance.remove();
-                    window.mapInstance = null;
-                }
-            }
-            document.removeEventListener('htmx:beforeRequest', cleanupMap);
-        });
+    document.addEventListener('htmx:beforeSwap', function cleanupMap(e) {
+        if (window.mapInstance) {
+            window.mapInstance.remove();
+            window.mapInstance = null;
+        }
+        document.body.removeEventListener('htmx:load', handleExploreLoad);
+        document.removeEventListener('htmx:beforeSwap', cleanupMap);
+    });
+    })();
     </script>
 @endsection
