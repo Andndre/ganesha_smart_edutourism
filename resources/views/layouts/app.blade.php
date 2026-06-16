@@ -72,7 +72,7 @@
     </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lRIxbboDG3iFR8m1t16WXkhTXQTm5w70qVxipnFqh67UTc69Msp1R22cC6+6" crossorigin="anonymous"></script>
+    <script src="{{ asset('js/htmx.min.js') }}"></script>
 
     @stack('styles')
 </head>

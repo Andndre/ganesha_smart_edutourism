@@ -1,4 +1,4 @@
-const CACHE_NAME = "penglipuran-v9";
+const CACHE_NAME = "penglipuran-v10";
 const OFFLINE_URL = "/offline";
 
 const urlsToCache = ["/", OFFLINE_URL];
@@ -90,6 +90,7 @@ self.addEventListener("fetch", (event) => {
                             (event.request.url.includes("/build/") ||
                                 event.request.url.includes("/icons/") ||
                                 event.request.url.includes("/images/") ||
+                                event.request.url.includes("/js/") ||
                                 event.request.url.includes("/fonts."))
                         ) {
                             const responseClone = networkResponse.clone();
