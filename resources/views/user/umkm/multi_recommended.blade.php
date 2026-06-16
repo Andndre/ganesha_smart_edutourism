@@ -195,94 +195,105 @@
 
             // Initialize Map
             let mapInstance = null;
-            const mapEl = document.getElementById('map');
-            if (mapEl) {
-                mapInstance = L.map(mapEl, {
-                    zoomControl: false,
-                    attributionControl: false
-                });
-
-                // Add CartoDB Positron tiles for a clean look
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                    maxZoom: 20
-                }).addTo(mapInstance);
-
-                // Add markers
-                const bounds = L.latLngBounds();
-
-                routeData.forEach((stop, index) => {
-                    const umkm = stop.umkm;
-                    if (!umkm) return;
-                    const loc = umkm.map_location || umkm.mapLocation;
-                    if (!loc) return;
-
-                    const lat = parseFloat(loc.latitude);
-                    const lng = parseFloat(loc.longitude);
-                    bounds.extend([lat, lng]);
-
-                    const iconHtml = `
-                    <div class="marker-pin"></div>
-                    <div class="marker-number">${index + 1}</div>
-                `;
-
-                    const customIcon = L.divIcon({
-                        className: 'custom-div-icon',
-                        html: iconHtml,
-                        iconSize: [30, 42],
-                        iconAnchor: [15, 42]
+            const initMap = () => {
+                const mapEl = document.getElementById('map');
+                if (mapEl) {
+                    mapInstance = L.map(mapEl, {
+                        zoomControl: false,
+                        attributionControl: false
                     });
 
-                    L.marker([lat, lng], {
-                            icon: customIcon
-                        })
-                        .bindPopup(`<b>${umkm.business_name || 'UMKM'}</b>`)
-                        .addTo(mapInstance);
-                });
+                    // Add CartoDB Positron tiles for a clean look
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                        maxZoom: 20
+                    }).addTo(mapInstance);
 
-                if (mapCoordinates.length > 0) {
-                    mapInstance.fitBounds(bounds, {
-                        padding: [30, 30]
-                    });
-                }
+                    // Add markers
+                    const bounds = L.latLngBounds();
 
-                // Attempt to draw route using local OpenRouteService
-                if (mapCoordinates.length >= 2) {
-                    // ORS expects [lng, lat]
-                    const orsCoordinates = mapCoordinates.map(coord => [parseFloat(coord[1]), parseFloat(coord[0])]);
+                    routeData.forEach((stop, index) => {
+                        const umkm = stop.umkm;
+                        if (!umkm) return;
+                        const loc = umkm.map_location || umkm.mapLocation;
+                        if (!loc) return;
 
-                    fetch('/api/routing/directions', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                coordinates: orsCoordinates
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data && data.features && data.features.length > 0) {
-                                const geojson = data.features[0];
-                                L.geoJSON(geojson, {
-                                    style: {
-                                        color: '#F97316', // Primary color
-                                        weight: 4,
-                                        opacity: 0.8,
-                                        dashArray: '10, 10'
-                                    }
-                                }).addTo(mapInstance);
-                            } else {
-                                // Fallback: draw straight lines if routing fails
-                                drawStraightLines();
-                            }
-                        })
-                        .catch(err => {
-                            console.error('Routing failed:', err);
-                            drawStraightLines();
+                        const lat = parseFloat(loc.latitude);
+                        const lng = parseFloat(loc.longitude);
+                        bounds.extend([lat, lng]);
+
+                        const iconHtml = `
+                        <div class="marker-pin"></div>
+                        <div class="marker-number">${index + 1}</div>
+                    `;
+
+                        const customIcon = L.divIcon({
+                            className: 'custom-div-icon',
+                            html: iconHtml,
+                            iconSize: [30, 42],
+                            iconAnchor: [15, 42]
                         });
+
+                        L.marker([lat, lng], {
+                                icon: customIcon
+                            })
+                            .bindPopup(`<b>${umkm.business_name || 'UMKM'}</b>`)
+                            .addTo(mapInstance);
+                    });
+
+                    if (mapCoordinates.length > 0) {
+                        mapInstance.fitBounds(bounds, {
+                            padding: [30, 30]
+                        });
+                    }
+
+                    // Attempt to draw route using local OpenRouteService
+                    if (mapCoordinates.length >= 2) {
+                        // ORS expects [lng, lat]
+                        const orsCoordinates = mapCoordinates.map(coord => [parseFloat(coord[1]), parseFloat(coord[0])]);
+
+                        fetch('/api/routing/directions', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    coordinates: orsCoordinates
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data && data.features && data.features.length > 0) {
+                                    const geojson = data.features[0];
+                                    L.geoJSON(geojson, {
+                                        style: {
+                                            color: '#F97316', // Primary color
+                                            weight: 4,
+                                            opacity: 0.8,
+                                            dashArray: '10, 10'
+                                        }
+                                    }).addTo(mapInstance);
+                                } else {
+                                    // Fallback: draw straight lines if routing fails
+                                    drawStraightLines();
+                                }
+                            })
+                            .catch(err => {
+                                console.error('Routing failed:', err);
+                                drawStraightLines();
+                            });
+                    }
                 }
-            }
+            };
+            
+            const checkAndInitMap = () => {
+                if (typeof L !== 'undefined' || !document.getElementById('map')) {
+                    initMap();
+                } else {
+                    setTimeout(checkAndInitMap, 50);
+                }
+            };
+            checkAndInitMap();
 
             function drawStraightLines() {
                 if (mapInstance) {

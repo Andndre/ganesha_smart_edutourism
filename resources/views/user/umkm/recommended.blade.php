@@ -317,8 +317,15 @@
                 }
             };
 
-            // Run immediately
-            initRecommended();
+            // Run when Leaflet is ready
+            const checkAndInitMap = () => {
+                if (typeof L !== 'undefined' || !document.getElementById('map')) {
+                    initRecommended();
+                } else {
+                    setTimeout(checkAndInitMap, 50);
+                }
+            };
+            checkAndInitMap();
 
             // Clean up Leaflet map instance on Livewire navigation
             document.addEventListener('livewire:navigating', function cleanup(e) {

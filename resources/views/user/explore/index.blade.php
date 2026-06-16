@@ -1102,8 +1102,15 @@
             window.openSheet = openSheet;
             window.closeSheet = closeSheet;
 
-            // Execute immediately on script load (DOM is already ready during initial load and wire:navigate)
-            initMap();
+            // Execute when Leaflet is ready (handles async loading via Livewire)
+            const checkAndInitMap = () => {
+                if (typeof L !== 'undefined') {
+                    initMap();
+                } else {
+                    setTimeout(checkAndInitMap, 50);
+                }
+            };
+            checkAndInitMap();
 
             document.addEventListener('livewire:navigating', function cleanupMap(e) {
                 if (window.mapInstance) {
