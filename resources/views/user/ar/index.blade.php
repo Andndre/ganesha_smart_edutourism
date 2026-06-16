@@ -146,33 +146,26 @@
                         return;
                     }
 
-                    // Explicitly request camera permission first to trigger the browser prompt
-                    navigator.mediaDevices.getUserMedia({ video: true })
-                        .then((stream) => {
-                            // Stop the stream immediately, we just needed the permission
-                            stream.getTracks().forEach(track => track.stop());
-                            
-                            // Permission granted, log available devices
-                            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-                                navigator.mediaDevices.enumerateDevices()
-                                    .then(devices => {
-                                        const cameras = devices.filter(d => d.kind === 'videoinput');
-                                        console.info('Cameras found: ' + cameras.length);
-                                        cameras.forEach((cam, i) => {
-                                            console.info('  Camera ' + i + ': ' + (cam.label ||
-                                                    '(no label)') + ' id=' + cam.deviceId
-                                                .substring(0, 8) + '...');
-                                        });
-                                    })
-                                    .catch(err => console.error('enumerateDevices error:', err.message));
+                    // Use Html5Qrcode's native method to get cameras and prompt for permission
+                    Html5Qrcode.getCameras().then(devices => {
+                        if (devices && devices.length) {
+                            console.info('Cameras found: ' + devices.length);
+                            let cameraId = devices[devices.length - 1].id;
+                            for (let i = 0; i < devices.length; i++) {
+                                let label = devices[i].label.toLowerCase();
+                                console.info('  Camera ' + i + ': ' + (devices[i].label || '(no label)') + ' id=' + devices[i].id.substring(0, 8) + '...');
+                                if (label.includes('back') || label.includes('environment') || label.includes('rear') || label.includes('kamera belakang')) {
+                                    cameraId = devices[i].id;
+                                }
                             }
-
-                            initScanner();
-                        })
-                        .catch((err) => {
-                            console.error("Camera permission request failed:", err);
-                            showCameraPermissionDeniedError();
-                        });
+                            initScanner(cameraId);
+                        } else {
+                            showCameraError();
+                        }
+                    }).catch(err => {
+                        console.error("Camera permission request failed:", err);
+                        showCameraPermissionDeniedError();
+                    });
 
                     const backBtn = document.getElementById('btn-back-scanner');
                     if (backBtn) {
@@ -199,8 +192,8 @@
                 }
             };
 
-            function initScanner() {
-                console.log('initScanner() called');
+            function initScanner(cameraId) {
+                console.log('initScanner() called with cameraId: ' + cameraId);
                 try {
                     html5QrcodeScanner = new Html5Qrcode("reader");
                     console.log('Html5Qrcode instance created OK');
@@ -221,7 +214,6 @@
 
                 if (isIOS) {
                     config.videoConstraints = {
-                        facingMode: "environment",
                         width: {
                             ideal: 1280
                         },
@@ -231,62 +223,41 @@
                     };
                 }
 
-                html5QrcodeScanner.start({
-                        facingMode: "environment"
-                    },
+                html5QrcodeScanner.start(
+                    cameraId,
                     config,
                     onScanSuccess,
                     onScanFailure
                 ).then(() => {
-                    console.log('✅ Scanner started SUCCESSFULLY (facingMode)');
+                    console.log('✅ Scanner started SUCCESSFULLY');
                     startHeartbeat();
                 }).catch(err => {
-                    console.warn("❌ Failed with facingMode, trying getCameras fallback:", err);
-
+                    console.warn("❌ Failed to start scanner:", err);
+                    
                     const isPermissionDenied = err.toString().includes("NotAllowedError") || 
                                                err.toString().includes("Permission denied") ||
                                                (err.name && err.name === "NotAllowedError");
 
                     if (isPermissionDenied) {
                         showCameraPermissionDeniedError();
-                        return;
-                    }
+                    } else {
+                        // Fallback: try starting without specific videoConstraints just in case constraints are the issue
+                        const fallbackConfig = { ...config };
+                        delete fallbackConfig.videoConstraints;
 
-                    Html5Qrcode.getCameras().then(devices => {
-                        if (devices && devices.length) {
-                            let cameraId = devices[devices.length - 1].id;
-                            for (let i = 0; i < devices.length; i++) {
-                                let label = devices[i].label.toLowerCase();
-                                if (label.includes('back') || label.includes('environment') || label.includes('rear') || label.includes('kamera belakang')) {
-                                    cameraId = devices[i].id;
-                                    break;
-                                }
-                            }
-
-                            // Clone config and strip facingMode constraint from videoConstraints to avoid conflict with specific cameraId
-                            const fallbackConfig = { ...config };
-                            if (fallbackConfig.videoConstraints) {
-                                fallbackConfig.videoConstraints = { ...fallbackConfig.videoConstraints };
-                                delete fallbackConfig.videoConstraints.facingMode;
-                            }
-
-                            html5QrcodeScanner.start(
-                                cameraId,
-                                fallbackConfig,
-                                onScanSuccess,
-                                onScanFailure
-                            ).then(() => {
-                                console.log('✅ Scanner started SUCCESSFULLY (cameraId)');
-                                startHeartbeat();
-                            }).catch(e => {
-                                showCameraError();
-                            });
-                        } else {
+                        html5QrcodeScanner.start(
+                            cameraId,
+                            fallbackConfig,
+                            onScanSuccess,
+                            onScanFailure
+                        ).then(() => {
+                            console.log('✅ Scanner started SUCCESSFULLY (fallback config)');
+                            startHeartbeat();
+                        }).catch(fallbackErr => {
+                            console.error('❌ Fallback failed too:', fallbackErr);
                             showCameraError();
-                        }
-                    }).catch(e => {
-                        showCameraError();
-                    });
+                        });
+                    }
                 });
             }
 
