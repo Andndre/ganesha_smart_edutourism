@@ -2,7 +2,7 @@
 
 @section('title', 'Peta Interaktif - Penglipuran Smart Tour')
 
-@push('styles')
+@section('content')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
@@ -81,9 +81,7 @@
             color: white !important;
         }
     </style>
-@endpush
 
-@section('content')
     <div class="absolute inset-0 z-0 overflow-hidden bg-[#E5E3DF]">
         <div id="map" class="absolute inset-0 z-0"></div>
 
@@ -93,71 +91,76 @@
         @include('user.explore.components.map-search')
         @include('user.explore.components.map-fab')
     </div>
-@endsection
 
-@push('modals')
     @include('user.explore.components.location-sheet')
-@endpush
 
-@push('scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
-        // Category colors mapping matching the filter panel dots
-        const categoryColors = {
-            umkm: '#8B5CF6', // Violet
-            facilities: '#3B82F6', // Blue
-            toilets: '#06B6D4', // Cyan
-            accessibility: '#F59E0B', // Amber
-            cultural: '#1E5128' // Green (Default)
-        };
+        // Execution wrapper to handle HTMX
+        (function() {
+            function initMap() {
+                // Return early if map container doesn't exist
+                if (!document.getElementById('map')) return;
+                
+                // If map is already initialized, don't re-initialize
+                if (window.mapInstance) return;
 
-        // Shared global user GPS location variable
-        let lastPosition = null;
-        let shouldCenterOnNextLocation = false;
-        let map = null;
-        let isGpsLoading = false;
-        let activeLocation = null;
+                // Category colors mapping matching the filter panel dots
+                const categoryColors = {
+                    umkm: '#8B5CF6', // Violet
+                    facilities: '#3B82F6', // Blue
+                    toilets: '#06B6D4', // Cyan
+                    accessibility: '#F59E0B', // Amber
+                    cultural: '#1E5128' // Green (Default)
+                };
 
-        function updateRouteButtonUI() {
-            const iconEl = document.getElementById('route-btn-icon');
-            const textEl = document.getElementById('route-btn-text');
-            if (!iconEl || !textEl) return;
+                // Shared global user GPS location variable
+                let lastPosition = null;
+                let shouldCenterOnNextLocation = false;
+                let map = null;
+                let isGpsLoading = false;
+                let activeLocation = null;
 
-            if (isGpsLoading) {
-                iconEl.innerHTML = `
-                    <svg class="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                `;
-                textEl.textContent = 'Mencari GPS...';
-            } else {
-                iconEl.innerHTML = `
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                `;
-                textEl.textContent = 'Arahkan';
-            }
-        }
+                function updateRouteButtonUI() {
+                    const iconEl = document.getElementById('route-btn-icon');
+                    const textEl = document.getElementById('route-btn-text');
+                    if (!iconEl || !textEl) return;
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const defaultLat = {{ $defaultLat }};
-            const defaultLon = {{ $defaultLon }};
+                    if (isGpsLoading) {
+                        iconEl.innerHTML = `
+                            <svg class="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        `;
+                        textEl.textContent = 'Mencari GPS...';
+                    } else {
+                        iconEl.innerHTML = `
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        `;
+                        textEl.textContent = 'Arahkan';
+                    }
+                }
 
-            // 1. Inisialisasi Peta
-            map = L.map('map', {
-                zoomControl: false
-            }).setView([defaultLat, defaultLon], 17);
+                const defaultLat = {{ $defaultLat }};
+                const defaultLon = {{ $defaultLon }};
 
-            // 2. Tambahkan Tile Layer
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
+                // 1. Inisialisasi Peta
+                map = L.map('map', {
+                    zoomControl: false
+                }).setView([defaultLat, defaultLon], 17);
+                window.mapInstance = map;
+
+                // 2. Tambahkan Tile Layer
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
 
             // 3. Data from ExploreController
             const locations = @json($locations);
@@ -1131,6 +1134,30 @@
             map.fitBounds(polyline.getBounds(), {
                 padding: [60, 60]
             });
+                // Make globals accessible for the bottom sheet and route functions
+            window.activeLocation = activeLocation;
+            window.userRouteLayer = userRouteLayer;
         }
+
+        // Delay slightly for HTMX DOM injection
+        setTimeout(() => {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initMap);
+            } else {
+                initMap();
+            }
+        }, 50);
+        })();
+
+        // Map Cleanup on HTMX Leave
+        document.addEventListener('htmx:beforeRequest', function cleanupMap(e) {
+            if (e.target && e.target.id === 'main-page-container') {
+                if (window.mapInstance) {
+                    window.mapInstance.remove();
+                    window.mapInstance = null;
+                }
+            }
+            document.removeEventListener('htmx:beforeRequest', cleanupMap);
+        });
     </script>
-@endpush
+@endsection
