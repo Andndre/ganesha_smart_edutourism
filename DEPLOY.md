@@ -38,9 +38,10 @@ nano .env
 Sesuaikan beberapa konfigurasi penting berikut agar kompatibel dengan Docker:
 
 ```env
-# 1. Port Web Aplikasi & phpMyAdmin
+# 1. Port Web Aplikasi, phpMyAdmin, & WebSocket
 APP_PORT=80
-PMA_PORT=8081
+PMA_PORT=8082
+REVERB_PORT=8081
 
 # 2. Pengaturan Database (WAJIB menggunakan nama container db: penglipuran-db)
 DB_CONNECTION=mysql
@@ -112,6 +113,9 @@ docker compose exec penglipuran-app php artisan tinker
 1. **Penyimpanan Data Terisolasi & Awet (Persistent)**: Database MySQL disimpan di volume `penglipuran-db-data` dan file upload disimpan di `penglipuran-storage`. Keduanya aman meskipun container Anda di-restart, dihapus, atau di-update.
 2. **Mudah Diupdate**: Jika Anda membuat perubahan kode di lokal dan mem-push ke Git, Anda cukup melakukan `git pull` dan `./deploy.sh` di VPS untuk merilis versi terbaru.
 3. **Multi-Project Ready**: Jika nanti Anda menambahkan project lain di VPS ini, Anda hanya perlu mengganti variabel `APP_PORT` (misalnya jadi `8081`) dan `DB_PORT` di `.env` project baru agar tidak terjadi tabrakan port.
+
+> [!IMPORTANT]
+> Pastikan port `8081` (WebSocket Reverb) terbuka di firewall VPS / Hostinger Anda agar fitur *real-time tracking* dapat berfungsi di internet publik!
 
 ---
 

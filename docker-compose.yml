@@ -40,6 +40,22 @@ services:
     networks:
       - penglipuran-network
 
+  penglipuran-reverb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: penglipuran-reverb
+    restart: unless-stopped
+    command: php artisan reverb:start --host=0.0.0.0 --port=8081
+    ports:
+      - "${REVERB_PORT:-8081}:8081"
+    volumes:
+      - ./.env:/var/www/.env
+    depends_on:
+      - penglipuran-db
+    networks:
+      - penglipuran-network
+
   penglipuran-db:
     image: mysql:8.0
     container_name: penglipuran-db
@@ -50,7 +66,7 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD:-999}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password_here}
     ports:
-      - "${DB_PORT:-3306}:3306"
+      - "${FORWARD_DB_PORT:-3306}:3306"
     volumes:
       - penglipuran-db-data:/var/lib/mysql
     networks:

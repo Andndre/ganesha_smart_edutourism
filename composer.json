@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.3",
         "laravel/framework": "^13.8",
+        "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^3.0",
         "midtrans/midtrans-php": "^2.6"
@@ -57,7 +58,11 @@
         ],
         "share": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74,#a7f3d0,#f472b6\" \"php artisan serve\" \"php artisan queue:listen --tries=1 --timeout=0\" \"cloudflared tunnel run --protocol http2 --url http://localhost:8000 ganesha-tunnel\" \"while true; do php artisan app:update-weather; sleep 600; done\" \"npm run build -- --watch\" --names=server,queue,tunnel,weather,vite-build --kill-others"
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74,#a7f3d0,#f472b6,#8b5cf6\" \"php artisan serve\" \"php artisan queue:listen --tries=1 --timeout=0\" \"cloudflared tunnel run --protocol http2 --url http://localhost:8000 ganesha-tunnel\" \"while true; do php artisan app:update-weather; sleep 600; done\" \"npm run build -- --watch\" \"php artisan reverb:start\" --names=server,queue,tunnel,weather,vite-build,reverb --kill-others"
+        ],
+        "docker:share": [
+            "Composer\\Config::disableProcessTimeout",
+            "npx concurrently -c \"#fdba74,#f472b6\" \"cloudflared tunnel run --protocol http2 --url http://localhost:8000 ganesha-tunnel\" \"npm run build -- --watch\" --names=tunnel,vite --kill-others"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",

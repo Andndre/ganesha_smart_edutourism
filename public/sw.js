@@ -1,4 +1,4 @@
-const CACHE_NAME = "penglipuran-v8";
+const CACHE_NAME = "penglipuran-v9";
 const OFFLINE_URL = "/offline";
 
 const urlsToCache = ["/", OFFLINE_URL];
