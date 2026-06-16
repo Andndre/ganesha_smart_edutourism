@@ -291,41 +291,38 @@
 
             // Real-time GPS Tracking updates via Laravel Reverb
             const liveUserMarkers = {};
-            if (window.Echo) {
-                // Listen for other visitors' locations
-                window.Echo.channel('village-map')
-                    .listen('VisitorLocationUpdated', (e) => {
-                        // Check if this session already exists in heatmapData
-                        const existingIndex = heatmapData.findIndex(p => p.session_id === e.session_id);
-                        
-                        const newPoint = {
-                            lat: parseFloat(e.latitude),
-                            lng: parseFloat(e.longitude),
-                            intensity: 0.9,
-                            category: 'cultural', // To match default active filter
-                            name: 'Pengunjung Aktif',
-                            is_live_user: true,
-                            session_id: e.session_id
-                        };
+            function setupExploreEchoListener() {
+                if (window.Echo) {
+                    // Listen for other visitors' locations
+                    window.Echo.channel('village-map')
+                        .listen('VisitorLocationUpdated', (e) => {
+                            // Check if this session already exists in heatmapData
+                            const existingIndex = heatmapData.findIndex(p => p.session_id === e.session_id);
+                            
+                            const newPoint = {
+                                lat: parseFloat(e.latitude),
+                                lng: parseFloat(e.longitude),
+                                intensity: 0.9,
+                                category: 'cultural', // default category for visitors
+                                name: 'Pengunjung Aktif',
+                                is_live_user: true,
+                                session_id: e.session_id
+                            };
 
-                        if (existingIndex !== -1) {
-                            heatmapData[existingIndex] = newPoint;
-                        } else {
-                            heatmapData.push(newPoint);
-                        }
+                            if (existingIndex !== -1) {
+                                heatmapData[existingIndex] = newPoint;
+                            } else {
+                                heatmapData.push(newPoint);
+                            }
 
-                        // Re-render heatmap if visible
-                        if (heatmapVisible) {
-                            renderHeatmap();
-                        }
-                        
-                        // Create or update marker for the live user
-                        if (liveUserMarkers[e.session_id]) {
-                            liveUserMarkers[e.session_id].setLatLng([e.latitude, e.longitude]);
-                        } else {
-                            // Don't show marker for our own session
-                            const mySessionId = localStorage.getItem('gps_session_id');
-                            if (e.session_id !== mySessionId) {
+                            if (heatmapVisible) {
+                                renderHeatmap();
+                            }
+
+                            // Update or create marker on map
+                            if (liveUserMarkers[e.session_id]) {
+                                liveUserMarkers[e.session_id].setLatLng([e.latitude, e.longitude]);
+                            } else {
                                 const liveIcon = L.divIcon({
                                     className: 'custom-div-icon',
                                     html: `
@@ -339,14 +336,18 @@
                                 });
                                 
                                 const marker = L.marker([e.latitude, e.longitude], { icon: liveIcon })
-                                    .bindPopup('Pengunjung Lainnya')
+                                    .bindPopup('Wisatawan (Live)')
                                     .addTo(map);
                                 
                                 liveUserMarkers[e.session_id] = marker;
                             }
-                        }
-                    });
+                        });
+                } else {
+                    setTimeout(setupExploreEchoListener, 500);
+                }
             }
+            
+            setupExploreEchoListener();
 
             // Update marker visibility based on active filters and search query
             function updateVisibleMarkers() {

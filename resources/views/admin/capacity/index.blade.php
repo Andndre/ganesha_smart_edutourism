@@ -365,52 +365,58 @@
     renderHeatmap();
 
     // Listen for WebSocket updates
-    if (window.Echo) {
-        window.Echo.channel('village-map')
-            .listen('VisitorLocationUpdated', (e) => {
-                const existingIndex = heatmapData.findIndex(p => p.session_id === e.session_id);
-                
-                const newPoint = {
-                    lat: parseFloat(e.latitude),
-                    lng: parseFloat(e.longitude),
-                    intensity: 0.9,
-                    category: 'cultural',
-                    name: 'Pengunjung Aktif',
-                    is_live_user: true,
-                    session_id: e.session_id
-                };
-
-                if (existingIndex !== -1) {
-                    heatmapData[existingIndex] = newPoint;
-                } else {
-                    heatmapData.push(newPoint);
-                }
-
-                renderHeatmap();
-
-                // Create or update marker for the live user
-                if (liveUserMarkers[e.session_id]) {
-                    liveUserMarkers[e.session_id].setLatLng([e.latitude, e.longitude]);
-                } else {
-                    const liveIcon = L.divIcon({
-                        className: 'custom-div-icon',
-                        html: `
-                            <div class="relative flex h-4 w-4">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-4 w-4 bg-blue-600 border-2 border-white shadow"></span>
-                            </div>
-                        `,
-                        iconSize: [16, 16],
-                        iconAnchor: [8, 8]
-                    });
+    function setupEchoListener() {
+        if (window.Echo) {
+            window.Echo.channel('village-map')
+                .listen('VisitorLocationUpdated', (e) => {
+                    const existingIndex = heatmapData.findIndex(p => p.session_id === e.session_id);
                     
-                    const marker = L.marker([e.latitude, e.longitude], { icon: liveIcon })
-                        .bindPopup('Wisatawan (Live)')
-                        .addTo(map);
-                    
-                    liveUserMarkers[e.session_id] = marker;
-                }
-            });
+                    const newPoint = {
+                        lat: parseFloat(e.latitude),
+                        lng: parseFloat(e.longitude),
+                        intensity: 0.9,
+                        category: 'cultural',
+                        name: 'Pengunjung Aktif',
+                        is_live_user: true,
+                        session_id: e.session_id
+                    };
+
+                    if (existingIndex !== -1) {
+                        heatmapData[existingIndex] = newPoint;
+                    } else {
+                        heatmapData.push(newPoint);
+                    }
+
+                    renderHeatmap();
+
+                    // Create or update marker for the live user
+                    if (liveUserMarkers[e.session_id]) {
+                        liveUserMarkers[e.session_id].setLatLng([e.latitude, e.longitude]);
+                    } else {
+                        const liveIcon = L.divIcon({
+                            className: 'custom-div-icon',
+                            html: `
+                                <div class="relative flex h-4 w-4">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-4 w-4 bg-blue-600 border-2 border-white shadow"></span>
+                                </div>
+                            `,
+                            iconSize: [16, 16],
+                            iconAnchor: [8, 8]
+                        });
+                        
+                        const marker = L.marker([e.latitude, e.longitude], { icon: liveIcon })
+                            .bindPopup('Wisatawan (Live)')
+                            .addTo(map);
+                        
+                        liveUserMarkers[e.session_id] = marker;
+                    }
+                });
+        } else {
+            setTimeout(setupEchoListener, 500);
+        }
     }
+    
+    setupEchoListener();
 </script>
 @endpush
