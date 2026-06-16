@@ -449,9 +449,11 @@
                 // Geofence: Desa Penglipuran center + radius (circle-based)
                 const VILLAGE_CENTER = { lat: {{ config('services.penglipuran.latitude', -8.48858951350677) }}, lng: {{ config('services.penglipuran.longitude', 115.38392483153403) }} };
                 const VILLAGE_RADIUS_METERS = {{ config('services.penglipuran.geofence_radius', 500) }}; // Dynamic radius from config/services.php
-                let lastGeofenceAlert = 0;
+                
+                // Read persisted geofence state from localStorage to prevent re-alerting on page reload
+                let wasInsideVillage = localStorage.getItem('was_inside_village'); // 'true' | 'false' | null (unknown)
+                let lastGeofenceAlert = parseInt(localStorage.getItem('last_geofence_alert') || '0', 10);
                 const GEOFENCE_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
-                let wasInsideVillage = true;
 
                 function haversineDistance(lat1, lon1, lat2, lon2) {
                     const R = 6371000;
@@ -468,9 +470,10 @@
                     const isInside = distance <= VILLAGE_RADIUS_METERS;
                     const now = Date.now();
 
-                    // Only alert when transitioning from inside to outside
-                    if (!isInside && wasInsideVillage && (now - lastGeofenceAlert) > GEOFENCE_COOLDOWN_MS) {
+                    // Only alert when transitioning from inside ('true') to outside (isInside is false)
+                    if (!isInside && wasInsideVillage === 'true' && (now - lastGeofenceAlert) > GEOFENCE_COOLDOWN_MS) {
                         lastGeofenceAlert = now;
+                        localStorage.setItem('last_geofence_alert', now.toString());
                         addNotification({
                             id: 'geofence-' + now,
                             type: 'geofence',
@@ -482,7 +485,12 @@
                         });
                     }
 
-                    wasInsideVillage = isInside;
+                    // Update wasInsideVillage if changed or not yet initialized
+                    const newInsideState = isInside ? 'true' : 'false';
+                    if (wasInsideVillage !== newInsideState) {
+                        wasInsideVillage = newInsideState;
+                        localStorage.setItem('was_inside_village', newInsideState);
+                    }
                 }
 
                 let lastKnownPos = null;

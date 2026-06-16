@@ -1,5 +1,5 @@
 {{-- Notification Toast Banner - slides in from top when a new notification arrives --}}
-<div id="notification-toast-container" class="fixed inset-x-0 top-0 z-9998 flex flex-col items-center gap-2 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pointer-events-none">
+<div id="notification-toast-container" class="fixed inset-x-0 top-0 h-0 overflow-visible z-9998 flex flex-col items-center gap-2 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pointer-events-none" style="height: 0;">
 </div>
 
 <template id="notification-toast-template">
