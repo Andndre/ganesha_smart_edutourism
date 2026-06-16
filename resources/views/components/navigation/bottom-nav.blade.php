@@ -1,4 +1,4 @@
-<nav class="pb-sab fixed bottom-0 left-0 right-0 z-50 bg-white shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] md:static md:w-20 lg:w-64 md:h-full md:shrink-0 md:border-r md:border-gray-200 md:shadow-none md:pb-0"
+<nav class="pb-sab w-full bg-white shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] md:static md:w-20 lg:w-64 md:h-full md:shrink-0 md:border-r md:border-gray-200 md:shadow-none md:pb-0"
     role="navigation" aria-label="Main navigation">
     <div class="relative flex h-16 items-center justify-around px-2 md:h-full md:flex-col md:justify-start md:pt-10 md:gap-4 lg:px-4">
 

@@ -131,7 +131,7 @@
         @endphp
 
         <main id="main-content"
-            class="no-scrollbar {{ $isMainTab ? ($hasActiveSession ? 'pb-48' : 'pb-24') : ($hasActiveSession ? 'pb-28' : 'pb-6') }} relative flex-1 overflow-y-auto">
+            class="no-scrollbar {{ $hasActiveSession ? 'pb-28' : 'pb-6' }} relative flex-1 overflow-y-auto">
             @yield('content')
         </main>
 
