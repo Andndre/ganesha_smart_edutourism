@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport"
+ content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=0">
+ <meta name="theme-color" content="#FAF9F6">
+ <meta name="mobile-web-app-capable" content="yes">
+ <meta name="apple-mobile-web-app-capable" content="yes">
+ <meta name="apple-mobile-web-app-status-bar-style" content="default">
+ <meta name="apple-mobile-web-app-title" content="Penglipuran">
+ <title>Peta Interaktif - Penglipuran Smart Tour</title>
+ <meta name="csrf-token" content="">
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link
+ href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
+ rel="stylesheet">
+ <link rel="shortcut icon" href="http://localhost:8000/icons/logo-color-notext-shortcut.ico">
+ <style>
+ :root {
+ --sat: env(safe-area-inset-top);
+ --sab: env(safe-area-inset-bottom);
+ }
+ html,
+ body {
+ height: 100%;
+ width: 100%;
+ position: fixed;
+ top: 0;
+ left: 0;
+ overflow: hidden;
+ overscroll-behavior: none;
+ /* Mencegah pull-to-refresh bawaan browser */
+ }
+ /* Top Loading Bar */
+ #global-loading-bar {
+ position: fixed;
+ top: 0;
+ left: 0;
+ height: 3px;
+ background-color: #1E5128;
+ z-index: 9999;
+ width: 0%;
+ opacity: 1;
+ transition: width 0.4s cubic-bezier(0.1, 0.8, 0.3, 1), opacity 0.2s ease-in-out;
+ pointer-events: none;
+ }
+ #global-loading-bar.finished {
+ width: 100% !important;
+ opacity: 0;
+ }
+ </style>
+ <script>
+ window.Laravel = {
+ reverbKey: "nyyvxbfoszberasnm56u",
+ reverbHost: "penglipuran-reverb",
+ reverbPort: "8081"
+ };
+ </script>
+ <link rel="preload" as="style" href="http://localhost:8000/build/assets/app-DrVgfPKA.css" /><link rel="modulepreload" as="script" href="http://localhost:8000/build/assets/app-c5dya9GC.js" /><link rel="stylesheet" href="http://localhost:8000/build/assets/app-DrVgfPKA.css" data-navigate-track="reload" /><script type="module" src="http://localhost:8000/build/assets/app-c5dya9GC.js" data-navigate-track="reload"></script> <!-- Livewire Styles --><style >[wire\:loading][wire\:loading], [wire\:loading\.delay][wire\:loading\.delay], [wire\:loading\.list-item][wire\:loading\.list-item], [wire\:loading\.inline-block][wire\:loading\.inline-block], [wire\:loading\.inline][wire\:loading\.inline], [wire\:loading\.block][wire\:loading\.block], [wire\:loading\.flex][wire\:loading\.flex], [wire\:loading\.table][wire\:loading\.table], [wire\:loading\.grid][wire\:loading\.grid], [wire\:loading\.inline-flex][wire\:loading\.inline-flex] {display: none;}[wire\:loading\.delay\.none][wire\:loading\.delay\.none], [wire\:loading\.delay\.shortest][wire\:loading\.delay\.shortest], [wire\:loading\.delay\.shorter][wire\:loading\.delay\.shorter], [wire\:loading\.delay\.short][wire\:loading\.delay\.short], [wire\:loading\.delay\.default][wire\:loading\.delay\.default], [wire\:loading\.delay\.long][wire\:loading\.delay\.long], [wire\:loading\.delay\.longer][wire\:loading\.delay\.longer], [wire\:loading\.delay\.longest][wire\:loading\.delay\.longest] {display: none;}[wire\:offline][wire\:offline] {display: none;}[wire\:dirty]:not(textarea):not(input):not(select) {display: none;}:root {--livewire-progress-bar-color: #2299dd;}[x-cloak] {display: none !important;}[wire\:cloak] {display: none !important;}dialog#livewire-error::backdrop {background-color: rgba(0, 0, 0, .6);}</style>
+ </head>
+<body class="flex h-full w-full items-center justify-center overflow-hidden bg-gray-50 antialiased">
+ <div class="bg-surface text-charcoal relative flex h-full w-full flex-col md:flex-row-reverse overflow-hidden"
+ style="transform: translateZ(0);">
+ <!-- Content Area Wrapper -->
+ <div id="main-page-container"
+ class="relative flex h-full w-full flex-1 flex-col overflow-hidden">
+ <!-- Global Offline Coaching Modal -->
+ <div id="offline-coaching-modal"
+ class="bg-charcoal/40 pointer-events-none fixed inset-0 flex scale-95 items-center justify-center opacity-0 backdrop-blur-sm transition-all duration-300"
+ style="z-index: 999999;">
+ <div
+ class="flex w-[90%] max-w-sm flex-col items-center rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-2xl">
+ <!-- Icon -->
+ <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-[#E28F1B]">
+ <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+ <path stroke-linecap="round" stroke-linejoin="round"
+ d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+ <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18" />
+ </svg>
+ </div>
+ <!-- Title -->
+ <h3 class="text-charcoal mb-2 text-base font-bold">Anda Sedang Luring (Offline)</h3>
+ <!-- Description -->
+ <p class="mb-6 text-xs leading-relaxed text-gray-500">
+ Koneksi internet Anda terputus. Jangan khawatir, Anda tetap dapat menjelajahi desa melalui data
+ luring (cache).
+ <br><br>
+ Perhatikan indikator <span
+ class="rounded-full bg-[#E28F1B] px-2.5 py-0.5 font-bold text-white">Offline</span> di pojok
+ kanan atas sebagai penanda status koneksi Anda.
+ </p>
+ <!-- Action Button -->
+ <button id="close-offline-coaching-btn"
+ class="bg-primary w-full rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-[#152E1D] active:scale-95">
+ Baik, Saya Mengerti
+ </button>
+ </div>
+ </div>
+ <header
+ class="pt-sat bg-primary z-40 shrink-0 px-4 md:px-8 text-white">
+ <nav
+ class=" flex h-14 items-center justify-between">
+ <div class="flex items-center gap-3">
+ <button
+ onclick="if (document.referrer && document.referrer.includes(window.location.host)) { history.back(); } else { window.location.href = 'http://localhost:8000'; }"
+ class="tap-target -ml-2 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-white transition-all active:scale-95"
+ aria-label="Kembali">
+ <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+ </svg>
+ </button>
+ <h1 class="text-label font-semibold"></h1>
+ </div>
+ <div class="flex items-center gap-1">
+ <span id="offline-indicator" class="bg-warning hidden rounded-full px-2 py-1 text-xs font-medium">
+ Offline
+ </span>
+ </div>
+ </nav>
+</header>
+ <main id="main-content"
+ class="no-scrollbar pb-6 relative flex-1 overflow-y-auto">
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+ integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+ <style>
+ /* Sembunyikan atribusi leaflet yang terlalu besar di HP */
+ .leaflet-control-attribution {
+ display: none !important;
+ }
+ /* Hilangkan efek outline saat klik marker */
+ .leaflet-container:focus {
+ outline: none;
+ }
+ /* Animasi Bottom Sheet */
+ .bottom-sheet-enter {
+ transform: translateY(100%);
+ }
+ .bottom-sheet-active {
+ transform: translateY(0);
+ transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+ }
+ /* Heatmap Gradient Overlay */
+ .heatmap-overlay {
+ position: absolute;
+ inset: 0;
+ pointer-events: none;
+ z-index: 1;
+ opacity: 0.4;
+ mix-blend-mode: multiply;
+ }
+ .heatmap-cell {
+ position: absolute;
+ border-radius: 50%;
+ background: radial-gradient(circle, rgba(239, 68, 68, 0.8) 0%, rgba(249, 115, 22, 0.6) 30%, rgba(234, 179, 8, 0.4) 60%, rgba(34, 197, 94, 0.2) 80%, transparent 100%);
+ }
+ /* My Location Arrow */
+ .location-arrow {
+ position: absolute;
+ width: 24px;
+ height: 24px;
+ pointer-events: none;
+ z-index: 500;
+ filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+ }
+ .location-pulse {
+ position: absolute;
+ width: 40px;
+ height: 40px;
+ border-radius: 50%;
+ background: rgba(30, 81, 40, 0.3);
+ animation: pulse 2s infinite;
+ pointer-events: none;
+ z-index: 499;
+ }
+ @keyframes pulse {
+ 0% {
+ transform: scale(0.5);
+ opacity: 1;
+ }
+ 100% {
+ transform: scale(2);
+ opacity: 0;
+ }
+ }
+ /* FAB Active State */
+ .fab-btn-active {
+ background: #1E5128 !important;
+ color: white !important;
+ }
+ </style>
+ <div class="absolute inset-0 z-0 overflow-hidden bg-[#E5E3DF]">
+ <div id="map" class="absolute inset-0 z-0"></div>
+ <!-- Heatmap Overlay Container -->
+ <div id="heatmap-overlay" class="heatmap-overlay"></div>
+ <div class="absolute inset-x-4 top-[env(safe-area-inset-top)] z-40 mt-4">
+ <div
+ class="flex h-14 items-center gap-3 rounded-full border border-white bg-white/90 px-5 shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-md">
+ <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+ </svg>
+ <input type="text" id="search-input" placeholder="Cari objek budaya atau UMKM.."
+ class="text-charcoal flex-1 bg-transparent text-sm font-medium placeholder-gray-400 outline-none" />
+ <div class="mx-1 h-5 w-[1.5px] bg-gray-200"></div>
+ <button type="button" id="btn-filter-toggle"
+ class="text-primary transition-transform duration-150 focus:outline-none active:scale-90">
+ <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+ <path stroke-linecap="round" stroke-linejoin="round"
+ d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+ </svg>
+ </button>
+ </div>
+ <!-- Bento Grid Filter Panel -->
+ <div id="filter-panel"
+ class="mt-3 hidden rounded-2xl border border-gray-100/50 bg-white/95 px-4 py-4 shadow-lg backdrop-blur-md transition-all duration-300">
+ <div class="mb-3 flex items-center justify-between">
+ <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Kategori Tempat</p>
+ <button type="button" id="btn-reset-filters"
+ class="text-primary hover:text-primary/80 text-[10px] font-extrabold transition-colors active:scale-95">REKONDISI</button>
+ </div>
+ <div class="grid grid-cols-2 gap-2.5">
+ <!-- Objek Budaya -->
+ <button type="button"
+ class="filter-card active active:scale-98 flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200"
+ data-filter="cultural">
+ <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-50 text-[#1E5128]">
+ <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+ <path stroke-linecap="round" stroke-linejoin="round"
+ d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+ </svg>
+ </span>
+ <div>
+ <p class="text-xs font-bold leading-tight text-gray-800">Objek Budaya</p>
+ <span class="mt-0.5 inline-block h-1 w-6 rounded-full" style="background: #1E5128;"></span>
+ </div>
+ </button>
+ <!-- UMKM -->
+ <button type="button"
+ class="filter-card active active:scale-98 flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200"
+ data-filter="umkm">
+ <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-[#8B5CF6]">
+ <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+ <path stroke-linecap="round" stroke-linejoin="round"
+ d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+ </svg>
+ </span>
+ <div>
+ <p class="text-xs font-bold leading-tight text-gray-800">UMKM</p>
+ <span class="mt-0.5 inline-block h-1 w-6 rounded-full" style="background: #8B5CF6;"></span>
+ </div>
+ </button>
+ <!-- Fasilitas -->
+ <button type="button"
+ class="filter-card active active:scale-98 flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200"
+ data-filter="facilities">
+ <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#3B82F6]">
+ <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+ <path stroke-linecap="round" stroke-linejoin="round"
+ d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+ <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+ </svg>
+ </span>
+ <div>
+ <p class="text-xs font-bold leading-tight text-gray-800">Fasilitas</p>
+ <span class="mt-0.5 inline-block h-1 w-6 rounded-full" style="background: #3B82F6;"></span>
+ </div>
+ </button>
+ <!-- Toilet -->
+ <button type="button"
+ class="filter-card active active:scale-98 flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200"
+ data-filter="toilets">
+ <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-50 text-[#06B6D4]">
+ <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+ <path stroke-linecap="round" stroke-linejoin="round"
+ d="M12 4a1 1 0 100 2 1 1 0 000-2zm-2 8h4v8h-4v-8zm8-2h-3v8h2v-8h1zM5 10h3v8H6v-8H5z" />
+ </svg>
+ </span>
+ <div>
+ <p class="text-xs font-bold leading-tight text-gray-800">Toilet</p>
+ <span class="mt-0.5 inline-block h-1 w-6 rounded-full" style="background: #06B6D4;"></span>
+ </div>
+ </button>
+ <!-- Aksesibilitas -->
+ <button type="button"
+ class="filter-card active active:scale-98 col-span-2 flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200"
+ data-filter="accessibility">
+ <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-[#F59E0B]">
+ <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+ <path stroke-linecap="round" stroke-linejoin="round"
+ d="M19 10.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM7.5 13.5h7.5m-7.5-3.5h5a2 2 0 012 2v6m-7-6.5V6a2 2 0 012-2h1.5" />
+ </svg>
+ </span>
+ <div>
+ <p class="text-xs font-bold leading-tight text-gray-800">Aksesibilitas</p>
+ <span class="mt-0.5 inline-block h-1 w-12 rounded-full" style="background: #F59E0B;"></span>
+ </div>
+ </button>
+ </div>
+ </div>
+</div>
+<style>
+ .filter-card {
+ transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+ border: 1.5px solid #f3f4f6;
+ }
+ /* Active States */
+ .filter-card.active[data-filter="cultural"] {
+ border-color: rgba(30, 81, 40, 0.25);
+ background-color: rgba(30, 81, 40, 0.04);
+ }
+ .filter-card.active[data-filter="umkm"] {
+ border-color: rgba(139, 92, 246, 0.25);
+ background-color: rgba(139, 92, 246, 0.04);
+ }
+ .filter-card.active[data-filter="facilities"] {
+ border-color: rgba(59, 130, 246, 0.25);
+ background-color: rgba(59, 130, 246, 0.04);
+ }
+ .filter-card.active[data-filter="toilets"] {
+ border-color: rgba(6, 182, 212, 0.25);
+ background-color: rgba(6, 182, 212, 0.04);
+ }
+ .filter-card.active[data-filter="accessibility"] {
+ border-color: rgba(245, 158, 11, 0.25);
+ background-color: rgba(245, 158, 11, 0.04);
+ }
+ /* Inactive State */
+ .filter-card:not(.active) {
+ opacity: 0.5;
+ border-color: #f3f4f6;
+ background-color: #f9fafb;
+ }
+ .filter-card:not(.active) span {
+ background-color: #f3f4f6 !important;
+ color: #9ca3af !important;
+ }
+</style>
+<script>
+ (function() {
+ if (!window.mapSearchListenersRegistered) {
+ document.body.addEventListener('click', function(e) {
+ // 1. Toggle filter panel
+ const filterToggleBtn = e.target.closest('#btn-filter-toggle');
+ if (filterToggleBtn) {
+ e.stopPropagation();
+ const filterPanel = document.getElementById('filter-panel');
+ if (filterPanel) {
+ filterPanel.classList.toggle('hidden');
+ }
+ return;
+ }
+ // 2. Filter card click (Bento Cards)
+ const filterCard = e.target.closest('.filter-card');
+ if (filterCard) {
+ const isChecked = filterCard.classList.toggle('active');
+ const filterName = filterCard.dataset.filter;
+ window.dispatchEvent(new CustomEvent('filter-change', {
+ detail: {
+ filter: filterName,
+ active: isChecked
+ }
+ }));
+ return;
+ }
+ // 3. Reset/Rekondisi filters to active
+ const resetBtn = e.target.closest('#btn-reset-filters');
+ if (resetBtn) {
+ document.querySelectorAll('.filter-card').forEach(card => {
+ if (!card.classList.contains('active')) {
+ card.classList.add('active');
+ const filterName = card.dataset.filter;
+ window.dispatchEvent(new CustomEvent('filter-change', {
+ detail: {
+ filter: filterName,
+ active: true
+ }
+ }));
+ }
+ });
+ return;
+ }
+ });
+ window.mapSearchListenersRegistered = true;
+ }
+ })();
+</script>
+ <div class="absolute bottom-24 right-4 z-10 flex flex-col gap-3">
+ <!-- Layer Map Button (Density Heatmap) -->
+ <button id="btn-layer-map"
+ class="tap-target flex h-12 w-12 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 shadow-md transition-all active:scale-95"
+ title="Lapisan Peta Kepadatan">
+ <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+ <path stroke-linecap="round" stroke-linejoin="round"
+ d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+ </svg>
+ </button>
+ <!-- My Location Button -->
+ <button id="btn-my-location"
+ class="tap-target flex h-12 w-12 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 shadow-md transition-all active:scale-95"
+ title="Lokasi Saya">
+ <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+ <path stroke-linecap="round" stroke-linejoin="round"
+ d="M12 4v4m0 8v4M4 12h4m8 0h4m-4 0a4 4 0 11-8 0 4 4 0 018 0z" />
+ </svg>
+ </button>
+ <!-- Locate Button -->
+ <button id="btn-locate"
+ class="tap-target flex h-12 w-12 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 shadow-md transition-transform active:scale-95"
+ title="Lihat Semua Lokasi">
+ <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+ <path stroke-linecap="round" stroke-linejoin="round"
+ d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+ </svg>
+ </button>
+</div>
+ </div>
+ <!-- Responsive Drawer / Modal -->
+<div x-data="{ isOpen: false }"
+ x-show="isOpen"
+ @open-location-sheet.window="isOpen = true"
+ @close-location-sheet.window="isOpen = false"
+ class="bg-transparent pointer-events-none fixed inset-0 z-100 flex items-end justify-center px-0 md:items-stretch md:justify-start md:px-0"
+ style="display: none; will-change: transform; transform: translate3d(0,0,0);"
+ x-transition:enter="transition ease-out duration-300" 
+ x-transition:enter-start="opacity-0"
+ x-transition:enter-end="opacity-100" 
+ x-transition:leave="transition ease-in duration-200"
+ x-transition:leave-start="opacity-100" 
+ x-transition:leave-end="opacity-0"
+ x-cloak>
+ <div class="relative w-full rounded-t-[2.5rem] bg-white p-6 shadow-2xl md:rounded-none md:border-r md:border-gray-200 md:h-full overflow-y-auto max-w-md pb-10 md:pb-6 pointer-events-auto" 
+ style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));"
+ @click.away="isOpen = false"
+ x-show="isOpen"
+ x-transition:enter="transition ease-out duration-300 transform" 
+ x-transition:enter-start="translate-y-full md:-translate-x-full md:translate-y-0 md:scale-100"
+ x-transition:enter-end="translate-y-0 md:translate-x-0 md:translate-y-0 md:scale-100" 
+ x-transition:leave="transition ease-in duration-200 transform"
+ x-transition:leave-start="translate-y-0 md:translate-x-0 md:translate-y-0 md:scale-100" 
+ x-transition:leave-end="translate-y-full md:-translate-x-full md:translate-y-0 md:scale-100">
+ <!-- Pull Bar on Mobile -->
+ <div class="mx-auto -mt-2 mb-5 h-1.5 w-12 rounded-full bg-gray-200 md:hidden"></div>
+ <!-- Close Button on Desktop -->
+ <button type="button" @click="isOpen = false" 
+ class="absolute right-4 top-4 hidden items-center justify-center h-8 w-8 rounded-full bg-gray-50 text-gray-400 hover:text-gray-600 transition-colors md:flex"
+ title="Tutup">
+ <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+ </svg>
+ </button>
+ <!-- Modal Body -->
+ <div class="w-full h-full flex flex-col">
+ <div class="px-1 py-1 h-full flex flex-col">
+ <!-- Dynamic Cover Image Slider -->
+ <div id="sheet-image-container" class="relative mb-4 hidden h-40 w-full overflow-hidden rounded-2xl bg-gray-100"
+ x-data="{
+ images: [],
+ currentIndex: 0,
+ next() {
+ this.currentIndex = (this.currentIndex + 1) % this.images.length;
+ },
+ prev() {
+ this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+ }
+ }"
+ @open-location-sheet.window="
+ images = $event.detail.images || [];
+ currentIndex = 0;
+ if (images.length > 0) {
+ $el.classList.remove('hidden');
+ } else {
+ $el.classList.add('hidden');
+ }
+ "
+ @close-location-sheet.window="images = []; currentIndex = 0; $el.classList.add('hidden');">
+ <!-- Slides -->
+ <template x-for="(img, index) in images" :key="index">
+ <div x-show="currentIndex === index" x-transition:enter="transition ease-out duration-300"
+ x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+ class="absolute inset-0 h-full w-full">
+ <img :src="img" alt="Cover" class="h-full w-full object-cover">
+ </div>
+ </template>
+ <!-- Navigation Chevrons (Overlay) -->
+ <template x-if="images.length > 1">
+ <div>
+ <button @click="prev()"
+ class="absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white transition-all hover:bg-black/60 active:scale-90">
+ <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+ </svg>
+ </button>
+ <button @click="next()"
+ class="absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white transition-all hover:bg-black/60 active:scale-90">
+ <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+ </svg>
+ </button>
+ </div>
+ </template>
+ <!-- Dot Indicators -->
+ <template x-if="images.length > 1">
+ <div class="absolute bottom-2 left-1/2 z-20 flex -translate-x-1/2 gap-1">
+ <template x-for="(img, index) in images" :key="index">
+ <div class="h-1.5 w-1.5 rounded-full transition-all duration-300"
+ :class="currentIndex === index ? 'bg-white w-3' : 'bg-white/50'"></div>
+ </template>
+ </div>
+ </template>
+ </div>
+ <!-- Header -->
+ <div class="mb-4 flex items-start justify-between">
+ <div>
+ <h3 id="sheet-title" class="font-display text-charcoal text-xl font-bold tracking-tight">Nama Lokasi
+ </h3>
+ <div class="mt-2 flex flex-wrap gap-2">
+ <span id="sheet-category-badge"
+ class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+ <span id="sheet-category-dot" class="h-2 w-2 rounded-full"></span>
+ <span id="sheet-category-text">Kategori</span>
+ </span>
+ <span id="sheet-ar-badge"
+ class="hidden items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-green-700">
+ <svg class="h-3 w-3 shrink-0 text-green-600" fill="none" stroke="currentColor"
+ viewBox="0 0 24 24" stroke-width="2.5">
+ <path stroke-linecap="round" stroke-linejoin="round"
+ d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+ </svg>
+ AR Tersedia
+ </span>
+ </div>
+ </div>
+ <!-- Custom close button for mobile (desktop close button is handled by x-modal template) -->
+ <button type="button" onclick="closeSheet()"
+ class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:text-gray-600 active:scale-95 md:hidden"
+ title="Tutup">
+ <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+ </svg>
+ </button>
+ </div>
+ <!-- Content Area -->
+ <div class="flex-1 space-y-4 overflow-y-auto pr-1 pb-20">
+ <!-- Deskripsi Section -->
+ <div id="section-desc">
+ <h4 class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Deskripsi</h4>
+ <p id="sheet-desc" class="text-sm leading-relaxed text-gray-600">Detail deskripsi lokasi.</p>
+ </div>
+ <!-- Aksesibilitas Section -->
+ <div id="section-accessibility" style="display: none;"
+ class="flex gap-3 rounded-2xl border border-amber-100/60 bg-amber-50/80 p-4">
+ <div class="mt-0.5 shrink-0 text-amber-600">
+ <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+ <path stroke-linecap="round" stroke-linejoin="round"
+ d="M19 10.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM7.5 13.5h7.5m-7.5-3.5h5a2 2 0 012 2v6m-7-6.5V6a2 2 0 012-2h1.5" />
+ </svg>
+ </div>
+ <div>
+ <h4 class="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-800">Aksesibilitas</h4>
+ <p id="sheet-accessibility" class="text-xs font-medium leading-relaxed text-amber-700"></p>
+ </div>
+ </div>
+ </div>
+ <!-- Action Buttons -->
+ <div class="mt-4 pt-4 border-t border-gray-100 flex gap-3 pb-2 shrink-0">
+ <a href="#" id="sheet-route-btn" target="_blank"
+ class="shadow-xs flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-3.5 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 active:scale-95">
+ <span id="route-btn-icon" class="flex items-center justify-center">
+ <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+ stroke-width="2">
+ <path stroke-linecap="round" stroke-linejoin="round"
+ d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+ <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+ </svg>
+ </span>
+ <span id="route-btn-text">Arahkan</span>
+ </a>
+ <a href="#" id="sheet-detail-btn"
+ class="bg-primary hover:bg-primary/95 shadow-primary/20 flex flex-1 items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95">
+ Detail
+ <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+ </svg>
+ </a>
+ </div>
+ </div>
+ </div>
+ </div>
+</div>
+ <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+ integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+ <script>
+ // Execution wrapper to handle Livewire and page navigation
+ (function() {
+ // Category colors mapping matching the filter panel dots
+ const categoryColors = {
+ umkm: '#8B5CF6', // Violet
+ facilities: '#3B82F6', // Blue
+ toilets: '#06B6D4', // Cyan
+ accessibility: '#F59E0B', // Amber
+ cultural: '#1E5128' // Green (Default)
+ };
+ // Shared variables across wrapper
+ let lastPosition = null;
+ let shouldCenterOnNextLocation = false;
+ let map = null;
+ let isGpsLoading = false;
+ let activeLocation = null;
+ let userRouteLayer = null;
+ let watchId = null;
+ let currentHeading = 0;
+ let locationMarker = null;
+ let locationArrow = null;
+ let locationPulse = null;
+ const markerLayers = [];
+ const activeFilters = {
+ cultural: true,
+ umkm: true,
+ facilities: true,
+ toilets: true,
+ accessibility: true
+ };
+ let heatmapVisible = false;
+ const liveUserMarkers = {};
+ let heatmapData = [];
+ function updateRouteButtonUI() {
+ const iconEl = document.getElementById('route-btn-icon');
+ const textEl = document.getElementById('route-btn-text');
+ if (!iconEl || !textEl) return;
+ if (isGpsLoading) {
+ iconEl.innerHTML = `
+ <svg class="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+ <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+ <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+ </svg>
+ `;
+ textEl.textContent = 'Mencari GPS..';
+ } else {
+ iconEl.innerHTML = `
+ <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+ <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+ </svg>
+ `;
+ textEl.textContent = 'Arahkan';
+ }
+ }
+ function initMap() {
+ // Return early if map container doesn't exist
+ if (!document.getElementById('map')) return;
+ // If map is already initialized, don't re-initialize
+ if (window.mapInstance) return;
+ const defaultLat = -8.43;
+ const defaultLon = 115.35;
+ // 1. Inisialisasi Peta
+ map = L.map('map', {
+ zoomControl: false
+ }).setView([defaultLat, defaultLon], 17);
+ window.mapInstance = map;
+ // 2. Tambahkan Tile Layer
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+ maxZoom: 19,
+ attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+ }).addTo(map);
+ // 3. Data from ExploreController
+ const locations = [];
+ function getMarkerIcon(category) {
+ const color = categoryColors[category] || '#1E5128';
+ return L.divIcon({
+ className: 'custom-pin',
+ html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
+ iconSize: [24, 24],
+ iconAnchor: [12, 12]
+ });
+ }
+ // 5. Render Marker
+ locations.forEach(loc => {
+ const marker = L.marker([loc.lat, loc.lng], {
+ icon: getMarkerIcon(loc.cat)
+ }).addTo(map);
+ marker.on('click', function(e) {
+ if (e && e.originalEvent) {
+ e.originalEvent.stopPropagation();
+ }
+ openSheet(loc);
+ map.flyTo([loc.lat - 0.0005, loc.lng], 18, {
+ animate: true,
+ duration: 0.5
+ });
+ });
+ markerLayers.push({
+ marker: marker,
+ category: loc.cat,
+ name: loc.name,
+ desc: loc.desc,
+ lat: loc.lat,
+ lng: loc.lng,
+ accessibility: loc.accessibility,
+ detail_url: loc.detail_url
+ });
+ });
+ // ==========================================
+ // HEATMAP OVERLAY DATA (from controller)
+ // ==========================================
+ heatmapData = [];
+ const urlParams = new URLSearchParams(window.location.search);
+ const targetRouteId = urlParams.get('route');
+ const targetCategory = urlParams.get('category');
+ if (targetCategory === 'fasilitas') {
+ activeFilters.cultural = false;
+ activeFilters.umkm = false;
+ // Sync UI Checkboxes in map-search
+ setTimeout(() => {
+ document.querySelectorAll('.filter-toggle').forEach(toggle => {
+ const filterName = toggle.dataset.filter;
+ if (!activeFilters[filterName]) {
+ const checkbox = toggle.querySelector('.filter-checkbox');
+ const input = toggle.querySelector('input');
+ if (checkbox) checkbox.classList.remove('checked');
+ if (input) input.checked = false;
+ }
+ });
+ }, 100);
+ }
+ // Real-time GPS Tracking updates via Laravel Reverb
+ setupExploreEchoListener();
+ // Listen for search input typing
+ const searchInput = document.getElementById('search-input');
+ if (searchInput) {
+ searchInput.addEventListener('input', updateVisibleMarkers);
+ }
+ // Listen for filter changes from map-search component
+ window.addEventListener('filter-change', onFilterChange);
+ // ==========================================
+ // BUTTON EVENT LISTENERS
+ // ==========================================
+ document.getElementById('btn-layer-map').addEventListener('click', function(e) {
+ e.stopPropagation();
+ toggleHeatmap();
+ });
+ document.getElementById('btn-my-location').addEventListener('click', function(e) {
+ e.stopPropagation();
+ if (lastPosition) {
+ map.flyTo([lastPosition.lat, lastPosition.lng], 17, {
+ animate: true,
+ duration: 0.5
+ });
+ } else {
+ shouldCenterOnNextLocation = true;
+ if (isGpsLoading) {
+ Swal.fire({
+ title: 'Mencari Lokasi..',
+ text: 'Sedang mengambil koordinat GPS Anda. Mohon tunggu sebentar.',
+ icon: 'info',
+ showConfirmButton: false,
+ timer: 2000
+ });
+ } else if (watchId === null) {
+ startLocationTracking(false);
+ } else {
+ Swal.fire({
+ title: 'Mencari Lokasi..',
+ text: 'Sedang mengambil koordinat GPS Anda. Mohon tunggu sebentar.',
+ icon: 'info',
+ showConfirmButton: false,
+ timer: 2000
+ });
+ }
+ }
+ });
+ document.getElementById('btn-locate').addEventListener('click', function() {
+ // Focus bounds only on visible markers
+ const visibleCoords = markerLayers
+ .filter(item => map.hasLayer(item.marker))
+ .map(item => [item.lat, item.lng]);
+ if (visibleCoords.length > 0) {
+ const bounds = L.latLngBounds(visibleCoords);
+ map.fitBounds(bounds, {
+ padding: [50, 50],
+ animate: true,
+ duration: 0.5
+ });
+ } else {
+ map.flyTo([defaultLat, defaultLon], 17, {
+ animate: true,
+ duration: 0.5
+ });
+ }
+ });
+ // Update heatmap on map move/zoom
+ map.on('moveend', function() {
+ if (heatmapVisible) {
+ renderHeatmap();
+ }
+ });
+ map.on('zoomend', function() {
+ if (heatmapVisible) {
+ renderHeatmap();
+ }
+ });
+ // Close filter panel and clear active user route when clicking elsewhere on map
+ map.on('click', function() {
+ if (userRouteLayer) {
+ map.removeLayer(userRouteLayer);
+ userRouteLayer = null;
+ }
+ const panel = document.getElementById('filter-panel');
+ if (panel && !panel.classList.contains('hidden')) {
+ panel.classList.add('hidden');
+ }
+ });
+ // Start location tracking automatically on load (silent = true)
+ startLocationTracking(true);
+ // Auto-routing redirect support from UMKM Recommended page
+ const targetLat = urlParams.get('lat');
+ const targetLng = urlParams.get('lng');
+ const targetName = urlParams.get('name');
+ const action = urlParams.get('action');
+ if (action === 'route' && targetLat && targetLng) {
+ const latNum = parseFloat(targetLat);
+ const lngNum = parseFloat(targetLng);
+ // Find matching location in locations array (allowing a small tolerance)
+ const targetLoc = locations.find(loc =>
+ Math.abs(parseFloat(loc.lat) - latNum) < 0.0001 &&
+ Math.abs(parseFloat(loc.lng) - lngNum) < 0.0001
+ ) || {
+ lat: latNum,
+ lng: lngNum,
+ name: targetName || 'Tujuan',
+ cat: 'umkm',
+ desc: '',
+ is_accessible: false,
+ accessibility: '',
+ detail_url: null,
+ images: []
+ };
+ // Trigger opening the sheet and route calculation after a short timeout to let Leaflet load
+ setTimeout(() => {
+ openSheet(targetLoc);
+ map.flyTo([targetLoc.lat - 0.0005, targetLoc.lng], 18, {
+ animate: true,
+ duration: 0.8
+ });
+ // Auto-trigger click on the route directions button
+ const routeBtn = document.getElementById('sheet-route-btn');
+ if (routeBtn) {
+ routeBtn.click();
+ }
+ }, 800);
+ }
+ if (action === 'multi_route') {
+ const stopsParam = urlParams.get('stops');
+ if (stopsParam) {
+ const stops = stopsParam.split('|').map(s => {
+ const parts = s.split(',');
+ return [parseFloat(parts[0]), parseFloat(parts[1])];
+ });
+ // Trigger drawing the route after map and user GPS load
+ setTimeout(() => {
+ // Fit bounds to all stops to center map
+ const bounds = L.latLngBounds(stops);
+ map.fitBounds(bounds, {
+ padding: [50, 50]
+ });
+ // Show SweetAlert GPS loading spinner
+ Swal.fire({
+ title: 'Mendeteksi Lokasi..',
+ text: 'Mohon tunggu, sedang memuat rute navigasi belanja..',
+ allowOutsideClick: false,
+ showConfirmButton: false,
+ didOpen: () => {
+ Swal.showLoading();
+ }
+ });
+ // Wait for user GPS location
+ let checkCount = 0;
+ const checkInterval = setInterval(() => {
+ checkCount++;
+ if (lastPosition) {
+ clearInterval(checkInterval);
+ Swal.close();
+ // Draw the route from user's current position through all stops
+ const allCoords = [
+ [parseFloat(lastPosition.lng), parseFloat(lastPosition.lat)]
+ ];
+ // ORS route coordinates are [lng, lat]
+ stops.forEach(stop => {
+ allCoords.push([stop[1], stop[0]]);
+ });
+ drawMultiStopRoute(allCoords);
+ } else if (!isGpsLoading || checkCount >= 16) {
+ // Timeout fallback: just draw lines between the stops (without user position)
+ clearInterval(checkInterval);
+ Swal.close();
+ const allCoords = stops.map(stop => [stop[1], stop[0]]);
+ drawMultiStopRoute(allCoords);
+ }
+ }, 500);
+ }, 800);
+ }
+ }
+ }
+ // Generate Heatmap Cells
+ function renderHeatmap() {
+ const overlay = document.getElementById('heatmap-overlay');
+ if (!overlay) return;
+ overlay.innerHTML = '';
+ const mapBounds = map.getBounds();
+ const mapSize = map.getSize();
+ heatmapData.forEach(point => {
+ let isFilterActive = activeFilters[point.category];
+ if (!isFilterActive) return;
+ const latLng = L.latLng(point.lat, point.lng);
+ if (!mapBounds.contains(latLng)) return;
+ const pointPos = map.latLngToContainerPoint(latLng);
+ const size = 80 + (point.intensity * 60);
+ const cell = document.createElement('div');
+ cell.className = 'heatmap-cell';
+ cell.style.left = (pointPos.x - size / 2) + 'px';
+ cell.style.top = (pointPos.y - size / 2) + 'px';
+ cell.style.width = size + 'px';
+ cell.style.height = size + 'px';
+ cell.style.opacity = point.intensity * 0.6;
+ overlay.appendChild(cell);
+ });
+ }
+ // Toggle Heatmap Visibility
+ function toggleHeatmap() {
+ heatmapVisible = !heatmapVisible;
+ const overlay = document.getElementById('heatmap-overlay');
+ const btn = document.getElementById('btn-layer-map');
+ if (heatmapVisible) {
+ overlay.style.display = 'block';
+ btn.classList.add('fab-btn-active');
+ renderHeatmap();
+ } else {
+ overlay.style.display = 'none';
+ btn.classList.remove('fab-btn-active');
+ }
+ }
+ function setupExploreEchoListener() {
+ if (window.Echo) {
+ // Listen for other visitors' locations
+ window.Echo.channel('village-map')
+ .listen('VisitorLocationUpdated', (e) => {
+ // Check if this session already exists in heatmapData
+ const existingIndex = heatmapData.findIndex(p => p.session_id === e.session_id);
+ const newPoint = {
+ lat: parseFloat(e.latitude),
+ lng: parseFloat(e.longitude),
+ intensity: 0.9,
+ category: 'cultural', // default category for visitors
+ name: 'Pengunjung Aktif',
+ is_live_user: true,
+ session_id: e.session_id
+ };
+ if (existingIndex !== -1) {
+ heatmapData[existingIndex] = newPoint;
+ } else {
+ heatmapData.push(newPoint);
+ }
+ if (heatmapVisible) {
+ renderHeatmap();
+ }
+ // Update or create marker on map
+ if (liveUserMarkers[e.session_id]) {
+ liveUserMarkers[e.session_id].setLatLng([e.latitude, e.longitude]);
+ } else {
+ const liveIcon = L.divIcon({
+ className: 'custom-div-icon',
+ html: `
+ <div class="relative flex h-4 w-4">
+ <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+ <span class="relative inline-flex rounded-full h-4 w-4 bg-blue-600 border-2 border-white shadow"></span>
+ </div>
+ `,
+ iconSize: [16, 16],
+ iconAnchor: [8, 8]
+ });
+ const marker = L.marker([e.latitude, e.longitude], { icon: liveIcon })
+ .bindPopup('Wisatawan (Live)')
+ .addTo(map);
+ liveUserMarkers[e.session_id] = marker;
+ }
+ });
+ } else {
+ setTimeout(setupExploreEchoListener, 500);
+ }
+ }
+ // Update marker visibility based on active filters and search query
+ function updateVisibleMarkers() {
+ const searchInput = document.getElementById('search-input');
+ const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+ markerLayers.forEach(item => {
+ let isFilterActive = activeFilters[item.category] !== false;
+ const matchesSearch = !query ||
+ item.name.toLowerCase().includes(query) ||
+ (item.desc && item.desc.toLowerCase().includes(query));
+ if (isFilterActive && matchesSearch) {
+ if (!map.hasLayer(item.marker)) {
+ map.addLayer(item.marker);
+ }
+ } else {
+ if (map.hasLayer(item.marker)) {
+ map.removeLayer(item.marker);
+ }
+ }
+ });
+ }
+ function onFilterChange(e) {
+ const {
+ filter,
+ active
+ } = e.detail;
+ activeFilters[filter] = active;
+ // Update markers visibility
+ updateVisibleMarkers();
+ if (heatmapVisible) {
+ renderHeatmap();
+ }
+ }
+ function onLocationFound(e) {
+ const latlng = e.latlng;
+ // Remove existing markers
+ if (locationPulse) locationPulse.remove();
+ if (locationArrow) locationArrow.remove();
+ if (locationMarker) map.removeLayer(locationMarker);
+ // Create pulse effect marker
+ const pulseIcon = L.divIcon({
+ className: 'location-pulse-marker',
+ html: `<div class="location-pulse"></div>`,
+ iconSize: [40, 40],
+ iconAnchor: [20, 20]
+ });
+ locationPulse = L.marker(latlng, {
+ icon: pulseIcon
+ }).addTo(map);
+ // Determine heading
+ let heading = null;
+ if (e.heading !== undefined && e.heading !== null) {
+ heading = e.heading;
+ currentHeading = heading;
+ } else if (lastPosition) {
+ heading = calculateHeading(lastPosition, latlng);
+ currentHeading = heading;
+ }
+ // Create and add unified location marker
+ locationMarker = L.marker(latlng, {
+ icon: L.divIcon({
+ className: 'location-marker',
+ html: createLocationMarkerHtml(heading),
+ iconSize: [40, 40],
+ iconAnchor: [20, 20]
+ })
+ }).addTo(map);
+ lastPosition = {
+ lat: latlng.lat,
+ lng: latlng.lng
+ };
+ // Center map on user location if explicitly requested via button click
+ if (shouldCenterOnNextLocation) {
+ map.flyTo(latlng, 17, {
+ animate: true,
+ duration: 0.5
+ });
+ shouldCenterOnNextLocation = false;
+ }
+ }
+ function calculateHeading(from, to) {
+ const dLng = to.lng - from.lng;
+ const dLat = to.lat - from.lat;
+ const angle = Math.atan2(dLng, dLat) * (180 / Math.PI);
+ return (angle + 360) % 360;
+ }
+ function createLocationMarkerHtml(heading) {
+ const hasHeading = heading !== undefined && heading !== null;
+ let html = `
+ <div class="relative flex items-center justify-center" style="width: 40px; height: 40px;">
+ `;
+ if (hasHeading) {
+ // Modern Translucent Flashlight Beam (gradient cone pointing in the heading direction)
+ html += `
+ <svg class="absolute pointer-events-none" style="transform: rotate(${heading}deg); transform-origin: 40px 40px; width: 80px; height: 80px; top: -20px; left: -20px; opacity: 0.5; z-index: 1;" viewBox="0 0 80 80">
+ <defs>
+ <radialGradient id="beam-gradient" cx="50%" cy="50%" r="50%">
+ <stop offset="0%" stop-color="#1E5128" stop-opacity="0.8"/>
+ <stop offset="35%" stop-color="#1E5128" stop-opacity="0.4"/>
+ <stop offset="100%" stop-color="#1E5128" stop-opacity="0"/>
+ </radialGradient>
+ </defs>
+ <path d="M40 40 L17 0 A 40 40 0 0 1 63 0 Z" fill="url(#beam-gradient)" />
+ </svg>
+ `;
+ }
+ // Central Solid Pin
+ html += `
+ <div class="absolute" style="background: #1E5128; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 2;"></div>
+ </div>
+ `;
+ return html;
+ }
+ function onLocationError(e, silent = false) {
+ console.warn('Geolocation error:', e.message);
+ shouldCenterOnNextLocation = false;
+ isGpsLoading = false;
+ updateRouteButtonUI();
+ if (!silent) {
+ Swal.fire({
+ title: 'Akses Lokasi Gagal',
+ text: 'Tidak dapat mendapatkan lokasi Anda. Pastikan GPS aktif dan izin lokasi telah diberikan.',
+ icon: 'warning',
+ confirmButtonColor: '#1E5128',
+ confirmButtonText: 'Baik, Saya Mengerti'
+ });
+ }
+ }
+ function startLocationTracking(silent = false) {
+ isGpsLoading = true;
+ updateRouteButtonUI();
+ if (!navigator.geolocation) {
+ isGpsLoading = false;
+ updateRouteButtonUI();
+ if (!silent) {
+ Swal.fire({
+ title: 'Fitur Tidak Didukung',
+ text: 'Perangkat atau peramban Anda tidak mendukung deteksi lokasi.',
+ icon: 'error',
+ confirmButtonColor: '#1E5128',
+ confirmButtonText: 'Baik'
+ });
+ }
+ return;
+ }
+ // Get initial position
+ navigator.geolocation.getCurrentPosition(
+ (pos) => {
+ isGpsLoading = false;
+ updateRouteButtonUI();
+ const latlng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+ onLocationFound({
+ latlng: latlng,
+ heading: pos.coords.heading
+ });
+ // Start watching position
+ watchId = navigator.geolocation.watchPosition(
+ (pos) => {
+ const newLatlng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+ onLocationFound({
+ latlng: newLatlng,
+ heading: pos.coords.heading
+ });
+ },
+ (err) => onLocationError(err, silent), {
+ enableHighAccuracy: false,
+ maximumAge: 10000,
+ timeout: 15000
+ }
+ );
+ },
+ (err) => {
+ isGpsLoading = false;
+ updateRouteButtonUI();
+ onLocationError(err, silent);
+ }, {
+ enableHighAccuracy: true,
+ maximumAge: 0,
+ timeout: 10000
+ }
+ );
+ }
+ // ==========================================
+ // LOGIKA BOTTOM SHEET
+ // ==========================================
+ function stripHtmlAndTruncate(html, maxLength = 120) {
+ if (!html) return '';
+ const doc = new DOMParser().parseFromString(html, 'text/html');
+ let text = doc.body.textContent || '';
+ text = text.replace(/\s+/g, ' ').trim();
+ if (text.length > maxLength) {
+ return text.slice(0, maxLength) + '..';
+ }
+ return text;
+ }
+ function showGpsFallbackAlert(href) {
+ Swal.fire({
+ title: 'GPS Belum Aktif',
+ text: 'Lokasi Anda belum terdeteksi di peta ini. Apakah Anda ingin membuka Google Maps untuk petunjuk arah luar?',
+ icon: 'question',
+ showCancelButton: true,
+ confirmButtonColor: '#1E5128',
+ cancelButtonColor: '#d33',
+ confirmButtonText: 'Ya, Buka Google Maps',
+ cancelButtonText: 'Batal'
+ }).then((result) => {
+ if (result.isConfirmed) {
+ window.open(href, '_blank');
+ }
+ });
+ }
+ function openSheet(loc) {
+ activeLocation = loc;
+ updateRouteButtonUI();
+ document.getElementById('sheet-title').textContent = loc.name;
+ // AR Badge
+ const arBadge = document.getElementById('sheet-ar-badge');
+ if (arBadge) {
+ if (loc.has_ar) {
+ arBadge.classList.remove('hidden');
+ arBadge.classList.add('inline-flex');
+ } else {
+ arBadge.classList.add('hidden');
+ arBadge.classList.remove('inline-flex');
+ }
+ }
+ // Kategori mapping for display
+ const categoryLabels = {
+ cultural: 'Objek Budaya',
+ umkm: 'UMKM',
+ facilities: 'Fasilitas',
+ toilets: 'Toilet',
+ accessibility: 'Aksesibilitas'
+ };
+ const label = categoryLabels[loc.cat] || 'Lokasi';
+ const color = categoryColors[loc.cat] || '#1E5128';
+ // Style category badge dynamically
+ const badge = document.getElementById('sheet-category-badge');
+ const dot = document.getElementById('sheet-category-dot');
+ const text = document.getElementById('sheet-category-text');
+ if (badge && dot && text) {
+ text.textContent = label;
+ dot.style.backgroundColor = color;
+ badge.style.borderColor = color + '30'; // subtle border opacity
+ badge.style.color = color;
+ }
+ // Description Section
+ const secDesc = document.getElementById('section-desc');
+ const sheetDesc = document.getElementById('sheet-desc');
+ if (secDesc && sheetDesc) {
+ const cleanText = stripHtmlAndTruncate(loc.desc, 120);
+ if (cleanText !== '') {
+ sheetDesc.textContent = cleanText;
+ secDesc.style.display = 'block';
+ } else {
+ secDesc.style.display = 'none';
+ }
+ }
+ // Accessibility Section
+ const secAcc = document.getElementById('section-accessibility');
+ const sheetAcc = document.getElementById('sheet-accessibility');
+ if (secAcc && sheetAcc) {
+ if (loc.is_accessible) {
+ sheetAcc.textContent = loc.accessibility && loc.accessibility.trim() !== '' ?
+ loc.accessibility :
+ 'Akses ramah disabilitas tersedia.';
+ secAcc.style.display = 'flex';
+ } else {
+ secAcc.style.display = 'none';
+ }
+ }
+ // Clear existing user route when showing a new location sheet
+ if (userRouteLayer) {
+ map.removeLayer(userRouteLayer);
+ userRouteLayer = null;
+ }
+ // Arahkan Button - Use live OpenRouteService routing if user location is active
+ const routeBtn = document.getElementById('sheet-route-btn');
+ if (routeBtn) {
+ routeBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}`;
+ routeBtn.onclick = function(e) {
+ e.preventDefault();
+ if (lastPosition) {
+ closeSheet();
+ drawUserToLocationRoute(lastPosition, {
+ lat: loc.lat,
+ lng: loc.lng
+ });
+ } else if (isGpsLoading) {
+ // Show premium loading SweetAlert and wait for location to load
+ Swal.fire({
+ title: 'Mendeteksi Lokasi..',
+ text: 'Mohon tunggu, sedang menghubungkan ke satelit GPS..',
+ allowOutsideClick: false,
+ showConfirmButton: false,
+ didOpen: () => {
+ Swal.showLoading();
+ }
+ });
+ // Poll every 500ms for up to 8 seconds to see if GPS becomes available
+ let checkCount = 0;
+ const checkInterval = setInterval(() => {
+ checkCount++;
+ if (lastPosition) {
+ clearInterval(checkInterval);
+ Swal.close();
+ closeSheet();
+ drawUserToLocationRoute(lastPosition, {
+ lat: loc.lat,
+ lng: loc.lng
+ });
+ } else if (!isGpsLoading || checkCount >= 16) {
+ // Timeout or error occurred
+ clearInterval(checkInterval);
+ Swal.close();
+ // Show fallback confirmation
+ showGpsFallbackAlert(this.href);
+ }
+ }, 500);
+ } else {
+ showGpsFallbackAlert(this.href);
+ }
+ };
+ }
+ // Detail Button
+ const detailBtn = document.getElementById('sheet-detail-btn');
+ if (detailBtn) {
+ if (loc.detail_url) {
+ detailBtn.href = loc.detail_url;
+ detailBtn.style.display = 'flex';
+ } else {
+ detailBtn.style.display = 'none';
+ }
+ }
+ window.dispatchEvent(new CustomEvent('open-location-sheet', {
+ detail: {
+ images: loc.images || []
+ }
+ }));
+ }
+ function closeSheet() {
+ activeLocation = null;
+ window.dispatchEvent(new CustomEvent('close-location-sheet'));
+ }
+ async function drawUserToLocationRoute(fromLoc, toLoc) {
+ if (userRouteLayer) {
+ map.removeLayer(userRouteLayer);
+ userRouteLayer = null;
+ }
+ const coords = [
+ [parseFloat(fromLoc.lng), parseFloat(fromLoc.lat)],
+ [parseFloat(toLoc.lng), parseFloat(toLoc.lat)]
+ ];
+ try {
+ const response = await fetch('/api/routing/directions', {
+ method: 'POST',
+ headers: {
+ 'Content-Type': 'application/json',
+ 'Accept': 'application/json',
+ 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+ 'content')
+ },
+ body: JSON.stringify({
+ coordinates: coords
+ })
+ });
+ const contentType = response.headers.get('content-type') || '';
+ if (response.ok && contentType.includes('application/json')) {
+ const data = await response.json();
+ if (data.features && data.features.length > 0) {
+ const routeFeature = data.features[0];
+ userRouteLayer = L.layerGroup();
+ // Background shadow path
+ L.geoJSON(routeFeature.geometry, {
+ style: {
+ color: '#1E5128',
+ weight: 8,
+ opacity: 0.2
+ }
+ }).addTo(userRouteLayer);
+ // Foreground dashed path
+ L.geoJSON(routeFeature.geometry, {
+ style: {
+ color: '#1E5128',
+ weight: 4.5,
+ dashArray: '6, 8',
+ opacity: 0.95
+ }
+ }).addTo(userRouteLayer);
+ userRouteLayer.addTo(map);
+ const bounds = L.geoJSON(routeFeature.geometry).getBounds();
+ map.fitBounds(bounds, {
+ padding: [60, 60],
+ animate: true,
+ duration: 0.8
+ });
+ return;
+ }
+ }
+ } catch (error) {
+ console.error('ORS routing failed:', error);
+ }
+ // Fallback straight line
+ const polyline = L.polyline([
+ [fromLoc.lat, fromLoc.lng],
+ [toLoc.lat, toLoc.lng]
+ ], {
+ color: '#1E5128',
+ weight: 4.5,
+ dashArray: '6, 8',
+ opacity: 0.95
+ });
+ userRouteLayer = L.layerGroup([polyline]);
+ userRouteLayer.addTo(map);
+ map.fitBounds(polyline.getBounds(), {
+ padding: [60, 60]
+ });
+ }
+ async function drawMultiStopRoute(coords) {
+ if (userRouteLayer) {
+ map.removeLayer(userRouteLayer);
+ userRouteLayer = null;
+ }
+ try {
+ const response = await fetch('/api/routing/directions', {
+ method: 'POST',
+ headers: {
+ 'Content-Type': 'application/json',
+ 'Accept': 'application/json',
+ 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+ 'content')
+ },
+ body: JSON.stringify({
+ coordinates: coords
+ })
+ });
+ const contentType = response.headers.get('content-type') || '';
+ if (response.ok && contentType.includes('application/json')) {
+ const data = await response.json();
+ if (data.features && data.features.length > 0) {
+ const routeFeature = data.features[0];
+ userRouteLayer = L.layerGroup();
+ // Background shadow path
+ L.geoJSON(routeFeature.geometry, {
+ style: {
+ color: '#F97316',
+ weight: 8,
+ opacity: 0.2
+ }
+ }).addTo(userRouteLayer);
+ // Foreground dashed path
+ L.geoJSON(routeFeature.geometry, {
+ style: {
+ color: '#F97316',
+ weight: 4.5,
+ dashArray: '6, 8',
+ opacity: 0.95
+ }
+ }).addTo(userRouteLayer);
+ userRouteLayer.addTo(map);
+ const bounds = L.geoJSON(routeFeature.geometry).getBounds();
+ map.fitBounds(bounds, {
+ padding: [60, 60],
+ animate: true,
+ duration: 0.8
+ });
+ return;
+ }
+ }
+ } catch (error) {
+ console.error('ORS routing failed:', error);
+ }
+ // Fallback straight lines
+ const leafletCoords = coords.map(c => [c[1], c[0]]);
+ const polyline = L.polyline(leafletCoords, {
+ color: '#F97316',
+ weight: 4.5,
+ dashArray: '6, 8',
+ opacity: 0.95
+ });
+ userRouteLayer = L.layerGroup([polyline]);
+ userRouteLayer.addTo(map);
+ map.fitBounds(polyline.getBounds(), {
+ padding: [60, 60]
+ });
+ }
+ // Expose required sheet functions to window for inline HTML onclick attributes
+ window.openSheet = openSheet;
+ window.closeSheet = closeSheet;
+ // Execute immediately on script load (DOM is already ready during initial load and wire:navigate)
+ initMap();
+ document.addEventListener('livewire:navigating', function cleanupMap(e) {
+ if (window.mapInstance) {
+ window.mapInstance.remove();
+ window.mapInstance = null;
+ }
+ if (watchId !== null) {
+ navigator.geolocation.clearWatch(watchId);
+ watchId = null;
+ }
+ window.removeEventListener('filter-change', onFilterChange);
+ delete window.openSheet;
+ delete window.closeSheet;
+ document.removeEventListener('livewire:navigating', cleanupMap);
+ });
+ })();
+ </script>
+ </main>
+ </div> <!-- End of Content Area Wrapper -->
+ <script>
+ if ('serviceWorker' in navigator) {
+ window.addEventListener('load', () => {
+ navigator.serviceWorker.register('/sw.js')
+ .then(reg => console.log('Service Worker terdaftar!', reg.scope))
+ .catch(err => console.error('Pendaftaran Service Worker gagal:', err));
+ });
+ }
+ // Visual transitions and tab synchronization are handled by livewire:navigating and livewire:navigated below.
+ // Livewire bottom navigation synchronization for smooth SPA transitions
+ function updateActiveBottomNavTab() {
+ const nav = document.querySelector('nav[role="navigation"]');
+ if (!nav) return;
+ const currentPath = window.location.pathname;
+ // Toggle visibility of bottom navigation based on main tab patterns
+ const mainTabPatterns = [/^\/$/, /^\/home$/, /^\/explore$/, /^\/umkm(\/|$)/, /^\/profile(\/|$)/];
+ const isMainTab = mainTabPatterns.some(pattern => pattern.test(currentPath));
+ if (isMainTab) {
+ nav.classList.remove('hidden');
+ } else {
+ nav.classList.add('hidden');
+ }
+ const bottomNavLinks = nav.querySelectorAll('a');
+ bottomNavLinks.forEach(link => {
+ const isARScan = link.pathname.includes('/ar-scan');
+ if (isARScan) return;
+ const isHome = link.pathname === '/' || link.pathname === '/home';
+ const isExplore = link.pathname === '/explore';
+ const isUmkm = link.pathname.startsWith('/umkm');
+ const isProfile = link.pathname.startsWith('/profile');
+ const isLogin = link.pathname.startsWith('/login') || link.pathname.startsWith('/register');
+ let isActive = false;
+ if (isHome && (currentPath === '/' || currentPath === '/home')) isActive = true;
+ else if (isExplore && currentPath === '/explore') isActive = true;
+ else if (isUmkm && currentPath.startsWith('/umkm')) isActive = true;
+ else if (isProfile && currentPath.startsWith('/profile')) isActive = true;
+ else if (isLogin && (currentPath.startsWith('/login') || currentPath.startsWith('/register'))) isActive = true;
+ const svg = link.querySelector('svg');
+ if (isActive) {
+ link.classList.remove('text-gray-400', 'hover:text-gray-600', 'lg:hover:bg-gray-100');
+ link.classList.add('text-primary', 'lg:bg-primary/10', 'lg:text-primary-700');
+ if (svg) svg.setAttribute('stroke-width', '2.5');
+ } else {
+ link.classList.remove('text-primary', 'lg:bg-primary/10', 'lg:text-primary-700');
+ link.classList.add('text-gray-400', 'hover:text-gray-600', 'lg:hover:bg-gray-100');
+ if (svg) svg.setAttribute('stroke-width', '2');
+ }
+ });
+ }
+ document.addEventListener('livewire:navigating', () => {
+ // 1. Trigger loading bar animation
+ let loadingBar = document.getElementById('global-loading-bar');
+ if (!loadingBar) {
+ loadingBar = document.createElement('div');
+ loadingBar.id = 'global-loading-bar';
+ document.body.appendChild(loadingBar);
+ }
+ loadingBar.classList.remove('finished');
+ loadingBar.style.width = '0%';
+ // Force reflow
+ void loadingBar.offsetWidth;
+ loadingBar.style.width = '20%';
+ setTimeout(() => {
+ loadingBar.style.width = '60%';
+ }, 150);
+ setTimeout(() => {
+ loadingBar.style.width = '85%';
+ }, 400);
+ // 2. Smooth main content fade out
+ const mainContent = document.getElementById('main-content');
+ if (mainContent) {
+ mainContent.style.opacity = '0.5';
+ mainContent.style.transition = 'opacity 0.2s ease';
+ }
+ });
+ document.addEventListener('livewire:navigated', () => {
+ // Complete loading bar
+ const loadingBar = document.getElementById('global-loading-bar');
+ if (loadingBar) {
+ loadingBar.classList.add('finished');
+ loadingBar.style.width = '100%';
+ }
+ // Smooth main content fade back in
+ const mainContent = document.getElementById('main-content');
+ if (mainContent) {
+ mainContent.style.opacity = '1';
+ }
+ // Update active bottom nav highlight/visibility
+ updateActiveBottomNavTab();
+ });
+ // Online/Offline status and Coaching Modal detection
+ function updateOnlineStatus() {
+ const localIndicator = document.getElementById('offline-indicator');
+ const coachingModal = document.getElementById('offline-coaching-modal');
+ const hasSeenPopup = localStorage.getItem('has_seen_offline_popup') === 'true';
+ if (navigator.onLine) {
+ // User is Online: hide indicator
+ if (localIndicator) {
+ localIndicator.classList.add('hidden');
+ }
+ // Close modal if open (in case they reconnect)
+ if (coachingModal) {
+ coachingModal.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
+ coachingModal.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+ }
+ } else {
+ // User is Offline: show indicator
+ if (localIndicator) {
+ localIndicator.classList.remove('hidden');
+ }
+ // Show coaching modal if they haven't seen it yet
+ if (coachingModal && !hasSeenPopup) {
+ coachingModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+ coachingModal.classList.add('opacity-100', 'pointer-events-auto', 'scale-100');
+ }
+ }
+ }
+ // Handle closing the coaching modal and setting persistent preference
+ document.addEventListener('DOMContentLoaded', () => {
+ const closeBtn = document.getElementById('close-offline-coaching-btn');
+ const coachingModal = document.getElementById('offline-coaching-modal');
+ if (closeBtn && coachingModal) {
+ closeBtn.addEventListener('click', () => {
+ // Hide modal with animation
+ coachingModal.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
+ coachingModal.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+ // Store flag in localStorage permanently
+ localStorage.setItem('has_seen_offline_popup', 'true');
+ });
+ }
+ // Run check on DOMContentLoaded
+ updateOnlineStatus();
+ });
+ window.addEventListener('online', updateOnlineStatus);
+ window.addEventListener('offline', updateOnlineStatus);
+ </script>
+ <div id="notification-toast-container" class="fixed inset-x-0 top-0 h-0 overflow-visible z-9998 flex flex-col items-center gap-2 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pointer-events-none" style="height: 0;">
+</div>
+<template id="notification-toast-template">
+ <div class="notification-toast pointer-events-auto w-full max-w-sm transform -translate-y-full opacity-0 transition-all duration-500 ease-out"
+ role="alert">
+ <div class="flex items-start gap-3 rounded-2xl border px-4 py-3 shadow-xl backdrop-blur-md">
+ <div class="toast-icon mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+ </div>
+ <div class="min-w-0 flex-1">
+ <p class="toast-title text-sm font-bold leading-tight text-gray-900"></p>
+ <p class="toast-body mt-0.5 text-xs leading-relaxed text-gray-600"></p>
+ </div>
+ <button type="button" class="toast-close -mr-1 -mt-1 shrink-0 rounded-full p-1 text-gray-400 transition-colors hover:text-gray-600"
+ aria-label="Tutup">
+ <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+ </svg>
+ </button>
+ </div>
+ </div>
+</template>
+<style>
+ /* Warning level */
+ .notification-toast.toast-warning .toast-icon {
+ background-color: #FEF3C7;
+ color: #D97706;
+ }
+ .notification-toast.toast-warning > div {
+ border-color: rgba(217, 119, 6, 0.2);
+ background-color: rgba(255, 255, 255, 0.95);
+ }
+ /* Critical level */
+ .notification-toast.toast-critical .toast-icon {
+ background-color: #FEE2E2;
+ color: #DC2626;
+ }
+ .notification-toast.toast-critical > div {
+ border-color: rgba(220, 38, 38, 0.2);
+ background-color: rgba(255, 255, 255, 0.95);
+ }
+ /* Info level */
+ .notification-toast.toast-info .toast-icon {
+ background-color: #DCFCE7;
+ color: #1E5128;
+ }
+ .notification-toast.toast-info > div {
+ border-color: rgba(30, 81, 40, 0.2);
+ background-color: rgba(255, 255, 255, 0.95);
+ }
+</style>
+ <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+ <script>
+ eruda.init();
+ </script>
+ <script>
+ // ==========================================
+ // NOTIFICATION MANAGER
+ // ==========================================
+ const NOTIF_STORAGE_KEY = 'penglipuran_notifications';
+ const NOTIF_MAX_ITEMS = 20;
+ function getStoredNotifications() {
+ try {
+ return JSON.parse(localStorage.getItem(NOTIF_STORAGE_KEY) || '[]');
+ } catch { return []; }
+ }
+ function storeNotifications(items) {
+ localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(items.slice(0, NOTIF_MAX_ITEMS)));
+ }
+ function addNotification(notif) {
+ const items = getStoredNotifications();
+ items.unshift(notif);
+ storeNotifications(items);
+ // Dispatch event so Alpine bell component reacts
+ window.dispatchEvent(new CustomEvent('notification-received', { detail: notif }));
+ // Show toast
+ showNotificationToast(notif);
+ }
+ // Alpine.js component for the bell + dropdown
+ function notificationBell() {
+ return {
+ open: false,
+ notifications: getStoredNotifications(),
+ get unreadCount() {
+ return this.notifications.filter(n => !n.read).length;
+ },
+ toggle() {
+ this.open = !this.open;
+ if (this.open) {
+ // Mark all as read
+ this.notifications.forEach(n => n.read = true);
+ storeNotifications(this.notifications);
+ }
+ },
+ onNewNotification(notif) {
+ this.notifications = getStoredNotifications();
+ },
+ dismissNotification(index) {
+ this.notifications.splice(index, 1);
+ storeNotifications(this.notifications);
+ },
+ clearAllNotifications() {
+ this.notifications = [];
+ storeNotifications([]);
+ this.open = false;
+ },
+ timeAgo(timestamp) {
+ const seconds = Math.floor((Date.now() - timestamp) / 1000);
+ if (seconds < 60) return 'Baru saja';
+ const minutes = Math.floor(seconds / 60);
+ if (minutes < 60) return minutes + ' menit lalu';
+ const hours = Math.floor(minutes / 60);
+ if (hours < 24) return hours + ' jam lalu';
+ return Math.floor(hours / 24) + ' hari lalu';
+ }
+ };
+ }
+ // Toast display system
+ function showNotificationToast(notif) {
+ const container = document.getElementById('notification-toast-container');
+ const template = document.getElementById('notification-toast-template');
+ if (!container || !template) return;
+ const clone = template.content.cloneNode(true);
+ const toastEl = clone.querySelector('.notification-toast');
+ // Set level class
+ toastEl.classList.add('toast-' + (notif.level || 'info'));
+ // Set icon
+ const iconContainer = toastEl.querySelector('.toast-icon');
+ const icons = {
+ crowd: '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>',
+ event: '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>',
+ geofence: '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>'
+ };
+ iconContainer.innerHTML = icons[notif.type] || icons.geofence;
+ // Set text
+ toastEl.querySelector('.toast-title').textContent = notif.title;
+ toastEl.querySelector('.toast-body').textContent = notif.body;
+ // Close button
+ toastEl.querySelector('.toast-close').addEventListener('click', () => {
+ toastEl.classList.remove('translate-y-0', 'opacity-100');
+ toastEl.classList.add('-translate-y-full', 'opacity-0');
+ setTimeout(() => toastEl.remove(), 500);
+ });
+ container.appendChild(toastEl);
+ // Animate in
+ requestAnimationFrame(() => {
+ requestAnimationFrame(() => {
+ toastEl.classList.remove('-translate-y-full', 'opacity-0');
+ toastEl.classList.add('translate-y-0', 'opacity-100');
+ });
+ });
+ // Auto-dismiss after 6 seconds
+ setTimeout(() => {
+ if (toastEl.parentNode) {
+ toastEl.classList.remove('translate-y-0', 'opacity-100');
+ toastEl.classList.add('-translate-y-full', 'opacity-0');
+ setTimeout(() => toastEl.remove(), 500);
+ }
+ }, 6000);
+ }
+ </script>
+ <script>
+ // ==========================================
+ // GLOBAL GPS TRACKING + GEOFENCE CHECK
+ // ==========================================
+ (function() {
+ if (!navigator.geolocation) return;
+ // Generate a persistent session ID for tracking
+ let sessionId = localStorage.getItem('gps_session_id');
+ if (!sessionId) {
+ sessionId = crypto.randomUUID ? crypto.randomUUID() : 'session-' + Math.random().toString(36).substr(2, 9);
+ localStorage.setItem('gps_session_id', sessionId);
+ }
+ // Geofence: Desa Penglipuran center + radius (circle-based)
+ const VILLAGE_CENTER = { lat: -8.4223035967624, lng: 115.38392483153403 };
+ const VILLAGE_RADIUS_METERS = 500; // Dynamic radius from config/services.php
+ // Read persisted geofence state from localStorage to prevent re-alerting on page reload
+ let wasInsideVillage = localStorage.getItem('was_inside_village'); // 'true' | 'false' | null (unknown)
+ let lastGeofenceAlert = parseInt(localStorage.getItem('last_geofence_alert') || '0', 10);
+ const GEOFENCE_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+ function haversineDistance(lat1, lon1, lat2, lon2) {
+ const R = 6371000;
+ const dLat = (lat2 - lat1) * Math.PI / 180;
+ const dLon = (lon2 - lon1) * Math.PI / 180;
+ const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+ Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+ Math.sin(dLon / 2) * Math.sin(dLon / 2);
+ return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+ }
+ function checkGeofence(lat, lng) {
+ const distance = haversineDistance(lat, lng, VILLAGE_CENTER.lat, VILLAGE_CENTER.lng);
+ const isInside = distance <= VILLAGE_RADIUS_METERS;
+ const now = Date.now();
+ // Only alert when transitioning from inside ('true') to outside (isInside is false)
+ if (!isInside && wasInsideVillage === 'true' && (now - lastGeofenceAlert) > GEOFENCE_COOLDOWN_MS) {
+ lastGeofenceAlert = now;
+ localStorage.setItem('last_geofence_alert', now.toString());
+ addNotification({
+ id: 'geofence-' + now,
+ type: 'geofence',
+ level: 'warning',
+ title: 'Peringatan Batas Area',
+ body: 'Anda telah keluar dari area wisata Desa Penglipuran. Harap kembali ke jalur utama untuk keamanan Anda.',
+ timestamp: now,
+ read: false
+ });
+ }
+ // Update wasInsideVillage if changed or not yet initialized
+ const newInsideState = isInside ? 'true' : 'false';
+ if (wasInsideVillage !== newInsideState) {
+ wasInsideVillage = newInsideState;
+ localStorage.setItem('was_inside_village', newInsideState);
+ }
+ }
+ let lastKnownPos = null;
+ // Keep track of the latest position + geofence check
+ navigator.geolocation.watchPosition(
+ (pos) => {
+ lastKnownPos = {
+ latitude: pos.coords.latitude,
+ longitude: pos.coords.longitude
+ };
+ // Check geofence on every GPS update
+ checkGeofence(pos.coords.latitude, pos.coords.longitude);
+ },
+ (err) => {
+ console.debug('Background GPS tracking error:', err.message);
+ }, {
+ enableHighAccuracy: true,
+ maximumAge: 1000,
+ timeout: 10000
+ }
+ );
+ // Ping the server every 10 seconds with the last known position
+ setInterval(() => {
+ if (lastKnownPos) {
+ fetch('/api/tracking/ping', {
+ method: 'POST',
+ headers: {
+ 'Content-Type': 'application/json',
+ 'Accept': 'application/json',
+ 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+ },
+ body: JSON.stringify({
+ latitude: lastKnownPos.latitude,
+ longitude: lastKnownPos.longitude,
+ session_id: sessionId
+ })
+ }).catch(() => { /* silent fail for tracking */ });
+ }
+ }, 10000);
+ })();
+ </script>
+ <script>
+ // ==========================================
+ // REVERB WEBSOCKET NOTIFICATION LISTENERS
+ // ==========================================
+ (function() {
+ function setupNotificationListeners() {
+ if (!window.Echo) {
+ setTimeout(setupNotificationListeners, 500);
+ return;
+ }
+ window.Echo.channel('village-notifications')
+ .listen('CrowdAlertSent', (e) => {
+ const levelLabels = {
+ warning: 'cukup padat',
+ critical: 'sangat padat'
+ };
+ addNotification({
+ id: 'crowd-' + Date.now(),
+ type: 'crowd',
+ level: e.level,
+ title: 'Kepadatan ' + (e.level === 'critical' ? 'Kritis' : 'Tinggi') + ': ' + e.zone_name,
+ body: 'Area ' + e.zone_name + ' sedang ' + (levelLabels[e.level] || 'padat') + ' (' + e.occupancy_percentage + '% kapasitas). Pertimbangkan untuk mengunjungi area lain terlebih dahulu.',
+ timestamp: Date.now(),
+ read: false
+ });
+ })
+ .listen('EventReminderSent', (e) => {
+ addNotification({
+ id: 'event-' + Date.now(),
+ type: 'event',
+ level: 'info',
+ title: '🎭 ' + e.event_name,
+ body: 'Acara akan dimulai pukul ' + e.start_time + ' di ' + e.location_name + '. Jangan sampai ketinggalan!',
+ timestamp: Date.now(),
+ read: false
+ });
+ });
+ }
+ setupNotificationListeners();
+ })();
+ </script>
+ </div>
+ <!-- Livewire Scripts -->
+<script src="http://localhost:8000/livewire-857aa28c/livewire.js?id=4735e441" data-csrf="" data-module-url="http://localhost:8000/livewire-857aa28c" data-update-uri="http://localhost:8000/livewire-857aa28c/update" data-navigate-once="true"></script>
+</body>
+</html>
