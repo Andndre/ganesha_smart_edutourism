@@ -128,9 +128,6 @@
             </div>
         </form>
     </div>
-@endsection
-
-@push('modals')
     <!-- Multi-Stop Recommendation Modal -->
     @if (session('multi_stop_recommendations'))
         <x-modal name="multi-stop" maxWidth="sm" :defaultOpen="true">
@@ -217,9 +214,7 @@
             </button>
         </div>
     </x-modal>
-@endpush
 
-@push('scripts')
     <script>
         let activeModalCategoryId = null;
 
@@ -413,9 +408,15 @@
             closeCategoryModal();
         }
 
-        // Check highlights on load for pre-selected items (if any)
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('input[name="category_ids[]"]').forEach(box => {
+        const handleUmkmLoad = function(evt) {
+            const container = evt.detail.elt;
+            
+            // Realtime Search and Clear Search Logic
+            const searchInput = container.querySelector('#search-input') || (container.id === 'search-input' ? container : null);
+            if (!searchInput && !container.querySelector('.category-card')) return;
+
+            // Check highlights on load for pre-selected items (if any)
+            container.querySelectorAll('input[name="category_ids[]"]').forEach(box => {
                 const id = box.value;
                 updateCardHighlight(id);
             });
@@ -427,9 +428,7 @@
                     'https://unpkg.com/meshoptimizer@0.17.0/meshopt_decoder.js';
             }
 
-            // Realtime Search and Clear Search Logic
-            const searchInput = document.getElementById('search-input');
-            const clearBtn = document.getElementById('clear-search-btn');
+            const clearBtn = container.querySelector('#clear-search-btn') || document.getElementById('clear-search-btn');
 
             if (searchInput) {
                 searchInput.addEventListener('input', function() {
@@ -446,7 +445,7 @@
 
                     // Filter cards
                     let visibleCount = 0;
-                    const cards = document.querySelectorAll('.category-card');
+                    const cards = container.querySelectorAll('.category-card');
                     cards.forEach(card => {
                         const name = card.getAttribute('data-name');
                         const description = card.getAttribute('data-description');
@@ -459,7 +458,7 @@
                     });
 
                     // Toggle empty state
-                    const emptyState = document.getElementById('empty-state');
+                    const emptyState = container.querySelector('#empty-state') || document.getElementById('empty-state');
                     if (emptyState) {
                         if (visibleCount === 0) {
                             emptyState.classList.remove('hidden');
@@ -480,8 +479,15 @@
                     });
                 }
             }
+        };
+
+        document.body.addEventListener('htmx:load', handleUmkmLoad);
+
+        document.addEventListener('htmx:beforeSwap', function cleanup(e) {
+            document.body.removeEventListener('htmx:load', handleUmkmLoad);
+            document.removeEventListener('htmx:beforeSwap', cleanup);
         });
     </script>
 
     <script type="module" src="{{ asset('js/model-viewer.min.js') }}"></script>
-@endpush
+@endsection

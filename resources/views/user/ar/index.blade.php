@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'AR Scanner - Penglipuran')
 
-@push('styles')
+@section('content')
     <style>
         /* Sembunyikan pesan html5-qrcode bawaan */
         #reader__dashboard_section_csr span {
@@ -32,9 +32,6 @@
             --poster-color: transparent;
         }
     </style>
-@endpush
-
-@section('content')
     <!-- Container Utama -->
     <div class="fixed inset-0 z-50 flex flex-col overflow-hidden bg-black">
 
@@ -117,9 +114,6 @@
         </div>
 
     </div>
-@endsection
-
-@push('scripts')
     <!-- HTML5 QR Code -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
@@ -131,370 +125,327 @@
     <script type="module" src="{{ asset('js/model-viewer.min.js') }}"></script>
 
     <script>
-        // ========================================
-        // AR SCANNER LOGIC
-        // ========================================
-        let html5QrcodeScanner = null;
-        let isProcessing = false;
-        let scanFailCount = 0;
+        (function() {
+            let html5QrcodeScanner = null;
+            let isProcessing = false;
+            let scanFailCount = 0;
+            let heartbeatInterval = null;
 
-        console.info('=== AR Scanner Page Loaded ===');
-        console.info('User Agent: ' + navigator.userAgent);
-        console.info('Protocol: ' + window.location.protocol);
-        console.info('Host: ' + window.location.host);
-        console.info('Secure Context: ' + window.isSecureContext);
-        console.info('getUserMedia support: ' + !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
+            const handleArLoad = function(evt) {
+                const container = evt.detail.elt;
+                const readerEl = container.querySelector('#reader') || (container.id === 'reader' ? container : null);
 
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM Ready - starting init...');
+                if (readerEl && !html5QrcodeScanner) {
+                    console.log('DOM Ready - starting init...');
 
-            // Log available camera devices
-            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-                navigator.mediaDevices.enumerateDevices()
-                    .then(devices => {
-                        const cameras = devices.filter(d => d.kind === 'videoinput');
-                        console.info('Cameras found: ' + cameras.length);
-                        cameras.forEach((cam, i) => {
-                            console.info('  Camera ' + i + ': ' + (cam.label ||
-                                    '(no label - permission pending)') + ' id=' + cam.deviceId
-                                .substring(0, 8) + '...');
+                    // Log available camera devices
+                    if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+                        navigator.mediaDevices.enumerateDevices()
+                            .then(devices => {
+                                const cameras = devices.filter(d => d.kind === 'videoinput');
+                                console.info('Cameras found: ' + cameras.length);
+                                cameras.forEach((cam, i) => {
+                                    console.info('  Camera ' + i + ': ' + (cam.label ||
+                                            '(no label - permission pending)') + ' id=' + cam.deviceId
+                                        .substring(0, 8) + '...');
+                                });
+                            })
+                            .catch(err => console.error('enumerateDevices error:', err.message));
+                    }
+
+                    initScanner();
+
+                    const backBtn = container.querySelector('#btn-back-scanner');
+                    if (backBtn) {
+                        backBtn.addEventListener('click', () => {
+                            showScanner();
                         });
-                    })
-                    .catch(err => console.error('enumerateDevices error:', err.message));
-            } else {
-                console.warn('enumerateDevices NOT available');
-            }
+                    }
 
-            initScanner();
+                    const viewer = container.querySelector('#ar-model-viewer');
+                    if (viewer) {
+                        viewer.addEventListener('error', (event) => {
+                            console.error("ModelViewer Error:", event);
 
-            document.getElementById('btn-back-scanner').addEventListener('click', () => {
-                showScanner();
-            });
-
-            // Tangani error dari model-viewer
-            const viewer = document.getElementById('ar-model-viewer');
-            viewer.addEventListener('error', (event) => {
-                console.error("ModelViewer Error:", event);
-
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal Memuat Model',
-                    text: 'Terjadi kesalahan saat memuat model 3D. Format tidak didukung atau file tidak ditemukan.',
-                    confirmButtonColor: '#1E5128'
-                }).then(() => {
-                    showScanner();
-                });
-            });
-        });
-
-        function initScanner() {
-            console.log('initScanner() called');
-
-            // Check native BarcodeDetector support
-            const hasBarcodeDetector = 'BarcodeDetector' in window;
-            console.info('Native BarcodeDetector API: ' + (hasBarcodeDetector ? 'AVAILABLE ✅' :
-                'NOT available (will use JS fallback)'));
-
-            if (hasBarcodeDetector) {
-                BarcodeDetector.getSupportedFormats().then(formats => {
-                    console.info('Supported barcode formats: ' + formats.join(', '));
-                }).catch(e => console.warn('getSupportedFormats error:', e.message));
-            }
-
-            try {
-                console.log('Creating Html5Qrcode instance...');
-                html5QrcodeScanner = new Html5Qrcode("reader");
-                console.log('Html5Qrcode instance created OK');
-            } catch (e) {
-                console.error('FAILED to create Html5Qrcode:', e.message);
-                return;
-            }
-
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-            const config = {
-                fps: 10,
-                experimentalFeatures: {
-                    useBarCodeDetectorIfSupported: false
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal Memuat Model',
+                                text: 'Terjadi kesalahan saat memuat model 3D. Format tidak didukung atau file tidak ditemukan.',
+                                confirmButtonColor: '#1E5128'
+                            }).then(() => {
+                                showScanner();
+                            });
+                        });
+                    }
                 }
             };
 
-            // iOS defaults to 480x640 which is too low for reliable JS QR decoding.
-            // Add videoConstraints to request higher resolution only on iOS.
-            if (isIOS) {
-                config.videoConstraints = {
-                    facingMode: {
-                        exact: "environment"
-                    },
-                    width: {
-                        ideal: 1280
-                    },
-                    height: {
-                        ideal: 720
+            function initScanner() {
+                console.log('initScanner() called');
+                try {
+                    html5QrcodeScanner = new Html5Qrcode("reader");
+                    console.log('Html5Qrcode instance created OK');
+                } catch (e) {
+                    console.error('FAILED to create Html5Qrcode:', e.message);
+                    return;
+                }
+
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+                const config = {
+                    fps: 10,
+                    experimentalFeatures: {
+                        useBarCodeDetectorIfSupported: false
                     }
                 };
+
+                if (isIOS) {
+                    config.videoConstraints = {
+                        facingMode: {
+                            exact: "environment"
+                        },
+                        width: {
+                            ideal: 1280
+                        },
+                        height: {
+                            ideal: 720
+                        }
+                    };
+                }
+
+                html5QrcodeScanner.start({
+                        facingMode: "environment"
+                    },
+                    config,
+                    onScanSuccess,
+                    onScanFailure
+                ).then(() => {
+                    console.log('✅ Scanner started SUCCESSFULLY (facingMode)');
+                    startHeartbeat();
+                }).catch(err => {
+                    console.warn("❌ Failed with facingMode, trying getCameras fallback:", err);
+
+                    Html5Qrcode.getCameras().then(devices => {
+                        if (devices && devices.length) {
+                            let cameraId = devices[devices.length - 1].id;
+                            for (let i = 0; i < devices.length; i++) {
+                                let label = devices[i].label.toLowerCase();
+                                if (label.includes('back') || label.includes('environment') || label.includes('rear') || label.includes('kamera belakang')) {
+                                    cameraId = devices[i].id;
+                                    break;
+                                }
+                            }
+
+                            html5QrcodeScanner.start(
+                                cameraId,
+                                config,
+                                onScanSuccess,
+                                onScanFailure
+                            ).then(() => {
+                                console.log('✅ Scanner started SUCCESSFULLY (cameraId)');
+                                startHeartbeat();
+                            }).catch(e => {
+                                showCameraError();
+                            });
+                        } else {
+                            showCameraError();
+                        }
+                    }).catch(e => {
+                        showCameraError();
+                    });
+                });
+
+                function showCameraError() {
+                    console.error("❌ All scanner start attempts FAILED.");
+                    const badge = document.getElementById('status-badge');
+                    if (badge) {
+                        badge.innerText = 'Kamera tidak diizinkan/ditemukan';
+                        badge.classList.replace('bg-black/40', 'bg-red-500/80');
+                    }
+                }
+
+                function startHeartbeat() {
+                    heartbeatInterval = setInterval(() => {
+                        if (!isProcessing && html5QrcodeScanner) {
+                            try {
+                                const state = html5QrcodeScanner.getState();
+                                console.log('Scanner heartbeat - state: ' + state + ', failScans: ' + scanFailCount);
+                                scanFailCount = 0;
+                            } catch (e) {}
+                        }
+                    }, 10000);
+                }
             }
 
-            console.log('Scanner config:', config);
-            console.log('Platform: ' + (isIOS ? 'iOS' : 'non-iOS'));
-            console.log('Calling html5QrcodeScanner.start()...');
+            function onScanSuccess(decodedText, decodedResult) {
+                if (isProcessing) return;
 
-            // On iOS Safari, getCameras() often fails or returns empty before permission is granted.
-            // Requesting facingMode directly handles the permission prompt correctly.
-            html5QrcodeScanner.start({
-                    facingMode: "environment"
-                },
-                config,
-                onScanSuccess,
-                onScanFailure
-            ).then(() => {
-                console.log('✅ Scanner started SUCCESSFULLY (facingMode)');
-                console.info('Scanner state: ' + html5QrcodeScanner.getState());
+                console.log("🎯 QR Terdeteksi:", decodedText);
 
-                // Diagnostic: log video and container dimensions
-                setTimeout(() => {
-                    const video = document.querySelector('#reader video');
-                    const reader = document.getElementById('reader');
-                    const canvas = document.querySelector('#reader canvas');
-                    const scanRegion = document.getElementById('reader__scan_region');
+                let slug = '';
+                let marker = '';
 
-                    if (video) {
-                        console.info('VIDEO: videoWidth=' + video.videoWidth +
-                            ' videoHeight=' + video.videoHeight +
-                            ' clientWidth=' + video.clientWidth +
-                            ' clientHeight=' + video.clientHeight +
-                            ' readyState=' + video.readyState);
-                    } else {
-                        console.warn('VIDEO element NOT found');
+                if (decodedText.includes('/cultural/')) {
+                    const parts = decodedText.split('/cultural/');
+                    slug = parts[1].split('?')[0].replace(/\/$/, "");
+                } else if (decodedText.includes('marker=')) {
+                    try {
+                        const urlObj = new URL(decodedText);
+                        marker = urlObj.searchParams.get('marker') || '';
+                    } catch (e) {
+                        console.error("URL parse error:", e.message);
+                    }
+                } else if (decodedText.startsWith('MARKER_')) {
+                    marker = decodedText;
+                }
+
+                if (slug || marker) {
+                    isProcessing = true;
+                    if (navigator.vibrate) navigator.vibrate(50);
+
+                    if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
+                        html5QrcodeScanner.pause();
+                        console.log("Scanner paused");
                     }
 
-                    if (reader) {
-                        console.info('READER: clientWidth=' + reader.clientWidth +
-                            ' clientHeight=' + reader.clientHeight +
-                            ' offsetWidth=' + reader.offsetWidth +
-                            ' offsetHeight=' + reader.offsetHeight);
+                    fetchModel(slug, marker);
+                } else {
+                    console.warn("Format QR Code tidak dikenali:", decodedText);
+                    const statusBadge = document.getElementById('status-badge');
+                    if (statusBadge) {
+                        statusBadge.innerText = 'QR Tidak Dikenali!';
+                        statusBadge.classList.replace('bg-black/40', 'bg-red-500/80');
                     }
 
-                    if (canvas) {
-                        console.info('CANVAS: width=' + canvas.width +
-                            ' height=' + canvas.height +
-                            ' clientWidth=' + canvas.clientWidth +
-                            ' clientHeight=' + canvas.clientHeight +
-                            ' display=' + getComputedStyle(canvas).display +
-                            ' visibility=' + getComputedStyle(canvas).visibility);
-                    } else {
-                        console.warn('CANVAS element NOT found in #reader');
-                    }
-
-                    if (scanRegion) {
-                        console.info('SCAN_REGION: clientWidth=' + scanRegion.clientWidth +
-                            ' clientHeight=' + scanRegion.clientHeight);
-                    }
-                }, 2000);
-
-                startHeartbeat();
-            }).catch(err => {
-                console.warn("❌ Failed with facingMode, trying getCameras fallback:", err);
-
-                // Fallback: If facingMode fails, try to manually get cameras
-                Html5Qrcode.getCameras().then(devices => {
-                    if (devices && devices.length) {
-                        let cameraId = devices[devices.length - 1].id; // Often the back camera is last
-                        // Try to find specifically a back camera
-                        for (let i = 0; i < devices.length; i++) {
-                            let label = devices[i].label.toLowerCase();
-                            if (label.includes('back') || label.includes('environment') || label.includes(
-                                    'rear') || label.includes('kamera belakang')) {
-                                cameraId = devices[i].id;
-                                break;
-                            }
+                    setTimeout(() => {
+                        if (!isProcessing && statusBadge) {
+                            statusBadge.innerText = 'Arahkan ke Marker QR';
+                            statusBadge.classList.replace('bg-red-500/80', 'bg-black/40');
                         }
+                    }, 2000);
+                }
+            }
 
-                        html5QrcodeScanner.start(
-                            cameraId,
-                            config,
-                            onScanSuccess,
-                            onScanFailure
-                        ).then(() => {
-                            console.log('✅ Scanner started SUCCESSFULLY (cameraId)');
-                            startHeartbeat();
-                        }).catch(e => {
-                            showCameraError();
+            function onScanFailure(error) {
+                scanFailCount++;
+            }
+
+            function fetchModel(slug, marker) {
+                const loadingOverlay = document.getElementById('loading-overlay');
+                const statusBadge = document.getElementById('status-badge');
+
+                if (loadingOverlay) {
+                    loadingOverlay.classList.remove('hidden');
+                    loadingOverlay.classList.add('flex');
+                }
+                if (statusBadge) statusBadge.innerText = 'Mengunduh Model...';
+
+                let query = '';
+                if (slug) {
+                    query = `slug=${encodeURIComponent(slug)}`;
+                } else if (marker) {
+                    query = `marker=${encodeURIComponent(marker)}`;
+                }
+
+                fetch(`/api/ar/model?${query}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success && data.model_url) {
+                            showModel(data.model_url, data.usdz_url, data.name, data.short_description);
+                        } else {
+                            throw new Error(data.error || 'Model tidak ditemukan');
+                        }
+                    })
+                    .catch(err => {
+                        console.error("fetchModel error:", err);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: err.message,
+                            confirmButtonColor: '#1E5128'
+                        }).then(() => {
+                            showScanner();
+                        });
+                    })
+                    .finally(() => {
+                        if (loadingOverlay) {
+                            loadingOverlay.classList.add('hidden');
+                            loadingOverlay.classList.remove('flex');
+                        }
+                    });
+            }
+
+            function showModel(url, usdzUrl, name, desc) {
+                const scanView = document.getElementById('scanner-view');
+                const modelView = document.getElementById('model-view');
+                const badge = document.getElementById('status-badge');
+                if (scanView) scanView.classList.add('hidden');
+                if (modelView) modelView.classList.remove('hidden');
+                if (badge) badge.innerText = 'Sentuh untuk memutar/zoom';
+
+                const viewer = document.getElementById('ar-model-viewer');
+                if (viewer) {
+                    const absoluteUrl = new URL(url, window.location.href).href;
+                    viewer.src = absoluteUrl;
+                    if (usdzUrl) {
+                        const absoluteUsdzUrl = new URL(usdzUrl, window.location.href).href;
+                        viewer.setAttribute('ios-src', absoluteUsdzUrl);
+                    } else {
+                        viewer.removeAttribute('ios-src');
+                    }
+                }
+
+                const mTitle = document.getElementById('model-title');
+                const mDesc = document.getElementById('model-desc');
+                if (mTitle) mTitle.innerText = name || '';
+                if (mDesc) mDesc.innerText = desc || '';
+            }
+
+            function showScanner() {
+                const scanView = document.getElementById('scanner-view');
+                const modelView = document.getElementById('model-view');
+                const badge = document.getElementById('status-badge');
+                
+                if (modelView) modelView.classList.add('hidden');
+                if (scanView) scanView.classList.remove('hidden');
+                if (badge) {
+                    badge.innerText = 'Arahkan ke Marker QR';
+                    badge.classList.replace('bg-red-500/80', 'bg-black/40');
+                }
+
+                isProcessing = false;
+
+                const viewer = document.getElementById('ar-model-viewer');
+                if (viewer) viewer.src = '';
+
+                if (html5QrcodeScanner && html5QrcodeScanner.getState() === 2) {
+                    html5QrcodeScanner.resume();
+                }
+            }
+
+            document.body.addEventListener('htmx:load', handleArLoad);
+
+            document.addEventListener('htmx:beforeSwap', function cleanup(e) {
+                if (heartbeatInterval) {
+                    clearInterval(heartbeatInterval);
+                    heartbeatInterval = null;
+                }
+                if (html5QrcodeScanner) {
+                    if (html5QrcodeScanner.isScanning) {
+                        html5QrcodeScanner.stop().then(() => {
+                            console.log("Scanner stopped successfully");
+                            html5QrcodeScanner = null;
+                        }).catch(err => {
+                            console.error("Error stopping scanner:", err);
                         });
                     } else {
-                        showCameraError();
+                        html5QrcodeScanner = null;
                     }
-                }).catch(e => {
-                    showCameraError();
-                });
+                }
+                document.body.removeEventListener('htmx:load', handleArLoad);
+                document.removeEventListener('htmx:beforeSwap', cleanup);
             });
-
-            function showCameraError() {
-                console.error("❌ All scanner start attempts FAILED.");
-                document.getElementById('status-badge').innerText = 'Kamera tidak diizinkan/ditemukan';
-                document.getElementById('status-badge').classList.replace('bg-black/40', 'bg-red-500/80');
-            }
-
-            function startHeartbeat() {
-                setInterval(() => {
-                    if (!isProcessing && html5QrcodeScanner) {
-                        try {
-                            const state = html5QrcodeScanner.getState();
-                            console.log('Scanner heartbeat - state: ' + state + ', failScans: ' + scanFailCount);
-                            scanFailCount = 0;
-                        } catch (e) {}
-                    }
-                }, 10000);
-            }
-        }
-
-        function onScanSuccess(decodedText, decodedResult) {
-            if (isProcessing) return;
-
-            console.log("🎯 QR Terdeteksi:", decodedText);
-            console.log("Format:", decodedResult?.result?.format?.formatName || 'unknown');
-
-            let slug = '';
-            let marker = '';
-
-            if (decodedText.includes('/cultural/')) {
-                const parts = decodedText.split('/cultural/');
-                slug = parts[1].split('?')[0].replace(/\/$/, "");
-                console.log("Extracted slug:", slug);
-            } else if (decodedText.includes('marker=')) {
-                try {
-                    const urlObj = new URL(decodedText);
-                    marker = urlObj.searchParams.get('marker') || '';
-                    console.log("Extracted marker:", marker);
-                } catch (e) {
-                    console.error("URL parse error:", e.message);
-                }
-            } else if (decodedText.startsWith('MARKER_')) {
-                marker = decodedText;
-                console.log("Raw marker:", marker);
-            }
-
-            if (slug || marker) {
-                isProcessing = true;
-                if (navigator.vibrate) navigator.vibrate(50);
-
-                if (html5QrcodeScanner.isScanning) {
-                    html5QrcodeScanner.pause();
-                    console.log("Scanner paused");
-                }
-
-                fetchModel(slug, marker);
-            } else {
-                console.warn("Format QR Code tidak dikenali:", decodedText);
-                const statusBadge = document.getElementById('status-badge');
-                statusBadge.innerText = 'QR Tidak Dikenali!';
-                statusBadge.classList.replace('bg-black/40', 'bg-red-500/80');
-
-                setTimeout(() => {
-                    if (!isProcessing) {
-                        statusBadge.innerText = 'Arahkan ke Marker QR';
-                        statusBadge.classList.replace('bg-red-500/80', 'bg-black/40');
-                    }
-                }, 2000);
-            }
-        }
-
-        function onScanFailure(error) {
-            // Runs continuously while no QR is detected - count silently
-            scanFailCount++;
-        }
-
-        function fetchModel(slug, marker) {
-            console.log("fetchModel() slug=" + slug + " marker=" + marker);
-
-            const loadingOverlay = document.getElementById('loading-overlay');
-            const statusBadge = document.getElementById('status-badge');
-
-            loadingOverlay.classList.remove('hidden');
-            loadingOverlay.classList.add('flex');
-            statusBadge.innerText = 'Mengunduh Model...';
-
-            let query = '';
-            if (slug) {
-                query = `slug=${encodeURIComponent(slug)}`;
-            } else if (marker) {
-                query = `marker=${encodeURIComponent(marker)}`;
-            }
-
-            const fetchUrl = `/api/ar/model?${query}`;
-            console.log("Fetching:", fetchUrl);
-
-            fetch(fetchUrl)
-                .then(res => {
-                    console.log("Fetch response status:", res.status);
-                    return res.json();
-                })
-                .then(data => {
-                    console.log("API response:", data);
-                    if (data.success && data.model_url) {
-                        showModel(data.model_url, data.usdz_url, data.name, data.short_description);
-                    } else {
-                        throw new Error(data.error || 'Model tidak ditemukan');
-                    }
-                })
-                .catch(err => {
-                    console.error("fetchModel error:", err);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: err.message,
-                        confirmButtonColor: '#1E5128'
-                    }).then(() => {
-                        showScanner();
-                    });
-                })
-                .finally(() => {
-                    loadingOverlay.classList.add('hidden');
-                    loadingOverlay.classList.remove('flex');
-                });
-        }
-
-        function showModel(url, usdzUrl, name, desc) {
-            console.log("showModel() url=" + url + " usdzUrl=" + usdzUrl);
-
-            document.getElementById('scanner-view').classList.add('hidden');
-            document.getElementById('model-view').classList.remove('hidden');
-            document.getElementById('status-badge').innerText = 'Sentuh untuk memutar/zoom';
-
-            const viewer = document.getElementById('ar-model-viewer');
-            const absoluteUrl = new URL(url, window.location.href).href;
-            viewer.src = absoluteUrl;
-            console.log("model-viewer src set to:", absoluteUrl);
-
-            if (usdzUrl) {
-                const absoluteUsdzUrl = new URL(usdzUrl, window.location.href).href;
-                viewer.setAttribute('ios-src', absoluteUsdzUrl);
-                console.log("ios-src set to:", absoluteUsdzUrl);
-            } else {
-                viewer.removeAttribute('ios-src');
-            }
-
-            document.getElementById('model-title').innerText = name || '';
-            document.getElementById('model-desc').innerText = desc || '';
-        }
-
-        function showScanner() {
-            console.log("showScanner() called");
-
-            document.getElementById('model-view').classList.add('hidden');
-            document.getElementById('scanner-view').classList.remove('hidden');
-            document.getElementById('status-badge').innerText = 'Arahkan ke Marker QR';
-            document.getElementById('status-badge').classList.replace('bg-red-500/80', 'bg-black/40');
-
-            isProcessing = false;
-
-            document.getElementById('ar-model-viewer').src = '';
-
-            if (html5QrcodeScanner && html5QrcodeScanner.getState() === Html5QrcodeScannerState.PAUSED) {
-                html5QrcodeScanner.resume();
-                console.log("Scanner resumed");
-            }
-        }
+        })();
     </script>
-@endpush
+@endsection

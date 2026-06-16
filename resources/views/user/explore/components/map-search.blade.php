@@ -156,49 +156,53 @@
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterToggleBtn = document.getElementById('btn-filter-toggle');
-        const filterPanel = document.getElementById('filter-panel');
-        const resetBtn = document.getElementById('btn-reset-filters');
-
-        // Toggle filter panel
-        filterToggleBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            filterPanel.classList.toggle('hidden');
-        });
-
-        // Filter toggle click handlers (Bento Cards)
-        document.querySelectorAll('.filter-card').forEach(card => {
-            card.addEventListener('click', function() {
-                const isChecked = this.classList.toggle('active');
-
-                // Dispatch custom event for map to handle
-                const filterName = this.dataset.filter;
-                window.dispatchEvent(new CustomEvent('filter-change', {
-                    detail: {
-                        filter: filterName,
-                        active: isChecked
+    (function() {
+        if (!window.mapSearchListenersRegistered) {
+            document.body.addEventListener('click', function(e) {
+                // 1. Toggle filter panel
+                const filterToggleBtn = e.target.closest('#btn-filter-toggle');
+                if (filterToggleBtn) {
+                    e.stopPropagation();
+                    const filterPanel = document.getElementById('filter-panel');
+                    if (filterPanel) {
+                        filterPanel.classList.toggle('hidden');
                     }
-                }));
-            });
-        });
+                    return;
+                }
 
-        // Reset/Rekondisi filters to active
-        if (resetBtn) {
-            resetBtn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-card').forEach(card => {
-                    if (!card.classList.contains('active')) {
-                        card.classList.add('active');
-                        const filterName = card.dataset.filter;
-                        window.dispatchEvent(new CustomEvent('filter-change', {
-                            detail: {
-                                filter: filterName,
-                                active: true
-                            }
-                        }));
-                    }
-                });
+                // 2. Filter card click (Bento Cards)
+                const filterCard = e.target.closest('.filter-card');
+                if (filterCard) {
+                    const isChecked = filterCard.classList.toggle('active');
+                    const filterName = filterCard.dataset.filter;
+                    window.dispatchEvent(new CustomEvent('filter-change', {
+                        detail: {
+                            filter: filterName,
+                            active: isChecked
+                        }
+                    }));
+                    return;
+                }
+
+                // 3. Reset/Rekondisi filters to active
+                const resetBtn = e.target.closest('#btn-reset-filters');
+                if (resetBtn) {
+                    document.querySelectorAll('.filter-card').forEach(card => {
+                        if (!card.classList.contains('active')) {
+                            card.classList.add('active');
+                            const filterName = card.dataset.filter;
+                            window.dispatchEvent(new CustomEvent('filter-change', {
+                                detail: {
+                                    filter: filterName,
+                                    active: true
+                                }
+                            }));
+                        }
+                    });
+                    return;
+                }
             });
+            window.mapSearchListenersRegistered = true;
         }
-    });
+    })();
 </script>

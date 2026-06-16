@@ -2,7 +2,7 @@
 @section('title', 'Rekomendasi UMKM - Penglipuran')
 @section('header_title', 'Rekomendasi UMKM')
 
-@push('styles')
+@section('content')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         #map {
@@ -41,9 +41,6 @@
             border-radius: 50%;
         }
     </style>
-@endpush
-
-@section('content')
     <div class="relative pb-32">
         <!-- Confetti / Success Header -->
         <div class="bg-primary/10 relative w-full overflow-hidden px-4 py-10 text-center">
@@ -200,89 +197,6 @@
         <p class="mt-2 text-center text-xs text-gray-500">UMKM ini melayani pembayaran langsung di lokasi (Bayar di
             Tempat).</p>
     </div>
-@endsection
-
-@push('scripts')
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Fire confetti when page loads
-            var duration = 3 * 1000;
-            var animationEnd = Date.now() + duration;
-            var defaults = {
-                startVelocity: 30,
-                spread: 360,
-                ticks: 60,
-                zIndex: 100
-            };
-
-            function randomInRange(min, max) {
-                return Math.random() * (max - min) + min;
-            }
-
-            var interval = setInterval(function() {
-                var timeLeft = animationEnd - Date.now();
-
-                if (timeLeft <= 0) {
-                    return clearInterval(interval);
-                }
-
-                var particleCount = 50 * (timeLeft / duration);
-                confetti(Object.assign({}, defaults, {
-                    particleCount,
-                    origin: {
-                        x: randomInRange(0.1, 0.3),
-                        y: Math.random() - 0.2
-                    }
-                }));
-                confetti(Object.assign({}, defaults, {
-                    particleCount,
-                    origin: {
-                        x: randomInRange(0.7, 0.9),
-                        y: Math.random() - 0.2
-                    }
-                }));
-            }, 250);
-        });
-
-        function scrollToMap() {
-            if (navigator.vibrate) navigator.vibrate(50);
-            document.getElementById('map-section').scrollIntoView({
-                behavior: 'smooth'
-            });
-        }
-
-        @if ($umkm->mapLocation)
-            const lat = {{ $umkm->mapLocation->latitude }};
-            const lng = {{ $umkm->mapLocation->longitude }};
-
-            const map = L.map('map', {
-                zoomControl: false,
-                attributionControl: false
-            }).setView([lat, lng], 17);
-
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                maxZoom: 20
-            }).addTo(map);
-
-            const customIcon = L.divIcon({
-                className: 'custom-div-icon',
-                html: `<div class="marker-pin"></div>`,
-                iconSize: [30, 42],
-                iconAnchor: [15, 42]
-            });
-
-            L.marker([lat, lng], {
-                    icon: customIcon
-                })
-                .bindPopup(`<b>{{ $umkm->business_name }}</b>`)
-                .addTo(map);
-        @endif
-    </script>
-@endpush
-
-@push('modals')
     <!-- Product Detail Modal -->
     <div x-data="{ selectedProduct: null }" @open-product-modal.window="selectedProduct = $event.detail">
         <x-modal name="product-modal" maxWidth="sm">
@@ -323,4 +237,109 @@
             </div>
         </x-modal>
     </div>
-@endpush
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        (function() {
+            let mapInstance = null;
+
+            const handleRecommendedLoad = function(evt) {
+                const container = evt.detail.elt;
+                
+                // 1. Confetti trigger
+                const hasConfetti = container.querySelector('.bg-primary/10') || (container.classList && container.classList.contains('bg-primary/10'));
+                if (hasConfetti) {
+                    var duration = 3 * 1000;
+                    var animationEnd = Date.now() + duration;
+                    var defaults = {
+                        startVelocity: 30,
+                        spread: 360,
+                        ticks: 60,
+                        zIndex: 100
+                    };
+
+                    function randomInRange(min, max) {
+                        return Math.random() * (max - min) + min;
+                    }
+
+                    var interval = setInterval(function() {
+                        var timeLeft = animationEnd - Date.now();
+
+                        if (timeLeft <= 0) {
+                            return clearInterval(interval);
+                        }
+
+                        var particleCount = 50 * (timeLeft / duration);
+                        confetti(Object.assign({}, defaults, {
+                            particleCount,
+                            origin: {
+                                x: randomInRange(0.1, 0.3),
+                                y: Math.random() - 0.2
+                            }
+                        }));
+                        confetti(Object.assign({}, defaults, {
+                            particleCount,
+                            origin: {
+                                x: randomInRange(0.7, 0.9),
+                                y: Math.random() - 0.2
+                            }
+                        }));
+                    }, 250);
+                }
+
+                // 2. Map trigger
+                const mapEl = container.querySelector('#map') || (container.id === 'map' ? container : null);
+                if (mapEl && !mapInstance) {
+                    @if ($umkm->mapLocation)
+                        const lat = {{ $umkm->mapLocation->latitude }};
+                        const lng = {{ $umkm->mapLocation->longitude }};
+
+                        mapInstance = L.map(mapEl, {
+                            zoomControl: false,
+                            attributionControl: false
+                        }).setView([lat, lng], 17);
+
+                        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                            maxZoom: 20
+                        }).addTo(mapInstance);
+
+                        const customIcon = L.divIcon({
+                            className: 'custom-div-icon',
+                            html: `<div class="marker-pin"></div>`,
+                            iconSize: [30, 42],
+                            iconAnchor: [15, 42]
+                        });
+
+                        L.marker([lat, lng], {
+                                icon: customIcon
+                            })
+                            .bindPopup(`<b>{{ $umkm->business_name }}</b>`)
+                            .addTo(mapInstance);
+                    @endif
+                }
+            };
+
+            document.body.addEventListener('htmx:load', handleRecommendedLoad);
+
+            document.addEventListener('htmx:beforeSwap', function cleanup(e) {
+                if (mapInstance) {
+                    mapInstance.remove();
+                    mapInstance = null;
+                }
+                document.body.removeEventListener('htmx:load', handleRecommendedLoad);
+                document.removeEventListener('htmx:beforeSwap', cleanup);
+            });
+        })();
+
+        function scrollToMap() {
+            if (navigator.vibrate) navigator.vibrate(50);
+            const mapSec = document.getElementById('map-section');
+            if (mapSec) {
+                mapSec.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        }
+    </script>
+@endsection

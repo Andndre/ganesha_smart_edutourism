@@ -195,6 +195,7 @@
 
             // Instant visual feedback for Bottom Nav and loading bar
             document.addEventListener('DOMContentLoaded', () => {
+                updateActiveBottomNavTab();
                 const bottomNavLinks = document.querySelectorAll('nav a');
 
                 bottomNavLinks.forEach(link => {
@@ -259,9 +260,22 @@
 
             // HTMX integration for smooth SPA transitions
             function updateActiveBottomNavTab() {
+                const nav = document.querySelector('nav[role="navigation"]');
+                if (!nav) return;
+
                 const currentPath = window.location.pathname;
-                const bottomNavLinks = document.querySelectorAll('nav a');
+
+                // Toggle visibility of bottom navigation based on main tab patterns
+                const mainTabPatterns = [/^\/$/, /^\/home$/, /^\/explore$/, /^\/umkm(\/|$)/, /^\/profile(\/|$)/];
+                const isMainTab = mainTabPatterns.some(pattern => pattern.test(currentPath));
+
+                if (isMainTab) {
+                    nav.classList.remove('hidden');
+                } else {
+                    nav.classList.add('hidden');
+                }
                 
+                const bottomNavLinks = nav.querySelectorAll('a');
                 bottomNavLinks.forEach(link => {
                     const isARScan = link.pathname.includes('/ar-scan');
                     if (isARScan) return;
@@ -305,8 +319,9 @@
                 if (mainContent) {
                     mainContent.style.opacity = '1';
                 }
+            });
 
-                // Update bottom nav tab state to match new URL
+            document.addEventListener('htmx:afterSwap', () => {
                 updateActiveBottomNavTab();
             });
 
