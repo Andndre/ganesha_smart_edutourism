@@ -4,63 +4,8 @@
 
 @section('content')
     <!-- FullCalendar CDN and Styles -->
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js" data-navigate-once></script>
     @include('user.events.partials.events-styles')
-
-    <script>
-        (function() {
-
-            // Register FullCalendar
-            function initCalendar() {
-                const calendarEl = document.getElementById('calendar-public');
-                if (!calendarEl || typeof FullCalendar === 'undefined') return;
-
-                const calendar = new FullCalendar.Calendar(calendarEl, {
-                    initialView: 'dayGridMonth',
-                    locale: 'id',
-                    headerToolbar: window.innerWidth < 768 ? {
-                        left: 'prev,next',
-                        center: 'title',
-                        right: 'today'
-                    } : {
-                        left: 'prev,next today',
-                        center: 'title',
-                        right: 'dayGridMonth,listMonth'
-                    },
-                    buttonText: {
-                        today: 'Hari Ini',
-                        month: 'Bulan',
-                        list: 'Agenda'
-                    },
-                    events: @json($calendarEvents),
-                    eventClick: function(info) {
-                        const rawData = info.event.extendedProps.raw;
-                        if (rawData) {
-                            // Dispatch custom event to notify Alpine
-                            const event = new CustomEvent('open-detail-modal', {
-                                detail: rawData
-                            });
-                            window.dispatchEvent(event);
-                        }
-                    },
-                    height: 'auto',
-                    handleWindowResize: true
-                });
-
-                calendar.render();
-                window.fcInstance = calendar; // Save global reference for filtering
-
-                // Force dynamic layout sync after render to prevent initial 0px container collapse
-                setTimeout(() => {
-                    calendar.updateSize();
-                }, 50);
-            }
-
-            // Execution flow
-
-            initCalendar();
-        })();
-    </script>
 
     <div x-data="{
         viewMode: 'calendar',
@@ -119,6 +64,56 @@
             return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
         },
 
+        initCalendar() {
+            const checkAndInit = () => {
+                if (typeof FullCalendar === 'undefined') {
+                    setTimeout(checkAndInit, 100);
+                    return;
+                }
+                const calendarEl = document.getElementById('calendar-public');
+                if (!calendarEl) return;
+
+                const calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    locale: 'id',
+                    headerToolbar: window.innerWidth < 768 ? {
+                        left: 'prev,next',
+                        center: 'title',
+                        right: 'today'
+                    } : {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,listMonth'
+                    },
+                    buttonText: {
+                        today: 'Hari Ini',
+                        month: 'Bulan',
+                        list: 'Agenda'
+                    },
+                    events: this.calendarEvents,
+                    eventClick: (info) => {
+                        const rawData = info.event.extendedProps.raw;
+                        if (rawData) {
+                            // Dispatch custom event to notify Alpine
+                            this.openDetail(rawData);
+                        }
+                    },
+                    height: 'auto',
+                    handleWindowResize: true
+                });
+
+                calendar.render();
+                window.fcInstance = calendar; // Save global reference for filtering
+
+                // Force dynamic layout sync after render to prevent initial 0px container collapse
+                setTimeout(() => {
+                    calendar.updateSize();
+                }, 50);
+            };
+
+            checkAndInit();
+        },
+
         init() {
             // Default to 'list' for mobile screens and 'calendar' for wider views
             if (window.innerWidth < 768) {
@@ -135,6 +130,8 @@
                     }, 50);
                 }
             });
+            
+            this.initCalendar();
         }
     }" @open-detail-modal.window="openDetail($event.detail)"
         class="mx-auto max-w-lg space-y-6 px-4 py-6 md:max-w-4xl">
