@@ -186,6 +186,12 @@
                         const data = await response.json();
 
                         if (data.success && data.snap_token) {
+                            const isProduction = {{ config('midtrans.is_production') ? 'true' : 'false' }};
+                            if (!isProduction) {
+                                window.location.href = `https://app.sandbox.midtrans.com/snap/v2/vtweb/${data.snap_token}`;
+                                return;
+                            }
+
                             snap.pay(data.snap_token, {
                                 onSuccess: function(result) {
                                     window.location.href =
