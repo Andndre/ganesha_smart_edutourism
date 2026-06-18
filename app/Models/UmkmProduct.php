@@ -7,25 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
-/**
- * UmkmProduct model for umkm business products.
- *
- * @property int $id
- * @property int $umkm_profile_id
- * @property string $name
- * @property string $slug
- * @property string|null $description
- * @property float $price
- * @property int|null $stock
- * @property string|null $unit
- * @property array|null $images
- * @property string|null $ar_model_path
- * @property bool $is_active
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- */
 #[Fillable(['umkm_profile_id', 'umkm_product_category_id', 'name', 'slug', 'description', 'price', 'stock', 'unit', 'images', 'ar_model_path', 'is_active'])]
 class UmkmProduct extends Model
 {

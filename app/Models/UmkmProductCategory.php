@@ -7,13 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * UmkmProductCategory model representing product categories.
- *
- * @property int $id
- * @property string $name
- * @property string $slug
- */
 #[Fillable(['name', 'slug', 'description', 'image_path', 'model_3d_path', 'model_3d_usdz_path'])]
 class UmkmProductCategory extends Model
 {

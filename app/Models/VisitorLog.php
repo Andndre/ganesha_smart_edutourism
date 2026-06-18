@@ -9,23 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
-/**
- * VisitorLog model for tracking visitor activity logs.
- *
- * @property int $id
- * @property string $session_id
- * @property int|null $user_id
- * @property string $event_type
- * @property array|null $event_data
- * @property float|null $latitude
- * @property float|null $longitude
- * @property string|null $device_type
- * @property string|null $browser
- * @property string|null $nationality
- * @property Carbon $logged_at
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- */
 #[Fillable(['session_id', 'user_id', 'event_type', 'event_data', 'latitude', 'longitude', 'device_type', 'browser', 'nationality', 'logged_at'])]
 class VisitorLog extends Model
 {

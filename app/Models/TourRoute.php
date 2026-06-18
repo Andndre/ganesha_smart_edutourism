@@ -7,22 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Carbon;
 
-/**
- * TourRoute model for tourist routes.
- *
- * @property int $id
- * @property string $name
- * @property string|null $description
- * @property string|null $difficulty
- * @property int|null $estimated_duration_minutes
- * @property int|null $distance_meters
- * @property bool $is_smart_route
- * @property bool $is_active
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- */
 #[Fillable(['name', 'description', 'difficulty', 'estimated_duration_minutes', 'distance_meters', 'is_smart_route', 'is_active'])]
 class TourRoute extends Model
 {

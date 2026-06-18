@@ -8,31 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 
-/**
- * Reservation model for tour and event reservations.
- *
- * @property int $id
- * @property int $user_id
- * @property string|null $guest_name
- * @property string|null $guest_email
- * @property string|null $guest_phone
- * @property int|null $tour_package_id
- * @property string|null $reservation_type
- * @property Request|null $scheduled_date
- * @property string|null $scheduled_time
- * @property int $party_size
- * @property float $total_amount
- * @property string|null $status
- * @property string|null $payment_status
- * @property string|null $payment_method
- * @property string|null $payment_reference
- * @property string|null $qr_code
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- */
 #[Fillable(['user_id', 'guest_name', 'guest_email', 'guest_phone', 'tour_package_id', 'reservation_type', 'scheduled_date', 'scheduled_time', 'party_size', 'total_amount', 'status', 'payment_status', 'payment_method', 'payment_reference', 'qr_code'])]
 class Reservation extends Model
 {

@@ -8,21 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Support\Carbon;
 
-/**
- * TourRoutePoint model for points within tour routes.
- *
- * @property int $id
- * @property int $tour_route_id
- * @property string|null $locationable_type
- * @property int|null $locationable_id
- * @property int|null $order
- * @property int|null $estimated_visit_minutes
- * @property string|null $storytelling_content
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- */
 #[Fillable(['tour_route_id', 'locationable_type', 'locationable_id', 'order', 'estimated_visit_minutes', 'storytelling_content'])]
 class TourRoutePoint extends Model
 {

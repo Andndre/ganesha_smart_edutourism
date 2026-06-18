@@ -7,26 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Carbon;
 
-/**
- * TourPackage model for tourism packages.
- *
- * @property int $id
- * @property string $name
- * @property string $slug
- * @property string|null $description
- * @property array|null $inclusions
- * @property array|null $exclusions
- * @property float $price
- * @property float|null $duration_hours
- * @property int|null $max_capacity
- * @property int|null $min_capacity
- * @property array|null $images
- * @property bool $is_active
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- */
 #[Fillable(['name', 'slug', 'description', 'inclusions', 'exclusions', 'price', 'duration_hours', 'max_capacity', 'min_capacity', 'images', 'is_active'])]
 class TourPackage extends Model
 {
