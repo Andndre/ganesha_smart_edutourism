@@ -32,7 +32,7 @@ class CapacityController extends Controller
             $zone->current_count = 0;
         }
 
-        // ponytail: Calculate real 24h visitor trend and dynamic hourly labels
+        // Calculate real 24h visitor trend and dynamic hourly labels
         $hourlyData = [];
         $hourlyLabels = [];
         $now = now();
@@ -135,8 +135,8 @@ class CapacityController extends Controller
         $dLon = deg2rad($lon2 - $lon1);
 
         $a = sin($dLat / 2) * sin($dLat / 2) +
-             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-             sin($dLon / 2) * sin($dLon / 2);
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLon / 2) * sin($dLon / 2);
 
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
