@@ -7,7 +7,6 @@ use App\Models\CapacityZone;
 use App\Models\VisitorLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
@@ -33,23 +32,38 @@ class CapacityController extends Controller
             $zone->current_count = 0;
         }
 
-        // Yesterday's visitor hourly data for 24h chart
+        // ponytail: Calculate real 24h visitor trend and dynamic hourly labels
         $hourlyData = [];
-        for ($h = 0; $h < 24; $h++) {
-            $startTime = \sprintf('%02d:00:00', $h);
-            $endTime = \sprintf('%02d:59:59', $h);
+        $hourlyLabels = [];
+        $now = now();
+        for ($i = 23; $i >= 0; $i--) {
+            $targetTime = $now->copy()->subHours($i);
+            $start = $targetTime->copy()->startOfHour();
+            $end = $targetTime->copy()->endOfHour();
 
-            $count = VisitorLog::whereDate('logged_at', Carbon::today())
-                ->whereTime('logged_at', '>=', $startTime)
-                ->whereTime('logged_at', '<=', $endTime)
+            $count = VisitorLog::whereBetween('logged_at', [$start, $end])
                 ->where('event_type', 'location_visit')
                 ->count();
-            if ($count === 0) {
-                // mock data if no logs
-                $mockData = [12, 8, 5, 3, 2, 8, 45, 120, 280, 390, 480, 530, 580, 617, 590, 540, 480, 410, 330, 260, 180, 120, 80, 40];
-                $hourlyData[] = $mockData[$h];
-            } else {
-                $hourlyData[] = $count;
+
+            $hourlyData[] = $count;
+            $hourlyLabels[] = $targetTime->format('H:00');
+        }
+
+        // Generate dynamic mock curve peak values if no logs exist anywhere in the last 24h
+        if (array_sum($hourlyData) === 0) {
+            $hourlyData = [];
+            for ($i = 23; $i >= 0; $i--) {
+                $targetTime = $now->copy()->subHours($i);
+                $hour = (int) $targetTime->format('H');
+
+                // Peak visitor counts between 10:00 and 16:00 (bell curve)
+                $mockValue = (int) (400 * exp(-pow($hour - 13, 2) / 18));
+                if ($hour >= 8 && $hour <= 18) {
+                    $mockValue += rand(10, 25);
+                } else {
+                    $mockValue += rand(1, 5);
+                }
+                $hourlyData[] = $mockValue;
             }
         }
 
@@ -89,7 +103,7 @@ class CapacityController extends Controller
         $defaultLat = (float) env('PENGLIPURAN_LAT', -8.422303596762355);
         $defaultLon = (float) env('PENGLIPURAN_LON', 115.35948833933173);
 
-        return view('admin.capacity.index', compact('zones', 'totalCurrentCount', 'totalMaxCapacity', 'hourlyData', 'heatmapData', 'defaultLat', 'defaultLon'));
+        return view('admin.capacity.index', compact('zones', 'totalCurrentCount', 'totalMaxCapacity', 'hourlyData', 'hourlyLabels', 'heatmapData', 'defaultLat', 'defaultLon'));
     }
 
     /**
