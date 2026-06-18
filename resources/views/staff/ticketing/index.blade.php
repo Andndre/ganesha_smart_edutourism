@@ -550,6 +550,22 @@
                 Swal.close();
 
                 if (data.success && data.snap_token) {
+                    const isProduction = {{ config('midtrans.is_production') ? 'true' : 'false' }};
+                    if (!isProduction) {
+                        const redirectUrl = `https://app.sandbox.midtrans.com/snap/v2/vtweb/${data.snap_token}`;
+                        window.open(redirectUrl, '_blank');
+                        Swal.fire({
+                            title: 'Menunggu Pembayaran',
+                            text: 'Silakan selesaikan pembayaran QRIS pada tab baru yang terbuka. Setelah selesai, klik OK.',
+                            icon: 'info',
+                            confirmButtonColor: '#1E5128',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                        return;
+                    }
+
                     snap.pay(data.snap_token, {
                         onSuccess: async function(result) {
                             try {
@@ -669,6 +685,23 @@
                                 });
                             } else if (data.payment_method === 'qris' && data.snap_token) {
                                 window.dispatchEvent(new CustomEvent('close-walkin-modal'));
+                                
+                                const isProduction = {{ config('midtrans.is_production') ? 'true' : 'false' }};
+                                if (!isProduction) {
+                                    const redirectUrl = `https://app.sandbox.midtrans.com/snap/v2/vtweb/${data.snap_token}`;
+                                    window.open(redirectUrl, '_blank');
+                                    Swal.fire({
+                                        title: 'Menunggu Pembayaran',
+                                        text: 'Silakan selesaikan pembayaran QRIS pada tab baru yang terbuka. Setelah selesai, klik OK.',
+                                        icon: 'info',
+                                        confirmButtonColor: '#1E5128',
+                                        confirmButtonText: 'OK'
+                                    }).then(() => {
+                                        window.location.reload();
+                                    });
+                                    return;
+                                }
+
                                 snap.pay(data.snap_token, {
                                     onSuccess: async function(result) {
                                         try {
