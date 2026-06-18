@@ -36,23 +36,16 @@
             </div>
             <p class="mt-1 text-sm text-gray-600">Zona Utama mendekati batas kapasitas. Pertimbangkan untuk mengalihkan wisatawan ke jalur alternatif.</p>
             <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                @php
-                    $zones = [
-                        ['name' => 'Zona Utama',     'current' => 312, 'max' => 400, 'color' => 'warning'],
-                        ['name' => 'Area UMKM',      'current' => 178, 'max' => 300, 'color' => 'success'],
-                        ['name' => 'Pura Penataran', 'current' => 85,  'max' => 150, 'color' => 'success'],
-                        ['name' => 'Kebun Bambu',    'current' => 42,  'max' => 200, 'color' => 'success'],
-                    ];
-                @endphp
                 @foreach ($zones as $zone)
                     @php
-                        $pct = round(($zone['current'] / $zone['max']) * 100);
+                        // ponytail: simplified percentage & color logic using model attribute
+                        $pct = $zone->occupancy_percentage;
                         $barColor = $pct >= 80 ? 'bg-warning' : ($pct >= 60 ? 'bg-secondary' : 'bg-primary');
                         $textColor = $pct >= 80 ? 'text-warning' : 'text-primary';
                     @endphp
                     <div class="rounded-xl bg-white p-3 shadow-sm">
-                        <p class="text-[11px] font-semibold text-gray-500">{{ $zone['name'] }}</p>
-                        <p class="mt-0.5 text-lg font-bold {{ $textColor }}">{{ $zone['current'] }}<span class="text-xs font-normal text-gray-400">/{{ $zone['max'] }}</span></p>
+                        <p class="text-[11px] font-semibold text-gray-500">{{ $zone->name }}</p>
+                        <p class="mt-0.5 text-lg font-bold {{ $textColor }}">{{ $zone->current_count }}<span class="text-xs font-normal text-gray-400">/{{ $zone->max_capacity }}</span></p>
                         <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
                             <div class="{{ $barColor }} h-full rounded-full transition-all" style="width: {{ $pct }}%"></div>
                         </div>
@@ -72,11 +65,44 @@
      ============================================================ --}}
 <div class="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
     @php
+        // ponytail: refactored stats array to use dynamic variables computed by the controller
         $stats = [
-            ['label' => 'Pengunjung Hari Ini',  'value' => '617',   'unit' => 'orang',  'delta' => '+12%', 'up' => true,  'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H3v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z', 'color' => 'primary'],
-            ['label' => 'Pendapatan Hari Ini',  'value' => '4.2',   'unit' => 'Juta',   'delta' => '+8%',  'up' => true,  'icon' => 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z', 'color' => 'secondary'],
-            ['label' => 'Tiket Aktif',          'value' => '89',    'unit' => 'tiket',  'delta' => '-3%',  'up' => false, 'icon' => 'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z', 'color' => 'primary'],
-            ['label' => 'Rating Kepuasan',      'value' => '4.7',   'unit' => '/ 5.0',  'delta' => '+0.2', 'up' => true,  'icon' => 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z', 'color' => 'secondary'],
+            [
+                'label' => 'Pengunjung Hari Ini',
+                'value' => number_format($todayVisitorCount),
+                'unit' => 'orang',
+                'delta' => ($visitorDelta >= 0 ? '+' : '') . $visitorDelta . '%',
+                'up' => $visitorDelta >= 0,
+                'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H3v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z',
+                'color' => 'primary'
+            ],
+            [
+                'label' => 'Pendapatan Hari Ini',
+                'value' => $todayRevenue >= 1000000 ? number_format($todayRevenue / 1000000, 1) : number_format($todayRevenue),
+                'unit' => $todayRevenue >= 1000000 ? 'Juta' : 'Rupiah',
+                'delta' => ($revenueDelta >= 0 ? '+' : '') . $revenueDelta . '%',
+                'up' => $revenueDelta >= 0,
+                'icon' => 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
+                'color' => 'secondary'
+            ],
+            [
+                'label' => 'Tiket Aktif',
+                'value' => number_format($activeTicketsCount),
+                'unit' => 'tiket',
+                'delta' => ($ticketsDelta >= 0 ? '+' : '') . $ticketsDelta . '%',
+                'up' => $ticketsDelta >= 0,
+                'icon' => 'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z',
+                'color' => 'primary'
+            ],
+            [
+                'label' => 'Rating Kepuasan',
+                'value' => number_format($avgRating, 1),
+                'unit' => '/ 5.0',
+                'delta' => ($ratingDelta >= 0 ? '+' : '') . $ratingDelta,
+                'up' => $ratingDelta >= 0,
+                'icon' => 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z',
+                'color' => 'secondary'
+            ],
         ];
     @endphp
     @foreach ($stats as $i => $stat)
@@ -168,31 +194,31 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
-                @php
-                    $bookings = [
-                        ['id' => '#BK-0041', 'name' => 'Sari Dewi',     'pkg' => 'Paket Keluarga 1 Hari', 'date' => '21 Mei 2026', 'status' => 'Aktif'],
-                        ['id' => '#BK-0040', 'name' => 'Budi Santoso',  'pkg' => 'Paket Edukasi Budaya',  'date' => '21 Mei 2026', 'status' => 'Selesai'],
-                        ['id' => '#BK-0039', 'name' => 'Maria Tan',     'pkg' => 'Paket Sunrise Trek',    'date' => '20 Mei 2026', 'status' => 'Aktif'],
-                        ['id' => '#BK-0038', 'name' => 'Reza Pratama',  'pkg' => 'Paket Keluarga 1 Hari', 'date' => '20 Mei 2026', 'status' => 'Dibatalkan'],
-                        ['id' => '#BK-0037', 'name' => 'Lisa Cahyani',  'pkg' => 'Paket Edukasi Budaya',  'date' => '19 Mei 2026', 'status' => 'Selesai'],
-                    ];
-                @endphp
                 @foreach ($bookings as $b)
                     @php
-                        $badge = match($b['status']) {
-                            'Aktif'      => 'bg-primary/10 text-primary',
-                            'Selesai'    => 'bg-gray-100 text-gray-500',
-                            'Dibatalkan' => 'bg-warning/10 text-warning',
-                            default      => 'bg-gray-100 text-gray-500',
+                        // ponytail: translate reservation status from model status values
+                        $statusText = match($b->status) {
+                            'confirmed' => 'Aktif',
+                            'completed' => 'Selesai',
+                            'cancelled' => 'Dibatalkan',
+                            default => ucfirst($b->status),
+                        };
+                        $badge = match($b->status) {
+                            'confirmed' => 'bg-primary/10 text-primary',
+                            'completed' => 'bg-gray-100 text-gray-500',
+                            'cancelled' => 'bg-warning/10 text-warning',
+                            default => 'bg-gray-100 text-gray-500',
                         };
                     @endphp
                     <tr class="hover:bg-gray-50/50">
-                        <td class="px-5 py-3.5 font-mono text-xs text-gray-400">{{ $b['id'] }}</td>
-                        <td class="px-5 py-3.5 font-medium text-charcoal">{{ $b['name'] }}</td>
-                        <td class="px-5 py-3.5 text-gray-600">{{ $b['pkg'] }}</td>
-                        <td class="px-5 py-3.5 text-gray-500">{{ $b['date'] }}</td>
+                        <td class="px-5 py-3.5 font-mono text-xs text-gray-400">#BK-{{ str_pad($b->id, 4, '0', STR_PAD_LEFT) }}</td>
+                        <td class="px-5 py-3.5 font-medium text-charcoal">{{ $b->guest_name ?? ($b->user ? $b->user->name : 'N/A') }}</td>
+                        <td class="px-5 py-3.5 text-gray-600">{{ $b->tourPackage->name ?? 'N/A' }}</td>
+                        <td class="px-5 py-3.5 text-gray-500">
+                            {{ $b->scheduled_date ? $b->scheduled_date->translatedFormat('d M Y') : '-' }}
+                        </td>
                         <td class="px-5 py-3.5">
-                            <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $badge }}">{{ $b['status'] }}</span>
+                            <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $badge }}">{{ $statusText }}</span>
                         </td>
                     </tr>
                 @endforeach
@@ -230,8 +256,8 @@
         canvas.style.height = H + 'px';
         ctx.scale(dpr, dpr);
 
-        const labels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
-        const data   = [412, 380, 520, 490, 610, 730, 617];
+        const labels = @json($chartLabels);
+        const data   = @json($chartValues);
         const max    = Math.max(...data) * 1.15;
 
         const padL = 36, padR = 12, padT = 12, padB = 32;

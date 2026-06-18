@@ -74,7 +74,6 @@ class TicketingController extends Controller
 
         return view('staff.ticketing.index', compact(
             'packages',
-            'reservations',
             'reservationsList'
         ));
     }
