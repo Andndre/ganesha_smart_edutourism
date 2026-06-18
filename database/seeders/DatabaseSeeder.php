@@ -18,9 +18,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Admin Seeder runs in all environments
+        // Seeders that run in all environments
         $this->call([
             AdminSeeder::class,
+            TourPackageSeeder::class,
         ]);
 
         if (app()->environment('local')) {
