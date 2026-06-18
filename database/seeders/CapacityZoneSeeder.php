@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\CapacityZone;
 use Illuminate\Database\Seeder;
 
 class CapacityZoneSeeder extends Seeder
@@ -60,7 +60,7 @@ class CapacityZoneSeeder extends Seeder
         ];
 
         foreach ($zones as $zone) {
-            \App\Models\CapacityZone::updateOrCreate(
+            CapacityZone::updateOrCreate(
                 ['zone_identifier' => $zone['zone_identifier']],
                 $zone
             );
