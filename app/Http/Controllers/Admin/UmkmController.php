@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ArMarker;
+use App\Models\ArModel;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
@@ -218,11 +218,12 @@ class UmkmController extends Controller
             'accessibility_notes' => $accessibility_notes,
         ]);
 
-        // Process Decoupled AR marker logic
+        // AR marker via ArModel (marker-only, no 3D model)
         $arMarkerId = $request->input('ar_marker_id');
         if (! empty($arMarkerId)) {
-            ArMarker::create([
-                'ar_marker_id' => $arMarkerId,
+            ArModel::create([
+                'name'            => $profile->business_name.' Marker',
+                'ar_marker_id'    => $arMarkerId,
                 'map_location_id' => $mapLocation->id,
             ]);
         }
@@ -289,15 +290,23 @@ class UmkmController extends Controller
             ]
         );
 
-        // Process Decoupled AR marker logic
+        // AR marker via ArModel
         $arMarkerId = $request->input('ar_marker_id');
+        $existingModel = $mapLocation->arModel;
         if (! empty($arMarkerId)) {
-            $mapLocation->arMarker()->updateOrCreate(
-                [],
-                ['ar_marker_id' => $arMarkerId]
-            );
+            if ($existingModel) {
+                $existingModel->update(['ar_marker_id' => $arMarkerId]);
+            } else {
+                ArModel::create([
+                    'name'            => $profile->business_name.' Marker',
+                    'ar_marker_id'    => $arMarkerId,
+                    'map_location_id' => $mapLocation->id,
+                ]);
+            }
         } else {
-            $mapLocation->arMarker()->delete();
+            if ($existingModel) {
+                $existingModel->update(['ar_marker_id' => null, 'map_location_id' => null]);
+            }
         }
 
         return redirect()->route('admin.map-manager')->with('success', 'Profil UMKM berhasil diperbarui.');

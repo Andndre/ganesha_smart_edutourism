@@ -115,38 +115,26 @@
     </div>
 
     <div>
-        <label class="mb-1 block text-sm font-semibold text-gray-700">ID Marker AR</label>
-        <span class="mb-2 block text-xs text-gray-500">Opsional. Digunakan untuk integrasi Augmented Reality</span>
-        <input type="text" name="ar_marker_id" id="ar_marker_id" placeholder="Contoh: MARKER_PURA_01"
-            class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"
-            oninput="generateARMarker()">
-        <input type="hidden" name="ar_marker_patt_content" id="ar_marker_patt_content">
-
-        <!-- Premium Download Button -->
-        <div id="ar-download-container" class="mt-2" style="display: none;">
-            <button type="button" onclick="downloadARMarker()"
-                class="border-primary text-primary hover:bg-primary/5 flex w-full items-center justify-center gap-2 rounded-xl border-2 py-2.5 text-sm font-semibold transition-colors active:scale-95">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                </svg>
-                Unduh QR Marker AR (.png)
-            </button>
-            <span class="mt-1 block text-[10px] text-gray-500">Unduh gambar QR Marker berpola AR (.png). Pola (.patt) akan otomatis tersimpan ke server.</span>
-        </div>
-    </div>
-
-    <div>
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Model 3D Aset AR</label>
-        <span class="mb-2 block text-xs text-gray-500">Pilih model 3D yang sudah ada atau unggah model baru.</span>
+        <span class="mb-2 block text-xs text-gray-500">Pilih model 3D yang sudah ada atau buat baru.</span>
         <select name="ar_model_id" id="ar_model_id_select" onchange="toggleModelSelect(this.value)"
             class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
             <option value="none">Tanpa Model 3D</option>
             @foreach ($models as $model)
-                <option value="{{ $model->id }}" data-glb="{{ asset('storage/' . $model->model_3d_path) }}" data-usdz="{{ $model->model_3d_usdz_path ? asset('storage/' . $model->model_3d_usdz_path) : '' }}" data-audio="{{ $model->audio_narration_path ? route('audio.stream', ['path' => $model->audio_narration_path]) : '' }}">{{ $model->name }}</option>
+                <option value="{{ $model->id }}"
+                    data-glb="{{ $model->model_3d_path ? asset('storage/' . $model->model_3d_path) : '' }}"
+                    data-usdz="{{ $model->model_3d_usdz_path ? asset('storage/' . $model->model_3d_usdz_path) : '' }}"
+                    data-audio="{{ $model->audio_narration_path ? route('audio.stream', ['path' => $model->audio_narration_path]) : '' }}"
+                    data-marker-id="{{ $model->ar_marker_id ?? '' }}">{{ $model->name }}</option>
             @endforeach
             <option value="new">+ Tambah Model 3D Baru...</option>
         </select>
+
+        {{-- Badge marker ID untuk model existing --}}
+        <div id="existing-marker-badge" class="mt-2 hidden">
+            <span class="text-[10px] text-gray-500">ID Marker QR: </span>
+            <span id="existing-marker-id-text" class="font-mono text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full"></span>
+        </div>
     </div>
 
     <!-- Container for New Model Upload (hidden by default) -->
@@ -161,6 +149,26 @@
             <label class="mb-1 block text-xs font-semibold text-gray-700">Deskripsi Model</label>
             <textarea name="new_model_description" rows="2" placeholder="Detail deskripsi model..."
                 class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none bg-white resize-none"></textarea>
+        </div>
+
+        <div>
+            <label class="mb-1 block text-xs font-semibold text-gray-700">ID Marker QR AR</label>
+            <span class="mb-1.5 block text-[10px] text-gray-400">Opsional. Harus unik. Digunakan untuk integrasi Augmented Reality.</span>
+            <input type="text" name="ar_marker_id" id="ar_marker_id" placeholder="Contoh: MARKER_PURA_01"
+                class="focus:border-primary w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none bg-white"
+                oninput="generateARMarker()">
+            <input type="hidden" name="ar_marker_patt_content" id="ar_marker_patt_content">
+
+            <div id="ar-download-container" class="mt-2" style="display: none;">
+                <button type="button" onclick="downloadARMarker()"
+                    class="border-primary text-primary hover:bg-primary/5 flex w-full items-center justify-center gap-2 rounded-xl border-2 py-2 text-xs font-semibold transition-colors active:scale-95">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Unduh QR Marker AR (.png)
+                </button>
+                <span class="mt-1 block text-[10px] text-gray-400">Pola (.patt) akan otomatis tersimpan ke server.</span>
+            </div>
         </div>
         
         <div>
@@ -208,27 +216,33 @@
                 const modelPreview = document.getElementById('model-3d-preview');
                 const audioPreviewContainer = document.getElementById('audio-preview-container');
                 const audioPreview = document.getElementById('audio-preview');
+                const markerBadge = document.getElementById('existing-marker-badge');
+                const markerBadgeText = document.getElementById('existing-marker-id-text');
+
+                const clearPreviews = () => {
+                    if (modelPreview) modelPreview.src = '';
+                    if (modelPreviewContainer) modelPreviewContainer.style.display = 'none';
+                    if (audioPreview) audioPreview.src = '';
+                    if (audioPreviewContainer) audioPreviewContainer.style.display = 'none';
+                };
 
                 if (value === 'new') {
                     if (fields) fields.classList.remove('hidden');
-                    if (modelPreview) modelPreview.src = '';
-                    if (modelPreviewContainer) modelPreviewContainer.style.display = 'none';
-                    if (audioPreview) audioPreview.src = '';
-                    if (audioPreviewContainer) audioPreviewContainer.style.display = 'none';
+                    if (markerBadge) markerBadge.classList.add('hidden');
+                    clearPreviews();
                 } else if (value === 'none') {
                     if (fields) fields.classList.add('hidden');
-                    if (modelPreview) modelPreview.src = '';
-                    if (modelPreviewContainer) modelPreviewContainer.style.display = 'none';
-                    if (audioPreview) audioPreview.src = '';
-                    if (audioPreviewContainer) audioPreviewContainer.style.display = 'none';
+                    if (markerBadge) markerBadge.classList.add('hidden');
+                    clearPreviews();
                 } else {
                     if (fields) fields.classList.add('hidden');
                     const select = document.getElementById('ar_model_id_select');
                     if (select) {
                         const selectedOption = select.options[select.selectedIndex];
                         if (selectedOption) {
-                            const glbUrl = selectedOption.getAttribute('data-glb');
+                            const glbUrl   = selectedOption.getAttribute('data-glb');
                             const audioUrl = selectedOption.getAttribute('data-audio');
+                            const markerId = selectedOption.getAttribute('data-marker-id');
 
                             if (glbUrl && modelPreview && modelPreviewContainer) {
                                 modelPreview.src = glbUrl;
@@ -244,6 +258,13 @@
                             } else {
                                 if (audioPreview) audioPreview.src = '';
                                 if (audioPreviewContainer) audioPreviewContainer.style.display = 'none';
+                            }
+
+                            if (markerId && markerBadge && markerBadgeText) {
+                                markerBadgeText.textContent = markerId;
+                                markerBadge.classList.remove('hidden');
+                            } else if (markerBadge) {
+                                markerBadge.classList.add('hidden');
                             }
                         }
                     }

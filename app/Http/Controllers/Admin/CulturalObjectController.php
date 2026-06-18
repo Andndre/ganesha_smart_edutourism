@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ArMarker;
 use App\Models\ArModel;
 use App\Models\CulturalObject;
 use Illuminate\Http\JsonResponse;
@@ -147,54 +146,40 @@ class CulturalObjectController extends Controller
             'accessibility_notes' => $request->input('accessibility_notes') ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.',
         ]);
 
-        // Decoupled AR marker & model logic
-        $arMarkerId = $request->input('ar_marker_id');
+        // AR model logic: create new or link existing
         $arModelId = $request->input('ar_model_id');
+        $arMarkerId = $request->input('ar_marker_id');
 
-        $finalModelId = null;
         $shouldCreateNewModel = $arModelId === 'new' ||
             (empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file') || $request->hasFile('audio_narration_file')));
 
         if ($shouldCreateNewModel) {
             $modelData = [
-                'name' => $request->input('new_model_name') ?: $object->name.' Model',
-                'description' => $request->input('new_model_description') ?: $object->short_description ?? null,
+                'name'         => $request->input('new_model_name') ?: $object->name.' Model',
+                'description'  => $request->input('new_model_description') ?: ($object->short_description ?? null),
+                'map_location_id' => $mapLocation->id,
+                'ar_marker_id' => $arMarkerId ?: null,
             ];
 
             if ($request->hasFile('model_3d_file')) {
                 $modelData['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
             }
-
             if ($request->hasFile('model_3d_usdz_file')) {
-                $file = $request->file('model_3d_usdz_file');
-                $filename = Str::random(40).'.usdz';
-                $modelData['model_3d_usdz_path'] = $file->storeAs('models_usdz', $filename, 'public');
+                $modelData['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')
+                    ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
             }
-
             if ($request->hasFile('audio_narration_file')) {
                 $modelData['audio_narration_path'] = $request->file('audio_narration_file')->store('audio', 'public');
             }
-
-            $newModel = ArModel::create($modelData);
-            $finalModelId = $newModel->id;
-        } elseif (is_numeric($arModelId)) {
-            $finalModelId = (int) $arModelId;
-        }
-
-        if (! empty($arMarkerId)) {
-            $markerData = [
-                'ar_marker_id' => $arMarkerId,
-                'ar_model_id' => $finalModelId,
-                'map_location_id' => $mapLocation->id,
-            ];
-
-            if ($request->filled('ar_marker_patt_content')) {
+            if ($request->filled('ar_marker_patt_content') && $arMarkerId) {
                 $pattPath = 'ar-markers/'.$arMarkerId.'.patt';
                 Storage::disk('public')->put($pattPath, $request->input('ar_marker_patt_content'));
-                $markerData['ar_marker_patt_path'] = $pattPath;
+                $modelData['ar_marker_patt_path'] = $pattPath;
             }
 
-            ArMarker::create($markerData);
+            ArModel::create($modelData);
+        } elseif (is_numeric($arModelId)) {
+            ArModel::where('id', (int) $arModelId)->update(['map_location_id' => $mapLocation->id]);
         }
 
         return redirect()->route('admin.map-manager')->with('success', 'Objek budaya berhasil ditambahkan.');
@@ -341,62 +326,44 @@ class CulturalObjectController extends Controller
             ]
         );
 
-        // Sync Decoupled AR marker & model logic
+        // Sync AR model link
+        $arModelId  = $request->input('ar_model_id');
         $arMarkerId = $request->input('ar_marker_id');
-        $arModelId = $request->input('ar_model_id');
 
-        $finalModelId = null;
         $shouldCreateNewModel = $arModelId === 'new' ||
             ($arModelId !== 'none' && empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file') || $request->hasFile('audio_narration_file')));
 
         if ($shouldCreateNewModel) {
             $modelData = [
-                'name' => $request->input('new_model_name') ?: $object->name.' Model',
-                'description' => $request->input('new_model_description') ?: $object->short_description ?? null,
+                'name'            => $request->input('new_model_name') ?: $object->name.' Model',
+                'description'     => $request->input('new_model_description') ?: ($object->short_description ?? null),
+                'map_location_id' => $mapLocation->id,
+                'ar_marker_id'    => $arMarkerId ?: null,
             ];
 
             if ($request->hasFile('model_3d_file')) {
                 $modelData['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
             }
-
             if ($request->hasFile('model_3d_usdz_file')) {
-                $file = $request->file('model_3d_usdz_file');
-                $filename = Str::random(40).'.usdz';
-                $modelData['model_3d_usdz_path'] = $file->storeAs('models_usdz', $filename, 'public');
+                $modelData['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')
+                    ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
             }
-
             if ($request->hasFile('audio_narration_file')) {
                 $modelData['audio_narration_path'] = $request->file('audio_narration_file')->store('audio', 'public');
             }
-
-            $newModel = ArModel::create($modelData);
-            $finalModelId = $newModel->id;
-        } elseif (is_numeric($arModelId)) {
-            $finalModelId = (int) $arModelId;
-        } else {
-            // If none or not provided, but we had a marker before, keep the old model
-            $currentMarker = $mapLocation->arMarker;
-            if ($currentMarker) {
-                $finalModelId = $currentMarker->ar_model_id;
-            }
-        }
-
-        if (! empty($arMarkerId)) {
-            $markerData = [
-                'ar_marker_id' => $arMarkerId,
-                'ar_model_id' => $finalModelId,
-            ];
-
-            if ($request->filled('ar_marker_patt_content')) {
+            if ($request->filled('ar_marker_patt_content') && $arMarkerId) {
                 $pattPath = 'ar-markers/'.$arMarkerId.'.patt';
                 Storage::disk('public')->put($pattPath, $request->input('ar_marker_patt_content'));
-                $markerData['ar_marker_patt_path'] = $pattPath;
+                $modelData['ar_marker_patt_path'] = $pattPath;
             }
 
-            $mapLocation->arMarker()->updateOrCreate([], $markerData);
-        } else {
-            // Delete marker if cleared
-            $mapLocation->arMarker()->delete();
+            ArModel::create($modelData);
+        } elseif (is_numeric($arModelId)) {
+            // Link existing model to this location
+            ArModel::where('id', (int) $arModelId)->update(['map_location_id' => $mapLocation->id]);
+        } elseif ($arModelId === 'none') {
+            // Detach: clear map_location_id from any model currently linked here
+            ArModel::where('map_location_id', $mapLocation->id)->update(['map_location_id' => null]);
         }
 
         return redirect()->route('admin.map-manager')->with('success', 'Objek budaya berhasil diperbarui.');

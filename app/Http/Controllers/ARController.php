@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ArMarker;
+use App\Models\ArModel;
 use App\Models\CulturalObject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,33 +29,28 @@ class ARController extends Controller
             'marker' => 'nullable|string|max:255',
         ]);
 
-        $arMarker = null;
+        $model = null;
 
         if ($request->filled('marker')) {
-            $arMarker = ArMarker::with(['arModel', 'mapLocation.locationable'])
+            $model = ArModel::with('mapLocation.locationable')
                 ->where('ar_marker_id', $request->marker)
                 ->first();
         }
 
-        if (! $arMarker && $request->filled('slug')) {
+        if (! $model && $request->filled('slug')) {
             $object = CulturalObject::where('slug', $request->slug)->first();
             if ($object && $object->mapLocation) {
-                $arMarker = ArMarker::with(['arModel', 'mapLocation.locationable'])
+                $model = ArModel::with('mapLocation.locationable')
                     ->where('map_location_id', $object->mapLocation->id)
                     ->first();
             }
         }
 
-        if (! $arMarker) {
-            return response()->json(['error' => 'Objek tidak ditemukan'], 404);
-        }
-
-        $model = $arMarker->arModel;
         if (! $model || ! $model->model_3d_path) {
             return response()->json(['error' => 'Model 3D tidak tersedia untuk objek ini'], 404);
         }
 
-        $locationable = $arMarker->mapLocation?->locationable;
+        $locationable = $model->mapLocation?->locationable;
         $name = $locationable?->name ?? $model->name;
         $description = $locationable?->description ?? $model->description;
         $shortDescription = $locationable?->short_description ?? $model->name;

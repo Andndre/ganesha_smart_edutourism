@@ -96,46 +96,31 @@ class CulturalObject extends Model
      */
     public function scopeWithAr(Builder $query)
     {
-        return $query->whereHas('mapLocation.arMarker');
+        return $query->whereHas('mapLocation.arModel');
     }
 
-    /**
-     * Accessor for ar_marker_id.
-     */
     public function getArMarkerIdAttribute(): ?string
     {
-        return $this->mapLocation?->arMarker?->ar_marker_id;
+        return $this->mapLocation?->arModel?->ar_marker_id;
     }
 
-    /**
-     * Accessor for ar_marker_patt_path.
-     */
     public function getArMarkerPattPathAttribute(): ?string
     {
-        return $this->mapLocation?->arMarker?->ar_marker_patt_path;
+        return $this->mapLocation?->arModel?->ar_marker_patt_path;
     }
 
-    /**
-     * Accessor for model_3d_path.
-     */
     public function getModel3dPathAttribute(): ?string
     {
-        return $this->mapLocation?->arMarker?->arModel?->model_3d_path;
+        return $this->mapLocation?->arModel?->model_3d_path;
     }
 
-    /**
-     * Accessor for model_3d_usdz_path.
-     */
     public function getModel3dUsdzPathAttribute(): ?string
     {
-        return $this->mapLocation?->arMarker?->arModel?->model_3d_usdz_path;
+        return $this->mapLocation?->arModel?->model_3d_usdz_path;
     }
 
-    /**
-     * Accessor for audio_narration_path.
-     */
     public function getAudioNarrationPathAttribute(): ?string
     {
-        return $this->mapLocation?->arMarker?->arModel?->audio_narration_path;
+        return $this->mapLocation?->arModel?->audio_narration_path;
     }
 }

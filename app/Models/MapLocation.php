@@ -37,13 +37,13 @@ class MapLocation extends Model
     }
 
     /**
-     * Get the AR marker associated with this location.
+     * Get the AR model associated with this location.
      *
-     * @return HasOne<ArMarker>
+     * @return HasOne<ArModel>
      */
-    public function arMarker(): HasOne
+    public function arModel(): HasOne
     {
-        return $this->hasOne(ArMarker::class, 'map_location_id');
+        return $this->hasOne(ArModel::class, 'map_location_id');
     }
 
     /**

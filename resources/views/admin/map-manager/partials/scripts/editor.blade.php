@@ -174,35 +174,28 @@ function handleMarkerClick(marker) {
             if (window.setCulturalEditorContent) {
                 window.setCulturalEditorContent(details.description || '');
             }
-            form.querySelector('input[name="ar_marker_id"]').value = loc.ar_marker ? loc.ar_marker.ar_marker_id : '';
-            setTimeout(() => {
-                if (typeof window.generateARMarker === 'function') {
-                    window.generateARMarker();
-                }
-            }, 100);
-
             // Select active model and trigger toggle
             const modelSelect = document.getElementById('ar_model_id_select');
             if (modelSelect) {
-                modelSelect.value = loc.ar_marker ? (loc.ar_marker.ar_model_id || 'none') : 'none';
+                modelSelect.value = loc.ar_model ? loc.ar_model.id : 'none';
                 if (typeof toggleModelSelect === 'function') {
                     toggleModelSelect(modelSelect.value);
                 }
             }
 
-            const markerModel = loc.ar_marker ? loc.ar_marker.ar_model : null;
+            const arModel = loc.ar_model || null;
 
             // File previews
-            document.getElementById('current-model-3d').innerHTML = markerModel && markerModel.model_3d_path
-                ? `File saat ini: <a href="${storageUrl}/${markerModel.model_3d_path}" target="_blank" class="text-primary hover:underline font-semibold">${markerModel.model_3d_path.split('/').pop()}</a>`
+            document.getElementById('current-model-3d').innerHTML = arModel && arModel.model_3d_path
+                ? `File saat ini: <a href="${storageUrl}/${arModel.model_3d_path}" target="_blank" class="text-primary hover:underline font-semibold">${arModel.model_3d_path.split('/').pop()}</a>`
                 : 'Belum ada model 3D';
 
-            document.getElementById('current-model-3d-usdz').innerHTML = markerModel && markerModel.model_3d_usdz_path
-                ? `File saat ini: <a href="${storageUrl}/${markerModel.model_3d_usdz_path}" target="_blank" class="text-primary hover:underline font-semibold">${markerModel.model_3d_usdz_path.split('/').pop()}</a>`
+            document.getElementById('current-model-3d-usdz').innerHTML = arModel && arModel.model_3d_usdz_path
+                ? `File saat ini: <a href="${storageUrl}/${arModel.model_3d_usdz_path}" target="_blank" class="text-primary hover:underline font-semibold">${arModel.model_3d_usdz_path.split('/').pop()}</a>`
                 : 'Belum ada model 3D iOS (.usdz)';
 
-            document.getElementById('current-audio').innerHTML = markerModel && markerModel.audio_narration_path
-                ? `File saat ini: <a href="${storageUrl}/${markerModel.audio_narration_path}" target="_blank" class="text-primary hover:underline font-semibold">${markerModel.audio_narration_path.split('/').pop()}</a>`
+            document.getElementById('current-audio').innerHTML = arModel && arModel.audio_narration_path
+                ? `File saat ini: <a href="${storageUrl}/${arModel.audio_narration_path}" target="_blank" class="text-primary hover:underline font-semibold">${arModel.audio_narration_path.split('/').pop()}</a>`
                 : 'Belum ada audio narasi';
 
             const imgContainer = document.getElementById('current-images');
@@ -283,7 +276,7 @@ function handleMarkerClick(marker) {
             form.querySelector('select[name="category"]').value = details.category;
             form.querySelector('textarea[name="description"]').value = details.description || '';
             form.querySelector('input[name="rating"]').value = details.rating || '5.0';
-            form.querySelector('input[name="ar_marker_id"]').value = loc.ar_marker ? loc.ar_marker.ar_marker_id : '';
+            form.querySelector('input[name="ar_marker_id"]').value = '';
             form.querySelector('input[name="is_active"]').checked = details.is_active;
             form.querySelector('input[name="is_accessible"]').checked = loc.is_accessible;
             form.querySelector('textarea[name="accessibility_notes"]').value = loc.accessibility_notes || '';
