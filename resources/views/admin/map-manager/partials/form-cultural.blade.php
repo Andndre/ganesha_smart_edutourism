@@ -277,43 +277,30 @@
             Kelola Soal Kuis
         </button>
 
-        <div id="quizzes-modal"
-            class="bg-charcoal/50 fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto p-4 backdrop-blur-sm">
-            <div class="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
-                <div class="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 p-5">
-                    <div>
-                        <h3 class="font-display text-charcoal text-lg font-bold">Kelola Kuis Edutourism</h3>
-                        <p class="mt-1 text-xs text-gray-500">Soal-soal ini akan muncul saat turis tiba di lokasi ini.
-                        </p>
-                    </div>
-                    <button type="button" onclick="closeQuizModal()"
-                        class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="flex-1 space-y-6 overflow-y-auto p-6" id="quizzes-list">
-                    <!-- Quizzes will be appended here -->
-                </div>
-
-                <div class="space-y-3 border-t border-gray-100 bg-gray-50/50 p-5">
-                    <button type="button" onclick="addQuizField()"
-                        class="hover:border-primary hover:text-primary flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-3 text-sm font-semibold text-gray-500 transition-colors hover:bg-green-50">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
-                            </path>
-                        </svg>
-                        Tambah Soal Kuis
-                    </button>
-                    <button type="button" onclick="closeQuizModal()"
-                        class="bg-primary hover:bg-primary-600 shadow-primary/20 w-full rounded-xl py-3 text-sm font-semibold text-white shadow-lg transition-all">Selesai
-                        & Tutup</button>
-                </div>
+        <x-modal name="quizzes-modal" maxWidth="2xl">
+            <div class="mb-4">
+                <h3 class="font-display text-charcoal text-lg font-bold">Kelola Kuis Edutourism</h3>
+                <p class="mt-1 text-xs text-gray-500">Soal-soal ini akan muncul saat turis tiba di lokasi ini.</p>
             </div>
-        </div>
+
+            <div class="space-y-6 overflow-y-auto p-1 max-h-[50vh]" id="quizzes-list">
+                <!-- Quizzes will be appended here -->
+            </div>
+
+            <div class="space-y-3 border-t border-gray-100 pt-4 mt-6">
+                <button type="button" onclick="addQuizField()"
+                    class="hover:border-primary hover:text-primary flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-3 text-sm font-semibold text-gray-500 transition-colors hover:bg-green-50">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
+                        </path>
+                    </svg>
+                    Tambah Soal Kuis
+                </button>
+                <button type="button" onclick="closeQuizModal()"
+                    class="bg-primary hover:bg-primary-600 shadow-primary/20 w-full rounded-xl py-3 text-sm font-semibold text-white shadow-lg transition-all">Selesai
+                    & Tutup</button>
+            </div>
+        </x-modal>
     </div>
 
     <div class="border-t border-gray-100 pt-4">
@@ -334,71 +321,59 @@
             Kelola Kisah Budaya
         </button>
 
-        <div id="stories-modal"
-            class="bg-charcoal/50 fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto p-4 backdrop-blur-sm">
-            <div class="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl animate-fade-in">
-                <div class="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 p-5">
-                    <div>
-                        <h3 class="font-display text-charcoal text-lg font-bold">Kelola Kisah Budaya</h3>
-                        <p class="mt-1 text-xs text-gray-500">Kelola dan urutkan informasi sejarah, filosofi, atau nilai luhur terkait objek ini.</p>
-                    </div>
-                    <button type="button" onclick="closeStoryModal()"
-                        class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
+        <x-modal name="stories-modal" maxWidth="2xl">
+            <div class="mb-4">
+                <h3 class="font-display text-charcoal text-lg font-bold">Kelola Kisah Budaya</h3>
+                <p class="mt-1 text-xs text-gray-500">Kelola dan urutkan informasi sejarah, filosofi, atau nilai luhur terkait objek ini.</p>
+            </div>
 
-                <!-- Tabs navigation inside modal -->
-                <div class="flex border-b border-gray-100 bg-gray-50 px-5 py-1">
-                    <button type="button" id="tab-btn-history" onclick="switchStoryTab('history')"
-                        class="story-tab-btn border-b-2 border-primary text-primary px-4 py-2.5 text-xs font-bold transition-all focus:outline-none">
-                        Sejarah
-                    </button>
-                    <button type="button" id="tab-btn-philosophy" onclick="switchStoryTab('philosophy')"
-                        class="story-tab-btn border-b-2 border-transparent text-gray-500 hover:text-charcoal px-4 py-2.5 text-xs font-bold transition-all focus:outline-none">
-                        Filosofi
-                    </button>
-                    <button type="button" id="tab-btn-value" onclick="switchStoryTab('value')"
-                        class="story-tab-btn border-b-2 border-transparent text-gray-500 hover:text-charcoal px-4 py-2.5 text-xs font-bold transition-all focus:outline-none">
-                        Nilai Luhur
-                    </button>
-                </div>
+            <!-- Tabs navigation inside modal -->
+            <div class="flex border-b border-gray-100 bg-gray-50 px-2 py-1 -mx-6 mb-4">
+                <button type="button" id="tab-btn-history" onclick="switchStoryTab('history')"
+                    class="story-tab-btn border-b-2 border-primary text-primary px-4 py-2.5 text-xs font-bold transition-all focus:outline-none">
+                    Sejarah
+                </button>
+                <button type="button" id="tab-btn-philosophy" onclick="switchStoryTab('philosophy')"
+                    class="story-tab-btn border-b-2 border-transparent text-gray-500 hover:text-charcoal px-4 py-2.5 text-xs font-bold transition-all focus:outline-none">
+                    Filosofi
+                </button>
+                <button type="button" id="tab-btn-value" onclick="switchStoryTab('value')"
+                    class="story-tab-btn border-b-2 border-transparent text-gray-500 hover:text-charcoal px-4 py-2.5 text-xs font-bold transition-all focus:outline-none">
+                    Nilai Luhur
+                </button>
+            </div>
 
-                <div class="flex-1 overflow-y-auto p-6">
-                    <!-- History Stories -->
-                    <div id="stories-list-history" class="story-tab-content space-y-4">
-                        <!-- History stories will go here -->
-                    </div>
-                    
-                    <!-- Philosophy Stories -->
-                    <div id="stories-list-philosophy" class="story-tab-content hidden space-y-4">
-                        <!-- Philosophy stories will go here -->
-                    </div>
-                    
-                    <!-- Value Stories -->
-                    <div id="stories-list-value" class="story-tab-content hidden space-y-4">
-                        <!-- Value stories will go here -->
-                    </div>
+            <div class="overflow-y-auto p-1 max-h-[50vh]">
+                <!-- History Stories -->
+                <div id="stories-list-history" class="story-tab-content space-y-4">
+                    <!-- History stories will go here -->
                 </div>
-
-                <div class="space-y-3 border-t border-gray-100 bg-gray-50/50 p-5">
-                    <button type="button" onclick="addStoryField()"
-                        class="hover:border-primary hover:text-primary flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-3 text-sm font-semibold text-gray-500 transition-colors hover:bg-green-50">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
-                            </path>
-                        </svg>
-                        Tambah Kisah Budaya
-                    </button>
-                    <button type="button" onclick="closeStoryModal()"
-                        class="bg-primary hover:bg-primary-600 shadow-primary/20 w-full rounded-xl py-3 text-sm font-semibold text-white shadow-lg transition-all">Selesai
-                        & Tutup</button>
+                
+                <!-- Philosophy Stories -->
+                <div id="stories-list-philosophy" class="story-tab-content hidden space-y-4">
+                    <!-- Philosophy stories will go here -->
+                </div>
+                
+                <!-- Value Stories -->
+                <div id="stories-list-value" class="story-tab-content hidden space-y-4">
+                    <!-- Value stories will go here -->
                 </div>
             </div>
-        </div>
+
+            <div class="space-y-3 border-t border-gray-100 pt-4 mt-6">
+                <button type="button" onclick="addStoryField()"
+                    class="hover:border-primary hover:text-primary flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-3 text-sm font-semibold text-gray-500 transition-colors hover:bg-green-50">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
+                        </path>
+                    </svg>
+                    Tambah Kisah Budaya
+                </button>
+                <button type="button" onclick="closeStoryModal()"
+                    class="bg-primary hover:bg-primary-600 shadow-primary/20 w-full rounded-xl py-3 text-sm font-semibold text-white shadow-lg transition-all">Selesai
+                    & Tutup</button>
+            </div>
+        </x-modal>
     </div>
 
     <div>

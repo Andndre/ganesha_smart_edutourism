@@ -75,62 +75,54 @@
 </div>
 
 {{-- Owner Modal Form --}}
-<div id="owner-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-charcoal/50 backdrop-blur-sm p-4 justify-center">
-    <div class="my-auto self-start w-full max-w-md rounded-2xl bg-white p-6 shadow-xl transition-all">
-        <div class="mb-4 flex items-center justify-between">
-            <h3 id="modal-title" class="font-display text-lg font-bold text-charcoal">Buat Akun Pemilik UMKM</h3>
-            <button onclick="closeModal()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-        <form id="modal-form" method="POST" action="">
-            @csrf
-            <div id="method-container"></div>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Nama Pemilik <span class="text-warning">*</span></label>
-                    <input type="text" name="name" id="field-name" required placeholder="Contoh: Wayan Sudira" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Email Login <span class="text-warning">*</span></label>
-                    <input type="email" name="email" id="field-email" required placeholder="Contoh: wayan@example.com" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Nomor Telepon</label>
-                    <input type="text" name="phone" id="field-phone" placeholder="Contoh: 08123456789" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                </div>
-                <div>
-                    <label id="password-label" class="block text-sm font-semibold text-gray-700">Password <span class="text-warning">*</span></label>
-                    <div class="relative mt-1">
-                        <input type="password" name="password" id="field-password" required class="w-full rounded-xl border border-gray-200 pl-4 pr-10 py-2.5 text-sm focus:border-primary focus:outline-none">
-                        <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
-                            <svg id="eye-open-icon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.644 10.68 10.68 0 0120.088 0 1.014 1.014 0 010 .644 10.68 10.68 0 01-20.088 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            <svg id="eye-closed-icon" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.822 7.822L21 21m-2.228-2.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-                            </svg>
-                        </button>
-                    </div>
-                    <p id="password-help" class="mt-1 text-xs text-gray-400 hidden">* Biarkan kosong jika tidak ingin mengganti password.</p>
-                </div>
-            </div>
-            <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="closeModal()" class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">Batal</button>
-                <button type="submit" class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 hover:bg-primary-600">Simpan</button>
-            </div>
-        </form>
+<x-modal name="owner-modal" maxWidth="md">
+    <div class="mb-4">
+        <h3 id="modal-title" class="font-display text-lg font-bold text-charcoal">Buat Akun Pemilik UMKM</h3>
     </div>
-</div>
+    <form id="modal-form" method="POST" action="">
+        @csrf
+        <div id="method-container"></div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Nama Pemilik <span class="text-warning">*</span></label>
+                <input type="text" name="name" id="field-name" required placeholder="Contoh: Wayan Sudira" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Email Login <span class="text-warning">*</span></label>
+                <input type="email" name="email" id="field-email" required placeholder="Contoh: wayan@example.com" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Nomor Telepon</label>
+                <input type="text" name="phone" id="field-phone" placeholder="Contoh: 08123456789" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+            </div>
+            <div>
+                <label id="password-label" class="block text-sm font-semibold text-gray-700">Password <span class="text-warning">*</span></label>
+                <div class="relative mt-1">
+                    <input type="password" name="password" id="field-password" required class="w-full rounded-xl border border-gray-200 pl-4 pr-10 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
+                        <svg id="eye-open-icon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.644 10.68 10.68 0 0120.088 0 1.014 1.014 0 010 .644 10.68 10.68 0 01-20.088 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <svg id="eye-closed-icon" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.822 7.822L21 21m-2.228-2.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                        </svg>
+                    </button>
+                </div>
+                <p id="password-help" class="mt-1 text-xs text-gray-400 hidden">* Biarkan kosong jika tidak ingin mengganti password.</p>
+            </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-3">
+            <button type="button" onclick="closeModal()" class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">Batal</button>
+            <button type="submit" class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 hover:bg-primary-600">Simpan</button>
+        </div>
+    </form>
+</x-modal>
 
 @endsection
 
 @push('scripts')
 <script>
-    const modal = document.getElementById('owner-modal');
     const form = document.getElementById('modal-form');
     const modalTitle = document.getElementById('modal-title');
     const methodContainer = document.getElementById('method-container');
@@ -155,8 +147,7 @@
         passwordHelp.classList.add('hidden');
         resetPasswordVisibility();
         
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        window.dispatchEvent(new CustomEvent('open-owner-modal'));
     }
 
     function openEditModal(owner) {
@@ -173,8 +164,7 @@
         passwordHelp.classList.remove('hidden');
         resetPasswordVisibility();
 
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        window.dispatchEvent(new CustomEvent('open-owner-modal'));
     }
 
     function togglePasswordVisibility() {
@@ -199,8 +189,7 @@
     }
 
     function closeModal() {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+        window.dispatchEvent(new CustomEvent('close-owner-modal'));
     }
 </script>
 @endpush

@@ -134,7 +134,7 @@
     <h3 class="mb-4 font-semibold text-charcoal">Pemantauan Lokasi Real-time</h3>
     <div class="relative w-full h-[400px] rounded-xl overflow-hidden border border-gray-200">
         <div id="map" class="h-full w-full z-10 relative"></div>
-        <div id="heatmap-overlay" class="absolute inset-0 pointer-events-none z-[1000] overflow-hidden"></div>
+        <div id="heatmap-overlay" class="absolute inset-0 pointer-events-none z-1000 overflow-hidden"></div>
     </div>
 </div>
 
@@ -145,52 +145,45 @@
 </div>
 
 {{-- Edit Threshold Modal --}}
-<div id="threshold-modal" class="fixed inset-0 z-50 hidden overflow-y-auto p-4 bg-black/50 backdrop-blur-sm justify-center">
-    <div class="w-full max-w-md my-auto self-start overflow-hidden rounded-2xl bg-white shadow-xl animate-fade-in">
-        <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-            <h3 class="font-display text-lg font-bold text-charcoal">Edit Ambang Batas <span id="modal-zone-name" class="text-gray-400"></span></h3>
-            <button onclick="closeThresholdModal()" class="text-gray-400 hover:text-gray-600 focus:outline-none">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+<x-modal name="threshold-modal" maxWidth="md">
+    <div class="mb-4">
+        <h3 class="font-display text-lg font-bold text-charcoal">Edit Ambang Batas <span id="modal-zone-name" class="text-gray-400"></span></h3>
+    </div>
+    <form id="modal-threshold-form" method="POST">
+        @csrf
+        @method('PUT')
+        <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="modal-max-capacity" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Kapasitas Maksimal</label>
+                    <input type="number" name="max_capacity" id="modal-max-capacity" required min="1" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
+                </div>
+                <div>
+                    <label for="modal-radius-meters" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Radius (Meter)</label>
+                    <input type="number" name="radius_meters" id="modal-radius-meters" required min="1" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="modal-warning-threshold" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Warning (%)</label>
+                    <input type="number" name="warning_threshold" id="modal-warning-threshold" required min="1" max="100" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
+                </div>
+                <div>
+                    <label for="modal-critical-threshold" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Critical (%)</label>
+                    <input type="number" name="critical_threshold" id="modal-critical-threshold" required min="1" max="100" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
+                </div>
+            </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-2 border-t border-gray-100 pt-4">
+            <button type="button" onclick="closeThresholdModal()" class="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">
+                Batal
+            </button>
+            <button type="submit" class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary-600">
+                Simpan
             </button>
         </div>
-        <form id="modal-threshold-form" method="POST">
-            @csrf
-            @method('PUT')
-            <div class="p-6 space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="modal-max-capacity" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Kapasitas Maksimal</label>
-                        <input type="number" name="max_capacity" id="modal-max-capacity" required min="1" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
-                    </div>
-                    <div>
-                        <label for="modal-radius-meters" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Radius (Meter)</label>
-                        <input type="number" name="radius_meters" id="modal-radius-meters" required min="1" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="modal-warning-threshold" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Warning (%)</label>
-                        <input type="number" name="warning_threshold" id="modal-warning-threshold" required min="1" max="100" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
-                    </div>
-                    <div>
-                        <label for="modal-critical-threshold" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Critical (%)</label>
-                        <input type="number" name="critical_threshold" id="modal-critical-threshold" required min="1" max="100" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-100 px-6 py-4 flex justify-end gap-2 bg-gray-50/50">
-                <button type="button" onclick="closeThresholdModal()" class="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-500 hover:bg-gray-50">
-                    Batal
-                </button>
-                <button type="submit" class="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary-dark">
-                    Simpan
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+    </form>
+</x-modal>
 
 @endsection
 
@@ -228,15 +221,11 @@
         const form = document.getElementById('modal-threshold-form');
         form.action = `/admin/capacity/${data.id}/thresholds`;
 
-        const modal = document.getElementById('threshold-modal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        window.dispatchEvent(new CustomEvent('open-threshold-modal'));
     }
 
     function closeThresholdModal() {
-        const modal = document.getElementById('threshold-modal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+        window.dispatchEvent(new CustomEvent('close-threshold-modal'));
     }
 
     (function () {

@@ -209,134 +209,125 @@
     @endif
 
     {{-- Product Modal Form --}}
-    <div id="product-modal"
-        class="fixed inset-0 z-50 hidden overflow-y-auto bg-charcoal/50 backdrop-blur-sm p-4 justify-center">
-        <div class="my-auto self-start w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl transition-all">
-            <div class="mb-4 flex items-center justify-between">
-                <h3 id="modal-title" class="font-display text-lg font-bold text-charcoal">Tambah Produk UMKM</h3>
-                <button onclick="closeModal()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <form id="modal-form" method="POST" action="" enctype="multipart/form-data">
-                @csrf
-                <div id="method-container"></div>
-
-                <div class="grid gap-6 md:grid-cols-2">
-                    {{-- Left Column (Text Fields) --}}
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700">Nama Produk <span
-                                    class="text-warning">*</span></label>
-                            <input type="text" name="name" id="field-name" required
-                                class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700">Kategori <span
-                                    class="text-warning">*</span></label>
-                            <select name="umkm_product_category_id" id="field-category" required
-                                class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                                <option value="" disabled selected>Pilih Kategori...</option>
-                                @foreach($categories as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700">Harga (Rp) <span
-                                        class="text-warning">*</span></label>
-                                <input type="number" name="price" id="field-price" required min="0" placeholder="5000"
-                                    class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700">Persediaan (Stok)</label>
-                                <input type="number" name="stock" id="field-stock" min="0"
-                                    placeholder="Kosongkan jika selalu ada"
-                                    class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700">Satuan</label>
-                                <input type="text" name="unit" id="field-unit" placeholder="pcs, bungkus, porsi"
-                                    class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                            </div>
-                            <div class="flex items-center gap-2 pt-6">
-                                <input type="checkbox" name="is_active" id="field-active" value="1" checked
-                                    class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
-                                <label for="field-active" class="text-sm font-semibold text-gray-700">Produk Aktif /
-                                    Tampil</label>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700">Deskripsi Produk</label>
-                            <textarea name="description" id="field-description" rows="3"
-                                class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none"></textarea>
-                        </div>
-                    </div>
-
-                    {{-- Right Column (Media & 3D Model Upload / Previews) --}}
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700">Unggah Foto Produk</label>
-                            <input type="file" name="images[]" multiple accept="image/*"
-                                class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700">Model 3D (Opsional - format
-                                .glb)</label>
-                            <input type="file" id="field-glb-file" name="ar_model_file" accept=".glb"
-                                onchange="preview3DModel(this)"
-                                class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
-                            <input type="hidden" name="ar_model_path" id="field-glb-path">
-                        </div>
-
-                        {{-- 3D Interactive Model Viewer Panel --}}
-                        <div>
-                            <span class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Pratinjau 3D
-                                Interaktif</span>
-                            <div class="model-viewer-wrapper flex items-center justify-center">
-                                <div id="viewer-placeholder" class="text-center p-4">
-                                    <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor" stroke-width="1.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                    </svg>
-                                    <span class="mt-2 block text-xs text-gray-400">Pilih file 3D (.glb) untuk melihat
-                                        pratinjau interaktif di sini</span>
-                                </div>
-                                <model-viewer id="viewer-3d" class="hidden" camera-controls auto-rotate
-                                    shadow-intensity="1"></model-viewer>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-4">
-                    <button type="button" onclick="closeModal()"
-                        class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">Batal</button>
-                    <button type="submit"
-                        class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 hover:bg-primary-600">Simpan
-                        Produk</button>
-                </div>
-            </form>
+    <x-modal name="product-modal" maxWidth="2xl">
+        <div class="mb-4">
+            <h3 id="modal-title" class="font-display text-lg font-bold text-charcoal">Tambah Produk UMKM</h3>
         </div>
-    </div>
+        <form id="modal-form" method="POST" action="" enctype="multipart/form-data">
+            @csrf
+            <div id="method-container"></div>
+
+            <div class="grid gap-6 md:grid-cols-2">
+                {{-- Left Column (Text Fields) --}}
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">Nama Produk <span
+                                class="text-warning">*</span></label>
+                        <input type="text" name="name" id="field-name" required
+                            class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">Kategori <span
+                                class="text-warning">*</span></label>
+                        <select name="umkm_product_category_id" id="field-category" required
+                            class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                            <option value="" disabled selected>Pilih Kategori...</option>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Harga (Rp) <span
+                                    class="text-warning">*</span></label>
+                            <input type="number" name="price" id="field-price" required min="0" placeholder="5000"
+                                class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Persediaan (Stok)</label>
+                            <input type="number" name="stock" id="field-stock" min="0"
+                                placeholder="Kosongkan jika selalu ada"
+                                class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Satuan</label>
+                            <input type="text" name="unit" id="field-unit" placeholder="pcs, bungkus, porsi"
+                                class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                        </div>
+                        <div class="flex items-center gap-2 pt-6">
+                            <input type="checkbox" name="is_active" id="field-active" value="1" checked
+                                class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
+                            <label for="field-active" class="text-sm font-semibold text-gray-700">Produk Aktif /
+                                Tampil</label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">Deskripsi Produk</label>
+                        <textarea name="description" id="field-description" rows="3"
+                            class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none"></textarea>
+                    </div>
+                </div>
+
+                {{-- Right Column (Media & 3D Model Upload / Previews) --}}
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">Unggah Foto Produk</label>
+                        <input type="file" name="images[]" multiple accept="image/*"
+                            class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">Model 3D (Opsional - format
+                            .glb)</label>
+                        <input type="file" id="field-glb-file" name="ar_model_file" accept=".glb"
+                            onchange="preview3DModel(this)"
+                            class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                        <input type="hidden" name="ar_model_path" id="field-glb-path">
+                    </div>
+
+                    {{-- 3D Interactive Model Viewer Panel --}}
+                    <div>
+                        <span class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Pratinjau 3D
+                            Interaktif</span>
+                        <div class="model-viewer-wrapper flex items-center justify-center">
+                            <div id="viewer-placeholder" class="text-center p-4">
+                                <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
+                                <span class="mt-2 block text-xs text-gray-400">Pilih file 3D (.glb) untuk melihat
+                                    pratinjau interaktif di sini</span>
+                            </div>
+                            <model-viewer id="viewer-3d" class="hidden" camera-controls auto-rotate
+                                shadow-intensity="1"></model-viewer>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-4">
+                <button type="button" onclick="closeModal()"
+                    class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">Batal</button>
+                <button type="submit"
+                    class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 hover:bg-primary-600">Simpan
+                    Produk</button>
+            </div>
+        </form>
+    </x-modal>
 
 @endsection
 
 @push('scripts')
     <script type="module" src="{{ asset('js/model-viewer.min.js') }}"></script>
     <script>
-        const modal = document.getElementById('product-modal');
         const form = document.getElementById('modal-form');
         const modalTitle = document.getElementById('modal-title');
         const methodContainer = document.getElementById('method-container');
@@ -365,8 +356,7 @@
             form.reset();
             reset3DViewer();
 
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            window.dispatchEvent(new CustomEvent('open-product-modal'));
         }
 
         function openEditModal(product) {
@@ -391,13 +381,11 @@
                 reset3DViewer();
             }
 
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            window.dispatchEvent(new CustomEvent('open-product-modal'));
         }
 
         function closeModal() {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+            window.dispatchEvent(new CustomEvent('close-product-modal'));
         }
 
         function preview3DModel(input) {

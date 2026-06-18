@@ -150,111 +150,103 @@
 </div>
 
 {{-- Product Modal Form --}}
-<div id="product-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-charcoal/50 backdrop-blur-sm p-4 justify-center">
-    <div class="my-auto self-start w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl transition-all">
-        <div class="mb-4 flex items-center justify-between">
-            <h3 id="modal-title" class="font-display text-lg font-bold text-charcoal">Tambah Produk UMKM</h3>
-            <button onclick="closeModal()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-        <form id="modal-form" method="POST" action="" enctype="multipart/form-data">
-            @csrf
-            <div id="method-container"></div>
-            <div class="space-y-4">
+<x-modal name="product-modal" maxWidth="xl">
+    <div class="mb-4">
+        <h3 id="modal-title" class="font-display text-lg font-bold text-charcoal">Tambah Produk UMKM</h3>
+    </div>
+    <form id="modal-form" method="POST" action="" enctype="multipart/form-data">
+        @csrf
+        <div id="method-container"></div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Nama Produk <span class="text-warning">*</span></label>
+                <input type="text" name="name" id="field-name" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Kategori Produk <span class="text-warning">*</span></label>
+                <select name="umkm_product_category_id" id="field-category" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    <option value="" disabled selected>Pilih Kategori...</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Toko / UMKM Profil <span class="text-warning">*</span></label>
+                <select name="umkm_profile_id" id="field-profile" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    @foreach ($profiles as $profile)
+                        <option value="{{ $profile->id }}">{{ $profile->business_name }} ({{ $profile->owner_name }})</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700">Nama Produk <span class="text-warning">*</span></label>
-                    <input type="text" name="name" id="field-name" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    <label class="block text-sm font-semibold text-gray-700">Harga (Rp) <span class="text-warning">*</span></label>
+                    <input type="number" name="price" id="field-price" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700">Kategori Produk <span class="text-warning">*</span></label>
-                    <select name="umkm_product_category_id" id="field-category" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                        <option value="" disabled selected>Pilih Kategori...</option>
-                        @foreach ($categories as $category)
-                            <option value="{{ $category->id }}">{{ $category->name }}</option>
-                        @endforeach
-                    </select>
+                    <label class="block text-sm font-semibold text-gray-700">Stok</label>
+                    <input type="number" name="stock" id="field-stock" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">Satuan (Unit)</label>
+                    <input type="text" name="unit" id="field-unit" placeholder="pcs, porsi, bungkus" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700">Toko / UMKM Profil <span class="text-warning">*</span></label>
-                    <select name="umkm_profile_id" id="field-profile" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                        @foreach ($profiles as $profile)
-                            <option value="{{ $profile->id }}">{{ $profile->business_name }} ({{ $profile->owner_name }})</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Harga (Rp) <span class="text-warning">*</span></label>
-                        <input type="number" name="price" id="field-price" required class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Stok</label>
-                        <input type="number" name="stock" id="field-stock" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Satuan (Unit)</label>
-                        <input type="text" name="unit" id="field-unit" placeholder="pcs, porsi, bungkus" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">File AR Model 3D (.glb)</label>
-                        <input type="file" name="ar_model_file" id="field-ar-model-file" accept=".glb" onchange="preview3DModel(this)" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                        <p id="current-ar-model-container" class="mt-1 text-xs text-gray-500 hidden mb-2">
-                            File saat ini: <span id="current-ar-model-path" class="font-mono bg-gray-50 px-1 py-0.5 rounded border border-gray-100"></span>
-                        </p>
-                        
-                        {{-- 3D Interactive Model Viewer Panel --}}
-                        <div class="mt-2.5">
-                            <span class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Pratinjau 3D Interaktif</span>
-                            <div class="model-viewer-wrapper flex items-center justify-center">
-                                <div id="viewer-placeholder" class="text-center p-4">
-                                    <span class="text-xs text-gray-400">Pilih/unggah file GLB untuk melihat model 3D di sini</span>
-                                </div>
-                                <model-viewer id="viewer-3d" class="hidden" camera-controls auto-rotate shadow-intensity="1" style="width: 100%; height: 100%;"></model-viewer>
+                    <label class="block text-sm font-semibold text-gray-700">File AR Model 3D (.glb)</label>
+                    <input type="file" name="ar_model_file" id="field-ar-model-file" accept=".glb" onchange="preview3DModel(this)" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    <p id="current-ar-model-container" class="mt-1 text-xs text-gray-500 hidden mb-2">
+                        File saat ini: <span id="current-ar-model-path" class="font-mono bg-gray-50 px-1 py-0.5 rounded border border-gray-100"></span>
+                    </p>
+                    
+                    {{-- 3D Interactive Model Viewer Panel --}}
+                    <div class="mt-2.5">
+                        <span class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Pratinjau 3D Interaktif</span>
+                        <div class="model-viewer-wrapper flex items-center justify-center">
+                            <div id="viewer-placeholder" class="text-center p-4">
+                                <span class="text-xs text-gray-400">Pilih/unggah file GLB untuk melihat model 3D di sini</span>
                             </div>
+                            <model-viewer id="viewer-3d" class="hidden" camera-controls auto-rotate shadow-intensity="1" style="width: 100%; height: 100%;"></model-viewer>
                         </div>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Foto Produk (PNG, JPG, dll. - Bisa pilih banyak)</label>
-                    <input type="file" name="images[]" id="field-images" accept="image/*" multiple class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                    <div id="current-images-container" class="mt-2 hidden">
-                        <p class="text-xs text-gray-700 font-semibold mb-1">Foto saat ini:</p>
-                        <div id="current-images-list" class="flex flex-wrap gap-2"></div>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Deskripsi</label>
-                    <textarea name="description" id="field-desc" rows="3" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none"></textarea>
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" name="is_active" id="field-active" value="1" checked class="rounded border-gray-300 text-primary focus:ring-primary">
-                    <label class="text-sm font-semibold text-gray-700">Produk Aktif / Ditampilkan</label>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Foto Produk (PNG, JPG, dll. - Bisa pilih banyak)</label>
+                <input type="file" name="images[]" id="field-images" accept="image/*" multiple class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                <div id="current-images-container" class="mt-2 hidden">
+                    <p class="text-xs text-gray-700 font-semibold mb-1">Foto saat ini:</p>
+                    <div id="current-images-list" class="flex flex-wrap gap-2"></div>
                 </div>
             </div>
-            <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="closeModal()" class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">Batal</button>
-                <button type="submit" class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 hover:bg-primary-600">Simpan</button>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Deskripsi</label>
+                <textarea name="description" id="field-desc" rows="3" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none"></textarea>
             </div>
-        </form>
-    </div>
-</div>
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="is_active" id="field-active" value="1" checked class="rounded border-gray-300 text-primary focus:ring-primary">
+                <label class="text-sm font-semibold text-gray-700">Produk Aktif / Ditampilkan</label>
+            </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-3">
+            <button type="button" onclick="closeModal()" class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">Batal</button>
+            <button type="submit" class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 hover:bg-primary-600">Simpan</button>
+        </div>
+    </form>
+</x-modal>
 
 @endsection
 
 @push('scripts')
 <script type="module" src="{{ asset('js/model-viewer.min.js') }}"></script>
 <script>
-    const modal = document.getElementById('product-modal');
     const form = document.getElementById('modal-form');
     const modalTitle = document.getElementById('modal-title');
     const methodContainer = document.getElementById('method-container');
     const storageUrl = "{{ asset('storage') }}";
-
+ 
     // 3D Viewer Elements
     const viewer3d = document.getElementById('viewer-3d');
     const viewerPlaceholder = document.getElementById('viewer-placeholder');
@@ -278,8 +270,7 @@
         document.getElementById('current-images-container').classList.add('hidden');
         reset3DViewer();
         
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        window.dispatchEvent(new CustomEvent('open-product-modal'));
     }
 
     function openEditModal(prod) {
@@ -333,13 +324,11 @@
             imagesContainer.classList.add('hidden');
         }
 
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        window.dispatchEvent(new CustomEvent('open-product-modal'));
     }
 
     function closeModal() {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+        window.dispatchEvent(new CustomEvent('close-product-modal'));
     }
 
     function preview3DModel(input) {
