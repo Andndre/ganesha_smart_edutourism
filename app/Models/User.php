@@ -10,25 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 
-/**
- * User model representing authenticated users in the system.
- *
- * @property int $id
- * @property string $name
- * @property string $email
- * @property string $password
- * @property string|null $role
- * @property string|null $phone
- * @property string|null $nationality
- * @property string|null $preferred_language
- * @property string|null $avatar_path
- * @property Carbon|null $email_verified_at
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- */
 #[Fillable(['name', 'email', 'password', 'role', 'phone', 'nationality', 'preferred_language', 'avatar_path'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable

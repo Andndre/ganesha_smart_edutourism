@@ -8,27 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use Illuminate\Support\Carbon;
 
-/**
- * Event model for events and activities.
- *
- * @property int $id
- * @property string $name
- * @property string $slug
- * @property string|null $description
- * @property string|null $category
- * @property Carbon $start_datetime
- * @property Carbon $end_datetime
- * @property string|null $location_name
- * @property bool $is_free
- * @property float|null $price
- * @property int|null $max_participants
- * @property int $current_participants
- * @property string|null $registration_url
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- */
 #[Fillable(['name', 'slug', 'description', 'category', 'start_datetime', 'end_datetime', 'location_name', 'is_free', 'price', 'max_participants', 'current_participants', 'registration_url'])]
 class Event extends Model
 {

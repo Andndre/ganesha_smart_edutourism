@@ -9,24 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use Illuminate\Support\Carbon;
 
-/**
- * UmkmProfile model for umkm business profiles.
- *
- * @property int $id
- * @property int $user_id
- * @property string $owner_name
- * @property string $business_name
- * @property string $slug
- * @property string|null $description
- * @property string|null $category
- * @property string|null $ar_marker_id
- * @property float|null $rating
- * @property bool $is_active
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- */
 #[Fillable(['user_id', 'owner_name', 'business_name', 'slug', 'description', 'category', 'ar_marker_id', 'rating', 'is_active', 'recommendation_count', 'accepts_in_app_payment'])]
 class UmkmProfile extends Model
 {

@@ -7,23 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Carbon;
 
-/**
- * CapacityZone model for managing zone-based visitor capacity.
- *
- * @property int $id
- * @property string $name
- * @property string $zone_identifier
- * @property int $max_capacity
- * @property int $warning_threshold
- * @property int $critical_threshold
- * @property int $current_count
- * @property int $radius_meters
- * @property bool $is_active
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- */
 #[Fillable(['name', 'zone_identifier', 'latitude', 'longitude', 'radius_meters', 'max_capacity', 'warning_threshold', 'critical_threshold', 'current_count', 'is_active'])]
 class CapacityZone extends Model
 {
