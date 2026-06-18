@@ -60,6 +60,7 @@ class ARController extends Controller
             'name' => $name,
             'model_url' => '/storage/'.$model->model_3d_path,
             'usdz_url' => $model->model_3d_usdz_path ? route('usdz.serve', ['path' => str_ends_with($model->model_3d_usdz_path, '.usdz') ? $model->model_3d_usdz_path : $model->model_3d_usdz_path.'.usdz']) : null,
+            'audio_url' => $model->audio_narration_path ? asset('storage/'.$model->audio_narration_path) : null,
             'description' => $description,
             'short_description' => $shortDescription,
         ]);
