@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\ArMarker;
+use App\Models\ArModel;
 use App\Models\CapacityZone;
 use App\Models\CulturalObject;
 use App\Models\Event;
@@ -96,15 +98,28 @@ class TestSimulationSeeder extends Seeder
                 'short_description' => $obj['short_description'],
                 'description' => $obj['description'],
                 'category' => $obj['category'],
-                'ar_marker_id' => $obj['ar_marker_id'],
             ]);
 
-            $cultural->mapLocation()->create([
+            $mapLocation = $cultural->mapLocation()->create([
                 'name' => $obj['name'],
                 'category' => 'cultural',
                 'latitude' => $obj['latitude'],
                 'longitude' => $obj['longitude'],
                 'is_accessible' => true,
+            ]);
+
+            $arModel = ArModel::firstOrCreate(
+                ['name' => 'Model Simulasi Test'],
+                [
+                    'description' => 'Model simulasi untuk pengujian marker AR.',
+                    'model_3d_path' => 'models/default.glb',
+                ]
+            );
+
+            ArMarker::create([
+                'ar_marker_id' => $obj['ar_marker_id'],
+                'ar_model_id' => $arModel->id,
+                'map_location_id' => $mapLocation->id,
             ]);
 
             $this->command->line("   🏛️  Created: {$obj['name']}");

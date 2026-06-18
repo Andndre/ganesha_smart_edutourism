@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ArModel;
 use App\Models\CulturalObject;
 use App\Models\MapLocation;
 use App\Models\User;
@@ -16,14 +17,18 @@ class MapManagerController extends Controller
      */
     public function index(): View
     {
-        $locations = MapLocation::with(['locationable' => function (MorphTo $morphTo) {
-            $morphTo->morphWith([
-                CulturalObject::class => ['quizzes', 'stories'],
-            ]);
-        }])->get();
+        $locations = MapLocation::with([
+            'locationable' => function (MorphTo $morphTo) {
+                $morphTo->morphWith([
+                    CulturalObject::class => ['quizzes', 'stories'],
+                ]);
+            },
+            'arMarker.arModel',
+        ])->get();
 
         $owners = User::where('role', 'umkm_owner')->orderBy('name')->get();
+        $models = ArModel::orderBy('name')->get();
 
-        return view('admin.map-manager.index', compact('locations', 'owners'));
+        return view('admin.map-manager.index', compact('locations', 'owners', 'models'));
     }
 }

@@ -137,36 +137,119 @@
     </div>
 
     <div>
-        <label class="mb-1 block text-sm font-semibold text-gray-700">Model 3D (.glb)</label>
-        <span class="mb-2 block text-xs text-gray-500">Format .glb, maksimal 20MB. Wajib untuk Android (Scene Viewer).</span>
-        <input type="file" name="model_3d_file" accept=".glb"
-            class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
-        <span id="current-model-3d" class="mt-1 block text-[10px] text-gray-400"></span>
-        <div id="model-3d-preview-container" style="display: none;"
-            class="mt-2.5 flex flex-col gap-1.5 rounded-xl border border-gray-100 bg-gray-50/50 p-3">
-            <span class="text-primary text-[10px] font-bold uppercase tracking-wider">Pratinjau Model 3D</span>
-            <div class="relative h-44 w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
-                <model-viewer id="model-3d-preview" class="h-full w-full" camera-controls auto-rotate
-                    shadow-intensity="1" touch-action="pan-y">
-                </model-viewer>
-            </div>
+        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Model 3D Aset AR</label>
+        <span class="mb-2 block text-xs text-gray-500">Pilih model 3D yang sudah ada atau unggah model baru.</span>
+        <select name="ar_model_id" id="ar_model_id_select" onchange="toggleModelSelect(this.value)"
+            class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+            <option value="none">Tanpa Model 3D</option>
+            @foreach ($models as $model)
+                <option value="{{ $model->id }}" data-glb="{{ asset('storage/' . $model->model_3d_path) }}" data-usdz="{{ $model->model_3d_usdz_path ? asset('storage/' . $model->model_3d_usdz_path) : '' }}" data-audio="{{ $model->audio_narration_path ? route('audio.stream', ['path' => $model->audio_narration_path]) : '' }}">{{ $model->name }}</option>
+            @endforeach
+            <option value="new">+ Tambah Model 3D Baru...</option>
+        </select>
+    </div>
+
+    <!-- Container for New Model Upload (hidden by default) -->
+    <div id="new-model-fields" class="hidden space-y-4 rounded-2xl border border-dashed border-gray-200 bg-gray-50/50 p-4">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400">Detail Model 3D Baru</h4>
+        <div>
+            <label class="mb-1 block text-xs font-semibold text-gray-700">Nama Model <span class="text-warning">*</span></label>
+            <input type="text" name="new_model_name" placeholder="Contoh: Model Candi Bentar"
+                class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none bg-white">
+        </div>
+        <div>
+            <label class="mb-1 block text-xs font-semibold text-gray-700">Deskripsi Model</label>
+            <textarea name="new_model_description" rows="2" placeholder="Detail deskripsi model..."
+                class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none bg-white resize-none"></textarea>
+        </div>
+        
+        <div>
+            <label class="mb-1 block text-xs font-semibold text-gray-700">Model 3D (.glb) <span class="text-warning">*</span></label>
+            <span class="mb-1 block text-[10px] text-gray-400">Maksimal 20MB.</span>
+            <input type="file" name="model_3d_file" accept=".glb"
+                class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
+        </div>
+
+        <div>
+            <label class="mb-1 block text-xs font-semibold text-gray-700">Model 3D iOS (.usdz)</label>
+            <span class="mb-1 block text-[10px] text-gray-400">Maksimal 50MB.</span>
+            <input type="file" name="model_3d_usdz_file" accept=".usdz"
+                class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
+        </div>
+
+        <div>
+            <label class="mb-1 block text-xs font-semibold text-gray-700">Audio Narasi (.mp3)</label>
+            <span class="mb-1 block text-[10px] text-gray-400">Maksimal 10MB.</span>
+            <input type="file" name="audio_narration_file" accept="audio/*"
+                class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
+        </div>
+    </div>
+
+    <!-- Previews and Narration -->
+    <span id="current-model-3d" class="mt-1 block text-[10px] text-gray-400"></span>
+    <span id="current-model-3d-usdz" class="mt-1 block text-[10px] text-gray-400"></span>
+    
+    <div id="model-3d-preview-container" style="display: none;"
+        class="mt-2.5 flex flex-col gap-1.5 rounded-xl border border-gray-100 bg-gray-50/50 p-3">
+        <span class="text-primary text-[10px] font-bold uppercase tracking-wider">Pratinjau Model 3D</span>
+        <div class="relative h-44 w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
+            <model-viewer id="model-3d-preview" class="h-full w-full" camera-controls auto-rotate
+                shadow-intensity="1" touch-action="pan-y">
+            </model-viewer>
         </div>
     </div>
 
     <div>
-        <label class="mb-1 block text-sm font-semibold text-gray-700">Model 3D iOS (.usdz)</label>
-        <span class="mb-2 block text-xs text-gray-500">Format .usdz, maksimal 50MB. Wajib untuk AR Apple Quick Look (iPhone/iPad).</span>
-        <input type="file" name="model_3d_usdz_file" accept=".usdz"
-            class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
-        <span id="current-model-3d-usdz" class="mt-1 block text-[10px] text-gray-400"></span>
-    </div>
-
-    <div>
-        <label class="mb-1 block text-sm font-semibold text-gray-700">Audio Narasi</label>
-        <span class="mb-2 block text-xs text-gray-500">Format .mp3, maksimal 10MB</span>
-        <input type="file" name="audio_narration_file" accept="audio/*"
-            class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
         <span id="current-audio" class="mt-1 block text-[10px] text-gray-400"></span>
+        <script>
+            function toggleModelSelect(value) {
+                const fields = document.getElementById('new-model-fields');
+                const modelPreviewContainer = document.getElementById('model-3d-preview-container');
+                const modelPreview = document.getElementById('model-3d-preview');
+                const audioPreviewContainer = document.getElementById('audio-preview-container');
+                const audioPreview = document.getElementById('audio-preview');
+
+                if (value === 'new') {
+                    if (fields) fields.classList.remove('hidden');
+                    if (modelPreview) modelPreview.src = '';
+                    if (modelPreviewContainer) modelPreviewContainer.style.display = 'none';
+                    if (audioPreview) audioPreview.src = '';
+                    if (audioPreviewContainer) audioPreviewContainer.style.display = 'none';
+                } else if (value === 'none') {
+                    if (fields) fields.classList.add('hidden');
+                    if (modelPreview) modelPreview.src = '';
+                    if (modelPreviewContainer) modelPreviewContainer.style.display = 'none';
+                    if (audioPreview) audioPreview.src = '';
+                    if (audioPreviewContainer) audioPreviewContainer.style.display = 'none';
+                } else {
+                    if (fields) fields.classList.add('hidden');
+                    const select = document.getElementById('ar_model_id_select');
+                    if (select) {
+                        const selectedOption = select.options[select.selectedIndex];
+                        if (selectedOption) {
+                            const glbUrl = selectedOption.getAttribute('data-glb');
+                            const audioUrl = selectedOption.getAttribute('data-audio');
+
+                            if (glbUrl && modelPreview && modelPreviewContainer) {
+                                modelPreview.src = glbUrl;
+                                modelPreviewContainer.style.display = 'flex';
+                            } else {
+                                if (modelPreview) modelPreview.src = '';
+                                if (modelPreviewContainer) modelPreviewContainer.style.display = 'none';
+                            }
+
+                            if (audioUrl && audioPreview && audioPreviewContainer) {
+                                audioPreview.src = audioUrl;
+                                audioPreviewContainer.style.display = 'flex';
+                            } else {
+                                if (audioPreview) audioPreview.src = '';
+                                if (audioPreviewContainer) audioPreviewContainer.style.display = 'none';
+                            }
+                        }
+                    }
+                }
+            }
+        </script>
         <div id="audio-preview-container" style="display: none;"
             class="mt-2.5 rounded-xl border border-gray-100 bg-gray-50/50 p-3" x-data="{
                 playing: false,

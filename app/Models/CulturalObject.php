@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-#[Fillable(['name', 'slug', 'short_description', 'description', 'category', 'ar_marker_id', 'ar_marker_patt_path', 'model_3d_path', 'model_3d_usdz_path', 'historical_images', 'audio_narration_path'])]
+#[Fillable(['name', 'slug', 'short_description', 'description', 'category', 'historical_images'])]
 class CulturalObject extends Model
 {
     use HasFactory;
@@ -96,6 +96,46 @@ class CulturalObject extends Model
      */
     public function scopeWithAr(Builder $query)
     {
-        return $query->whereNotNull('ar_marker_id')->orWhereNotNull('model_3d_path');
+        return $query->whereHas('mapLocation.arMarker');
+    }
+
+    /**
+     * Accessor for ar_marker_id.
+     */
+    public function getArMarkerIdAttribute(): ?string
+    {
+        return $this->mapLocation?->arMarker?->ar_marker_id;
+    }
+
+    /**
+     * Accessor for ar_marker_patt_path.
+     */
+    public function getArMarkerPattPathAttribute(): ?string
+    {
+        return $this->mapLocation?->arMarker?->ar_marker_patt_path;
+    }
+
+    /**
+     * Accessor for model_3d_path.
+     */
+    public function getModel3dPathAttribute(): ?string
+    {
+        return $this->mapLocation?->arMarker?->arModel?->model_3d_path;
+    }
+
+    /**
+     * Accessor for model_3d_usdz_path.
+     */
+    public function getModel3dUsdzPathAttribute(): ?string
+    {
+        return $this->mapLocation?->arMarker?->arModel?->model_3d_usdz_path;
+    }
+
+    /**
+     * Accessor for audio_narration_path.
+     */
+    public function getAudioNarrationPathAttribute(): ?string
+    {
+        return $this->mapLocation?->arMarker?->arModel?->audio_narration_path;
     }
 }

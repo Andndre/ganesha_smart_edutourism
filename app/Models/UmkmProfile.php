@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-#[Fillable(['user_id', 'owner_name', 'business_name', 'slug', 'description', 'category', 'ar_marker_id', 'rating', 'is_active', 'recommendation_count', 'accepts_in_app_payment'])]
+#[Fillable(['user_id', 'owner_name', 'business_name', 'slug', 'description', 'category', 'rating', 'is_active', 'recommendation_count', 'accepts_in_app_payment'])]
 class UmkmProfile extends Model
 {
     use HasFactory;
@@ -110,5 +110,13 @@ class UmkmProfile extends Model
     public function scopeWithCoordinates(Builder $query)
     {
         return $query->whereHas('mapLocation');
+    }
+
+    /**
+     * Accessor for ar_marker_id.
+     */
+    public function getArMarkerIdAttribute(): ?string
+    {
+        return $this->mapLocation?->arMarker?->ar_marker_id;
     }
 }

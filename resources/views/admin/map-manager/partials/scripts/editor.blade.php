@@ -174,49 +174,36 @@ function handleMarkerClick(marker) {
             if (window.setCulturalEditorContent) {
                 window.setCulturalEditorContent(details.description || '');
             }
-            form.querySelector('input[name="ar_marker_id"]').value = details.ar_marker_id || '';
+            form.querySelector('input[name="ar_marker_id"]').value = loc.ar_marker ? loc.ar_marker.ar_marker_id : '';
             setTimeout(() => {
                 if (typeof window.generateARMarker === 'function') {
                     window.generateARMarker();
                 }
             }, 100);
 
+            // Select active model and trigger toggle
+            const modelSelect = document.getElementById('ar_model_id_select');
+            if (modelSelect) {
+                modelSelect.value = loc.ar_marker ? (loc.ar_marker.ar_model_id || 'none') : 'none';
+                if (typeof toggleModelSelect === 'function') {
+                    toggleModelSelect(modelSelect.value);
+                }
+            }
+
+            const markerModel = loc.ar_marker ? loc.ar_marker.ar_model : null;
+
             // File previews
-            document.getElementById('current-model-3d').innerHTML = details.model_3d_path
-                ? `File saat ini: <a href="${storageUrl}/${details.model_3d_path}" target="_blank" class="text-primary hover:underline font-semibold">${details.model_3d_path.split('/').pop()}</a>`
+            document.getElementById('current-model-3d').innerHTML = markerModel && markerModel.model_3d_path
+                ? `File saat ini: <a href="${storageUrl}/${markerModel.model_3d_path}" target="_blank" class="text-primary hover:underline font-semibold">${markerModel.model_3d_path.split('/').pop()}</a>`
                 : 'Belum ada model 3D';
 
-            document.getElementById('current-model-3d-usdz').innerHTML = details.model_3d_usdz_path
-                ? `File saat ini: <a href="${storageUrl}/${details.model_3d_usdz_path}" target="_blank" class="text-primary hover:underline font-semibold">${details.model_3d_usdz_path.split('/').pop()}</a>`
+            document.getElementById('current-model-3d-usdz').innerHTML = markerModel && markerModel.model_3d_usdz_path
+                ? `File saat ini: <a href="${storageUrl}/${markerModel.model_3d_usdz_path}" target="_blank" class="text-primary hover:underline font-semibold">${markerModel.model_3d_usdz_path.split('/').pop()}</a>`
                 : 'Belum ada model 3D iOS (.usdz)';
 
-            const modelPreviewContainer = document.getElementById('model-3d-preview-container');
-            const modelPreview = document.getElementById('model-3d-preview');
-            if (modelPreview && modelPreviewContainer) {
-                if (details.model_3d_path) {
-                    modelPreview.src = `${storageUrl}/${details.model_3d_path}`;
-                    modelPreviewContainer.style.display = 'flex';
-                } else {
-                    modelPreview.src = '';
-                    modelPreviewContainer.style.display = 'none';
-                }
-            }
-
-            document.getElementById('current-audio').innerHTML = details.audio_narration_path
-                ? `File saat ini: <a href="${storageUrl}/${details.audio_narration_path}" target="_blank" class="text-primary hover:underline font-semibold">${details.audio_narration_path.split('/').pop()}</a>`
+            document.getElementById('current-audio').innerHTML = markerModel && markerModel.audio_narration_path
+                ? `File saat ini: <a href="${storageUrl}/${markerModel.audio_narration_path}" target="_blank" class="text-primary hover:underline font-semibold">${markerModel.audio_narration_path.split('/').pop()}</a>`
                 : 'Belum ada audio narasi';
-
-            const audioPreviewContainer = document.getElementById('audio-preview-container');
-            const audioPreview = document.getElementById('audio-preview');
-            if (audioPreview && audioPreviewContainer) {
-                if (details.audio_narration_path) {
-                    audioPreview.src = `{{ route('audio.stream', ['path' => 'PLACEHOLDER']) }}`.replace('PLACEHOLDER', details.audio_narration_path);
-                    audioPreviewContainer.style.display = 'flex';
-                } else {
-                    audioPreview.src = '';
-                    audioPreviewContainer.style.display = 'none';
-                }
-            }
 
             const imgContainer = document.getElementById('current-images');
             imgContainer.innerHTML = '';
@@ -296,7 +283,7 @@ function handleMarkerClick(marker) {
             form.querySelector('select[name="category"]').value = details.category;
             form.querySelector('textarea[name="description"]').value = details.description || '';
             form.querySelector('input[name="rating"]').value = details.rating || '5.0';
-            form.querySelector('input[name="ar_marker_id"]').value = details.ar_marker_id || '';
+            form.querySelector('input[name="ar_marker_id"]').value = loc.ar_marker ? loc.ar_marker.ar_marker_id : '';
             form.querySelector('input[name="is_active"]').checked = details.is_active;
             form.querySelector('input[name="is_accessible"]').checked = loc.is_accessible;
             form.querySelector('textarea[name="accessibility_notes"]').value = loc.accessibility_notes || '';
@@ -377,6 +364,15 @@ function resetForms() {
             window.setCulturalEditorContent('');
         }
         document.getElementById('method-cultural').innerHTML = '';
+        
+        const modelSelect = document.getElementById('ar_model_id_select');
+        if (modelSelect) {
+            modelSelect.value = 'none';
+            if (typeof toggleModelSelect === 'function') {
+                toggleModelSelect('none');
+            }
+        }
+
         document.getElementById('current-model-3d').innerHTML = '';
         const usdzEl = document.getElementById('current-model-3d-usdz');
         if (usdzEl) usdzEl.innerHTML = '';

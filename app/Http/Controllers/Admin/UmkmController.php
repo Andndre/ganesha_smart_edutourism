@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ArMarker;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
@@ -204,11 +205,11 @@ class UmkmController extends Controller
         $is_accessible = $request->has('is_accessible');
         $accessibility_notes = $validated['accessibility_notes'] ?? null;
 
-        unset($validated['latitude'], $validated['longitude'], $validated['is_accessible'], $validated['accessibility_notes']);
+        unset($validated['latitude'], $validated['longitude'], $validated['is_accessible'], $validated['accessibility_notes'], $validated['ar_marker_id']);
 
         $profile = UmkmProfile::create($validated);
 
-        $profile->mapLocation()->create([
+        $mapLocation = $profile->mapLocation()->create([
             'name' => $profile->business_name,
             'category' => 'umkm',
             'latitude' => $latitude,
@@ -216,6 +217,15 @@ class UmkmController extends Controller
             'is_accessible' => $is_accessible,
             'accessibility_notes' => $accessibility_notes,
         ]);
+
+        // Process Decoupled AR marker logic
+        $arMarkerId = $request->input('ar_marker_id');
+        if (! empty($arMarkerId)) {
+            ArMarker::create([
+                'ar_marker_id' => $arMarkerId,
+                'map_location_id' => $mapLocation->id,
+            ]);
+        }
 
         return redirect()->route('admin.map-manager')->with('success', 'Profil UMKM berhasil ditambahkan.');
     }
@@ -263,11 +273,11 @@ class UmkmController extends Controller
         $is_accessible = $request->has('is_accessible');
         $accessibility_notes = $validated['accessibility_notes'] ?? null;
 
-        unset($validated['latitude'], $validated['longitude'], $validated['is_accessible'], $validated['accessibility_notes']);
+        unset($validated['latitude'], $validated['longitude'], $validated['is_accessible'], $validated['accessibility_notes'], $validated['ar_marker_id']);
 
         $profile->update($validated);
 
-        $profile->mapLocation()->updateOrCreate(
+        $mapLocation = $profile->mapLocation()->updateOrCreate(
             [],
             [
                 'name' => $profile->business_name,
@@ -278,6 +288,17 @@ class UmkmController extends Controller
                 'accessibility_notes' => $accessibility_notes,
             ]
         );
+
+        // Process Decoupled AR marker logic
+        $arMarkerId = $request->input('ar_marker_id');
+        if (! empty($arMarkerId)) {
+            $mapLocation->arMarker()->updateOrCreate(
+                [],
+                ['ar_marker_id' => $arMarkerId]
+            );
+        } else {
+            $mapLocation->arMarker()->delete();
+        }
 
         return redirect()->route('admin.map-manager')->with('success', 'Profil UMKM berhasil diperbarui.');
     }
