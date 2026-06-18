@@ -28,19 +28,11 @@ function toggleStories(checkbox) {
 }
 
 function openStoryModal() {
-    const modal = document.getElementById('stories-modal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
+    window.dispatchEvent(new CustomEvent('open-stories-modal'));
 }
 
 function closeStoryModal() {
-    const modal = document.getElementById('stories-modal');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
+    window.dispatchEvent(new CustomEvent('close-stories-modal'));
 }
 
 function switchStoryTab(category) {

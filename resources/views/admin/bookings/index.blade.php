@@ -111,80 +111,75 @@
 </div>
 
 {{-- Detail & Update Status Modal --}}
-<div id="booking-modal" class="fixed inset-0 z-50 hidden overflow-y-auto p-4 bg-black/50 backdrop-blur-sm justify-center">
-    <div class="w-full max-w-lg my-auto self-start overflow-hidden rounded-2xl bg-white shadow-xl">
-        <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-            <h3 class="font-display text-lg font-bold text-charcoal">Detail Pemesanan <span id="modal-booking-id" class="text-gray-400 font-mono"></span></h3>
-            <button onclick="closeBookingModal()" class="text-gray-400 hover:text-gray-600 focus:outline-none">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+<x-modal name="booking-modal" maxWidth="lg">
+    <div class="mb-4">
+        <h3 class="font-display text-lg font-bold text-charcoal">Detail Pemesanan <span id="modal-booking-id" class="text-gray-400 font-mono"></span></h3>
+    </div>
+    <form id="modal-booking-form" method="POST">
+        @csrf
+        @method('PUT')
+        <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Wisatawan</p>
+                    <p id="modal-guest-name" class="font-semibold text-charcoal mt-0.5"></p>
+                    <p id="modal-guest-email" class="text-xs text-gray-500"></p>
+                    <p id="modal-guest-phone" class="text-xs text-gray-500"></p>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Paket Wisata</p>
+                    <p id="modal-package-name" class="font-semibold text-charcoal mt-0.5"></p>
+                    <p id="modal-party-size" class="text-xs text-gray-500"></p>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Tgl. Kunjungan</p>
+                    <p id="modal-schedule-date" class="font-semibold text-charcoal mt-0.5"></p>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Pembayaran</p>
+                    <p id="modal-total-amount" class="font-bold text-primary mt-0.5"></p>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Metode & Ref</p>
+                    <p id="modal-payment-method" class="font-semibold text-charcoal mt-0.5"></p>
+                    <p id="modal-payment-ref" class="text-xs text-gray-500 font-mono"></p>
+                </div>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <div class="space-y-3">
+                <div>
+                    <label for="modal-status-select" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Status Pemesanan</label>
+                    <select name="status" id="modal-status-select" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Aktif (Dikonfirmasi)</option>
+                        <option value="completed">Selesai</option>
+                        <option value="cancelled">Dibatalkan</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="modal-payment-select" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Status Pembayaran</label>
+                    <select name="payment_status" id="modal-payment-select" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
+                        <option value="pending">Belum Bayar (Pending)</option>
+                        <option value="paid">Lunas (Paid)</option>
+                        <option value="refunded">Dikembalikan (Refunded)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-2 border-t border-gray-100 pt-4">
+            <button type="button" onclick="closeBookingModal()" class="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">
+                Batal
+            </button>
+            <button type="submit" class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary-600">
+                Simpan Perubahan
             </button>
         </div>
-        <form id="modal-booking-form" method="POST">
-            @csrf
-            @method('PUT')
-            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                <div class="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Wisatawan</p>
-                        <p id="modal-guest-name" class="font-semibold text-charcoal mt-0.5"></p>
-                        <p id="modal-guest-email" class="text-xs text-gray-500"></p>
-                        <p id="modal-guest-phone" class="text-xs text-gray-500"></p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Paket Wisata</p>
-                        <p id="modal-package-name" class="font-semibold text-charcoal mt-0.5"></p>
-                        <p id="modal-party-size" class="text-xs text-gray-500"></p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Tgl. Kunjungan</p>
-                        <p id="modal-schedule-date" class="font-semibold text-charcoal mt-0.5"></p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Pembayaran</p>
-                        <p id="modal-total-amount" class="font-bold text-primary mt-0.5"></p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Metode & Ref</p>
-                        <p id="modal-payment-method" class="font-semibold text-charcoal mt-0.5"></p>
-                        <p id="modal-payment-ref" class="text-xs text-gray-500 font-mono"></p>
-                    </div>
-                </div>
+    </form>
+</x-modal>
 
-                <hr class="border-gray-100">
-
-                <div class="space-y-3">
-                    <div>
-                        <label for="modal-status-select" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Status Pemesanan</label>
-                        <select name="status" id="modal-status-select" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
-                            <option value="pending">Pending</option>
-                            <option value="confirmed">Aktif (Dikonfirmasi)</option>
-                            <option value="completed">Selesai</option>
-                            <option value="cancelled">Dibatalkan</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="modal-payment-select" class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Status Pembayaran</label>
-                        <select name="payment_status" id="modal-payment-select" class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal">
-                            <option value="pending">Belum Bayar (Pending)</option>
-                            <option value="paid">Lunas (Paid)</option>
-                            <option value="refunded">Dikembalikan (Refunded)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-100 px-6 py-4 flex justify-end gap-2 bg-gray-50/50">
-                <button type="button" onclick="closeBookingModal()" class="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-500 hover:bg-gray-50">
-                    Batal
-                </button>
-                <button type="submit" class="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary-dark">
-                    Simpan Perubahan
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+@endsection
 
 @push('scripts')
 <script>
@@ -206,17 +201,11 @@
         const form = document.getElementById('modal-booking-form');
         form.action = `/admin/bookings/${data.id}/status`;
 
-        const modal = document.getElementById('booking-modal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        window.dispatchEvent(new CustomEvent('open-booking-modal'));
     }
 
     function closeBookingModal() {
-        const modal = document.getElementById('booking-modal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+        window.dispatchEvent(new CustomEvent('close-booking-modal'));
     }
 </script>
 @endpush
-
-@endsection

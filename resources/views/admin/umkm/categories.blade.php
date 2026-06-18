@@ -85,66 +85,58 @@
 </div>
 
 {{-- Category Modal Form --}}
-<div id="category-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-charcoal/50 backdrop-blur-sm p-4 justify-center">
-    <div class="my-auto self-start w-full max-w-md rounded-2xl bg-white p-6 shadow-xl transition-all">
-        <div class="mb-4 flex items-center justify-between">
-            <h3 id="modal-title" class="font-display text-lg font-bold text-charcoal">Tambah Kategori Produk</h3>
-            <button onclick="closeModal()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-        <form id="modal-form" method="POST" action="" enctype="multipart/form-data">
-            @csrf
-            <div id="method-container"></div>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Nama Kategori <span class="text-warning">*</span></label>
-                    <input type="text" name="name" id="field-name" required placeholder="Contoh: Pakaian Adat, Makanan Ringan" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 font-display">Deskripsi</label>
-                    <textarea name="description" id="field-description" placeholder="Deskripsi singkat tentang kategori..." rows="3" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none"></textarea>
-                </div>
+<x-modal name="category-modal" maxWidth="md">
+    <div class="mb-4">
+        <h3 id="modal-title" class="font-display text-lg font-bold text-charcoal">Tambah Kategori Produk</h3>
+    </div>
+    <form id="modal-form" method="POST" action="" enctype="multipart/form-data">
+        @csrf
+        <div id="method-container"></div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Nama Kategori <span class="text-warning">*</span></label>
+                <input type="text" name="name" id="field-name" required placeholder="Contoh: Pakaian Adat, Makanan Ringan" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 font-display">Deskripsi</label>
+                <textarea name="description" id="field-description" placeholder="Deskripsi singkat tentang kategori..." rows="3" class="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none"></textarea>
+            </div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 font-display">Gambar Kategori</label>
-                    <input type="file" name="image" id="field-image" accept="image/*" class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
-                    <span class="text-[10px] text-gray-400 mt-1 block">Format gambar (jpg, jpeg, png), maks 2MB.</span>
-                    <div id="image-preview-container" class="mt-2.5 hidden">
-                        <span class="text-[10px] font-bold text-primary uppercase tracking-wider block">Gambar Saat Ini:</span>
-                        <div class="relative mt-1 h-20 w-32 overflow-hidden rounded-lg border border-gray-200">
-                            <img id="image-preview" src="" alt="Pratinjau" class="h-full w-full object-cover">
-                        </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 font-display">Gambar Kategori</label>
+                <input type="file" name="image" id="field-image" accept="image/*" class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                <span class="text-[10px] text-gray-400 mt-1 block">Format gambar (jpg, jpeg, png), maks 2MB.</span>
+                <div id="image-preview-container" class="mt-2.5 hidden">
+                    <span class="text-[10px] font-bold text-primary uppercase tracking-wider block">Gambar Saat Ini:</span>
+                    <div class="relative mt-1 h-20 w-32 overflow-hidden rounded-lg border border-gray-200">
+                        <img id="image-preview" src="" alt="Pratinjau" class="h-full w-full object-cover">
                     </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 font-display">Model 3D (.glb)</label>
-                    <input type="file" name="model_3d_file" id="field-model-3d" accept=".glb" class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
-                    <span class="text-[10px] text-gray-400 mt-1 block">Format model GLB (kompresi Draco didukung), maks 20MB.</span>
-                    <span id="current-model-3d" class="mt-1 block text-[10px] text-primary font-semibold"></span>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 font-display">Model 3D iOS (.usdz)</label>
-                    <input type="file" name="model_3d_usdz_file" id="field-model-3d-usdz" accept=".usdz" class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
-                    <span class="text-[10px] text-gray-400 mt-1 block">Format model USDZ untuk iOS Apple Quick Look, maks 50MB.</span>
-                    <span id="current-model-3d-usdz" class="mt-1 block text-[10px] text-primary font-semibold"></span>
-                </div>
             </div>
-            <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="closeModal()" class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">Batal</button>
-                <button type="submit" class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 hover:bg-primary-600">Simpan</button>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 font-display">Model 3D (.glb)</label>
+                <input type="file" name="model_3d_file" id="field-model-3d" accept=".glb" class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                <span class="text-[10px] text-gray-400 mt-1 block">Format model GLB (kompresi Draco didukung), maks 20MB.</span>
+                <span id="current-model-3d" class="mt-1 block text-[10px] text-primary font-semibold"></span>
             </div>
-        </form>
-    </div>
-</div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 font-display">Model 3D iOS (.usdz)</label>
+                <input type="file" name="model_3d_usdz_file" id="field-model-3d-usdz" accept=".usdz" class="mt-1 w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                <span class="text-[10px] text-gray-400 mt-1 block">Format model USDZ untuk iOS Apple Quick Look, maks 50MB.</span>
+                <span id="current-model-3d-usdz" class="mt-1 block text-[10px] text-primary font-semibold"></span>
+            </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-3">
+            <button type="button" onclick="closeModal()" class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">Batal</button>
+            <button type="submit" class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 hover:bg-primary-600">Simpan</button>
+        </div>
+    </form>
+</x-modal>
 
 @endsection
 
 @push('scripts')
 <script>
-    const modal = document.getElementById('category-modal');
     const form = document.getElementById('modal-form');
     const modalTitle = document.getElementById('modal-title');
     const methodContainer = document.getElementById('method-container');
@@ -172,8 +164,7 @@
         currentModel3d.innerText = "";
         currentModel3dUsdz.innerText = "";
         
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        window.dispatchEvent(new CustomEvent('open-category-modal'));
     }
 
     function openEditModal(cat) {
@@ -196,13 +187,11 @@
             imagePreview.src = "";
         }
 
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        window.dispatchEvent(new CustomEvent('open-category-modal'));
     }
 
     function closeModal() {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+        window.dispatchEvent(new CustomEvent('close-category-modal'));
     }
 </script>
 @endpush

@@ -23,19 +23,11 @@ function toggleQuizzes(checkbox) {
 }
 
 function openQuizModal() {
-    const modal = document.getElementById('quizzes-modal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
+    window.dispatchEvent(new CustomEvent('open-quizzes-modal'));
 }
 
 function closeQuizModal() {
-    const modal = document.getElementById('quizzes-modal');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
+    window.dispatchEvent(new CustomEvent('close-quizzes-modal'));
 }
 
 function addQuizField(quiz = null) {

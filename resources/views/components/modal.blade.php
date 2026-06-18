@@ -17,7 +17,7 @@
 
     $desktopContainerClass = match($desktopLayout) {
         'drawer' => 'md:rounded-none md:border-r md:border-gray-200 md:h-full overflow-y-auto',
-        default => 'md:rounded-3xl overflow-hidden',
+        default => 'md:rounded-3xl overflow-hidden md:max-h-[85vh]',
     };
 
     $desktopTransitionStart = match($desktopLayout) {
@@ -46,7 +46,7 @@
     x-transition:leave-end="opacity-0"
     x-cloak>
     
-    <div class="relative w-full rounded-t-[2.5rem] bg-white p-6 shadow-2xl {{ $desktopContainerClass }} {{ $maxWidthClass }} pb-10 md:pb-6 pointer-events-auto" 
+    <div class="relative w-full rounded-t-[2.5rem] bg-white p-6 shadow-2xl {{ $desktopContainerClass }} {{ $maxWidthClass }} pb-10 md:pb-6 pointer-events-auto max-h-[90vh] flex flex-col" 
         style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));"
         @click.away="isOpen = false"
         x-show="isOpen"
@@ -70,7 +70,7 @@
         </button>
 
         <!-- Modal Body -->
-        <div class="w-full h-full flex flex-col">
+        <div class="w-full flex-1 min-h-0 flex flex-col overflow-y-auto pr-1 -mr-1">
             {{ $slot }}
         </div>
     </div>
