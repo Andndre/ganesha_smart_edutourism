@@ -274,12 +274,15 @@
         ctx.stroke();
 
         // Hour labels (every 4h)
+        const labels = @json($hourlyLabels);
         ctx.fillStyle = '#9ca3af';
         ctx.font = '10px Plus Jakarta Sans, sans-serif';
         ctx.textAlign = 'center';
-        [0,4,8,12,16,20,23].forEach(h => {
-            const x = padL + (h / 23) * chartW;
-            ctx.fillText(h + ':00', x, H - 6);
+        labels.forEach((label, i) => {
+            if (i % 4 === 0 || i === labels.length - 1) {
+                const x = padL + (i / (labels.length - 1)) * chartW;
+                ctx.fillText(label, x, H - 6);
+            }
         });
     })();
 
