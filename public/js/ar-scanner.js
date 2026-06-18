@@ -382,6 +382,8 @@
                         data.usdz_url,
                         data.name,
                         data.short_description,
+                        data.description,
+                        data.audio_url,
                     );
                 } else {
                     throw new Error(data.error || "Model tidak ditemukan");
@@ -406,7 +408,7 @@
             });
     }
 
-    function showModel(url, usdzUrl, name, desc) {
+    function showModel(url, usdzUrl, name, shortDesc, fullDesc, audioUrl) {
         const scanView = document.getElementById("scanner-view");
         const modelView = document.getElementById("model-view");
         const badge = document.getElementById("status-badge");
@@ -420,8 +422,7 @@
             const absoluteUrl = new URL(url, window.location.href).href;
             viewer.src = absoluteUrl;
             if (usdzUrl) {
-                const absoluteUsdzUrl = new URL(usdzUrl, window.location.href)
-                    .href;
+                const absoluteUsdzUrl = new URL(usdzUrl, window.location.href).href;
                 viewer.setAttribute("ios-src", absoluteUsdzUrl);
             } else {
                 viewer.removeAttribute("ios-src");
@@ -429,9 +430,93 @@
         }
 
         const mTitle = document.getElementById("model-title");
-        const mDesc = document.getElementById("model-desc");
         if (mTitle) mTitle.innerText = name || "";
-        if (mDesc) mDesc.innerText = desc || "";
+
+        // Description: strip HTML tags for plain-text display
+        const plainDesc = (fullDesc || "").replace(/<[^>]*>/g, "").trim();
+        const plainShort = (shortDesc || plainDesc).trim();
+
+        const descShortEl = document.getElementById("model-desc-short");
+        const descFullEl = document.getElementById("model-desc-full");
+        const descToggleBtn = document.getElementById("btn-desc-toggle");
+
+        if (descShortEl) descShortEl.textContent = plainShort || plainDesc;
+        if (descFullEl) descFullEl.textContent = plainDesc;
+
+        const needsExpand = plainDesc && plainDesc !== plainShort && plainDesc.length > 120;
+        if (descToggleBtn) {
+            if (needsExpand) {
+                descToggleBtn.classList.remove("hidden");
+                descToggleBtn.textContent = "Baca selengkapnya";
+                descToggleBtn.onclick = function () {
+                    const expanded = !descFullEl.classList.contains("hidden");
+                    descFullEl.classList.toggle("hidden", expanded);
+                    descShortEl.classList.toggle("hidden", !expanded);
+                    descToggleBtn.textContent = expanded ? "Baca selengkapnya" : "Tutup";
+                };
+            } else {
+                descToggleBtn.classList.add("hidden");
+            }
+        }
+        if (descShortEl) descShortEl.classList.remove("hidden");
+        if (descFullEl) descFullEl.classList.add("hidden");
+
+        // Audio narasi
+        setupAudio(audioUrl);
+    }
+
+    function setupAudio(audioUrl) {
+        const audioEl = document.getElementById("ar-audio");
+        const btnToggle = document.getElementById("btn-audio-toggle");
+        const iconPlay = document.getElementById("audio-icon-play");
+        const iconPause = document.getElementById("audio-icon-pause");
+
+        if (!audioEl || !btnToggle) return;
+
+        // Stop previous audio
+        audioEl.pause();
+        audioEl.currentTime = 0;
+        audioEl.removeAttribute("src");
+        audioEl.load();
+
+        if (!audioUrl) {
+            btnToggle.classList.add("hidden");
+            btnToggle.classList.remove("flex");
+            return;
+        }
+
+        audioEl.src = audioUrl;
+        audioEl.preload = "auto";
+        btnToggle.classList.remove("hidden");
+        btnToggle.classList.add("flex");
+
+        iconPlay.classList.remove("hidden");
+        iconPause.classList.add("hidden");
+
+        audioEl.onended = () => {
+            iconPlay.classList.remove("hidden");
+            iconPause.classList.add("hidden");
+        };
+
+        btnToggle.onclick = () => {
+            if (audioEl.paused) {
+                audioEl.play();
+                iconPlay.classList.add("hidden");
+                iconPause.classList.remove("hidden");
+            } else {
+                audioEl.pause();
+                iconPlay.classList.remove("hidden");
+                iconPause.classList.add("hidden");
+            }
+        };
+
+        // Autoplay (may be blocked by browser autoplay policy — user tap on QR scan counts as gesture)
+        audioEl.play().then(() => {
+            iconPlay.classList.add("hidden");
+            iconPause.classList.remove("hidden");
+        }).catch(() => {
+            // Autoplay blocked; button stays visible for manual play
+        });
     }
 
     function showScanner() {
@@ -448,6 +533,18 @@
 
         const viewer = document.getElementById("ar-model-viewer");
         if (viewer) viewer.src = "";
+
+        // Stop audio when returning to scanner
+        const audioEl = document.getElementById("ar-audio");
+        if (audioEl) {
+            audioEl.pause();
+            audioEl.currentTime = 0;
+        }
+        const btnToggle = document.getElementById("btn-audio-toggle");
+        if (btnToggle) {
+            btnToggle.classList.add("hidden");
+            btnToggle.classList.remove("flex");
+        }
 
         if (html5QrcodeScanner && html5QrcodeScanner.getState() === 3) {
             html5QrcodeScanner.resume();

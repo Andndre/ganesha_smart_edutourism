@@ -31,12 +31,34 @@
         </button>
     </model-viewer>
 
+    <!-- Audio Narasi -->
+    <audio id="ar-audio" preload="none" class="hidden"></audio>
+
+    <!-- Audio Control Button -->
+    <button id="btn-audio-toggle"
+        class="absolute left-4 bottom-36 z-50 hidden h-10 w-10 items-center justify-center rounded-full bg-black/40 text-white shadow-lg backdrop-blur-md transition-all hover:bg-black/60 active:scale-95">
+        <svg id="audio-icon-play" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+        </svg>
+        <svg id="audio-icon-pause" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6" />
+        </svg>
+    </button>
+
     <!-- UI Overlay for Model View -->
-    <div
-        class="pointer-events-none absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 to-transparent p-6 pb-8 text-center text-white">
-        <h2 id="model-title" class="mb-1 text-2xl font-bold shadow-black drop-shadow-md">Memuat...</h2>
-        <p id="model-desc" class="mx-auto max-w-sm text-sm text-gray-200 shadow-black drop-shadow-md">Tunggu sebentar...
-        </p>
+    <div class="pointer-events-none absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/90 via-black/50 to-transparent px-5 pb-8 pt-12 text-white">
+        <h2 id="model-title" class="mb-2 text-2xl font-bold drop-shadow-md">Memuat...</h2>
+
+        <!-- Description with expand/collapse -->
+        <div id="model-desc-wrapper" class="pointer-events-auto">
+            <div id="model-desc-short" class="text-sm leading-relaxed text-gray-200 drop-shadow line-clamp-2"></div>
+            <div id="model-desc-full" class="hidden text-sm leading-relaxed text-gray-200 drop-shadow"></div>
+            <button id="btn-desc-toggle"
+                class="mt-1.5 hidden text-xs font-semibold text-[#E28F1B] underline underline-offset-2 active:opacity-70">
+                Baca selengkapnya
+            </button>
+        </div>
     </div>
 
     <!-- Scan Again Button -->

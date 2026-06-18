@@ -1,6 +1,6 @@
 <!-- 3. Loading Overlay -->
 <div id="loading-overlay"
-    class="absolute inset-0 z-[60] hidden flex-col items-center justify-center bg-black/80 backdrop-blur-md transition-all">
+    class="z-60 absolute inset-0 hidden flex-col items-center justify-center bg-black/80 backdrop-blur-md transition-all">
     <div class="relative mb-6 h-24 w-24">
         <!-- Spinner rings -->
         <div class="absolute inset-0 rounded-full border-4 border-white/20"></div>
