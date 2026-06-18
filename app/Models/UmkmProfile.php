@@ -117,6 +117,6 @@ class UmkmProfile extends Model
      */
     public function getArMarkerIdAttribute(): ?string
     {
-        return $this->mapLocation?->arMarker?->ar_marker_id;
+        return $this->mapLocation?->arModel?->ar_marker_id;
     }
 }

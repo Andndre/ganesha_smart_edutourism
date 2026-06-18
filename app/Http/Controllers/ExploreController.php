@@ -17,7 +17,7 @@ class ExploreController extends Controller
      */
     public function index(): View
     {
-        $locations = MapLocation::with(['locationable', 'arMarker.arModel'])->get()->map(function ($loc) {
+        $locations = MapLocation::with(['locationable', 'arModel'])->get()->map(function ($loc) {
             // Map category to match JavaScript filters
             $category = $loc->category;
             if ($loc->locationable_type === Facility::class && $loc->locationable && $loc->locationable->type === 'toilet') {
@@ -39,7 +39,7 @@ class ExploreController extends Controller
                 $description = $loc->locationable->description ?? '';
                 if ($loc->locationable_type === CulturalObject::class) {
                     $detailUrl = route('cultural-object', ['slug' => $loc->locationable->slug]);
-                    $hasAr = $loc->arMarker !== null && $loc->arMarker->arModel !== null;
+                    $hasAr = $loc->arModel !== null && $loc->arModel->model_3d_path !== null;
                     if ($loc->locationable->historical_images && is_array($loc->locationable->historical_images)) {
                         foreach ($loc->locationable->historical_images as $img) {
                             $images[] = asset('storage/'.$img);

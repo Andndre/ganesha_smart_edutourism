@@ -23,7 +23,7 @@ class MapManagerController extends Controller
                     CulturalObject::class => ['quizzes', 'stories'],
                 ]);
             },
-            'arMarker.arModel',
+            'arModel',
         ])->get();
 
         $owners = User::where('role', 'umkm_owner')->orderBy('name')->get();

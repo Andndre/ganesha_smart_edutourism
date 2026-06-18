@@ -208,9 +208,6 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('/ar-manager/models', [ARManagerController::class, 'storeModel'])->name('admin.ar-manager.models.store');
     Route::put('/ar-manager/models/{id}', [ARManagerController::class, 'updateModel'])->name('admin.ar-manager.models.update');
     Route::delete('/ar-manager/models/{id}', [ARManagerController::class, 'destroyModel'])->name('admin.ar-manager.models.destroy');
-    Route::post('/ar-manager/markers', [ARManagerController::class, 'storeMarker'])->name('admin.ar-manager.markers.store');
-    Route::put('/ar-manager/markers/{id}', [ARManagerController::class, 'updateMarker'])->name('admin.ar-manager.markers.update');
-    Route::delete('/ar-manager/markers/{id}', [ARManagerController::class, 'destroyMarker'])->name('admin.ar-manager.markers.destroy');
 
     // Event Routes
     Route::get('/events', [EventController::class, 'index'])->name('admin.events');
