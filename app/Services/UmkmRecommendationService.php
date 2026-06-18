@@ -3,15 +3,13 @@
 namespace App\Services;
 
 use App\Models\UmkmProfile;
-use Illuminate\Support\Collection;
 
 class UmkmRecommendationService
 {
     /**
      * Get the fairest UMKM recommendation for a list of desired product categories.
-     * 
-     * @param array<int> $categoryIds
-     * @return UmkmProfile|null
+     *
+     * @param  array<int>  $categoryIds
      */
     public function recommendForCategories(array $categoryIds): ?UmkmProfile
     {
@@ -25,18 +23,18 @@ class UmkmRecommendationService
         foreach ($categoryIds as $categoryId) {
             $query->whereHas('products', function ($q) use ($categoryId) {
                 $q->active()
-                  ->where('umkm_product_category_id', $categoryId)
-                  ->where(function ($subQ) {
-                      $subQ->whereNull('stock')->orWhere('stock', '>', 0);
-                  });
+                    ->where('umkm_product_category_id', $categoryId)
+                    ->where(function ($subQ) {
+                        $subQ->whereNull('stock')->orWhere('stock', '>', 0);
+                    });
             });
         }
 
         // Order by recommendation_count (lowest first) for fair distribution.
         // We use inRandomOrder as a secondary sort to randomly pick among UMKMs with the same count.
         $umkm = $query->orderBy('recommendation_count', 'asc')
-                      ->inRandomOrder()
-                      ->first();
+            ->inRandomOrder()
+            ->first();
 
         if ($umkm) {
             // Increment the recommendation count to ensure fair rotation next time
@@ -48,8 +46,8 @@ class UmkmRecommendationService
 
     /**
      * Get a multi-stop UMKM recommendation using Greedy Set Cover algorithm.
-     * 
-     * @param array<int> $categoryIds
+     *
+     * @param  array<int>  $categoryIds
      * @return array<int, array>|null An array of stops: [['umkm' => UmkmProfile, 'categories' => [id1, id2]]]
      */
     public function recommendMultipleForCategories(array $categoryIds): ?array
@@ -119,7 +117,7 @@ class UmkmRecommendationService
             }
 
             // If we couldn't find any UMKM that has ANY of the remaining categories, stop.
-            if (!$bestUmkm) {
+            if (! $bestUmkm) {
                 break;
             }
 
@@ -141,7 +139,7 @@ class UmkmRecommendationService
         // If we found a route (even partial), return it with info about missing categories
         return empty($route) ? null : [
             'route' => $route,
-            'missing' => $remainingCategories->values()->all()
+            'missing' => $remainingCategories->values()->all(),
         ];
     }
 
@@ -157,9 +155,9 @@ class UmkmRecommendationService
         $a = sin($dLat / 2) * sin($dLat / 2) +
              cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
              sin($dLon / 2) * sin($dLon / 2);
-             
+
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-        
+
         return $earthRadius * $c;
     }
 }

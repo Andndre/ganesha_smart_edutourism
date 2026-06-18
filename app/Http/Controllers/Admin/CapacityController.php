@@ -8,6 +8,7 @@ use App\Models\VisitorLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class CapacityController extends Controller
@@ -54,7 +55,7 @@ class CapacityController extends Controller
 
         // Add live tracked visitors from Cache for heatmap and calculate counts
         $heatmapData = [];
-        $activeVisitors = \Illuminate\Support\Facades\Cache::get('active_visitors', []);
+        $activeVisitors = Cache::get('active_visitors', []);
         foreach ($activeVisitors as $sessionId => $visitor) {
             if ((now()->timestamp - $visitor['last_seen']) < 300) {
                 $lat = (float) $visitor['lat'];
@@ -122,9 +123,9 @@ class CapacityController extends Controller
         $a = sin($dLat / 2) * sin($dLat / 2) +
              cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
              sin($dLon / 2) * sin($dLon / 2);
-             
+
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-        
+
         return $earthRadius * $c;
     }
 }

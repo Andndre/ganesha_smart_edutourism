@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CapacityZone;
 use App\Models\CulturalObject;
 use App\Models\Facility;
 use App\Models\MapLocation;

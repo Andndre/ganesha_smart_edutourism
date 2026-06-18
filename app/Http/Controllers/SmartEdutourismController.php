@@ -21,9 +21,9 @@ class SmartEdutourismController extends Controller
 
         $userId = auth()->id();
         $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
-        
+
         $completedRouteIds = collect();
-        
+
         if ($userId) {
             $completedRouteIds = RouteSession::where('user_id', $userId)
                 ->where('status', 'completed')
