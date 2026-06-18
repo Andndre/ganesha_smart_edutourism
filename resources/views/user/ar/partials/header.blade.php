@@ -16,7 +16,7 @@
 
 <!-- Exit Confirmation Overlay -->
 <div id="exit-confirm-overlay"
-    class="absolute inset-0 z-100 hidden flex-col items-center justify-center bg-black/80 p-6 backdrop-blur-sm transition-all">
+    class="z-100 absolute inset-0 hidden flex-col items-center justify-center bg-black/80 p-6 backdrop-blur-sm transition-all">
     <div class="w-full max-w-xs rounded-3xl bg-white p-6 shadow-2xl">
         <div class="mb-4 flex justify-center">
             <div class="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-500">
