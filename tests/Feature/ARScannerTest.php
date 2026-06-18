@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\ArMarker;
+use App\Models\ArModel;
 use App\Models\CulturalObject;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -27,11 +29,25 @@ class ARScannerTest extends TestCase
             'description' => 'A test description',
             'short_description' => 'Short desc',
             'category' => 'temple',
+        ]);
+
+        $mapLocation = $object->mapLocation()->create([
+            'name' => 'Test Model Location',
+            'category' => 'cultural',
             'latitude' => -8.423,
             'longitude' => 115.359,
-            'ar_marker_id' => 'marker-1',
+        ]);
+
+        $arModel = ArModel::create([
+            'name' => 'Test Model asset',
             'model_3d_path' => 'models/test-model.glb',
             'model_3d_usdz_path' => 'models_usdz/test-model.usdz',
+        ]);
+
+        $arMarker = ArMarker::create([
+            'ar_marker_id' => 'marker-1',
+            'ar_model_id' => $arModel->id,
+            'map_location_id' => $mapLocation->id,
         ]);
 
         $response = $this->getJson('/api/ar/model?slug=test-cultural-object');
@@ -63,10 +79,19 @@ class ARScannerTest extends TestCase
             'description' => 'A test description',
             'short_description' => 'Short desc',
             'category' => 'temple',
+        ]);
+
+        $mapLocation = $object->mapLocation()->create([
+            'name' => 'No Model Object Location',
+            'category' => 'cultural',
             'latitude' => -8.423,
             'longitude' => 115.359,
+        ]);
+
+        $arMarker = ArMarker::create([
             'ar_marker_id' => 'marker-2',
-            'model_3d_path' => null,
+            'ar_model_id' => null,
+            'map_location_id' => $mapLocation->id,
         ]);
 
         $response = $this->getJson('/api/ar/model?slug=no-model-object');

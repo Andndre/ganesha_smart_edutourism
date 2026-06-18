@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ArMarker;
+use App\Models\ArModel;
 use App\Models\CulturalObject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -12,6 +14,9 @@ use Illuminate\Support\Str;
 
 class CulturalObjectController extends Controller
 {
+    /**
+     * Store a newly created cultural object in storage.
+     */
     /**
      * Store a newly created cultural object in storage.
      */
@@ -26,9 +31,9 @@ class CulturalObjectController extends Controller
             'description' => ['nullable', 'string'],
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
             'ar_marker_patt_content' => ['nullable', 'string'],
-            'model_3d_path' => ['nullable', 'string', 'max:255'],
-            'model_3d_usdz_path' => ['nullable', 'string', 'max:255'],
-            'audio_narration_path' => ['nullable', 'string', 'max:255'],
+            'ar_model_id' => ['nullable', 'string'],
+            'new_model_name' => ['nullable', 'string', 'max:255'],
+            'new_model_description' => ['nullable', 'string'],
             'model_3d_file' => ['nullable', 'file', 'max:20480'],
             'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
             'audio_narration_file' => ['nullable', 'file', 'max:10240'],
@@ -48,20 +53,6 @@ class CulturalObjectController extends Controller
             'story_type.*' => ['in:history,philosophy,value'],
         ]);
 
-        if ($request->hasFile('model_3d_file')) {
-            $validated['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
-        }
-
-        if ($request->hasFile('model_3d_usdz_file')) {
-            $file = $request->file('model_3d_usdz_file');
-            $filename = Str::random(40).'.usdz';
-            $validated['model_3d_usdz_path'] = $file->storeAs('models_usdz', $filename, 'public');
-        }
-
-        if ($request->hasFile('audio_narration_file')) {
-            $validated['audio_narration_path'] = $request->file('audio_narration_file')->store('audio', 'public');
-        }
-
         if ($request->hasFile('historical_images')) {
             $images = [];
             foreach ($request->file('historical_images') as $file) {
@@ -76,23 +67,12 @@ class CulturalObjectController extends Controller
         if (empty($validated['description'])) {
             $validated['description'] = 'Deskripsi untuk '.$validated['name'];
         }
-        if (empty($validated['ar_marker_id'])) {
-            $validated['ar_marker_id'] = 'MARKER_'.strtoupper(Str::random(8));
-        }
-
-        if ($request->filled('ar_marker_patt_content')) {
-            $pattPath = 'ar-markers/'.$validated['ar_marker_id'].'.patt';
-            Storage::disk('public')->put($pattPath, $request->input('ar_marker_patt_content'));
-            $validated['ar_marker_patt_path'] = $pattPath;
-        }
 
         $latitude = $validated['latitude'] ?? -8.4217504;
         $longitude = $validated['longitude'] ?? 115.3590021;
 
         // Clean up temporary variables not in DB schema
         unset(
-            $validated['model_3d_file'],
-            $validated['audio_narration_file'],
             $validated['latitude'],
             $validated['longitude'],
             $validated['has_quiz'],
@@ -102,11 +82,19 @@ class CulturalObjectController extends Controller
             $validated['quiz_option_c'],
             $validated['quiz_option_d'],
             $validated['quiz_correct_option'],
-            $validated['ar_marker_patt_content'],
             $validated['has_story'],
             $validated['story_title'],
             $validated['story_content'],
-            $validated['story_type']
+            $validated['story_type'],
+            // Decoupled AR fields
+            $validated['ar_marker_id'],
+            $validated['ar_marker_patt_content'],
+            $validated['ar_model_id'],
+            $validated['new_model_name'],
+            $validated['new_model_description'],
+            $validated['model_3d_file'],
+            $validated['model_3d_usdz_file'],
+            $validated['audio_narration_file']
         );
 
         $object = CulturalObject::create($validated);
@@ -150,7 +138,7 @@ class CulturalObjectController extends Controller
             }
         }
 
-        $object->mapLocation()->create([
+        $mapLocation = $object->mapLocation()->create([
             'name' => $object->name,
             'category' => 'cultural',
             'latitude' => $latitude,
@@ -158,6 +146,56 @@ class CulturalObjectController extends Controller
             'is_accessible' => $request->has('is_accessible'),
             'accessibility_notes' => $request->input('accessibility_notes') ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.',
         ]);
+
+        // Decoupled AR marker & model logic
+        $arMarkerId = $request->input('ar_marker_id');
+        $arModelId = $request->input('ar_model_id');
+
+        $finalModelId = null;
+        $shouldCreateNewModel = $arModelId === 'new' ||
+            (empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file') || $request->hasFile('audio_narration_file')));
+
+        if ($shouldCreateNewModel) {
+            $modelData = [
+                'name' => $request->input('new_model_name') ?: $object->name.' Model',
+                'description' => $request->input('new_model_description') ?: $object->short_description ?? null,
+            ];
+
+            if ($request->hasFile('model_3d_file')) {
+                $modelData['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
+            }
+
+            if ($request->hasFile('model_3d_usdz_file')) {
+                $file = $request->file('model_3d_usdz_file');
+                $filename = Str::random(40).'.usdz';
+                $modelData['model_3d_usdz_path'] = $file->storeAs('models_usdz', $filename, 'public');
+            }
+
+            if ($request->hasFile('audio_narration_file')) {
+                $modelData['audio_narration_path'] = $request->file('audio_narration_file')->store('audio', 'public');
+            }
+
+            $newModel = ArModel::create($modelData);
+            $finalModelId = $newModel->id;
+        } elseif (is_numeric($arModelId)) {
+            $finalModelId = (int) $arModelId;
+        }
+
+        if (! empty($arMarkerId)) {
+            $markerData = [
+                'ar_marker_id' => $arMarkerId,
+                'ar_model_id' => $finalModelId,
+                'map_location_id' => $mapLocation->id,
+            ];
+
+            if ($request->filled('ar_marker_patt_content')) {
+                $pattPath = 'ar-markers/'.$arMarkerId.'.patt';
+                Storage::disk('public')->put($pattPath, $request->input('ar_marker_patt_content'));
+                $markerData['ar_marker_patt_path'] = $pattPath;
+            }
+
+            ArMarker::create($markerData);
+        }
 
         return redirect()->route('admin.map-manager')->with('success', 'Objek budaya berhasil ditambahkan.');
     }
@@ -178,9 +216,9 @@ class CulturalObjectController extends Controller
             'description' => ['nullable', 'string'],
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
             'ar_marker_patt_content' => ['nullable', 'string'],
-            'model_3d_path' => ['nullable', 'string', 'max:255'],
-            'model_3d_usdz_path' => ['nullable', 'string', 'max:255'],
-            'audio_narration_path' => ['nullable', 'string', 'max:255'],
+            'ar_model_id' => ['nullable', 'string'],
+            'new_model_name' => ['nullable', 'string', 'max:255'],
+            'new_model_description' => ['nullable', 'string'],
             'model_3d_file' => ['nullable', 'file', 'max:20480'],
             'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
             'audio_narration_file' => ['nullable', 'file', 'max:10240'],
@@ -200,26 +238,6 @@ class CulturalObjectController extends Controller
             'story_type.*' => ['in:history,philosophy,value'],
         ]);
 
-        if ($request->hasFile('model_3d_file')) {
-            $validated['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
-        } elseif (! isset($validated['model_3d_path'])) {
-            $validated['model_3d_path'] = $object->model_3d_path;
-        }
-
-        if ($request->hasFile('model_3d_usdz_file')) {
-            $file = $request->file('model_3d_usdz_file');
-            $filename = Str::random(40).'.usdz';
-            $validated['model_3d_usdz_path'] = $file->storeAs('models_usdz', $filename, 'public');
-        } elseif (! isset($validated['model_3d_usdz_path'])) {
-            $validated['model_3d_usdz_path'] = $object->model_3d_usdz_path;
-        }
-
-        if ($request->hasFile('audio_narration_file')) {
-            $validated['audio_narration_path'] = $request->file('audio_narration_file')->store('audio', 'public');
-        } elseif (! isset($validated['audio_narration_path'])) {
-            $validated['audio_narration_path'] = $object->audio_narration_path;
-        }
-
         if ($request->hasFile('historical_images')) {
             $images = [];
             foreach ($request->file('historical_images') as $file) {
@@ -236,25 +254,12 @@ class CulturalObjectController extends Controller
         if (empty($validated['description'])) {
             $validated['description'] = 'Deskripsi untuk '.$validated['name'];
         }
-        if (empty($validated['ar_marker_id'])) {
-            $validated['ar_marker_id'] = 'MARKER_'.strtoupper(Str::random(8));
-        }
-
-        if ($request->filled('ar_marker_patt_content')) {
-            $pattPath = 'ar-markers/'.$validated['ar_marker_id'].'.patt';
-            Storage::disk('public')->put($pattPath, $request->input('ar_marker_patt_content'));
-            $validated['ar_marker_patt_path'] = $pattPath;
-        } elseif (! isset($validated['ar_marker_patt_path'])) {
-            $validated['ar_marker_patt_path'] = $object->ar_marker_patt_path;
-        }
 
         $latitude = $validated['latitude'] ?? -8.4217504;
         $longitude = $validated['longitude'] ?? 115.3590021;
 
         // Clean up temporary variables not in DB schema
         unset(
-            $validated['model_3d_file'],
-            $validated['audio_narration_file'],
             $validated['latitude'],
             $validated['longitude'],
             $validated['has_quiz'],
@@ -264,11 +269,19 @@ class CulturalObjectController extends Controller
             $validated['quiz_option_c'],
             $validated['quiz_option_d'],
             $validated['quiz_correct_option'],
-            $validated['ar_marker_patt_content'],
             $validated['has_story'],
             $validated['story_title'],
             $validated['story_content'],
-            $validated['story_type']
+            $validated['story_type'],
+            // Decoupled AR fields
+            $validated['ar_marker_id'],
+            $validated['ar_marker_patt_content'],
+            $validated['ar_model_id'],
+            $validated['new_model_name'],
+            $validated['new_model_description'],
+            $validated['model_3d_file'],
+            $validated['model_3d_usdz_file'],
+            $validated['audio_narration_file']
         );
 
         $object->update($validated);
@@ -316,7 +329,7 @@ class CulturalObjectController extends Controller
             }
         }
 
-        $object->mapLocation()->updateOrCreate(
+        $mapLocation = $object->mapLocation()->updateOrCreate(
             [],
             [
                 'name' => $object->name,
@@ -327,6 +340,64 @@ class CulturalObjectController extends Controller
                 'accessibility_notes' => $request->input('accessibility_notes') ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.',
             ]
         );
+
+        // Sync Decoupled AR marker & model logic
+        $arMarkerId = $request->input('ar_marker_id');
+        $arModelId = $request->input('ar_model_id');
+
+        $finalModelId = null;
+        $shouldCreateNewModel = $arModelId === 'new' ||
+            ($arModelId !== 'none' && empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file') || $request->hasFile('audio_narration_file')));
+
+        if ($shouldCreateNewModel) {
+            $modelData = [
+                'name' => $request->input('new_model_name') ?: $object->name.' Model',
+                'description' => $request->input('new_model_description') ?: $object->short_description ?? null,
+            ];
+
+            if ($request->hasFile('model_3d_file')) {
+                $modelData['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
+            }
+
+            if ($request->hasFile('model_3d_usdz_file')) {
+                $file = $request->file('model_3d_usdz_file');
+                $filename = Str::random(40).'.usdz';
+                $modelData['model_3d_usdz_path'] = $file->storeAs('models_usdz', $filename, 'public');
+            }
+
+            if ($request->hasFile('audio_narration_file')) {
+                $modelData['audio_narration_path'] = $request->file('audio_narration_file')->store('audio', 'public');
+            }
+
+            $newModel = ArModel::create($modelData);
+            $finalModelId = $newModel->id;
+        } elseif (is_numeric($arModelId)) {
+            $finalModelId = (int) $arModelId;
+        } else {
+            // If none or not provided, but we had a marker before, keep the old model
+            $currentMarker = $mapLocation->arMarker;
+            if ($currentMarker) {
+                $finalModelId = $currentMarker->ar_model_id;
+            }
+        }
+
+        if (! empty($arMarkerId)) {
+            $markerData = [
+                'ar_marker_id' => $arMarkerId,
+                'ar_model_id' => $finalModelId,
+            ];
+
+            if ($request->filled('ar_marker_patt_content')) {
+                $pattPath = 'ar-markers/'.$arMarkerId.'.patt';
+                Storage::disk('public')->put($pattPath, $request->input('ar_marker_patt_content'));
+                $markerData['ar_marker_patt_path'] = $pattPath;
+            }
+
+            $mapLocation->arMarker()->updateOrCreate([], $markerData);
+        } else {
+            // Delete marker if cleared
+            $mapLocation->arMarker()->delete();
+        }
 
         return redirect()->route('admin.map-manager')->with('success', 'Objek budaya berhasil diperbarui.');
     }

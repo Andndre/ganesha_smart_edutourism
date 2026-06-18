@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 #[Fillable(['name', 'category', 'locationable_type', 'locationable_id', 'latitude', 'longitude', 'is_accessible', 'accessibility_notes'])]
@@ -33,6 +34,16 @@ class MapLocation extends Model
     public function locationable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Get the AR marker associated with this location.
+     *
+     * @return HasOne<ArMarker>
+     */
+    public function arMarker(): HasOne
+    {
+        return $this->hasOne(ArMarker::class, 'map_location_id');
     }
 
     /**
