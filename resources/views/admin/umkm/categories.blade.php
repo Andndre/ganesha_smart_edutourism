@@ -13,6 +13,22 @@
             border: 1px solid #f3f4f6;
             background: radial-gradient(circle, #f9fafb 0%, #f3f4f6 100%);
         }
+
+        .model-viewer-wrapper {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            background: radial-gradient(circle, #f9fafb 0%, #f3f4f6 100%);
+            border: 1px dashed #d1d5db;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            --poster-color: transparent;
+        }
     </style>
 @endpush
 
@@ -147,7 +163,7 @@
                 </div>
                 <div>
                     <label class="font-display block text-sm font-semibold text-gray-700">Model 3D (.glb)</label>
-                    <input type="file" name="model_3d_file" id="field-model-3d" accept=".glb"
+                    <input type="file" name="model_3d_file" id="field-model-3d" accept=".glb" onchange="previewModelGLB(this)"
                         class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
                     <span class="mt-1 block text-[10px] text-gray-400">Format model GLB (kompresi Draco didukung), maks
                         20MB.</span>
@@ -160,6 +176,17 @@
                     <span class="mt-1 block text-[10px] text-gray-400">Format model USDZ untuk iOS Apple Quick Look, maks
                         50MB.</span>
                     <span id="current-model-3d-usdz" class="text-primary mt-1 block text-[10px] font-semibold"></span>
+                </div>
+
+                {{-- 3D Model Preview --}}
+                <div class="mt-2.5 rounded-2xl border border-dashed border-gray-200 bg-gray-50/50 p-3">
+                    <span class="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-gray-400">Pratinjau Model 3D</span>
+                    <div class="model-viewer-wrapper flex items-center justify-center">
+                        <div id="modal-viewer-placeholder" class="p-4 text-center">
+                            <span class="text-xs text-gray-400">Pilih atau unggah file GLB untuk melihat model 3D</span>
+                        </div>
+                        <model-viewer id="modal-viewer-3d" class="hidden" camera-controls auto-rotate shadow-intensity="1"></model-viewer>
+                    </div>
                 </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
@@ -187,6 +214,8 @@
         const fieldModel3dUsdz = document.getElementById('field-model-3d-usdz');
         const currentModel3d = document.getElementById('current-model-3d');
         const currentModel3dUsdz = document.getElementById('current-model-3d-usdz');
+        const modalViewer3d = document.getElementById('modal-viewer-3d');
+        const modalViewerPlaceholder = document.getElementById('modal-viewer-placeholder');
 
         function openCreateModal() {
             modalTitle.innerText = "Tambah Kategori Produk";
@@ -201,6 +230,7 @@
             imagePreview.src = "";
             currentModel3d.innerText = "";
             currentModel3dUsdz.innerText = "";
+            resetModal3DViewer();
 
             window.dispatchEvent(new CustomEvent('open-category-modal'));
         }
@@ -226,11 +256,39 @@
                 imagePreview.src = "";
             }
 
+            if (cat.model_3d_path) {
+                setupModal3DViewer(`/storage/${cat.model_3d_path}`);
+            } else {
+                resetModal3DViewer();
+            }
+
             window.dispatchEvent(new CustomEvent('open-category-modal'));
         }
 
         function closeModal() {
             window.dispatchEvent(new CustomEvent('close-category-modal'));
+        }
+
+        // 3D Model Modal Viewer Helpers
+        function previewModelGLB(input) {
+            const file = input.files[0];
+            if (file) setupModal3DViewer(URL.createObjectURL(file));
+        }
+
+        function setupModal3DViewer(src) {
+            if (modalViewerPlaceholder) modalViewerPlaceholder.classList.add('hidden');
+            if (modalViewer3d) {
+                modalViewer3d.classList.remove('hidden');
+                modalViewer3d.src = src;
+            }
+        }
+
+        function resetModal3DViewer() {
+            if (modalViewer3d) {
+                modalViewer3d.classList.add('hidden');
+                modalViewer3d.src = "";
+            }
+            if (modalViewerPlaceholder) modalViewerPlaceholder.classList.remove('hidden');
         }
 
         // Driver.js Categories Interactive Tour
@@ -314,6 +372,18 @@
                     startTutorial();
                     localStorage.setItem('umkm_categories_tour_completed', 'true');
                 }, 1000);
+            }
+        });
+    </script>
+
+    {{-- Google Model Viewer --}}
+    <script type="module" src="{{ asset('js/model-viewer.min.js') }}"></script>
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', () => {
+            const ModelViewerElement = customElements.get('model-viewer');
+            if (ModelViewerElement) {
+                ModelViewerElement.meshoptDecoderLocation =
+                    'https://unpkg.com/meshoptimizer@0.17.0/meshopt_decoder.js';
             }
         });
     </script>
