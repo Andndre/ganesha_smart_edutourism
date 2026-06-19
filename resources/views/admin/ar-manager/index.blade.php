@@ -23,26 +23,36 @@
 @endpush
 
 @section('content')
-    <div class="mb-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+    <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div id="tour-header">
             <h1 class="font-display text-charcoal text-2xl font-bold">Manajer Aset AR &amp; Marker</h1>
             <p class="mt-0.5 text-sm font-medium text-gray-500">Kelola model 3D interaktif dan marker QR untuk teknologi
                 Augmented Reality desa.</p>
         </div>
-        <button onclick="openModelModal()"
-            class="bg-primary shadow-primary/20 hover:bg-primary-600 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all active:scale-[0.98]">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            Tambah Model 3D
-        </button>
+        <div class="flex items-center gap-2">
+            <button id="tour-trigger-btn" onclick="startTutorial()"
+                class="hover:bg-gray-100 inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-600 transition-all active:scale-[0.98]">
+                <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Panduan Interaktif
+            </button>
+            <button id="tour-add-btn" onclick="openModelModal()"
+                class="bg-primary shadow-primary/20 hover:bg-primary-600 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all active:scale-[0.98]">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Tambah Model 3D
+            </button>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         @forelse ($models as $m)
-            <div
+            <div @if($loop->first) id="tour-first-card" @endif
                 class="shadow-2xs hover:shadow-xs flex flex-col rounded-xl border border-gray-100 bg-white p-4 transition-shadow">
-                <div class="model-viewer-wrapper mb-3">
+                <div @if($loop->first) id="tour-viewer-wrapper" @endif class="model-viewer-wrapper mb-3">
                     <model-viewer src="{{ asset('storage/' . $m->model_3d_path) }}" camera-controls auto-rotate
                         shadow-intensity="1">
                     </model-viewer>
@@ -56,7 +66,7 @@
                 </div>
 
                 @if ($m->ar_marker_id)
-                    <div class="mt-3 flex items-center gap-1.5">
+                    <div @if($loop->first) id="tour-marker-download" @endif class="mt-3 flex items-center gap-1.5">
                         <span
                             class="bg-primary/10 text-primary max-w-40 truncate rounded-full px-2 py-0.5 font-mono text-[10px] font-bold">{{ $m->ar_marker_id }}</span>
                         <button type="button"
@@ -70,14 +80,16 @@
                         </button>
                     </div>
                 @else
-                    <span class="mt-3 text-[10px] italic text-gray-400">Belum ada marker QR</span>
+                    <div @if($loop->first) id="tour-marker-download" @endif class="mt-3">
+                        <span class="text-[10px] italic text-gray-400">Belum ada marker QR</span>
+                    </div>
                 @endif
 
                 @if ($m->mapLocation)
                     <span class="mt-1 truncate text-[10px] font-medium text-gray-500">📍 {{ $m->mapLocation->name }}</span>
                 @endif
 
-                <div class="mt-3 flex items-center justify-end gap-1 border-t border-gray-50 pt-2">
+                <div @if($loop->first) id="tour-actions" @endif class="mt-3 flex items-center justify-end gap-1 border-t border-gray-50 pt-2">
                     <button onclick="openModelEditModal({{ json_encode($m) }})"
                         class="hover:text-primary p-1 text-gray-400 transition-colors" title="Edit Model">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -100,7 +112,7 @@
                 </div>
             </div>
         @empty
-            <div class="col-span-3 py-12 text-center text-sm text-gray-400">Belum ada model 3D ditambahkan.</div>
+            <div id="tour-empty-state" class="col-span-3 py-12 text-center text-sm text-gray-400">Belum ada model 3D ditambahkan.</div>
         @endforelse
     </div>
 
@@ -674,6 +686,114 @@
             }
             return rotations.join('\n\n') + '\n';
         }
+    </script>
+
+    <script>
+        function startTutorial() {
+            const driver = window.driver.js.driver;
+            const hasCard = document.getElementById('tour-first-card') !== null;
+            const steps = [];
+
+            // Langkah 1: Pengantar
+            steps.push({
+                element: '#tour-header',
+                popover: {
+                    title: '👋 Selamat Datang!',
+                    description: 'Panduan ini akan menunjukkan cara mengelola model 3D dan marker Augmented Reality (AR) di desa wisata.',
+                    side: 'bottom',
+                    align: 'start'
+                }
+            });
+
+            // Langkah 2: Tombol Tambah Model
+            steps.push({
+                element: '#tour-add-btn',
+                popover: {
+                    title: '➕ Tambah Model 3D Baru',
+                    description: 'Gunakan tombol ini untuk mengunggah model 3D baru (.glb/.usdz), mengatur ID marker AR, dan melampirkan audio narasi.',
+                    side: 'bottom',
+                    align: 'end'
+                }
+            });
+
+            if (hasCard) {
+                // Langkah 3: Kartu Model 3D
+                steps.push({
+                    element: '#tour-first-card',
+                    popover: {
+                        title: '📦 Kartu Model 3D',
+                        description: 'Setiap aset 3D yang diunggah akan tampil di dalam kartu ini beserta detail lokasi dan pratinjaunya.',
+                        side: 'top',
+                        align: 'start'
+                    }
+                });
+
+                // Langkah 4: Viewer 3D
+                steps.push({
+                    element: '#tour-viewer-wrapper',
+                    popover: {
+                        title: '🔄 Viewer 3D Interaktif',
+                        description: 'Anda dan pengunjung dapat memutar, memperbesar, dan berinteraksi dengan model 3D langsung di browser.',
+                        side: 'top',
+                        align: 'start'
+                    }
+                });
+
+                // Langkah 5: Marker & Download
+                steps.push({
+                    element: '#tour-marker-download',
+                    popover: {
+                        title: '📥 Unduh QR Marker AR',
+                        description: 'Di sini tertera ID Marker. Klik ikon unduh untuk mendapatkan gambar kode QR fisik untuk dipasang di lokasi wisata asli.',
+                        side: 'top',
+                        align: 'end'
+                    }
+                });
+
+                // Langkah 6: Edit & Hapus
+                steps.push({
+                    element: '#tour-actions',
+                    popover: {
+                        title: '⚙️ Aksi Cepat',
+                        description: 'Gunakan tombol ini untuk mengubah informasi model atau menghapusnya jika sudah tidak digunakan.',
+                        side: 'top',
+                        align: 'end'
+                    }
+                });
+            } else {
+                // Langkah Alternatif jika kosong
+                steps.push({
+                    element: '#tour-empty-state',
+                    popover: {
+                        title: '📭 Belum Ada Data',
+                        description: 'Setelah Anda menambahkan model 3D pertama, kartu visual aset akan muncul di area galeri ini.',
+                        side: 'top',
+                        align: 'start'
+                    }
+                });
+            }
+
+            const driverObj = driver({
+                showProgress: true,
+                allowClose: true,
+                steps: steps,
+                popoverClass: 'driverjs-theme'
+            });
+
+            driverObj.drive();
+        }
+
+        // Auto-run for first-time visitors
+        document.addEventListener('DOMContentLoaded', () => {
+            const tourCompleted = localStorage.getItem('ar_manager_tour_completed');
+            if (!tourCompleted) {
+                // Delay slightly to allow tipping, model-viewer and page transitions to settle
+                setTimeout(() => {
+                    startTutorial();
+                    localStorage.setItem('ar_manager_tour_completed', 'true');
+                }, 1000);
+            }
+        });
     </script>
 
     <style>
