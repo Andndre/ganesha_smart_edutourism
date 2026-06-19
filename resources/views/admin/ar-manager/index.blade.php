@@ -41,18 +41,22 @@
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         @forelse ($models as $m)
             <div
-                class="shadow-2xs hover:shadow-xs flex flex-col rounded-xl border border-gray-100 bg-white p-3 transition-shadow">
+                class="shadow-2xs hover:shadow-xs flex flex-col rounded-xl border border-gray-100 bg-white p-4 transition-shadow">
                 <div class="model-viewer-wrapper mb-3">
                     <model-viewer src="{{ asset('storage/' . $m->model_3d_path) }}" camera-controls auto-rotate
                         shadow-intensity="1">
                     </model-viewer>
                 </div>
                 <h3 class="text-charcoal truncate text-sm font-bold">{{ $m->name }}</h3>
-                <p class="mt-1 line-clamp-2 h-8 flex-1 text-xs text-gray-500">
-                    {{ $m->description ?: 'Tidak ada deskripsi.' }}</p>
+                <div class="relative mt-2 max-h-16 flex-1 overflow-hidden text-xs text-gray-500">
+                    {!! $m->description ? $m->description : 'Tidak ada deskripsi.' !!}
+                    <div
+                        class="bg-linear-to-t pointer-events-none absolute bottom-0 left-0 right-0 h-12 from-white to-transparent">
+                    </div>
+                </div>
 
                 @if ($m->ar_marker_id)
-                    <div class="mt-2 flex items-center gap-1.5">
+                    <div class="mt-3 flex items-center gap-1.5">
                         <span
                             class="bg-primary/10 text-primary max-w-40 truncate rounded-full px-2 py-0.5 font-mono text-[10px] font-bold">{{ $m->ar_marker_id }}</span>
                         <button type="button"
@@ -66,14 +70,14 @@
                         </button>
                     </div>
                 @else
-                    <span class="mt-2 text-[10px] italic text-gray-400">Belum ada marker QR</span>
+                    <span class="mt-3 text-[10px] italic text-gray-400">Belum ada marker QR</span>
                 @endif
 
                 @if ($m->mapLocation)
                     <span class="mt-1 truncate text-[10px] font-medium text-gray-500">📍 {{ $m->mapLocation->name }}</span>
                 @endif
 
-                <div class="mt-2.5 flex items-center justify-end gap-1 border-t border-gray-50 pt-2">
+                <div class="mt-3 flex items-center justify-end gap-1 border-t border-gray-50 pt-2">
                     <button onclick="openModelEditModal({{ json_encode($m) }})"
                         class="hover:text-primary p-1 text-gray-400 transition-colors" title="Edit Model">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -101,7 +105,7 @@
     </div>
 
     {{-- 3D MODEL DIALOG / MODAL FORM --}}
-    <x-modal name="model-modal" maxWidth="xl">
+    <x-modal name="model-modal" maxWidth="xl" desktopLayout="drawer">
         <div class="mb-4">
             <h3 id="model-modal-title" class="font-display text-charcoal text-lg font-bold">Tambah Model 3D</h3>
         </div>
