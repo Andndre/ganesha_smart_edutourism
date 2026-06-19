@@ -130,14 +130,14 @@
 
         {{-- Header --}}
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
+            <div id="tour-header">
                 <h1 class="font-display text-charcoal text-2xl font-bold">Event & Kalender Budaya</h1>
                 <p class="mt-0.5 text-sm text-gray-500">Jadwalkan dan kelola upacara adat, festival, dan event desa.</p>
             </div>
             <div class="flex flex-wrap items-center gap-3">
                 {{-- Toggle Button View --}}
-                <div class="inline-flex shrink-0 rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
-                    <button type="button" @click="viewMode = 'calendar'"
+                <div id="tour-tabs" class="inline-flex shrink-0 rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
+                    <button id="tour-tab-calendar" type="button" @click="viewMode = 'calendar'"
                         :class="viewMode === 'calendar' ? 'bg-primary text-white shadow-sm' :
                             'text-gray-500 hover:text-charcoal'"
                         class="inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all">
@@ -147,7 +147,7 @@
                         </svg>
                         Kalender
                     </button>
-                    <button type="button" @click="viewMode = 'list'"
+                    <button id="tour-tab-list" type="button" @click="viewMode = 'list'"
                         :class="viewMode === 'list' ? 'bg-primary text-white shadow-sm' :
                             'text-gray-500 hover:text-charcoal'"
                         class="inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all">
@@ -158,7 +158,17 @@
                     </button>
                 </div>
 
-                <button type="button" @click="openCreate()"
+                {{-- Interactive Tour Trigger Button --}}
+                <button id="tour-trigger-btn" onclick="startTutorial()"
+                    class="hover:bg-gray-100 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition-all active:scale-[0.98]"
+                    title="Panduan Interaktif">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
+
+                <button id="tour-add-btn" type="button" @click="openCreate()"
                     class="bg-primary shadow-primary/20 hover:bg-primary-600 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all active:scale-[0.98]">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -197,7 +207,7 @@
         {{-- TAB 2: LIST VIEW --}}
         <div x-show="viewMode === 'list'" x-transition class="space-y-4" style="display: none;">
             {{-- Search + Filter --}}
-            <form id="events-search-form" @submit.prevent="searchEvents" method="GET" action="{{ route('admin.events') }}"
+            <form id="tour-search-form" @submit.prevent="searchEvents" method="GET" action="{{ route('admin.events') }}"
                 class="flex flex-col gap-3 sm:flex-row">
                 <div class="relative flex-1">
                     <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none"
@@ -490,7 +500,7 @@
                     <div class="md:col-span-2">
                         <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Nama
                             Event <span class="text-red-500">*</span></label>
-                        <input type="text" name="name" x-model="formFields.name"
+                        <input id="tour-form-name" type="text" name="name" x-model="formFields.name"
                             placeholder="Contoh: Festival Bambu Penglipuran 2026"
                             class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
                             required>
@@ -501,7 +511,7 @@
                     <div>
                         <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Kategori
                             <span class="text-red-500">*</span></label>
-                        <select name="category" x-model="formFields.category"
+                        <select id="tour-form-category" name="category" x-model="formFields.category"
                             class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-1">
                             @foreach (['Upacara Adat', 'Festival', 'Workshop', 'Pameran', 'Pertunjukan Seni'] as $cat)
                                 <option value="{{ $cat }}">{{ $cat }}</option>
@@ -526,7 +536,7 @@
                 </div>
 
                 {{-- Row 3: Waktu Mulai & Waktu Selesai --}}
-                <div class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-100 bg-gray-50/50 p-4 md:grid-cols-2">
+                <div id="tour-form-dates" class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-100 bg-gray-50/50 p-4 md:grid-cols-2">
                     <div>
                         <span class="text-primary mb-2 block text-xs font-bold uppercase tracking-wider">Pelaksanaan
                             Mulai</span>
@@ -590,7 +600,7 @@
                 </div>
 
                 {{-- Row 4: Lokasi Tempat --}}
-                <div class="space-y-3">
+                <div id="tour-form-location" class="space-y-3">
                     <div>
                         <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Lokasi
                             Tempat <span class="text-red-500">*</span></label>
@@ -665,7 +675,7 @@
 
                 {{-- Modal Footer Buttons --}}
                 <div class="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-4">
-                    <button type="button" @click="$dispatch('close-event-form-modal')"
+                    <button id="tour-form-cancel-btn" type="button" @click="$dispatch('close-event-form-modal')"
                         class="rounded-xl border border-gray-200 px-5 py-2.5 text-xs font-bold text-gray-500 transition-all hover:bg-gray-50">
                         Batal
                     </button>
@@ -784,7 +794,7 @@
                 isLoadingList: false,
 
                 searchEvents() {
-                    const form = document.querySelector('#events-search-form');
+                    const form = document.querySelector('#tour-search-form');
                     const formData = new FormData(form);
                     const searchParams = new URLSearchParams(formData).toString();
                     const url = '{{ route('admin.events') }}?' + searchParams;
@@ -948,6 +958,179 @@
                     calendar.updateSize();
                 }, 50);
             });
+        });
+
+        // --- Driver.js Panduan Interaktif ---
+        function startTutorial() {
+            const driver = window.driver.js.driver;
+
+            // Helper to make element clickable and advance tour on click
+            const makeStepInteractive = (selector, delay = 100) => {
+                return {
+                    onHighlighted: (element, step, { driver }) => {
+                        const clickHandler = () => {
+                            setTimeout(() => {
+                                driver.moveNext();
+                            }, delay);
+                        };
+                        element.addEventListener('click', clickHandler, { once: true });
+                        element._tourClickHandler = clickHandler;
+                    },
+                    onDeselected: (element) => {
+                        if (element && element._tourClickHandler) {
+                            element.removeEventListener('click', element._tourClickHandler);
+                            delete element._tourClickHandler;
+                        }
+                    },
+                    onNextClick: (element, step, { driver }) => {
+                        element.click();
+                    }
+                };
+            };
+
+            const steps = [
+                {
+                    element: '#tour-header',
+                    popover: {
+                        title: '📅 Event & Kalender Budaya',
+                        description: 'Selamat datang! Halaman ini digunakan untuk mengelola semua kegiatan adat, festival, dan pameran seni di desa wisata.',
+                        side: 'bottom',
+                        align: 'start'
+                    }
+                },
+                {
+                    element: '#tour-tabs',
+                    popover: {
+                        title: '🔄 Mode Tampilan',
+                        description: 'Anda dapat beralih antara tampilan Kalender Interaktif dan tampilan Daftar Tabel.',
+                        side: 'bottom',
+                        align: 'end'
+                    }
+                },
+                {
+                    element: '#tour-tab-list',
+                    ...makeStepInteractive('#tour-tab-list', 300),
+                    popover: {
+                        title: '📋 Tampilan Daftar',
+                        description: 'Silakan klik tab <strong>Daftar</strong> untuk beralih ke tampilan list tabel.',
+                        side: 'bottom',
+                        align: 'end'
+                    }
+                },
+                {
+                    element: '#tour-search-form',
+                    onHighlightStarted: (element) => {
+                        // Pastikan tab Daftar aktif
+                        const tabList = document.getElementById('tour-tab-list');
+                        if (tabList) tabList.click();
+                    },
+                    popover: {
+                        title: '🔍 Pencarian & Filter',
+                        description: 'Di tampilan daftar ini, Anda dapat mencari event secara cepat atau menyaringnya berdasarkan kategori tertentu.',
+                        side: 'bottom',
+                        align: 'start'
+                    }
+                },
+                {
+                    element: '#tour-tab-calendar',
+                    ...makeStepInteractive('#tour-tab-calendar', 300),
+                    popover: {
+                        title: '📅 Tampilan Kalender',
+                        description: 'Silakan klik tab <strong>Kalender</strong> untuk kembali ke tampilan kalender utama.',
+                        side: 'bottom',
+                        align: 'end'
+                    }
+                },
+                {
+                    element: '#calendar',
+                    onHighlightStarted: (element) => {
+                        // Pastikan tab Kalender aktif
+                        const tabCalendar = document.getElementById('tour-tab-calendar');
+                        if (tabCalendar) tabCalendar.click();
+                    },
+                    popover: {
+                        title: '📆 Kalender Interaktif',
+                        description: 'Ini adalah Kalender Event desa. Anda dapat melihat event yang terjadwal. Klik pada tanggal kosong untuk membuat event baru, atau klik event yang ada untuk detailnya.',
+                        side: 'top',
+                        align: 'start'
+                    }
+                },
+                {
+                    element: '#tour-add-btn',
+                    ...makeStepInteractive('#tour-add-btn', 300),
+                    onHighlightStarted: (element) => {
+                        // Pastikan modal ditutup ketika di step ini
+                        window.dispatchEvent(new CustomEvent('close-event-form-modal'));
+                    },
+                    popover: {
+                        title: '➕ Tambah Event',
+                        description: 'Klik tombol <strong>Tambah Event</strong> untuk membuka formulir pembuatan event baru.',
+                        side: 'bottom',
+                        align: 'end'
+                    }
+                },
+                {
+                    element: '#tour-form-name',
+                    onHighlightStarted: (element) => {
+                        // Pastikan modal dibuka ketika masuk ke step ini
+                        window.dispatchEvent(new CustomEvent('open-event-form-modal'));
+                    },
+                    popover: {
+                        title: '📝 Nama & Kategori Event',
+                        description: 'Masukkan nama event dan pilih kategori event yang sesuai.',
+                        side: 'left',
+                        align: 'start'
+                    }
+                },
+                {
+                    element: '#tour-form-dates',
+                    popover: {
+                        title: '⏱️ Tanggal & Waktu',
+                        description: 'Tentukan tanggal mulai dan selesai. Jika tanggal selesai sebelum tanggal mulai, sistem akan menampilkan peringatan.',
+                        side: 'left',
+                        align: 'start'
+                    }
+                },
+                {
+                    element: '#tour-form-location',
+                    popover: {
+                        title: '📍 Lokasi Kegiatan',
+                        description: 'Tuliskan nama tempat pelaksanaan dan koordinat GPS (latitude/longitude) jika ingin ditampilkan pada peta.',
+                        side: 'left',
+                        align: 'start'
+                    }
+                },
+                {
+                    element: '#tour-form-cancel-btn',
+                    ...makeStepInteractive('#tour-form-cancel-btn', 300),
+                    popover: {
+                        title: '❌ Selesai',
+                        description: 'Klik tombol <strong>Batal</strong> untuk menutup formulir dan menyelesaikan panduan ini.',
+                        side: 'top',
+                        align: 'end'
+                    }
+                }
+            ];
+
+            const driverObj = driver({
+                showProgress: true,
+                allowClose: true,
+                steps: steps,
+                popoverClass: 'driverjs-theme'
+            });
+
+            driverObj.drive();
+        }
+
+        // Auto-run for first-time visitors
+        document.addEventListener('DOMContentLoaded', () => {
+            const tourCompleted = localStorage.getItem('admin_events_tour_completed');
+            if (!tourCompleted) {
+                setTimeout(() => {
+                    startTutorial();
+                    localStorage.setItem('admin_events_tour_completed', 'true');
+                }, 1000);
+            }
         });
     </script>
 @endpush
