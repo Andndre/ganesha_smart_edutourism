@@ -61,7 +61,7 @@
     </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    @livewireStyles
     @stack('styles')
     
     {{-- Global Driver.js Styles & Premium Custom Theme --}}
@@ -522,6 +522,7 @@
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+    @livewireScripts
     @stack('scripts')
 </body>
 
