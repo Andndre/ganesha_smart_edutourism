@@ -118,301 +118,308 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
         (function() {
-            let mapInstance = null;
-            let watchId = null;
+                let mapInstance = null;
+                let watchId = null;
 
-            const initActiveEdutourism = function() {
-                const mapEl = document.getElementById('map');
-                if (mapEl && !mapInstance) {
-            @if ($activeSession->currentPoint)
-                const targetLat = {{ $activeSession->currentPoint->locationable->mapLocation->latitude ?? 0 }};
-                const targetLng = {{ $activeSession->currentPoint->locationable->mapLocation->longitude ?? 0 }};
-            @else
-                const targetLat = 0;
-                const targetLng = 0;
+                const initActiveEdutourism = function() {
+                    const mapEl = document.getElementById('map');
+                    if (mapEl && !mapInstance) {
+                        @if ($activeSession->currentPoint)
+                            const targetLat =
+                                {{ $activeSession->currentPoint->locationable->mapLocation->latitude ?? 0 }};
+                            const targetLng =
+                                {{ $activeSession->currentPoint->locationable->mapLocation->longitude ?? 0 }};
+                        @else
+                            const targetLat = 0;
+                            const targetLng = 0;
 
-                // Fire confetti when mission is completed
-                var duration = 3 * 1000;
-                var animationEnd = Date.now() + duration;
-                var defaults = {
-                    startVelocity: 30,
-                    spread: 360,
-                    ticks: 60,
-                    zIndex: 100
-                };
+                            // Fire confetti when mission is completed
+                            var duration = 3 * 1000;
+                            var animationEnd = Date.now() + duration;
+                            var defaults = {
+                                startVelocity: 30,
+                                spread: 360,
+                                ticks: 60,
+                                zIndex: 100
+                            };
 
-                function randomInRange(min, max) {
-                    return Math.random() * (max - min) + min;
-                }
+                            function randomInRange(min, max) {
+                                return Math.random() * (max - min) + min;
+                            }
 
-                var interval = setInterval(function() {
-                    var timeLeft = animationEnd - Date.now();
+                            var interval = setInterval(function() {
+                                var timeLeft = animationEnd - Date.now();
 
-                    if (timeLeft <= 0) {
-                        return clearInterval(interval);
-                    }
+                                if (timeLeft <= 0) {
+                                    return clearInterval(interval);
+                                }
 
-                    var particleCount = 50 * (timeLeft / duration);
-                    confetti(Object.assign({}, defaults, {
-                        particleCount,
-                        origin: {
-                            x: randomInRange(0.1, 0.3),
-                            y: Math.random() - 0.2
+                                var particleCount = 50 * (timeLeft / duration);
+                                confetti(Object.assign({}, defaults, {
+                                    particleCount,
+                                    origin: {
+                                        x: randomInRange(0.1, 0.3),
+                                        y: Math.random() - 0.2
+                                    }
+                                }));
+                                confetti(Object.assign({}, defaults, {
+                                    particleCount,
+                                    origin: {
+                                        x: randomInRange(0.7, 0.9),
+                                        y: Math.random() - 0.2
+                                    }
+                                }));
+                            }, 250);
+                        @endif
+
+                        const map = L.map(mapEl, {
+                            zoomControl: false
+                        }).setView([-8.4223, 115.3595], 17);
+                        mapInstance = map;
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19
+                        }).addTo(map);
+
+                        if (targetLat !== 0 && targetLng !== 0) {
+                            L.marker([targetLat, targetLng], {
+                                icon: L.divIcon({
+                                    className: 'target-pin',
+                                    html: `<div style="background-color: #1E5128; width: 32px; height: 32px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;"><svg style="width: 16px; height: 16px; color: white;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div>`,
+                                    iconSize: [32, 32],
+                                    iconAnchor: [16, 16]
+                                })
+                            }).addTo(map);
                         }
-                    }));
-                    confetti(Object.assign({}, defaults, {
-                        particleCount,
-                        origin: {
-                            x: randomInRange(0.7, 0.9),
-                            y: Math.random() - 0.2
+
+                        let userMarker = null;
+
+                        // FOR TESTING PURPOSES ONLY! Delete in production if actual GPS is strictly needed.
+                        // Simulasi click on map to move GPS to test arrive trigger since dev GPS might be far
+                        map.on('click', function(e) {
+                            updateUserPosition(e.latlng.lat, e.latlng.lng);
+                        });
+
+                        function updateUserPosition(lat, lng) {
+                            if (!userMarker) {
+                                userMarker = L.marker([lat, lng], {
+                                    icon: L.divIcon({
+                                        className: 'user-pin',
+                                        html: `<div style="background-color: #3B82F6; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(59,130,246,0.8);"></div>`,
+                                        iconSize: [24, 24],
+                                        iconAnchor: [12, 12]
+                                    })
+                                }).addTo(map);
+                                map.setView([lat, lng], 18);
+                            } else {
+                                userMarker.setLatLng([lat, lng]);
+                            }
+
+                            if (targetLat !== 0) {
+                                const dist = calculateDistance(lat, lng, targetLat, targetLng);
+                                const infoText = document.getElementById('distance-info');
+                                const arriveBtn = document.getElementById('btn-arrive');
+
+                                if (dist < 30) {
+                                    infoText.innerHTML = `Lokasi Ditemukan! (Jarak: ${dist}m)`;
+                                    arriveBtn.disabled = false;
+                                    arriveBtn.classList.remove('opacity-50');
+                                    arriveBtn.textContent = 'Jawab Pertanyaan & Lanjut';
+                                } else {
+                                    infoText.textContent = `Jarak: ${dist} meter`;
+                                    arriveBtn.disabled = true;
+                                    arriveBtn.classList.add('opacity-50');
+                                    arriveBtn.textContent = 'Mendekati Lokasi...';
+                                }
+                            }
                         }
-                    }));
-                }, 250);
-            @endif
 
-                    const map = L.map(mapEl, {
-                        zoomControl: false
-                    }).setView([-8.4223, 115.3595], 17);
-                    mapInstance = map;
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        maxZoom: 19
-                    }).addTo(map);
+                        if (navigator.geolocation && targetLat !== 0) {
+                            watchId = navigator.geolocation.watchPosition(pos => {
+                                updateUserPosition(pos.coords.latitude, pos.coords.longitude);
+                            }, err => {
+                                console.error(err);
+                            }, {
+                                enableHighAccuracy: true
+                            });
+                        }
 
-            if (targetLat !== 0 && targetLng !== 0) {
-                L.marker([targetLat, targetLng], {
-                    icon: L.divIcon({
-                        className: 'target-pin',
-                        html: `<div style="background-color: #1E5128; width: 32px; height: 32px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;"><svg style="width: 16px; height: 16px; color: white;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div>`,
-                        iconSize: [32, 32],
-                        iconAnchor: [16, 16]
-                    })
-                }).addTo(map);
-            }
+                        function calculateDistance(lat1, lon1, lat2, lon2) {
+                            const R = 6371e3;
+                            const p1 = lat1 * Math.PI / 180;
+                            const p2 = lat2 * Math.PI / 180;
+                            const dp = (lat2 - lat1) * Math.PI / 180;
+                            const dl = (lon2 - lon1) * Math.PI / 180;
 
-            let userMarker = null;
+                            const a = Math.sin(dp / 2) * Math.sin(dp / 2) +
+                                Math.cos(p1) * Math.cos(p2) *
+                                Math.sin(dl / 2) * Math.sin(dl / 2);
+                            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                            return Math.floor(R * c);
+                        }
 
-            // FOR TESTING PURPOSES ONLY! Delete in production if actual GPS is strictly needed.
-            // Simulasi click on map to move GPS to test arrive trigger since dev GPS might be far
-            map.on('click', function(e) {
-                updateUserPosition(e.latlng.lat, e.latlng.lng);
-            });
+                        let currentQuizzes = [];
+                        let currentQuizIndex = 0;
 
-            function updateUserPosition(lat, lng) {
-                if (!userMarker) {
-                    userMarker = L.marker([lat, lng], {
-                        icon: L.divIcon({
-                            className: 'user-pin',
-                            html: `<div style="background-color: #3B82F6; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(59,130,246,0.8);"></div>`,
-                            iconSize: [24, 24],
-                            iconAnchor: [12, 12]
-                        })
-                    }).addTo(map);
-                    map.setView([lat, lng], 18);
-                } else {
-                    userMarker.setLatLng([lat, lng]);
-                }
-
-                if (targetLat !== 0) {
-                    const dist = calculateDistance(lat, lng, targetLat, targetLng);
-                    const infoText = document.getElementById('distance-info');
-                    const arriveBtn = document.getElementById('btn-arrive');
-
-                    if (dist < 30) {
-                        infoText.innerHTML = `Lokasi Ditemukan! (Jarak: ${dist}m)`;
-                        arriveBtn.disabled = false;
-                        arriveBtn.classList.remove('opacity-50');
-                        arriveBtn.textContent = 'Jawab Pertanyaan & Lanjut';
-                    } else {
-                        infoText.textContent = `Jarak: ${dist} meter`;
-                        arriveBtn.disabled = true;
-                        arriveBtn.classList.add('opacity-50');
-                        arriveBtn.textContent = 'Mendekati Lokasi...';
-                    }
-                }
-            }
-
-            if (navigator.geolocation && targetLat !== 0) {
-                watchId = navigator.geolocation.watchPosition(pos => {
-                    updateUserPosition(pos.coords.latitude, pos.coords.longitude);
-                }, err => {
-                    console.error(err);
-                }, {
-                    enableHighAccuracy: true
-                });
-            }
-
-            function calculateDistance(lat1, lon1, lat2, lon2) {
-                const R = 6371e3;
-                const p1 = lat1 * Math.PI / 180;
-                const p2 = lat2 * Math.PI / 180;
-                const dp = (lat2 - lat1) * Math.PI / 180;
-                const dl = (lon2 - lon1) * Math.PI / 180;
-
-                const a = Math.sin(dp / 2) * Math.sin(dp / 2) +
-                    Math.cos(p1) * Math.cos(p2) *
-                    Math.sin(dl / 2) * Math.sin(dl / 2);
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                return Math.floor(R * c);
-            }
-
-            let currentQuizzes = [];
-            let currentQuizIndex = 0;
-
-            function showQuiz() {
-                const quiz = currentQuizzes[currentQuizIndex];
-                const quizQuestionEl = document.getElementById('quiz-question');
-                if (quizQuestionEl) {
-                    quizQuestionEl.textContent = `Soal ${currentQuizIndex + 1} dari ${currentQuizzes.length}: ` + quiz.question;
-                }
-                const opts = document.getElementById('quiz-options');
-                if (opts) {
-                    opts.innerHTML = `
+                        function showQuiz() {
+                            const quiz = currentQuizzes[currentQuizIndex];
+                            const quizQuestionEl = document.getElementById('quiz-question');
+                            if (quizQuestionEl) {
+                                quizQuestionEl.textContent =
+                                    `Soal ${currentQuizIndex + 1} dari ${currentQuizzes.length}: ` + quiz.question;
+                            }
+                            const opts = document.getElementById('quiz-options');
+                            if (opts) {
+                                opts.innerHTML = `
                         <button onclick="submitQuiz(${quiz.id}, 'A')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">A.</span> <span class="font-medium text-gray-700">${quiz.option_a}</span></button>
                         <button onclick="submitQuiz(${quiz.id}, 'B')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">B.</span> <span class="font-medium text-gray-700">${quiz.option_b}</span></button>
                         <button onclick="submitQuiz(${quiz.id}, 'C')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">C.</span> <span class="font-medium text-gray-700">${quiz.option_c}</span></button>
                         <button onclick="submitQuiz(${quiz.id}, 'D')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">D.</span> <span class="font-medium text-gray-700">${quiz.option_d}</span></button>
                     `;
-                }
-            }
-
-            window.triggerArrive = function(pointId) {
-                console.log("triggerArrive called for point ID:", pointId);
-                const btnArrive = document.getElementById('btn-arrive');
-                if (btnArrive) {
-                    btnArrive.disabled = true;
-                    btnArrive.textContent = 'Memuat Kuis...';
-                }
-
-                const url = `/edutourism/arrive/${pointId}`;
-                console.log("Fetching URL:", url);
-
-                fetch(url, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json'
+                            }
                         }
-                    })
-                    .then(res => {
-                        console.log("Response received. Status:", res.status);
-                        if (!res.ok) {
-                            throw new Error(`HTTP error! status: ${res.status}`);
-                        }
-                        return res.json();
-                    })
-                    .then(data => {
-                        console.log("Data received successfully:", data);
-                        if (data.success && data.quizzes && data.quizzes.length > 0) {
-                            currentQuizzes = data.quizzes;
-                            currentQuizIndex = 0;
-                            showQuiz();
-                            window.dispatchEvent(new CustomEvent('open-quiz-modal'));
-                            document.getElementById('btn-arrive').disabled = false;
-                            document.getElementById('btn-arrive').textContent = 'Jawab Pertanyaan & Lanjut';
-                        } else {
-                            if (data.session_status === 'completed') {
-                                window.location.reload();
-                            } else {
-                                console.log("No quizzes found for this point. Showing SweetAlert info...");
-                                Swal.fire({
-                                    title: 'Info',
-                                    text: 'Tidak ada kuis untuk titik ini. Rute berlanjut...',
-                                    icon: 'info',
-                                    confirmButtonColor: '#1E5128',
-                                    confirmButtonText: 'Lanjut'
-                                }).then(() => {
-                                    window.location.reload();
+
+                        window.triggerArrive = function(pointId) {
+                            console.log("triggerArrive called for point ID:", pointId);
+                            const btnArrive = document.getElementById('btn-arrive');
+                            if (btnArrive) {
+                                btnArrive.disabled = true;
+                                btnArrive.textContent = 'Memuat Kuis...';
+                            }
+
+                            const url = `/edutourism/arrive/${pointId}`;
+                            console.log("Fetching URL:", url);
+
+                            fetch(url, {
+                                    method: 'GET',
+                                    headers: {
+                                        'Accept': 'application/json'
+                                    }
+                                })
+                                .then(res => {
+                                    console.log("Response received. Status:", res.status);
+                                    if (!res.ok) {
+                                        throw new Error(`HTTP error! status: ${res.status}`);
+                                    }
+                                    return res.json();
+                                })
+                                .then(data => {
+                                    console.log("Data received successfully:", data);
+                                    if (data.success && data.quizzes && data.quizzes.length > 0) {
+                                        currentQuizzes = data.quizzes;
+                                        currentQuizIndex = 0;
+                                        showQuiz();
+                                        window.dispatchEvent(new CustomEvent('open-quiz-modal'));
+                                        document.getElementById('btn-arrive').disabled = false;
+                                        document.getElementById('btn-arrive').textContent =
+                                            'Jawab Pertanyaan & Lanjut';
+                                    } else {
+                                        if (data.session_status === 'completed') {
+                                            window.location.reload();
+                                        } else {
+                                            console.log(
+                                                "No quizzes found for this point. Showing SweetAlert info..."
+                                            );
+                                            Swal.fire({
+                                                title: 'Info',
+                                                text: 'Tidak ada kuis untuk titik ini. Rute berlanjut...',
+                                                icon: 'info',
+                                                confirmButtonColor: '#1E5128',
+                                                confirmButtonText: 'Lanjut'
+                                            }).then(() => {
+                                                window.location.reload();
+                                            });
+                                        }
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error("Error occurred in triggerArrive:", err);
+                                    document.getElementById('btn-arrive').disabled = false;
+                                    document.getElementById('btn-arrive').textContent =
+                                        'Jawab Pertanyaan & Lanjut';
+                                    Swal.fire({
+                                        title: 'Oops!',
+                                        text: 'Gagal memuat kuis.',
+                                        icon: 'error',
+                                        confirmButtonColor: '#1E5128'
+                                    });
                                 });
-                            }
                         }
-                    })
-                    .catch(err => {
-                        console.error("Error occurred in triggerArrive:", err);
-                        document.getElementById('btn-arrive').disabled = false;
-                        document.getElementById('btn-arrive').textContent = 'Jawab Pertanyaan & Lanjut';
-                        Swal.fire({
-                            title: 'Oops!',
-                            text: 'Gagal memuat kuis.',
-                            icon: 'error',
-                            confirmButtonColor: '#1E5128'
-                        });
-                    });
-            }
 
-            window.submitQuiz = function(quizId, answer) {
-                // Disable all buttons to prevent double submit
-                const buttons = document.querySelectorAll('#quiz-options button');
-                buttons.forEach(btn => btn.disabled = true);
+                        window.submitQuiz = function(quizId, answer) {
+                            // Disable all buttons to prevent double submit
+                            const buttons = document.querySelectorAll('#quiz-options button');
+                            buttons.forEach(btn => btn.disabled = true);
 
-                const isLast = (currentQuizIndex === currentQuizzes.length - 1);
+                            const isLast = (currentQuizIndex === currentQuizzes.length - 1);
 
-                fetch(`/edutourism/quiz/${quizId}/submit`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            answer: answer,
-                            is_last_quiz: isLast
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.is_correct) {
-                            if (isLast) {
-                                document.getElementById('quiz-question').innerHTML =
-                                    '<span class="text-green-600 text-2xl">🎉 Semua Terjawab!</span><br><span class="text-sm">Rute dilanjutkan...</span>';
-                                document.getElementById('quiz-options').innerHTML = '';
-                                setTimeout(() => window.location.reload(), 1500);
-                            } else {
-                                document.getElementById('quiz-question').innerHTML =
-                                    '<span class="text-green-600 text-2xl">✅ Benar!</span><br><span class="text-sm">Lanjut ke soal berikutnya...</span>';
-                                document.getElementById('quiz-options').innerHTML = '';
-                                setTimeout(() => {
-                                    currentQuizIndex++;
-                                    showQuiz();
-                                }, 1200);
-                            }
-                        } else {
-                            Swal.fire({
-                                title: 'Salah!',
-                                text: 'Jawaban Salah! Coba lagi.',
-                                icon: 'error',
-                                confirmButtonColor: '#1E5128'
-                            });
-                            buttons.forEach(btn => btn.disabled = false);
+                            fetch(`/edutourism/quiz/${quizId}/submit`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        answer: answer,
+                                        is_last_quiz: isLast
+                                    })
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.is_correct) {
+                                        if (isLast) {
+                                            document.getElementById('quiz-question').innerHTML =
+                                                '<span class="text-green-600 text-2xl">🎉 Semua Terjawab!</span><br><span class="text-sm">Rute dilanjutkan...</span>';
+                                            document.getElementById('quiz-options').innerHTML = '';
+                                            setTimeout(() => window.location.reload(), 1500);
+                                        } else {
+                                            document.getElementById('quiz-question').innerHTML =
+                                                '<span class="text-green-600 text-2xl">✅ Benar!</span><br><span class="text-sm">Lanjut ke soal berikutnya...</span>';
+                                            document.getElementById('quiz-options').innerHTML = '';
+                                            setTimeout(() => {
+                                                currentQuizIndex++;
+                                                showQuiz();
+                                            }, 1200);
+                                        }
+                                    } else {
+                                        Swal.fire({
+                                            title: 'Salah!',
+                                            text: 'Jawaban Salah! Coba lagi.',
+                                            icon: 'error',
+                                            confirmButtonColor: '#1E5128'
+                                        });
+                                        buttons.forEach(btn => btn.disabled = false);
+                                    }
+                                })
+                                .catch(err => {
+                                    Swal.fire({
+                                        title: 'Oops!',
+                                        text: 'Gagal mengirim jawaban.',
+                                        icon: 'error',
+                                        confirmButtonColor: '#1E5128'
+                                    });
+                                    buttons.forEach(btn => btn.disabled = false);
+                                });
                         }
-                    })
-                    .catch(err => {
-                        Swal.fire({
-                            title: 'Oops!',
-                            text: 'Gagal mengirim jawaban.',
-                            icon: 'error',
-                            confirmButtonColor: '#1E5128'
-                        });
-                        buttons.forEach(btn => btn.disabled = false);
+                    };
+
+                    // Run immediately
+                    initActiveEdutourism();
+
+                    // Clean up GPS watch position and map instance when navigating away via Livewire
+                    document.addEventListener('livewire:navigating', function cleanup(e) {
+                        if (watchId !== null) {
+                            navigator.geolocation.clearWatch(watchId);
+                            watchId = null;
+                        }
+                        if (mapInstance) {
+                            mapInstance.remove();
+                            mapInstance = null;
+                        }
+                        delete window.triggerArrive;
+                        delete window.submitQuiz;
+                        document.removeEventListener('livewire:navigating', cleanup);
                     });
-            }
-            };
-
-            // Run immediately
-            initActiveEdutourism();
-
-            // Clean up GPS watch position and map instance when navigating away via Livewire
-            document.addEventListener('livewire:navigating', function cleanup(e) {
-                if (watchId !== null) {
-                    navigator.geolocation.clearWatch(watchId);
-                    watchId = null;
-                }
-                if (mapInstance) {
-                    mapInstance.remove();
-                    mapInstance = null;
-                }
-                delete window.triggerArrive;
-                delete window.submitQuiz;
-                document.removeEventListener('livewire:navigating', cleanup);
-            });
-        })();
+                })();
     </script>
 @endsection

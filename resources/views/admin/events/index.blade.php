@@ -106,9 +106,15 @@
         }
 
         @keyframes loading-bar {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(300%); }
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(300%);
+            }
         }
+
         .animate-loading-bar {
             animation: loading-bar 1.2s infinite linear;
         }
@@ -117,7 +123,8 @@
 
 @section('content')
 
-    <div x-data="adminEvents" @open-event-modal.window="selectedEvent = $event.detail; $dispatch('open-event-detail-modal')"
+    <div x-data="adminEvents"
+        @open-event-modal.window="selectedEvent = $event.detail; $dispatch('open-event-detail-modal')"
         @open-create-modal.window="openCreate($event.detail.date, $event.detail.time)"
         @open-edit-modal.window="openEdit($event.detail)" class="space-y-6">
 
@@ -190,7 +197,8 @@
         {{-- TAB 2: LIST VIEW --}}
         <div x-show="viewMode === 'list'" x-transition class="space-y-4" style="display: none;">
             {{-- Search + Filter --}}
-            <form id="events-search-form" @submit.prevent="searchEvents" method="GET" action="{{ route('admin.events') }}" class="flex flex-col gap-3 sm:flex-row">
+            <form id="events-search-form" @submit.prevent="searchEvents" method="GET" action="{{ route('admin.events') }}"
+                class="flex flex-col gap-3 sm:flex-row">
                 <div class="relative flex-1">
                     <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -211,13 +219,15 @@
             </form>
 
             {{-- Table --}}
-            <div id="events-table-wrapper" class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+            <div id="events-table-wrapper"
+                class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
                 @click="handlePaginationClick($event)"
-                :class="isLoadingList ? 'opacity-60 pointer-events-none transition-opacity duration-200' : 'transition-opacity duration-200'">
-                
+                :class="isLoadingList ? 'opacity-60 pointer-events-none transition-opacity duration-200' :
+                    'transition-opacity duration-200'">
+
                 {{-- Dynamic Loading Bar --}}
-                <div x-show="isLoadingList" class="absolute left-0 right-0 top-0 z-10 h-1 overflow-hidden bg-primary/10">
-                    <div class="h-full bg-primary animate-loading-bar w-1/3 rounded-full absolute top-0 left-0"></div>
+                <div x-show="isLoadingList" class="bg-primary/10 absolute left-0 right-0 top-0 z-10 h-1 overflow-hidden">
+                    <div class="bg-primary animate-loading-bar absolute left-0 top-0 h-full w-1/3 rounded-full"></div>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -338,7 +348,7 @@
         </div>
 
         {{-- Event Detail Modal --}}
-        <x-modal name="event-detail-modal" maxWidth="lg">
+        <x-modal name="event-detail-modal" maxWidth="lg" desktopLayout="drawer">
             {{-- Modal Header --}}
             <div class="mb-4 flex items-start justify-between gap-4">
                 <div>
@@ -346,7 +356,8 @@
                         x-text="selectedEvent.category"></span>
                     <h3 class="font-display text-charcoal mt-2 text-xl font-bold" x-text="selectedEvent.title"></h3>
                 </div>
-                <button @click="$dispatch('close-event-detail-modal')" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 md:hidden">
+                <button @click="$dispatch('close-event-detail-modal')"
+                    class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 md:hidden">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -357,8 +368,7 @@
             <div class="space-y-4 text-sm text-gray-600">
                 <div class="flex items-start gap-3">
                     <div class="shrink-0 rounded-lg bg-gray-50 p-2 text-gray-400">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="2">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -376,8 +386,7 @@
 
                 <div class="flex items-start gap-3">
                     <div class="shrink-0 rounded-lg bg-gray-50 p-2 text-gray-400">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="2">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         </svg>
@@ -428,8 +437,7 @@
             <div class="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-4">
                 <button type="button" @click="$dispatch('close-event-detail-modal'); openEdit(selectedEvent.raw)"
                     class="border-primary/20 bg-primary/5 text-primary hover:bg-primary inline-flex items-center justify-center gap-1.5 rounded-xl border px-4 py-2.5 text-xs font-bold transition-all hover:text-white">
-                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                        stroke-width="2">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
@@ -454,7 +462,7 @@
         </x-modal>
 
         {{-- Create / Edit Event Form Modal --}}
-        <x-modal name="event-form-modal" maxWidth="2xl">
+        <x-modal name="event-form-modal" maxWidth="2xl" desktopLayout="drawer">
             {{-- Modal Header --}}
             <div class="mb-5 flex items-start justify-between gap-4 border-b border-gray-100 pb-3">
                 <div>
@@ -469,207 +477,205 @@
                 </button>
             </div>
 
-                {{-- Form --}}
-                <form :action="formAction" method="POST" class="space-y-5">
-                    @csrf
-                    <template x-if="formMethod === 'PUT'">
-                        <input type="hidden" name="_method" value="PUT">
-                    </template>
-                    <input type="hidden" name="id" x-model="formFields.id">
+            {{-- Form --}}
+            <form :action="formAction" method="POST" class="space-y-5">
+                @csrf
+                <template x-if="formMethod === 'PUT'">
+                    <input type="hidden" name="_method" value="PUT">
+                </template>
+                <input type="hidden" name="id" x-model="formFields.id">
 
-                    {{-- Row 1: Nama Event & Kategori --}}
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                        <div class="md:col-span-2">
-                            <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Nama
-                                Event <span class="text-red-500">*</span></label>
-                            <input type="text" name="name" x-model="formFields.name"
-                                placeholder="Contoh: Festival Bambu Penglipuran 2026"
-                                class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
-                                required>
-                            @error('name')
+                {{-- Row 1: Nama Event & Kategori --}}
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div class="md:col-span-2">
+                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Nama
+                            Event <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" x-model="formFields.name"
+                            placeholder="Contoh: Festival Bambu Penglipuran 2026"
+                            class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
+                            required>
+                        @error('name')
+                            <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Kategori
+                            <span class="text-red-500">*</span></label>
+                        <select name="category" x-model="formFields.category"
+                            class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-1">
+                            @foreach (['Upacara Adat', 'Festival', 'Workshop', 'Pameran', 'Pertunjukan Seni'] as $cat)
+                                <option value="{{ $cat }}">{{ $cat }}</option>
+                            @endforeach
+                        </select>
+                        @error('category')
+                            <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
+                {{-- Row 2: Deskripsi --}}
+                <div>
+                    <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Deskripsi
+                        Event</label>
+                    <textarea name="description" rows="3" x-model="formFields.description"
+                        placeholder="Jelaskan latar belakang dan kegiatan dalam event ini..."
+                        class="focus:border-primary focus:ring-primary/30 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"></textarea>
+                    @error('description')
+                        <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                {{-- Row 3: Waktu Mulai & Waktu Selesai --}}
+                <div class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-100 bg-gray-50/50 p-4 md:grid-cols-2">
+                    <div>
+                        <span class="text-primary mb-2 block text-xs font-bold uppercase tracking-wider">Pelaksanaan
+                            Mulai</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] font-semibold uppercase text-gray-500">Tanggal <span
+                                        class="text-red-500">*</span></label>
+                                <input type="date" name="start_date" x-model="formFields.start_date"
+                                    class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-1"
+                                    required>
+                                @error('start_date')
+                                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-semibold uppercase text-gray-500">Jam</label>
+                                <input type="time" name="start_time" x-model="formFields.start_time"
+                                    class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-1">
+                                @error('start_time')
+                                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-primary mb-2 block text-xs font-bold uppercase tracking-wider">Pelaksanaan
+                            Selesai</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] font-semibold uppercase text-gray-500">Tanggal <span
+                                        class="text-red-500">*</span></label>
+                                <input type="date" name="end_date" x-model="formFields.end_date"
+                                    class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-1"
+                                    required>
+                                @error('end_date')
+                                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-semibold uppercase text-gray-500">Jam</label>
+                                <input type="time" name="end_time" x-model="formFields.end_time"
+                                    class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-1">
+                                @error('end_time')
+                                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Alpine client-side date warning --}}
+                    <div x-show="isDateInvalid"
+                        class="flex items-center gap-2 rounded-xl border border-red-100 bg-red-50 p-2.5 text-xs text-red-600 md:col-span-2"
+                        style="display: none;">
+                        <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span>Peringatan: Tanggal & Waktu Selesai harus setelah Waktu Mulai!</span>
+                    </div>
+                </div>
+
+                {{-- Row 4: Lokasi Tempat --}}
+                <div class="space-y-3">
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Lokasi
+                            Tempat <span class="text-red-500">*</span></label>
+                        <input type="text" name="location_name" x-model="formFields.location_name"
+                            placeholder="Contoh: Bale Banjar atau Pura Penataran Agung"
+                            class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
+                            required>
+                        @error('location_name')
+                            <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">Latitude
+                                (opsional)</label>
+                            <input type="number" step="any" name="latitude" x-model="formFields.latitude"
+                                placeholder="Contoh: -8.4312"
+                                class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1">
+                            @error('latitude')
                                 <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
                             @enderror
                         </div>
                         <div>
                             <label
-                                class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Kategori
-                                <span class="text-red-500">*</span></label>
-                            <select name="category" x-model="formFields.category"
-                                class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-1">
-                                @foreach (['Upacara Adat', 'Festival', 'Workshop', 'Pameran', 'Pertunjukan Seni'] as $cat)
-                                    <option value="{{ $cat }}">{{ $cat }}</option>
-                                @endforeach
-                            </select>
-                            @error('category')
-                                <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    {{-- Row 2: Deskripsi --}}
-                    <div>
-                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Deskripsi
-                            Event</label>
-                        <textarea name="description" rows="3" x-model="formFields.description"
-                            placeholder="Jelaskan latar belakang dan kegiatan dalam event ini..."
-                            class="focus:border-primary focus:ring-primary/30 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"></textarea>
-                        @error('description')
-                            <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    {{-- Row 3: Waktu Mulai & Waktu Selesai --}}
-                    <div
-                        class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-100 bg-gray-50/50 p-4 md:grid-cols-2">
-                        <div>
-                            <span class="text-primary mb-2 block text-xs font-bold uppercase tracking-wider">Pelaksanaan
-                                Mulai</span>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="text-[10px] font-semibold uppercase text-gray-500">Tanggal <span
-                                            class="text-red-500">*</span></label>
-                                    <input type="date" name="start_date" x-model="formFields.start_date"
-                                        class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-1"
-                                        required>
-                                    @error('start_date')
-                                        <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div>
-                                    <label class="text-[10px] font-semibold uppercase text-gray-500">Jam</label>
-                                    <input type="time" name="start_time" x-model="formFields.start_time"
-                                        class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-1">
-                                    @error('start_time')
-                                        <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="text-primary mb-2 block text-xs font-bold uppercase tracking-wider">Pelaksanaan
-                                Selesai</span>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="text-[10px] font-semibold uppercase text-gray-500">Tanggal <span
-                                            class="text-red-500">*</span></label>
-                                    <input type="date" name="end_date" x-model="formFields.end_date"
-                                        class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-1"
-                                        required>
-                                    @error('end_date')
-                                        <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div>
-                                    <label class="text-[10px] font-semibold uppercase text-gray-500">Jam</label>
-                                    <input type="time" name="end_time" x-model="formFields.end_time"
-                                        class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-1">
-                                    @error('end_time')
-                                        <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Alpine client-side date warning --}}
-                        <div x-show="isDateInvalid"
-                            class="flex items-center gap-2 rounded-xl border border-red-100 bg-red-50 p-2.5 text-xs text-red-600 md:col-span-2"
-                            style="display: none;">
-                            <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                            <span>Peringatan: Tanggal & Waktu Selesai harus setelah Waktu Mulai!</span>
-                        </div>
-                    </div>
-
-                    {{-- Row 4: Lokasi Tempat --}}
-                    <div class="space-y-3">
-                        <div>
-                            <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Lokasi
-                                Tempat <span class="text-red-500">*</span></label>
-                            <input type="text" name="location_name" x-model="formFields.location_name"
-                                placeholder="Contoh: Bale Banjar atau Pura Penataran Agung"
-                                class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
-                                required>
-                            @error('location_name')
-                                <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                            @enderror
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label
-                                    class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">Latitude
-                                    (opsional)</label>
-                                <input type="number" step="any" name="latitude" x-model="formFields.latitude"
-                                    placeholder="Contoh: -8.4312"
-                                    class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1">
-                                @error('latitude')
-                                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div>
-                                <label
-                                    class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">Longitude
-                                    (opsional)</label>
-                                <input type="number" step="any" name="longitude" x-model="formFields.longitude"
-                                    placeholder="Contoh: 115.3521"
-                                    class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1">
-                                @error('longitude')
-                                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Row 5: Harga & Kapasitas --}}
-                    <div class="grid grid-cols-1 gap-4 border-t border-gray-100 pt-2 md:grid-cols-2">
-                        <div class="flex flex-col justify-center">
-                            <div class="flex items-center gap-2.5 py-2">
-                                <input type="checkbox" id="is_free_form" name="is_free" value="1"
-                                    x-model="formFields.is_free"
-                                    class="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300">
-                                <label for="is_free_form"
-                                    class="cursor-pointer text-xs font-bold uppercase tracking-wider text-gray-700">Event
-                                    Gratis</label>
-                            </div>
-                        </div>
-                        <div x-show="!formFields.is_free" x-transition class="space-y-1.5" style="display: none;">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700">Harga Tiket
-                                (Rp) <span class="text-red-500">*</span></label>
-                            <input type="number" name="price" x-model="formFields.price" placeholder="Contoh: 50000"
-                                :required="!formFields.is_free"
+                                class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">Longitude
+                                (opsional)</label>
+                            <input type="number" step="any" name="longitude" x-model="formFields.longitude"
+                                placeholder="Contoh: 115.3521"
                                 class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1">
-                            @error('price')
+                            @error('longitude')
                                 <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
+                </div>
 
-                    <div>
-                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Kapasitas
-                            Maksimal (opsional)</label>
-                        <input type="number" name="max_participants" x-model="formFields.max_participants"
-                            placeholder="Maks. pengunjung"
+                {{-- Row 5: Harga & Kapasitas --}}
+                <div class="grid grid-cols-1 gap-4 border-t border-gray-100 pt-2 md:grid-cols-2">
+                    <div class="flex flex-col justify-center">
+                        <div class="flex items-center gap-2.5 py-2">
+                            <input type="checkbox" id="is_free_form" name="is_free" value="1"
+                                x-model="formFields.is_free"
+                                class="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300">
+                            <label for="is_free_form"
+                                class="cursor-pointer text-xs font-bold uppercase tracking-wider text-gray-700">Event
+                                Gratis</label>
+                        </div>
+                    </div>
+                    <div x-show="!formFields.is_free" x-transition class="space-y-1.5" style="display: none;">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700">Harga Tiket
+                            (Rp) <span class="text-red-500">*</span></label>
+                        <input type="number" name="price" x-model="formFields.price" placeholder="Contoh: 50000"
+                            :required="!formFields.is_free"
                             class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1">
-                        @error('max_participants')
+                        @error('price')
                             <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
                         @enderror
                     </div>
+                </div>
 
-                    {{-- Modal Footer Buttons --}}
-                    <div class="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-4">
-                        <button type="button" @click="$dispatch('close-event-form-modal')"
-                            class="rounded-xl border border-gray-200 px-5 py-2.5 text-xs font-bold text-gray-500 transition-all hover:bg-gray-50">
-                            Batal
-                        </button>
-                        <button type="submit" :disabled="isDateInvalid"
-                            :class="isDateInvalid ? 'opacity-50 cursor-not-allowed' : ''"
-                            class="bg-primary shadow-primary/20 hover:bg-primary-600 rounded-xl px-5 py-2.5 text-xs font-bold text-white shadow-lg transition-all active:scale-[0.98]">
-                            Simpan Event
-                        </button>
-                    </div>
-                </form>
+                <div>
+                    <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Kapasitas
+                        Maksimal (opsional)</label>
+                    <input type="number" name="max_participants" x-model="formFields.max_participants"
+                        placeholder="Maks. pengunjung"
+                        class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1">
+                    @error('max_participants')
+                        <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                {{-- Modal Footer Buttons --}}
+                <div class="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-4">
+                    <button type="button" @click="$dispatch('close-event-form-modal')"
+                        class="rounded-xl border border-gray-200 px-5 py-2.5 text-xs font-bold text-gray-500 transition-all hover:bg-gray-50">
+                        Batal
+                    </button>
+                    <button type="submit" :disabled="isDateInvalid"
+                        :class="isDateInvalid ? 'opacity-50 cursor-not-allowed' : ''"
+                        class="bg-primary shadow-primary/20 hover:bg-primary-600 rounded-xl px-5 py-2.5 text-xs font-bold text-white shadow-lg transition-all active:scale-[0.98]">
+                        Simpan Event
+                    </button>
+                </div>
+            </form>
         </x-modal>
 
     </div>
@@ -733,7 +739,8 @@
 
                 openEdit(eventData) {
                     this.formTitle = 'Ubah Event';
-                    this.formAction = '{{ route('admin.events.update', 'EVENT_ID') }}'.replace('EVENT_ID', eventData.id);
+                    this.formAction = '{{ route('admin.events.update', 'EVENT_ID') }}'.replace(
+                        'EVENT_ID', eventData.id);
                     this.formMethod = 'PUT';
 
                     this.formFields = {
@@ -795,44 +802,45 @@
                 fetchEventsFromUrl(url, shouldPushState = true) {
                     this.isLoadingList = true;
                     fetch(url, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error('Network response was not ok');
-                        return response.text();
-                    })
-                    .then(html => {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-                        const newTable = doc.querySelector('#events-table-wrapper');
-                        const currentTable = document.querySelector('#events-table-wrapper');
-                        if (newTable && currentTable) {
-                            currentTable.innerHTML = newTable.innerHTML;
-                        }
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.text();
+                        })
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const newTable = doc.querySelector('#events-table-wrapper');
+                            const currentTable = document.querySelector('#events-table-wrapper');
+                            if (newTable && currentTable) {
+                                currentTable.innerHTML = newTable.innerHTML;
+                            }
 
-                        // Sync form input values
-                        const newSearch = doc.querySelector('input[name="search"]');
-                        const currentSearch = document.querySelector('input[name="search"]');
-                        if (newSearch && currentSearch) {
-                            currentSearch.value = newSearch.value;
-                        }
-                        const newCategory = doc.querySelector('select[name="category"]');
-                        const currentCategory = document.querySelector('select[name="category"]');
-                        if (newCategory && currentCategory) {
-                            currentCategory.value = newCategory.value;
-                        }
+                            // Sync form input values
+                            const newSearch = doc.querySelector('input[name="search"]');
+                            const currentSearch = document.querySelector('input[name="search"]');
+                            if (newSearch && currentSearch) {
+                                currentSearch.value = newSearch.value;
+                            }
+                            const newCategory = doc.querySelector('select[name="category"]');
+                            const currentCategory = document.querySelector(
+                                'select[name="category"]');
+                            if (newCategory && currentCategory) {
+                                currentCategory.value = newCategory.value;
+                            }
 
-                        if (shouldPushState) {
-                            window.history.pushState({}, '', url);
-                        }
-                        this.isLoadingList = false;
-                    })
-                    .catch(err => {
-                        console.error('AJAX Error:', err);
-                        this.isLoadingList = false;
-                    });
+                            if (shouldPushState) {
+                                window.history.pushState({}, '', url);
+                            }
+                            this.isLoadingList = false;
+                        })
+                        .catch(err => {
+                            console.error('AJAX Error:', err);
+                            this.isLoadingList = false;
+                        });
                 },
 
                 init() {
