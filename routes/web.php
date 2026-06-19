@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Admin\ARManagerController;
-use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\CapacityController;
 use App\Http\Controllers\Admin\CulturalObjectController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -236,10 +235,6 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/packages/{id}/edit', [PackageController::class, 'edit'])->name('admin.packages.edit');
     Route::put('/packages/{id}', [PackageController::class, 'update'])->name('admin.packages.update');
     Route::delete('/packages/{id}', [PackageController::class, 'destroy'])->name('admin.packages.destroy');
-
-    // Booking Routes
-    Route::get('/bookings', [BookingController::class, 'index'])->name('admin.bookings');
-    Route::put('/bookings/{id}/status', [BookingController::class, 'updateStatus'])->name('admin.bookings.status');
 
     // Feedback Routes
     Route::get('/feedback', [FeedbackController::class, 'index'])->name('admin.feedback');

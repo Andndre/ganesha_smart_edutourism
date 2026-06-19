@@ -761,59 +761,6 @@ class AdminTest extends TestCase
     }
 
     /**
-     * Test Reservation status update workflows.
-     */
-    public function test_bookings_index_and_status_update(): void
-    {
-        $package = TourPackage::create([
-            'name' => 'Paket Test Booking',
-            'slug' => 'paket-test-booking',
-            'price' => 100000,
-            'duration_hours' => 3.0,
-            'max_capacity' => 10,
-            'is_active' => true,
-        ]);
-
-        $booking = Reservation::create([
-            'user_id' => $this->adminUser->id,
-            'guest_name' => 'Budi Santoso',
-            'guest_email' => 'budi@test.com',
-            'guest_phone' => '08123456789',
-            'tour_package_id' => $package->id,
-            'reservation_type' => 'package',
-            'scheduled_date' => today()->addDays(2),
-            'scheduled_time' => '09:00:00',
-            'party_size' => 3,
-            'total_amount' => 300000,
-            'status' => 'pending',
-            'payment_status' => 'unpaid',
-            'qr_code' => 'QR-BOOKING-TEST',
-        ]);
-
-        // List bookings view
-        $response = $this->actingAs($this->adminUser)
-            ->get(route('admin.bookings'));
-        $response->assertStatus(200);
-        $response->assertSee('Budi Santoso');
-
-        // Filter bookings view by status
-        $responseFilter = $this->actingAs($this->adminUser)
-            ->get(route('admin.bookings', ['status' => 'Aktif']));
-        $responseFilter->assertStatus(200);
-
-        // Update booking status
-        $responseUpdate = $this->actingAs($this->adminUser)
-            ->put(route('admin.bookings.status', $booking->id), [
-                'status' => 'confirmed',
-                'payment_status' => 'paid',
-            ]);
-        $responseUpdate->assertRedirect();
-
-        $this->assertEquals('confirmed', $booking->fresh()->status);
-        $this->assertEquals('paid', $booking->fresh()->payment_status);
-    }
-
-    /**
      * Test Feedback / Review admin replies and public visibility.
      */
     public function test_feedback_index_reply_and_toggle_public(): void

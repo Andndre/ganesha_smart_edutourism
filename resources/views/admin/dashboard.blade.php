@@ -186,12 +186,6 @@
                                 'icon' =>
                                     'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
                             ],
-                            [
-                                'label' => 'Kelola Pemesanan',
-                                'route' => route('admin.bookings'),
-                                'icon' =>
-                                    'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
-                            ],
                         ];
                     @endphp
                     @foreach ($quickLinks as $link)
@@ -212,65 +206,6 @@
 
     </div>
 
-    {{-- ============================================================
-     RECENT BOOKINGS TABLE
-     ============================================================ --}}
-    <div class="mt-6 rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4">
-            <h3 class="text-charcoal font-semibold">Pemesanan Terbaru</h3>
-            <a href="{{ route('admin.bookings') }}" class="text-primary text-xs font-semibold hover:underline">Lihat Semua
-                →</a>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-gray-50 bg-gray-50/50">
-                        <th class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">ID</th>
-                        <th class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
-                            Wisatawan</th>
-                        <th class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Paket
-                        </th>
-                        <th class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Tanggal
-                        </th>
-                        <th class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Status
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    @foreach ($bookings as $b)
-                        @php
-                            $statusText = match ($b->status) {
-                                'confirmed' => 'Aktif',
-                                'completed' => 'Selesai',
-                                'cancelled' => 'Dibatalkan',
-                                default => ucfirst($b->status),
-                            };
-                            $badge = match ($b->status) {
-                                'confirmed' => 'bg-primary/10 text-primary',
-                                'completed' => 'bg-gray-100 text-gray-500',
-                                'cancelled' => 'bg-warning/10 text-warning',
-                                default => 'bg-gray-100 text-gray-500',
-                            };
-                        @endphp
-                        <tr class="hover:bg-gray-50/50">
-                            <td class="px-5 py-3.5 font-mono text-xs text-gray-400">
-                                #BK-{{ str_pad($b->id, 4, '0', STR_PAD_LEFT) }}</td>
-                            <td class="text-charcoal px-5 py-3.5 font-medium">
-                                {{ $b->guest_name ?? ($b->user ? $b->user->name : 'N/A') }}</td>
-                            <td class="px-5 py-3.5 text-gray-600">{{ $b->tourPackage->name ?? 'N/A' }}</td>
-                            <td class="px-5 py-3.5 text-gray-500">
-                                {{ $b->scheduled_date ? $b->scheduled_date->translatedFormat('d M Y') : '-' }}
-                            </td>
-                            <td class="px-5 py-3.5">
-                                <span
-                                    class="{{ $badge }} rounded-full px-2.5 py-1 text-xs font-semibold">{{ $statusText }}</span>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
 
 @endsection
 
