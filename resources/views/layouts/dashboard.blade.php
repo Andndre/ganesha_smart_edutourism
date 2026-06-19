@@ -72,7 +72,7 @@
     Uses charcoal (#191A19) aligned with DESIGN.md charcoal token
     ============================================================ --}}
     <aside id="admin-sidebar"
-        class="sidebar-hidden z-40 flex h-screen w-[260px] flex-col border-r border-gray-100 bg-charcoal text-white shadow-xl lg:flex">
+        class="sidebar-hidden z-40 flex h-screen w-65 flex-col border-r border-gray-100 bg-charcoal text-white shadow-xl lg:flex">
 
         {{-- Brand Header --}}
         <div class="flex items-center gap-3 border-b border-white/10 px-5 py-5">
@@ -266,7 +266,7 @@
                     @endphp
                     <a href="{{ $item['url'] }}"
                         class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all {{ $activeClass }}">
-                        <svg class="h-[18px] w-[18px] shrink-0 {{ $isActive ? 'text-white' : 'text-white/40 group-hover:text-white/70' }}"
+                        <svg class="h-4.5 w-4.5 shrink-0 {{ $isActive ? 'text-white' : 'text-white/40 group-hover:text-white/70' }}"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="{{ $item['icon'] }}" />
                         </svg>
@@ -295,7 +295,7 @@
                 @csrf
                 <button type="submit"
                     class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/50 transition-all hover:bg-white/8 hover:text-white">
-                    <svg class="h-[18px] w-[18px] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    <svg class="h-4.5 w-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                         stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

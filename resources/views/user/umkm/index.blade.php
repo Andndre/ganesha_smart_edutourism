@@ -202,7 +202,7 @@
         <!-- Content -->
         <div class="mt-4">
             <h3 id="modal-category-name" class="font-display text-charcoal text-xl font-bold">Nama Kategori</h3>
-            <p id="modal-category-description" class="mt-2 min-h-[50px] text-sm leading-relaxed text-gray-500">Deskripsi
+            <p id="modal-category-description" class="mt-2 min-h-12.5 text-sm leading-relaxed text-gray-500">Deskripsi
                 kategori...</p>
         </div>
 

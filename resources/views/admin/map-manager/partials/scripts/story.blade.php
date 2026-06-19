@@ -138,7 +138,7 @@ function addStoryField(story = null, forcedCategory = null) {
             </div>
             
             <!-- Editor Container -->
-            <div id="${editorId}" class="story-editor focus-within:border-primary focus-within:ring-primary/20 max-h-[200px] min-h-[100px] w-full overflow-y-auto rounded-b-lg border border-gray-200 bg-white p-3 text-sm focus-within:ring-1"></div>
+            <div id="${editorId}" class="story-editor focus-within:border-primary focus-within:ring-primary/20 max-h-50 min-h-25 w-full overflow-y-auto rounded-b-lg border border-gray-200 bg-white p-3 text-sm focus-within:ring-1"></div>
             <textarea name="story_content[]" class="hidden"></textarea>
         </div>
     `;

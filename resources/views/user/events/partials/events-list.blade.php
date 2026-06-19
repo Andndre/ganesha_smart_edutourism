@@ -18,7 +18,7 @@
             <div class="animate-fade-in-up relative" :style="'animation-delay: ' + (index * 60) + 'ms'">
                 <!-- Timeline Pin -->
                 <div
-                    class="bg-primary absolute left-[-22px] top-1.5 z-10 h-3 w-3 rounded-full border-2 border-white shadow-sm">
+                    class="bg-primary absolute -left-5.5 top-1.5 z-10 h-3 w-3 rounded-full border-2 border-white shadow-sm">
                 </div>
 
                 <!-- Card Element -->
@@ -73,7 +73,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             </svg>
-                            <span class="max-w-[120px] truncate md:max-w-none" x-text="e.location_name"></span>
+                            <span class="max-w-30 truncate md:max-w-none" x-text="e.location_name"></span>
                         </div>
                     </div>
 

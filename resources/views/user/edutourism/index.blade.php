@@ -116,7 +116,7 @@
                     Memuat...</h3>
                 <p id="preview-desc" class="text-sm text-gray-500"></p>
 
-                <div class="mt-4 max-h-[300px] overflow-y-auto rounded-xl border border-gray-100 bg-gray-50 p-4">
+                <div class="mt-4 max-h-75 overflow-y-auto rounded-xl border border-gray-100 bg-gray-50 p-4">
                     <h4 class="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">Titik Perhentian</h4>
                     <ul id="preview-points" class="space-y-3">
                         <li class="text-sm text-gray-500">Memuat rute...</li>

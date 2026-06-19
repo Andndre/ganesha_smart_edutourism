@@ -59,7 +59,7 @@
                     <div class="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white shadow-sm">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700">Terima Pembayaran Aplikasi</label>
-                            <p class="mt-1 text-xs text-gray-400 max-w-[250px]">Aktifkan fitur ini jika Anda ingin menerima pembayaran langsung (Midtrans) dari wisatawan.</p>
+                            <p class="mt-1 text-xs text-gray-400 max-w-62.5">Aktifkan fitur ini jika Anda ingin menerima pembayaran langsung (Midtrans) dari wisatawan.</p>
                         </div>
                         <label class="relative inline-flex cursor-pointer items-center">
                             <!-- Hidden input to handle unchecked state -->

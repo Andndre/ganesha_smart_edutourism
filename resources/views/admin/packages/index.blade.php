@@ -29,7 +29,7 @@
                     <span class="shrink-0 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-bold text-gray-400">Nonaktif</span>
                 @endif
             </div>
-            <p class="text-sm text-gray-500 line-clamp-3 min-h-[60px]">{{ $pkg->description }}</p>
+            <p class="text-sm text-gray-500 line-clamp-3 min-h-15">{{ $pkg->description }}</p>
             
             {{-- Inclusions --}}
             @if(is_array($pkg->inclusions) && count($pkg->inclusions) > 0)

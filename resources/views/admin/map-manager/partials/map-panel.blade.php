@@ -1,7 +1,7 @@
 {{-- Right Side Panel: The Interactive Map --}}
 <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm h-full flex flex-col">
     <div id="location-map"
-        class="w-full rounded-xl border border-gray-200 shadow-inner flex-1 min-h-[450px] lg:min-h-0"
+        class="w-full rounded-xl border border-gray-200 shadow-inner flex-1 min-h-112.5 lg:min-h-0"
         style="z-index: 0;"></div>
 
     {{-- Legend --}}

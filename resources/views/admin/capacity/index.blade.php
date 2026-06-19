@@ -142,7 +142,7 @@
     {{-- Real-time Map --}}
     <div class="relative mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
         <h3 class="text-charcoal mb-4 font-semibold">Pemantauan Lokasi Real-time</h3>
-        <div class="relative h-[400px] w-full overflow-hidden rounded-xl border border-gray-200">
+        <div class="relative h-100 w-full overflow-hidden rounded-xl border border-gray-200">
             <div id="map" class="relative z-10 h-full w-full"></div>
             <div id="heatmap-overlay" class="z-1000 pointer-events-none absolute inset-0 overflow-hidden"></div>
         </div>
