@@ -56,14 +56,9 @@
         }
     </style>
 
-    @vite(['resources/css/app.css'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Alpine.js (If needed for simple component states, though we will mainly use Vanilla JS) --}}
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
-
-    {{-- SweetAlert2 for beautiful alerts --}}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    @livewireStyles
     @stack('styles')
     @stack('head-scripts')
 </head>
@@ -81,6 +76,7 @@
         </script>
     @endenv
 
+    @livewireScripts
     @stack('scripts')
 </body>
 
