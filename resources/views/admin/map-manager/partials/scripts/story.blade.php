@@ -160,7 +160,7 @@ function addStoryField(story = null, forcedCategory = null) {
             content: contentVal,
             editorProps: {
                 attributes: {
-                    class: 'focus:outline-none prose max-w-none text-sm text-gray-700 leading-relaxed min-h-[80px]',
+                    class: 'focus:outline-none prose max-w-none text-sm text-gray-700 leading-relaxed min-h-20',
                 }
             },
             onUpdate({ editor }) {
