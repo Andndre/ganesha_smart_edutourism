@@ -86,7 +86,7 @@
 
 <body class="flex h-full w-full items-center justify-center overflow-hidden bg-gray-50 antialiased">
 
-    <div class="bg-surface text-charcoal relative flex h-full w-full flex-col md:flex-row-reverse overflow-hidden"
+    <div class="bg-slate-50 text-charcoal relative flex h-full w-full flex-col md:flex-row-reverse overflow-hidden"
         style="transform: translateZ(0);">
 
         <!-- Content Area Wrapper -->
