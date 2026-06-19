@@ -18,14 +18,6 @@ class CapacityController extends Controller
     public function index(): View
     {
         $zones = CapacityZone::where('is_active', true)->get();
-        if ($zones->isEmpty()) {
-            $zones = collect([
-                new CapacityZone(['name' => 'Zona Utama (Jalan Utama)', 'current_count' => 0, 'max_capacity' => 400, 'warning_threshold' => 70, 'critical_threshold' => 90, 'zone_identifier' => 'main_street', 'latitude' => -8.422303, 'longitude' => 115.359488, 'radius_meters' => 200]),
-                new CapacityZone(['name' => 'Area UMKM & Pasar', 'current_count' => 0, 'max_capacity' => 300, 'warning_threshold' => 70, 'critical_threshold' => 90, 'zone_identifier' => 'umkm_market', 'latitude' => -8.424103, 'longitude' => 115.359488, 'radius_meters' => 80]),
-                new CapacityZone(['name' => 'Pura Penataran Agung', 'current_count' => 0, 'max_capacity' => 150, 'warning_threshold' => 70, 'critical_threshold' => 90, 'zone_identifier' => 'pura_penataran', 'latitude' => -8.420100, 'longitude' => 115.359500, 'radius_meters' => 60]),
-                new CapacityZone(['name' => 'Kebun Bambu & Jalur Trekking', 'current_count' => 0, 'max_capacity' => 200, 'warning_threshold' => 70, 'critical_threshold' => 90, 'zone_identifier' => 'bamboo_forest', 'latitude' => -8.420500, 'longitude' => 115.361000, 'radius_meters' => 150]),
-            ]);
-        }
 
         // Reset current counts
         foreach ($zones as $zone) {
@@ -100,8 +92,8 @@ class CapacityController extends Controller
         $totalCurrentCount = $zones->sum('current_count');
         $totalMaxCapacity = $zones->sum('max_capacity');
 
-        $defaultLat = (float) env('PENGLIPURAN_LAT', -8.422303596762355);
-        $defaultLon = (float) env('PENGLIPURAN_LON', 115.35948833933173);
+        $defaultLat = (float) config('services.penglipuran.latitude');
+        $defaultLon = (float) config('services.penglipuran.longitude');
 
         return view('admin.capacity.index', compact('zones', 'totalCurrentCount', 'totalMaxCapacity', 'hourlyData', 'hourlyLabels', 'heatmapData', 'defaultLat', 'defaultLon'));
     }

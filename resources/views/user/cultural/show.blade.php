@@ -138,7 +138,7 @@
                             x-text="playing ? 'Memutar Kisah Sejarah...' : 'Dengarkan Kisah Ini'">Dengarkan Kisah Ini</div>
                         <!-- Playback Seekbar & Timers -->
                         <div class="mt-1.5 flex items-center gap-3">
-                            <span class="min-w-[28px] text-[10px] font-bold tabular-nums text-gray-500"
+                            <span class="min-w-7 text-[10px] font-bold tabular-nums text-gray-500"
                                 x-text="formatTime(currentTime)">0:00</span>
                             <input type="range" min="0" :max="duration || 100" x-model.number="currentTime"
                                 @mousedown="dragging = true" @touchstart="dragging = true"
@@ -147,7 +147,7 @@
                                 :style="'background: linear-gradient(to right, #1E5128 0%, #1E5128 ' + (currentTime / (
                                     duration || 100) * 100) + '%, #f3f4f6 ' + (currentTime / (duration || 100) * 100) +
                                 '%, #f3f4f6 100%);'">
-                            <span class="min-w-[28px] text-right text-[10px] font-bold tabular-nums text-gray-500"
+                            <span class="min-w-7 text-right text-[10px] font-bold tabular-nums text-gray-500"
                                 x-text="duration ? formatTime(duration) : '0:00'">0:00</span>
                         </div>
                     </div>

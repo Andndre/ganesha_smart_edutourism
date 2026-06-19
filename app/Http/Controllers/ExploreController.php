@@ -120,8 +120,8 @@ class ExploreController extends Controller
             }
         }
 
-        $defaultLat = (float) env('PENGLIPURAN_LAT', -8.422303596762355);
-        $defaultLon = (float) env('PENGLIPURAN_LON', 115.35948833933173);
+        $defaultLat = (float) config('services.penglipuran.latitude');
+        $defaultLon = (float) config('services.penglipuran.longitude');
 
         return view('user.explore.index', compact('locations', 'formattedRoutes', 'heatmapData', 'defaultLat', 'defaultLon'));
     }
