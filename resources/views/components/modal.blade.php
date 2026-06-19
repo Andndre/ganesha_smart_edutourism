@@ -26,8 +26,8 @@
 
     $desktopContainerClass = match ($desktopLayout) {
         'drawer' => $drawerFromSide === 'right'
-            ? 'md:rounded-none md:border-l md:border-gray-200 md:h-full overflow-y-auto'
-            : 'md:rounded-none md:border-r md:border-gray-200 md:h-full overflow-y-auto',
+            ? 'md:rounded-none md:rounded-t-none md:border-l md:border-gray-200 md:h-screen overflow-y-auto'
+            : 'md:rounded-none md:rounded-t-none md:border-r md:border-gray-200 md:h-screen overflow-y-auto',
         default => 'md:rounded-3xl overflow-hidden md:max-h-[85vh]',
     };
 
@@ -48,7 +48,7 @@
 <div x-data="{ isOpen: {{ $defaultOpen ? 'true' : 'false' }} }" x-show="isOpen" @open-{{ $name }}.window="isOpen = true"
     @close-{{ $name }}.window="isOpen = false"
     class="{{ $hasBackdrop ? 'bg-charcoal/60 backdrop-blur-sm' : 'bg-transparent pointer-events-none' }} z-100 {{ $desktopAlignmentClass }} fixed inset-0 flex items-end justify-center px-0"
-    style="display: none; will-change: transform; transform: translate3d(0,0,0);"
+    style="display: none;"
     x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
     x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>
