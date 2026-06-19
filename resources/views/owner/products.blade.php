@@ -209,7 +209,7 @@
     @endif
 
     {{-- Product Modal Form --}}
-    <x-modal name="product-modal" maxWidth="2xl">
+    <x-modal name="product-modal" maxWidth="2xl" desktopLayout="drawer">
         <div class="mb-4">
             <h3 id="modal-title" class="font-display text-lg font-bold text-charcoal">Tambah Produk UMKM</h3>
         </div>

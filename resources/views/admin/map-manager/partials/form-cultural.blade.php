@@ -392,7 +392,7 @@
             Kelola Soal Kuis
         </button>
 
-        <x-modal name="quizzes-modal" maxWidth="2xl">
+        <x-modal name="quizzes-modal" maxWidth="2xl" desktopLayout="drawer">
             <div class="mb-4">
                 <h3 class="font-display text-charcoal text-lg font-bold">Kelola Kuis Edutourism</h3>
                 <p class="mt-1 text-xs text-gray-500">Soal-soal ini akan muncul saat turis tiba di lokasi ini.</p>
@@ -436,7 +436,7 @@
             Kelola Kisah Budaya
         </button>
 
-        <x-modal name="stories-modal" maxWidth="2xl">
+        <x-modal name="stories-modal" maxWidth="2xl" desktopLayout="drawer">
             <div class="mb-4">
                 <h3 class="font-display text-charcoal text-lg font-bold">Kelola Kisah Budaya</h3>
                 <p class="mt-1 text-xs text-gray-500">Kelola dan urutkan informasi sejarah, filosofi, atau nilai luhur

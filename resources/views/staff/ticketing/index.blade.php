@@ -276,7 +276,7 @@
         </div>
 
         <!-- Walk-in Purchase Modal -->
-        <x-modal name="walkin-modal" maxWidth="md">
+        <x-modal name="walkin-modal" maxWidth="md" desktopLayout="drawer">
             <div class="space-y-4">
                 <div class="flex items-center justify-between border-b border-gray-100 pb-3">
                     <h3 class="font-display text-charcoal text-lg font-bold">Pembelian Tiket Walk-in</h3>
@@ -682,10 +682,12 @@
                                 });
                             } else if (data.payment_method === 'qris' && data.snap_token) {
                                 window.dispatchEvent(new CustomEvent('close-walkin-modal'));
-                                
-                                const isProduction = {{ config('midtrans.is_production') ? 'true' : 'false' }};
+
+                                const isProduction =
+                                    {{ config('midtrans.is_production') ? 'true' : 'false' }};
                                 if (!isProduction) {
-                                    const redirectUrl = `https://app.sandbox.midtrans.com/snap/v2/vtweb/${data.snap_token}`;
+                                    const redirectUrl =
+                                        `https://app.sandbox.midtrans.com/snap/v2/vtweb/${data.snap_token}`;
                                     window.open(redirectUrl, '_blank');
                                     Swal.fire({
                                         title: 'Menunggu Pembayaran',
