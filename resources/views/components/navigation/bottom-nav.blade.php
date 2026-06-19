@@ -1,6 +1,6 @@
-<nav class="pb-sab w-full bg-white shadow-sm border-t border-slate-200 md:static md:w-20 lg:w-64 md:h-full md:shrink-0 md:border-r md:border-slate-200 md:shadow-none md:pb-0"
+<nav class="pb-sab w-full bg-white shadow-sm border-t border-slate-200 md:static md:w-20 lg:w-64 md:h-[calc(100vh-2rem)] md:m-4 md:rounded-3xl md:shrink-0 md:border md:border-slate-200 md:shadow-sm md:pb-0 z-50 sticky md:top-4"
     role="navigation" aria-label="Main navigation">
-    <div class="relative flex h-16 items-center justify-around px-2 md:h-full md:flex-col md:justify-start md:pt-10 md:gap-4 lg:px-4">
+    <div class="relative flex h-16 items-center justify-around px-2 md:h-full md:flex-col md:justify-start md:pt-8 md:gap-2 lg:px-4">
 
         @php
             $isHome = Route::is('home');
@@ -11,14 +11,14 @@
         @endphp
 
         <!-- AR Scan Button Desktop Position -->
-        <div class="hidden md:flex w-full mb-6 lg:px-4">
+        <div class="hidden md:flex w-full mb-6 lg:px-0">
             <a href="{{ route('ar-scan') }}"
-                class="bg-primary flex w-full flex-col lg:flex-row items-center justify-center lg:justify-start gap-2 rounded-lg py-2.5 text-white shadow-sm transition-all duration-300 hover:bg-primary-dark hover:-translate-y-0.5 hover:shadow-md active:scale-95 px-3">
+                class="bg-primary flex w-full flex-col lg:flex-row items-center justify-center lg:justify-start gap-2 rounded-xl py-3 text-white shadow-sm transition-all duration-300 hover:bg-primary-dark hover:-translate-y-0.5 hover:shadow-md active:scale-95 px-4 mx-2 lg:mx-0">
                 <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M3 8V6a2 2 0 012-2h2M3 16v2a2 2 0 002 2h2M21 8V6a2 2 0 00-2-2h-2M21 16v2a2 2 0 01-2 2h-2M12 8v.01M12 12v.01M12 16v.01" />
                 </svg>
-                <span class="hidden lg:block text-sm font-medium">AR Scan</span>
+                <span class="hidden lg:block text-sm font-semibold">AR Scan</span>
             </a>
         </div>
 

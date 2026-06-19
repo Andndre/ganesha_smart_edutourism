@@ -3,18 +3,21 @@
 @section('header_title', 'Smart Edutourism')
 
 @section('content')
-    <div x-data>
-        <section class="relative px-5 pt-[calc(env(safe-area-inset-top)+8rem)] pb-4">
+    <div x-data class="relative w-full">
+        <!-- Curved Green Header Background (Full width to top) -->
+        <div class="absolute top-0 left-0 right-0 h-62 sm:h-64 lg:h-72 bg-[#1E5128] rounded-b-[2.5rem] lg:rounded-b-[3rem] -z-10 shadow-sm"></div>
+
+        <section class="relative px-4 md:px-8 pt-[calc(env(safe-area-inset-top)+7.5rem)] lg:pt-28 pb-4">
 
             <div class="flex items-start justify-between">
                 <div class="pr-4">
                     @auth
-                        <h2 class="font-display text-2xl font-bold tracking-tight text-gray-900">
+                        <h2 class="font-display text-2xl lg:text-3xl font-bold tracking-tight text-white">
                             {{ __('Rahajeng Rauh, :name!', ['name' => str(Auth::user()->name)->before(' ')]) }}</h2>
                     @else
-                        <h2 class="font-display text-2xl font-bold tracking-tight text-gray-900">{{ __('Rahajeng Rauh!') }}</h2>
+                        <h2 class="font-display text-2xl lg:text-3xl font-bold tracking-tight text-white">{{ __('Rahajeng Rauh!') }}</h2>
                     @endauth
-                    <p class="mt-1.5 text-sm font-medium text-gray-500 leading-snug">
+                    <p class="mt-1.5 text-sm font-medium text-green-100 leading-snug">
                         {{ __('Siap menjelajahi budaya & tradisi Penglipuran hari ini?') }}
                     </p>
                 </div>
@@ -47,143 +50,117 @@
                 $densitySub = $densityParts[1] ?? '';
             @endphp
 
-            <div
-                class="text-charcoal mx-auto mt-6 flex w-full items-center justify-between gap-2 rounded-2xl bg-white p-4 shadow-sm border border-slate-200 sm:p-5">
-                <div class="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
-                    <!-- Trigger (Clickable Weather Card) -->
-                    <div @click="$dispatch('open-weather-modal')"
-                        class="-m-1.5 flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 rounded-xl p-1.5 transition-all hover:bg-gray-50/50 active:scale-95 sm:gap-3"
-                        title="Lihat detail cuaca">
-                        @if (isset($weather) && $weather)
-                            <div class="flex shrink-0 items-center justify-center rounded-full bg-gray-50 p-2 sm:p-2.5">
-                                {!! $weather->getIconHtml() !!}
-                            </div>
-                            <div class="flex min-w-0 flex-col">
-                                <span
-                                    class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">Cuaca
-                                    Hari Ini</span>
-                                <span
-                                    class="mt-1 text-xl font-black leading-none text-gray-800 sm:text-2xl">{{ round($weather->temperature) }}°C</span>
-                                <span
-                                    class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ $weather->condition }}</span>
-                            </div>
-                        @else
-                            <div
-                                class="flex shrink-0 items-center justify-center rounded-full bg-gray-100 p-2 text-gray-400 sm:p-2.5">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                                </svg>
-                            </div>
-                            <div class="flex min-w-0 flex-col">
-                                <span
-                                    class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">Cuaca
-                                    Hari Ini</span>
-                                <span class="mt-1 text-xl font-black leading-none text-gray-400 sm:text-2xl">--°C</span>
-                                <span class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">Belum
-                                    Diperbarui</span>
-                            </div>
-                        @endif
-                    </div>
+            <div class="grid grid-cols-2 gap-3 mt-8 w-full">
+                <!-- Weather Widget -->
+                <div @click="$dispatch('open-weather-modal')"
+                    class="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center gap-3 cursor-pointer transition-transform active:scale-95 hover:shadow-md"
+                    title="Lihat detail cuaca">
+                    @if (isset($weather) && $weather)
+                        <div class="flex shrink-0 items-center justify-center rounded-2xl bg-sky-50 text-sky-500 p-2.5">
+                            {!! $weather->getIconHtml() !!}
+                        </div>
+                        <div class="flex min-w-0 flex-col">
+                            <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">Cuaca</span>
+                            <span class="mt-1 text-xl font-black leading-none text-gray-800">{{ round($weather->temperature) }}°</span>
+                            <span class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ $weather->condition }}</span>
+                        </div>
+                    @else
+                        <div class="flex shrink-0 items-center justify-center rounded-2xl bg-gray-50 text-gray-400 p-2.5">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                            </svg>
+                        </div>
+                        <div class="flex min-w-0 flex-col">
+                            <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">Cuaca</span>
+                            <span class="mt-1 text-xl font-black leading-none text-gray-400">--°</span>
+                            <span class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">Belum Ada</span>
+                        </div>
+                    @endif
                 </div>
 
-                <div class="mx-1.5 h-12 w-[1.5px] shrink-0 bg-gray-100 sm:mx-2"></div>
-
-                <div class="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
-                    <div
-                        class="{{ $densityClass }} {{ $densityBg }} flex shrink-0 items-center justify-center rounded-full p-2 sm:p-2.5">
+                <!-- Density Widget -->
+                <div class="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center gap-3 transition-transform active:scale-95">
+                    <div class="{{ $densityClass }} {{ $densityBg }} flex shrink-0 items-center justify-center rounded-2xl p-2.5">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
                     </div>
                     <div class="flex min-w-0 flex-col">
-                        <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">Kepadatan
-                            Desa</span>
-                        <span
-                            class="{{ $densityClass }} mt-1 text-xl font-black leading-none sm:text-2xl">{{ $densityMain }}</span>
-                        <span
-                            class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ $densitySub }}</span>
+                        <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">Kepadatan</span>
+                        <span class="{{ $densityClass }} mt-1 text-xl font-black leading-none">{{ $densityMain }}</span>
+                        <span class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ $densitySub }}</span>
                     </div>
                 </div>
             </div>
-        </section>        <section class="mb-6 mt-8 px-5">
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 items-start gap-3 md:gap-4">
-                <a href="{{ route('explore') }}"
-                    class="tap-target group flex flex-col items-center gap-3 rounded-2xl bg-white p-4 shadow-sm border border-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-md active:scale-95">
-                    <div class="text-primary flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 transition-transform duration-300 group-hover:scale-110">
-                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+        </section>        <section class="mb-6 mt-4 lg:mt-6 px-4 md:px-8">
+            <div class="bg-white rounded-4xl p-5 shadow-sm border border-slate-100 w-full">
+                <div class="grid grid-cols-4 sm:grid-cols-6 lg:flex lg:flex-wrap lg:justify-start gap-x-2 gap-y-6 lg:gap-8">
+                    <a href="{{ route('explore') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-16">
+                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-105">
+                        <svg class="h-7 w-7 lg:h-8 lg:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                         </svg>
                     </div>
-                    <span class="text-center text-xs font-semibold text-gray-700">Peta Wisata</span>
+                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">Peta</span>
                 </a>
-                <a href="{{ route('edutourism.index') }}"
-                    class="tap-target group flex flex-col items-center gap-3 rounded-2xl bg-white p-4 shadow-sm border border-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-md active:scale-95">
-                    <div class="text-[#1E5128] flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 transition-transform duration-300 group-hover:scale-110">
-                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                
+                <a href="{{ route('edutourism.index') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
+                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-[#1E5128]/10 text-[#1E5128] transition-transform duration-300 group-hover:scale-105">
+                        <svg class="h-7 w-7 lg:h-8 lg:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479L12 21l-6.825-3.943a12.083 12.083 0 01.665-6.479L12 14z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479L12 21l-6.825-3.943a12.083 12.083 0 01.665-6.479L12 14z" />
                         </svg>
                     </div>
-                    <span class="text-center text-xs font-semibold text-gray-700">Edutourism</span>
-                </a>
-                <a href="{{ route('umkm') }}"
-                    class="tap-target group flex flex-col items-center gap-3 rounded-2xl bg-white p-4 shadow-sm border border-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-md active:scale-95">
-                    <div class="text-primary flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 transition-transform duration-300 group-hover:scale-110">
-                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
-                    </div>
-                    <span class="text-center text-xs font-semibold text-gray-700">Pasar UMKM</span>
+                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">Edutourism</span>
                 </a>
 
-                <a href="{{ route('cultural-objects') }}"
-                    class="tap-target group flex flex-col items-center gap-3 rounded-2xl bg-white p-4 shadow-sm border border-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-md active:scale-95">
-                    <div class="text-secondary flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 transition-transform duration-300 group-hover:scale-110">
-                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                <a href="{{ route('umkm') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
+                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition-transform duration-300 group-hover:scale-105">
+                        <svg class="h-7 w-7 lg:h-8 lg:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                         </svg>
                     </div>
-                    <span class="text-center text-xs font-semibold text-gray-700">Objek Budaya</span>
+                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">UMKM</span>
                 </a>
-                <a href="{{ route('tour-packages') }}"
-                    class="tap-target group flex flex-col items-center gap-3 rounded-2xl bg-white p-4 shadow-sm border border-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-md active:scale-95">
-                    <div class="text-blue-600 flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 transition-transform duration-300 group-hover:scale-110">
-                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+
+                <a href="{{ route('cultural-objects') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
+                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 transition-transform duration-300 group-hover:scale-105">
+                        <svg class="h-7 w-7 lg:h-8 lg:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
                     </div>
-                    <span class="text-center text-xs font-semibold text-gray-700">Tiket & Paket</span>
+                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">Budaya</span>
                 </a>
-                <a href="{{ route('events') }}"
-                    class="tap-target group flex flex-col items-center gap-3 rounded-2xl bg-white p-4 shadow-sm border border-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-md active:scale-95">
-                    <div class="text-blue-600 flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 transition-transform duration-300 group-hover:scale-110">
-                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+
+                <a href="{{ route('tour-packages') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
+                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 transition-transform duration-300 group-hover:scale-105">
+                        <svg class="h-7 w-7 lg:h-8 lg:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                         </svg>
                     </div>
-                    <span class="text-center text-xs font-semibold text-gray-700">Jadwal Event</span>
+                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">Tiket</span>
                 </a>
+
+                <a href="{{ route('events') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
+                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 transition-transform duration-300 group-hover:scale-105">
+                        <svg class="h-7 w-7 lg:h-8 lg:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">Event</span>
+                </a>
+
                 @if (Auth::check() && Auth::user()->isUmkmOwner())
-                    <a href="{{ route('owner.dashboard') }}"
-                        class="tap-target group flex flex-col items-center gap-3 rounded-2xl bg-white p-4 shadow-sm border border-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-md active:scale-95">
-                        <div class="text-primary flex h-14 w-14 items-center justify-center rounded-full bg-primary/5 transition-transform duration-300 group-hover:scale-110">
-                            <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
+                    <a href="{{ route('owner.dashboard') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
+                        <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-purple-50 text-purple-600 transition-transform duration-300 group-hover:scale-105">
+                            <svg class="h-7 w-7 lg:h-8 lg:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
                             </svg>
                         </div>
-                        <span class="text-center text-xs font-semibold text-gray-700">Panel UMKM</span>
+                        <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">Panel</span>
                     </a>
                 @endif
+                </div>
             </div>
         </section>
     </div>
