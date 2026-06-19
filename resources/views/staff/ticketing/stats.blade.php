@@ -197,7 +197,7 @@
                         </div>
                         <div class="flex justify-between text-gray-500">
                             <span>Paket Wisata</span>
-                            <span class="font-semibold text-charcoal text-right max-w-[150px] truncate">{{ $res['package_name'] }}</span>
+                            <span class="font-semibold text-charcoal text-right max-w-37.5 truncate">{{ $res['package_name'] }}</span>
                         </div>
                         <div class="flex justify-between text-gray-500">
                             <span>Jumlah Peserta</span>

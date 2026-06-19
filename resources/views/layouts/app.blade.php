@@ -167,7 +167,7 @@
                         <div>
                             <p class="text-[10px] font-bold uppercase tracking-wider text-green-100">Smart Edutourism
                                 Aktif</p>
-                            <h4 class="max-w-[150px] truncate font-bold leading-tight text-white sm:max-w-[200px]">
+                            <h4 class="max-w-37.5 truncate font-bold leading-tight text-white sm:max-w-50">
                                 {{ $activeEdutourismSession->tourRoute->name }}</h4>
                         </div>
                     </div>

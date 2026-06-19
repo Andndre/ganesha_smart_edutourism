@@ -71,7 +71,7 @@
                 <!-- Filters & Sorting (ui-ux-pro-max) -->
                 <div class="no-scrollbar flex w-full gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:justify-end sm:pb-0">
                     <select x-model="filterStatus"
-                        class="focus:border-primary min-w-[130px] shrink-0 rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 shadow-sm transition-all focus:bg-white focus:outline-none sm:w-auto">
+                        class="focus:border-primary min-w-32.5 shrink-0 rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 shadow-sm transition-all focus:bg-white focus:outline-none sm:w-auto">
                         <option value="all">Semua Status</option>
                         <option value="completed">Selesai</option>
                         <option value="confirmed">Menunggu</option>
@@ -80,14 +80,14 @@
                     </select>
 
                     <select x-model="filterPayment"
-                        class="focus:border-primary min-w-[135px] shrink-0 rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 shadow-sm transition-all focus:bg-white focus:outline-none sm:w-auto">
+                        class="focus:border-primary min-w-33.75 shrink-0 rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 shadow-sm transition-all focus:bg-white focus:outline-none sm:w-auto">
                         <option value="all">Semua Metode</option>
                         <option value="cash">Tunai</option>
                         <option value="qris">QRIS</option>
                     </select>
 
                     <select x-model="sortBy"
-                        class="focus:border-primary min-w-[125px] shrink-0 rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 shadow-sm transition-all focus:bg-white focus:outline-none sm:w-auto">
+                        class="focus:border-primary min-w-31.25 shrink-0 rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 shadow-sm transition-all focus:bg-white focus:outline-none sm:w-auto">
                         <option value="time_desc">Urut: Terbaru</option>
                         <option value="time_asc">Urut: Terlama</option>
                         <option value="amount_desc">Urut: Terbesar</option>
@@ -226,7 +226,7 @@
                         <div class="space-y-1.5 rounded-xl bg-gray-50/55 p-3 text-xs">
                             <div class="flex justify-between text-gray-500">
                                 <span>Paket Wisata</span>
-                                <span class="text-charcoal max-w-[150px] truncate text-right font-semibold"
+                                <span class="text-charcoal max-w-37.5 truncate text-right font-semibold"
                                     x-text="res.package_name"></span>
                             </div>
                             <div class="flex justify-between text-gray-500">

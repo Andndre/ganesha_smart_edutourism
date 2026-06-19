@@ -111,7 +111,7 @@
 
         <!-- TipTap Editor Container -->
         <div id="cultural-editor"
-            class="focus-within:border-primary focus-within:ring-primary/20 max-h-[300px] min-h-[120px] w-full overflow-y-auto rounded-b-xl border border-gray-200 bg-white p-4 text-sm focus-within:ring-1">
+            class="focus-within:border-primary focus-within:ring-primary/20 max-h-75 min-h-30 w-full overflow-y-auto rounded-b-xl border border-gray-200 bg-white p-4 text-sm focus-within:ring-1">
         </div>
         <textarea name="description" class="hidden"></textarea>
     </div>
