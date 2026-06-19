@@ -9,28 +9,31 @@
 @endpush
 
 @section('content')
-    <div class="relative pb-32" x-data="checkoutForm()">
-        <div class="px-5 py-6">
-            <div class="mb-4">
+    <div class="relative pb-32 lg:pb-8" x-data="checkoutForm()">
+        <div class="mx-auto w-full max-w-5xl px-5 py-6 md:px-6 lg:px-8 lg:py-8">
+            <div class="mb-4 lg:mb-6">
                 <span
                     class="text-primary mb-2 inline-block rounded-lg border border-green-100 bg-green-50 px-2.5 py-1 text-xs font-bold">Checkout</span>
-                <h1 class="text-charcoal text-xl font-bold">{{ $package->name }}</h1>
+                <h1 class="text-charcoal text-xl font-bold lg:text-2xl">{{ $package->name }}</h1>
                 <p class="mt-1 text-sm text-gray-500">Rp {{ number_format($package->price, 0, ',', '.') }} / orang</p>
             </div>
 
             <!-- Form -->
-            <form id="checkout-form" @submit.prevent="processPayment" class="space-y-6">
+            <form id="checkout-form" @submit.prevent="processPayment"
+                class="lg:grid lg:grid-cols-[1fr_22rem] lg:items-start lg:gap-8">
                 @csrf
 
-                @include('user.packages.partials.party-size')
+                <div class="space-y-6">
+                    @include('user.packages.partials.party-size')
 
-                @include('user.packages.partials.schedule-selector')
+                    @include('user.packages.partials.schedule-selector')
 
-                @include('user.packages.partials.contact-info')
+                    @include('user.packages.partials.contact-info')
 
-                <!-- Error Message -->
-                <div x-show="errorMessage" class="rounded-xl bg-red-50 p-3 text-sm text-red-600" x-text="errorMessage"
-                    style="display: none;"></div>
+                    <!-- Error Message -->
+                    <div x-show="errorMessage" class="rounded-xl bg-red-50 p-3 text-sm text-red-600" x-text="errorMessage"
+                        style="display: none;"></div>
+                </div>
 
                 @include('user.packages.partials.payment-bar')
             </form>

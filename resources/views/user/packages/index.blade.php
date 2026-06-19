@@ -3,21 +3,21 @@
 @section('header_title', 'Paket Wisata')
 
 @section('content')
-    <div class="px-4 py-6">
-        <div class="mb-6">
-            <h2 class="text-charcoal text-xl font-bold">Eksplorasi Bersama</h2>
-            <p class="mt-1 text-sm text-gray-500">Pilih paket wisata yang sesuai dengan durasi dan preferensi perjalanan
-                Anda.</p>
+    <div class="mx-auto w-full max-w-6xl px-4 py-6 md:px-6 md:py-8 lg:px-8">
+        <div class="mb-6 md:mb-8">
+            <h2 class="text-charcoal text-xl font-bold md:text-2xl lg:text-3xl">Eksplorasi Bersama</h2>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500 md:text-base">Pilih paket wisata yang sesuai dengan durasi dan
+                preferensi perjalanan Anda.</p>
         </div>
 
-        <div class="space-y-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 xl:grid-cols-3">
             @forelse($packages as $package)
                 <a href="{{ route('tour-package', $package->id) }}"
-                    class="block overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all active:scale-[0.98]">
-                    <div class="relative aspect-video bg-gray-200">
+                    class="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-gray-200 hover:shadow-lg active:scale-[0.98]">
+                    <div class="relative aspect-video overflow-hidden bg-gray-200">
                         @if ($package->images && count($package->images) > 0)
                             <img src="{{ Storage::url($package->images[0]) }}" alt="{{ $package->name }}"
-                                class="h-full w-full object-cover">
+                                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
                         @else
                             <div class="absolute inset-0 flex items-center justify-center text-gray-400">
                                 <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -31,11 +31,11 @@
                             Paket Wisata
                         </div>
                     </div>
-                    <div class="p-4">
+                    <div class="flex flex-1 flex-col p-4">
                         <h3 class="text-charcoal mb-1 text-lg font-bold">{{ $package->name }}</h3>
                         <p class="mb-3 line-clamp-2 text-sm text-gray-500">{{ $package->description }}</p>
 
-                        <div class="mt-4 flex items-center justify-between border-t border-gray-50 pt-4">
+                        <div class="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-gray-50 pt-4">
                             <div class="flex items-center gap-4 text-xs font-semibold text-gray-500">
                                 <div class="flex items-center gap-1.5">
                                     <svg class="text-primary h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -60,7 +60,8 @@
                     </div>
                 </a>
             @empty
-                <div class="w-full rounded-2xl border border-gray-100 bg-white p-4 py-8 text-center text-sm text-gray-500">
+                <div
+                    class="col-span-full w-full rounded-2xl border border-gray-100 bg-white p-4 py-12 text-center text-sm text-gray-500">
                     Belum ada paket wisata yang tersedia.
                 </div>
             @endforelse
