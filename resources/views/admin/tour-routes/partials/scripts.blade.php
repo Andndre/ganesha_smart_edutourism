@@ -4,9 +4,9 @@
     // ==========================================
     // MAP BUILDER CONFIG & INITS
     // ==========================================
-    const PENGLIPURAN_LAT = -8.421750367447837;
-    const PENGLIPURAN_LNG = 115.35900208148409;
-    const PENGLIPURAN_ZOOM = 17;
+    const PENGLIPURAN_LAT = {{ config('services.penglipuran.latitude') }};
+    const PENGLIPURAN_LNG = {{ config('services.penglipuran.longitude') }};
+    const PENGLIPURAN_ZOOM = {{ config('services.penglipuran.zoom') }};
 
     const locations = @json($locations);
     let selectedPoints = []; // items: { id, name, category, latitude, longitude, locationable_type, locationable_id, estimated_visit_minutes, storytelling_content }

@@ -2,9 +2,9 @@
     // ==========================================
     // CONFIG & INITS
     // ==========================================
-    const PENGLIPURAN_LAT = -8.421750367447837;
-    const PENGLIPURAN_LNG = 115.35900208148409;
-    const PENGLIPURAN_ZOOM = 17;
+    const PENGLIPURAN_LAT = {{ config('services.penglipuran.latitude') }};
+    const PENGLIPURAN_LNG = {{ config('services.penglipuran.longitude') }};
+    const PENGLIPURAN_ZOOM = {{ config('services.penglipuran.zoom') }};
 
     // Loaded locations from Controller
     const locations = @json($locations);

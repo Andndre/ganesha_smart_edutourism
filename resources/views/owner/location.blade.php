@@ -149,9 +149,9 @@
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
         <script>
-            const PENGLIPURAN_LAT = -8.421750367447837;
-            const PENGLIPURAN_LNG = 115.35900208148409;
-            const PENGLIPURAN_ZOOM = 17;
+            const PENGLIPURAN_LAT = {{ config('services.penglipuran.latitude') }};
+            const PENGLIPURAN_LNG = {{ config('services.penglipuran.longitude') }};
+            const PENGLIPURAN_ZOOM = {{ config('services.penglipuran.zoom') }};
 
             const savedLat = {{ $location->latitude ?? 'null' }};
             const savedLng = {{ $location->longitude ?? 'null' }};
