@@ -90,7 +90,8 @@
             <button type="button" data-action="redo"
                 class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
                 title="Redo">
-                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M21 10H11a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path>
                 </svg>
@@ -101,7 +102,8 @@
                 title="Unggah Gambar">
                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M4 16l4.586-4.586a2 2 0 012-2h.93a2 2 0 011.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                        d="M4 16l4.586-4.586a2 2 0 012-2h.93a2 2 0 011.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
+                    </path>
                     <circle cx="12" cy="13" r="3"></circle>
                 </svg>
             </button>
@@ -133,46 +135,54 @@
         {{-- Badge marker ID untuk model existing --}}
         <div id="existing-marker-badge" class="mt-2 hidden">
             <span class="text-[10px] text-gray-500">ID Marker QR: </span>
-            <span id="existing-marker-id-text" class="font-mono text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full"></span>
+            <span id="existing-marker-id-text"
+                class="text-primary bg-primary/10 rounded-full px-2 py-0.5 font-mono text-[10px] font-bold"></span>
         </div>
     </div>
 
     <!-- Container for New Model Upload (hidden by default) -->
-    <div id="new-model-fields" class="hidden space-y-4 rounded-2xl border border-dashed border-gray-200 bg-gray-50/50 p-4">
+    <div id="new-model-fields"
+        class="hidden space-y-4 rounded-2xl border border-dashed border-gray-200 bg-gray-50/50 p-4">
         <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400">Detail Model 3D Baru</h4>
         <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-700">Nama Model <span class="text-warning">*</span></label>
+            <label class="mb-1 block text-xs font-semibold text-gray-700">Nama Model <span
+                    class="text-warning">*</span></label>
             <input type="text" name="new_model_name" placeholder="Contoh: Model Candi Bentar"
-                class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none bg-white">
+                class="focus:border-primary w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none">
         </div>
         <div>
             <label class="mb-1 block text-xs font-semibold text-gray-700">Deskripsi Model</label>
             <textarea name="new_model_description" rows="2" placeholder="Detail deskripsi model..."
-                class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none bg-white resize-none"></textarea>
+                class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none"></textarea>
         </div>
 
         <div>
             <label class="mb-1 block text-xs font-semibold text-gray-700">ID Marker QR AR</label>
-            <span class="mb-1.5 block text-[10px] text-gray-400">Opsional. Harus unik. Digunakan untuk integrasi Augmented Reality.</span>
+            <span class="mb-1.5 block text-[10px] text-gray-400">Opsional. Harus unik. Digunakan untuk integrasi
+                Augmented Reality.</span>
             <input type="text" name="ar_marker_id" id="ar_marker_id" placeholder="Contoh: MARKER_PURA_01"
-                class="focus:border-primary w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none bg-white"
+                class="focus:border-primary w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none"
                 oninput="generateARMarker()">
             <input type="hidden" name="ar_marker_patt_content" id="ar_marker_patt_content">
 
             <div id="ar-download-container" class="mt-2" style="display: none;">
                 <button type="button" onclick="downloadARMarker()"
                     class="border-primary text-primary hover:bg-primary/5 flex w-full items-center justify-center gap-2 rounded-xl border-2 py-2 text-xs font-semibold transition-colors active:scale-95">
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                     </svg>
                     Unduh QR Marker AR (.png)
                 </button>
-                <span class="mt-1 block text-[10px] text-gray-400">Pola (.patt) akan otomatis tersimpan ke server.</span>
+                <span class="mt-1 block text-[10px] text-gray-400">Pola (.patt) akan otomatis tersimpan ke
+                    server.</span>
             </div>
         </div>
-        
+
         <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-700">Model 3D (.glb) <span class="text-warning">*</span></label>
+            <label class="mb-1 block text-xs font-semibold text-gray-700">Model 3D (.glb) <span
+                    class="text-warning">*</span></label>
             <span class="mb-1 block text-[10px] text-gray-400">Maksimal 20MB.</span>
             <input type="file" name="model_3d_file" accept=".glb"
                 class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
@@ -196,7 +206,7 @@
     <!-- Previews and Narration -->
     <span id="current-model-3d" class="mt-1 block text-[10px] text-gray-400"></span>
     <span id="current-model-3d-usdz" class="mt-1 block text-[10px] text-gray-400"></span>
-    
+
     <div id="model-3d-preview-container" style="display: none;"
         class="mt-2.5 flex flex-col gap-1.5 rounded-xl border border-gray-100 bg-gray-50/50 p-3">
         <span class="text-primary text-[10px] font-bold uppercase tracking-wider">Pratinjau Model 3D</span>
@@ -240,7 +250,7 @@
                     if (select) {
                         const selectedOption = select.options[select.selectedIndex];
                         if (selectedOption) {
-                            const glbUrl   = selectedOption.getAttribute('data-glb');
+                            const glbUrl = selectedOption.getAttribute('data-glb');
                             const audioUrl = selectedOption.getAttribute('data-audio');
                             const markerId = selectedOption.getAttribute('data-marker-id');
 
@@ -347,15 +357,16 @@
                 <div class="min-w-0 flex-1">
                     <div class="text-charcoal text-xs font-bold">Audio Playback Narasi</div>
                     <div class="mt-1 flex items-center gap-2">
-                        <span class="min-w-[24px] text-[9px] font-bold tabular-nums text-gray-500"
+                        <span class="min-w-6 text-[9px] font-bold tabular-nums text-gray-500"
                             x-text="formatTime(currentTime)">0:00</span>
                         <input type="range" min="0" :max="duration || 100" x-model.number="currentTime"
-                            @mousedown="dragging = true"
-                            @touchstart="dragging = true"
+                            @mousedown="dragging = true" @touchstart="dragging = true"
                             @change="if (audio && duration > 0) { try { audio.currentTime = currentTime; } catch(e) {} } else { currentTime = 0; }; dragging = false;"
                             class="accent-primary outline-hidden h-1 flex-1 cursor-pointer appearance-none rounded-full bg-gray-100"
-                            :style="'background: linear-gradient(to right, #1E5128 0%, #1E5128 ' + (currentTime / (duration || 100) * 100) + '%, #e5e7eb ' + (currentTime / (duration || 100) * 100) + '%, #e5e7eb 100%);'">
-                        <span class="min-w-[24px] text-right text-[9px] font-bold tabular-nums text-gray-500"
+                            :style="'background: linear-gradient(to right, #1E5128 0%, #1E5128 ' + (currentTime / (duration ||
+                                100) * 100) + '%, #e5e7eb ' + (currentTime / (duration || 100) * 100) +
+                            '%, #e5e7eb 100%);'">
+                        <span class="min-w-6 text-right text-[9px] font-bold tabular-nums text-gray-500"
                             x-text="duration ? formatTime(duration) : '0:00'">0:00</span>
                     </div>
                 </div>
@@ -387,11 +398,11 @@
                 <p class="mt-1 text-xs text-gray-500">Soal-soal ini akan muncul saat turis tiba di lokasi ini.</p>
             </div>
 
-            <div class="space-y-6 overflow-y-auto p-1 max-h-[50vh]" id="quizzes-list">
+            <div class="max-h-[50vh] space-y-6 overflow-y-auto p-1" id="quizzes-list">
                 <!-- Quizzes will be appended here -->
             </div>
 
-            <div class="space-y-3 border-t border-gray-100 pt-4 mt-6">
+            <div class="mt-6 space-y-3 border-t border-gray-100 pt-4">
                 <button type="button" onclick="addQuizField()"
                     class="hover:border-primary hover:text-primary flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-3 text-sm font-semibold text-gray-500 transition-colors hover:bg-green-50">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -428,43 +439,44 @@
         <x-modal name="stories-modal" maxWidth="2xl">
             <div class="mb-4">
                 <h3 class="font-display text-charcoal text-lg font-bold">Kelola Kisah Budaya</h3>
-                <p class="mt-1 text-xs text-gray-500">Kelola dan urutkan informasi sejarah, filosofi, atau nilai luhur terkait objek ini.</p>
+                <p class="mt-1 text-xs text-gray-500">Kelola dan urutkan informasi sejarah, filosofi, atau nilai luhur
+                    terkait objek ini.</p>
             </div>
 
             <!-- Tabs navigation inside modal -->
-            <div class="flex border-b border-gray-100 bg-gray-50 px-2 py-1 -mx-6 mb-4">
+            <div class="-mx-6 mb-4 flex border-b border-gray-100 bg-gray-50 px-2 py-1">
                 <button type="button" id="tab-btn-history" onclick="switchStoryTab('history')"
-                    class="story-tab-btn border-b-2 border-primary text-primary px-4 py-2.5 text-xs font-bold transition-all focus:outline-none">
+                    class="story-tab-btn border-primary text-primary border-b-2 px-4 py-2.5 text-xs font-bold transition-all focus:outline-none">
                     Sejarah
                 </button>
                 <button type="button" id="tab-btn-philosophy" onclick="switchStoryTab('philosophy')"
-                    class="story-tab-btn border-b-2 border-transparent text-gray-500 hover:text-charcoal px-4 py-2.5 text-xs font-bold transition-all focus:outline-none">
+                    class="story-tab-btn hover:text-charcoal border-b-2 border-transparent px-4 py-2.5 text-xs font-bold text-gray-500 transition-all focus:outline-none">
                     Filosofi
                 </button>
                 <button type="button" id="tab-btn-value" onclick="switchStoryTab('value')"
-                    class="story-tab-btn border-b-2 border-transparent text-gray-500 hover:text-charcoal px-4 py-2.5 text-xs font-bold transition-all focus:outline-none">
+                    class="story-tab-btn hover:text-charcoal border-b-2 border-transparent px-4 py-2.5 text-xs font-bold text-gray-500 transition-all focus:outline-none">
                     Nilai Luhur
                 </button>
             </div>
 
-            <div class="overflow-y-auto p-1 max-h-[50vh]">
+            <div class="max-h-[50vh] overflow-y-auto p-1">
                 <!-- History Stories -->
                 <div id="stories-list-history" class="story-tab-content space-y-4">
                     <!-- History stories will go here -->
                 </div>
-                
+
                 <!-- Philosophy Stories -->
                 <div id="stories-list-philosophy" class="story-tab-content hidden space-y-4">
                     <!-- Philosophy stories will go here -->
                 </div>
-                
+
                 <!-- Value Stories -->
                 <div id="stories-list-value" class="story-tab-content hidden space-y-4">
                     <!-- Value stories will go here -->
                 </div>
             </div>
 
-            <div class="space-y-3 border-t border-gray-100 pt-4 mt-6">
+            <div class="mt-6 space-y-3 border-t border-gray-100 pt-4">
                 <button type="button" onclick="addStoryField()"
                     class="hover:border-primary hover:text-primary flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-3 text-sm font-semibold text-gray-500 transition-colors hover:bg-green-50">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -635,7 +647,7 @@
                     else if (action === 'bulletList') editor.chain().focus().toggleBulletList()
                         .run();
                     else if (action === 'orderedList') editor.chain().focus()
-                    .toggleOrderedList().run();
+                        .toggleOrderedList().run();
                     else if (action === 'undo') editor.chain().focus().undo().run();
                     else if (action === 'redo') editor.chain().focus().redo().run();
                     else if (action === 'image') {
@@ -659,21 +671,27 @@
                             formData.append('_token', '{{ csrf_token() }}');
 
                             try {
-                                const response = await fetch('{{ route("admin.cultural-objects.upload-image") }}', {
-                                    method: 'POST',
-                                    body: formData
-                                });
+                                const response = await fetch(
+                                    '{{ route('admin.cultural-objects.upload-image') }}', {
+                                        method: 'POST',
+                                        body: formData
+                                    });
                                 const data = await response.json();
                                 Swal.close();
 
                                 if (data.url) {
-                                    editor.chain().focus().setImage({ src: data.url }).run();
+                                    editor.chain().focus().setImage({
+                                        src: data.url
+                                    }).run();
                                 } else {
-                                    Swal.fire('Gagal', 'Terjadi kesalahan saat mengunggah gambar.', 'error');
+                                    Swal.fire('Gagal',
+                                        'Terjadi kesalahan saat mengunggah gambar.',
+                                        'error');
                                 }
                             } catch (error) {
                                 Swal.close();
-                                Swal.fire('Gagal', 'Koneksi ke server terputus.', 'error');
+                                Swal.fire('Gagal', 'Koneksi ke server terputus.',
+                                    'error');
                             }
                         };
                         input.click();

@@ -245,7 +245,7 @@
 
             const initRecommended = function() {
                 // 1. Confetti trigger
-                const hasConfetti = document.querySelector('.bg-primary/10');
+                const hasConfetti = document.querySelector('.bg-primary\\/10');
                 if (hasConfetti) {
                     var duration = 3 * 1000;
                     var animationEnd = Date.now() + duration;

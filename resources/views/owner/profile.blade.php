@@ -65,7 +65,7 @@
                             <!-- Hidden input to handle unchecked state -->
                             <input type="hidden" name="accepts_in_app_payment" value="0">
                             <input type="checkbox" name="accepts_in_app_payment" value="1" class="peer sr-only" {{ old('accepts_in_app_payment', $profile->accepts_in_app_payment ?? false) ? 'checked' : '' }}>
-                            <div class="relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20"></div>
+                            <div class="relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20"></div>
                         </label>
                     </div>
                 </div>

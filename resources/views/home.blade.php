@@ -302,7 +302,7 @@
                         </div>
                         <div class="space-y-1">
                             <h4 class="text-sm font-bold text-gray-700">Data Cuaca Belum Tersedia</h4>
-                            <p class="mx-auto max-w-[240px] text-xs leading-relaxed text-gray-500">Silakan jalankan update
+                            <p class="mx-auto max-w-60 text-xs leading-relaxed text-gray-500">Silakan jalankan update
                                 cuaca dari sistem untuk memuat laporan cuaca terkini.</p>
                         </div>
                     </div>
