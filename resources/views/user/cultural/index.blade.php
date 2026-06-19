@@ -3,22 +3,26 @@
 @section('header_title', 'Objek Budaya')
 
 @section('content')
-    <div class="space-y-5 px-4 py-6">
+    <div class="px-4 py-6 md:px-8 md:py-8 lg:px-12">
 
-        <div class="mb-2">
-            <h2 class="font-playfair text-charcoal text-xl font-bold">Jelajah Warisan Budaya</h2>
-            <p class="mt-1 text-sm text-gray-500">Temukan kisah di balik setiap sudut desa</p>
+        <div class="mb-6 md:mb-8">
+            <h2 class="font-playfair text-charcoal text-xl font-bold md:text-3xl">Jelajah Warisan Budaya</h2>
+            <p class="mt-1 text-sm text-gray-500 md:mt-2 md:text-base">Temukan kisah di balik setiap sudut desa</p>
         </div>
 
         @forelse($objects as $object)
+            @if ($loop->first)
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+            @endif
+
             <a href="{{ route('cultural-object', ['slug' => $object->slug]) }}"
-                class="block overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-all active:scale-[0.98]">
-                <div class="relative h-48 bg-gray-200">
+                class="group block overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]">
+                <div class="relative h-48 overflow-hidden bg-gray-200 md:h-56">
                     <div class="bg-linear-to-t absolute inset-0 z-10 from-black/60 to-transparent"></div>
 
                     @if ($object->historical_images && count($object->historical_images) > 0)
                         <img src="{{ asset('storage/' . $object->historical_images[0]) }}" alt="{{ $object->name }}"
-                            class="h-full w-full object-cover">
+                            class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
                     @else
                         <div class="absolute inset-0 flex items-center justify-center text-gray-400">
                             <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -35,13 +39,17 @@
                                 AR Tersedia
                             </div>
                         @endif
-                        <h3 class="font-playfair text-lg font-bold leading-tight">{{ $object->name }}</h3>
+                        <h3 class="font-playfair text-lg font-bold leading-tight md:text-xl">{{ $object->name }}</h3>
                     </div>
                 </div>
-                <div class="p-4">
-                    <p class="line-clamp-2 text-sm text-gray-600">{!! $object->short_description !!}</p>
+                <div class="p-4 md:p-5">
+                    <p class="line-clamp-2 text-sm text-gray-600 md:text-base">{!! $object->short_description !!}</p>
                 </div>
             </a>
+
+            @if ($loop->last)
+                </div>
+            @endif
         @empty
             <div class="py-10 text-center">
                 <p class="text-gray-500">Belum ada objek budaya yang terdaftar.</p>
