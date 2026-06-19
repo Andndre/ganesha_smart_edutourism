@@ -7,8 +7,31 @@
 @endsection
 
 @push('styles')
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     <style>
+        .leaflet-control-attribution {
+            display: none !important;
+        }
+
+        /* Premium Selected Marker Animation */
+        @keyframes pin-breath {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+            }
+            50% {
+                transform: scale(1.15);
+                filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.25));
+            }
+        }
+
+        .marker-selected-glow {
+            animation: pin-breath 2s infinite ease-in-out;
+            transform-origin: center;
+        }
+
         /* FullCalendar Premium Design Overrides */
         .fc {
             --fc-border-color: #f3f4f6;
@@ -612,28 +635,30 @@
                             <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
                         @enderror
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label
-                                class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">Latitude
-                                (opsional)</label>
-                            <input type="number" step="any" name="latitude" x-model="formFields.latitude"
-                                placeholder="Contoh: -8.4312"
-                                class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1">
-                            @error('latitude')
-                                <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                            @enderror
-                        </div>
-                        <div>
-                            <label
-                                class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">Longitude
-                                (opsional)</label>
-                            <input type="number" step="any" name="longitude" x-model="formFields.longitude"
-                                placeholder="Contoh: 115.3521"
-                                class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1">
-                            @error('longitude')
-                                <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                            @enderror
+                    {{-- Map Selection --}}
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Pilih Lokasi Peta <span class="text-[10px] font-normal text-gray-400">(Klik pada peta untuk menentukan koordinat)</span></label>
+                        <div id="form-location-map" class="h-64 w-full rounded-xl border border-gray-200 shadow-inner" style="z-index: 0;"></div>
+                        <input type="hidden" name="latitude" x-model="formFields.latitude">
+                        <input type="hidden" name="longitude" x-model="formFields.longitude">
+                        @error('latitude')
+                            <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                        @enderror
+                        @error('longitude')
+                            <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                        @enderror
+                        
+                        {{-- Coordinate Badge --}}
+                        <div class="mt-2 flex items-center justify-between text-xs text-gray-500">
+                            <div>
+                                <span x-show="formFields.latitude && formFields.longitude">
+                                    Koordinat Terpilih: <strong x-text="parseFloat(formFields.latitude).toFixed(6)"></strong>, <strong x-text="parseFloat(formFields.longitude).toFixed(6)"></strong>
+                                </span>
+                                <span x-show="!formFields.latitude || !formFields.longitude" class="text-amber-600 font-medium">
+                                    ⚠️ Belum ada lokasi peta yang dipilih
+                                </span>
+                            </div>
+                            <button type="button" x-show="formFields.latitude && formFields.longitude" @click="formFields.latitude = ''; formFields.longitude = ''; if(formMarker) { formMap.removeLayer(formMarker); formMarker = null; }" class="text-red-500 hover:text-red-700 hover:underline">Hapus Lokasi</button>
                         </div>
                     </div>
                 </div>
@@ -693,7 +718,13 @@
 @endsection
 
 @push('scripts')
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
+        const PENGLIPURAN_LAT = -8.421750367447837;
+        const PENGLIPURAN_LNG = 115.35900208148409;
+        const PENGLIPURAN_ZOOM = 17;
+
         document.addEventListener('alpine:init', () => {
             Alpine.data('adminEvents', () => ({
                 viewMode: 'calendar',
@@ -704,6 +735,9 @@
                 formAction: '',
                 formMethod: 'POST',
                 formTitle: 'Tambah Event Baru',
+
+                formMap: null,
+                formMarker: null,
 
                 formFields: {
                     id: @json(old('id', '')),
@@ -720,6 +754,80 @@
                     is_free: {{ old('is_free') !== null || !$errors->any() ? 'true' : 'false' }},
                     price: @json(old('price', '')),
                     max_participants: @json(old('max_participants', ''))
+                },
+
+                initFormMap() {
+                    if (this.formMap) return;
+                    const mapContainer = document.getElementById('form-location-map');
+                    if (!mapContainer) return;
+
+                    const lat = parseFloat(this.formFields.latitude) || PENGLIPURAN_LAT;
+                    const lng = parseFloat(this.formFields.longitude) || PENGLIPURAN_LNG;
+
+                    this.formMap = L.map('form-location-map', { zoomControl: true, attributionControl: false })
+                        .setView([lat, lng], PENGLIPURAN_ZOOM);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19
+                    }).addTo(this.formMap);
+
+                    this.formMap.on('click', (e) => {
+                        this.setFormMarker(e.latlng.lat, e.latlng.lng);
+                    });
+                },
+
+                setFormMarker(lat, lng) {
+                    this.formFields.latitude = lat;
+                    this.formFields.longitude = lng;
+
+                    const color = '#1E5128';
+                    const formPinIcon = L.divIcon({
+                        className: 'custom-pin-selected',
+                        html: `
+                            <div class="relative flex items-center justify-center marker-selected-glow" style="width: 32px; height: 32px;">
+                                <span class="absolute inline-flex h-6 w-6 animate-ping rounded-full opacity-40" style="background-color: ${color};"></span>
+                                <div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white shadow-lg text-white" style="background-color: ${color}; z-index: 10;">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        `,
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16]
+                    });
+
+                    if (this.formMarker) {
+                        this.formMarker.setLatLng([lat, lng]);
+                    } else {
+                        this.formMarker = L.marker([lat, lng], { icon: formPinIcon, draggable: true }).addTo(this.formMap);
+                        this.formMarker.on('dragend', () => {
+                            const position = this.formMarker.getLatLng();
+                            this.formFields.latitude = position.lat;
+                            this.formFields.longitude = position.lng;
+                        });
+                    }
+                },
+
+                syncFormMap() {
+                    setTimeout(() => {
+                        this.initFormMap();
+                        if (this.formMap) {
+                            this.formMap.invalidateSize();
+                            if (this.formFields.latitude && this.formFields.longitude) {
+                                const lat = parseFloat(this.formFields.latitude);
+                                const lng = parseFloat(this.formFields.longitude);
+                                this.formMap.setView([lat, lng], PENGLIPURAN_ZOOM);
+                                this.setFormMarker(lat, lng);
+                            } else {
+                                this.formMap.setView([PENGLIPURAN_LAT, PENGLIPURAN_LNG], PENGLIPURAN_ZOOM);
+                                if (this.formMarker) {
+                                    this.formMap.removeLayer(this.formMarker);
+                                    this.formMarker = null;
+                                }
+                            }
+                        }
+                    }, 300);
                 },
 
                 openCreate(dateStr = '', timeStr = '') {
@@ -745,6 +853,7 @@
                     };
 
                     window.dispatchEvent(new CustomEvent('open-event-form-modal'));
+                    this.syncFormMap();
                 },
 
                 openEdit(eventData) {
@@ -771,6 +880,7 @@
                     };
 
                     window.dispatchEvent(new CustomEvent('open-event-form-modal'));
+                    this.syncFormMap();
                 },
 
                 addHours(timeStr, hours) {
@@ -861,6 +971,7 @@
                             '{{ old('_method') === 'PUT' ? route('admin.events.update', old('id') ?: 0) : route('admin.events.store') }}';
                         this.formMethod = '{{ old('_method', 'POST') }}';
                         this.showFormModal = true;
+                        this.syncFormMap();
                     @elseif (isset($openCreateOnLoad) && $openCreateOnLoad)
                         this.openCreate();
                     @elseif (isset($editEventRaw))
