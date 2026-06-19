@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\ArMarker;
 use App\Models\ArModel;
 use App\Models\CulturalObject;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,15 +37,11 @@ class ARScannerTest extends TestCase
             'longitude' => 115.359,
         ]);
 
-        $arModel = ArModel::create([
+        ArModel::create([
             'name' => 'Test Model asset',
             'model_3d_path' => 'models/test-model.glb',
             'model_3d_usdz_path' => 'models_usdz/test-model.usdz',
-        ]);
-
-        $arMarker = ArMarker::create([
             'ar_marker_id' => 'marker-1',
-            'ar_model_id' => $arModel->id,
             'map_location_id' => $mapLocation->id,
         ]);
 
@@ -67,7 +62,7 @@ class ARScannerTest extends TestCase
 
         $response->assertStatus(404)
             ->assertJson([
-                'error' => 'Objek tidak ditemukan',
+                'error' => 'Model 3D tidak tersedia untuk objek ini',
             ]);
     }
 
@@ -81,17 +76,11 @@ class ARScannerTest extends TestCase
             'category' => 'temple',
         ]);
 
-        $mapLocation = $object->mapLocation()->create([
+        $object->mapLocation()->create([
             'name' => 'No Model Object Location',
             'category' => 'cultural',
             'latitude' => -8.423,
             'longitude' => 115.359,
-        ]);
-
-        $arMarker = ArMarker::create([
-            'ar_marker_id' => 'marker-2',
-            'ar_model_id' => null,
-            'map_location_id' => $mapLocation->id,
         ]);
 
         $response = $this->getJson('/api/ar/model?slug=no-model-object');

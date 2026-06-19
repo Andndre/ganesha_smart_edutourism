@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\ArMarker;
 use App\Models\ArModel;
 use App\Models\CulturalObject;
 use App\Models\CulturalStory;
@@ -32,14 +31,10 @@ class CulturalPublicTest extends TestCase
             'category' => 'cultural',
         ]);
 
-        $arModel = ArModel::create([
+        ArModel::create([
             'name' => $object->name.' 3D Model',
             'model_3d_path' => 'models/test.glb',
-        ]);
-
-        ArMarker::create([
             'ar_marker_id' => $markerId,
-            'ar_model_id' => $arModel->id,
             'map_location_id' => $location->id,
         ]);
 
