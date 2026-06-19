@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    @include('partials.fullcalendar-styles')
     <style>
         .leaflet-control-attribution {
             display: none !important;
@@ -30,102 +31,6 @@
         .marker-selected-glow {
             animation: pin-breath 2s infinite ease-in-out;
             transform-origin: center;
-        }
-
-        /* FullCalendar Premium Design Overrides */
-        .fc {
-            --fc-border-color: #f3f4f6;
-            --fc-button-bg-color: #ffffff;
-            --fc-button-border-color: #e5e7eb;
-            --fc-button-text-color: #4b5563;
-            --fc-button-active-bg-color: #1E5128;
-            --fc-button-active-border-color: #1E5128;
-            --fc-button-hover-bg-color: #f9fafb;
-            --fc-button-hover-border-color: #d1d5db;
-            --fc-today-bg-color: rgba(30, 81, 40, 0.04);
-            --fc-event-border-color: transparent;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        .fc .fc-toolbar-title {
-            font-size: 1.125rem !important;
-            font-weight: 700;
-            color: #191A19;
-        }
-
-        .fc .fc-button {
-            padding: 0.5rem 0.875rem !important;
-            font-size: 0.75rem !important;
-            font-weight: 600 !important;
-            border-radius: 0.75rem !important;
-            text-transform: capitalize !important;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
-            transition: all 0.2s ease !important;
-        }
-
-        .fc .fc-button-primary:not(:disabled).fc-button-active,
-        .fc .fc-button-primary:not(:disabled):active {
-            background-color: #1E5128 !important;
-            border-color: #1E5128 !important;
-            color: #ffffff !important;
-        }
-
-        .fc .fc-button:focus {
-            box-shadow: 0 0 0 3px rgba(30, 81, 40, 0.2) !important;
-        }
-
-        .fc .fc-toolbar-chunk {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .fc .fc-button-group {
-            gap: 0.375rem;
-        }
-
-        .fc .fc-button-group>.fc-button {
-            margin: 0 !important;
-            border-radius: 0.75rem !important;
-        }
-
-        .fc .fc-col-header-cell-cushion {
-            padding: 0.75rem 0.25rem !important;
-            font-size: 0.75rem !important;
-            font-weight: 700 !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.05em !important;
-            color: #9ca3af !important;
-        }
-
-        .fc .fc-daygrid-day-number {
-            font-size: 0.875rem !important;
-            font-weight: 600 !important;
-            color: #4b5563 !important;
-            padding: 0.5rem !important;
-        }
-
-        .fc-event {
-            cursor: pointer !important;
-            border-radius: 0.5rem !important;
-            padding: 0.125rem 0.375rem !important;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03) !important;
-            transition: transform 0.15s ease, opacity 0.15s ease !important;
-        }
-
-        .fc-event:hover {
-            transform: translateY(-1px);
-            opacity: 0.9;
-        }
-
-        .fc-event-title {
-            font-size: 0.75rem !important;
-            font-weight: 700 !important;
-        }
-
-        .fc .fc-timegrid-axis-cushion {
-            font-size: 0.725rem !important;
-            font-weight: 600 !important;
         }
 
         @keyframes loading-bar {
