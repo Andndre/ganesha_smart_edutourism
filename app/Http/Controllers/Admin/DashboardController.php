@@ -94,22 +94,6 @@ class DashboardController extends Controller
             ]);
         }
 
-        // 6. Recent Bookings
-        $bookings = Reservation::with('tourPackage')
-            ->orderBy('id', 'desc')
-            ->take(5)
-            ->get();
-
-        if ($bookings->isEmpty()) {
-            $bookings = collect([
-                (object) ['id' => 41, 'guest_name' => 'Sari Dewi', 'tourPackage' => (object) ['name' => 'Paket Keluarga 1 Hari'], 'scheduled_date' => Carbon::now(), 'status' => 'confirmed'],
-                (object) ['id' => 40, 'guest_name' => 'Budi Santoso', 'tourPackage' => (object) ['name' => 'Paket Edukasi Budaya'], 'scheduled_date' => Carbon::now(), 'status' => 'completed'],
-                (object) ['id' => 39, 'guest_name' => 'Maria Tan', 'tourPackage' => (object) ['name' => 'Paket Sunrise Trek'], 'scheduled_date' => Carbon::now(), 'status' => 'confirmed'],
-                (object) ['id' => 38, 'guest_name' => 'Reza Pratama', 'tourPackage' => (object) ['name' => 'Paket Keluarga 1 Hari'], 'scheduled_date' => Carbon::now()->subDay(), 'status' => 'cancelled'],
-                (object) ['id' => 37, 'guest_name' => 'Lisa Cahyani', 'tourPackage' => (object) ['name' => 'Paket Edukasi Budaya'], 'scheduled_date' => Carbon::now()->subDay(), 'status' => 'completed'],
-            ]);
-        }
-
         // 7. Chart data (7 days)
         $chartLabels = [];
         $chartValues = [];
@@ -133,7 +117,6 @@ class DashboardController extends Controller
             'activeTicketsCount', 'ticketsDelta',
             'avgRating', 'ratingDelta',
             'zones',
-            'bookings',
             'chartLabels', 'chartValues'
         ));
     }
