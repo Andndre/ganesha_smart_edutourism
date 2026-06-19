@@ -67,8 +67,8 @@ class CulturalObjectController extends Controller
             $validated['description'] = 'Deskripsi untuk '.$validated['name'];
         }
 
-        $latitude = $validated['latitude'] ?? -8.4217504;
-        $longitude = $validated['longitude'] ?? 115.3590021;
+        $latitude = $validated['latitude'] ?? config('services.penglipuran.latitude');
+        $longitude = $validated['longitude'] ?? config('services.penglipuran.longitude');
 
         // Clean up temporary variables not in DB schema
         unset(
@@ -240,8 +240,8 @@ class CulturalObjectController extends Controller
             $validated['description'] = 'Deskripsi untuk '.$validated['name'];
         }
 
-        $latitude = $validated['latitude'] ?? -8.4217504;
-        $longitude = $validated['longitude'] ?? 115.3590021;
+        $latitude = $validated['latitude'] ?? config('services.penglipuran.latitude');
+        $longitude = $validated['longitude'] ?? config('services.penglipuran.longitude');
 
         // Clean up temporary variables not in DB schema
         unset(

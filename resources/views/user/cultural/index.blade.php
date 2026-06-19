@@ -14,7 +14,7 @@
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
                 @foreach ($objects as $object)
                     <a href="{{ route('cultural-object', ['slug' => $object->slug]) }}"
-                        class="group block overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]">
+                        class="group block overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98]">
                         <div class="relative h-48 overflow-hidden bg-gray-200 md:h-56">
                             <div class="bg-linear-to-t absolute inset-0 z-10 from-black/60 to-transparent"></div>
 
@@ -32,11 +32,13 @@
 
                             <div class="absolute bottom-4 left-4 right-4 z-20 text-white">
                                 @if ($object->ar_marker_id || $object->model_3d_path)
-                                    <div class="bg-primary/80 mb-2 inline-block rounded-md px-2 py-1 text-xs font-semibold backdrop-blur-sm">
+                                    <div
+                                        class="bg-primary/80 mb-2 inline-block rounded-md px-2 py-1 text-xs font-semibold backdrop-blur-sm">
                                         AR Tersedia
                                     </div>
                                 @endif
-                                <h3 class="font-playfair text-lg font-bold leading-tight md:text-xl">{{ $object->name }}</h3>
+                                <h3 class="font-playfair text-lg font-bold leading-tight md:text-xl">{{ $object->name }}
+                                </h3>
                             </div>
                         </div>
                         <div class="p-4 md:p-5">
