@@ -11,17 +11,6 @@
         "the-i18n-mcp": {
             "command": "npx",
             "args": ["-y", "the-i18n-mcp@latest"]
-        },
-        "pentest-ai": {
-            "command": "wsl.exe",
-            "args": [
-                "/home/andndre/.local/bin/uv",
-                "run",
-                "--with",
-                "ptai",
-                "ptai",
-                "mcp"
-            ]
         }
     }
 }
