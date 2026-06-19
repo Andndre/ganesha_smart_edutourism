@@ -63,6 +63,96 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
     @stack('styles')
+    
+    {{-- Global Driver.js Styles & Premium Custom Theme --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css"/>
+    <style>
+        .driver-popover.driverjs-theme {
+            background-color: #ffffff !important;
+            color: #191A19 !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            border-radius: 16px !important;
+            padding: 22px !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+            border: 1px solid #e5e7eb !important;
+            max-width: 350px !important;
+        }
+
+        .driver-popover.driverjs-theme .driver-popover-title {
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            color: #191A19 !important;
+            margin-bottom: 6px !important;
+        }
+
+        .driver-popover.driverjs-theme .driver-popover-description {
+            font-size: 13px !important;
+            line-height: 1.6 !important;
+            color: #4b5563 !important;
+        }
+
+        .driver-popover.driverjs-theme .driver-popover-footer {
+            margin-top: 18px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+        }
+
+        .driver-popover.driverjs-theme .driver-popover-progress-text {
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            color: #9ca3af !important;
+        }
+
+        /* Base button styles matching site's rounded-xl style */
+        .driver-popover.driverjs-theme .driver-popover-prev-btn,
+        .driver-popover.driverjs-theme .driver-popover-next-btn {
+            border-radius: 12px !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            padding: 8px 16px !important;
+            transition: all 0.15s ease-in-out !important;
+            text-shadow: none !important;
+            border: 1px solid transparent !important;
+            cursor: pointer !important;
+        }
+
+        /* Previous / Secondary button styling matching Panduan Interaktif style */
+        .driver-popover.driverjs-theme .driver-popover-prev-btn {
+            color: #4b5563 !important;
+            background-color: #ffffff !important;
+            border: 1px solid #e5e7eb !important;
+        }
+
+        .driver-popover.driverjs-theme .driver-popover-prev-btn:hover {
+            background-color: #f9fafb !important;
+            color: #1f2937 !important;
+            border-color: #d1d5db !important;
+        }
+
+        /* Next / Primary button styling matching Tambah Model 3D style */
+        .driver-popover.driverjs-theme .driver-popover-next-btn {
+            color: #ffffff !important;
+            background-color: #1E5128 !important;
+            box-shadow: 0 4px 6px -1px rgba(30, 81, 40, 0.1), 0 2px 4px -1px rgba(30, 81, 40, 0.06) !important;
+        }
+
+        .driver-popover.driverjs-theme .driver-popover-next-btn:hover {
+            background-color: #163B1D !important;
+            box-shadow: 0 4px 8px -1px rgba(30, 81, 40, 0.2) !important;
+        }
+
+        /* Close button (x) */
+        .driver-popover.driverjs-theme .driver-popover-close-btn {
+            color: #9ca3af !important;
+            transition: color 0.15s ease !important;
+        }
+
+        .driver-popover.driverjs-theme .driver-popover-close-btn:hover {
+            color: #4b5563 !important;
+            background-color: transparent !important;
+        }
+    </style>
 </head>
 
 <body class="bg-surface text-charcoal antialiased">
@@ -437,6 +527,7 @@
             });
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
     @stack('scripts')
 </body>
 
