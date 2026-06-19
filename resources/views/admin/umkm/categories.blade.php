@@ -2,109 +2,112 @@
 
 @section('title', 'Kategori Produk UMKM')
 
+@push('styles')
+    <style>
+        .category-image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #f3f4f6;
+            background: radial-gradient(circle, #f9fafb 0%, #f3f4f6 100%);
+        }
+    </style>
+@endpush
+
 @section('content')
 
-    <div class="mb-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+    <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div id="tour-header">
             <h1 class="font-display text-charcoal text-2xl font-bold">Kategori Produk UMKM</h1>
             <p class="mt-0.5 text-sm text-gray-500">Kelola kategori produk yang dapat digunakan oleh pemilik UMKM.</p>
         </div>
-        <button onclick="openCreateModal()"
-            class="bg-primary shadow-primary/20 hover:bg-primary-600 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all active:scale-[0.98]">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            Tambah Kategori
-        </button>
+        <div class="flex items-center gap-2">
+            <button id="tour-trigger-btn" onclick="startTutorial()"
+                class="hover:bg-gray-100 inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-600 transition-all active:scale-[0.98]">
+                <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Panduan Interaktif
+            </button>
+            <button id="tour-add-btn" onclick="openCreateModal()"
+                class="bg-primary shadow-primary/20 hover:bg-primary-600 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all active:scale-[0.98]">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Tambah Kategori
+            </button>
+        </div>
     </div>
 
-    {{-- Categories Table --}}
-    <div class="max-w-4xl overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-gray-100 bg-gray-50/50">
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Nama
-                            Kategori</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Slug
-                        </th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Total
-                            Produk</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Aksi
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    @forelse ($categories as $cat)
-                        <tr class="hover:bg-gray-50/50">
-                            <td class="px-5 py-4">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="text-primary flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
-                                        @if ($cat->image_path)
-                                            <img src="{{ asset('storage/' . $cat->image_path) }}" alt="{{ $cat->name }}"
-                                                class="h-full w-full object-cover">
-                                        @else
-                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                                stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                            </svg>
-                                        @endif
-                                    </div>
-                                    <div>
-                                        <div class="text-charcoal font-semibold">{{ $cat->name }}</div>
-                                        @if ($cat->description)
-                                            <div class="mt-0.5 max-w-xs truncate text-xs text-gray-400"
-                                                title="{{ $cat->description }}">{{ $cat->description }}</div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-5 py-4 font-mono text-xs text-gray-500">{{ $cat->slug }}</td>
-                            <td class="px-5 py-4">
-                                <span
-                                    class="bg-primary/10 text-primary-800 rounded-lg px-2.5 py-1 text-xs font-semibold">{{ $cat->products_count }}
-                                    produk</span>
-                            </td>
-                            <td class="px-5 py-4">
-                                <div class="flex items-center gap-2">
-                                    <button onclick="openEditModal({{ json_encode($cat) }})"
-                                        class="hover:bg-primary/10 hover:text-primary rounded-lg p-1.5 text-gray-400 transition-colors"
-                                        title="Edit">
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                            stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                    </button>
-                                    <form method="POST" action="{{ route('admin.umkm.categories.destroy', $cat->id) }}"
-                                        class="delete-form inline"
-                                        data-confirm="Apakah Anda yakin ingin menghapus kategori ini? Semua produk di dalamnya akan kehilangan kategori.">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="hover:bg-warning/10 hover:text-warning rounded-lg p-1.5 text-gray-400 transition-colors"
-                                            title="Hapus">
-                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                                stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="px-5 py-8 text-center text-gray-400">Belum ada data kategori produk.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+    {{-- Categories Cards Grid --}}
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        @forelse ($categories as $cat)
+            <div @if($loop->first) id="tour-first-card" @endif
+                class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:shadow-md flex flex-col justify-between">
+                <div>
+                    <div class="category-image-wrapper mb-3">
+                        @if ($cat->image_path)
+                            <img src="{{ asset('storage/' . $cat->image_path) }}" alt="{{ $cat->name }}" class="h-full w-full object-cover">
+                        @else
+                            <div class="flex h-full w-full items-center justify-center">
+                                <svg class="h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375 0 11-.75 0 .375 0 01.75 0z" />
+                                </svg>
+                            </div>
+                        @endif
+                    </div>
+                    <h3 class="font-semibold text-charcoal text-base leading-tight">{{ $cat->name }}</h3>
+                    <p class="font-mono text-[10px] text-gray-400 mt-1 mb-2">{{ $cat->slug }}</p>
+                    <p class="text-sm text-gray-500 line-clamp-3 min-h-15 mb-4">{{ $cat->description ? $cat->description : 'Tidak ada deskripsi.' }}</p>
+                </div>
+                
+                <div>
+                    <div class="flex items-center justify-between border-t border-gray-50 pt-3">
+                        <div>
+                            <p class="text-xs text-gray-400">Total Produk</p>
+                            <p class="text-sm font-bold text-primary">{{ $cat->products_count }} produk</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-gray-400">Model 3D AR</p>
+                            @if ($cat->model_3d_path)
+                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-primary mt-0.5">
+                                    <svg class="h-3.5 w-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                    Tersedia
+                                </span>
+                            @else
+                                <span class="text-xs text-gray-400 italic mt-0.5 block">Tidak ada</span>
+                            @endif
+                        </div>
+                    </div>
+                    
+                    <div @if($loop->first) id="tour-actions" @endif class="mt-4 flex gap-2">
+                        <button onclick="openEditModal({{ json_encode($cat) }})"
+                            class="flex-1 text-center rounded-xl border border-gray-200 py-2 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-50">
+                            Edit
+                        </button>
+                        <form method="POST" action="{{ route('admin.umkm.categories.destroy', $cat->id) }}"
+                            class="delete-form flex-1"
+                            data-confirm="Apakah Anda yakin ingin menghapus kategori ini? Semua produk di dalamnya akan kehilangan kategori.">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                class="w-full rounded-xl border border-warning/30 py-2 text-xs font-semibold text-warning transition-colors hover:bg-warning/5">
+                                Hapus
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div id="tour-empty-state" class="col-span-full rounded-2xl border border-dashed border-gray-200 p-8 text-center text-gray-400">
+                Belum ada data kategori produk. Klik "Tambah Kategori" untuk membuat baru.
+            </div>
+        @endforelse
     </div>
 
     {{-- Category Modal Form --}}
@@ -229,5 +232,89 @@
         function closeModal() {
             window.dispatchEvent(new CustomEvent('close-category-modal'));
         }
+
+        // Driver.js Categories Interactive Tour
+        function startTutorial() {
+            const driver = window.driver.js.driver;
+            const hasCard = document.getElementById('tour-first-card') !== null;
+            const steps = [];
+
+            // Langkah 1: Pengantar
+            steps.push({
+                element: '#tour-header',
+                popover: {
+                    title: '👋 Selamat Datang!',
+                    description: 'Panduan ini akan menunjukkan cara mengelola kategori produk UMKM lokal di desa Penglipuran.',
+                    side: 'bottom',
+                    align: 'start'
+                }
+            });
+
+            // Langkah 2: Tombol Tambah Kategori
+            steps.push({
+                element: '#tour-add-btn',
+                popover: {
+                    title: '➕ Tambah Kategori Baru',
+                    description: 'Gunakan tombol ini untuk menambahkan kategori produk baru, mengunggah ikon gambar representatif, serta file model 3D AR.',
+                    side: 'bottom',
+                    align: 'end'
+                }
+            });
+
+            if (hasCard) {
+                // Langkah 3: Kartu Kategori Pertama
+                steps.push({
+                    element: '#tour-first-card',
+                    popover: {
+                        title: '📦 Kartu Kategori',
+                        description: 'Menampilkan thumbnail, slug unik, deskripsi, total produk yang terdaftar, serta status ketersediaan model 3D AR.',
+                        side: 'top',
+                        align: 'start'
+                    }
+                });
+
+                // Langkah 4: Tombol Aksi
+                steps.push({
+                    element: '#tour-actions',
+                    popover: {
+                        title: '⚙️ Aksi Cepat',
+                        description: 'Gunakan tombol Edit untuk mengubah data kategori atau Hapus untuk menghapusnya dari database.',
+                        side: 'top',
+                        align: 'end'
+                    }
+                });
+            } else {
+                // Langkah Alternatif jika kosong
+                steps.push({
+                    element: '#tour-empty-state',
+                    popover: {
+                        title: '📭 Belum Ada Data',
+                        description: 'Setelah kategori pertama berhasil ditambahkan, kartu kategori visual akan tampil di area galeri ini.',
+                        side: 'top',
+                        align: 'start'
+                    }
+                });
+            }
+
+            const driverObj = driver({
+                showProgress: true,
+                allowClose: true,
+                steps: steps,
+                popoverClass: 'driverjs-theme'
+            });
+
+            driverObj.drive();
+        }
+
+        // Auto-run for first-time visitors
+        document.addEventListener('DOMContentLoaded', () => {
+            const tourCompleted = localStorage.getItem('umkm_categories_tour_completed');
+            if (!tourCompleted) {
+                setTimeout(() => {
+                    startTutorial();
+                    localStorage.setItem('umkm_categories_tour_completed', 'true');
+                }, 1000);
+            }
+        });
     </script>
 @endpush
