@@ -18,12 +18,9 @@
 
         <!-- User Info Card -->
         <div class="mb-6 flex items-center gap-4 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm">
-            <div
-                class="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-gray-200 text-gray-400 shadow-md">
-                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+            <div class="relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-md">
+                <img src="{{ Auth::user()->avatarUrl() }}" alt="Avatar {{ Auth::user()->name }}"
+                    class="h-full w-full object-cover">
             </div>
             <div>
                 <h2 class="text-charcoal text-xl font-bold">{{ Auth::user()->name }}</h2>

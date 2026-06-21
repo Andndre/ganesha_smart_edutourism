@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -59,5 +60,47 @@ class ProfileController extends Controller
         $user->save();
 
         return redirect()->route('profile')->with('success', 'Profil Anda berhasil diperbarui.');
+    }
+
+    /**
+     * Update the user's avatar.
+     */
+    public function updateAvatar(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
+        ]);
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        // Delete old local avatar if exists
+        if ($user->avatar_path && ! str_starts_with($user->avatar_path, 'http')) {
+            Storage::disk('public')->delete($user->avatar_path);
+        }
+
+        $path = $request->file('avatar')->store('avatars', 'public');
+        $user->avatar_path = $path;
+        $user->save();
+
+        return redirect()->route('profile.edit')->with('success', 'Foto profil berhasil diperbarui.');
+    }
+
+    /**
+     * Delete the user's avatar.
+     */
+    public function deleteAvatar(): RedirectResponse
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($user->avatar_path && ! str_starts_with($user->avatar_path, 'http')) {
+            Storage::disk('public')->delete($user->avatar_path);
+        }
+
+        $user->avatar_path = null;
+        $user->save();
+
+        return redirect()->route('profile.edit')->with('success', 'Foto profil berhasil dihapus.');
     }
 }

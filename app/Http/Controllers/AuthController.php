@@ -130,7 +130,12 @@ class AuthController extends Controller
 
             if ($user) {
                 // Auto-link: Update existing user with google_id
-                $user->update(['google_id' => $googleUser->getId()]);
+                // Only update avatar if user doesn't have one yet
+                $updateData = ['google_id' => $googleUser->getId()];
+                if (! $user->avatar_path && $googleUser->getAvatar()) {
+                    $updateData['avatar_path'] = $googleUser->getAvatar();
+                }
+                $user->update($updateData);
             } else {
                 // Create new user
                 $user = User::create([
@@ -139,6 +144,7 @@ class AuthController extends Controller
                     'google_id' => $googleUser->getId(),
                     'email_verified_at' => now(),
                     'password' => null,
+                    'avatar_path' => $googleUser->getAvatar(),
                 ]);
             }
 

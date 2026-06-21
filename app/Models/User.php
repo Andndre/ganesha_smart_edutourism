@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable(['name', 'email', 'password', 'role', 'phone', 'nationality', 'preferred_language', 'avatar_path', 'google_id', 'email_verified_at'])]
@@ -121,5 +122,23 @@ class User extends Authenticatable
     public function isTicketOfficer(): bool
     {
         return $this->role === 'ticket_officer';
+    }
+
+    /**
+     * Get the URL for the user's avatar.
+     * Falls back to ui-avatars.com if no avatar is set.
+     */
+    public function avatarUrl(): string
+    {
+        if ($this->avatar_path) {
+            // External URL (e.g., Google avatar) - use directly
+            if (str_starts_with($this->avatar_path, 'http')) {
+                return $this->avatar_path;
+            }
+
+            return Storage::disk('public')->url($this->avatar_path);
+        }
+
+        return 'https://ui-avatars.com/api/?name='.\urlencode($this->name).'&background=D4AF37&color=fff&bold=true';
     }
 }
