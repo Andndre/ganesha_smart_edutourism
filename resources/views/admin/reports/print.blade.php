@@ -392,35 +392,6 @@
                 </table>
             </div>
 
-            <!-- Asal Daerah Wisatawan -->
-            <div class="section">
-                <h3 class="section-title">Asal Daerah Wisatawan</h3>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Kota/Daerah</th>
-                            <th>Persentase</th>
-                            <th style="width: 40%;">Distribusi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($origins as $origin)
-                            <tr>
-                                <td><strong>{{ $origin['city'] }}</strong></td>
-                                <td class="pct-text">{{ $origin['pct'] }}%</td>
-                                <td>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: {{ $origin['pct'] }}%;">
-                                            {{ $origin['pct'] }}%
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
             <!-- Hari Tersibuk -->
             <div class="section">
                 <h3 class="section-title">Hari Tersibuk dalam Seminggu</h3>
