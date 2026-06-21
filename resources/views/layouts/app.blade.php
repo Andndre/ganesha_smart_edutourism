@@ -567,8 +567,7 @@
                     }
                 );
 
-                // Ping the server every 10 seconds with the last known position
-                setInterval(() => {
+                function sendPing() {
                     if (lastKnownPos) {
                         fetch('/api/tracking/ping', {
                             method: 'POST',
@@ -585,7 +584,26 @@
                             })
                         }).catch(() => { /* silent fail for tracking */ });
                     }
-                }, 10000);
+                }
+
+                // Ping the server every 10 seconds with the last known position
+                setInterval(sendPing, 10000);
+
+                // When user hides the tab or closes browser, remove from active cache via sendBeacon (guaranteed delivery)
+                // Re-ping immediately when they return so markers reappear
+                document.addEventListener('visibilitychange', function() {
+                    if (document.visibilityState === 'hidden' && lastKnownPos) {
+                        navigator.sendBeacon('/api/tracking/leave', new Blob(
+                            [JSON.stringify({
+                                session_id: sessionId,
+                                _token: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                            })],
+                            { type: 'application/json' }
+                        ));
+                    } else if (document.visibilityState === 'visible' && lastKnownPos) {
+                        sendPing();
+                    }
+                });
             })();
         </script>
 
