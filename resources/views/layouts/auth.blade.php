@@ -50,6 +50,8 @@
 
     @stack('scripts')
 
+    @include('components.cookie-consent')
+
 </body>
 
 </html>
