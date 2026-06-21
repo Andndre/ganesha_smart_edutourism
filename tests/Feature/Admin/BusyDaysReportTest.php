@@ -6,25 +6,21 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Models\VisitorLog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use ReflectionMethod;
 use Tests\TestCase;
+use Tests\Support\RegistersDayOfWeekFunction;
 
 class BusyDaysReportTest extends TestCase
 {
     use RefreshDatabase;
+    use RegistersDayOfWeekFunction;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $pdo = DB::connection()->getPdo();
-        $pdo->sqliteCreateFunction('DAYOFWEEK', function (string $datetime) {
-            $timestamp = strtotime($datetime);
-
-            return (int) date('w', $timestamp) + 1;
-        });
+        $this->registerDayOfWeekFunction();
     }
 
     private function callGetBusyDays(Carbon $startDate, Carbon $endDate): array
