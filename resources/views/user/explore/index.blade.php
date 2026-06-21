@@ -219,11 +219,13 @@
                             }
                             
                             // Immediately move local user marker for feedback
-                            if (userMarker) {
-                                userMarker.setLatLng(e.latlng);
-                                if (!map.hasLayer(userMarker)) {
-                                    userMarker.addTo(map);
-                                }
+                            if (typeof locationMarker !== 'undefined' && locationMarker) {
+                                locationMarker.setLatLng(e.latlng);
+                                if (!map.hasLayer(locationMarker)) locationMarker.addTo(map);
+                            }
+                            if (typeof locationPulse !== 'undefined' && locationPulse) {
+                                locationPulse.setLatLng(e.latlng);
+                                if (!map.hasLayer(locationPulse)) locationPulse.addTo(map);
                             }
                             
                             // Visual feedback toast
