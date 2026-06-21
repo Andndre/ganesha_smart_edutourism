@@ -1,15 +1,29 @@
 @extends('layouts.app')
-@section('title', 'Penilaian & Ulasan - Penglipuran')
-@section('header_title', 'Beri Ulasan')
+@section('title', isset($feedback) ? 'Edit Ulasan' : 'Penilaian & Ulasan - Penglipuran')
+@section('header_title', isset($feedback) ? 'Edit Ulasan' : 'Beri Ulasan')
 
 @section('content')
     <div class="px-5 py-6">
         <div class="mb-6 text-center">
-            <h2 class="text-charcoal mb-2 text-2xl font-bold" style="font-family: 'Playfair Display', serif;">Bagaimana
-                Pengalaman Anda?</h2>
+            <h2 class="text-charcoal mb-2 text-2xl font-bold" style="font-family: 'Playfair Display', serif;">
+                {{ isset($feedback) ? 'Edit Ulasan Anda' : 'Bagaimana Pengalaman Anda?' }}
+            </h2>
             <p class="text-sm text-gray-500">Masukan Anda sangat berharga untuk pengembangan Desa Wisata Penglipuran di masa
                 depan.</p>
         </div>
+
+        @if(isset($feedback) && $feedback->admin_response)
+        <!-- Admin Reply -->
+        <div class="mb-6 rounded-3xl border border-blue-100 bg-blue-50 p-5">
+            <div class="mb-2 flex items-center gap-2">
+                <svg class="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-sm font-bold text-blue-900">Balasan Admin</span>
+            </div>
+            <p class="text-sm text-blue-800">{{ $feedback->admin_response }}</p>
+        </div>
+        @endif
 
         <!-- Rating Card -->
         <div class="mb-6 flex flex-col items-center rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
@@ -62,31 +76,31 @@
         <!-- Comment Form -->
         <div class="mb-6">
             <label class="text-charcoal mb-2 block text-sm font-bold">Tulis Ulasan (Opsional)</label>
-            <textarea rows="5"
+            <textarea id="comment-textarea" rows="5"
                 class="focus:border-primary focus:ring-primary w-full resize-none rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
-                placeholder="Ceritakan pengalaman unik Anda selama berada di desa wisata..."></textarea>
+                placeholder="Ceritakan pengalaman unik Anda selama berada di desa wisata...">{{ isset($feedback) ? $feedback->comment : '' }}</textarea>
         </div>
 
-        <!-- Photo Upload (Mock) -->
+        <!-- Photo Upload (Real) -->
         <div class="mb-8">
-            <label class="text-charcoal mb-2 block text-sm font-bold">Lampirkan Foto</label>
-            <div class="no-scrollbar flex gap-3 overflow-x-auto pb-2">
-                <!-- Add Photo Button -->
-                <button
-                    class="flex h-20 w-20 shrink-0 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-400 transition-colors active:bg-gray-100">
-                    <svg class="mb-1 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    <span class="text-[10px] font-semibold">Tambah</span>
-                </button>
+            <label class="text-charcoal mb-2 block text-sm font-bold">Lampirkan Foto (Maks. 5)</label>
+            <div class="no-scrollbar flex gap-3 overflow-x-auto pb-2" id="photo-preview-container">
+                <!-- Preview will be added here via JS -->
             </div>
+            <input type="file" id="photo-input" accept="image/*" multiple class="hidden">
+            <button type="button" id="add-photo-btn" onclick="document.getElementById('photo-input').click()"
+                class="flex h-20 w-20 shrink-0 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-400 transition-colors active:bg-gray-100">
+                <svg class="mb-1 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <span class="text-[10px] font-semibold">Tambah</span>
+            </button>
         </div>
 
         <!-- Submit Button -->
         <button onclick="submitFeedback()"
             class="bg-primary shadow-primary/30 flex h-14 w-full items-center justify-center rounded-2xl font-bold text-white shadow-lg transition-all active:scale-[0.98]">
-            Kirim Penilaian
+            {{ isset($feedback) ? 'Perbarui Ulasan' : 'Kirim Penilaian' }}
         </button>
     </div>
 
@@ -104,6 +118,13 @@
         </div>
     </div>
     <script>
+        const isEditMode = {{ isset($feedback) ? 'true' : 'false' }};
+        const feedbackId = {{ isset($feedback) ? $feedback->id : 'null' }};
+        const existingPhotos = @json(isset($feedback) && $feedback->photos ? $feedback->photos : []);
+        const existingRating = {{ isset($feedback) ? $feedback->rating : 0 }};
+        
+        let selectedFiles = [];
+
         (function() {
             if (!window.feedbackListenersRegistered) {
                 document.body.addEventListener('click', function(e) {
@@ -115,7 +136,6 @@
                             const value = parseInt(star.getAttribute('data-value'));
                             document.getElementById('rating-value').value = value;
 
-                            // Update star visuals
                             stars.forEach(s => {
                                 if (parseInt(s.getAttribute('data-value')) <= value) {
                                     s.classList.remove('text-gray-200');
@@ -126,15 +146,8 @@
                                 }
                             });
 
-                            // Update text
                             const ratingText = document.getElementById('rating-text');
-                            const ratingLabels = [
-                                "Sangat Buruk",
-                                "Kurang Memuaskan",
-                                "Cukup Baik",
-                                "Memuaskan",
-                                "Sangat Memuaskan!"
-                            ];
+                            const ratingLabels = ["Sangat Buruk", "Kurang Memuaskan", "Cukup Baik", "Memuaskan", "Sangat Memuaskan!"];
                             if (ratingText) {
                                 ratingText.textContent = ratingLabels[value - 1];
                                 ratingText.classList.remove('opacity-0');
@@ -144,73 +157,104 @@
                 });
                 window.feedbackListenersRegistered = true;
             }
+
+            // Pre-fill rating in edit mode
+            if (isEditMode && existingRating > 0) {
+                const stars = document.querySelectorAll('.star-btn');
+                stars.forEach(s => {
+                    if (parseInt(s.getAttribute('data-value')) <= existingRating) {
+                        s.classList.remove('text-gray-200');
+                        s.classList.add('text-accent');
+                    }
+                });
+                document.getElementById('rating-value').value = existingRating;
+                const ratingText = document.getElementById('rating-text');
+                const ratingLabels = ["Sangat Buruk", "Kurang Memuaskan", "Cukup Baik", "Memuaskan", "Sangat Memuaskan!"];
+                if (ratingText) {
+                    ratingText.textContent = ratingLabels[existingRating - 1];
+                    ratingText.classList.remove('opacity-0');
+                }
+            }
+
+            // Photo input handler
+            const photoInput = document.getElementById('photo-input');
+            photoInput.addEventListener('change', function(e) {
+                const files = Array.from(e.target.files);
+                if (selectedFiles.length + files.length > 5) {
+                    alert('Maksimal 5 foto');
+                    return;
+                }
+                selectedFiles = selectedFiles.concat(files);
+                renderPhotoPreviews();
+                photoInput.value = '';
+            });
+
+            function renderPhotoPreviews() {
+                const container = document.getElementById('photo-preview-container');
+                container.innerHTML = '';
+                
+                selectedFiles.forEach((file, idx) => {
+                    const preview = document.createElement('div');
+                    preview.className = 'relative h-20 w-20 shrink-0';
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.className = 'h-full w-full rounded-2xl object-cover';
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.innerHTML = '<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>';
+                    removeBtn.className = 'absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-lg';
+                    removeBtn.onclick = () => { selectedFiles.splice(idx, 1); renderPhotoPreviews(); };
+                    preview.appendChild(img);
+                    preview.appendChild(removeBtn);
+                    container.appendChild(preview);
+                });
+
+                document.getElementById('add-photo-btn').style.display = selectedFiles.length >= 5 ? 'none' : 'flex';
+            }
+            window.renderPhotoPreviews = renderPhotoPreviews;
         })();
 
         async function submitFeedback() {
             if (navigator.vibrate) navigator.vibrate(100);
 
             const rating = document.getElementById('rating-value').value;
-            const comment = document.querySelector('textarea').value;
+            const comment = document.getElementById('comment-textarea').value;
 
             if (rating === '0') {
                 alert('Silakan pilih rating terlebih dahulu');
                 return;
             }
 
+            const formData = new FormData();
+            formData.append('rating', rating);
+            formData.append('comment', comment);
+            selectedFiles.forEach(file => formData.append('photos[]', file));
+
+            const url = isEditMode ? `/feedback/${feedbackId}` : '/feedback';
+            const method = isEditMode ? 'POST' : 'POST';
+            
+            if (isEditMode) formData.append('_method', 'PUT');
+
             try {
-                const res = await fetch('/feedback', {
-                    method: 'POST',
+                const res = await fetch(url, {
+                    method,
                     headers: {
-                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
                         'Accept': 'application/json',
                     },
-                    body: JSON.stringify({ rating, comment })
+                    body: formData
                 });
 
-                const toast = document.getElementById('toast');
-
                 if (res.ok) {
-                    if (toast) {
-                        toast.classList.remove('-translate-y-[150%]');
-                        toast.querySelector('h4').textContent = 'Terima Kasih!';
-                        toast.querySelector('p').textContent = 'Ulasan Anda berhasil dikirim.';
-                    }
-
-                    // Reset form
-                    document.getElementById('rating-value').value = '0';
-                    document.querySelector('textarea').value = '';
-                    document.querySelectorAll('.star-btn').forEach(s => {
-                        s.classList.remove('text-accent');
-                        s.classList.add('text-gray-200');
-                    });
-                    document.getElementById('rating-text').classList.add('opacity-0');
+                    const data = await res.json();
+                    window.location.href = `/feedback/thank-you/${data.data.id}`;
                 } else {
                     const err = await res.json();
                     const msg = err.message || Object.values(err.errors || {}).flat().join(', ') || 'Terjadi kesalahan.';
-                    if (toast) {
-                        toast.classList.remove('-translate-y-[150%]');
-                        toast.querySelector('h4').textContent = 'Gagal!';
-                        toast.querySelector('p').textContent = msg;
-                        toast.style.backgroundColor = '#dc2626';
-                    }
+                    alert(msg);
                 }
-
-                // Auto-hide toast
-                setTimeout(() => {
-                    if (toast) {
-                        toast.classList.add('-translate-y-[150%]');
-                        toast.style.backgroundColor = '';
-                    }
-                }, 3000);
             } catch (e) {
-                const toast = document.getElementById('toast');
-                if (toast) {
-                    toast.classList.remove('-translate-y-[150%]');
-                    toast.querySelector('h4').textContent = 'Error!';
-                    toast.querySelector('p').textContent = 'Koneksi terputus.';
-                    setTimeout(() => toast.classList.add('-translate-y-[150%]'), 3000);
-                }
+                alert('Koneksi terputus.');
             }
         }
     </script>
