@@ -5,10 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Feedback;
 use App\Models\Reservation;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Support\Str;
 
 class FeedbackController extends Controller
 {
@@ -111,5 +110,15 @@ class FeedbackController extends Controller
         }
 
         return view('user.feedback.thank-you', compact('feedback'));
+    }
+
+    public function index(): View
+    {
+        $feedbacks = Feedback::where('user_id', auth()->id())
+            ->with('reservation')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('user.feedback.index', compact('feedbacks'));
     }
 }

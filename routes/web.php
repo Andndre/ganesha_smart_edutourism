@@ -106,6 +106,7 @@ Route::middleware('auth')->group(function () {
             return view('user.feedback.create');
         })->name('feedback');
 
+        Route::get('/feedback/user', [\App\Http\Controllers\FeedbackController::class, 'index'])->name('feedback.index');
         Route::post('/feedback', [\App\Http\Controllers\FeedbackController::class, 'store'])->name('feedback.store');
         Route::get('/feedback/{feedback}', [\App\Http\Controllers\FeedbackController::class, 'show'])->name('feedback.show');
         Route::get('/feedback/{feedback}/edit', [\App\Http\Controllers\FeedbackController::class, 'edit'])->name('feedback.edit');
