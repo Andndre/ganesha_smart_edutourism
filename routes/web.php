@@ -26,6 +26,7 @@ use App\Http\Controllers\ExploreController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\Owner\OwnerProductController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SmartEdutourismController;
 use App\Http\Controllers\TourPackageController;
@@ -139,8 +140,8 @@ Route::middleware('auth')->group(function () {
 });
 
 // Public Pages
-Route::get('/terms', [App\Http\Controllers\PageController::class, 'terms'])->name('terms');
-Route::get('/privacy', [App\Http\Controllers\PageController::class, 'privacy'])->name('privacy');
+Route::get('/terms', [PageController::class, 'terms'])->name('terms');
+Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
 
 // Staff Routes (Admin & Ticket Officer)
 Route::prefix('staff')->middleware(['auth', 'staff'])->group(function () {
