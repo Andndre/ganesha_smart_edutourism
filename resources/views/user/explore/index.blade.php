@@ -405,6 +405,37 @@
                 });
             }
 
+            // Render initial live user markers from server data
+            function renderInitialLiveMarkers() {
+                // Remove any existing live markers from map
+                Object.values(liveUserMarkers).forEach(marker => map.removeLayer(marker));
+                // Clear the object
+                Object.keys(liveUserMarkers).forEach(key => delete liveUserMarkers[key]);
+
+                heatmapData.forEach(point => {
+                    if (point.is_live_user) {
+                        const displayName = point.user_name || 'Wisatawan';
+                        const liveIcon = L.divIcon({
+                            className: 'custom-div-icon',
+                            html: `
+                                <div class="relative flex h-4 w-4">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-4 w-4 bg-blue-600 border-2 border-white shadow"></span>
+                                </div>
+                            `,
+                            iconSize: [16, 16],
+                            iconAnchor: [8, 8]
+                        });
+
+                        const marker = L.marker([point.lat, point.lng], { icon: liveIcon })
+                            .bindPopup(displayName)
+                            .addTo(map);
+
+                        liveUserMarkers[point.session_id] = marker;
+                    }
+                });
+            }
+
             // Toggle Heatmap Visibility
             function toggleHeatmap() {
                 heatmapVisible = !heatmapVisible;
@@ -415,9 +446,12 @@
                     overlay.style.display = 'block';
                     btn.classList.add('fab-btn-active');
                     renderHeatmap();
+                    renderInitialLiveMarkers();
                 } else {
                     overlay.style.display = 'none';
                     btn.classList.remove('fab-btn-active');
+                    // Remove all live user markers from map
+                    Object.values(liveUserMarkers).forEach(marker => map.removeLayer(marker));
                 }
             }
 
@@ -449,9 +483,10 @@
                                 renderHeatmap();
                             }
 
-                            // Update or create marker on map
+                            // Update or create marker (only add to map if heatmap is visible)
                             if (liveUserMarkers[e.session_id]) {
                                 liveUserMarkers[e.session_id].setLatLng([e.latitude, e.longitude]);
+                                liveUserMarkers[e.session_id].setPopupContent(e.user_name || 'Wisatawan');
                             } else {
                                 const liveIcon = L.divIcon({
                                     className: 'custom-div-icon',
@@ -468,8 +503,11 @@
                                 const marker = L.marker([e.latitude, e.longitude], {
                                         icon: liveIcon
                                     })
-                                    .bindPopup('Wisatawan (Live)')
-                                    .addTo(map);
+                                    .bindPopup(e.user_name || 'Wisatawan');
+
+                                if (heatmapVisible) {
+                                    marker.addTo(map);
+                                }
 
                                 liveUserMarkers[e.session_id] = marker;
                             }
