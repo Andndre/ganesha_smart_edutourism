@@ -43,7 +43,7 @@
             let locationArrow = null;
             let locationPulse = null;
             const markerLayers = [];
-            
+
             const activeFilters = {
                 cultural: true,
                 umkm: true,
@@ -83,7 +83,7 @@
             function initMap() {
                 // Return early if map container doesn't exist
                 if (!document.getElementById('map')) return;
-                
+
                 // If map is already initialized, don't re-initialize
                 if (window.mapInstance) return;
 
@@ -95,6 +95,9 @@
                     zoomControl: false
                 }).setView([defaultLat, defaultLon], 17);
                 window.mapInstance = map;
+
+                setTimeout(() => map.invalidateSize(), 0);
+                setTimeout(() => map.invalidateSize(), 200);
 
                 // 2. Tambahkan Tile Layer
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -427,7 +430,7 @@
                         .listen('VisitorLocationUpdated', (e) => {
                             // Check if this session already exists in heatmapData
                             const existingIndex = heatmapData.findIndex(p => p.session_id === e.session_id);
-                            
+
                             const newPoint = {
                                 lat: parseFloat(e.latitude),
                                 lng: parseFloat(e.longitude),
@@ -463,11 +466,13 @@
                                     iconSize: [16, 16],
                                     iconAnchor: [8, 8]
                                 });
-                                
-                                const marker = L.marker([e.latitude, e.longitude], { icon: liveIcon })
+
+                                const marker = L.marker([e.latitude, e.longitude], {
+                                        icon: liveIcon
+                                    })
                                     .bindPopup('Wisatawan (Live)')
                                     .addTo(map);
-                                
+
                                 liveUserMarkers[e.session_id] = marker;
                             }
                         });
