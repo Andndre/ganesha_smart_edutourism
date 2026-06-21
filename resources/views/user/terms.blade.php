@@ -240,13 +240,7 @@
                     </div>
                 @endif
 
-                {{-- Action Footer --}}
-                <div class="flex flex-col gap-3 border-t border-gray-100 pt-6 sm:flex-row">
-                    <a href="{{ route('register') }}"
-                        class="tap-target bg-primary hover:bg-primary-600 w-full rounded-xl py-3 text-center font-bold text-white shadow-md transition-all active:scale-95 sm:flex-1">
-                        {{ __('Kembali ke Pendaftaran') }}
-                    </a>
-                </div>
+
             </div>
         </div>
     </div>
