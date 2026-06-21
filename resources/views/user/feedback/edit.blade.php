@@ -3,7 +3,7 @@
 @section('header_title', 'Perbarui Ulasan')
 
 @section('content')
-<div class="px-5 py-6">
+<div class="mx-auto max-w-2xl px-5 py-6">
     <div class="mb-6 text-center">
         <h2 class="text-charcoal mb-2 text-2xl font-bold" style="font-family: 'Playfair Display', serif;">Perbarui Penilaian Anda</h2>
         <p class="text-sm text-gray-500">Ubah rating, komentar, atau foto ulasan Anda.</p>
