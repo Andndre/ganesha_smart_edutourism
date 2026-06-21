@@ -187,6 +187,8 @@
             @include('components.navigation.bottom-nav')
         @endif
 
+        {{-- ponytail: SW disabled in local to prevent cache issues during dev --}}
+        @if (!app()->isLocal())
         <script data-navigate-once>
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
@@ -196,6 +198,7 @@
                 });
             }
         </script>
+        @endif
         
         <script data-navigate-once>
             // Visual transitions and tab synchronization are handled by livewire:navigating and livewire:navigated below.
