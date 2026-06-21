@@ -107,6 +107,10 @@ Route::middleware('auth')->group(function () {
         })->name('feedback');
 
         Route::post('/feedback', [\App\Http\Controllers\FeedbackController::class, 'store'])->name('feedback.store');
+        Route::get('/feedback/{feedback}', [\App\Http\Controllers\FeedbackController::class, 'show'])->name('feedback.show');
+        Route::get('/feedback/{feedback}/edit', [\App\Http\Controllers\FeedbackController::class, 'edit'])->name('feedback.edit');
+        Route::put('/feedback/{feedback}', [\App\Http\Controllers\FeedbackController::class, 'update'])->name('feedback.update');
+        Route::get('/feedback/thank-you/{feedback}', [\App\Http\Controllers\FeedbackController::class, 'thankYou'])->name('feedback.thank-you');
 
         // Tour Package Booking
         Route::get('/tour-package/{id}/book', [BookingController::class, 'checkout'])->name('tour-package.book');
