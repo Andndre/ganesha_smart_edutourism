@@ -176,6 +176,30 @@
                 </svg>
             </a>
 
+            @php
+                $visitCount = Auth::user()->visits()->distinct('visitable_id')->count();
+            @endphp
+
+            <a href="{{ route('visited') }}"
+                class="flex items-center justify-between border-b border-gray-50 p-4 active:bg-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-50 text-green-600">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <span class="text-charcoal text-sm font-medium">Riwayat Kunjungan
+                        @if($visitCount > 0)
+                            <span class="ml-1 text-[10px] text-green-600 font-bold">({{ $visitCount }})</span>
+                        @endif
+                    </span>
+                </div>
+                <svg class="h-4 w-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+
             <a href="{{ route('bookings') }}"
                 class="flex items-center justify-between border-b border-gray-50 p-4 active:bg-gray-50">
                 <div class="flex items-center gap-3">
