@@ -3,122 +3,213 @@
 @section('header_title', __('Ubah Profil'))
 
 @section('content')
-    <div class="px-5 py-6">
-        <div class="mb-6">
-            <h2 class="text-charcoal mb-2 text-2xl font-bold" style="font-family: 'Playfair Display', serif;">
-                {{ __('Informasi Profil') }}</h2>
-            <p class="text-sm text-gray-500">
-                {{ __('Perbarui data diri Anda untuk kenyamanan menjelajahi Desa Penglipuran.') }}</p>
-        </div>
+    <div class="px-4 py-6 md:px-8 lg:px-12">
+        <div class="mx-auto max-w-4xl">
 
-        @if ($errors->any())
-            <div class="mb-6 rounded-2xl border border-red-100 bg-red-50 p-4 text-sm text-red-600">
-                <div class="mb-1 font-bold">{{ __('Periksa kembali data Anda:') }}</div>
-                <ul class="list-inside list-disc">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+            @if (session('success'))
+                <div
+                    class="mb-6 flex items-center gap-2 rounded-2xl border border-green-100 bg-green-50 p-4 text-sm text-green-700">
+                    <svg class="h-5 w-5 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{{ session('success') }}</span>
+                </div>
+            @endif
 
-        <form action="{{ route('profile.update') }}" method="POST" class="space-y-5">
-            @csrf
-            @method('PUT')
+            @if ($errors->any())
+                <div class="mb-6 rounded-2xl border border-red-100 bg-red-50 p-4 text-sm text-red-600">
+                    <div class="mb-1 font-bold">{{ __('Periksa kembali data Anda:') }}</div>
+                    <ul class="list-inside list-disc">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-            <!-- Name Field -->
-            <div>
-                <label for="name" class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Nama Lengkap') }}</label>
-                <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required
-                    class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
-                    placeholder="{{ __('Masukkan nama lengkap Anda') }}">
-            </div>
+            {{-- Avatar Section --}}
+            <div class="mb-6 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+                <h2 class="text-charcoal mb-1 text-lg font-bold" style="font-family: 'Playfair Display', serif;">
+                    {{ __('Foto Profil') }}</h2>
+                <p class="mb-5 text-xs text-gray-500">{{ __('JPG, PNG, atau WebP. Maks. 2MB.') }}</p>
 
-            <!-- Email Field -->
-            <div>
-                <label for="email" class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Alamat Email') }}</label>
-                <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required
-                    class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
-                    placeholder="nama@email.com">
-            </div>
+                <div x-data="{
+                    previewUrl: '{{ $user->avatarUrl() }}',
+                    fileName: '',
+                    previewAndSubmit(event, form) {
+                        const file = event.target.files[0];
+                        if (!file) return;
+                        this.fileName = file.name;
+                        const reader = new FileReader();
+                        reader.onload = (e) => { this.previewUrl = e.target.result; };
+                        reader.readAsDataURL(file);
+                        this.$nextTick(() => form.submit());
+                    }
+                }" class="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
 
-            <!-- Phone Field -->
-            <div>
-                <label for="phone"
-                    class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Nomor Telepon (Opsional)') }}</label>
-                <input type="text" name="phone" id="phone" value="{{ old('phone', $user->phone) }}"
-                    class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
-                    placeholder="Contoh: 081234567890">
-            </div>
+                    {{-- Avatar preview --}}
+                    <div class="shrink-0 text-center">
+                        <img :src="previewUrl" alt="{{ __('Avatar') }}"
+                            class="h-24 w-24 rounded-full border-4 border-white object-cover shadow-md">
+                        <p class="mt-1 max-w-[6rem] truncate text-xs text-gray-400" x-show="fileName" x-text="fileName"></p>
+                    </div>
 
-            <!-- Nationality Field -->
-            <div>
-                <label for="nationality"
-                    class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Kebangsaan (Opsional)') }}</label>
-                <input type="text" name="nationality" id="nationality"
-                    value="{{ old('nationality', $user->nationality) }}"
-                    class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
-                    placeholder="Contoh: Indonesia">
-            </div>
+                    {{-- Upload & delete forms --}}
+                    <div class="flex w-full flex-col gap-3 sm:pt-1">
+                        <form action="{{ route('profile.avatar.update') }}" method="POST" enctype="multipart/form-data"
+                            x-ref="avatarForm">
+                            @csrf
+                            <label
+                                class="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 p-4 transition-colors hover:border-primary hover:bg-green-50/50">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span class="text-sm font-medium text-gray-500">{{ __('Pilih foto baru') }}</span>
+                                <input type="file" name="avatar" accept="image/*" class="hidden"
+                                    @change="previewAndSubmit($event, $refs.avatarForm)">
+                            </label>
+                        </form>
 
-            <!-- Preferred Language Field -->
-            <div>
-                <label for="preferred_language"
-                    class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Bahasa Pilihan (Opsional)') }}</label>
-                <div class="relative">
-                    <select name="preferred_language" id="preferred_language"
-                        class="focus:border-primary focus:ring-primary bg-size-[1.25rem_1.25rem] bg-position-[right_1rem_center] w-full appearance-none rounded-2xl border border-gray-200 bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1">
-                        <option value="" disabled
-                            {{ old('preferred_language', $user->preferred_language) == '' ? 'selected' : '' }}>
-                            {{ __('Pilih Bahasa') }}</option>
-                        <option value="id"
-                            {{ old('preferred_language', $user->preferred_language) == 'id' ? 'selected' : '' }}>
-                            {{ __('Bahasa Indonesia') }}</option>
-                        <option value="en"
-                            {{ old('preferred_language', $user->preferred_language) == 'en' ? 'selected' : '' }}>English
-                        </option>
-                    </select>
+                        @if ($user->avatar_path && !str_starts_with($user->avatar_path, 'http'))
+                            <form action="{{ route('profile.avatar.delete') }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                    class="w-full rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-medium text-red-500 transition-colors hover:bg-red-100">
+                                    {{ __('Hapus Foto') }}
+                                </button>
+                            </form>
+                        @endif
+                    </div>
                 </div>
             </div>
 
-            <!-- Divider -->
-            <hr class="my-6 border-gray-100">
+            {{-- Profile Info Form --}}
+            <div class="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+                <div class="mb-5">
+                    <h2 class="text-charcoal mb-1 text-lg font-bold" style="font-family: 'Playfair Display', serif;">
+                        {{ __('Informasi Profil') }}</h2>
+                    <p class="text-xs text-gray-500">
+                        {{ __('Perbarui data diri Anda untuk kenyamanan menjelajahi Desa Penglipuran.') }}</p>
+                </div>
 
-            <div class="mb-2">
-                <h3 class="text-charcoal mb-1 text-lg font-bold" style="font-family: 'Playfair Display', serif;">
-                    {{ __('Ubah Kata Sandi') }}</h3>
-                <p class="text-xs text-gray-500">{{ __('Kosongkan jika Anda tidak ingin mengubah kata sandi Anda.') }}</p>
+                <form action="{{ route('profile.update') }}" method="POST" class="space-y-5">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <!-- Name -->
+                        <div>
+                            <label for="name"
+                                class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Nama Lengkap') }}</label>
+                            <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required
+                                class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
+                                placeholder="{{ __('Masukkan nama lengkap Anda') }}">
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <label for="email"
+                                class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Alamat Email') }}</label>
+                            <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required
+                                class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
+                                placeholder="nama@email.com">
+                        </div>
+
+                        <!-- Phone -->
+                        <div>
+                            <label for="phone"
+                                class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Nomor Telepon (Opsional)') }}</label>
+                            <input type="text" name="phone" id="phone" value="{{ old('phone', $user->phone) }}"
+                                class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
+                                placeholder="Contoh: 081234567890">
+                        </div>
+
+                        <!-- Nationality -->
+                        <div>
+                            <label for="nationality"
+                                class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Kebangsaan (Opsional)') }}</label>
+                            <input type="text" name="nationality" id="nationality"
+                                value="{{ old('nationality', $user->nationality) }}"
+                                class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
+                                placeholder="Contoh: Indonesia">
+                        </div>
+
+                        <!-- Preferred Language -->
+                        <div class="md:col-span-2">
+                            <label for="preferred_language"
+                                class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Bahasa Pilihan (Opsional)') }}</label>
+                            <div class="relative">
+                                <select name="preferred_language" id="preferred_language"
+                                    class="focus:border-primary focus:ring-primary w-full appearance-none rounded-2xl border border-gray-200 bg-white p-4 pr-10 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1">
+                                    <option value="" disabled
+                                        {{ old('preferred_language', $user->preferred_language) == '' ? 'selected' : '' }}>
+                                        {{ __('Pilih Bahasa') }}</option>
+                                    <option value="id"
+                                        {{ old('preferred_language', $user->preferred_language) == 'id' ? 'selected' : '' }}>
+                                        {{ __('Bahasa Indonesia') }}</option>
+                                    <option value="en"
+                                        {{ old('preferred_language', $user->preferred_language) == 'en' ? 'selected' : '' }}>
+                                        English</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                                    <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-100">
+
+                    <div>
+                        <h3 class="text-charcoal mb-1 text-base font-bold"
+                            style="font-family: 'Playfair Display', serif;">
+                            {{ __('Ubah Kata Sandi') }}</h3>
+                        <p class="text-xs text-gray-500">
+                            {{ __('Kosongkan jika Anda tidak ingin mengubah kata sandi Anda.') }}</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <!-- New Password -->
+                        <div>
+                            <label for="password"
+                                class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Kata Sandi Baru (Opsional)') }}</label>
+                            <input type="password" name="password" id="password"
+                                class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
+                                placeholder="Minimal 8 karakter">
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div>
+                            <label for="password_confirmation"
+                                class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Konfirmasi Kata Sandi Baru') }}</label>
+                            <input type="password" name="password_confirmation" id="password_confirmation"
+                                class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
+                                placeholder="Masukkan kembali kata sandi baru">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
+                        <a href="{{ route('profile') }}"
+                            class="text-charcoal flex h-12 w-full items-center justify-center rounded-2xl border border-gray-200 px-8 font-bold transition-all active:scale-[0.98] sm:w-auto">
+                            {{ __('Batal') }}
+                        </a>
+                        <button type="submit"
+                            class="bg-primary shadow-primary/30 flex h-12 w-full items-center justify-center rounded-2xl px-8 font-bold text-white shadow-lg transition-all active:scale-[0.98] sm:w-auto">
+                            {{ __('Simpan Perubahan') }}
+                        </button>
+                    </div>
+                </form>
             </div>
 
-            <!-- New Password Field -->
-            <div>
-                <label for="password"
-                    class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Kata Sandi Baru (Opsional)') }}</label>
-                <input type="password" name="password" id="password"
-                    class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
-                    placeholder="Minimal 8 karakter">
-            </div>
-
-            <!-- New Password Confirmation Field -->
-            <div>
-                <label for="password_confirmation"
-                    class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Konfirmasi Kata Sandi Baru') }}</label>
-                <input type="password" name="password_confirmation" id="password_confirmation"
-                    class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
-                    placeholder="Masukkan kembali kata sandi baru">
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex flex-col gap-3 pt-4">
-                <button type="submit"
-                    class="bg-primary shadow-primary/30 flex h-14 w-full items-center justify-center rounded-2xl font-bold text-white shadow-lg transition-all active:scale-[0.98]">
-                    {{ __('Simpan Perubahan') }}
-                </button>
-                <a href="{{ route('profile') }}"
-                    class="text-charcoal flex h-14 w-full items-center justify-center rounded-2xl border border-gray-200 font-bold transition-all active:scale-[0.98]">
-                    {{ __('Batal') }}
-                </a>
-            </div>
-        </form>
+        </div>
     </div>
 @endsection

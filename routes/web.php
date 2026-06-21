@@ -116,6 +116,8 @@ Route::middleware('auth')->group(function () {
         })->name('profile');
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
+        Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
         Route::get('/profile/bookings', [BookingController::class, 'index'])->name('bookings');
         Route::get('/profile/favorites', function () {
             return view('home');

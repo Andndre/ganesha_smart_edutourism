@@ -26,7 +26,7 @@
                     <a href="{{ route('profile') }}" class="tap-target -mt-1 shrink-0 transition-transform active:scale-95"
                         aria-label="Buka Profil">
                         <div class="h-12 w-12 overflow-hidden rounded-full border-2 border-slate-200 bg-white p-0.5 shadow-sm">
-                            <img src="https://ui-avatars.com/api/?name={{ \urlencode(Auth::user()->name) }}&background=D4AF37&color=fff&bold=true"
+                            <img src="{{ Auth::user()->avatarUrl() }}"
                                 alt="Profil {{ Auth::user()->name }}" class="h-full w-full rounded-full object-cover">
                         </div>
                     </a>
