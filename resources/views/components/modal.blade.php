@@ -54,7 +54,7 @@
     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>
 
     <div class="{{ $desktopContainerClass }} {{ $maxWidthClass }} pointer-events-auto relative flex w-full flex-col rounded-t-[2.5rem] bg-white p-6 pb-10 shadow-2xl md:pb-6"
-        style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));" @click.away="isOpen = false" x-show="isOpen"
+        style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));" @click.outside="isOpen = false" x-show="isOpen"
         x-transition:enter="transition ease-out duration-300 transform"
         x-transition:enter-start="translate-y-full {{ $desktopTransitionStart }}"
         x-transition:enter-end="translate-y-0 {{ $desktopTransitionEnd }}"
