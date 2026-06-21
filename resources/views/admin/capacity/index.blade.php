@@ -382,7 +382,8 @@
             realHeatmapLayer = L.heatLayer(points, {
                 radius: 25,
                 blur: 15,
-                maxZoom: 17,
+                maxZoom: 18,
+                max: 3.0, // Butuh sekitar 3 orang bertumpuk agar titik jadi merah
                 gradient: {0.4: 'blue', 0.6: 'cyan', 0.7: 'lime', 0.8: 'yellow', 1: 'red'}
             }).addTo(map);
         }
