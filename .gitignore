@@ -31,6 +31,7 @@ Thumbs.db
 .agents/
 # *.md
 !README.md
+/.sisyphus/
 /openrouteservice/files/
 /openrouteservice/graphs/
 /openrouteservice/logs/
