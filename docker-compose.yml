@@ -49,6 +49,12 @@ services:
     command: php artisan reverb:start --host=0.0.0.0 --port=8081
     ports:
       - "${REVERB_PORT:-8081}:8081"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:-penglipuran}-ws.rule=Host(`${APP_DOMAIN:-penglipuran.digowave.com}`) && PathPrefix(`/app`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:-penglipuran}-ws.entrypoints=websecure"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:-penglipuran}-ws.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME:-penglipuran}-ws.loadbalancer.server.port=8081"
     volumes:
       - ./.env:/var/www/.env
     depends_on:
