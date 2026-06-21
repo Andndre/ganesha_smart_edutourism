@@ -53,6 +53,7 @@
                     </svg>
                 </button>
             </div>
+            <input type="hidden" name="rating" id="rating-value" value="0">
 
             <div id="rating-text" class="text-accent mt-2 h-5 text-sm font-bold opacity-0 transition-opacity">Sangat
                 Memuaskan!</div>
@@ -112,6 +113,7 @@
                         if (starsContainer) {
                             const stars = starsContainer.querySelectorAll('.star-btn');
                             const value = parseInt(star.getAttribute('data-value'));
+                            document.getElementById('rating-value').value = value;
 
                             // Update star visuals
                             stars.forEach(s => {
@@ -144,27 +146,72 @@
             }
         })();
 
-        function submitFeedback() {
+        async function submitFeedback() {
             if (navigator.vibrate) navigator.vibrate(100);
 
-            const toast = document.getElementById('toast');
-            if (toast) {
-                toast.classList.remove('-translate-y-[150%]');
+            const rating = document.getElementById('rating-value').value;
+            const comment = document.querySelector('textarea').value;
+
+            if (rating === '0') {
+                alert('Silakan pilih rating terlebih dahulu');
+                return;
             }
 
-            setTimeout(() => {
-                if (toast) {
-                    toast.classList.add('-translate-y-[150%]');
-                }
-                // Navigate back to home after successful submission
-                setTimeout(() => {
-                    if (window.Livewire) {
-                        Livewire.navigate("{{ route('home') }}");
-                    } else {
-                        window.location.href = "{{ route('home') }}";
+            try {
+                const res = await fetch('/feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ rating, comment })
+                });
+
+                const toast = document.getElementById('toast');
+
+                if (res.ok) {
+                    if (toast) {
+                        toast.classList.remove('-translate-y-[150%]');
+                        toast.querySelector('h4').textContent = 'Terima Kasih!';
+                        toast.querySelector('p').textContent = 'Ulasan Anda berhasil dikirim.';
                     }
-                }, 500);
-            }, 2500);
+
+                    // Reset form
+                    document.getElementById('rating-value').value = '0';
+                    document.querySelector('textarea').value = '';
+                    document.querySelectorAll('.star-btn').forEach(s => {
+                        s.classList.remove('text-accent');
+                        s.classList.add('text-gray-200');
+                    });
+                    document.getElementById('rating-text').classList.add('opacity-0');
+                } else {
+                    const err = await res.json();
+                    const msg = err.message || Object.values(err.errors || {}).flat().join(', ') || 'Terjadi kesalahan.';
+                    if (toast) {
+                        toast.classList.remove('-translate-y-[150%]');
+                        toast.querySelector('h4').textContent = 'Gagal!';
+                        toast.querySelector('p').textContent = msg;
+                        toast.style.backgroundColor = '#dc2626';
+                    }
+                }
+
+                // Auto-hide toast
+                setTimeout(() => {
+                    if (toast) {
+                        toast.classList.add('-translate-y-[150%]');
+                        toast.style.backgroundColor = '';
+                    }
+                }, 3000);
+            } catch (e) {
+                const toast = document.getElementById('toast');
+                if (toast) {
+                    toast.classList.remove('-translate-y-[150%]');
+                    toast.querySelector('h4').textContent = 'Error!';
+                    toast.querySelector('p').textContent = 'Koneksi terputus.';
+                    setTimeout(() => toast.classList.add('-translate-y-[150%]'), 3000);
+                }
+            }
         }
     </script>
 @endsection
