@@ -511,6 +511,24 @@
 
                                 liveUserMarkers[e.session_id] = marker;
                             }
+                        })
+                        .listen('VisitorLocationRemoved', (e) => {
+                            // Remove from heatmapData array
+                            const idx = heatmapData.findIndex(p => p.session_id === e.session_id);
+                            if (idx !== -1) {
+                                heatmapData.splice(idx, 1);
+                            }
+
+                            // Remove marker from map if it exists
+                            if (liveUserMarkers[e.session_id]) {
+                                map.removeLayer(liveUserMarkers[e.session_id]);
+                                delete liveUserMarkers[e.session_id];
+                            }
+
+                            // Re-render heatmap if visible
+                            if (heatmapVisible) {
+                                renderHeatmap();
+                            }
                         });
                 } else {
                     setTimeout(setupExploreEchoListener, 500);
