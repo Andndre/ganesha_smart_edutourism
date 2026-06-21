@@ -53,7 +53,7 @@
                     <div class="shrink-0 text-center">
                         <img :src="previewUrl" alt="{{ __('Avatar') }}"
                             class="h-24 w-24 rounded-full border-4 border-white object-cover shadow-md">
-                        <p class="mt-1 max-w-[6rem] truncate text-xs text-gray-400" x-show="fileName" x-text="fileName"></p>
+                        <p class="mt-1 max-w-24 truncate text-xs text-gray-400" x-show="fileName" x-text="fileName"></p>
                     </div>
 
                     {{-- Upload & delete forms --}}
