@@ -437,6 +437,21 @@
 
                             liveUserMarkers[e.session_id] = marker;
                         }
+                    })
+                    .listen('.VisitorLocationRemoved', (e) => {
+                        console.log('📡 [Reverb] VisitorLocationRemoved received (Admin):', e);
+                        const existingIndex = heatmapData.findIndex(p => p.session_id === e.session_id);
+                        if (existingIndex !== -1) {
+                            heatmapData.splice(existingIndex, 1);
+                        }
+                        
+                        // Remove marker
+                        if (liveUserMarkers[e.session_id]) {
+                            map.removeLayer(liveUserMarkers[e.session_id]);
+                            delete liveUserMarkers[e.session_id];
+                        }
+                        
+                        renderHeatmap();
                     });
             } else {
                 setTimeout(setupEchoListener, 500);
