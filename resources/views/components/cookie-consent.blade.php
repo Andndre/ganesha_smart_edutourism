@@ -22,16 +22,20 @@
         if (!banner || !btn) return;
         if (localStorage.getItem('cookie_consent_accepted') === 'true') return;
 
-        // Show with animation
+        // Show with animation + push content up so it's not hidden behind banner
         requestAnimationFrame(function() {
             requestAnimationFrame(function() {
                 banner.classList.remove('pointer-events-none', 'translate-y-full', 'opacity-0');
+                var main = document.getElementById('main-content');
+                if (main) main.style.paddingBottom = banner.offsetHeight + 'px';
             });
         });
 
         btn.addEventListener('click', function() {
             localStorage.setItem('cookie_consent_accepted', 'true');
             banner.classList.add('pointer-events-none', 'translate-y-full', 'opacity-0');
+            var main = document.getElementById('main-content');
+            if (main) main.style.paddingBottom = '';
             try { navigator.vibrate(50); } catch(e) {}
         });
     })();
