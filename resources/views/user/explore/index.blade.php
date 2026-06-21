@@ -459,7 +459,7 @@
                 if (window.Echo) {
                     // Listen for other visitors' locations
                     window.Echo.channel('village-map')
-                        .listen('VisitorLocationUpdated', (e) => {
+                        .listen('.VisitorLocationUpdated', (e) => {
                             // Check if this session already exists in heatmapData
                             const existingIndex = heatmapData.findIndex(p => p.session_id === e.session_id);
 
@@ -512,7 +512,7 @@
                                 liveUserMarkers[e.session_id] = marker;
                             }
                         })
-                        .listen('VisitorLocationRemoved', (e) => {
+                        .listen('.VisitorLocationRemoved', (e) => {
                             // Remove from heatmapData array
                             const idx = heatmapData.findIndex(p => p.session_id === e.session_id);
                             if (idx !== -1) {
