@@ -19,10 +19,12 @@ class TrackingController extends Controller
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
             'session_id' => 'required|string',
+            'user_name' => 'nullable|string|max:255',
         ]);
 
         $lat = (float) $request->latitude;
         $lng = (float) $request->longitude;
+        $userName = $request->input('user_name');
 
         // Approximate bounding box for Desa Penglipuran
         // Center: -8.4223, 115.3594
@@ -36,6 +38,7 @@ class TrackingController extends Controller
                 'lat' => $lat,
                 'lng' => $lng,
                 'last_seen' => now()->timestamp,
+                'user_name' => $userName,
             ];
 
             // Clean up visitors older than 5 minutes (300 seconds)
@@ -45,7 +48,7 @@ class TrackingController extends Controller
 
             Cache::put('active_visitors', $activeVisitors, now()->addMinutes(5));
 
-            broadcast(new VisitorLocationUpdated($lat, $lng, $request->session_id));
+            broadcast(new VisitorLocationUpdated($lat, $lng, $request->session_id, $userName));
 
             // Check capacity zones for crowd alerts
             $this->checkCrowdAlerts($activeVisitors);
