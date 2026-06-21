@@ -20,3 +20,4 @@ Route::post('/midtrans/webhook', [BookingController::class, 'webhook']);
 Route::get('/ar/model', [ARController::class, 'getModel']);
 
 Route::post('/tracking/ping', [TrackingController::class, 'ping']);
+Route::post('/tracking/leave', [TrackingController::class, 'leave']);
