@@ -580,7 +580,8 @@
                             body: JSON.stringify({
                                 latitude: lastKnownPos.latitude,
                                 longitude: lastKnownPos.longitude,
-                                session_id: sessionId
+                                session_id: sessionId,
+                                user_name: '@auth{{ Auth::user()->name ?? '' }}@endauth'.trim() || null
                             })
                         }).catch(() => { /* silent fail for tracking */ });
                     }
