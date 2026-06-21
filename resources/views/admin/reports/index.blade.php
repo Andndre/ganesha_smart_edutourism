@@ -113,15 +113,6 @@
     <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
         <h3 class="mb-4 font-semibold text-charcoal">Hari Tersibuk Bulan Ini</h3>
         <div class="space-y-2">
-            @php
-                $busyDays = [
-                    ['day' => 'Sabtu',  'visitors' => '730', 'pct' => 100],
-                    ['day' => 'Minggu', 'visitors' => '680', 'pct' => 93],
-                    ['day' => "Jum'at", 'visitors' => '510', 'pct' => 70],
-                    ['day' => 'Kamis',  'visitors' => '490', 'pct' => 67],
-                    ['day' => 'Rabu',   'visitors' => '380', 'pct' => 52],
-                ];
-            @endphp
             @foreach ($busyDays as $d)
                 <div class="flex items-center gap-3">
                     <span class="w-16 text-sm text-gray-600">{{ $d['day'] }}</span>
