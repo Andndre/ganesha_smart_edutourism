@@ -1,6 +1,8 @@
 import Swal from 'sweetalert2';
 
-window.Swal = Swal;
+window.Swal = Swal.mixin({
+    heightAuto: false
+});
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
