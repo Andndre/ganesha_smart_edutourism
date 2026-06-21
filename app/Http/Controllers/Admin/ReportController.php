@@ -52,16 +52,19 @@ class ReportController extends Controller
      */
     public function index(Request $request): View
     {
-        $selectedPeriod = $request->query('period', 'Mei 2026');
+        $now = Carbon::now();
+        $defaultPeriod = $now->locale('id')->isoFormat('MMMM YYYY');
+        $selectedPeriod = $request->query('period', $defaultPeriod);
 
-        // Target month calculations
-        $month = 5;
-        $year = 2026;
-        if ($selectedPeriod === 'April 2026') {
-            $month = 4;
-        } elseif ($selectedPeriod === 'Maret 2026') {
-            $month = 3;
-        }
+        // Parse selected period to month/year (supports "Bulan Tahun" format like "Juni 2026")
+        $monthNames = [
+            'Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4,
+            'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8,
+            'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12,
+        ];
+        $parts = explode(' ', $selectedPeriod);
+        $month = $monthNames[$parts[0]] ?? $now->month;
+        $year = (int) ($parts[1] ?? $now->year);
 
         $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
         $endDate = $startDate->copy()->endOfMonth();
@@ -198,15 +201,18 @@ class ReportController extends Controller
      */
     public function downloadPdf(Request $request): View
     {
-        $selectedPeriod = $request->query('period', 'Mei 2026');
+        $now = Carbon::now();
+        $defaultPeriod = $now->locale('id')->isoFormat('MMMM YYYY');
+        $selectedPeriod = $request->query('period', $defaultPeriod);
 
-        $month = 5;
-        $year = 2026;
-        if ($selectedPeriod === 'April 2026') {
-            $month = 4;
-        } elseif ($selectedPeriod === 'Maret 2026') {
-            $month = 3;
-        }
+        $monthNames = [
+            'Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4,
+            'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8,
+            'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12,
+        ];
+        $parts = explode(' ', $selectedPeriod);
+        $month = $monthNames[$parts[0]] ?? $now->month;
+        $year = (int) ($parts[1] ?? $now->year);
 
         $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
         $endDate = $startDate->copy()->endOfMonth();

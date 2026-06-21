@@ -10,10 +10,18 @@
         <p class="mt-0.5 text-sm text-gray-500">Ringkasan performa desa wisata secara periodik.</p>
     </div>
     <div class="flex items-center gap-2">
+        @php
+            $now = \Carbon\Carbon::now();
+            $availableMonths = [];
+            for ($i = 0; $i < 3; $i++) {
+                $date = $now->copy()->subMonths($i);
+                $availableMonths[] = $date->locale('id')->isoFormat('MMMM YYYY');
+            }
+        @endphp
         <select id="period-selector" onchange="window.location.href = '{{ route('admin.reports') }}?period=' + this.value" class="rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:border-primary focus:outline-none bg-white text-charcoal">
-            <option value="Mei 2026" {{ $selectedPeriod === 'Mei 2026' ? 'selected' : '' }}>Mei 2026</option>
-            <option value="April 2026" {{ $selectedPeriod === 'April 2026' ? 'selected' : '' }}>April 2026</option>
-            <option value="Maret 2026" {{ $selectedPeriod === 'Maret 2026' ? 'selected' : '' }}>Maret 2026</option>
+            @foreach ($availableMonths as $month)
+                <option value="{{ $month }}" {{ $selectedPeriod === $month ? 'selected' : '' }}>{{ $month }}</option>
+            @endforeach
         </select>
         <a href="{{ route('admin.reports.download', ['period' => $selectedPeriod]) }}" class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-dark">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
