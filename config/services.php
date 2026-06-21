@@ -39,6 +39,12 @@ return [
         'base_url' => env('ORS_BASE_URL', 'http://localhost:8080'),
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', env('APP_URL').'/auth/google/callback'),
+    ],
+
     'penglipuran' => [
         'latitude' => env('PENGLIPURAN_LAT', -8.422303596762355),
         'longitude' => env('PENGLIPURAN_LON', 115.35948833933173),

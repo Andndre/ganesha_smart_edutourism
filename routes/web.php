@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\RoutingController;
 use App\Http\Controllers\ARController;
 use App\Http\Controllers\AudioController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CulturalController;
 use App\Http\Controllers\EventController as PublicEventController;
 use App\Http\Controllers\ExploreController;
@@ -37,6 +38,9 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
+
+    Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
     Route::get('/forgot-password', function () {
         return view('auth.login');
@@ -103,8 +107,8 @@ Route::middleware('auth')->group(function () {
         })->name('feedback');
 
         // Tour Package Booking
-        Route::get('/tour-package/{id}/book', [App\Http\Controllers\BookingController::class, 'checkout'])->name('tour-package.book');
-        Route::post('/tour-package/{id}/process', [App\Http\Controllers\BookingController::class, 'process'])->name('tour-package.process');
+        Route::get('/tour-package/{id}/book', [BookingController::class, 'checkout'])->name('tour-package.book');
+        Route::post('/tour-package/{id}/process', [BookingController::class, 'process'])->name('tour-package.process');
 
         // Profile & E-Ticket
         Route::get('/profile', function () {
@@ -112,7 +116,7 @@ Route::middleware('auth')->group(function () {
         })->name('profile');
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        Route::get('/profile/bookings', [App\Http\Controllers\BookingController::class, 'index'])->name('bookings');
+        Route::get('/profile/bookings', [BookingController::class, 'index'])->name('bookings');
         Route::get('/profile/favorites', function () {
             return view('home');
         })->name('favorites');
