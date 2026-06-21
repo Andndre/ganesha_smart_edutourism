@@ -15,6 +15,7 @@ use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RegistersDayOfWeekFunction;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -22,12 +23,16 @@ use Tests\TestCase;
 class AdminTest extends TestCase
 {
     use RefreshDatabase;
+    use RegistersDayOfWeekFunction;
 
     private User $adminUser;
 
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->registerDayOfWeekFunction();
+
         // Create an admin user to authenticate
         $this->adminUser = User::factory()->create([
             'name' => 'Admin Test',
@@ -812,10 +817,11 @@ class AdminTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Laporan & Analitik');
 
-        // Test download redirects (simulated)
+        // Test download renders printable view
         $responseDownload = $this->actingAs($this->adminUser)
             ->get(route('admin.reports.download', ['period' => 'Mei 2026']));
-        $responseDownload->assertRedirect();
+        $responseDownload->assertStatus(200);
+        $responseDownload->assertSee('Laporan Mei 2026');
     }
 
     /**

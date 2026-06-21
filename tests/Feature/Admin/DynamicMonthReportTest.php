@@ -6,22 +6,20 @@ use App\Models\User;
 use App\Models\VisitorLog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\TestCase;
+use Tests\Support\RegistersDayOfWeekFunction;
 
 class DynamicMonthReportTest extends TestCase
 {
     use RefreshDatabase;
+    use RegistersDayOfWeekFunction;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $pdo = DB::connection()->getPdo();
-        $pdo->sqliteCreateFunction('DAYOFWEEK', function (string $datetime) {
-            return (int) date('w', strtotime($datetime)) + 1;
-        });
+        $this->registerDayOfWeekFunction();
     }
 
     public function test_default_period_is_current_month(): void
