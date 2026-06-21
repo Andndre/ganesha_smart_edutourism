@@ -3,7 +3,7 @@
 @section('header_title', 'Riwayat Penilaian')
 
 @section('content')
-<div class="px-5 py-6">
+<div class="mx-auto max-w-6xl px-5 py-6">
     @if ($feedbacks->isEmpty())
         {{-- Empty State --}}
         <div class="mb-6 text-center">
@@ -23,11 +23,23 @@
             </a>
         </div>
     @else
-        {{-- Feedback List --}}
-        <div class="space-y-4">
+        {{-- Header: Count + New Feedback Button --}}
+        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-sm text-gray-500">{{ $feedbacks->count() }} ulasan</p>
+            <a href="{{ route('feedback') }}"
+                class="bg-primary shadow-primary/30 inline-flex h-11 items-center gap-2 self-start rounded-2xl px-5 font-bold text-white shadow-lg transition-all active:scale-[0.98]">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Buat Feedback Baru
+            </a>
+        </div>
+
+        {{-- Feedback Grid --}}
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             @foreach ($feedbacks as $fb)
                 <a href="{{ route('feedback.show', $fb) }}"
-                    class="block rounded-3xl border border-gray-100 bg-white p-5 shadow-sm transition-all active:scale-[0.98]">
+                    class="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm transition-all active:scale-[0.98]">
                     
                     {{-- Rating + Date --}}
                     <div class="mb-2 flex items-center justify-between">
