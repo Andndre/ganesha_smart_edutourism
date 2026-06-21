@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\CrowdAlertSent;
+use App\Events\VisitorLocationRemoved;
 use App\Events\VisitorLocationUpdated;
 use App\Models\CapacityZone;
 use Illuminate\Http\Request;
@@ -57,6 +58,27 @@ class TrackingController extends Controller
         }
 
         return response()->json(['status' => 'ignored_outside_polygon']);
+    }
+
+    /**
+     * Remove a visitor from the active cache and notify others.
+     */
+    public function leave(Request $request)
+    {
+        $request->validate([
+            'session_id' => 'required|string',
+        ]);
+
+        $activeVisitors = Cache::get('active_visitors', []);
+
+        if (isset($activeVisitors[$request->session_id])) {
+            unset($activeVisitors[$request->session_id]);
+            Cache::put('active_visitors', $activeVisitors, now()->addMinutes(5));
+
+            broadcast(new VisitorLocationRemoved($request->session_id));
+        }
+
+        return response()->json(['status' => 'removed']);
     }
 
     /**
