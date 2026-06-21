@@ -307,21 +307,7 @@ class ReportController extends Controller
             $item['amount'] = 'Rp '.number_format($item['amount'] / 1000000, 0, ',', '.').' Jt';
         }
 
-        $origins = [
-            ['city' => 'Denpasar', 'pct' => 28],
-            ['city' => 'Jakarta',  'pct' => 22],
-            ['city' => 'Surabaya', 'pct' => 16],
-            ['city' => 'Bandung',  'pct' => 12],
-            ['city' => 'Lainnya',  'pct' => 22],
-        ];
-
-        $busyDays = [
-            ['day' => 'Sabtu',  'visitors' => '730', 'pct' => 100],
-            ['day' => 'Minggu', 'visitors' => '680', 'pct' => 93],
-            ['day' => "Jum'at", 'visitors' => '510', 'pct' => 70],
-            ['day' => 'Kamis',  'visitors' => '490', 'pct' => 67],
-            ['day' => 'Rabu',   'visitors' => '380', 'pct' => 52],
-        ];
+        $busyDays = $this->getBusyDays($startDate, $endDate);
 
         $generatedAt = Carbon::now()->isoFormat('dddd, D MMMM Y [•] HH:mm');
 
@@ -332,7 +318,7 @@ class ReportController extends Controller
             'ticketsSold', 'ticketsDelta',
             'rating', 'ratingDelta',
             'chartData', 'revenueBreakdown',
-            'origins', 'busyDays',
+            'busyDays',
             'generatedAt'
         ));
     }
