@@ -139,18 +139,8 @@ Route::middleware('auth')->group(function () {
 });
 
 // Public Pages
-Route::get('/terms', function () {
-    return view('user.terms');
-})->name('terms');
-
-Route::get('/privacy', function () {
-    return view('user.privacy');
-})->name('privacy');
-
-// Offline Page
-Route::get('/offline', function () {
-    return view('offline');
-})->name('offline');
+Route::get('/terms', [App\Http\Controllers\PageController::class, 'terms'])->name('terms');
+Route::get('/privacy', [App\Http\Controllers\PageController::class, 'privacy'])->name('privacy');
 
 // Staff Routes (Admin & Ticket Officer)
 Route::prefix('staff')->middleware(['auth', 'staff'])->group(function () {
