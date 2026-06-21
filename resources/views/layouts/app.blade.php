@@ -187,18 +187,17 @@
             @include('components.navigation.bottom-nav')
         @endif
 
-        {{-- ponytail: SW disabled in local to prevent cache issues during dev --}}
-        @if (!app()->isLocal())
         <script data-navigate-once>
+            // Hapus Service Worker jika sebelumnya pernah terinstall agar tidak ada cache nyangkut
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js')
-                        .then(reg => console.log('Service Worker terdaftar!', reg.scope))
-                        .catch(err => console.error('Pendaftaran Service Worker gagal:', err));
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for(let registration of registrations) {
+                        registration.unregister();
+                        console.log('Service Worker dihapus');
+                    }
                 });
             }
         </script>
-        @endif
         
         <script data-navigate-once>
             // Visual transitions and tab synchronization are handled by livewire:navigating and livewire:navigated below.
