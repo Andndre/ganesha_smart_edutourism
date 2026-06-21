@@ -7,7 +7,6 @@
         <div id="map" class="absolute inset-0 z-0"></div>
 
         <!-- Heatmap Overlay Container -->
-        <div id="heatmap-overlay" class="heatmap-overlay"></div>
 
         @include('user.explore.components.map-search')
         @include('user.explore.components.map-fab')
@@ -51,6 +50,8 @@
             };
 
             let heatmapVisible = false;
+            let realHeatmapVisible = false;
+            let realHeatmapLayer = null;
             const liveUserMarkers = {};
             let heatmapData = [];
 
@@ -240,8 +241,16 @@
 
                 document.getElementById('btn-layer-map').addEventListener('click', function(e) {
                     e.stopPropagation();
-                    toggleHeatmap();
+                    toggleLiveUsers();
                 });
+
+                const btnRealHeatmap = document.getElementById('btn-real-heatmap');
+                if (btnRealHeatmap) {
+                    btnRealHeatmap.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        toggleRealHeatmap();
+                    });
+                }
 
                 document.getElementById('btn-my-location').addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -295,18 +304,7 @@
                     }
                 });
 
-                // Update heatmap on map move/zoom
-                map.on('moveend', function() {
-                    if (heatmapVisible) {
-                        renderHeatmap();
-                    }
-                });
-
-                map.on('zoomend', function() {
-                    if (heatmapVisible) {
-                        renderHeatmap();
-                    }
-                });
+                // (Moved heatmap logic to Leaflet.heat native handling)
 
                 // Close filter panel and clear active user route when clicking elsewhere on map
                 map.on('click', function() {
@@ -424,36 +422,48 @@
                 }
             }
 
-            // Generate Heatmap Cells
-            function renderHeatmap() {
-                const overlay = document.getElementById('heatmap-overlay');
-                if (!overlay) return;
-                overlay.innerHTML = '';
+            // Render Real Heatmap
+            function renderRealHeatmap() {
+                if (realHeatmapLayer) {
+                    map.removeLayer(realHeatmapLayer);
+                    realHeatmapLayer = null;
+                }
+                
+                if (!realHeatmapVisible) return;
 
-                const mapBounds = map.getBounds();
-                const mapSize = map.getSize();
-
+                const points = [];
                 heatmapData.forEach(point => {
-                    let isFilterActive = activeFilters[point.category];
-
-                    if (!isFilterActive) return;
-
-                    const latLng = L.latLng(point.lat, point.lng);
-                    if (!mapBounds.contains(latLng)) return;
-
-                    const pointPos = map.latLngToContainerPoint(latLng);
-                    const size = 80 + (point.intensity * 60);
-
-                    const cell = document.createElement('div');
-                    cell.className = 'heatmap-cell';
-                    cell.style.left = (pointPos.x - size / 2) + 'px';
-                    cell.style.top = (pointPos.y - size / 2) + 'px';
-                    cell.style.width = size + 'px';
-                    cell.style.height = size + 'px';
-                    cell.style.opacity = point.intensity * 0.6;
-
-                    overlay.appendChild(cell);
+                    let isFilterActive = point.category ? activeFilters[point.category] : true;
+                    if (point.is_live_user) isFilterActive = true;
+                    
+                    if (isFilterActive) {
+                        points.push([point.lat, point.lng, point.intensity || 0.5]);
+                    }
                 });
+
+                realHeatmapLayer = L.heatLayer(points, {
+                    radius: 25,
+                    blur: 15,
+                    maxZoom: 17,
+                    gradient: {0.4: 'blue', 0.6: 'cyan', 0.7: 'lime', 0.8: 'yellow', 1: 'red'}
+                }).addTo(map);
+            }
+
+            // Toggle Real Heatmap
+            function toggleRealHeatmap() {
+                realHeatmapVisible = !realHeatmapVisible;
+                const btn = document.getElementById('btn-real-heatmap');
+                
+                if (realHeatmapVisible) {
+                    btn.classList.add('fab-btn-active');
+                    renderRealHeatmap();
+                } else {
+                    btn.classList.remove('fab-btn-active');
+                    if (realHeatmapLayer) {
+                        map.removeLayer(realHeatmapLayer);
+                        realHeatmapLayer = null;
+                    }
+                }
             }
 
             // Render initial live user markers from server data
@@ -487,19 +497,15 @@
                 });
             }
 
-            // Toggle Heatmap Visibility
-            function toggleHeatmap() {
+            // Toggle Live Users
+            function toggleLiveUsers() {
                 heatmapVisible = !heatmapVisible;
-                const overlay = document.getElementById('heatmap-overlay');
                 const btn = document.getElementById('btn-layer-map');
 
                 if (heatmapVisible) {
-                    overlay.style.display = 'block';
                     btn.classList.add('fab-btn-active');
-                    renderHeatmap();
                     renderInitialLiveMarkers();
                 } else {
-                    overlay.style.display = 'none';
                     btn.classList.remove('fab-btn-active');
                     // Remove all live user markers from map
                     Object.values(liveUserMarkers).forEach(marker => map.removeLayer(marker));
@@ -531,8 +537,8 @@
                                 heatmapData.push(newPoint);
                             }
 
-                            if (heatmapVisible) {
-                                renderHeatmap();
+                            if (realHeatmapVisible) {
+                                renderRealHeatmap();
                             }
 
                             // Update or create marker (only add to map if heatmap is visible)
@@ -571,8 +577,8 @@
                                 heatmapData.splice(idx, 1);
                             }
 
-                            if (heatmapVisible) {
-                                renderHeatmap();
+                            if (realHeatmapVisible) {
+                                renderRealHeatmap();
                             }
 
                             // Remove marker
@@ -621,8 +627,8 @@
                 // Update markers visibility
                 updateVisibleMarkers();
 
-                if (heatmapVisible) {
-                    renderHeatmap();
+                if (realHeatmapVisible) {
+                    renderRealHeatmap();
                 }
             }
 
