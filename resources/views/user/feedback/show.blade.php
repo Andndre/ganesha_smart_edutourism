@@ -3,7 +3,7 @@
 @section('header_title', 'Ulasan Saya')
 
 @section('content')
-<div class="px-5 py-6">
+<div class="mx-auto max-w-2xl px-5 py-6">
     <!-- Rating Summary Card -->
     <div class="mb-6 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm text-center">
         <div class="mb-4 text-sm font-bold uppercase tracking-wider text-gray-500">Penilaian Anda</div>

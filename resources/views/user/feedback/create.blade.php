@@ -3,7 +3,7 @@
 @section('header_title', isset($feedback) ? 'Edit Ulasan' : 'Beri Ulasan')
 
 @section('content')
-    <div class="px-5 py-6">
+    <div class="mx-auto max-w-2xl px-5 py-6">
         <div class="mb-6 text-center">
             <h2 class="text-charcoal mb-2 text-2xl font-bold" style="font-family: 'Playfair Display', serif;">
                 {{ isset($feedback) ? 'Edit Ulasan Anda' : 'Bagaimana Pengalaman Anda?' }}

@@ -3,7 +3,7 @@
 @section('header_title', 'Terima Kasih!')
 
 @section('content')
-<div class="px-5 py-6 text-center">
+<div class="mx-auto max-w-2xl px-5 py-6 text-center">
     <div class="mb-6 flex justify-center">
         <div class="flex h-24 w-24 items-center justify-center rounded-full bg-green-100">
             <svg class="h-12 w-12 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
