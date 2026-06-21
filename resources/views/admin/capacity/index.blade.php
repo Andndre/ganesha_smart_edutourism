@@ -392,6 +392,7 @@
             if (window.Echo) {
                 window.Echo.channel('village-map')
                     .listen('.VisitorLocationUpdated', (e) => {
+                        console.log('📡 [Reverb] VisitorLocationUpdated received (Admin):', e);
                         const existingIndex = heatmapData.findIndex(p => p.session_id === e.session_id);
 
                         const newPoint = {

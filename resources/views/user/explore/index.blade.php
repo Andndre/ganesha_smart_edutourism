@@ -460,6 +460,7 @@
                     // Listen for other visitors' locations
                     window.Echo.channel('village-map')
                         .listen('.VisitorLocationUpdated', (e) => {
+                            console.log('📡 [Reverb] VisitorLocationUpdated received:', e);
                             // Check if this session already exists in heatmapData
                             const existingIndex = heatmapData.findIndex(p => p.session_id === e.session_id);
 
@@ -519,18 +520,18 @@
                                 heatmapData.splice(idx, 1);
                             }
 
-                            // Remove marker from map if it exists
+                            if (heatmapVisible) {
+                                renderHeatmap();
+                            }
+
+                            // Remove marker
                             if (liveUserMarkers[e.session_id]) {
                                 map.removeLayer(liveUserMarkers[e.session_id]);
                                 delete liveUserMarkers[e.session_id];
                             }
-
-                            // Re-render heatmap if visible
-                            if (heatmapVisible) {
-                                renderHeatmap();
-                            }
                         });
                 } else {
+                    // Retry if Echo is not initialized yet (since app.js is loaded asynchronously via Vite)
                     setTimeout(setupExploreEchoListener, 500);
                 }
             }
