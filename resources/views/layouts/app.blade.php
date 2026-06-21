@@ -555,6 +555,13 @@
                             latitude: pos.coords.latitude,
                             longitude: pos.coords.longitude
                         };
+                        
+                        // Send ping immediately on first location fix
+                        if (!window._firstGpsPingSent) {
+                            sendPing();
+                            window._firstGpsPingSent = true;
+                        }
+
                         // Check geofence on every GPS update
                         checkGeofence(pos.coords.latitude, pos.coords.longitude);
                     },
@@ -619,7 +626,7 @@
                     }
 
                     window.Echo.channel('village-notifications')
-                        .listen('CrowdAlertSent', (e) => {
+                        .listen('.CrowdAlertSent', (e) => {
                             const levelLabels = {
                                 warning: 'cukup padat',
                                 critical: 'sangat padat'
@@ -634,7 +641,7 @@
                                 read: false
                             });
                         })
-                        .listen('EventReminderSent', (e) => {
+                        .listen('.EventReminderSent', (e) => {
                             addNotification({
                                 id: 'event-' + Date.now(),
                                 type: 'event',
