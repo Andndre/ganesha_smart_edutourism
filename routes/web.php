@@ -106,6 +106,8 @@ Route::middleware('auth')->group(function () {
             return view('user.feedback.create');
         })->name('feedback');
 
+        Route::post('/feedback', [\App\Http\Controllers\FeedbackController::class, 'store'])->name('feedback.store');
+
         // Tour Package Booking
         Route::get('/tour-package/{id}/book', [BookingController::class, 'checkout'])->name('tour-package.book');
         Route::post('/tour-package/{id}/process', [BookingController::class, 'process'])->name('tour-package.process');
