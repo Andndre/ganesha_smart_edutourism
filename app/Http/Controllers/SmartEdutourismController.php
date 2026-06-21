@@ -7,6 +7,7 @@ use App\Models\CulturalObjectQuiz;
 use App\Models\RouteSession;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
+use App\Models\UserVisit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -136,9 +137,10 @@ class SmartEdutourismController extends Controller
             $quizzes = $point->locationable->quizzes;
         }
 
+        $userId = auth()->id();
+        $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
+
         if (count($quizzes) === 0) {
-            $userId = auth()->id();
-            $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
 
             if (! $userId && $guestToken && ! session()->has('guest_token')) {
                 session(['guest_token' => $guestToken, 'guest_name' => 'Wisatawan']);
@@ -173,6 +175,26 @@ class SmartEdutourismController extends Controller
 
                     $session->save();
                     $sessionStatus = $session->status;
+
+                    // Record visit for authenticated users
+                    if ($userId && $point->locationable) {
+                        $locationable = $point->locationable;
+                        $alreadyVisited = UserVisit::where('user_id', $userId)
+                            ->where('visitable_type', $locationable->getMorphClass())
+                            ->where('visitable_id', $locationable->id)
+                            ->where('route_session_id', $session->id)
+                            ->exists();
+                        
+                        if (!$alreadyVisited) {
+                            UserVisit::create([
+                                'user_id' => $userId,
+                                'visitable_type' => $locationable->getMorphClass(),
+                                'visitable_id' => $locationable->id,
+                                'route_session_id' => $session->id,
+                                'visited_at' => now(),
+                            ]);
+                        }
+                    }
                 }
             }
         }

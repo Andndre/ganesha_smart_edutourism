@@ -126,11 +126,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
         Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
         Route::get('/profile/bookings', [BookingController::class, 'index'])->name('bookings');
-        Route::get('/profile/favorites', function () {
-            return view('home');
-        })->name('favorites');
+        Route::get('/profile/favorites', [\App\Http\Controllers\FavoriteController::class, 'index'])->name('favorites');
+        Route::post('/favorites/toggle', [\App\Http\Controllers\FavoriteController::class, 'toggle'])->name('favorites.toggle');
         Route::get('/profile/visited', function () {
-            return view('home');
+            return view('user.profile.visited');
         })->name('visited');
         Route::get('/profile/settings', [ProfileController::class, 'edit'])->name('settings');
         Route::get('/profile/help', function () {
