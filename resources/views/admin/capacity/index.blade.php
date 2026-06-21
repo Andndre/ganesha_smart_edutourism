@@ -142,9 +142,20 @@
     {{-- Real-time Map --}}
     <div class="relative mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
         <h3 class="text-charcoal mb-4 font-semibold">Pemantauan Lokasi Real-time</h3>
-        <div class="relative h-100 w-full overflow-hidden rounded-xl border border-gray-200">
-            <div id="map" class="relative z-10 h-full w-full"></div>
-            <div id="heatmap-overlay" class="z-1000 pointer-events-none absolute inset-0 overflow-hidden"></div>
+        <div class="relative h-[400px] w-full overflow-hidden rounded-xl border border-gray-200">
+            <div id="map" class="absolute inset-0 z-0"></div>
+            
+            <!-- Heatmap Control FAB -->
+            <button id="btn-admin-heatmap"
+                class="absolute bottom-4 right-4 z-1000 flex h-10 w-10 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 shadow-md transition-all hover:bg-gray-50 active:scale-95"
+                title="Toggle Real Heatmap">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
+                </svg>
+            </button>
         </div>
     </div>
 
@@ -219,20 +230,13 @@
         .leaflet-control-attribution {
             display: none !important;
         }
-
-        .heatmap-cell {
-            position: absolute;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(239, 68, 68, 0.8) 0%, rgba(249, 115, 22, 0.6) 40%, rgba(250, 204, 21, 0.3) 70%, transparent 100%);
-            mix-blend-mode: multiply;
-            transition: all 0.5s ease;
-        }
     </style>
 @endpush
 
 @push('scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
     <script>
         function openThresholdModal(data) {
             document.getElementById('modal-zone-name').innerText = data.name;
@@ -328,6 +332,13 @@
         }).addTo(map);
 
         let heatmapData = @json($heatmapData);
+        let realHeatmapLayer = null;
+        let realHeatmapVisible = false;
+
+        document.getElementById('btn-admin-heatmap').addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleAdminHeatmap();
+        });
         const liveUserMarkers = {};
 
         // Initial markers for live users loaded from server
@@ -355,37 +366,44 @@
             }
         });
 
-        function renderHeatmap() {
-            const overlay = document.getElementById('heatmap-overlay');
-            overlay.innerHTML = '';
+        function renderRealHeatmap() {
+            if (realHeatmapLayer) {
+                map.removeLayer(realHeatmapLayer);
+                realHeatmapLayer = null;
+            }
+            
+            if (!realHeatmapVisible) return;
 
-            const mapBounds = map.getBounds();
-
+            const points = [];
             heatmapData.forEach(point => {
-                const latLng = L.latLng(point.lat, point.lng);
-                if (!mapBounds.contains(latLng)) return;
-
-                const pointPos = map.latLngToContainerPoint(latLng);
-                const size = 80 + (point.intensity * 60);
-
-                const cell = document.createElement('div');
-                cell.className = 'heatmap-cell';
-                cell.style.left = (pointPos.x - size / 2) + 'px';
-                cell.style.top = (pointPos.y - size / 2) + 'px';
-                cell.style.width = size + 'px';
-                cell.style.height = size + 'px';
-                cell.style.opacity = point.intensity * 0.6;
-
-                overlay.appendChild(cell);
+                points.push([point.lat, point.lng, point.intensity || 0.5]);
             });
+
+            realHeatmapLayer = L.heatLayer(points, {
+                radius: 25,
+                blur: 15,
+                maxZoom: 17,
+                gradient: {0.4: 'blue', 0.6: 'cyan', 0.7: 'lime', 0.8: 'yellow', 1: 'red'}
+            }).addTo(map);
         }
 
-        // Re-render heatmap when map moves
-        map.on('moveend', renderHeatmap);
-        map.on('zoomend', renderHeatmap);
-
-        // Initial render
-        renderHeatmap();
+        function toggleAdminHeatmap() {
+            realHeatmapVisible = !realHeatmapVisible;
+            const btn = document.getElementById('btn-admin-heatmap');
+            
+            if (realHeatmapVisible) {
+                btn.style.backgroundColor = '#1E5128';
+                btn.style.color = 'white';
+                renderRealHeatmap();
+            } else {
+                btn.style.backgroundColor = 'white';
+                btn.style.color = '#4b5563';
+                if (realHeatmapLayer) {
+                    map.removeLayer(realHeatmapLayer);
+                    realHeatmapLayer = null;
+                }
+            }
+        }
 
         // Listen for WebSocket updates
         function setupEchoListener() {
@@ -411,7 +429,7 @@
                             heatmapData.push(newPoint);
                         }
 
-                        renderHeatmap();
+                        if (realHeatmapVisible) renderRealHeatmap();
 
                         // Create or update marker for the live user
                         if (liveUserMarkers[e.session_id]) {
@@ -451,7 +469,7 @@
                             delete liveUserMarkers[e.session_id];
                         }
                         
-                        renderHeatmap();
+                        if (realHeatmapVisible) renderRealHeatmap();
                     });
             } else {
                 setTimeout(setupEchoListener, 500);
