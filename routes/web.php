@@ -271,14 +271,4 @@ Route::get('/audio-stream/{path}', [AudioController::class, 'stream'])
     ->name('audio.stream');
 
 // Language Switcher Route
-Route::get('/lang/{locale}', function ($locale) {
-    if (in_array($locale, ['en', 'id'])) {
-        session()->put('locale', $locale);
-
-        if (auth()->check()) {
-            auth()->user()->update(['preferred_language' => $locale]);
-        }
-    }
-
-    return redirect()->back();
-})->name('lang.switch');
+Route::get('/lang/{locale}', [PageController::class, 'switchLang'])->name('lang.switch');
