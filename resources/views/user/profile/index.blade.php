@@ -192,7 +192,7 @@
                 </svg>
             </a>
 
-            <a href="{{ route('feedback') }}"
+            <a href="{{ route('feedback.index') }}"
                 class="flex items-center justify-between border-b border-gray-50 p-4 active:bg-gray-50">
                 <div class="flex items-center gap-3">
                     <div class="text-accent flex h-8 w-8 items-center justify-center rounded-full bg-amber-50">
