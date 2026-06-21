@@ -546,10 +546,20 @@
                 }
 
                 let lastKnownPos = null;
+                window._mockGpsActive = false;
+
+                // Expose method for testing (Local mode only)
+                window.setMockLocation = function(lat, lng) {
+                    lastKnownPos = { latitude: lat, longitude: lng };
+                    checkGeofence(lat, lng);
+                    sendPing();
+                };
 
                 // Keep track of the latest position + geofence check
                 navigator.geolocation.watchPosition(
                     (pos) => {
+                        if (window._mockGpsActive) return; // Ignore real GPS if mock is active
+                        
                         lastKnownPos = {
                             latitude: pos.coords.latitude,
                             longitude: pos.coords.longitude

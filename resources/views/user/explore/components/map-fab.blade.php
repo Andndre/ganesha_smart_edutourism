@@ -8,6 +8,17 @@
                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
     </button>
+    @if(app()->isLocal())
+    <!-- Mock GPS Button -->
+    <button id="btn-mock-gps"
+        class="tap-target flex h-12 w-12 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 shadow-md transition-all active:scale-95"
+        title="Mock GPS (Dev Only)">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+        </svg>
+    </button>
+    @endif
 
     <!-- My Location Button -->
     <button id="btn-my-location"

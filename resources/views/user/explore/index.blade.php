@@ -187,6 +187,55 @@
                 // ==========================================
                 // BUTTON EVENT LISTENERS
                 // ==========================================
+                const mockGpsBtn = document.getElementById('btn-mock-gps');
+                if (mockGpsBtn) {
+                    mockGpsBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        window._mockGpsActive = !window._mockGpsActive;
+                        if (window._mockGpsActive) {
+                            mockGpsBtn.classList.add('bg-primary', 'text-white');
+                            mockGpsBtn.classList.remove('bg-white', 'text-gray-600');
+                            Swal.fire({
+                                toast: true, position: 'top-end', icon: 'info',
+                                title: 'Mode Simulator GPS Aktif! Klik sembarang di peta untuk memindah lokasi Anda.',
+                                showConfirmButton: false, timer: 3000
+                            });
+                        } else {
+                            mockGpsBtn.classList.remove('bg-primary', 'text-white');
+                            mockGpsBtn.classList.add('bg-white', 'text-gray-600');
+                            Swal.fire({
+                                toast: true, position: 'top-end', icon: 'info',
+                                title: 'Mode Simulator dinonaktifkan.',
+                                showConfirmButton: false, timer: 2000
+                            });
+                        }
+                    });
+
+                    // Add map click listener for Mock GPS
+                    map.on('click', function(e) {
+                        if (window._mockGpsActive) {
+                            if (typeof window.setMockLocation === 'function') {
+                                window.setMockLocation(e.latlng.lat, e.latlng.lng);
+                            }
+                            
+                            // Immediately move local user marker for feedback
+                            if (userMarker) {
+                                userMarker.setLatLng(e.latlng);
+                                if (!map.hasLayer(userMarker)) {
+                                    userMarker.addTo(map);
+                                }
+                            }
+                            
+                            // Visual feedback toast
+                            Swal.fire({
+                                toast: true, position: 'top-end', icon: 'success',
+                                title: `Ping dikirim dari: ${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`,
+                                showConfirmButton: false, timer: 1500
+                            });
+                        }
+                    });
+                }
+
                 document.getElementById('btn-layer-map').addEventListener('click', function(e) {
                     e.stopPropagation();
                     toggleHeatmap();
