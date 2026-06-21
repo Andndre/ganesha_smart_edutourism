@@ -18,7 +18,8 @@ class VisitorLocationUpdated implements ShouldBroadcastNow
     public function __construct(
         public float $latitude,
         public float $longitude,
-        public string $sessionId
+        public string $sessionId,
+        public ?string $userName = null
     ) {}
 
     /**
@@ -44,6 +45,7 @@ class VisitorLocationUpdated implements ShouldBroadcastNow
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
             'session_id' => $this->sessionId,
+            'user_name' => $this->userName,
         ];
     }
 }
