@@ -3,8 +3,6 @@
 @section('title', 'Peta Interaktif - Penglipuran Smart Tour')
 
 @section('content')
-    @include('user.explore.partials.styles')
-
     <div class="absolute inset-0 z-0 overflow-hidden bg-[#E5E3DF]">
         <div id="map" class="absolute inset-0 z-0"></div>
 
