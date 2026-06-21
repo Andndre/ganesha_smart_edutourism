@@ -42,12 +42,19 @@ class TrackingController extends Controller
                 'user_name' => $userName,
             ];
 
-            // Clean up visitors older than 5 minutes (300 seconds)
+            // Clean up stale visitors (no ping for 30s — covers force-close browser)
+            // Ping interval is 10s, so active users always stay; force-close = gone in ~30s
+            $beforeIds = array_keys($activeVisitors);
             $activeVisitors = array_filter($activeVisitors, function ($visitor) {
-                return (now()->timestamp - $visitor['last_seen']) < 300;
+                return (now()->timestamp - $visitor['last_seen']) < 30;
             });
 
-            Cache::put('active_visitors', $activeVisitors, now()->addMinutes(5));
+            // Broadcast removal for stale sessions that just got cleaned up
+            foreach (array_diff($beforeIds, array_keys($activeVisitors)) as $removedId) {
+                broadcast(new VisitorLocationRemoved($removedId));
+            }
+
+            Cache::put('active_visitors', $activeVisitors, now()->addMinutes(1));
 
             broadcast(new VisitorLocationUpdated($lat, $lng, $request->session_id, $userName));
 
