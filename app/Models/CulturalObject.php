@@ -7,7 +7,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+
+use App\Models\User;
+use App\Models\UserFavorite;
+use App\Models\UserVisit;
 
 #[Fillable(['name', 'slug', 'short_description', 'description', 'category', 'historical_images'])]
 class CulturalObject extends Model
@@ -122,5 +127,41 @@ class CulturalObject extends Model
     public function getAudioNarrationPathAttribute(): ?string
     {
         return $this->mapLocation?->arModel?->audio_narration_path;
+    }
+
+    /**
+     * Get the favorites for this cultural object.
+     *
+     * @return MorphMany<UserFavorite>
+     */
+    public function favorites(): MorphMany
+    {
+        return $this->morphMany(UserFavorite::class, 'favoritable');
+    }
+
+    /**
+     * Get the visits for this cultural object.
+     *
+     * @return MorphMany<UserVisit>
+     */
+    public function visits(): MorphMany
+    {
+        return $this->morphMany(UserVisit::class, 'visitable');
+    }
+
+    /**
+     * Check if this cultural object is favorited by the given user.
+     */
+    public function isFavoritedBy(User $user): bool
+    {
+        return $this->favorites()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * Check if this cultural object is visited by the given user.
+     */
+    public function isVisitedBy(User $user): bool
+    {
+        return $this->visits()->where('user_id', $user->id)->exists();
     }
 }

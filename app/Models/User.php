@@ -79,6 +79,64 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's favorites.
+     *
+     * @return HasMany<UserFavorite>
+     */
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(UserFavorite::class);
+    }
+
+    /**
+     * Get the user's visits.
+     *
+     * @return HasMany<UserVisit>
+     */
+    public function visits(): HasMany
+    {
+        return $this->hasMany(UserVisit::class);
+    }
+
+    /**
+     * Get all favorited models as a collection.
+     */
+    public function favoriteItems()
+    {
+        return $this->favorites()->with('favoritable')->get()->pluck('favoritable');
+    }
+
+    /**
+     * Get all visited models as a collection.
+     */
+    public function visitedItems()
+    {
+        return $this->visits()->with('visitable')->get()->pluck('visitable');
+    }
+
+    /**
+     * Check if the user has favorited a specific model.
+     */
+    public function hasFavorited($favoritable): bool
+    {
+        return $this->favorites()
+            ->where('favoritable_type', $favoritable->getMorphClass())
+            ->where('favoritable_id', $favoritable->id)
+            ->exists();
+    }
+
+    /**
+     * Check if the user has visited a specific model.
+     */
+    public function hasVisited($visitable): bool
+    {
+        return $this->visits()
+            ->where('visitable_type', $visitable->getMorphClass())
+            ->where('visitable_id', $visitable->id)
+            ->exists();
+    }
+
+    /**
      * Scope a query to only include admin users.
      *
      * @param  Builder<User>  $query
