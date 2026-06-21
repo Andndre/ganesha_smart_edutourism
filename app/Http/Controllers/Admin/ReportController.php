@@ -180,13 +180,16 @@ class ReportController extends Controller
             $item['amount'] = 'Rp '.number_format($item['amount'] / 1000000, 0, ',', '.').' Jt';
         }
 
+        $busyDays = $this->getBusyDays($startDate, $endDate);
+
         return view('admin.reports.index', compact(
             'selectedPeriod',
             'visitorCount', 'visitorDelta',
             'revenue', 'revenueDelta',
             'ticketsSold', 'ticketsDelta',
             'rating', 'ratingDelta',
-            'chartData', 'revenueBreakdown'
+            'chartData', 'revenueBreakdown',
+            'busyDays'
         ));
     }
 
