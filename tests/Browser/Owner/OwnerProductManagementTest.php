@@ -30,8 +30,6 @@ class OwnerProductManagementTest extends DuskTestCase
             'business_name' => 'Toko Dusk',
             'slug' => 'toko-dusk-' . Str::random(5),
             'description' => 'Toko untuk test',
-            'category' => 'culinary',
-            'ar_marker_id' => 'ar-' . Str::random(8),
             'is_active' => true,
         ]);
 
