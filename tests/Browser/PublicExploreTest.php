@@ -19,6 +19,7 @@ class PublicExploreTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser->visit('/explore')
                 ->waitFor('#map', 10)
+                ->waitFor('.leaflet-container', 15)
                 ->assertPresent('#search-input');
         });
     }

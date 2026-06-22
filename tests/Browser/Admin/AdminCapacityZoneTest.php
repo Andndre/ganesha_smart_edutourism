@@ -18,12 +18,14 @@ class AdminCapacityZoneTest extends DuskTestCase
             'role' => 'admin',
         ]);
 
-        $zone = CapacityZone::factory()->create([
+        $zone = CapacityZone::create([
             'name' => 'Zona Dusk Threshold',
             'zone_identifier' => 'zona_dusk_threshold',
             'max_capacity' => 100,
             'warning_threshold' => 75,
             'critical_threshold' => 90,
+            'current_count' => 0,
+            'is_active' => true,
         ]);
 
         $this->browse(function (Browser $browser) use ($admin, $zone) {
