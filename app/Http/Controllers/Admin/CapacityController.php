@@ -17,7 +17,8 @@ class CapacityController extends Controller
      */
     public function index(): View
     {
-        $zones = Cache::tags(['capacity'])->flexible('capacity_zones_active_array', [60, 300], function () {
+        $locale = app()->getLocale();
+        $zones = Cache::tags(['capacity'])->flexible("capacity_zones_active_array_{$locale}", [60, 300], function () use ($locale) {
             return CapacityZone::where('is_active', true)->get()->append('occupancy_percentage')
                 ->map(function ($zone) {
                     $data = $zone->toArray();

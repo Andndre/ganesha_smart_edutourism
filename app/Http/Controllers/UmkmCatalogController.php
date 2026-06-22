@@ -14,7 +14,8 @@ class UmkmCatalogController extends Controller
 {
     public function index()
     {
-        $categories = Cache::tags(['umkm'])->flexible('umkm_categories_array', [86400, 172800], function () {
+        $locale = app()->getLocale();
+        $categories = Cache::tags(['umkm'])->flexible("umkm_categories_array_{$locale}", [86400, 172800], function () use ($locale) {
             $models = UmkmProductCategory::all();
             return $models->map(function ($model) {
                 $data = $model->toArray();

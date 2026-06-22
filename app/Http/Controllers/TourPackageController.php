@@ -9,7 +9,8 @@ class TourPackageController extends Controller
 {
     public function index()
     {
-        $packages = Cache::tags(['packages'])->flexible('tour_packages_active_array', [86400, 172800], function () {
+        $locale = app()->getLocale();
+        $packages = Cache::tags(['packages'])->flexible("tour_packages_active_array_{$locale}", [86400, 172800], function () use ($locale) {
             return TourPackage::active()->get()->toArray();
         });
 

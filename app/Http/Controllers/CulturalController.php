@@ -13,7 +13,8 @@ class CulturalController extends Controller
      */
     public function index(): View
     {
-        $objects = Cache::tags(['cultural'])->flexible('cultural_objects_all_array', [3600, 7200], function () {
+        $locale = app()->getLocale();
+        $objects = Cache::tags(['cultural'])->flexible("cultural_objects_all_array_{$locale}", [3600, 7200], function () use ($locale) {
             $models = CulturalObject::with('mapLocation.arModel')
                 ->orderBy('name->'.app()->getLocale())
                 ->get()
@@ -39,7 +40,8 @@ class CulturalController extends Controller
      */
     public function show(string $slug): View
     {
-        $object = Cache::tags(['cultural'])->flexible("cultural_object_array_{$slug}", [3600, 7200], function () use ($slug) {
+        $locale = app()->getLocale();
+        $object = Cache::tags(['cultural'])->flexible("cultural_object_array_{$slug}_{$locale}", [3600, 7200], function () use ($slug, $locale) {
             $model = CulturalObject::with(['stories', 'mapLocation.arModel'])
                 ->where('slug', $slug)
                 ->firstOrFail()
