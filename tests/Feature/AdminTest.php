@@ -73,18 +73,18 @@ class AdminTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Zona Test');
 
-        // Test update validation error (critical <= warning)
         $responseUpdateInvalid = $this->actingAs($this->adminUser)
             ->put(route('admin.capacity.thresholds', $zone->id), [
+                'name' => 'Zona Test Updated',
                 'max_capacity' => 100,
                 'warning_threshold' => 90,
                 'critical_threshold' => 80, // critical is smaller, should fail validation
             ]);
         $responseUpdateInvalid->assertSessionHasErrors(['critical_threshold']);
 
-        // Test successful update
         $responseUpdateSuccess = $this->actingAs($this->adminUser)
             ->put(route('admin.capacity.thresholds', $zone->id), [
+                'name' => 'Zona Test Updated',
                 'max_capacity' => 120,
                 'warning_threshold' => 50,
                 'critical_threshold' => 85,
