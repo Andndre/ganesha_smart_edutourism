@@ -253,10 +253,16 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700">Unggah Foto Produk</label>
-                        <input type="file" name="images[]" multiple accept="image/*"
+                        <input type="file" name="images[]" id="field-images" multiple accept="image/*" onchange="previewImages(this)"
                             class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
                     </div>
 
+                    <div>
+                        <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">Pratinjau Foto</span>
+                        <div id="image-preview-container" class="grid grid-cols-3 gap-3">
+                        </div>
+                        <p id="no-image-text" class="text-xs italic text-gray-400">Belum ada foto yang dipilih.</p>
+                    </div>
                 </div>
             </div>
 
@@ -287,12 +293,40 @@
         const fieldActive = document.getElementById('field-active');
         const fieldDescription = document.getElementById('field-description');
 
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const noImageText = document.getElementById('no-image-text');
+        const storageUrl = "/storage";
+
+        function previewImages(input) {
+            imagePreviewContainer.innerHTML = '';
+
+            if (input.files && input.files.length > 0) {
+                noImageText.classList.add('hidden');
+
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'h-24 w-full rounded-xl border border-gray-200 object-cover shadow-sm';
+                        imagePreviewContainer.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                noImageText.classList.remove('hidden');
+            }
+        }
+
         function openCreateModal() {
             modalTitle.innerText = "Tambah Produk UMKM";
             form.action = "{{ route('owner.products.store') }}";
             methodContainer.innerHTML = "";
 
             form.reset();
+            document.getElementById('field-images').value = "";
+            imagePreviewContainer.innerHTML = '';
+            noImageText.classList.remove('hidden');
 
             window.dispatchEvent(new CustomEvent('open-product-modal'));
         }
@@ -309,6 +343,21 @@
             fieldUnit.value = product.unit || "pcs";
             fieldActive.checked = product.is_active;
             fieldDescription.value = product.description || "";
+
+            document.getElementById('field-images').value = "";
+            imagePreviewContainer.innerHTML = '';
+
+            if (product.images && product.images.length > 0) {
+                noImageText.classList.add('hidden');
+                product.images.forEach(imagePath => {
+                    const img = document.createElement('img');
+                    img.src = `${storageUrl}/${imagePath}`;
+                    img.className = 'h-24 w-full rounded-xl border border-gray-200 object-cover shadow-sm';
+                    imagePreviewContainer.appendChild(img);
+                });
+            } else {
+                noImageText.classList.remove('hidden');
+            }
 
             window.dispatchEvent(new CustomEvent('open-product-modal'));
         }
