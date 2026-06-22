@@ -16,7 +16,8 @@
         "laravel/socialite": "^5.28",
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^4.3",
-        "midtrans/midtrans-php": "^2.6"
+        "midtrans/midtrans-php": "^2.6",
+        "predis/predis": "^3.5"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.7",

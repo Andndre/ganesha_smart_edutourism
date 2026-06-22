@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CulturalObject;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class CulturalController extends Controller
@@ -12,7 +13,13 @@ class CulturalController extends Controller
      */
     public function index(): View
     {
-        $objects = CulturalObject::all();
+        $objects = Cache::remember('cultural_objects_all_array', 3600, function () {
+            return CulturalObject::with('mapLocation.arModel')
+                ->orderBy('name')
+                ->get()
+                ->append(['ar_marker_id', 'model_3d_path', 'audio_narration_path'])
+                ->toArray();
+        });
 
         return view('user.cultural.index', compact('objects'));
     }
@@ -22,7 +29,13 @@ class CulturalController extends Controller
      */
     public function show(string $slug): View
     {
-        $object = CulturalObject::with('stories')->where('slug', $slug)->firstOrFail();
+        $object = Cache::remember("cultural_object_array_{$slug}", 3600, function () use ($slug) {
+            return CulturalObject::with(['stories', 'mapLocation.arModel'])
+                ->where('slug', $slug)
+                ->firstOrFail()
+                ->append(['ar_marker_id', 'model_3d_path', 'audio_narration_path', 'model_3d_usdz_path', 'ar_marker_patt_path'])
+                ->toArray();
+        });
 
         return view('user.cultural.show', compact('object'));
     }

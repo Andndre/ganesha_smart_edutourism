@@ -7,17 +7,17 @@
 </div>
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
     @foreach ($zones as $zone)
-        @if($zone->zone_identifier === 'desa_penglipuran')
+        @if($zone['zone_identifier'] === 'desa_penglipuran')
             @continue
         @endif
         @php
-            $pct = $zone->max_capacity > 0 ? round(($zone->current_count / $zone->max_capacity) * 100) : 0;
-            if ($pct >= ($zone->critical_threshold ?? 80)) {
+            $pct = $zone['max_capacity'] > 0 ? round(($zone['current_count'] / $zone['max_capacity']) * 100) : 0;
+            if ($pct >= ($zone['critical_threshold'] ?? 80)) {
                 $statusLabel = 'Kritis';
                 $barColor = 'bg-warning';
                 $badgeClass = 'bg-warning/10 text-warning';
                 $borderClass = 'border-warning/20';
-            } elseif ($pct >= ($zone->warning_threshold ?? 60)) {
+            } elseif ($pct >= ($zone['warning_threshold'] ?? 60)) {
                 $statusLabel = 'Sedang';
                 $barColor = 'bg-secondary';
                 $badgeClass = 'bg-secondary/15 text-secondary-700';
@@ -32,22 +32,21 @@
         <div class="{{ $borderClass }} rounded-2xl border bg-white p-5 shadow-sm">
             <div class="mb-3 flex items-start justify-between gap-2">
                 <div>
-                    <h3 class="text-charcoal font-semibold">{{ $zone->name }}</h3>
-                    <span class="text-[10px] text-gray-400">Limit: {{ $zone->warning_threshold }}% Warning /
-                        {{ $zone->critical_threshold }}% Critical</span>
+                    <h3 class="text-charcoal font-semibold">{{ $zone['name'] }}</h3>
+                    <span class="text-[10px] text-gray-400">Limit: {{ $zone['warning_threshold'] }}% Warning /
+                        {{ $zone['critical_threshold'] }}% Critical</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span
                         class="{{ $badgeClass }} shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold">{{ $statusLabel }}</span>
-                    @if ($zone->id)
-                        <button
-                            onclick="openThresholdModal({{ json_encode([
-                                'id' => $zone->id,
-                                'name' => $zone->name,
-                                'warning_threshold' => $zone->warning_threshold,
-                                'critical_threshold' => $zone->critical_threshold,
-                                'max_capacity' => $zone->max_capacity,
-                                'polygon_coordinates' => $zone->polygon_coordinates,
+                    @if ($zone['id'])
+                        <button onclick="editThresholds({{ json_encode([
+                                'id' => $zone['id'],
+                                'name' => $zone['name'],
+                                'warning_threshold' => $zone['warning_threshold'],
+                                'critical_threshold' => $zone['critical_threshold'],
+                                'max_capacity' => $zone['max_capacity'],
+                                'polygon_coordinates' => $zone['polygon_coordinates'],
                             ]) }})"
                             class="hover:text-primary text-gray-400 transition-colors focus:outline-none"
                             title="Edit Zona">
@@ -56,7 +55,7 @@
                                     d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                             </svg>
                         </button>
-                        <form action="{{ route('admin.capacity.destroy', $zone->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus zona ini?');">
+                        <form action="{{ route('admin.capacity.destroy', $zone['id']) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus zona ini?');">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="hover:text-red-500 text-gray-400 transition-colors focus:outline-none" title="Hapus Zona">
@@ -69,8 +68,8 @@
                 </div>
             </div>
             <div class="flex items-baseline gap-1">
-                <span class="text-charcoal text-3xl font-bold">{{ $zone->current_count }}</span>
-                <span class="font-medium text-gray-400">/ {{ $zone->max_capacity }} orang</span>
+                <span class="text-charcoal text-3xl font-bold">{{ $zone['current_count'] }}</span>
+                <span class="font-medium text-gray-400">/ {{ $zone['max_capacity'] }} orang</span>
             </div>
             <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-gray-100">
                 <div class="{{ $barColor }} h-full rounded-full transition-all"
@@ -78,7 +77,7 @@
             </div>
             <div class="mt-2.5 flex items-center justify-between text-xs text-gray-500">
                 <span>{{ $pct }}% terisi</span>
-                <span class="font-medium">Identitas: {{ $zone->zone_identifier }}</span>
+                <span class="font-medium">Identitas: {{ $zone['zone_identifier'] }}</span>
             </div>
         </div>
     @endforeach

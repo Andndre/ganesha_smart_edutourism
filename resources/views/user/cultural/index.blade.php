@@ -10,17 +10,17 @@
             <p class="mt-1 text-sm text-gray-500 md:mt-2 md:text-base">Temukan kisah di balik setiap sudut desa</p>
         </div>
 
-        @if ($objects->isNotEmpty())
+        @if (!empty($objects))
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
                 @foreach ($objects as $object)
-                    <a href="{{ route('cultural-object', ['slug' => $object->slug]) }}"
-                        class="group block overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98]">
+                    <a href="{{ route('cultural-object', ['slug' => $object['slug']]) }}"
+                        class="group block h-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 transition-all hover:-translate-y-1 hover:shadow-md active:scale-[0.98]">
                         <div class="relative h-48 overflow-hidden bg-gray-200 md:h-56">
                             <div class="bg-linear-to-t absolute inset-0 z-10 from-black/60 to-transparent"></div>
 
-                            @if (!empty($object->historical_images))
-                                <img src="{{ asset('storage/' . $object->historical_images[0]) }}" alt="{{ $object->name }}"
-                                    class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                            @if (!empty($object['historical_images']))
+                                <img src="{{ asset('storage/' . $object['historical_images'][0]) }}" alt="{{ $object['name'] }}"
+                                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
                             @else
                                 <div class="absolute inset-0 flex items-center justify-center text-gray-400">
                                     <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -31,18 +31,17 @@
                             @endif
 
                             <div class="absolute bottom-4 left-4 right-4 z-20 text-white">
-                                @if ($object->ar_marker_id || $object->model_3d_path)
-                                    <div
-                                        class="bg-primary/80 mb-2 inline-block rounded-md px-2 py-1 text-xs font-semibold backdrop-blur-sm">
+                                @if (!empty($object['ar_marker_id']) || !empty($object['model_3d_path']))
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-primary shadow-sm backdrop-blur-sm">
                                         AR Tersedia
-                                    </div>
+                                    </span>
                                 @endif
-                                <h3 class="font-playfair text-lg font-bold leading-tight md:text-xl">{{ $object->name }}
+                                <h3 class="font-playfair text-lg font-bold leading-tight md:text-xl">{{ $object['name'] }}
                                 </h3>
                             </div>
                         </div>
                         <div class="p-4 md:p-5">
-                            <p class="line-clamp-2 text-sm text-gray-600 md:text-base">{!! $object->short_description !!}</p>
+                            <p class="line-clamp-2 text-sm text-gray-600 md:text-base">{!! $object['short_description'] !!}</p>
                         </div>
                     </a>
                 @endforeach

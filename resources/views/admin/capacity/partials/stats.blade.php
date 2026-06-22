@@ -24,7 +24,7 @@
                 }
                 
                 // Get Desa Penglipuran Zone if exists
-                $desaZone = $zones->firstWhere('zone_identifier', 'desa_penglipuran');
+                $desaZone = collect($zones)->firstWhere('zone_identifier', 'desa_penglipuran');
             @endphp
             <div class="mt-3 h-3 overflow-hidden rounded-full bg-gray-100">
                 <div class="{{ $overallBarColor }} h-full transition-all" style="width: {{ min(100, $overallPct) }}%">
@@ -35,12 +35,12 @@
                 @if($desaZone)
                     <button type="button" 
                             onclick="openThresholdModal({{ json_encode([
-                                'id' => $desaZone->id,
-                                'name' => $desaZone->name,
-                                'warning_threshold' => $desaZone->warning_threshold,
-                                'critical_threshold' => $desaZone->critical_threshold,
-                                'max_capacity' => $desaZone->max_capacity,
-                                'polygon_coordinates' => $desaZone->polygon_coordinates,
+                                'id' => $desaZone['id'],
+                                'name' => $desaZone['name'],
+                                'warning_threshold' => $desaZone['warning_threshold'],
+                                'critical_threshold' => $desaZone['critical_threshold'],
+                                'max_capacity' => $desaZone['max_capacity'],
+                                'polygon_coordinates' => $desaZone['polygon_coordinates'],
                             ]) }})"
                             class="text-xs font-semibold text-primary hover:text-primary-600">
                         Edit Kapasitas Desa

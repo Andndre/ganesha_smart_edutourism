@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CapacityZone;
 use App\Models\WeatherReport;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class HomeController extends Controller
@@ -14,16 +15,27 @@ class HomeController extends Controller
      */
     public function index(): View
     {
-        $zones = CapacityZone::where('is_active', true)->get();
-        $masterZone = $zones->firstWhere('zone_identifier', 'desa_penglipuran');
+        $zones = Cache::remember('capacity_zones_active_array', 60, function () {
+            return CapacityZone::where('is_active', true)->get()->append('occupancy_percentage')->toArray();
+        });
+        $masterZone = collect($zones)->firstWhere('zone_identifier', 'desa_penglipuran');
 
         if ($masterZone) {
-            $totalCurrent = $masterZone->current_count;
-            $totalMax = $masterZone->max_capacity;
-        } else {
-            $totalCurrent = $zones->sum('current_count');
-            $totalMax = $zones->sum('max_capacity');
+            $totalCurrent = $masterZone['current_count'];
+            $maxCapacity = $masterZone['max_capacity'];
+            $pct = $maxCapacity > 0 ? ($totalCurrent / $maxCapacity) * 100 : 0;
+            
+            if ($pct >= ($masterZone['critical_threshold'] ?? 80)) {
+                $statusColor = 'red';
+                $statusText = 'Penuh';
+            } elseif ($pct >= ($masterZone['warning_threshold'] ?? 60)) {
+                $statusColor = 'yellow';
+                $statusText = 'Ramai';
+            }
         }
+        
+        $totalCurrent = collect($zones)->sum('current_count');
+        $totalMax = collect($zones)->sum('max_capacity');
 
         $densityPercent = $totalMax > 0 ? ($totalCurrent / $totalMax) * 100 : 0;
 

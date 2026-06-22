@@ -17,12 +17,15 @@ class CapacityController extends Controller
      */
     public function index(): View
     {
-        $zones = CapacityZone::where('is_active', true)->get();
+        $zones = Cache::remember('capacity_zones_active_array', 60, function () {
+            return CapacityZone::where('is_active', true)->get()->append('occupancy_percentage')->toArray();
+        });
 
-        // Reset current counts
-        foreach ($zones as $zone) {
-            $zone->current_count = 0;
+        // Reset current counts locally for calculation
+        foreach ($zones as &$zone) {
+            $zone['current_count'] = 0;
         }
+        unset($zone);
 
         // Calculate real 24h visitor trend and dynamic hourly labels
         $hourlyData = [];
@@ -61,6 +64,7 @@ class CapacityController extends Controller
 
         // Add live tracked visitors from Cache for heatmap and calculate counts
         $heatmapData = [];
+        $visitorLocations = [];
         $activeVisitors = Cache::get('active_visitors', []);
         foreach ($activeVisitors as $sessionId => $visitor) {
             if ((now()->timestamp - $visitor['last_seen']) < 300) {
@@ -77,17 +81,32 @@ class CapacityController extends Controller
                     'session_id' => $sessionId,
                 ];
 
-                // Dynamically increment zone counts
-                foreach ($zones as $zone) {
-                    if ($zone->containsPoint($lat, $lng)) {
-                        $zone->current_count++;
+                $visitorLocations[$sessionId] = ['lat' => $lat, 'lng' => $lng];
+            }
+        }
+
+        // Increment current count
+        foreach ($zones as &$zone) {
+            if (! empty($zone['polygon_coordinates'])) {
+                foreach ($visitorLocations as $userId => $location) {
+                    // Quick bounding box check before ray casting
+                    if ($this->isInBoundingBox($location['lat'], $location['lng'], $zone['polygon_coordinates'])) {
+                        // Create a temporary model instance for the containsPoint method logic
+                        // Since containsPoint is a model method, we can either re-implement it or use a temporary model
+                        $tempZone = new CapacityZone();
+                        $tempZone->polygon_coordinates = $zone['polygon_coordinates'];
+                        
+                        if ($tempZone->containsPoint($location['lat'], $location['lng'])) {
+                            $zone['current_count']++;
+                        }
                     }
                 }
             }
         }
+        unset($zone);
 
-        $totalCurrentCount = $zones->sum('current_count');
-        $totalMaxCapacity = $zones->sum('max_capacity');
+        $totalCurrentCount = collect($zones)->sum('current_count');
+        $totalMaxCapacity = collect($zones)->sum('max_capacity');
 
         $defaultLat = (float) config('services.penglipuran.latitude');
         $defaultLon = (float) config('services.penglipuran.longitude');
