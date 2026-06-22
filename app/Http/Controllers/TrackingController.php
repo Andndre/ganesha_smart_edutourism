@@ -96,22 +96,14 @@ class TrackingController extends Controller
     private function checkCrowdAlerts(array $activeVisitors): void
     {
         $zones = CapacityZone::where('is_active', true)
-            ->whereNotNull('latitude')
-            ->whereNotNull('longitude')
+            ->whereNotNull('polygon_coordinates')
             ->get();
 
         foreach ($zones as $zone) {
             $countInZone = 0;
 
             foreach ($activeVisitors as $visitor) {
-                $distance = $this->calculateHaversineDistance(
-                    $visitor['lat'],
-                    $visitor['lng'],
-                    (float) $zone->latitude,
-                    (float) $zone->longitude
-                );
-
-                if ($distance <= $zone->radius_meters) {
+                if ($zone->containsPoint($visitor['lat'], $visitor['lng'])) {
                     $countInZone++;
                 }
             }
@@ -122,13 +114,20 @@ class TrackingController extends Controller
 
             $cacheKey = "crowd_alert_sent:{$zone->id}";
 
+            $centerLat = 0;
+            $centerLng = 0;
+            if (is_array($zone->polygon_coordinates) && count($zone->polygon_coordinates) > 0) {
+                $centerLat = collect($zone->polygon_coordinates)->avg('lat');
+                $centerLng = collect($zone->polygon_coordinates)->avg('lng');
+            }
+
             if ($occupancy >= $zone->critical_threshold && ! Cache::has($cacheKey)) {
                 broadcast(new CrowdAlertSent(
                     $zone->name,
                     'critical',
                     $occupancy,
-                    (float) $zone->latitude,
-                    (float) $zone->longitude,
+                    (float) $centerLat,
+                    (float) $centerLng,
                 ));
                 Cache::put($cacheKey, true, now()->addMinutes(5));
             } elseif ($occupancy >= $zone->warning_threshold && ! Cache::has($cacheKey)) {
@@ -136,30 +135,11 @@ class TrackingController extends Controller
                     $zone->name,
                     'warning',
                     $occupancy,
-                    (float) $zone->latitude,
-                    (float) $zone->longitude,
+                    (float) $centerLat,
+                    (float) $centerLng,
                 ));
                 Cache::put($cacheKey, true, now()->addMinutes(5));
             }
         }
-    }
-
-    /**
-     * Calculate Haversine distance in meters between two coordinates.
-     */
-    private function calculateHaversineDistance(float $lat1, float $lon1, float $lat2, float $lon2): float
-    {
-        $earthRadius = 6371000;
-
-        $dLat = deg2rad($lat2 - $lat1);
-        $dLon = deg2rad($lon2 - $lon1);
-
-        $a = sin($dLat / 2) * sin($dLat / 2) +
-            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-            sin($dLon / 2) * sin($dLon / 2);
-
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-
-        return $earthRadius * $c;
     }
 }

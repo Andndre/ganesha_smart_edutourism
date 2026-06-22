@@ -26,9 +26,12 @@ class NotificationSystemTest extends TestCase
         $zone = CapacityZone::create([
             'name' => 'Pura Penataran Test',
             'zone_identifier' => 'pura_test',
-            'latitude' => -8.4201,
-            'longitude' => 115.3595,
-            'radius_meters' => 100,
+            'polygon_coordinates' => [
+                ['lat' => -8.4101, 'lng' => 115.3495],
+                ['lat' => -8.4101, 'lng' => 115.3695],
+                ['lat' => -8.4301, 'lng' => 115.3695],
+                ['lat' => -8.4301, 'lng' => 115.3495],
+            ],
             'max_capacity' => 10,
             'warning_threshold' => 70,
             'critical_threshold' => 90,
@@ -73,9 +76,12 @@ class NotificationSystemTest extends TestCase
         $zone = CapacityZone::create([
             'name' => 'Zona Cooldown Test',
             'zone_identifier' => 'cooldown_test',
-            'latitude' => -8.4201,
-            'longitude' => 115.3595,
-            'radius_meters' => 100,
+            'polygon_coordinates' => [
+                ['lat' => -8.4101, 'lng' => 115.3495],
+                ['lat' => -8.4101, 'lng' => 115.3695],
+                ['lat' => -8.4301, 'lng' => 115.3695],
+                ['lat' => -8.4301, 'lng' => 115.3495],
+            ],
             'max_capacity' => 10,
             'warning_threshold' => 70,
             'critical_threshold' => 90,
