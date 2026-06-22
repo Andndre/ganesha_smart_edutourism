@@ -1,5 +1,5 @@
 {{-- Edit Threshold / Zone Modal --}}
-<x-modal name="threshold-modal" maxWidth="md" desktopLayout="drawer">
+<x-modal name="threshold-modal" maxWidth="2xl" desktopLayout="drawer">
     <div class="mb-4">
         <h3 class="font-display text-charcoal text-lg font-bold" id="modal-title">Edit Zone <span id="modal-zone-name"
                 class="text-gray-400"></span></h3>
@@ -7,16 +7,19 @@
     <form id="modal-threshold-form" method="POST">
         @csrf
         <input type="hidden" name="_method" value="PUT" id="form-method">
-        
+
         <div class="space-y-4">
             <div>
-                <label for="modal-name" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Nama Zona</label>
+                <label for="modal-name" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Nama
+                    Zona</label>
                 <input type="text" name="name" id="modal-name" required
                     class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
             </div>
 
             <div id="identifier-group">
-                <label for="modal-identifier" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Identifier (unik)</label>
+                <label for="modal-identifier"
+                    class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Identifier
+                    (unik)</label>
                 <input type="text" name="zone_identifier" id="modal-identifier"
                     class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
             </div>
@@ -28,7 +31,7 @@
                 <input type="number" name="max_capacity" id="modal-max-capacity" required min="1"
                     class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
             </div>
-            
+
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label for="modal-warning-threshold"
@@ -47,14 +50,18 @@
             </div>
 
             <div>
-                <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Area Zona (Polygon)</label>
-                <p class="text-xs text-gray-500 mb-2">Gunakan alat gambar di map bawah ini untuk menentukan area zona.</p>
-                
-                <div id="modal-map" class="relative z-0 h-[300px] w-full overflow-hidden rounded-xl border border-gray-200 mb-2"></div>
-                
+                <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Area Zona
+                    (Polygon)</label>
+                <p class="mb-2 text-xs text-gray-500">Gunakan alat gambar di map bawah ini untuk menentukan area zona.
+                </p>
+
+                <div id="modal-map"
+                    class="relative z-0 mb-2 h-[300px] w-full overflow-hidden rounded-xl border border-gray-200"></div>
+
                 <input type="hidden" name="polygon_coordinates" id="modal-polygon">
-                
-                <button type="button" id="btn-clear-polygon" class="mt-2 w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-red-500 hover:bg-gray-50 hidden">
+
+                <button type="button" id="btn-clear-polygon"
+                    class="mt-2 hidden w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-red-500 hover:bg-gray-50">
                     Hapus & Gambar Ulang
                 </button>
             </div>
