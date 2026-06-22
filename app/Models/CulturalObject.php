@@ -9,11 +9,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Spatie\Translatable\HasTranslations;
 
 #[Fillable(['name', 'slug', 'short_description', 'description', 'category', 'historical_images'])]
 class CulturalObject extends Model
 {
     use HasFactory;
+    use HasTranslations;
+
+    public array $translatable = ['name', 'short_description', 'description'];
 
     /**
      * The attributes that should be cast.
@@ -25,6 +29,25 @@ class CulturalObject extends Model
         return [
             'historical_images' => 'array',
         ];
+    }
+
+    /**
+     * Override attributesToArray to handle Spatie translatable attributes.
+     * Spatie's getAttributeValue() override is not called by Laravel's default
+     * attributesToArray(), so translatable fields (name, short_description,
+     * description) would be serialized as raw JSON strings in toArray() output.
+     */
+    public function attributesToArray(): array
+    {
+        $attributes = parent::attributesToArray();
+
+        foreach ($this->getTranslatableAttributes() as $key) {
+            if (array_key_exists($key, $attributes)) {
+                $attributes[$key] = $this->getAttributeValue($key);
+            }
+        }
+
+        return $attributes;
     }
 
     /**

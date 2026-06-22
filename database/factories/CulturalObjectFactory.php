@@ -15,10 +15,10 @@ class CulturalObjectFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->word(),
+            'name' => ['en' => fake()->word(), 'id' => 'Nama '.fake()->word()],
             'slug' => fake()->unique()->slug(),
-            'short_description' => fake()->sentence(),
-            'description' => fake()->paragraph(),
+            'short_description' => ['en' => fake()->sentence(), 'id' => 'Deskripsi '.fake()->sentence()],
+            'description' => ['en' => fake()->paragraph(), 'id' => fake()->paragraph()],
             'category' => fake()->randomElement(['temple', 'house', 'craft', 'tradition']),
         ];
     }

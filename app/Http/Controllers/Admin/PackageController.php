@@ -37,29 +37,37 @@ class PackageController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
             'duration_hours' => ['nullable', 'numeric', 'min:0'],
             'max_capacity' => ['nullable', 'integer', 'min:1'],
             'inclusions' => ['nullable', 'array'],
-            'inclusions.*' => ['nullable', 'string'],
+            'inclusions.en' => ['nullable', 'string'],
+            'inclusions.id' => ['nullable', 'string'],
+            'exclusions' => ['nullable', 'array'],
+            'exclusions.en' => ['nullable', 'string'],
+            'exclusions.id' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
             'images' => ['nullable', 'array'],
             'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
         ]);
 
-        $inclusions = array_filter($request->input('inclusions') ?: []);
-
         $package = new TourPackage;
         $package->name = $validated['name'];
-        $package->slug = Str::slug($validated['name']).'-'.Str::random(5);
+        $defaultLocale = config('app.fallback_locale', 'en');
+        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+        $package->slug = Str::slug($slugValue).'-'.Str::random(5);
         $package->description = $validated['description'];
         $package->price = $validated['price'];
         $package->duration_hours = $validated['duration_hours'] ?? null;
         $package->max_capacity = $validated['max_capacity'] ?? null;
-        $package->inclusions = array_values($inclusions);
-        $package->exclusions = [];
+        $package->inclusions = $this->parseLocaleTextarea('inclusions', $request);
+        $package->exclusions = $this->parseLocaleTextarea('exclusions', $request);
         $package->is_active = $request->has('is_active') ? true : false;
 
         if ($request->hasFile('images')) {
@@ -95,27 +103,36 @@ class PackageController extends Controller
         $package = TourPackage::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
             'duration_hours' => ['nullable', 'numeric', 'min:0'],
             'max_capacity' => ['nullable', 'integer', 'min:1'],
             'inclusions' => ['nullable', 'array'],
-            'inclusions.*' => ['nullable', 'string'],
+            'inclusions.en' => ['nullable', 'string'],
+            'inclusions.id' => ['nullable', 'string'],
+            'exclusions' => ['nullable', 'array'],
+            'exclusions.en' => ['nullable', 'string'],
+            'exclusions.id' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
             'images' => ['nullable', 'array'],
             'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
         ]);
 
-        $inclusions = array_filter($request->input('inclusions') ?: []);
-
         $package->name = $validated['name'];
-        $package->slug = Str::slug($validated['name']).'-'.Str::random(5);
+        $defaultLocale = config('app.fallback_locale', 'en');
+        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+        $package->slug = Str::slug($slugValue).'-'.Str::random(5);
         $package->description = $validated['description'];
         $package->price = $validated['price'];
         $package->duration_hours = $validated['duration_hours'] ?? null;
         $package->max_capacity = $validated['max_capacity'] ?? null;
-        $package->inclusions = array_values($inclusions);
+        $package->inclusions = $this->parseLocaleTextarea('inclusions', $request);
+        $package->exclusions = $this->parseLocaleTextarea('exclusions', $request);
         $package->is_active = $request->has('is_active') ? true : false;
 
         if ($request->hasFile('images')) {
@@ -140,5 +157,29 @@ class PackageController extends Controller
         $package->delete();
 
         return redirect()->route('admin.packages')->with('success', 'Paket wisata berhasil dihapus.');
+    }
+
+    /**
+     * Parse a per-locale textarea field into a per-locale array.
+     */
+    private function parseLocaleTextarea(string $field, Request $request): array
+    {
+        $result = [];
+
+        foreach (['en', 'id'] as $locale) {
+            $value = $request->input("{$field}.{$locale}");
+
+            if (is_string($value) && trim($value) !== '') {
+                $items = array_values(
+                    array_filter(array_map('trim', explode("\n", $value)))
+                );
+
+                if (! empty($items)) {
+                    $result[$locale] = $items;
+                }
+            }
+        }
+
+        return $result;
     }
 }

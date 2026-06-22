@@ -7,10 +7,23 @@
         Informasi Rute
     </h2>
     
-    <div class="space-y-4">
-        <div>
-            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Rute <span class="text-warning">*</span></label>
-            <input type="text" name="name" required placeholder="Contoh: Rute Budaya & Sejarah Penglipuran"
+    <div class="space-y-4" x-data="{ locale: 'en' }">
+        {{-- Locale tabs --}}
+        <div class="flex gap-2 mb-4">
+            <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+                class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" type="button">English</button>
+            <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+                class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" type="button">Indonesia</button>
+        </div>
+
+        <div x-show="locale === 'en'">
+            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Route Name (EN) <span class="text-warning">*</span></label>
+            <input type="text" name="name[en]" required placeholder="e.g. Cultural & History Route of Penglipuran"
+                class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
+        </div>
+        <div x-show="locale === 'id'">
+            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Rute (ID) <span class="text-warning">*</span></label>
+            <input type="text" name="name[id]" required placeholder="Contoh: Rute Budaya & Sejarah Penglipuran"
                 class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
         </div>
 
@@ -18,9 +31,14 @@
             <input type="hidden" name="difficulty" value="easy">
         </div>
 
-        <div>
-            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi Rute</label>
-            <textarea name="description" rows="3" placeholder="Tulis deskripsi singkat mengenai rute perjalanan ini..."
+        <div x-show="locale === 'en'">
+            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Route Description (EN)</label>
+            <textarea name="description[en]" rows="3" placeholder="Write a short description of this route..."
+                class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none"></textarea>
+        </div>
+        <div x-show="locale === 'id'">
+            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi Rute (ID)</label>
+            <textarea name="description[id]" rows="3" placeholder="Tulis deskripsi singkat mengenai rute perjalanan ini..."
                 class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none"></textarea>
         </div>
     </div>

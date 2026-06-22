@@ -26,9 +26,11 @@ class UmkmController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%'.$search.'%')
+                $q->where("name->en", 'like', '%'.$search.'%')
+                    ->orWhere("name->id", 'like', '%'.$search.'%')
                     ->orWhereHas('umkmProfile', function ($qp) use ($search) {
-                        $qp->where('business_name', 'like', '%'.$search.'%')
+                        $qp->where("business_name->en", 'like', '%'.$search.'%')
+                            ->orWhere("business_name->id", 'like', '%'.$search.'%')
                             ->orWhere('owner_name', 'like', '%'.$search.'%');
                     });
             });
@@ -42,7 +44,7 @@ class UmkmController extends Controller
         }
 
         $products = $query->paginate(10)->withQueryString();
-        $profiles = UmkmProfile::orderBy('business_name')->get();
+        $profiles = UmkmProfile::orderBy('business_name->'.app()->getLocale())->get();
 
         // Compute dynamic stats
         $totalProfiles = UmkmProfile::count();
@@ -57,7 +59,7 @@ class UmkmController extends Controller
 
         $totalSoldThisMonth = 89; // Mock sold value or count
 
-        $categories = UmkmProductCategory::orderBy('name')->get();
+        $categories = UmkmProductCategory::orderBy('name->'.app()->getLocale())->get();
 
         return view('admin.umkm.index', compact('products', 'profiles', 'categories', 'totalProfiles', 'totalProducts', 'totalSoldThisMonth'));
     }
@@ -68,13 +70,17 @@ class UmkmController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
             'umkm_profile_id' => ['required', 'exists:umkm_profiles,id'],
             'umkm_product_category_id' => ['nullable', 'exists:umkm_product_categories,id'],
             'price' => ['required', 'numeric', 'min:0'],
             'stock' => ['nullable', 'integer', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'images' => ['nullable', 'array'],
             'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
         ]);
@@ -87,7 +93,9 @@ class UmkmController extends Controller
             $validated['images'] = $imagePaths;
         }
 
-        $validated['slug'] = Str::slug($validated['name']).'-'.Str::random(5);
+        $defaultLocale = config('app.fallback_locale', 'en');
+        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+        $validated['slug'] = Str::slug($slugValue).'-'.Str::random(5);
         $validated['is_active'] = true;
 
         if (! isset($validated['unit'])) {
@@ -107,13 +115,17 @@ class UmkmController extends Controller
         $product = UmkmProduct::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
             'umkm_profile_id' => ['required', 'exists:umkm_profiles,id'],
             'umkm_product_category_id' => ['nullable', 'exists:umkm_product_categories,id'],
             'price' => ['required', 'numeric', 'min:0'],
             'stock' => ['nullable', 'integer', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'images' => ['nullable', 'array'],
             'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
             'is_active' => ['nullable', 'boolean'],
@@ -129,7 +141,9 @@ class UmkmController extends Controller
             $validated['images'] = $product->images;
         }
 
-        $validated['slug'] = Str::slug($validated['name']).'-'.Str::random(5);
+        $defaultLocale = config('app.fallback_locale', 'en');
+        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+        $validated['slug'] = Str::slug($slugValue).'-'.Str::random(5);
         $validated['is_active'] = $request->has('is_active') ? true : false;
 
         $product->update($validated);
@@ -155,9 +169,13 @@ class UmkmController extends Controller
     {
         $validated = $request->validate([
             'user_id' => ['nullable', 'exists:users,id'],
-            'business_name' => ['required', 'string', 'max:255'],
+            'business_name' => ['required', 'array'],
+            'business_name.en' => ['required', 'string', 'max:255'],
+            'business_name.id' => ['required', 'string', 'max:255'],
             'owner_name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
             'rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
             'is_active' => ['nullable', 'boolean'],
@@ -173,7 +191,9 @@ class UmkmController extends Controller
             $validated['ar_marker_id'] = 'UMKM_'.strtoupper(Str::random(8));
         }
 
-        $slug = Str::slug($validated['business_name']);
+        $defaultLocale = config('app.fallback_locale', 'en');
+        $slugValue = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? reset($validated['business_name']);
+        $slug = Str::slug($slugValue);
         $originalSlug = $slug;
         $count = 1;
         while (UmkmProfile::where('slug', $slug)->exists()) {
@@ -191,7 +211,7 @@ class UmkmController extends Controller
         $profile = UmkmProfile::create($validated);
 
         $mapLocation = $profile->mapLocation()->create([
-            'name' => $profile->business_name,
+            'name' => is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[config('app.fallback_locale')] ?? $profile->business_name['en'] ?? ''),
             'category' => 'umkm',
             'latitude' => $latitude,
             'longitude' => $longitude,
@@ -202,8 +222,9 @@ class UmkmController extends Controller
         // AR marker via ArModel (marker-only, no 3D model)
         $arMarkerId = $request->input('ar_marker_id');
         if (! empty($arMarkerId)) {
+            $profileName = is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[config('app.fallback_locale')] ?? $profile->business_name['en'] ?? '');
             ArModel::create([
-                'name' => $profile->business_name.' Marker',
+                'name' => $profileName.' Marker',
                 'ar_marker_id' => $arMarkerId,
                 'map_location_id' => $mapLocation->id,
             ]);
@@ -221,9 +242,13 @@ class UmkmController extends Controller
 
         $validated = $request->validate([
             'user_id' => ['nullable', 'exists:users,id'],
-            'business_name' => ['required', 'string', 'max:255'],
+            'business_name' => ['required', 'array'],
+            'business_name.en' => ['required', 'string', 'max:255'],
+            'business_name.id' => ['required', 'string', 'max:255'],
             'owner_name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
             'rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
             'is_active' => ['nullable', 'boolean'],
@@ -239,8 +264,12 @@ class UmkmController extends Controller
             $validated['ar_marker_id'] = 'UMKM_'.strtoupper(Str::random(8));
         }
 
-        if ($profile->business_name !== $validated['business_name']) {
-            $slug = Str::slug($validated['business_name']);
+        $defaultLocale = config('app.fallback_locale', 'en');
+        $currentName = is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[$defaultLocale] ?? '');
+        $newName = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? '';
+        if ($currentName !== $newName) {
+            $slugValue = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? reset($validated['business_name']);
+            $slug = Str::slug($slugValue);
             $originalSlug = $slug;
             $count = 1;
             while (UmkmProfile::where('slug', $slug)->where('id', '!=', $id)->exists()) {
@@ -261,7 +290,7 @@ class UmkmController extends Controller
         $mapLocation = $profile->mapLocation()->updateOrCreate(
             [],
             [
-                'name' => $profile->business_name,
+                'name' => is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[config('app.fallback_locale')] ?? $profile->business_name['en'] ?? ''),
                 'category' => 'umkm',
                 'latitude' => $latitude,
                 'longitude' => $longitude,
@@ -277,8 +306,9 @@ class UmkmController extends Controller
             if ($existingModel) {
                 $existingModel->update(['ar_marker_id' => $arMarkerId]);
             } else {
+                $profileName = is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[config('app.fallback_locale')] ?? $profile->business_name['en'] ?? '');
                 ArModel::create([
-                    'name' => $profile->business_name.' Marker',
+                    'name' => $profileName.' Marker',
                     'ar_marker_id' => $arMarkerId,
                     'map_location_id' => $mapLocation->id,
                 ]);

@@ -22,45 +22,77 @@
         </template>
         <input type="hidden" name="id" x-model="formFields.id">
 
-        {{-- Row 1: Nama Event & Kategori --}}
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div class="md:col-span-2">
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Nama
-                    Event <span class="text-red-500">*</span></label>
-                <input id="tour-form-name" type="text" name="name" x-model="formFields.name"
-                    placeholder="Contoh: Festival Bambu Penglipuran 2026"
-                    class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
-                    required>
-                @error('name')
-                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                @enderror
+        {{-- Locale Tabs --}}
+        <div x-data="{ locale: 'en' }">
+            <div class="flex gap-2 mb-4">
+                <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+                    class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" type="button">English</button>
+                <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+                    class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" type="button">Indonesia</button>
             </div>
-            <div>
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Kategori
-                    <span class="text-red-500">*</span></label>
-                <select id="tour-form-category" name="category" x-model="formFields.category"
-                    class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-1">
-                    @foreach (['Upacara Adat', 'Festival', 'Workshop', 'Pameran', 'Pertunjukan Seni'] as $cat)
-                        <option value="{{ $cat }}">{{ $cat }}</option>
-                    @endforeach
-                </select>
-                @error('category')
-                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                @enderror
-            </div>
-        </div>
 
-        {{-- Row 2: Deskripsi --}}
-        <div>
-            <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Deskripsi
-                Event</label>
-            <textarea name="description" rows="3" x-model="formFields.description"
-                placeholder="Jelaskan latar belakang dan kegiatan dalam event ini..."
-                class="focus:border-primary focus:ring-primary/30 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"></textarea>
-            @error('description')
-                <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-            @enderror
-        </div>
+            {{-- Row 1: Nama Event & Kategori --}}
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div class="md:col-span-2">
+                    <div x-show="locale === 'en'">
+                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Name
+                            (EN) <span class="text-red-500">*</span></label>
+                        <input id="tour-form-name" type="text" name="name[en]" x-model="formFields['name[en]']"
+                            placeholder="e.g. Penglipuran Bamboo Festival 2026"
+                            class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
+                            required>
+                        @error('name.en')
+                            <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    <div x-show="locale === 'id'">
+                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Nama
+                            Event (ID) <span class="text-red-500">*</span></label>
+                        <input type="text" name="name[id]" x-model="formFields['name[id]']"
+                            placeholder="Contoh: Festival Bambu Penglipuran 2026"
+                            class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
+                            required>
+                        @error('name.id')
+                            <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+                <div>
+                    <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Kategori
+                        <span class="text-red-500">*</span></label>
+                    <select id="tour-form-category" name="category" x-model="formFields.category"
+                        class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-1">
+                        @foreach (['Upacara Adat', 'Festival', 'Workshop', 'Pameran', 'Pertunjukan Seni'] as $cat)
+                            <option value="{{ $cat }}">{{ $cat }}</option>
+                        @endforeach
+                    </select>
+                    @error('category')
+                        <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+
+            {{-- Row 2: Deskripsi --}}
+            <div x-show="locale === 'en'">
+                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Description
+                    (EN)</label>
+                <textarea name="description[en]" rows="3" x-model="formFields['description[en]']"
+                    placeholder="Describe the background and activities of this event..."
+                    class="focus:border-primary focus:ring-primary/30 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"></textarea>
+                @error('description.en')
+                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                @enderror
+            </div>
+            <div x-show="locale === 'id'">
+                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Deskripsi
+                    Event (ID)</label>
+                <textarea name="description[id]" rows="3" x-model="formFields['description[id]']"
+                    placeholder="Jelaskan latar belakang dan kegiatan dalam event ini..."
+                    class="focus:border-primary focus:ring-primary/30 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"></textarea>
+                @error('description.id')
+                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                @enderror
+            </div>
 
         {{-- Row 3: Waktu Mulai & Waktu Selesai --}}
         <div id="tour-form-dates" class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-100 bg-gray-50/50 p-4 md:grid-cols-2">
@@ -128,14 +160,25 @@
 
         {{-- Row 4: Lokasi Tempat --}}
         <div id="tour-form-location" class="space-y-3">
-            <div>
+            <div x-show="locale === 'en'">
+                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Location
+                    Name (EN) <span class="text-red-500">*</span></label>
+                <input type="text" name="location_name[en]" x-model="formFields['location_name[en]']"
+                    placeholder="e.g. Bale Banjar or Penataran Agung Temple"
+                    class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
+                    required>
+                @error('location_name.en')
+                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                @enderror
+            </div>
+            <div x-show="locale === 'id'">
                 <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Lokasi
-                    Tempat <span class="text-red-500">*</span></label>
-                <input type="text" name="location_name" x-model="formFields.location_name"
+                    Tempat (ID) <span class="text-red-500">*</span></label>
+                <input type="text" name="location_name[id]" x-model="formFields['location_name[id]']"
                     placeholder="Contoh: Bale Banjar atau Pura Penataran Agung"
                     class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
                     required>
-                @error('location_name')
+                @error('location_name.id')
                     <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
                 @enderror
             </div>
@@ -165,7 +208,8 @@
                     <button type="button" x-show="formFields.latitude && formFields.longitude" @click="formFields.latitude = ''; formFields.longitude = ''; if(formMarker) { formMap.removeLayer(formMarker); formMarker = null; }" class="text-red-500 hover:text-red-700 hover:underline">Hapus Lokasi</button>
                 </div>
             </div>
-        </div>
+        </div>{{-- /tour-form-location --}}
+        </div>{{-- /x-data locale --}}
 
         {{-- Row 5: Harga & Kapasitas --}}
         <div class="grid grid-cols-1 gap-4 border-t border-gray-100 pt-2 md:grid-cols-2">

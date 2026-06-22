@@ -26,17 +26,39 @@
         <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
             <h2 class="mb-5 font-semibold text-charcoal">Detail Paket</h2>
             <div class="space-y-4">
-                <div>
-                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Paket <span class="text-warning">*</span></label>
-                    <input type="text" name="name" value="{{ old('name', $package->name ?? '') }}" placeholder="Contoh: Paket Keluarga 1 Hari"
-                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30" required>
-                    @error('name')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
-                </div>
-                <div>
-                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi</label>
-                    <textarea name="description" rows="3" placeholder="Jelaskan apa saja yang termasuk dalam paket ini..."
-                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none">{{ old('description', $package->description ?? '') }}</textarea>
-                    @error('description')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                <div x-data="{ locale: 'en' }">
+                    <div class="flex gap-2 mb-4">
+                        <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'" type="button"
+                            class="px-4 py-2 rounded-xl text-sm font-semibold transition-all">English</button>
+                        <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'" type="button"
+                            class="px-4 py-2 rounded-xl text-sm font-semibold transition-all">Indonesia</button>
+                    </div>
+
+                    <div x-show="locale === 'en'">
+                        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Name <span class="text-warning">*</span></label>
+                        <input type="text" name="name[en]" value="{{ old('name.en', isset($package) ? $package->getTranslation('name', 'en', false) : '') }}" placeholder="e.g. Family Day Package"
+                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30" required>
+                        @error('name.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    </div>
+                    <div x-show="locale === 'id'">
+                        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Paket <span class="text-warning">*</span></label>
+                        <input type="text" name="name[id]" value="{{ old('name.id', isset($package) ? $package->getTranslation('name', 'id', false) : '') }}" placeholder="Contoh: Paket Keluarga 1 Hari"
+                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30" required>
+                        @error('name.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div x-show="locale === 'en'">
+                        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Description</label>
+                        <textarea name="description[en]" rows="3" placeholder="Describe what this package includes..."
+                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none">{{ old('description.en', isset($package) ? $package->getTranslation('description', 'en', false) : '') }}</textarea>
+                        @error('description.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    </div>
+                    <div x-show="locale === 'id'">
+                        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi</label>
+                        <textarea name="description[id]" rows="3" placeholder="Jelaskan apa saja yang termasuk dalam paket ini..."
+                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none">{{ old('description.id', isset($package) ? $package->getTranslation('description', 'id', false) : '') }}</textarea>
+                        @error('description.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -59,37 +81,47 @@
         </div>
 
         <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-            <h2 class="mb-5 font-semibold text-charcoal">Yang Termasuk dalam Paket (Inclusions)</h2>
-            <div id="includes-list" class="space-y-2">
-                @if(isset($package) && is_array($package->inclusions) && count($package->inclusions) > 0)
-                    @foreach($package->inclusions as $inc)
-                        <div class="flex items-center gap-2">
-                            <input type="text" name="inclusions[]" value="{{ $inc }}" placeholder="Contoh: Tiket masuk desa" class="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                            <button type="button" onclick="this.parentElement.remove()" class="h-10 w-10 rounded-xl bg-gray-100 text-gray-400 hover:text-warning">
-                                <svg class="mx-auto h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                    @endforeach
-                @else
-                    <div class="flex items-center gap-2">
-                        <input type="text" name="inclusions[]" placeholder="Contoh: Tiket masuk desa" class="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-                        <button type="button" onclick="this.parentElement.remove()" class="h-10 w-10 rounded-xl bg-gray-100 text-gray-400 hover:text-warning">
-                            <svg class="mx-auto h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                @endif
+            <h2 class="mb-5 font-semibold text-charcoal">Yang Termasuk & Tidak Termasuk</h2>
+            <div x-data="{ locale: 'en' }">
+                <div class="flex gap-2 mb-4">
+                    <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'" type="button"
+                        class="px-4 py-2 rounded-xl text-sm font-semibold transition-all">English</button>
+                    <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'" type="button"
+                        class="px-4 py-2 rounded-xl text-sm font-semibold transition-all">Indonesia</button>
+                </div>
+
+                <div x-show="locale === 'en'">
+                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Inclusions (EN)</label>
+                    <textarea name="inclusions[en]" rows="4" placeholder="One item per line&#10;e.g.&#10;Village entry ticket&#10;Tour guide"
+                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none">{{ old('inclusions.en', isset($package) ? implode("\n", $package->getInclusionsForLocale('en')) : '') }}</textarea>
+                    @error('inclusions.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    <p class="mt-1 text-xs text-gray-500">One item per line</p>
+                </div>
+                <div x-show="locale === 'id'">
+                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Inclusions (ID)</label>
+                    <textarea name="inclusions[id]" rows="4" placeholder="Satu item per baris&#10;Contoh:&#10;Tiket masuk desa&#10;Pemandu wisata"
+                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none">{{ old('inclusions.id', isset($package) ? implode("\n", $package->getInclusionsForLocale('id')) : '') }}</textarea>
+                    @error('inclusions.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    <p class="mt-1 text-xs text-gray-500">Satu item per baris</p>
+                </div>
+
+                <hr class="my-4 border-gray-100">
+
+                <div x-show="locale === 'en'">
+                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Exclusions (EN)</label>
+                    <textarea name="exclusions[en]" rows="3" placeholder="What is NOT included&#10;e.g.&#10;Personal expenses&#10;Hotel pickup"
+                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none">{{ old('exclusions.en', isset($package) ? implode("\n", $package->getExclusionsForLocale('en')) : '') }}</textarea>
+                    @error('exclusions.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    <p class="mt-1 text-xs text-gray-500">One item per line</p>
+                </div>
+                <div x-show="locale === 'id'">
+                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Exclusions (ID)</label>
+                    <textarea name="exclusions[id]" rows="3" placeholder="Yang TIDAK termasuk&#10;Contoh:&#10;Biaya pribadi&#10;Penjemputan hotel"
+                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none">{{ old('exclusions.id', isset($package) ? implode("\n", $package->getExclusionsForLocale('id')) : '') }}</textarea>
+                    @error('exclusions.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    <p class="mt-1 text-xs text-gray-500">Satu item per baris</p>
+                </div>
             </div>
-            <button type="button" onclick="addInclude()"
-                class="mt-3 flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-                Tambah Item
-            </button>
         </div>
     </div>
 
@@ -146,21 +178,6 @@
 
 @push('scripts')
 <script>
-    function addInclude() {
-        const list = document.getElementById('includes-list');
-        const row = document.createElement('div');
-        row.className = 'flex items-center gap-2';
-        row.innerHTML = `
-            <input type="text" name="inclusions[]" placeholder="Tambahkan item..." class="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-            <button type="button" onclick="this.parentElement.remove()" class="h-10 w-10 rounded-xl bg-gray-100 text-gray-400 hover:text-warning">
-                <svg class="mx-auto h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>`;
-        list.appendChild(row);
-        row.querySelector('input').focus();
-    }
-
     document.querySelector('input[name="images[]"]')?.addEventListener('change', function() {
         const maxSize = 5 * 1024 * 1024;
         const oversized = Array.from(this.files || []).find(f => f.size > maxSize);

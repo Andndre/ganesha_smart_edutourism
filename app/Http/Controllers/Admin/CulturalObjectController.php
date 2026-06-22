@@ -22,12 +22,18 @@ class CulturalObjectController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:cultural_objects'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
             'category' => ['required', 'string', 'in:temple,house,craft,tradition'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
-            'short_description' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'short_description' => ['nullable', 'array'],
+            'short_description.en' => ['nullable', 'string', 'max:255'],
+            'short_description.id' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
             'ar_marker_patt_content' => ['nullable', 'string'],
             'ar_model_id' => ['nullable', 'string'],
@@ -60,11 +66,17 @@ class CulturalObjectController extends Controller
             $validated['historical_images'] = $images;
         }
 
-        $validated['slug'] = Str::slug($validated['name']);
+        $defaultLocale = config('app.fallback_locale', 'en');
+        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+        $validated['slug'] = Str::slug($slugValue);
 
         // Null safety for database constraints
-        if (empty($validated['description'])) {
-            $validated['description'] = 'Deskripsi untuk '.$validated['name'];
+        if (empty($validated['description']['en']) && empty($validated['description']['id'])) {
+            $nameValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+            $validated['description'] = [
+                'en' => 'Description for '.$nameValue,
+                'id' => 'Deskripsi untuk '.$nameValue,
+            ];
         }
 
         $latitude = $validated['latitude'] ?? config('services.penglipuran.latitude');
@@ -138,7 +150,7 @@ class CulturalObjectController extends Controller
         }
 
         $mapLocation = $object->mapLocation()->create([
-            'name' => $object->name,
+            'name' => is_string($object->name) ? $object->name : ($object->name[config('app.fallback_locale')] ?? $object->name['en'] ?? ''),
             'category' => 'cultural',
             'latitude' => $latitude,
             'longitude' => $longitude,
@@ -193,12 +205,18 @@ class CulturalObjectController extends Controller
         $object = CulturalObject::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:cultural_objects,name,'.$id],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
             'category' => ['required', 'string', 'in:temple,house,craft,tradition'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
-            'short_description' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'short_description' => ['nullable', 'array'],
+            'short_description.en' => ['nullable', 'string', 'max:255'],
+            'short_description.id' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
             'ar_marker_patt_content' => ['nullable', 'string'],
             'ar_model_id' => ['nullable', 'string'],
@@ -233,11 +251,17 @@ class CulturalObjectController extends Controller
             $validated['historical_images'] = $object->historical_images;
         }
 
-        $validated['slug'] = Str::slug($validated['name']);
+        $defaultLocale = config('app.fallback_locale', 'en');
+        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+        $validated['slug'] = Str::slug($slugValue);
 
         // Null safety for database constraints
-        if (empty($validated['description'])) {
-            $validated['description'] = 'Deskripsi untuk '.$validated['name'];
+        if (empty($validated['description']['en']) && empty($validated['description']['id'])) {
+            $nameValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+            $validated['description'] = [
+                'en' => 'Description for '.$nameValue,
+                'id' => 'Deskripsi untuk '.$nameValue,
+            ];
         }
 
         $latitude = $validated['latitude'] ?? config('services.penglipuran.latitude');
@@ -317,7 +341,7 @@ class CulturalObjectController extends Controller
         $mapLocation = $object->mapLocation()->updateOrCreate(
             [],
             [
-                'name' => $object->name,
+                'name' => is_string($object->name) ? $object->name : ($object->name[config('app.fallback_locale')] ?? $object->name['en'] ?? ''),
                 'category' => 'cultural',
                 'latitude' => $latitude,
                 'longitude' => $longitude,

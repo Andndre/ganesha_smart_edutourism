@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\MapLocation;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
@@ -60,6 +61,7 @@ class UmkmOwnerTest extends TestCase
     {
         $owner = User::factory()->create([
             'role' => 'umkm_owner',
+            'preferred_language' => 'en',
         ]);
 
         // Access profile page
@@ -68,17 +70,16 @@ class UmkmOwnerTest extends TestCase
 
         // Post profile updates
         $response = $this->actingAs($owner)->put('/owner/profile', [
-            'business_name' => 'Wayan Coffee & Craft',
-            'description' => 'Fine authentic Balinese coffee.',
+            'business_name' => ['en' => 'Wayan Coffee & Craft', 'id' => 'Wayan Coffee & Craft'],
+            'description' => ['en' => 'Fine authentic Balinese coffee.', 'id' => 'Kopi asli Bali yang enak.'],
         ]);
 
         $response->assertRedirect('/owner/profile');
         $response->assertSessionHas('success', 'Informasi toko Anda berhasil diperbarui.');
 
-        $this->assertDatabaseHas('umkm_profiles', [
-            'user_id' => $owner->id,
-            'business_name' => 'Wayan Coffee & Craft',
-        ]);
+        $profile = UmkmProfile::where('user_id', $owner->id)->first();
+        $this->assertNotNull($profile);
+        $this->assertEquals('Wayan Coffee & Craft', $profile->business_name);
     }
 
     /**
@@ -88,13 +89,14 @@ class UmkmOwnerTest extends TestCase
     {
         $owner = User::factory()->create([
             'role' => 'umkm_owner',
+            'preferred_language' => 'en',
         ]);
 
         // Create profile first
         $profile = UmkmProfile::create([
             'user_id' => $owner->id,
             'owner_name' => $owner->name,
-            'business_name' => 'Wayan Shop',
+            'business_name' => ['en' => 'Wayan Shop', 'id' => 'Wayan Shop'],
             'slug' => 'wayan-shop',
             'ar_marker_id' => 'UMKM_TEST01',
         ]);
@@ -114,14 +116,14 @@ class UmkmOwnerTest extends TestCase
         $response->assertRedirect('/owner/location');
         $response->assertSessionHas('success', 'Lokasi toko Anda berhasil diperbarui.');
 
-        $this->assertDatabaseHas('map_locations', [
-            'locationable_id' => $profile->id,
-            'locationable_type' => UmkmProfile::class,
-            'latitude' => -8.4217,
-            'longitude' => 115.3590,
-            'is_accessible' => true,
-            'accessibility_notes' => 'Ramp available.',
-        ]);
+        $location = MapLocation::where('locationable_id', $profile->id)
+            ->where('locationable_type', UmkmProfile::class)
+            ->first();
+        $this->assertNotNull($location);
+        $this->assertEquals(-8.4217, $location->latitude);
+        $this->assertEquals(115.3590, $location->longitude);
+        $this->assertTrue((bool) $location->is_accessible);
+        $this->assertEquals('Ramp available.', $location->accessibility_notes);
     }
 
     /**
@@ -131,20 +133,21 @@ class UmkmOwnerTest extends TestCase
     {
         $owner = User::factory()->create([
             'role' => 'umkm_owner',
+            'preferred_language' => 'en',
         ]);
 
         // Create profile
         $profile = UmkmProfile::create([
             'user_id' => $owner->id,
             'owner_name' => $owner->name,
-            'business_name' => 'Wayan Shop',
+            'business_name' => ['en' => 'Wayan Shop', 'id' => 'Wayan Shop'],
             'slug' => 'wayan-shop',
             'ar_marker_id' => 'UMKM_TEST01',
         ]);
 
         // Create category
         $category = UmkmProductCategory::create([
-            'name' => 'Souvenir Khas',
+            'name' => ['en' => 'Typical Souvenir', 'id' => 'Souvenir Khas'],
             'slug' => 'souvenir-khas',
         ]);
 
@@ -154,11 +157,11 @@ class UmkmOwnerTest extends TestCase
 
         // Store product
         $response = $this->actingAs($owner)->post('/owner/products', [
-            'name' => 'Baju Barong Premium',
+            'name' => ['en' => 'Premium Barong Shirt', 'id' => 'Baju Barong Premium'],
             'price' => 75000,
             'stock' => 10,
             'unit' => 'pcs',
-            'description' => 'A fine Balinese barong shirt.',
+            'description' => ['en' => 'A fine Balinese barong shirt.', 'id' => 'Kemeja barong Bali berkualitas.'],
             'umkm_product_category_id' => $category->id,
         ]);
 
@@ -167,23 +170,23 @@ class UmkmOwnerTest extends TestCase
 
         $product = UmkmProduct::first();
         $this->assertNotNull($product);
-        $this->assertEquals('Baju Barong Premium', $product->name);
+        $this->assertEquals('Premium Barong Shirt', $product->name);
         $this->assertEquals(75000, $product->price);
 
         // Update product
         $response = $this->actingAs($owner)->put('/owner/products/'.$product->id, [
-            'name' => 'Baju Barong Edisi Spesial',
+            'name' => ['en' => 'Special Edition Barong Shirt', 'id' => 'Baju Barong Edisi Spesial'],
             'price' => 85000,
             'stock' => 5,
             'unit' => 'pcs',
-            'description' => 'Special limited edition.',
+            'description' => ['en' => 'Special limited edition.', 'id' => 'Edisi terbatas spesial.'],
             'umkm_product_category_id' => $category->id,
             'is_active' => '1',
         ]);
 
         $response->assertRedirect('/owner/products');
         $response->assertSessionHas('success', 'Produk berhasil diperbarui.');
-        $this->assertEquals('Baju Barong Edisi Spesial', $product->fresh()->name);
+        $this->assertEquals('Special Edition Barong Shirt', $product->fresh()->name);
 
         // Delete product
         $response = $this->actingAs($owner)->delete('/owner/products/'.$product->id);
@@ -199,6 +202,7 @@ class UmkmOwnerTest extends TestCase
     {
         $admin = User::factory()->create([
             'role' => 'admin',
+            'preferred_language' => 'en',
         ]);
 
         Storage::fake('public');
@@ -213,8 +217,8 @@ class UmkmOwnerTest extends TestCase
         $model3dUsdz = UploadedFile::fake()->create('model.usdz', 1024, 'model/vnd.usdz+zip');
 
         $response = $this->actingAs($admin)->post('/admin/umkm/categories', [
-            'name' => 'Makanan Ringan',
-            'description' => 'Aneka camilan khas Bali.',
+            'name' => ['en' => 'Light Snacks', 'id' => 'Makanan Ringan'],
+            'description' => ['en' => 'Various Balinese snacks.', 'id' => 'Aneka camilan khas Bali.'],
             'image' => $image,
             'model_3d_file' => $model3d,
             'model_3d_usdz_file' => $model3dUsdz,
@@ -224,8 +228,8 @@ class UmkmOwnerTest extends TestCase
 
         $category = UmkmProductCategory::first();
         $this->assertNotNull($category);
-        $this->assertEquals('Makanan Ringan', $category->name);
-        $this->assertEquals('Aneka camilan khas Bali.', $category->description);
+        $this->assertEquals('Light Snacks', $category->name);
+        $this->assertEquals('Various Balinese snacks.', $category->description);
         $this->assertNotNull($category->image_path);
         $this->assertNotNull($category->model_3d_path);
         $this->assertNotNull($category->model_3d_usdz_path);
@@ -242,8 +246,8 @@ class UmkmOwnerTest extends TestCase
         $oldModelUsdzPath = $category->model_3d_usdz_path;
 
         $response = $this->actingAs($admin)->put('/admin/umkm/categories/'.$category->id, [
-            'name' => 'Jajanan Khas Bali',
-            'description' => 'Jajanan basah tradisional.',
+            'name' => ['en' => 'Balinese Traditional Snacks', 'id' => 'Jajanan Khas Bali'],
+            'description' => ['en' => 'Traditional wet snacks.', 'id' => 'Jajanan basah tradisional.'],
             'image' => $newImage,
             'model_3d_file' => $newModel3d,
             'model_3d_usdz_file' => $newModel3dUsdz,
@@ -252,8 +256,8 @@ class UmkmOwnerTest extends TestCase
         $response->assertSessionHas('success', 'Kategori produk berhasil diperbarui.');
 
         $category = $category->fresh();
-        $this->assertEquals('Jajanan Khas Bali', $category->name);
-        $this->assertEquals('Jajanan basah tradisional.', $category->description);
+        $this->assertEquals('Balinese Traditional Snacks', $category->name);
+        $this->assertEquals('Traditional wet snacks.', $category->description);
         Storage::disk('public')->assertExists($category->image_path);
         Storage::disk('public')->assertExists($category->model_3d_path);
         Storage::disk('public')->assertExists($category->model_3d_usdz_path);
@@ -281,6 +285,7 @@ class UmkmOwnerTest extends TestCase
     {
         $admin = User::factory()->create([
             'role' => 'admin',
+            'preferred_language' => 'en',
         ]);
 
         // View owners index

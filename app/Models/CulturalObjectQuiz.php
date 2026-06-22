@@ -5,10 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Translatable\HasTranslations;
 
 class CulturalObjectQuiz extends Model
 {
     use HasFactory;
+    use HasTranslations;
+
+    public array $translatable = ['question'];
 
     protected $fillable = [
         'cultural_object_id',

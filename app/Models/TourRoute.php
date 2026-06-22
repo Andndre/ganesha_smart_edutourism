@@ -7,11 +7,15 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Translatable\HasTranslations;
 
 #[Fillable(['name', 'description', 'difficulty', 'estimated_duration_minutes', 'distance_meters', 'is_active'])]
 class TourRoute extends Model
 {
     use HasFactory;
+    use HasTranslations;
+
+    public array $translatable = ['name', 'description'];
 
     /**
      * The attributes that should be cast.

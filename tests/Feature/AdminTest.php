@@ -32,11 +32,14 @@ class AdminTest extends TestCase
 
         $this->registerDayOfWeekFunction();
 
+        app()->setLocale('en');
+
         // Create an admin user to authenticate
         $this->adminUser = User::factory()->create([
             'name' => 'Admin Test',
             'email' => 'admin@test.com',
             'role' => 'admin',
+            'preferred_language' => 'en',
         ]);
     }
 
@@ -58,7 +61,7 @@ class AdminTest extends TestCase
     public function test_capacity_zones_rendering_and_threshold_update(): void
     {
         $zone = CapacityZone::create([
-            'name' => 'Zona Test',
+            'name' => ['en' => 'Zona Test', 'id' => 'Zona Test'],
             'zone_identifier' => 'test_zone',
             'current_count' => 50,
             'max_capacity' => 100,
@@ -75,7 +78,7 @@ class AdminTest extends TestCase
 
         $responseUpdateInvalid = $this->actingAs($this->adminUser)
             ->put(route('admin.capacity.thresholds', $zone->id), [
-                'name' => 'Zona Test Updated',
+                'name' => ['en' => 'Zona Test Updated', 'id' => 'Zona Test Updated'],
                 'max_capacity' => 100,
                 'warning_threshold' => 90,
                 'critical_threshold' => 80, // critical is smaller, should fail validation
@@ -84,7 +87,7 @@ class AdminTest extends TestCase
 
         $responseUpdateSuccess = $this->actingAs($this->adminUser)
             ->put(route('admin.capacity.thresholds', $zone->id), [
-                'name' => 'Zona Test Updated',
+                'name' => ['en' => 'Zona Test Updated', 'id' => 'Zona Test Updated'],
                 'max_capacity' => 120,
                 'warning_threshold' => 50,
                 'critical_threshold' => 85,
@@ -127,10 +130,10 @@ class AdminTest extends TestCase
 
         $responseCreateSuccess = $this->actingAs($this->adminUser)
             ->post(route('admin.cultural-objects.store'), [
-                'name' => 'Pura Luhur',
+                'name' => ['en' => 'Pura Luhur', 'id' => 'Pura Luhur'],
                 'category' => 'temple',
-                'short_description' => 'Jantung spiritual Pura Luhur',
-                'description' => 'Tempat pemujaan suci.',
+                'short_description' => ['en' => 'Spiritual heart of Pura Luhur', 'id' => 'Jantung spiritual Pura Luhur'],
+                'description' => ['en' => 'A sacred temple.', 'id' => 'Tempat pemujaan suci.'],
                 'latitude' => -8.234,
                 'longitude' => 115.345,
                 'ar_marker_id' => 'MARKER_PURA_LUHUR',
@@ -144,27 +147,22 @@ class AdminTest extends TestCase
             ]);
         $responseCreateSuccess->assertRedirect();
 
-        $object = CulturalObject::where('name', 'Pura Luhur')->firstOrFail();
-        $this->assertEquals('Jantung spiritual Pura Luhur', $object->short_description);
+        $object = CulturalObject::where('slug', 'pura-luhur')->firstOrFail();
+        $this->assertEquals('Spiritual heart of Pura Luhur', $object->short_description);
         $this->assertNotNull($object->model_3d_path);
         $this->assertNotNull($object->audio_narration_path);
         $this->assertCount(2, $object->historical_images);
 
         // Assert Cultural Stories were created
-        $this->assertDatabaseHas('cultural_stories', [
-            'cultural_object_id' => $object->id,
-            'title' => 'Kisah Sejarah Pura',
-            'content' => 'Ini adalah sejarah pura luhur.',
-            'story_type' => 'history',
-            'order' => 1,
-        ]);
-        $this->assertDatabaseHas('cultural_stories', [
-            'cultural_object_id' => $object->id,
-            'title' => 'Filosofi Bangunan',
-            'content' => 'Filosofi arsitektur pura.',
-            'story_type' => 'philosophy',
-            'order' => 2,
-        ]);
+        $this->assertCount(2, $object->stories);
+        $firstStory = $object->stories->where('story_type', 'history')->first();
+        $this->assertNotNull($firstStory);
+        $this->assertEquals('Kisah Sejarah Pura', $firstStory->title);
+        $this->assertEquals(1, $firstStory->order);
+        $secondStory = $object->stories->where('story_type', 'philosophy')->first();
+        $this->assertNotNull($secondStory);
+        $this->assertEquals('Filosofi Bangunan', $secondStory->title);
+        $this->assertEquals(2, $secondStory->order);
 
         // Assert MapLocation was created and synchronized
         $this->assertNotNull($object->mapLocation);
@@ -185,10 +183,10 @@ class AdminTest extends TestCase
 
         $responseUpdate = $this->actingAs($this->adminUser)
             ->put(route('admin.cultural-objects.update', $object->id), [
-                'name' => 'Pura Luhur Updated',
+                'name' => ['en' => 'Pura Luhur Updated', 'id' => 'Pura Luhur Updated'],
                 'category' => 'house',
-                'short_description' => 'Jantung spiritual Pura Luhur Updated',
-                'description' => 'Tempat pemujaan suci terupdate.',
+                'short_description' => ['en' => 'Spiritual heart Updated', 'id' => 'Jantung spiritual Pura Luhur Updated'],
+                'description' => ['en' => 'Sacred temple updated.', 'id' => 'Tempat pemujaan suci terupdate.'],
                 'latitude' => -8.555,
                 'longitude' => 115.666,
                 'ar_marker_id' => 'MARKER_PURA_LUHUR_UPDATED',
@@ -204,24 +202,18 @@ class AdminTest extends TestCase
 
         $object->refresh();
         $this->assertEquals('Pura Luhur Updated', $object->name);
-        $this->assertEquals('Jantung spiritual Pura Luhur Updated', $object->short_description);
+        $this->assertEquals('Spiritual heart Updated', $object->short_description);
         Storage::disk('public')->assertExists($object->model_3d_path);
         Storage::disk('public')->assertExists($object->audio_narration_path);
         $this->assertCount(1, $object->historical_images);
         Storage::disk('public')->assertExists($object->historical_images[0]);
 
         // Assert Cultural Stories were updated/deleted
-        $this->assertDatabaseHas('cultural_stories', [
-            'cultural_object_id' => $object->id,
-            'title' => 'Kisah Sejarah Pura Updated',
-            'content' => 'Sejarah yang telah diperbarui.',
-            'story_type' => 'history',
-            'order' => 1,
-        ]);
-        $this->assertDatabaseMissing('cultural_stories', [
-            'cultural_object_id' => $object->id,
-            'title' => 'Filosofi Bangunan',
-        ]);
+        $this->assertCount(1, $object->stories);
+        $updatedStory = $object->stories->first();
+        $this->assertEquals('Kisah Sejarah Pura Updated', $updatedStory->title);
+        $this->assertEquals('history', $updatedStory->story_type);
+        $this->assertEquals(1, $updatedStory->order);
 
         // Assert MapLocation was updated and synchronized
         $this->assertNotNull($object->mapLocation);
@@ -264,9 +256,9 @@ class AdminTest extends TestCase
         // 1. Create valid facility
         $responseCreateSuccess = $this->actingAs($this->adminUser)
             ->post(route('admin.facilities.store'), [
-                'name' => 'Toilet Utama',
+                'name' => ['en' => 'Main Toilet', 'id' => 'Toilet Utama'],
                 'type' => 'toilet',
-                'description' => 'Toilet umum bersih',
+                'description' => ['en' => 'Clean public toilet', 'id' => 'Toilet umum bersih'],
                 'is_active' => '1',
                 'latitude' => -8.123,
                 'longitude' => 115.123,
@@ -275,12 +267,12 @@ class AdminTest extends TestCase
             ]);
         $responseCreateSuccess->assertRedirect();
 
-        $facility = Facility::where('name', 'Toilet Utama')->firstOrFail();
+        $facility = Facility::where('name->en', 'Main Toilet')->firstOrFail();
         $this->assertEquals('toilet', $facility->type);
 
         // Assert MapLocation was created and synchronized
         $this->assertNotNull($facility->mapLocation);
-        $this->assertEquals('Toilet Utama', $facility->mapLocation->name);
+        $this->assertEquals('Main Toilet', $facility->mapLocation->name);
         $this->assertEquals(-8.123, $facility->mapLocation->latitude);
         $this->assertEquals(115.123, $facility->mapLocation->longitude);
         $this->assertTrue($facility->mapLocation->is_accessible);
@@ -288,9 +280,9 @@ class AdminTest extends TestCase
         // 2. Update facility
         $responseUpdate = $this->actingAs($this->adminUser)
             ->put(route('admin.facilities.update', $facility->id), [
-                'name' => 'Toilet Utama Updated',
+                'name' => ['en' => 'Main Toilet Updated', 'id' => 'Toilet Utama Updated'],
                 'type' => 'toilet',
-                'description' => 'Toilet umum bersih sekali',
+                'description' => ['en' => 'Very clean public toilet', 'id' => 'Toilet umum bersih sekali'],
                 'is_active' => '1',
                 'latitude' => -8.456,
                 'longitude' => 115.456,
@@ -300,12 +292,12 @@ class AdminTest extends TestCase
         $responseUpdate->assertRedirect();
 
         $facility->refresh();
-        $this->assertEquals('Toilet Utama Updated', $facility->name);
-        $this->assertEquals('Toilet umum bersih sekali', $facility->description);
+        $this->assertEquals('Main Toilet Updated', $facility->name);
+        $this->assertEquals('Very clean public toilet', $facility->description);
 
         // Assert MapLocation was updated and synchronized
         $this->assertNotNull($facility->mapLocation);
-        $this->assertEquals('Toilet Utama Updated', $facility->mapLocation->name);
+        $this->assertEquals('Main Toilet Updated', $facility->mapLocation->name);
         $this->assertEquals(-8.456, $facility->mapLocation->latitude);
         $this->assertEquals(115.456, $facility->mapLocation->longitude);
 
@@ -339,10 +331,10 @@ class AdminTest extends TestCase
         // 1. Create valid profile
         $responseCreateSuccess = $this->actingAs($this->adminUser)
             ->post(route('admin.umkm.profile.store'), [
-                'business_name' => 'Warung Luwak',
+                'business_name' => ['en' => 'Warung Luwak', 'id' => 'Warung Luwak'],
                 'owner_name' => 'Made Luwak',
                 'category' => 'culinary',
-                'description' => 'Kopi luwak asli',
+                'description' => ['en' => 'Original civet coffee', 'id' => 'Kopi luwak asli'],
                 'rating' => 4.8,
                 'is_active' => '1',
                 'latitude' => -8.777,
@@ -352,7 +344,7 @@ class AdminTest extends TestCase
             ]);
         $responseCreateSuccess->assertRedirect();
 
-        $profile = UmkmProfile::where('business_name', 'Warung Luwak')->firstOrFail();
+        $profile = UmkmProfile::where('business_name->en', 'Warung Luwak')->firstOrFail();
         $this->assertEquals('Made Luwak', $profile->owner_name);
 
         // Assert MapLocation was created and synchronized
@@ -365,10 +357,10 @@ class AdminTest extends TestCase
         // 2. Update profile
         $responseUpdate = $this->actingAs($this->adminUser)
             ->put(route('admin.umkm.profile.update', $profile->id), [
-                'business_name' => 'Warung Luwak Premium',
+                'business_name' => ['en' => 'Warung Luwak Premium', 'id' => 'Warung Luwak Premium'],
                 'owner_name' => 'Made Luwak',
                 'category' => 'culinary',
-                'description' => 'Kopi luwak premium',
+                'description' => ['en' => 'Premium civet coffee', 'id' => 'Kopi luwak premium'],
                 'rating' => 4.9,
                 'is_active' => '1',
                 'latitude' => -8.888,
@@ -380,7 +372,7 @@ class AdminTest extends TestCase
 
         $profile->refresh();
         $this->assertEquals('Warung Luwak Premium', $profile->business_name);
-        $this->assertEquals('Kopi luwak premium', $profile->description);
+        $this->assertEquals('Premium civet coffee', $profile->description);
 
         // Assert MapLocation was updated and synchronized
         $this->assertNotNull($profile->mapLocation);
@@ -416,7 +408,7 @@ class AdminTest extends TestCase
         $profile = UmkmProfile::create([
             'user_id' => $this->adminUser->id,
             'owner_name' => 'Wayan',
-            'business_name' => 'Kopi Wayan',
+            'business_name' => ['en' => 'Kopi Wayan', 'id' => 'Kopi Wayan'],
             'slug' => 'kopi-wayan',
             'category' => 'culinary',
             'ar_marker_id' => 'UMKM_TEST_MARKER',
@@ -443,8 +435,8 @@ class AdminTest extends TestCase
         $responseCreateSuccess = $this->actingAs($this->adminUser)
             ->post(route('admin.umkm.store'), [
                 'umkm_profile_id' => $profile->id,
-                'name' => 'Loloh Cemcem Spesial',
-                'description' => 'Minuman herbal daun cemcem khas Penglipuran.',
+                'name' => ['en' => 'Loloh Cemcem Spesial', 'id' => 'Loloh Cemcem Spesial'],
+                'description' => ['en' => 'Penglipuran herbal cemcem drink.', 'id' => 'Minuman herbal daun cemcem khas Penglipuran.'],
                 'price' => 5000,
                 'stock' => 100,
                 'unit' => 'botol',
@@ -454,7 +446,7 @@ class AdminTest extends TestCase
             ]);
         $responseCreateSuccess->assertRedirect();
 
-        $product = UmkmProduct::where('name', 'Loloh Cemcem Spesial')->firstOrFail();
+        $product = UmkmProduct::where('name->en', 'Loloh Cemcem Spesial')->firstOrFail();
         $this->assertCount(2, $product->images);
         foreach ($product->images as $path) {
             Storage::disk('public')->assertExists($path);
@@ -467,8 +459,8 @@ class AdminTest extends TestCase
         $responseUpdate = $this->actingAs($this->adminUser)
             ->put(route('admin.umkm.update', $product->id), [
                 'umkm_profile_id' => $profile->id,
-                'name' => 'Loloh Cemcem Premium',
-                'description' => 'Minuman herbal premium.',
+                'name' => ['en' => 'Loloh Cemcem Premium', 'id' => 'Loloh Cemcem Premium'],
+                'description' => ['en' => 'Premium herbal drink.', 'id' => 'Minuman herbal premium.'],
                 'price' => 7500,
                 'stock' => 50,
                 'unit' => 'botol',
@@ -504,13 +496,13 @@ class AdminTest extends TestCase
         // 1. Create with invalid duration (end date before start date)
         $responseCreateInvalid = $this->actingAs($this->adminUser)
             ->post(route('admin.events.store'), [
-                'name' => 'Festival Budaya',
+                'name' => ['en' => 'Cultural Festival', 'id' => 'Festival Budaya'],
                 'category' => 'Budaya',
                 'start_date' => '2026-06-10',
                 'start_time' => '10:00',
                 'end_date' => '2026-06-09',
                 'end_time' => '12:00',
-                'location_name' => 'Balai Banjar',
+                'location_name' => ['en' => 'Banjar Hall', 'id' => 'Balai Banjar'],
                 'price' => 0,
             ]);
         $responseCreateInvalid->assertSessionHasErrors(['end_date']);
@@ -518,23 +510,20 @@ class AdminTest extends TestCase
         // 2. Create valid
         $responseCreateSuccess = $this->actingAs($this->adminUser)
             ->post(route('admin.events.store'), [
-                'name' => 'Festival Budaya Valid',
+                'name' => ['en' => 'Valid Cultural Festival', 'id' => 'Festival Budaya Valid'],
                 'category' => 'Budaya',
                 'start_date' => '2026-06-10',
                 'start_time' => '10:00',
                 'end_date' => '2026-06-12',
                 'end_time' => '18:00',
-                'location_name' => 'Balai Banjar',
+                'location_name' => ['en' => 'Banjar Hall', 'id' => 'Balai Banjar'],
                 'is_free' => '1',
                 'max_participants' => 200,
             ]);
         $responseCreateSuccess->assertRedirect();
-        $this->assertDatabaseHas('events', [
-            'name' => 'Festival Budaya Valid',
-            'location_name' => 'Balai Banjar',
-        ]);
 
-        $event = Event::where('name', 'Festival Budaya Valid')->firstOrFail();
+        $event = Event::where('name->en', 'Valid Cultural Festival')->firstOrFail();
+        $this->assertEquals('Banjar Hall', $event->location_name);
 
         // 3. Edit view renders
         $responseEdit = $this->actingAs($this->adminUser)
@@ -544,22 +533,20 @@ class AdminTest extends TestCase
         // 4. Update event
         $responseUpdate = $this->actingAs($this->adminUser)
             ->put(route('admin.events.update', $event->id), [
-                'name' => 'Festival Budaya Updated',
+                'name' => ['en' => 'Cultural Festival Updated', 'id' => 'Festival Budaya Updated'],
                 'category' => 'Budaya',
                 'start_date' => '2026-06-10',
                 'start_time' => '10:00',
                 'end_date' => '2026-06-13',
                 'end_time' => '18:00',
-                'location_name' => 'Halaman Pura',
+                'location_name' => ['en' => 'Temple Grounds', 'id' => 'Halaman Pura'],
                 'is_free' => '1',
                 'max_participants' => 300,
             ]);
         $responseUpdate->assertRedirect();
-        $this->assertDatabaseHas('events', [
-            'id' => $event->id,
-            'name' => 'Festival Budaya Updated',
-            'location_name' => 'Halaman Pura',
-        ]);
+        $event->refresh();
+        $this->assertEquals('Cultural Festival Updated', $event->name);
+        $this->assertEquals('Temple Grounds', $event->location_name);
 
         // 5. Delete event
         $responseDelete = $this->actingAs($this->adminUser)
@@ -587,15 +574,15 @@ class AdminTest extends TestCase
 
         // Create dummy attraction points
         $cultural = CulturalObject::create([
-            'name' => 'Pura Luhur Test',
+            'name' => ['en' => 'Pura Luhur Test', 'id' => 'Pura Luhur Test'],
             'slug' => 'pura-luhur-test',
             'category' => 'temple',
-            'description' => 'Tempat pemujaan.',
+            'description' => ['en' => 'A place of worship.', 'id' => 'Tempat pemujaan.'],
             'ar_marker_id' => 'MARKER_PURA_TEST',
         ]);
 
         MapLocation::create([
-            'name' => $cultural->name,
+            'name' => 'Pura Luhur Test',
             'category' => 'cultural',
             'locationable_type' => CulturalObject::class,
             'locationable_id' => $cultural->id,
@@ -607,8 +594,8 @@ class AdminTest extends TestCase
         // 1. Create valid route with points
         $responseCreate = $this->actingAs($this->adminUser)
             ->post(route('admin.tour-routes.store'), [
-                'name' => 'Rute Edukasi Alam',
-                'description' => 'Mengeksplorasi hutan bambu dan persawahan.',
+                'name' => ['en' => 'Nature Education Route', 'id' => 'Rute Edukasi Alam'],
+                'description' => ['en' => 'Exploring bamboo forest and rice fields.', 'id' => 'Mengeksplorasi hutan bambu dan persawahan.'],
                 'estimated_duration_minutes' => 60,
                 'distance_meters' => 1500,
                 'difficulty' => 'easy',
@@ -617,17 +604,13 @@ class AdminTest extends TestCase
                         'locationable_type' => CulturalObject::class,
                         'locationable_id' => $cultural->id,
                         'estimated_visit_minutes' => 20,
-                        'storytelling_content' => 'Ini adalah pura penataran agung.',
+                        'storytelling_content' => ['en' => 'This is the great temple.', 'id' => 'Ini adalah pura penataran agung.'],
                     ],
                 ],
             ]);
         $responseCreate->assertRedirect();
-        $this->assertDatabaseHas('tour_routes', [
-            'name' => 'Rute Edukasi Alam',
-            'difficulty' => 'easy',
-        ]);
 
-        $route = TourRoute::where('name', 'Rute Edukasi Alam')->firstOrFail();
+        $route = TourRoute::where('name->en', 'Nature Education Route')->firstOrFail();
         $this->assertCount(1, $route->routePoints);
         $this->assertEquals(20, $route->routePoints->first()->estimated_visit_minutes);
 
@@ -640,8 +623,8 @@ class AdminTest extends TestCase
         // 2. Update route with new details and points
         $responseUpdate = $this->actingAs($this->adminUser)
             ->put(route('admin.tour-routes.update', $route->id), [
-                'name' => 'Rute Edukasi Alam Mod',
-                'description' => 'Jalur trekking hutan bambu.',
+                'name' => ['en' => 'Nature Education Route Mod', 'id' => 'Rute Edukasi Alam Mod'],
+                'description' => ['en' => 'Bamboo forest trekking path.', 'id' => 'Jalur trekking hutan bambu.'],
                 'estimated_duration_minutes' => 90,
                 'distance_meters' => 2000,
                 'difficulty' => 'moderate',
@@ -651,21 +634,17 @@ class AdminTest extends TestCase
                         'locationable_type' => CulturalObject::class,
                         'locationable_id' => $cultural->id,
                         'estimated_visit_minutes' => 30,
-                        'storytelling_content' => 'Narasi terupdate.',
+                        'storytelling_content' => ['en' => 'Updated narrative.', 'id' => 'Narasi terupdate.'],
                     ],
                 ],
             ]);
         $responseUpdate->assertRedirect();
-        $this->assertDatabaseHas('tour_routes', [
-            'id' => $route->id,
-            'name' => 'Rute Edukasi Alam Mod',
-            'difficulty' => 'moderate',
-        ]);
 
         $route->refresh();
+        $this->assertEquals('Nature Education Route Mod', $route->name);
         $this->assertCount(1, $route->routePoints);
         $this->assertEquals(30, $route->routePoints->first()->estimated_visit_minutes);
-        $this->assertEquals('Narasi terupdate.', $route->routePoints->first()->storytelling_content);
+        $this->assertEquals('Updated narrative.', $route->routePoints->first()->storytelling_content);
 
         // 3. Toggle active
         $this->assertTrue($route->is_active);
@@ -703,19 +682,19 @@ class AdminTest extends TestCase
 
         $responseCreate = $this->actingAs($this->adminUser)
             ->post(route('admin.packages.store'), [
-                'name' => 'Paket Budaya Bali Kuno',
-                'description' => 'Belajar kerajinan tenun dan Loloh Cemcem.',
+                'name' => ['en' => 'Ancient Balinese Culture Package', 'id' => 'Paket Budaya Bali Kuno'],
+                'description' => ['en' => 'Learn weaving and Loloh Cemcem.', 'id' => 'Belajar kerajinan tenun dan Loloh Cemcem.'],
                 'price' => 150000,
                 'duration_hours' => 4.5,
                 'max_capacity' => 15,
                 'min_party_size' => 2,
-                'inclusions' => ['Pemandu lokal', 'Welcome drink', 'Materi tenun'],
+                'inclusions' => ['en' => "Local guide\nWelcome drink\nWeaving materials", 'id' => "Pemandu lokal\nWelcome drink\nMateri tenun"],
                 'is_active' => true,
                 'images' => [$pkgImg1, $pkgImg2],
             ]);
         $responseCreate->assertRedirect();
 
-        $package = TourPackage::where('name', 'Paket Budaya Bali Kuno')->firstOrFail();
+        $package = TourPackage::where('name->en', 'Ancient Balinese Culture Package')->firstOrFail();
         $this->assertCount(2, $package->images);
         foreach ($package->images as $path) {
             Storage::disk('public')->assertExists($path);
@@ -731,20 +710,20 @@ class AdminTest extends TestCase
 
         $responseUpdate = $this->actingAs($this->adminUser)
             ->put(route('admin.packages.update', $package->id), [
-                'name' => 'Paket Budaya Bali Kuno Mod',
-                'description' => 'Paket terupdate.',
+                'name' => ['en' => 'Balinese Culture Package Mod', 'id' => 'Paket Budaya Bali Kuno Mod'],
+                'description' => ['en' => 'Updated package.', 'id' => 'Paket terupdate.'],
                 'price' => 180000,
                 'duration_hours' => 5.0,
                 'max_capacity' => 20,
                 'min_party_size' => 1,
-                'inclusions' => ['Pemandu lokal', 'Welcome drink'],
+                'inclusions' => ['en' => "Local guide\nWelcome drink", 'id' => "Pemandu lokal\nWelcome drink"],
                 'is_active' => true,
                 'images' => [$newPkgImg],
             ]);
         $responseUpdate->assertRedirect();
 
         $package->refresh();
-        $this->assertEquals('Paket Budaya Bali Kuno Mod', $package->name);
+        $this->assertEquals('Balinese Culture Package Mod', $package->name);
         $this->assertCount(1, $package->images);
         Storage::disk('public')->assertExists($package->images[0]);
 
