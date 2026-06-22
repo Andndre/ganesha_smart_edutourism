@@ -18,6 +18,12 @@
                     d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
             </svg>
         </button>
+
+        <!-- Custom Context Menu -->
+        <div id="map-context-menu" class="hidden absolute z-2000 bg-white rounded-lg shadow-lg border border-gray-100 py-1 text-sm min-w-[150px] divide-y divide-gray-100 overflow-hidden">
+            <div class="px-4 py-2 text-xs font-bold text-gray-500 bg-gray-50" id="context-menu-title">Nama Zona</div>
+            <button id="btn-context-edit" class="w-full text-left px-4 py-2 hover:bg-gray-50 text-gray-700 font-medium transition-colors mt-1">Edit Zona</button>
+        </div>
     </div>
 </div>
 

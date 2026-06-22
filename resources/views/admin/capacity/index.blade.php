@@ -277,6 +277,36 @@
 
 
         // Render existing zones on map
+        // Sort so 'desa_penglipuran' is added first (bottom layer) so inner zones are clickable
+        zonesData.sort((a, b) => {
+            if (a.zone_identifier === 'desa_penglipuran') return -1;
+            if (b.zone_identifier === 'desa_penglipuran') return 1;
+            return 0;
+        });
+
+        const contextMenu = document.getElementById('map-context-menu');
+        const btnContextEdit = document.getElementById('btn-context-edit');
+        let selectedZoneForEdit = null;
+
+        // Hide context menu when clicking anywhere else
+        document.addEventListener('click', function(e) {
+            if (!contextMenu.contains(e.target)) {
+                contextMenu.classList.add('hidden');
+            }
+        });
+
+        // Hide context menu on map drag/zoom
+        map.on('movestart zoomstart', function() {
+            contextMenu.classList.add('hidden');
+        });
+
+        btnContextEdit.addEventListener('click', function() {
+            if (selectedZoneForEdit) {
+                openThresholdModal(selectedZoneForEdit);
+                contextMenu.classList.add('hidden');
+            }
+        });
+
         zonesData.forEach(zone => {
             if (zone.polygon_coordinates && Array.isArray(zone.polygon_coordinates)) {
                 const latlngs = zone.polygon_coordinates.map(p => [p.lat, p.lng]);
@@ -294,9 +324,19 @@
 
                 polygon.bindPopup(`<b>${zone.name}</b><br>${zone.current_count} / ${zone.max_capacity} orang`);
                 
-                polygon.on('click', function(e) {
+                polygon.on('contextmenu', function(e) {
                     L.DomEvent.stopPropagation(e);
-                    openThresholdModal(zone);
+                    
+                    // Set title
+                    document.getElementById('context-menu-title').innerText = zone.name;
+
+                    // Show custom context menu at mouse position
+                    const containerPoint = map.mouseEventToContainerPoint(e.originalEvent);
+                    contextMenu.style.left = containerPoint.x + 'px';
+                    contextMenu.style.top = containerPoint.y + 'px';
+                    contextMenu.classList.remove('hidden');
+                    
+                    selectedZoneForEdit = zone;
                 });
             }
         });
