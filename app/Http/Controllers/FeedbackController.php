@@ -11,6 +11,11 @@ use Illuminate\View\View;
 
 class FeedbackController extends Controller
 {
+    public function create(): View
+    {
+        return view('user.feedback.create');
+    }
+
     public function store(Request $request): JsonResponse|RedirectResponse
     {
         $validated = $request->validate([

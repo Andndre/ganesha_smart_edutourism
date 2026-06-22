@@ -6,7 +6,7 @@ use App\Http\Controllers\Admin\CulturalObjectController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\FacilityController;
-use App\Http\Controllers\Admin\FeedbackController;
+use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\MapManagerController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\ReportController;
@@ -23,6 +23,8 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CulturalController;
 use App\Http\Controllers\EventController as PublicEventController;
 use App\Http\Controllers\ExploreController;
+use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\Owner\OwnerProductController;
@@ -43,9 +45,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
     Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
-    Route::get('/forgot-password', function () {
-        return view('auth.login');
-    })->name('forgot-password');
+    Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('forgot-password');
 });
 
 // Public Pages (Guest & Auth)
@@ -70,9 +70,7 @@ Route::middleware('redirect.admin')->group(function () {
     Route::post('/umkm/recommend', [UmkmCatalogController::class, 'recommend'])->name('umkm.recommend');
     Route::get('/umkm/recommended/{id}', [UmkmCatalogController::class, 'recommended'])->name('umkm.recommended');
     Route::get('/umkm/multi-route', [UmkmCatalogController::class, 'multiRecommended'])->name('umkm.multi_recommended');
-    Route::get('/umkm/product/{id}', function () {
-        return view('user.umkm.show');
-    })->name('umkm-product');
+    Route::get('/umkm/product/{id}', [UmkmCatalogController::class, 'show'])->name('umkm-product');
 
     // Cultural Objects
     Route::get('/cultural', [CulturalController::class, 'index'])->name('cultural-objects');
@@ -103,39 +101,31 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('redirect.admin')->group(function () {
         // Feedback (Requires login)
-        Route::get('/feedback', function () {
-            return view('user.feedback.create');
-        })->name('feedback');
+        Route::get('/feedback', [FeedbackController::class, 'create'])->name('feedback');
 
-        Route::get('/feedback/user', [\App\Http\Controllers\FeedbackController::class, 'index'])->name('feedback.index');
-        Route::post('/feedback', [\App\Http\Controllers\FeedbackController::class, 'store'])->name('feedback.store');
-        Route::get('/feedback/{feedback}', [\App\Http\Controllers\FeedbackController::class, 'show'])->name('feedback.show');
-        Route::get('/feedback/{feedback}/edit', [\App\Http\Controllers\FeedbackController::class, 'edit'])->name('feedback.edit');
-        Route::put('/feedback/{feedback}', [\App\Http\Controllers\FeedbackController::class, 'update'])->name('feedback.update');
-        Route::get('/feedback/thank-you/{feedback}', [\App\Http\Controllers\FeedbackController::class, 'thankYou'])->name('feedback.thank-you');
+        Route::get('/feedback/user', [FeedbackController::class, 'index'])->name('feedback.index');
+        Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+        Route::get('/feedback/{feedback}', [FeedbackController::class, 'show'])->name('feedback.show');
+        Route::get('/feedback/{feedback}/edit', [FeedbackController::class, 'edit'])->name('feedback.edit');
+        Route::put('/feedback/{feedback}', [FeedbackController::class, 'update'])->name('feedback.update');
+        Route::get('/feedback/thank-you/{feedback}', [FeedbackController::class, 'thankYou'])->name('feedback.thank-you');
 
         // Tour Package Booking
         Route::get('/tour-package/{id}/book', [BookingController::class, 'checkout'])->name('tour-package.book');
         Route::post('/tour-package/{id}/process', [BookingController::class, 'process'])->name('tour-package.process');
 
         // Profile & E-Ticket
-        Route::get('/profile', function () {
-            return view('user.profile.index');
-        })->name('profile');
+        Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
         Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
         Route::get('/profile/bookings', [BookingController::class, 'index'])->name('bookings');
-        Route::get('/profile/favorites', [\App\Http\Controllers\FavoriteController::class, 'index'])->name('favorites');
-        Route::post('/favorites/toggle', [\App\Http\Controllers\FavoriteController::class, 'toggle'])->name('favorites.toggle');
-        Route::get('/profile/visited', function () {
-            return view('user.profile.visited');
-        })->name('visited');
+        Route::get('/profile/favorites', [FavoriteController::class, 'index'])->name('favorites');
+        Route::post('/favorites/toggle', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+        Route::get('/profile/visited', [ProfileController::class, 'visited'])->name('visited');
         Route::get('/profile/settings', [ProfileController::class, 'edit'])->name('settings');
-        Route::get('/profile/help', function () {
-            return view('home');
-        })->name('help');
+        Route::get('/profile/help', [ProfileController::class, 'help'])->name('help');
     });
 });
 
@@ -240,10 +230,10 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::delete('/packages/{id}', [PackageController::class, 'destroy'])->name('admin.packages.destroy');
 
     // Feedback Routes
-    Route::get('/feedback', [FeedbackController::class, 'index'])->name('admin.feedback');
-    Route::post('/feedback/{id}/reply', [FeedbackController::class, 'reply'])->name('admin.feedback.reply');
-    Route::patch('/feedback/{id}/toggle-public', [FeedbackController::class, 'togglePublic'])->name('admin.feedback.toggle');
-    Route::delete('/feedback/{id}', [FeedbackController::class, 'destroy'])->name('admin.feedback.destroy');
+    Route::get('/feedback', [AdminFeedbackController::class, 'index'])->name('admin.feedback');
+    Route::post('/feedback/{id}/reply', [AdminFeedbackController::class, 'reply'])->name('admin.feedback.reply');
+    Route::patch('/feedback/{id}/toggle-public', [AdminFeedbackController::class, 'togglePublic'])->name('admin.feedback.toggle');
+    Route::delete('/feedback/{id}', [AdminFeedbackController::class, 'destroy'])->name('admin.feedback.destroy');
 
     // Report Routes
     Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports');
