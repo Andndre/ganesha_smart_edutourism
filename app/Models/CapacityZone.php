@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'zone_identifier', 'latitude', 'longitude', 'polygon_coordinates', 'max_capacity', 'warning_threshold', 'critical_threshold', 'current_count', 'is_active'])]
+#[Fillable(['name', 'zone_identifier', 'polygon_coordinates', 'max_capacity', 'warning_threshold', 'critical_threshold', 'current_count', 'is_active'])]
 class CapacityZone extends Model
 {
     use HasFactory;
