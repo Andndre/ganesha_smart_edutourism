@@ -14,6 +14,7 @@
         @method('PUT')
         
         <input type="hidden" name="rating" id="rating-value" value="{{ $feedback->rating }}">
+        @error('rating')<p class="mb-2 text-xs text-red-500">{{ $message }}</p>@enderror
 
         <!-- Rating Card -->
         <div class="mb-6 flex flex-col items-center rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
@@ -41,6 +42,7 @@
             <textarea name="comment" rows="5"
                 class="focus:border-primary focus:ring-primary w-full resize-none rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
                 placeholder="Ceritakan pengalaman Anda...">{{ $feedback->comment }}</textarea>
+            @error('comment')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
         </div>
 
         <!-- Existing Photos -->
@@ -61,6 +63,7 @@
         <div class="mb-8">
             <label class="text-charcoal mb-2 block text-sm font-bold">Tambah Foto Baru (Opsional, Maks. 5)</label>
             <input type="file" name="photos[]" accept="image/*" multiple class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+            @error('photos.*')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
         </div>
 
         <!-- Submit -->
@@ -98,6 +101,15 @@
                     ratingText.classList.remove('opacity-0');
                 }
             });
+        });
+
+        document.querySelector('input[name="photos[]"]')?.addEventListener('change', function() {
+            const maxSize = 2 * 1024 * 1024;
+            const oversized = Array.from(this.files || []).find(f => f.size > maxSize);
+            if (oversized) {
+                Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 2MB per foto.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+                this.value = '';
+            }
         });
     })();
 </script>

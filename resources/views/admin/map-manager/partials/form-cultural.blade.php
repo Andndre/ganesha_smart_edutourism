@@ -126,7 +126,8 @@
         <label class="mb-1 block text-sm font-semibold text-gray-700">Foto Sejarah</label>
         <span class="mb-2 block text-xs text-gray-500">Dapat memilih beberapa file gambar sekaligus</span>
         <input type="file" name="historical_images[]" multiple accept="image/*"
-            class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
+            class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold"
+            onchange="var maxSize=5*1024*1024;var oversized=Array.from(this.files||[]).find(function(f){return f.size>maxSize});if(oversized){Swal.fire({title:'Ukuran File Terlalu Besar',text:'Maksimal 5MB per gambar.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value=''}">
         <div id="current-images" class="mt-2 flex flex-wrap gap-1"></div>
     </div>
 

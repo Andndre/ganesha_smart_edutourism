@@ -180,8 +180,15 @@
             const photoInput = document.getElementById('photo-input');
             photoInput.addEventListener('change', function(e) {
                 const files = Array.from(e.target.files);
+                const maxSize = 2 * 1024 * 1024;
+                const oversized = files.find(f => f.size > maxSize);
+                if (oversized) {
+                    Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 2MB per foto.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+                    photoInput.value = '';
+                    return;
+                }
                 if (selectedFiles.length + files.length > 5) {
-                    alert('Maksimal 5 foto');
+                    Swal.fire({ title: 'Maksimal 5 Foto', text: 'Anda hanya dapat mengunggah maksimal 5 foto.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
                     return;
                 }
                 selectedFiles = selectedFiles.concat(files);
@@ -221,7 +228,7 @@
             const comment = document.getElementById('comment-textarea').value;
 
             if (rating === '0') {
-                alert('Silakan pilih rating terlebih dahulu');
+                Swal.fire({ title: 'Rating Belum Dipilih', text: 'Silakan pilih rating terlebih dahulu.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
                 return;
             }
 
@@ -251,10 +258,10 @@
                 } else {
                     const err = await res.json();
                     const msg = err.message || Object.values(err.errors || {}).flat().join(', ') || 'Terjadi kesalahan.';
-                    alert(msg);
+                    Swal.fire({ title: 'Gagal', text: msg, icon: 'error', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
                 }
             } catch (e) {
-                alert('Koneksi terputus.');
+                Swal.fire({ title: 'Koneksi Terputus', text: 'Periksa koneksi internet Anda dan coba lagi.', icon: 'error', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
             }
         }
     </script>

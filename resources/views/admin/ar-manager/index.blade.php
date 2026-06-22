@@ -221,6 +221,7 @@
             modelModalTitle.innerText = "Tambah Model 3D";
             modelForm.action = "{{ route('admin.ar-manager.models.store') }}";
             modelMethodContainer.innerHTML = "";
+            document.getElementById('model-field-id').value = "";
 
             document.getElementById('model-field-name').value = "";
             document.getElementById('model-field-marker-id').value = "";
@@ -248,6 +249,7 @@
             modelModalTitle.innerText = "Edit Model 3D";
             modelForm.action = `/admin/ar-manager/models/${model.id}`;
             modelMethodContainer.innerHTML = `@method('PUT')`;
+            document.getElementById('model-field-id').value = model.id;
 
             document.getElementById('model-field-name').value = model.name;
             document.getElementById('model-field-marker-id').value = model.ar_marker_id || "";
@@ -306,8 +308,33 @@
         }
 
         function previewModelGLB(input) {
+            const maxSize = 20 * 1024 * 1024;
             const file = input.files[0];
+            if (file && file.size > maxSize) {
+                Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 20MB.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+                input.value = '';
+                resetModal3DViewer();
+                return;
+            }
             if (file) setupModal3DViewer(URL.createObjectURL(file));
+        }
+
+        function previewModelUSDZ(input) {
+            const maxSize = 50 * 1024 * 1024;
+            const file = input.files[0];
+            if (file && file.size > maxSize) {
+                Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 50MB.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+                input.value = '';
+            }
+        }
+
+        function previewModelAudio(input) {
+            const maxSize = 10 * 1024 * 1024;
+            const file = input.files[0];
+            if (file && file.size > maxSize) {
+                Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 10MB.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+                input.value = '';
+            }
         }
 
         function setupModal3DViewer(src) {
@@ -614,4 +641,26 @@
             border-color: rgba(30, 81, 40, 0.2) !important;
         }
     </style>
+
+    @if($errors->any())
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            window.dispatchEvent(new CustomEvent('open-model-modal'));
+            @if(old('_method') == 'PUT')
+                modelForm.action = "/admin/ar-manager/models/{{ old('model_id') }}";
+                modelMethodContainer.innerHTML = `@method('PUT')`;
+                modelModalTitle.innerText = "Edit Model 3D";
+                document.getElementById('model-field-id').value = "{{ old('model_id') }}";
+            @else
+                modelForm.action = "{{ route('admin.ar-manager.models.store') }}";
+                modelMethodContainer.innerHTML = "";
+                modelModalTitle.innerText = "Tambah Model 3D";
+                document.getElementById('model-field-id').value = "";
+            @endif
+            document.getElementById('model-field-name').value = @json(old('name', ''));
+            document.getElementById('model-field-marker-id').value = @json(old('ar_marker_id', ''));
+            document.getElementById('model-field-desc').value = @json(old('description', ''));
+        });
+    </script>
+    @endif
 @endpush

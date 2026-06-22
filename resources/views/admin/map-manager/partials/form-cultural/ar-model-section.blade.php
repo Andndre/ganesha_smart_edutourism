@@ -67,21 +67,24 @@
                 class="text-warning">*</span></label>
         <span class="mb-1 block text-[10px] text-gray-400">Maksimal 20MB.</span>
         <input type="file" name="model_3d_file" accept=".glb"
-            class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
+            class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold"
+            onchange="var maxSize=20*1024*1024;var f=this.files[0];if(f&&f.size>maxSize){Swal.fire({title:'Ukuran File Terlalu Besar',text:'Maksimal 20MB untuk file GLB.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value=''}">
     </div>
 
     <div>
         <label class="mb-1 block text-xs font-semibold text-gray-700">Model 3D iOS (.usdz)</label>
         <span class="mb-1 block text-[10px] text-gray-400">Maksimal 50MB.</span>
         <input type="file" name="model_3d_usdz_file" accept=".usdz"
-            class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
+            class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold"
+            onchange="var maxSize=50*1024*1024;var f=this.files[0];if(f&&f.size>maxSize){Swal.fire({title:'Ukuran File Terlalu Besar',text:'Maksimal 50MB untuk file USDZ.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value=''}">
     </div>
 
     <div>
         <label class="mb-1 block text-xs font-semibold text-gray-700">Audio Narasi (.mp3)</label>
         <span class="mb-1 block text-[10px] text-gray-400">Maksimal 10MB.</span>
         <input type="file" name="audio_narration_file" accept="audio/*"
-            class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
+            class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold"
+            onchange="var maxSize=10*1024*1024;var f=this.files[0];if(f&&f.size>maxSize){Swal.fire({title:'Ukuran File Terlalu Besar',text:'Maksimal 10MB untuk file audio.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value=''}">
     </div>
 </div>
 

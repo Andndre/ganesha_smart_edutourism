@@ -7,6 +7,7 @@
         @csrf
         <div id="model-method-container"></div>
         <input type="hidden" name="ar_marker_patt_content" id="model-field-patt-content">
+        <input type="hidden" name="model_id" id="model-field-id" value="">
 
         <div class="space-y-4">
             <div>
@@ -15,6 +16,7 @@
                 <input type="text" name="name" id="model-field-name" required
                     placeholder="Contoh: Pura Penataran Model"
                     class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                @error('name')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
             </div>
 
             <div>
@@ -45,6 +47,7 @@
                         </div>
                     </div>
                 </div>
+                @error('ar_marker_id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
             </div>
 
             <div>
@@ -113,6 +116,7 @@
                     class="focus-within:border-primary focus-within:ring-primary/20 max-h-50 min-h-25 w-full overflow-y-auto rounded-b-xl border border-gray-200 bg-white p-4 text-sm focus-within:ring-1">
                 </div>
                 <textarea name="description" id="model-field-desc" class="hidden"></textarea>
+                @error('description')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
             </div>
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -123,6 +127,7 @@
                     <input type="file" name="model_3d_file" id="model-field-glb-file" accept=".glb"
                         onchange="previewModelGLB(this)"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:outline-none">
+                    @error('model_3d_file')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     <p id="edit-current-glb-container" class="mt-1.5 hidden text-[10px] text-gray-500">
                         File aktif: <span id="edit-current-glb-path"
                             class="rounded border border-gray-100 bg-gray-50 px-1 py-0.5 font-mono"></span>
@@ -132,7 +137,9 @@
                     <label class="block text-sm font-semibold text-gray-700">File iOS Model (.usdz)</label>
                     <span class="mb-1 block text-[10px] text-gray-400">Maksimal 50MB.</span>
                     <input type="file" name="model_3d_usdz_file" id="model-field-usdz-file" accept=".usdz"
+                        onchange="previewModelUSDZ(this)"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:outline-none">
+                    @error('model_3d_usdz_file')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     <p id="edit-current-usdz-container" class="mt-1.5 hidden text-[10px] text-gray-500">
                         File aktif: <span id="edit-current-usdz-path"
                             class="rounded border border-gray-100 bg-gray-50 px-1 py-0.5 font-mono"></span>
@@ -145,7 +152,9 @@
                 <span class="mb-1 block text-[10px] text-gray-400">Maksimal 10MB. Diputar otomatis di web viewer saat
                     model dimuat.</span>
                 <input type="file" name="audio_narration_file" id="model-field-audio-file" accept="audio/*"
+                    onchange="previewModelAudio(this)"
                     class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:outline-none">
+                @error('audio_narration_file')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 <p id="edit-current-audio-container" class="mt-1.5 hidden text-[10px] text-gray-500">
                     File aktif: <span id="edit-current-audio-path"
                         class="text-primary rounded border border-gray-100 bg-gray-50 px-1 py-0.5 font-mono font-semibold"></span>

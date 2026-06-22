@@ -7,6 +7,7 @@
     <form id="modal-threshold-form" method="POST">
         @csrf
         <input type="hidden" name="_method" value="PUT" id="form-method">
+        <input type="hidden" name="zone_id" id="field-zone-id" value="">
 
         <div class="space-y-4">
             <div>
@@ -14,6 +15,7 @@
                     Zona</label>
                 <input type="text" name="name" id="modal-name" required
                     class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
+                @error('name')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
             </div>
 
             <div id="identifier-group">
@@ -22,6 +24,7 @@
                     (unik)</label>
                 <input type="text" name="zone_identifier" id="modal-identifier"
                     class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
+                @error('zone_identifier')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
             </div>
 
             <div>
@@ -30,6 +33,7 @@
                     Maksimal</label>
                 <input type="number" name="max_capacity" id="modal-max-capacity" required min="1"
                     class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
+                @error('max_capacity')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
             </div>
 
             <div class="grid grid-cols-2 gap-4">
@@ -39,6 +43,7 @@
                     <input type="number" name="warning_threshold" id="modal-warning-threshold" required min="1"
                         max="100"
                         class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
+                    @error('warning_threshold')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label for="modal-critical-threshold"
@@ -46,6 +51,7 @@
                     <input type="number" name="critical_threshold" id="modal-critical-threshold" required
                         min="1" max="100"
                         class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
+                    @error('critical_threshold')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
 
@@ -78,3 +84,25 @@
         </div>
     </form>
 </x-modal>
+
+@if($errors->any())
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        window.dispatchEvent(new CustomEvent('open-threshold-modal'));
+        @if(old('_method') == 'PUT')
+            document.getElementById('modal-threshold-form').action = "/admin/capacity/{{ old('zone_id') }}/thresholds";
+            document.getElementById('form-method').value = "PUT";
+            document.getElementById('field-zone-id').value = "{{ old('zone_id') }}";
+        @else
+            document.getElementById('modal-threshold-form').action = "/admin/capacity";
+            document.getElementById('form-method').value = "POST";
+            document.getElementById('field-zone-id').value = "";
+        @endif
+        document.getElementById('modal-name').value = @json(old('name', ''));
+        document.getElementById('modal-identifier').value = @json(old('zone_identifier', ''));
+        document.getElementById('modal-max-capacity').value = @json(old('max_capacity', ''));
+        document.getElementById('modal-warning-threshold').value = @json(old('warning_threshold', ''));
+        document.getElementById('modal-critical-threshold').value = @json(old('critical_threshold', ''));
+    });
+</script>
+@endif
