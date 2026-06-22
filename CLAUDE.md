@@ -111,6 +111,11 @@ The application has **5 distinct user roles** with separate route prefixes and m
 - Webhook: `/api/midtrans/webhook` handles payment status updates
 - E-tickets emailed after successful payment via `ETicketMail`
 
+### Caching
+- **Laravel 13 Security Feature**: Due to Laravel 13's `serializable_classes` feature being disabled by default (`false`), you **must not** cache full Eloquent Models or Collections directly. This causes `__PHP_Incomplete_Class` errors upon unserialization.
+- **Correct Pattern**: Convert data to an array before caching using `->toArray()`. If you need to include accessors or relations, make sure to use `->append(['my_accessor'])` before `toArray()`.
+- **View Consumption**: Ensure that the Views consuming these cached variables treat them as arrays (e.g. `$item['name']` instead of `$item->name`) and use standard array helpers like `!empty($item)` instead of `->isNotEmpty()`.
+
 ### Rich Text Editing
 - **TipTap editor** (WYSIWYG) for cultural object descriptions
 - Loaded via ES Modules from `esm.sh` (no NPM dependency)

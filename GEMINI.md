@@ -137,6 +137,12 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `npm run build` or ask the user to run `npm run dev` or `composer run dev`.
 
+## Caching
+
+- **Laravel 13 Security Feature**: Due to Laravel 13's `serializable_classes` feature being disabled by default (`false`), you **must not** cache full Eloquent Models or Collections directly (which causes `__PHP_Incomplete_Class` errors upon unserialization).
+- **Correct Pattern**: Convert data to an array before caching using `->toArray()`. If you need to include accessors or relations, make sure to use `->append(['my_accessor'])` before `toArray()`.
+- **View Consumption**: Ensure that the Views consuming these cached variables treat them as arrays (e.g. `$item['name']` instead of `$item->name`) and use standard array helpers like `!empty($item)` instead of `->isNotEmpty()`.
+
 === pint/core rules ===
 
 # Laravel Pint Code Formatter
