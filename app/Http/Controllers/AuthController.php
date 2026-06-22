@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\View\View;
 
 class AuthController extends Controller
 {
@@ -54,6 +55,14 @@ class AuthController extends Controller
     public function showRegister()
     {
         return view('auth.register');
+    }
+
+    /**
+     * Show the forgot password form.
+     */
+    public function showForgotPassword(): View
+    {
+        return view('auth.login');
     }
 
     /**

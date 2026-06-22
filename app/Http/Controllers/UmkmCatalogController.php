@@ -7,6 +7,7 @@ use App\Models\UmkmProfile;
 use App\Services\UmkmRecommendationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\View\View;
 
 class UmkmCatalogController extends Controller
 {
@@ -72,5 +73,12 @@ class UmkmCatalogController extends Controller
         Session::reflash();
 
         return view('user.umkm.multi_recommended', compact('route'));
+    }
+
+    public function show($id): View
+    {
+        $umkm = UmkmProfile::with(['user', 'activeProducts.category', 'mapLocation'])->findOrFail($id);
+
+        return view('user.umkm.show', compact('umkm'));
     }
 }

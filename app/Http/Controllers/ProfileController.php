@@ -14,6 +14,14 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     /**
+     * Show the user's profile page.
+     */
+    public function show(): View
+    {
+        return view('user.profile.index');
+    }
+
+    /**
      * Show the profile edit form.
      */
     public function edit(Request $request): View
@@ -102,5 +110,21 @@ class ProfileController extends Controller
         $user->save();
 
         return redirect()->route('profile.edit')->with('success', 'Foto profil berhasil dihapus.');
+    }
+
+    /**
+     * Show the user's visited places page.
+     */
+    public function visited(): View
+    {
+        return view('user.profile.visited');
+    }
+
+    /**
+     * Show the help/FAQ page.
+     */
+    public function help(): View
+    {
+        return view('user.profile.help');
     }
 }
