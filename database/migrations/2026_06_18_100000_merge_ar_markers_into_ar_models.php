@@ -21,9 +21,9 @@ return new class extends Migration
         $markers = DB::table('ar_markers')->whereNotNull('ar_model_id')->get();
         foreach ($markers as $marker) {
             DB::table('ar_models')->where('id', $marker->ar_model_id)->update([
-                'ar_marker_id'       => $marker->ar_marker_id,
+                'ar_marker_id' => $marker->ar_marker_id,
                 'ar_marker_patt_path' => $marker->ar_marker_patt_path,
-                'map_location_id'    => $marker->map_location_id,
+                'map_location_id' => $marker->map_location_id,
             ]);
         }
 
@@ -48,12 +48,12 @@ return new class extends Migration
         $models = DB::table('ar_models')->whereNotNull('ar_marker_id')->get();
         foreach ($models as $model) {
             DB::table('ar_markers')->insert([
-                'ar_marker_id'       => $model->ar_marker_id,
+                'ar_marker_id' => $model->ar_marker_id,
                 'ar_marker_patt_path' => $model->ar_marker_patt_path,
-                'ar_model_id'        => $model->id,
-                'map_location_id'    => $model->map_location_id,
-                'created_at'         => now(),
-                'updated_at'         => now(),
+                'ar_model_id' => $model->id,
+                'map_location_id' => $model->map_location_id,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
 

@@ -22,18 +22,18 @@ class ARManagerController extends Controller
     public function storeModel(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name'                 => ['required', 'string', 'max:255'],
-            'description'          => ['nullable', 'string'],
-            'ar_marker_id'         => ['nullable', 'string', 'max:255', 'unique:ar_models,ar_marker_id'],
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'ar_marker_id' => ['nullable', 'string', 'max:255', 'unique:ar_models,ar_marker_id'],
             'ar_marker_patt_content' => ['nullable', 'string'],
-            'model_3d_file'        => ['required', 'file', 'max:20480'],
-            'model_3d_usdz_file'   => ['nullable', 'file', 'max:51200'],
+            'model_3d_file' => ['required', 'file', 'max:20480'],
+            'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
             'audio_narration_file' => ['nullable', 'file', 'max:10240'],
         ]);
 
         $modelData = [
-            'name'         => $validated['name'],
-            'description'  => $validated['description'] ?? null,
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
             'ar_marker_id' => $validated['ar_marker_id'] ?? null,
         ];
 
@@ -66,16 +66,16 @@ class ARManagerController extends Controller
         $model = ArModel::findOrFail($id);
 
         $validated = $request->validate([
-            'name'                 => ['required', 'string', 'max:255'],
-            'description'          => ['nullable', 'string'],
-            'ar_marker_id'         => ['nullable', 'string', 'max:255', 'unique:ar_models,ar_marker_id,'.$id],
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'ar_marker_id' => ['nullable', 'string', 'max:255', 'unique:ar_models,ar_marker_id,'.$id],
             'ar_marker_patt_content' => ['nullable', 'string'],
-            'model_3d_file'        => ['nullable', 'file', 'max:20480'],
-            'model_3d_usdz_file'   => ['nullable', 'file', 'max:51200'],
+            'model_3d_file' => ['nullable', 'file', 'max:20480'],
+            'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
             'audio_narration_file' => ['nullable', 'file', 'max:10240'],
         ]);
 
-        $model->name        = $validated['name'];
+        $model->name = $validated['name'];
         $model->description = $validated['description'] ?? null;
         $model->ar_marker_id = $validated['ar_marker_id'] ?? null;
 

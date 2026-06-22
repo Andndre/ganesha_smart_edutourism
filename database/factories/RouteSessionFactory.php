@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\RouteSession;
-use App\Models\User;
 use App\Models\TourRoute;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

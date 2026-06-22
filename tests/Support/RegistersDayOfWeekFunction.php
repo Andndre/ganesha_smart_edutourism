@@ -3,6 +3,7 @@
 namespace Tests\Support;
 
 use Illuminate\Support\Facades\DB;
+use PDO\Sqlite;
 
 trait RegistersDayOfWeekFunction
 {
@@ -15,7 +16,7 @@ trait RegistersDayOfWeekFunction
         $pdo = DB::connection()->getPdo();
 
         if (method_exists($pdo, 'createFunction')) {
-            /** @var \PDO\Sqlite $pdo */
+            /** @var Sqlite $pdo */
             $pdo->createFunction('DAYOFWEEK', $callback);
         } else {
             $pdo->sqliteCreateFunction('DAYOFWEEK', $callback);

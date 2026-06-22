@@ -10,10 +10,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-use App\Models\User;
-use App\Models\UserFavorite;
-use App\Models\UserVisit;
-
 #[Fillable(['name', 'slug', 'short_description', 'description', 'category', 'historical_images'])]
 class CulturalObject extends Model
 {

@@ -184,8 +184,8 @@ class SmartEdutourismController extends Controller
                             ->where('visitable_id', $locationable->id)
                             ->where('route_session_id', $session->id)
                             ->exists();
-                        
-                        if (!$alreadyVisited) {
+
+                        if (! $alreadyVisited) {
                             UserVisit::create([
                                 'user_id' => $userId,
                                 'visitable_type' => $locationable->getMorphClass(),
