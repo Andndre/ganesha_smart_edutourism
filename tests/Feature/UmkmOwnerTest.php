@@ -70,8 +70,6 @@ class UmkmOwnerTest extends TestCase
         $response = $this->actingAs($owner)->put('/owner/profile', [
             'business_name' => 'Wayan Coffee & Craft',
             'description' => 'Fine authentic Balinese coffee.',
-            'category' => 'culinary',
-            'accepts_in_app_payment' => 1,
         ]);
 
         $response->assertRedirect('/owner/profile');
@@ -80,8 +78,6 @@ class UmkmOwnerTest extends TestCase
         $this->assertDatabaseHas('umkm_profiles', [
             'user_id' => $owner->id,
             'business_name' => 'Wayan Coffee & Craft',
-            'category' => 'culinary',
-            'accepts_in_app_payment' => true,
         ]);
     }
 
@@ -99,7 +95,6 @@ class UmkmOwnerTest extends TestCase
             'user_id' => $owner->id,
             'owner_name' => $owner->name,
             'business_name' => 'Wayan Shop',
-            'category' => 'craft',
             'slug' => 'wayan-shop',
             'ar_marker_id' => 'UMKM_TEST01',
         ]);
@@ -143,7 +138,6 @@ class UmkmOwnerTest extends TestCase
             'user_id' => $owner->id,
             'owner_name' => $owner->name,
             'business_name' => 'Wayan Shop',
-            'category' => 'craft',
             'slug' => 'wayan-shop',
             'ar_marker_id' => 'UMKM_TEST01',
         ]);

@@ -75,15 +75,9 @@ class UmkmController extends Controller
             'stock' => ['nullable', 'integer', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
             'description' => ['nullable', 'string'],
-            'ar_model_path' => ['nullable', 'string', 'max:255'],
-            'ar_model_file' => ['nullable', 'file', 'max:20480'],
             'images' => ['nullable', 'array'],
             'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
         ]);
-
-        if ($request->hasFile('ar_model_file')) {
-            $validated['ar_model_path'] = $request->file('ar_model_file')->store('models', 'public');
-        }
 
         if ($request->hasFile('images')) {
             $imagePaths = [];
@@ -99,8 +93,6 @@ class UmkmController extends Controller
         if (! isset($validated['unit'])) {
             $validated['unit'] = 'pcs';
         }
-
-        unset($validated['ar_model_file']);
 
         UmkmProduct::create($validated);
 
@@ -122,18 +114,10 @@ class UmkmController extends Controller
             'stock' => ['nullable', 'integer', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
             'description' => ['nullable', 'string'],
-            'ar_model_path' => ['nullable', 'string', 'max:255'],
-            'ar_model_file' => ['nullable', 'file', 'max:20480'],
             'images' => ['nullable', 'array'],
             'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
             'is_active' => ['nullable', 'boolean'],
         ]);
-
-        if ($request->hasFile('ar_model_file')) {
-            $validated['ar_model_path'] = $request->file('ar_model_file')->store('models', 'public');
-        } elseif (! isset($validated['ar_model_path'])) {
-            $validated['ar_model_path'] = $product->ar_model_path;
-        }
 
         if ($request->hasFile('images')) {
             $imagePaths = [];
@@ -147,8 +131,6 @@ class UmkmController extends Controller
 
         $validated['slug'] = Str::slug($validated['name']).'-'.Str::random(5);
         $validated['is_active'] = $request->has('is_active') ? true : false;
-
-        unset($validated['ar_model_file']);
 
         $product->update($validated);
 
@@ -175,7 +157,6 @@ class UmkmController extends Controller
             'user_id' => ['nullable', 'exists:users,id'],
             'business_name' => ['required', 'string', 'max:255'],
             'owner_name' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'string', 'in:culinary,craft,souvenir,service'],
             'description' => ['nullable', 'string'],
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
             'rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
@@ -242,7 +223,6 @@ class UmkmController extends Controller
             'user_id' => ['nullable', 'exists:users,id'],
             'business_name' => ['required', 'string', 'max:255'],
             'owner_name' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'string', 'in:culinary,craft,souvenir,service'],
             'description' => ['nullable', 'string'],
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
             'rating' => ['nullable', 'numeric', 'min:0', 'max:5'],

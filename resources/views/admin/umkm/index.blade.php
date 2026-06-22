@@ -2,25 +2,7 @@
 
 @section('title', 'UMKM')
 
-@push('styles')
-    <style>
-        .model-viewer-wrapper {
-            position: relative;
-            width: 100%;
-            height: 200px;
-            background: radial-gradient(circle, #f9fafb 0%, #f3f4f6 100%);
-            border: 1px border-dashed #d1d5db;
-            border-radius: 12px;
-            overflow: hidden;
-        }
 
-        model-viewer {
-            width: 100%;
-            height: 100%;
-            --poster-color: transparent;
-        }
-    </style>
-@endpush
 
 @section('content')
 
@@ -240,36 +222,10 @@
                             class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Satuan (Unit)</label>
-                        <input type="text" name="unit" id="field-unit" placeholder="pcs, porsi, bungkus"
-                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">File AR Model 3D (.glb)</label>
-                        <input type="file" name="ar_model_file" id="field-ar-model-file" accept=".glb"
-                            onchange="preview3DModel(this)"
-                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-                        <p id="current-ar-model-container" class="mb-2 mt-1 hidden text-xs text-gray-500">
-                            File saat ini: <span id="current-ar-model-path"
-                                class="rounded border border-gray-100 bg-gray-50 px-1 py-0.5 font-mono"></span>
-                        </p>
-
-                        {{-- 3D Interactive Model Viewer Panel --}}
-                        <div class="mt-2.5">
-                            <span class="mb-1 block text-[10px] font-bold uppercase tracking-wider text-gray-400">Pratinjau
-                                3D Interaktif</span>
-                            <div class="model-viewer-wrapper flex items-center justify-center">
-                                <div id="viewer-placeholder" class="p-4 text-center">
-                                    <span class="text-xs text-gray-400">Pilih/unggah file GLB untuk melihat model 3D di
-                                        sini</span>
-                                </div>
-                                <model-viewer id="viewer-3d" class="hidden" camera-controls auto-rotate
-                                    shadow-intensity="1" style="width: 100%; height: 100%;"></model-viewer>
-                            </div>
-                        </div>
-                    </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">Satuan (Unit)</label>
+                    <input type="text" name="unit" id="field-unit" placeholder="pcs, porsi, bungkus"
+                        class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Foto Produk (PNG, JPG, dll. - Bisa pilih
@@ -304,16 +260,14 @@
 @endsection
 
 @push('scripts')
-    <script type="module" src="{{ asset('js/model-viewer.min.js') }}"></script>
+
     <script>
         const form = document.getElementById('modal-form');
         const modalTitle = document.getElementById('modal-title');
         const methodContainer = document.getElementById('method-container');
         const storageUrl = "{{ asset('storage') }}";
 
-        // 3D Viewer Elements
-        const viewer3d = document.getElementById('viewer-3d');
-        const viewerPlaceholder = document.getElementById('viewer-placeholder');
+
 
         function openCreateModal() {
             modalTitle.innerText = "Tambah Produk UMKM";
@@ -325,14 +279,11 @@
             document.getElementById('field-price').value = "";
             document.getElementById('field-stock').value = "";
             document.getElementById('field-unit').value = "pcs";
-            document.getElementById('field-ar-model-file').value = "";
             document.getElementById('field-images').value = "";
             document.getElementById('field-desc').value = "";
             document.getElementById('field-active').checked = true;
 
-            document.getElementById('current-ar-model-container').classList.add('hidden');
             document.getElementById('current-images-container').classList.add('hidden');
-            reset3DViewer();
 
             window.dispatchEvent(new CustomEvent('open-product-modal'));
         }
@@ -351,20 +302,7 @@
             document.getElementById('field-desc').value = prod.description || "";
             document.getElementById('field-active').checked = prod.is_active;
 
-            document.getElementById('field-ar-model-file').value = "";
             document.getElementById('field-images').value = "";
-
-            // AR Model
-            const modelContainer = document.getElementById('current-ar-model-container');
-            const modelPath = document.getElementById('current-ar-model-path');
-            if (prod.ar_model_path) {
-                modelPath.textContent = prod.ar_model_path;
-                modelContainer.classList.remove('hidden');
-                setup3DViewer(`${storageUrl}/${prod.ar_model_path}`);
-            } else {
-                modelContainer.classList.add('hidden');
-                reset3DViewer();
-            }
 
             // Images
             const imagesContainer = document.getElementById('current-images-container');
@@ -396,24 +334,6 @@
             window.dispatchEvent(new CustomEvent('close-product-modal'));
         }
 
-        function preview3DModel(input) {
-            const file = input.files[0];
-            if (file) {
-                const blobUrl = URL.createObjectURL(file);
-                setup3DViewer(blobUrl);
-            }
-        }
 
-        function setup3DViewer(src) {
-            viewerPlaceholder.classList.add('hidden');
-            viewer3d.classList.remove('hidden');
-            viewer3d.src = src;
-        }
-
-        function reset3DViewer() {
-            viewer3d.classList.add('hidden');
-            viewerPlaceholder.classList.remove('hidden');
-            viewer3d.src = "";
-        }
     </script>
 @endpush
