@@ -253,12 +253,14 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700">Unggah Foto Produk</label>
-                        <input type="file" name="images[]" id="field-images" multiple accept="image/*" onchange="previewImages(this)"
+                        <input type="file" name="images[]" id="field-images" multiple accept="image/*"
+                            onchange="previewImages(this)"
                             class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
                     </div>
 
                     <div>
-                        <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">Pratinjau Foto</span>
+                        <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">Pratinjau
+                            Foto</span>
                         <div id="image-preview-container" class="grid grid-cols-3 gap-3">
                         </div>
                         <p id="no-image-text" class="text-xs italic text-gray-400">Belum ada foto yang dipilih.</p>
