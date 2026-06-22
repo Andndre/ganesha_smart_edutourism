@@ -7,15 +7,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Spatie\Translatable\HasTranslations;
 
 #[Fillable(['name', 'zone_identifier', 'polygon_coordinates', 'max_capacity', 'warning_threshold', 'critical_threshold', 'current_count', 'is_active'])]
 class CapacityZone extends Model
 {
     use HasFactory;
-    use HasTranslations;
-
-    public array $translatable = ['name'];
 
     /**
      * The attributes that should be cast.

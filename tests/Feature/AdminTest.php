@@ -61,7 +61,7 @@ class AdminTest extends TestCase
     public function test_capacity_zones_rendering_and_threshold_update(): void
     {
         $zone = CapacityZone::create([
-            'name' => ['en' => 'Zona Test', 'id' => 'Zona Test'],
+            'name' => 'Zona Test',
             'zone_identifier' => 'test_zone',
             'current_count' => 50,
             'max_capacity' => 100,
@@ -78,7 +78,7 @@ class AdminTest extends TestCase
 
         $responseUpdateInvalid = $this->actingAs($this->adminUser)
             ->put(route('admin.capacity.thresholds', $zone->id), [
-                'name' => ['en' => 'Zona Test Updated', 'id' => 'Zona Test Updated'],
+                'name' => 'Zona Test Updated',
                 'max_capacity' => 100,
                 'warning_threshold' => 90,
                 'critical_threshold' => 80, // critical is smaller, should fail validation
@@ -87,7 +87,7 @@ class AdminTest extends TestCase
 
         $responseUpdateSuccess = $this->actingAs($this->adminUser)
             ->put(route('admin.capacity.thresholds', $zone->id), [
-                'name' => ['en' => 'Zona Test Updated', 'id' => 'Zona Test Updated'],
+                'name' => 'Zona Test Updated',
                 'max_capacity' => 120,
                 'warning_threshold' => 50,
                 'critical_threshold' => 85,

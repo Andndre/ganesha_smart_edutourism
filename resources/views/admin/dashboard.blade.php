@@ -46,7 +46,7 @@
                             $textColor = $pct >= 80 ? 'text-warning' : 'text-primary';
                         @endphp
                         <div class="rounded-xl bg-white p-3 shadow-sm">
-                            <p class="text-[11px] font-semibold text-gray-500">{{ translateValue($zone['name']) }}</p>
+                            <p class="text-[11px] font-semibold text-gray-500">{{ $zone['name'] }}</p>
                             <p class="{{ $textColor }} mt-0.5 text-lg font-bold">{{ $zone['current_count'] }}<span
                                     class="text-xs font-normal text-gray-400">/{{ $zone['max_capacity'] }}</span></p>
                             <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
