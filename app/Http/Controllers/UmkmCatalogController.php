@@ -6,6 +6,7 @@ use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use App\Services\UmkmRecommendationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
 
@@ -13,7 +14,9 @@ class UmkmCatalogController extends Controller
 {
     public function index()
     {
-        $categories = UmkmProductCategory::all();
+        $categories = Cache::remember('umkm_categories_array', 86400, function () {
+            return UmkmProductCategory::all()->toArray();
+        });
 
         if (session()->has('multi_stop_recommendations')) {
             session()->keep(['multi_stop_recommendations', 'missing_categories']);

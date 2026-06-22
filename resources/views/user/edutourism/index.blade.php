@@ -19,7 +19,7 @@
                         <div class="space-y-1">
                             <div class="flex flex-wrap items-center gap-2">
 
-                                @if ($completedRouteIds->contains($route->id))
+                                @if ($completedRouteIds->contains($route['id']))
                                     <span
                                         class="flex items-center gap-1 rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600">
                                         <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -32,9 +32,9 @@
                             </div>
 
                             <h3 class="font-display text-charcoal mt-1.5 text-lg font-bold leading-tight">
-                                {{ $route->name }}</h3>
+                                {{ $route['name'] }}</h3>
                             <p class="mt-1 line-clamp-2 text-sm text-gray-500">
-                                {{ $route->description ?? 'Nikmati petualangan mendalam menelusuri tradisi dan kearifan lokal.' }}
+                                {{ $route['description'] ?? 'Nikmati petualangan mendalam menelusuri tradisi dan kearifan lokal.' }}
                             </p>
                         </div>
 
@@ -51,25 +51,25 @@
                             <span
                                 class="text-xs font-bold uppercase leading-none tracking-wider text-gray-400">Estimasi</span>
                             <span
-                                class="mt-1 text-sm font-black text-gray-700">{{ $route->estimated_duration_minutes ?? 60 }}
+                                class="mt-1 text-sm font-black text-gray-700">{{ $route['estimated_duration_minutes'] ?? 60 }}
                                 Menit</span>
                         </div>
                         <div class="flex flex-col items-center border-x border-gray-100">
                             <span class="text-xs font-bold uppercase leading-none tracking-wider text-gray-400">Objek</span>
-                            <span class="mt-1 text-sm font-black text-gray-700">{{ $route->route_points_count ?? 0 }}
+                            <span class="mt-1 text-sm font-black text-gray-700">{{ $route['route_points_count'] ?? 0 }}
                                 Titik</span>
                         </div>
                         <div class="flex flex-col items-center">
                             <span class="text-xs font-bold uppercase leading-none tracking-wider text-gray-400">Jarak</span>
                             <span
-                                class="mt-1 text-sm font-black text-gray-700">{{ $route->distance_meters ? round($route->distance_meters / 1000, 1) . ' km' : '--' }}</span>
+                                class="mt-1 text-sm font-black text-gray-700">{{ $route['distance_meters'] ? round($route['distance_meters'] / 1000, 1) . ' km' : '--' }}</span>
                         </div>
                     </div>
 
                     <button
-                        @click="@auth $dispatch('open-route-preview-modal'); fetchRoutePreview({{ $route->id }}) @else $dispatch('open-save-progress-confirm-modal'); window.pendingRouteId = {{ $route->id }} @endauth"
-                        class="{{ $completedRouteIds->contains($route->id) ? 'bg-white border-2 border-[#1E5128] text-[#1E5128] hover:bg-gray-50' : 'bg-[#1E5128] hover:bg-[#152E1D] text-white' }} mt-5 block w-full rounded-2xl py-3 text-center text-sm font-bold shadow-sm transition-transform active:scale-95">
-                        {{ $completedRouteIds->contains($route->id) ? 'Ulangi Eksplorasi' : 'Mulai Jelajah' }}
+                        @click="@auth $dispatch('open-route-preview-modal'); fetchRoutePreview({{ $route['id'] }}) @else $dispatch('open-save-progress-confirm-modal'); window.pendingRouteId = {{ $route['id'] }} @endauth"
+                        class="{{ $completedRouteIds->contains($route['id']) ? 'bg-white border-2 border-[#1E5128] text-[#1E5128] hover:bg-gray-50' : 'bg-[#1E5128] hover:bg-[#152E1D] text-white' }} mt-5 block w-full rounded-2xl py-3 text-center text-sm font-bold shadow-sm transition-transform active:scale-95">
+                        {{ $completedRouteIds->contains($route['id']) ? 'Ulangi Eksplorasi' : 'Mulai Jelajah' }}
                     </button>
                 </div>
             @empty
