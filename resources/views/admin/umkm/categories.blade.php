@@ -102,7 +102,14 @@
                     </div>
                     
                     <div @if($loop->first) id="tour-actions" @endif class="mt-4 flex gap-2">
-                        <button onclick="openEditModal({{ json_encode($cat) }})"
+                        <button onclick="openEditModal({{ json_encode([
+                            'id' => $cat->id,
+                            'name' => $cat->getTranslations('name'),
+                            'description' => $cat->getTranslations('description'),
+                            'image_path' => $cat->image_path,
+                            'model_3d_path' => $cat->model_3d_path,
+                            'model_3d_usdz_path' => $cat->model_3d_usdz_path,
+                        ]) }})"
                             class="flex-1 text-center rounded-xl border border-gray-200 py-2 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-50">
                             Edit
                         </button>
@@ -131,24 +138,49 @@
         <div class="mb-4">
             <h3 id="modal-title" class="font-display text-charcoal text-lg font-bold">Tambah Kategori Produk</h3>
         </div>
-        <form id="modal-form" method="POST" action="" enctype="multipart/form-data">
+        <form id="modal-form" method="POST" action="" enctype="multipart/form-data" x-data="{ locale: 'en' }">
             @csrf
             <div id="method-container"></div>
             <input type="hidden" name="category_id" id="field-category-id" value="">
             <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Nama Kategori <span
+                {{-- Locale tabs --}}
+                <div class="flex gap-2 mb-2">
+                    <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+                        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">English</button>
+                    <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+                        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">Indonesia</button>
+                </div>
+
+                {{-- Name --}}
+                <div x-show="locale === 'en'">
+                    <label class="block text-sm font-semibold text-gray-700">Category Name (EN) <span
                             class="text-warning">*</span></label>
-                    <input type="text" name="name" id="field-name" required
+                    <input type="text" name="name[en]" id="field-name-en" required
+                        placeholder="e.g. Traditional Clothes, Snacks"
+                        class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    @error('name.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                </div>
+                <div x-show="locale === 'id'">
+                    <label class="block text-sm font-semibold text-gray-700">Nama Kategori (ID) <span
+                            class="text-warning">*</span></label>
+                    <input type="text" name="name[id]" id="field-name-id" required
                         placeholder="Contoh: Pakaian Adat, Makanan Ringan"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-                    @error('name')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    @error('name.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
-                <div>
-                    <label class="font-display block text-sm font-semibold text-gray-700">Deskripsi</label>
-                    <textarea name="description" id="field-description" placeholder="Deskripsi singkat tentang kategori..." rows="3"
+
+                {{-- Description --}}
+                <div x-show="locale === 'en'">
+                    <label class="font-display block text-sm font-semibold text-gray-700">Description (EN)</label>
+                    <textarea name="description[en]" id="field-description-en" placeholder="Short description in English..." rows="3"
                         class="focus:border-primary mt-1 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
-                    @error('description')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    @error('description.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                </div>
+                <div x-show="locale === 'id'">
+                    <label class="font-display block text-sm font-semibold text-gray-700">Deskripsi (ID)</label>
+                    <textarea name="description[id]" id="field-description-id" placeholder="Deskripsi singkat tentang kategori..." rows="3"
+                        class="focus:border-primary mt-1 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
+                    @error('description.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
@@ -211,8 +243,10 @@
         const form = document.getElementById('modal-form');
         const modalTitle = document.getElementById('modal-title');
         const methodContainer = document.getElementById('method-container');
-        const fieldName = document.getElementById('field-name');
-        const fieldDescription = document.getElementById('field-description');
+        const fieldNameEn = document.getElementById('field-name-en');
+        const fieldNameId = document.getElementById('field-name-id');
+        const fieldDescriptionEn = document.getElementById('field-description-en');
+        const fieldDescriptionId = document.getElementById('field-description-id');
         const fieldImage = document.getElementById('field-image');
         const imagePreviewContainer = document.getElementById('image-preview-container');
         const imagePreview = document.getElementById('image-preview');
@@ -228,8 +262,10 @@
             form.action = "{{ route('admin.umkm.categories.store') }}";
             methodContainer.innerHTML = "";
             document.getElementById('field-category-id').value = "";
-            fieldName.value = "";
-            fieldDescription.value = "";
+            fieldNameEn.value = "";
+            fieldNameId.value = "";
+            fieldDescriptionEn.value = "";
+            fieldDescriptionId.value = "";
             fieldImage.value = "";
             fieldModel3d.value = "";
             fieldModel3dUsdz.value = "";
@@ -247,8 +283,13 @@
             form.action = `/admin/umkm/categories/${cat.id}`;
             methodContainer.innerHTML = `@method('PUT')`;
             document.getElementById('field-category-id').value = cat.id;
-            fieldName.value = cat.name;
-            fieldDescription.value = cat.description || "";
+            
+            // Handle translatable object or fallback string safely
+            fieldNameEn.value = (typeof cat.name === 'object') ? (cat.name?.en || "") : cat.name;
+            fieldNameId.value = (typeof cat.name === 'object') ? (cat.name?.id || "") : cat.name;
+            fieldDescriptionEn.value = (typeof cat.description === 'object') ? (cat.description?.en || "") : (cat.description || "");
+            fieldDescriptionId.value = (typeof cat.description === 'object') ? (cat.description?.id || "") : (cat.description || "");
+
             fieldImage.value = "";
             fieldModel3d.value = "";
             fieldModel3dUsdz.value = "";
@@ -437,8 +478,10 @@
                 modalTitle.innerText = "Tambah Kategori Produk";
                 document.getElementById('field-category-id').value = "";
             @endif
-            fieldName.value = @json(old('name', ''));
-            fieldDescription.value = @json(old('description', ''));
+            fieldNameEn.value = @json(old('name.en', ''));
+            fieldNameId.value = @json(old('name.id', ''));
+            fieldDescriptionEn.value = @json(old('description.en', ''));
+            fieldDescriptionId.value = @json(old('description.id', ''));
         });
     </script>
     @endif

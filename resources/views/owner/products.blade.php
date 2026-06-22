@@ -143,7 +143,17 @@
 
                         {{-- Product Actions --}}
                         <div class="flex shrink-0 gap-2 px-5 pb-5">
-                            <button onclick="openEditModal({{ json_encode($p) }})"
+                            <button onclick="openEditModal({{ json_encode([
+                                'id' => $p->id,
+                                'name' => $p->getTranslations('name'),
+                                'description' => $p->getTranslations('description'),
+                                'umkm_product_category_id' => $p->umkm_product_category_id,
+                                'price' => $p->price,
+                                'stock' => $p->stock,
+                                'unit' => $p->unit,
+                                'images' => $p->images,
+                                'is_active' => $p->is_active,
+                            ]) }})"
                                 class="border-primary/20 bg-primary/5 text-primary hover:bg-primary inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border py-2.5 text-xs font-bold transition-all hover:text-white">
                                 <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                     stroke-width="2">
@@ -186,7 +196,7 @@
         <div class="mb-4">
             <h3 id="modal-title" class="font-display text-charcoal text-lg font-bold">Tambah Produk UMKM</h3>
         </div>
-        <form id="modal-form" method="POST" action="" enctype="multipart/form-data">
+        <form id="modal-form" method="POST" action="" enctype="multipart/form-data" x-data="{ locale: 'en' }">
             @csrf
             <div id="method-container"></div>
             <input type="hidden" name="product_id" id="field-product-id" value="">
@@ -194,12 +204,30 @@
             <div class="grid gap-6 md:grid-cols-2">
                 {{-- Left Column (Text Fields) --}}
                 <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Nama Produk <span
+                    {{-- Locale tabs --}}
+                    <div class="flex gap-2 mb-2">
+                        <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">English</button>
+                        <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">Indonesia</button>
+                    </div>
+
+                    {{-- Name --}}
+                    <div x-show="locale === 'en'">
+                        <label class="block text-sm font-semibold text-gray-700">Product Name (EN) <span
                                 class="text-warning">*</span></label>
-                        <input type="text" name="name" id="field-name" required
+                        <input type="text" name="name[en]" id="field-name-en" required
                             class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-                        @error('name')
+                        @error('name.en')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div x-show="locale === 'id'">
+                        <label class="block text-sm font-semibold text-gray-700">Nama Produk (ID) <span
+                                class="text-warning">*</span></label>
+                        <input type="text" name="name[id]" id="field-name-id" required
+                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                        @error('name.id')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
@@ -258,11 +286,20 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Deskripsi Produk</label>
-                        <textarea name="description" id="field-description" rows="3"
+                    {{-- Description --}}
+                    <div x-show="locale === 'en'">
+                        <label class="block text-sm font-semibold text-gray-700">Description (EN)</label>
+                        <textarea name="description[en]" id="field-description-en" rows="3"
                             class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
-                        @error('description')
+                        @error('description.en')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div x-show="locale === 'id'">
+                        <label class="block text-sm font-semibold text-gray-700">Deskripsi Produk (ID)</label>
+                        <textarea name="description[id]" id="field-description-id" rows="3"
+                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
+                        @error('description.id')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
@@ -366,6 +403,10 @@
 
             form.reset();
             document.getElementById('field-product-id').value = "";
+            document.getElementById('field-name-en').value = "";
+            document.getElementById('field-name-id').value = "";
+            document.getElementById('field-description-en').value = "";
+            document.getElementById('field-description-id').value = "";
             document.getElementById('field-images').value = "";
             imagePreviewContainer.innerHTML = '';
             noImageText.classList.remove('hidden');
@@ -379,13 +420,19 @@
             methodContainer.innerHTML = `@method('PUT')`;
 
             document.getElementById('field-product-id').value = product.id;
-            fieldName.value = product.name;
+            
+            // Handle translatable object or fallback string safely
+            document.getElementById('field-name-en').value = (typeof product.name === 'object') ? (product.name?.en || "") : product.name;
+            document.getElementById('field-name-id').value = (typeof product.name === 'object') ? (product.name?.id || "") : product.name;
+            
             fieldCategory.value = product.umkm_product_category_id || "";
             fieldPrice.value = Math.round(product.price);
             fieldStock.value = product.stock !== null ? product.stock : "";
             fieldUnit.value = product.unit || "pcs";
             fieldActive.checked = product.is_active;
-            fieldDescription.value = product.description || "";
+            
+            document.getElementById('field-description-en').value = (typeof product.description === 'object') ? (product.description?.en || "") : (product.description || "");
+            document.getElementById('field-description-id').value = (typeof product.description === 'object') ? (product.description?.id || "") : (product.description || "");
 
             document.getElementById('field-images').value = "";
             imagePreviewContainer.innerHTML = '';
@@ -426,13 +473,15 @@
                     document.getElementById('field-product-id').value = "";
                 @endif
 
-                fieldName.value = @json(old('name', ''));
+                document.getElementById('field-name-en').value = @json(old('name.en', ''));
+                document.getElementById('field-name-id').value = @json(old('name.id', ''));
                 fieldCategory.value = @json(old('umkm_product_category_id', ''));
                 fieldPrice.value = @json(old('price', ''));
                 fieldStock.value = @json(old('stock', ''));
                 fieldUnit.value = @json(old('unit', ''));
                 fieldActive.checked = @json((bool)old('is_active', false));
-                fieldDescription.value = @json(old('description', ''));
+                document.getElementById('field-description-en').value = @json(old('description.en', ''));
+                document.getElementById('field-description-id').value = @json(old('description.id', ''));
             });
         @endif
     </script>

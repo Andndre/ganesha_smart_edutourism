@@ -22,8 +22,8 @@ class EventController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where("name->en", 'like', '%'.$search.'%')
-                  ->orWhere("name->id", 'like', '%'.$search.'%');
+                $q->where('name->en', 'like', '%'.$search.'%')
+                    ->orWhere('name->id', 'like', '%'.$search.'%');
             });
         }
 
@@ -86,14 +86,14 @@ class EventController extends Controller
                 },
                 'raw' => [
                     'id' => $event->id,
-                    'name' => $event->name,
-                    'description' => $event->description,
+                    'name' => $event->getTranslations('name'),
+                    'description' => $event->getTranslations('description'),
                     'category' => $event->getCategoryLabel(),
                     'start_date' => $event->start_datetime->format('Y-m-d'),
                     'start_time' => $event->start_datetime->format('H:i'),
                     'end_date' => $event->end_datetime->format('Y-m-d'),
                     'end_time' => $event->end_datetime->format('H:i'),
-                    'location_name' => $event->location_name,
+                    'location_name' => $event->getTranslations('location_name'),
                     'latitude' => $event->mapLocation->latitude ?? '',
                     'longitude' => $event->mapLocation->longitude ?? '',
                     'is_free' => $event->is_free,
@@ -143,14 +143,14 @@ class EventController extends Controller
                 },
                 'raw' => [
                     'id' => $event->id,
-                    'name' => $event->name,
-                    'description' => $event->description,
+                    'name' => $event->getTranslations('name'),
+                    'description' => $event->getTranslations('description'),
                     'category' => $event->getCategoryLabel(),
                     'start_date' => $event->start_datetime->format('Y-m-d'),
                     'start_time' => $event->start_datetime->format('H:i'),
                     'end_date' => $event->end_datetime->format('Y-m-d'),
                     'end_time' => $event->end_datetime->format('H:i'),
-                    'location_name' => $event->location_name,
+                    'location_name' => $event->getTranslations('location_name'),
                     'latitude' => $event->mapLocation->latitude ?? '',
                     'longitude' => $event->mapLocation->longitude ?? '',
                     'is_free' => $event->is_free,
@@ -309,14 +309,14 @@ class EventController extends Controller
 
         $editEventRaw = [
             'id' => $event->id,
-            'name' => $event->name,
-            'description' => $event->description,
+            'name' => $event->getTranslations('name'),
+            'description' => $event->getTranslations('description'),
             'category' => $event->getCategoryLabel(),
             'start_date' => $event->start_datetime->format('Y-m-d'),
             'start_time' => $event->start_datetime->format('H:i'),
             'end_date' => $event->end_datetime->format('Y-m-d'),
             'end_time' => $event->end_datetime->format('H:i'),
-            'location_name' => $event->location_name,
+            'location_name' => $event->getTranslations('location_name'),
             'latitude' => $event->mapLocation->latitude ?? '',
             'longitude' => $event->mapLocation->longitude ?? '',
             'is_free' => $event->is_free,
