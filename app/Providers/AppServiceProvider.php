@@ -2,7 +2,19 @@
 
 namespace App\Providers;
 
+use App\Models\ArModel;
+use App\Models\CapacityZone;
+use App\Models\CulturalObject;
+use App\Models\Event;
+use App\Models\Facility;
+use App\Models\MapLocation;
 use App\Models\RouteSession;
+use App\Models\TourPackage;
+use App\Models\TourRoute;
+use App\Models\TourRoutePoint;
+use App\Models\UmkmProductCategory;
+use App\Models\UmkmProfile;
+use App\Observers\CacheInvalidationObserver;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -47,5 +59,19 @@ class AppServiceProvider extends ServiceProvider
             }
             $view->with('activeEdutourismSession', $activeSession);
         });
+
+        // Register Cache Invalidation Observer
+        $observer = CacheInvalidationObserver::class;
+        ArModel::observe($observer);
+        CapacityZone::observe($observer);
+        CulturalObject::observe($observer);
+        Event::observe($observer);
+        Facility::observe($observer);
+        MapLocation::observe($observer);
+        TourPackage::observe($observer);
+        TourRoute::observe($observer);
+        TourRoutePoint::observe($observer);
+        UmkmProductCategory::observe($observer);
+        UmkmProfile::observe($observer);
     }
 }
