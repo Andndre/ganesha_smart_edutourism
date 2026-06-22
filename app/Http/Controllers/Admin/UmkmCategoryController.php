@@ -17,7 +17,7 @@ class UmkmCategoryController extends Controller
      */
     public function index(): View
     {
-        $categories = UmkmProductCategory::withCount('products')->orderBy('name')->get();
+        $categories = UmkmProductCategory::withCount('products')->orderBy('name->'.app()->getLocale())->get();
 
         return view('admin.umkm.categories', compact('categories'));
     }
@@ -28,14 +28,20 @@ class UmkmCategoryController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:umkm_product_categories,name'],
-            'description' => ['nullable', 'string'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'max:2048'],
             'model_3d_file' => ['nullable', 'file', 'max:20480'],
             'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
+        $defaultLocale = config('app.fallback_locale', 'en');
+        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+        $validated['slug'] = Str::slug($slugValue);
 
         if ($request->hasFile('image')) {
             $validated['image_path'] = $request->file('image')->store('categories', 'public');
@@ -64,14 +70,20 @@ class UmkmCategoryController extends Controller
         $category = UmkmProductCategory::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:umkm_product_categories,name,'.$id],
-            'description' => ['nullable', 'string'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'max:2048'],
             'model_3d_file' => ['nullable', 'file', 'max:20480'],
             'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
+        $defaultLocale = config('app.fallback_locale', 'en');
+        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+        $validated['slug'] = Str::slug($slugValue);
 
         if ($request->hasFile('image')) {
             if ($category->image_path) {

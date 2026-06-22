@@ -38,7 +38,7 @@
         }
         
         // Auto-generate AR Marker when name input changes
-        const culturalNameInput = document.querySelector('#form-cultural input[name="name"]');
+        const culturalNameInput = document.querySelector('#form-cultural input[name="name[en]"]');
         if (culturalNameInput) {
             culturalNameInput.addEventListener('input', function() {
                 if (typeof window.generateARMarker === 'function') {

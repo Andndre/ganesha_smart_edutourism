@@ -1,13 +1,28 @@
 {{-- FORM 2: UMKM Profile --}}
 <form id="form-umkm" action="{{ route('admin.umkm.profile.store') }}" method="POST"
-    class="hidden space-y-4">
+    class="hidden space-y-4" x-data="{ locale: 'en' }">
     @csrf
     <div id="method-umkm"></div>
 
-    <div>
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Toko / Warung UMKM <span
+    {{-- Locale tabs --}}
+    <div class="flex gap-2 mb-4">
+        <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+            class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" type="button">English</button>
+        <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+            class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" type="button">Indonesia</button>
+    </div>
+
+    {{-- Business Name --}}
+    <div x-show="locale === 'en'">
+        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Toko (EN) <span
                 class="text-warning">*</span></label>
-        <input type="text" name="business_name" required placeholder="Contoh: Warung Dedari"
+        <input type="text" name="business_name[en]" required placeholder="e.g. Dedari Shop"
+            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+    </div>
+    <div x-show="locale === 'id'">
+        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Toko (ID) <span
+                class="text-warning">*</span></label>
+        <input type="text" name="business_name[id]" required placeholder="Contoh: Warung Dedari"
             class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
     </div>
 
@@ -57,10 +72,14 @@
         </select>
     </div>
 
-    <div>
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi Bisnis</label>
-        <textarea name="description" rows="3"
-            placeholder="Jelaskan mengenai menu atau layanan yang ditawarkan..."
+    <div x-show="locale === 'en'">
+        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi Bisnis (EN)</label>
+        <textarea name="description[en]" rows="3" placeholder="Describe the products or services offered..."
+            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none"></textarea>
+    </div>
+    <div x-show="locale === 'id'">
+        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi Bisnis (ID)</label>
+        <textarea name="description[id]" rows="3" placeholder="Jelaskan mengenai menu atau layanan yang ditawarkan..."
             class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none"></textarea>
     </div>
 

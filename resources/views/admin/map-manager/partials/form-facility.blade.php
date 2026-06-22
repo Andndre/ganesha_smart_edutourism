@@ -1,13 +1,27 @@
 {{-- FORM 3: Facility --}}
 <form id="form-facility" action="{{ route('admin.facilities.store') }}" method="POST"
-    class="hidden space-y-4">
+    class="hidden space-y-4" x-data="{ locale: 'en' }">
     @csrf
     <div id="method-facility"></div>
 
-    <div>
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Fasilitas <span
+    {{-- Locale tabs --}}
+    <div class="flex gap-2 mb-4">
+        <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+            class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" type="button">English</button>
+        <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+            class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" type="button">Indonesia</button>
+    </div>
+
+    <div x-show="locale === 'en'">
+        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Fasilitas (EN) <span
                 class="text-warning">*</span></label>
-        <input type="text" name="name" required placeholder="Contoh: Toilet Umum Pura"
+        <input type="text" name="name[en]" required placeholder="e.g. Public Toilet at Temple"
+            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+    </div>
+    <div x-show="locale === 'id'">
+        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Fasilitas (ID) <span
+                class="text-warning">*</span></label>
+        <input type="text" name="name[id]" required placeholder="Contoh: Toilet Umum Pura"
             class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
     </div>
 
@@ -24,9 +38,15 @@
         </select>
     </div>
 
-    <div>
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi</label>
-        <textarea name="description" rows="3"
+    <div x-show="locale === 'en'">
+        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Description (EN)</label>
+        <textarea name="description[en]" rows="3"
+            placeholder="Add complementary information about this facility..."
+            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none"></textarea>
+    </div>
+    <div x-show="locale === 'id'">
+        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi (ID)</label>
+        <textarea name="description[id]" rows="3"
             placeholder="Tambahkan informasi pelengkap untuk fasilitas ini..."
             class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none"></textarea>
     </div>

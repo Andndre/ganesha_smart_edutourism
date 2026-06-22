@@ -47,23 +47,33 @@ class OwnerDashboardController extends Controller
         $profile = $user->umkmProfile;
 
         $validated = $request->validate([
-            'business_name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'business_name' => ['required', 'array'],
+            'business_name.en' => ['required', 'string', 'max:255'],
+            'business_name.id' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
         ]);
+
+        $defaultLocale = config('app.fallback_locale', 'en');
 
         if (! $profile) {
             // Create a default profile if they don't have one
             $validated['user_id'] = $user->id;
             $validated['owner_name'] = $user->name;
-            $validated['slug'] = Str::slug($validated['business_name']).'-'.Str::random(5);
+            $slugValue = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? reset($validated['business_name']);
+            $validated['slug'] = Str::slug($slugValue).'-'.Str::random(5);
             $validated['is_active'] = true;
             $validated['rating'] = 5.0;
 
             UmkmProfile::create($validated);
         } else {
             // Update existing profile
-            $validated['slug'] = Str::slug($validated['business_name']);
-            if ($profile->business_name !== $validated['business_name']) {
+            $slugValue = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? reset($validated['business_name']);
+            $validated['slug'] = Str::slug($slugValue);
+            $currentName = is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[$defaultLocale] ?? '');
+            $newName = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? '';
+            if ($currentName !== $newName) {
                 $originalSlug = $validated['slug'];
                 $count = 1;
                 while (UmkmProfile::where('slug', $validated['slug'])->where('id', '!=', $profile->id)->exists()) {
@@ -116,7 +126,7 @@ class OwnerDashboardController extends Controller
         $profile->mapLocation()->updateOrCreate(
             [],
             [
-                'name' => $profile->business_name,
+                'name' => is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[config('app.fallback_locale')] ?? $profile->business_name['en'] ?? ''),
                 'category' => 'umkm',
                 'latitude' => $latitude,
                 'longitude' => $longitude,

@@ -22,8 +22,8 @@ class EdutourismTest extends TestCase
     {
         // Arrange
         $activeRoute = TourRoute::create([
-            'name' => 'Rute Edukasi Alam',
-            'description' => 'Menjelajahi keindahan alam desa.',
+            'name' => ['en' => 'Nature Education Route', 'id' => 'Rute Edukasi Alam'],
+            'description' => ['en' => 'Exploring the beauty of the village nature.', 'id' => 'Menjelajahi keindahan alam desa.'],
             'difficulty' => 'easy',
             'estimated_duration_minutes' => 45,
             'distance_meters' => 500,
@@ -31,8 +31,8 @@ class EdutourismTest extends TestCase
         ]);
 
         $inactiveRoute = TourRoute::create([
-            'name' => 'Rute Rahasia',
-            'description' => 'Rute tersembunyi yang belum aktif.',
+            'name' => ['en' => 'Secret Route', 'id' => 'Rute Rahasia'],
+            'description' => ['en' => 'Hidden route not yet active.', 'id' => 'Rute tersembunyi yang belum aktif.'],
             'difficulty' => 'challenging',
             'estimated_duration_minutes' => 90,
             'distance_meters' => 1200,
@@ -57,8 +57,8 @@ class EdutourismTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $route = TourRoute::create([
-            'name' => 'Rute Budaya',
-            'description' => 'Mengenal adat istiadat desa.',
+            'name' => ['en' => 'Cultural Route', 'id' => 'Rute Budaya'],
+            'description' => ['en' => 'Learn about village customs.', 'id' => 'Mengenal adat istiadat desa.'],
             'difficulty' => 'moderate',
             'estimated_duration_minutes' => 60,
             'distance_meters' => 800,
@@ -84,8 +84,8 @@ class EdutourismTest extends TestCase
     {
         // Arrange
         $route = TourRoute::create([
-            'name' => 'Rute Budaya',
-            'description' => 'Mengenal adat istiadat desa.',
+            'name' => ['en' => 'Cultural Route', 'id' => 'Rute Budaya'],
+            'description' => ['en' => 'Learn about village customs.', 'id' => 'Mengenal adat istiadat desa.'],
             'difficulty' => 'moderate',
             'estimated_duration_minutes' => 60,
             'distance_meters' => 800,
@@ -112,8 +112,8 @@ class EdutourismTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $route = TourRoute::create([
-            'name' => 'Rute Alam',
-            'description' => 'Menikmati pemandangan.',
+            'name' => ['en' => 'Nature Route', 'id' => 'Rute Alam'],
+            'description' => ['en' => 'Enjoy the scenery.', 'id' => 'Menikmati pemandangan.'],
             'difficulty' => 'easy',
             'estimated_duration_minutes' => 30,
             'distance_meters' => 300,
@@ -123,14 +123,14 @@ class EdutourismTest extends TestCase
         $point1 = TourRoutePoint::create([
             'tour_route_id' => $route->id,
             'locationable_type' => CulturalObject::class,
-            'locationable_id' => CulturalObject::create(['name' => 'Point 1', 'slug' => 'point-1', 'description' => 'Deskripsi objek budaya', 'category' => 'temple', 'ar_marker_id' => 'marker_point_1'])->id,
+            'locationable_id' => CulturalObject::create(['name' => ['en' => 'Point 1', 'id' => 'Point 1'], 'slug' => 'point-1', 'description' => ['en' => 'Cultural description', 'id' => 'Deskripsi objek budaya'], 'category' => 'temple', 'ar_marker_id' => 'marker_point_1'])->id,
             'order' => 1,
         ]);
 
         $point2 = TourRoutePoint::create([
             'tour_route_id' => $route->id,
             'locationable_type' => CulturalObject::class,
-            'locationable_id' => CulturalObject::create(['name' => 'Point 2', 'slug' => 'point-2', 'description' => 'Deskripsi objek budaya', 'category' => 'temple', 'ar_marker_id' => 'marker_point_2'])->id,
+            'locationable_id' => CulturalObject::create(['name' => ['en' => 'Point 2', 'id' => 'Point 2'], 'slug' => 'point-2', 'description' => ['en' => 'Cultural description', 'id' => 'Deskripsi objek budaya'], 'category' => 'temple', 'ar_marker_id' => 'marker_point_2'])->id,
             'order' => 2,
         ]);
 
@@ -165,8 +165,8 @@ class EdutourismTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $route = TourRoute::create([
-            'name' => 'Rute Alam Singkat',
-            'description' => 'Pemandangan super singkat.',
+            'name' => ['en' => 'Short Nature Route', 'id' => 'Rute Alam Singkat'],
+            'description' => ['en' => 'Very short scenery.', 'id' => 'Pemandangan super singkat.'],
             'difficulty' => 'easy',
             'estimated_duration_minutes' => 15,
             'distance_meters' => 100,
@@ -176,7 +176,7 @@ class EdutourismTest extends TestCase
         $point = TourRoutePoint::create([
             'tour_route_id' => $route->id,
             'locationable_type' => CulturalObject::class,
-            'locationable_id' => CulturalObject::create(['name' => 'Last Point', 'slug' => 'last-point', 'description' => 'Deskripsi objek budaya', 'category' => 'temple', 'ar_marker_id' => 'marker_last_point'])->id,
+            'locationable_id' => CulturalObject::create(['name' => ['en' => 'Last Point', 'id' => 'Last Point'], 'slug' => 'last-point', 'description' => ['en' => 'Cultural description', 'id' => 'Deskripsi objek budaya'], 'category' => 'temple', 'ar_marker_id' => 'marker_last_point'])->id,
             'order' => 1,
         ]);
 
@@ -208,8 +208,8 @@ class EdutourismTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $route = TourRoute::create([
-            'name' => 'Rute Berkuiz',
-            'description' => 'Ada kuisnya.',
+            'name' => ['en' => 'Quiz Route', 'id' => 'Rute Berkuiz'],
+            'description' => ['en' => 'Has quiz.', 'id' => 'Ada kuisnya.'],
             'difficulty' => 'easy',
             'estimated_duration_minutes' => 30,
             'distance_meters' => 350,
@@ -217,9 +217,9 @@ class EdutourismTest extends TestCase
         ]);
 
         $culturalObject = CulturalObject::create([
-            'name' => 'Candi Berkuiz',
+            'name' => ['en' => 'Quiz Temple', 'id' => 'Candi Berkuiz'],
             'slug' => 'candi-berkuiz',
-            'description' => 'Deskripsi objek budaya',
+            'description' => ['en' => 'Cultural description', 'id' => 'Deskripsi objek budaya'],
             'category' => 'temple',
             'ar_marker_id' => 'marker_candi_berkuiz',
         ]);
@@ -227,7 +227,7 @@ class EdutourismTest extends TestCase
         // Add a quiz
         $quiz = CulturalObjectQuiz::create([
             'cultural_object_id' => $culturalObject->id,
-            'question' => 'Apakah ini candi?',
+            'question' => ['en' => 'Is this a temple?', 'id' => 'Apakah ini candi?'],
             'option_a' => 'Ya',
             'option_b' => 'Tidak',
             'option_c' => 'Mungkin',

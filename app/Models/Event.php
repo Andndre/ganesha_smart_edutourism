@@ -8,11 +8,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Spatie\Translatable\HasTranslations;
 
 #[Fillable(['name', 'slug', 'description', 'category', 'start_datetime', 'end_datetime', 'location_name', 'is_free', 'price', 'max_participants', 'current_participants', 'registration_url'])]
 class Event extends Model
 {
     use HasFactory;
+    use HasTranslations;
+
+    public array $translatable = ['name', 'description', 'location_name'];
 
     /**
      * The attributes that should be cast.

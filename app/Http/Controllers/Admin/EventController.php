@@ -20,7 +20,11 @@ class EventController extends Controller
         $query = Event::query();
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%'.$request->search.'%');
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where("name->en", 'like', '%'.$search.'%')
+                  ->orWhere("name->id", 'like', '%'.$search.'%');
+            });
         }
 
         if ($request->filled('category') && $request->category !== 'Semua Kategori') {
@@ -167,14 +171,20 @@ class EventController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'category' => ['required', 'string', 'max:100'],
             'start_date' => ['required', 'date'],
             'start_time' => ['nullable', 'string'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'end_time' => ['nullable', 'string'],
-            'location_name' => ['required', 'string', 'max:255'],
+            'location_name' => ['required', 'array'],
+            'location_name.en' => ['required', 'string', 'max:255'],
+            'location_name.id' => ['required', 'string', 'max:255'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'is_free' => ['nullable', 'boolean'],
@@ -211,7 +221,9 @@ class EventController extends Controller
 
         $event = new Event;
         $event->name = $validated['name'];
-        $event->slug = Str::slug($validated['name']).'-'.Str::random(5);
+        $defaultLocale = config('app.fallback_locale', 'en');
+        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+        $event->slug = Str::slug($slugValue).'-'.Str::random(5);
         $event->description = $validated['description'] ?? null;
         $event->category = $categoryMap[$validated['category']] ?? 'cultural';
         $event->start_datetime = $startDatetime;
@@ -228,7 +240,7 @@ class EventController extends Controller
 
         if ($latitude !== null && $longitude !== null) {
             $event->mapLocation()->create([
-                'name' => $event->name,
+                'name' => is_string($event->name) ? $event->name : ($event->name[config('app.fallback_locale')] ?? $event->name['en'] ?? ''),
                 'category' => 'cultural',
                 'latitude' => $latitude,
                 'longitude' => $longitude,
@@ -323,14 +335,20 @@ class EventController extends Controller
         $event = Event::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'category' => ['required', 'string', 'max:100'],
             'start_date' => ['required', 'date'],
             'start_time' => ['nullable', 'string'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'end_time' => ['nullable', 'string'],
-            'location_name' => ['required', 'string', 'max:255'],
+            'location_name' => ['required', 'array'],
+            'location_name.en' => ['required', 'string', 'max:255'],
+            'location_name.id' => ['required', 'string', 'max:255'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'is_free' => ['nullable', 'boolean'],
@@ -365,7 +383,9 @@ class EventController extends Controller
         ];
 
         $event->name = $validated['name'];
-        $event->slug = Str::slug($validated['name']).'-'.Str::random(5);
+        $defaultLocale = config('app.fallback_locale', 'en');
+        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+        $event->slug = Str::slug($slugValue).'-'.Str::random(5);
         $event->description = $validated['description'] ?? null;
         $event->category = $categoryMap[$validated['category']] ?? 'cultural';
         $event->start_datetime = $startDatetime;
@@ -383,7 +403,7 @@ class EventController extends Controller
             $event->mapLocation()->updateOrCreate(
                 [],
                 [
-                    'name' => $event->name,
+                    'name' => is_string($event->name) ? $event->name : ($event->name[config('app.fallback_locale')] ?? $event->name['en'] ?? ''),
                     'category' => 'cultural',
                     'latitude' => $latitude,
                     'longitude' => $longitude,

@@ -167,13 +167,13 @@ function handleMarkerClick(marker) {
             form.action = `/admin/cultural-objects/${details.id}`;
             document.getElementById('method-cultural').innerHTML = '@method("PUT")';
 
-            form.querySelector('input[name="name"]').value = details.name;
-            form.querySelector('input[name="short_description"]').value = details.short_description || '';
+            form.querySelector('input[name="name[en]"]').value = details.name?.en || details.name || '';
+            form.querySelector('input[name="name[id]"]').value = details.name?.id || details.name || '';
+            form.querySelector('input[name="short_description[en]"]').value = details.short_description?.en || details.short_description || '';
+            form.querySelector('input[name="short_description[id]"]').value = details.short_description?.id || details.short_description || '';
             form.querySelector('select[name="category"]').value = details.category;
-            form.querySelector('textarea[name="description"]').value = details.description || '';
-            if (window.setCulturalEditorContent) {
-                window.setCulturalEditorContent(details.description || '');
-            }
+            form.querySelector('textarea[name="description[en]"]').value = details.description?.en || details.description || '';
+            form.querySelector('textarea[name="description[id]"]').value = details.description?.id || details.description || '';
             // Select active model and trigger toggle
             const modelSelect = document.getElementById('ar_model_id_select');
             if (modelSelect) {
@@ -269,12 +269,14 @@ function handleMarkerClick(marker) {
             form.action = `/admin/umkm/profiles/${details.id}`;
             document.getElementById('method-umkm').innerHTML = '@method("PUT")';
 
-            form.querySelector('input[name="business_name"]').value = details.business_name;
+            form.querySelector('input[name="business_name[en]"]').value = details.business_name?.en || details.business_name || '';
+            form.querySelector('input[name="business_name[id]"]').value = details.business_name?.id || details.business_name || '';
             form.querySelector('input[name="owner_name"]').value = details.owner_name;
             document.getElementById('umkm-owner-user-id').value = details.user_id || '';
             document.getElementById('umkm-owner-search').value = details.owner_name || '';
             form.querySelector('select[name="category"]').value = details.category;
-            form.querySelector('textarea[name="description"]').value = details.description || '';
+            form.querySelector('textarea[name="description[en]"]').value = details.description?.en || details.description || '';
+            form.querySelector('textarea[name="description[id]"]').value = details.description?.id || details.description || '';
             form.querySelector('input[name="rating"]').value = details.rating || '5.0';
             form.querySelector('input[name="ar_marker_id"]').value = '';
             form.querySelector('input[name="is_active"]').checked = details.is_active;
@@ -291,9 +293,11 @@ function handleMarkerClick(marker) {
             form.action = `/admin/facilities/${details.id}`;
             document.getElementById('method-facility').innerHTML = '@method("PUT")';
 
-            form.querySelector('input[name="name"]').value = details.name;
+            form.querySelector('input[name="name[en]"]').value = details.name?.en || details.name || '';
+            form.querySelector('input[name="name[id]"]').value = details.name?.id || details.name || '';
             form.querySelector('select[name="type"]').value = details.type;
-            form.querySelector('textarea[name="description"]').value = details.description || '';
+            form.querySelector('textarea[name="description[en]"]').value = details.description?.en || details.description || '';
+            form.querySelector('textarea[name="description[id]"]').value = details.description?.id || details.description || '';
             form.querySelector('input[name="is_active"]').checked = details.is_active;
             form.querySelector('input[name="is_accessible"]').checked = loc.is_accessible;
             form.querySelector('textarea[name="accessibility_notes"]').value = loc.accessibility_notes || '';
@@ -353,9 +357,6 @@ function resetForms() {
     if (culturalForm) {
         culturalForm.reset();
         culturalForm.action = "{{ route('admin.cultural-objects.store') }}";
-        if (window.setCulturalEditorContent) {
-            window.setCulturalEditorContent('');
-        }
         document.getElementById('method-cultural').innerHTML = '';
         
         const modelSelect = document.getElementById('ar_model_id_select');

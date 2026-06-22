@@ -27,7 +27,7 @@ window.generateARMarker = function() {
         
         // If slug is still empty (creating new), slugify the name input dynamically
         if (!slug) {
-            const nameInput = document.querySelector('#form-cultural input[name="name"]');
+            const nameInput = document.querySelector('#form-cultural input[name="name[en]"]');
             if (nameInput && nameInput.value) {
                 slug = nameInput.value.toLowerCase()
                     .replace(/[^a-z0-9]+/g, '-')

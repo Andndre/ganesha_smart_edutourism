@@ -33,7 +33,10 @@ class OwnerProductController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where('name', 'like', '%'.$search.'%');
+            $query->where(function ($q) use ($search) {
+                $q->where("name->en", 'like', '%'.$search.'%')
+                  ->orWhere("name->id", 'like', '%'.$search.'%');
+            });
         }
 
         if ($request->filled('category') && $request->category !== 'Semua Kategori') {
@@ -44,7 +47,7 @@ class OwnerProductController extends Controller
         }
 
         $products = $query->paginate(10)->withQueryString();
-        $categories = UmkmProductCategory::orderBy('name')->get();
+        $categories = UmkmProductCategory::orderBy('name->'.app()->getLocale())->get();
 
         return view('owner.products', compact('products', 'categories') + ['noProfile' => false]);
     }
@@ -62,11 +65,15 @@ class OwnerProductController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
             'stock' => ['nullable', 'integer', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'umkm_product_category_id' => ['nullable', 'exists:umkm_product_categories,id'],
             'images' => ['nullable', 'array'],
             'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
@@ -81,7 +88,9 @@ class OwnerProductController extends Controller
         }
 
         $validated['umkm_profile_id'] = $profile->id;
-        $validated['slug'] = Str::slug($validated['name']).'-'.Str::random(5);
+        $defaultLocale = config('app.fallback_locale', 'en');
+        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+        $validated['slug'] = Str::slug($slugValue).'-'.Str::random(5);
         $validated['is_active'] = true;
 
         if (! isset($validated['unit'])) {
@@ -108,11 +117,15 @@ class OwnerProductController extends Controller
         $product = UmkmProduct::where('umkm_profile_id', $profile->id)->findOrFail($id);
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
             'stock' => ['nullable', 'integer', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'umkm_product_category_id' => ['nullable', 'exists:umkm_product_categories,id'],
             'images' => ['nullable', 'array'],
             'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
@@ -129,7 +142,9 @@ class OwnerProductController extends Controller
             $validated['images'] = $product->images;
         }
 
-        $validated['slug'] = Str::slug($validated['name']).'-'.Str::random(5);
+        $defaultLocale = config('app.fallback_locale', 'en');
+        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+        $validated['slug'] = Str::slug($slugValue).'-'.Str::random(5);
         $validated['is_active'] = $request->has('is_active') ? true : false;
 
         $product->update($validated);

@@ -7,11 +7,15 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Translatable\HasTranslations;
 
 #[Fillable(['umkm_profile_id', 'umkm_product_category_id', 'name', 'slug', 'description', 'price', 'stock', 'unit', 'images', 'is_active'])]
 class UmkmProduct extends Model
 {
     use HasFactory;
+    use HasTranslations;
+
+    public array $translatable = ['name', 'description'];
 
     /**
      * The attributes that should be cast.

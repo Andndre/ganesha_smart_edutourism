@@ -7,11 +7,15 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Translatable\HasTranslations;
 
 #[Fillable(['cultural_object_id', 'title', 'content', 'story_type', 'order'])]
 class CulturalStory extends Model
 {
     use HasFactory;
+    use HasTranslations;
+
+    public array $translatable = ['title', 'content'];
 
     /**
      * The attributes that should be cast.

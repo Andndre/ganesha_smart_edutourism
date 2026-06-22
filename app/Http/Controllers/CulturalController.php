@@ -14,11 +14,21 @@ class CulturalController extends Controller
     public function index(): View
     {
         $objects = Cache::tags(['cultural'])->flexible('cultural_objects_all_array', [3600, 7200], function () {
-            return CulturalObject::with('mapLocation.arModel')
-                ->orderBy('name')
+            $models = CulturalObject::with('mapLocation.arModel')
+                ->orderBy('name->'.app()->getLocale())
                 ->get()
-                ->append(['ar_marker_id', 'model_3d_path', 'audio_narration_path'])
-                ->toArray();
+                ->append(['ar_marker_id', 'model_3d_path', 'audio_narration_path']);
+
+            return $models->map(function ($model) {
+                $data = $model->toArray();
+                $locale = app()->getLocale();
+                foreach (['name', 'short_description', 'description'] as $field) {
+                    if (isset($data[$field]) && is_array($data[$field])) {
+                        $data[$field] = $data[$field][$locale] ?? $data[$field][config('app.fallback_locale')] ?? reset($data[$field]) ?? '';
+                    }
+                }
+                return $data;
+            })->values()->toArray();
         });
 
         return view('user.cultural.index', compact('objects'));
@@ -30,11 +40,33 @@ class CulturalController extends Controller
     public function show(string $slug): View
     {
         $object = Cache::tags(['cultural'])->flexible("cultural_object_array_{$slug}", [3600, 7200], function () use ($slug) {
-            return CulturalObject::with(['stories', 'mapLocation.arModel'])
+            $model = CulturalObject::with(['stories', 'mapLocation.arModel'])
                 ->where('slug', $slug)
                 ->firstOrFail()
-                ->append(['ar_marker_id', 'model_3d_path', 'audio_narration_path', 'model_3d_usdz_path', 'ar_marker_patt_path'])
-                ->toArray();
+                ->append(['ar_marker_id', 'model_3d_path', 'audio_narration_path', 'model_3d_usdz_path', 'ar_marker_patt_path']);
+
+            $data = $model->toArray();
+
+            // Resolve translatable fields to locale-specific strings
+            $locale = app()->getLocale();
+            foreach (['name', 'short_description', 'description'] as $field) {
+                if (isset($data[$field]) && is_array($data[$field])) {
+                    $data[$field] = $data[$field][$locale] ?? $data[$field][config('app.fallback_locale')] ?? reset($data[$field]) ?? '';
+                }
+            }
+
+            // Resolve translatable fields in nested stories
+            if (isset($data['stories']) && is_array($data['stories'])) {
+                foreach ($data['stories'] as $i => $story) {
+                    foreach (['title', 'content'] as $sf) {
+                        if (isset($story[$sf]) && is_array($story[$sf])) {
+                            $data['stories'][$i][$sf] = $story[$sf][$locale] ?? $story[$sf][config('app.fallback_locale')] ?? reset($story[$sf]) ?? '';
+                        }
+                    }
+                }
+            }
+
+            return $data;
         });
 
         return view('user.cultural.show', compact('object'));

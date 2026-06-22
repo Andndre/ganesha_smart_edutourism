@@ -8,11 +8,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Spatie\Translatable\HasTranslations;
 
 #[Fillable(['tour_route_id', 'locationable_type', 'locationable_id', 'order', 'estimated_visit_minutes', 'storytelling_content'])]
 class TourRoutePoint extends Model
 {
     use HasFactory;
+    use HasTranslations;
+
+    public array $translatable = ['storytelling_content'];
 
     /**
      * The attributes that should be cast.

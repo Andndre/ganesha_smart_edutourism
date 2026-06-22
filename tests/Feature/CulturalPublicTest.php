@@ -25,14 +25,15 @@ class CulturalPublicTest extends TestCase
         $location = MapLocation::create([
             'locationable_type' => CulturalObject::class,
             'locationable_id' => $object->id,
-            'name' => $object->name,
+            'name' => is_string($object->name) ? $object->name : ($object->name[config('app.fallback_locale')] ?? $object->name['en'] ?? ''),
             'latitude' => -8.4223,
             'longitude' => 115.3839,
             'category' => 'cultural',
         ]);
 
+        $arModelName = is_string($object->name) ? $object->name.' 3D Model' : (($object->name[config('app.fallback_locale')] ?? $object->name['en'] ?? '').' 3D Model');
         ArModel::create([
-            'name' => $object->name.' 3D Model',
+            'name' => $arModelName,
             'model_3d_path' => 'models/test.glb',
             'ar_marker_id' => $markerId,
             'map_location_id' => $location->id,
@@ -48,17 +49,17 @@ class CulturalPublicTest extends TestCase
     {
         // Arrange — create objects with full AR setup via normalized schema
         $this->createCulturalObjectWithAr([
-            'name' => 'Pura Penataran Agung',
+            'name' => ['en' => 'Pura Penataran Agung', 'id' => 'Pura Penataran Agung'],
             'slug' => 'pura-penataran-agung',
-            'short_description' => 'Jantung Spiritual Desa Penglipuran',
-            'description' => 'Pura utama di desa Penglipuran.',
+            'short_description' => ['en' => 'Spiritual Heart of Penglipuran Village', 'id' => 'Jantung Spiritual Desa Penglipuran'],
+            'description' => ['en' => 'Main temple of Penglipuran.', 'id' => 'Pura utama di desa Penglipuran.'],
             'category' => 'temple',
         ], 'marker_pura_penataran');
 
         $this->createCulturalObjectWithAr([
-            'name' => 'Pura Dadia Penarukan',
+            'name' => ['en' => 'Pura Dadia Penarukan', 'id' => 'Pura Dadia Penarukan'],
             'slug' => 'pura-dadia-penarukan',
-            'description' => 'Pura keluarga leluhur Penarukan.',
+            'description' => ['en' => 'Ancestral temple of Penarukan.', 'id' => 'Pura keluarga leluhur Penarukan.'],
             'category' => 'temple',
         ], 'marker_dadia_penarukan');
 
@@ -79,17 +80,17 @@ class CulturalPublicTest extends TestCase
     {
         // Arrange — create object with full AR setup
         $object = $this->createCulturalObjectWithAr([
-            'name' => 'Pura Penataran Agung',
+            'name' => ['en' => 'Pura Penataran Agung', 'id' => 'Pura Penataran Agung'],
             'slug' => 'pura-penataran-agung',
-            'short_description' => 'Jantung Spiritual Desa Penglipuran',
-            'description' => 'Pura utama di desa Penglipuran.',
+            'short_description' => ['en' => 'Spiritual Heart of Penglipuran Village', 'id' => 'Jantung Spiritual Desa Penglipuran'],
+            'description' => ['en' => 'Main temple of Penglipuran.', 'id' => 'Pura utama di desa Penglipuran.'],
             'category' => 'temple',
         ], 'marker_pura_penataran');
 
         CulturalStory::create([
             'cultural_object_id' => $object->id,
-            'title' => 'Asal Usul Pura Penataran',
-            'content' => 'Kisah pendirian pura penataran agung oleh leluhur.',
+            'title' => ['en' => 'Origin of Pura Penataran', 'id' => 'Asal Usul Pura Penataran'],
+            'content' => ['en' => 'The story of the founding of Pura Penataran Agung.', 'id' => 'Kisah pendirian pura penataran agung oleh leluhur.'],
             'story_type' => 'history',
             'order' => 1,
         ]);
@@ -113,9 +114,9 @@ class CulturalPublicTest extends TestCase
     {
         // Arrange — create object WITHOUT AR (no MapLocation, no ArMarker)
         $object = CulturalObject::create([
-            'name' => 'Hutan Bambu Penglipuran',
+            'name' => ['en' => 'Penglipuran Bamboo Forest', 'id' => 'Hutan Bambu Penglipuran'],
             'slug' => 'hutan-bambu-penglipuran',
-            'description' => 'Hutan bambu pelindung desa.',
+            'description' => ['en' => 'Protective bamboo forest.', 'id' => 'Hutan bambu pelindung desa.'],
             'category' => 'tradition',
         ]);
 

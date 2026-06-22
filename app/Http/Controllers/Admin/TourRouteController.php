@@ -69,8 +69,12 @@ class TourRouteController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'difficulty' => ['required', 'string', 'in:Mudah,Sedang,Sulit,Edukasi,Alam,Belanja,Difabel,easy,moderate,challenging'],
             'estimated_duration_minutes' => ['required', 'integer', 'min:1'],
             'distance_meters' => ['required', 'integer', 'min:1'],
@@ -79,7 +83,9 @@ class TourRouteController extends Controller
             'points.*.locationable_type' => ['required', 'string'],
             'points.*.locationable_id' => ['required', 'integer'],
             'points.*.estimated_visit_minutes' => ['nullable', 'integer', 'min:1'],
-            'points.*.storytelling_content' => ['nullable', 'string'],
+            'points.*.storytelling_content' => ['nullable', 'array'],
+            'points.*.storytelling_content.en' => ['nullable', 'string'],
+            'points.*.storytelling_content.id' => ['nullable', 'string'],
         ]);
 
         $validated['is_active'] = true;
@@ -119,8 +125,12 @@ class TourRouteController extends Controller
         $route = TourRoute::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'difficulty' => ['required', 'string', 'in:Mudah,Sedang,Sulit,Edukasi,Alam,Belanja,Difabel,easy,moderate,challenging'],
             'estimated_duration_minutes' => ['required', 'integer', 'min:1'],
             'distance_meters' => ['required', 'integer', 'min:1'],
@@ -130,7 +140,9 @@ class TourRouteController extends Controller
             'points.*.locationable_type' => ['required', 'string'],
             'points.*.locationable_id' => ['required', 'integer'],
             'points.*.estimated_visit_minutes' => ['nullable', 'integer', 'min:1'],
-            'points.*.storytelling_content' => ['nullable', 'string'],
+            'points.*.storytelling_content' => ['nullable', 'array'],
+            'points.*.storytelling_content.en' => ['nullable', 'string'],
+            'points.*.storytelling_content.id' => ['nullable', 'string'],
         ]);
 
         $validated['is_active'] = $request->has('is_active') ? true : false;

@@ -18,7 +18,12 @@ class CapacityController extends Controller
     public function index(): View
     {
         $zones = Cache::tags(['capacity'])->flexible('capacity_zones_active_array', [60, 300], function () {
-            return CapacityZone::where('is_active', true)->get()->append('occupancy_percentage')->toArray();
+            return CapacityZone::where('is_active', true)->get()->append('occupancy_percentage')
+                ->map(function ($zone) {
+                    $data = $zone->toArray();
+                    $data['name'] = is_string($zone->name) ? $zone->name : ($zone->name[app()->getLocale()] ?? $zone->name['en'] ?? '');
+                    return $data;
+                })->values()->toArray();
         });
 
         // Reset current counts locally for calculation
@@ -126,7 +131,9 @@ class CapacityController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
             'zone_identifier' => ['required', 'string', 'max:255', 'unique:capacity_zones,zone_identifier'],
             'max_capacity' => ['required', 'integer', 'min:1'],
             'warning_threshold' => ['required', 'integer', 'min:1', 'max:100'],
@@ -151,7 +158,9 @@ class CapacityController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
             'warning_threshold' => ['required', 'integer', 'min:1', 'max:100'],
             'critical_threshold' => ['required', 'integer', 'min:1', 'max:100', 'gt:warning_threshold'],
             'max_capacity' => ['required', 'integer', 'min:1'],
