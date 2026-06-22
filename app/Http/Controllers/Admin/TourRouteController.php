@@ -74,7 +74,7 @@ class TourRouteController extends Controller
             'difficulty' => ['required', 'string', 'in:Mudah,Sedang,Sulit,Edukasi,Alam,Belanja,Difabel,easy,moderate,challenging'],
             'estimated_duration_minutes' => ['required', 'integer', 'min:1'],
             'distance_meters' => ['required', 'integer', 'min:1'],
-            'is_smart_route' => ['nullable', 'boolean'],
+
             'points' => ['nullable', 'array'],
             'points.*.locationable_type' => ['required', 'string'],
             'points.*.locationable_id' => ['required', 'integer'],
@@ -83,7 +83,6 @@ class TourRouteController extends Controller
         ]);
 
         $validated['is_active'] = true;
-        $validated['is_smart_route'] = $request->has('is_smart_route') ? true : false;
 
         $difficultyMap = [
             'Mudah' => 'easy',
@@ -125,7 +124,7 @@ class TourRouteController extends Controller
             'difficulty' => ['required', 'string', 'in:Mudah,Sedang,Sulit,Edukasi,Alam,Belanja,Difabel,easy,moderate,challenging'],
             'estimated_duration_minutes' => ['required', 'integer', 'min:1'],
             'distance_meters' => ['required', 'integer', 'min:1'],
-            'is_smart_route' => ['nullable', 'boolean'],
+
             'is_active' => ['nullable', 'boolean'],
             'points' => ['nullable', 'array'],
             'points.*.locationable_type' => ['required', 'string'],
@@ -134,7 +133,6 @@ class TourRouteController extends Controller
             'points.*.storytelling_content' => ['nullable', 'string'],
         ]);
 
-        $validated['is_smart_route'] = $request->has('is_smart_route') ? true : false;
         $validated['is_active'] = $request->has('is_active') ? true : false;
 
         $difficultyMap = [

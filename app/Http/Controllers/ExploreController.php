@@ -96,7 +96,6 @@ class ExploreController extends Controller
             return [
                 'id' => $route->id,
                 'name' => $route->name,
-                'is_smart_route' => $route->is_smart_route,
                 'coordinates' => $points,
             ];
         });

@@ -18,10 +18,6 @@
             <input type="hidden" name="difficulty" value="{{ old('difficulty', $route->difficulty) }}">
             <div class="flex flex-col gap-2 justify-end pb-1.5">
                 <label class="relative flex items-center gap-2 cursor-pointer select-none">
-                    <input type="checkbox" name="is_smart_route" value="1" {{ old('is_smart_route', $route->is_smart_route) ? 'checked' : '' }} class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4">
-                    <span class="text-sm font-semibold text-gray-700">Smart Route (AI)</span>
-                </label>
-                <label class="relative flex items-center gap-2 cursor-pointer select-none">
                     <input type="checkbox" name="is_active" value="1" {{ old('is_active', $route->is_active) ? 'checked' : '' }} class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4">
                     <span class="text-sm font-semibold text-gray-700">Aktifkan Rute</span>
                 </label>

@@ -19,7 +19,7 @@ class TourRouteFactory extends Factory
             'description' => fake()->sentence(),
             'difficulty' => fake()->randomElement(['easy', 'moderate', 'challenging']),
             'is_active' => true,
-            'is_smart_route' => false,
+
             'estimated_duration_minutes' => fake()->numberBetween(30, 180),
             'distance_meters' => fake()->numberBetween(100, 5000),
         ];

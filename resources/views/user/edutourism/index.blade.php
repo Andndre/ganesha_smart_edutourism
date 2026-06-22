@@ -18,12 +18,7 @@
                     <div class="flex items-start justify-between gap-3">
                         <div class="space-y-1">
                             <div class="flex flex-wrap items-center gap-2">
-                                @if ($route->is_smart_route)
-                                    <span
-                                        class="rounded-lg border border-blue-100 bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-600">
-                                        Smart GPS
-                                    </span>
-                                @endif
+
                                 @if ($completedRouteIds->contains($route->id))
                                     <span
                                         class="flex items-center gap-1 rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600">

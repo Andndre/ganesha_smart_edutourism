@@ -27,7 +27,6 @@ class EdutourismTest extends TestCase
             'difficulty' => 'easy',
             'estimated_duration_minutes' => 45,
             'distance_meters' => 500,
-            'is_smart_route' => true,
             'is_active' => true,
         ]);
 
@@ -37,7 +36,6 @@ class EdutourismTest extends TestCase
             'difficulty' => 'challenging',
             'estimated_duration_minutes' => 90,
             'distance_meters' => 1200,
-            'is_smart_route' => true,
             'is_active' => false,
         ]);
 
@@ -64,7 +62,6 @@ class EdutourismTest extends TestCase
             'difficulty' => 'moderate',
             'estimated_duration_minutes' => 60,
             'distance_meters' => 800,
-            'is_smart_route' => true,
             'is_active' => true,
         ]);
 
@@ -92,7 +89,6 @@ class EdutourismTest extends TestCase
             'difficulty' => 'moderate',
             'estimated_duration_minutes' => 60,
             'distance_meters' => 800,
-            'is_smart_route' => true,
             'is_active' => true,
         ]);
 
@@ -121,7 +117,6 @@ class EdutourismTest extends TestCase
             'difficulty' => 'easy',
             'estimated_duration_minutes' => 30,
             'distance_meters' => 300,
-            'is_smart_route' => true,
             'is_active' => true,
         ]);
 
@@ -175,7 +170,6 @@ class EdutourismTest extends TestCase
             'difficulty' => 'easy',
             'estimated_duration_minutes' => 15,
             'distance_meters' => 100,
-            'is_smart_route' => true,
             'is_active' => true,
         ]);
 
@@ -219,7 +213,6 @@ class EdutourismTest extends TestCase
             'difficulty' => 'easy',
             'estimated_duration_minutes' => 30,
             'distance_meters' => 350,
-            'is_smart_route' => true,
             'is_active' => true,
         ]);
 
