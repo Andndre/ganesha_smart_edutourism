@@ -31,8 +31,10 @@ class EventController extends Controller
             $categoryKey = $mappedCategory;
         }
 
+        $locale = app()->getLocale();
+
         // Cache upcoming events (1 hour)
-        $upcomingEvents = Cache::tags(['events'])->flexible('public_events_upcoming_'.$categoryKey, [3600, 7200], function () use ($categoryKey) {
+        $upcomingEvents = Cache::tags(['events'])->flexible('public_events_upcoming_'.$categoryKey.'_'.$locale, [3600, 7200], function () use ($categoryKey, $locale) {
             $query = Event::query();
 
             if ($categoryKey !== 'all') {
@@ -65,7 +67,7 @@ class EventController extends Controller
         });
 
         // Cache calendar events (1 hour)
-        $calendarEvents = Cache::tags(['events'])->flexible('public_events_calendar_'.$categoryKey, [3600, 7200], function () use ($categoryKey) {
+        $calendarEvents = Cache::tags(['events'])->flexible('public_events_calendar_'.$categoryKey.'_'.$locale, [3600, 7200], function () use ($categoryKey, $locale) {
             $query = Event::query();
 
             if ($categoryKey !== 'all') {

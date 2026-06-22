@@ -17,7 +17,8 @@ class SmartEdutourismController extends Controller
 {
     public function index(Request $request): View
     {
-        $routes = Cache::tags(['edutourism'])->flexible('edutourism_routes_array', [86400, 172800], function () {
+        $locale = app()->getLocale();
+        $routes = Cache::tags(['edutourism'])->flexible("edutourism_routes_array_{$locale}", [86400, 172800], function () use ($locale) {
             $models = TourRoute::where('is_active', true)
                 ->withCount('routePoints')
                 ->get();
