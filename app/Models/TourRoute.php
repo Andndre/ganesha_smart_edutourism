@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'description', 'difficulty', 'estimated_duration_minutes', 'distance_meters', 'is_smart_route', 'is_active'])]
+#[Fillable(['name', 'description', 'difficulty', 'estimated_duration_minutes', 'distance_meters', 'is_active'])]
 class TourRoute extends Model
 {
     use HasFactory;
@@ -21,7 +21,6 @@ class TourRoute extends Model
     protected function casts(): array
     {
         return [
-            'is_smart_route' => 'boolean',
             'is_active' => 'boolean',
             'estimated_duration_minutes' => 'integer',
             'distance_meters' => 'integer',
@@ -47,17 +46,6 @@ class TourRoute extends Model
     public function scopeActive(Builder $query)
     {
         return $query->where('is_active', true);
-    }
-
-    /**
-     * Scope a query to only include smart routes.
-     *
-     * @param  Builder<TourRoute>  $query
-     * @return Builder<TourRoute>
-     */
-    public function scopeSmartRoutes(Builder $query)
-    {
-        return $query->where('is_smart_route', true);
     }
 
     /**

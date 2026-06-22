@@ -228,7 +228,7 @@ class TestSimulationSeeder extends Seeder
             'difficulty' => 'easy',
             'estimated_duration_minutes' => 30,
             'distance_meters' => 350,
-            'is_smart_route' => true,
+
             'is_active' => true,
         ]);
 

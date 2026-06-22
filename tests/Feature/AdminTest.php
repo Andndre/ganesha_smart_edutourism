@@ -617,7 +617,6 @@ class AdminTest extends TestCase
                 'estimated_duration_minutes' => 60,
                 'distance_meters' => 1500,
                 'difficulty' => 'easy',
-                'is_smart_route' => false,
                 'points' => [
                     [
                         'locationable_type' => CulturalObject::class,
@@ -651,7 +650,6 @@ class AdminTest extends TestCase
                 'estimated_duration_minutes' => 90,
                 'distance_meters' => 2000,
                 'difficulty' => 'moderate',
-                'is_smart_route' => true,
                 'is_active' => true,
                 'points' => [
                     [

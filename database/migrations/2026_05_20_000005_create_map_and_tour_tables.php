@@ -34,7 +34,6 @@ return new class extends Migration
             $table->enum('difficulty', ['easy', 'moderate', 'challenging']);
             $table->integer('estimated_duration_minutes');
             $table->integer('distance_meters');
-            $table->boolean('is_smart_route')->default(false);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 

@@ -25,11 +25,7 @@
             <div class="mb-4 flex items-start justify-between gap-2">
                 <div>
                     <h3 class="font-semibold text-charcoal">{{ $route->name }}</h3>
-                    @if ($route->is_smart_route)
-                        <span class="mt-1 inline-block rounded-lg bg-secondary/10 px-2.5 py-0.5 text-xs font-semibold text-secondary-800">
-                            Smart Route
-                        </span>
-                    @endif
+
                 </div>
                 @if ($route->is_active)
                     <span class="flex shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">

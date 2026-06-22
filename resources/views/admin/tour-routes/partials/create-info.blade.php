@@ -16,12 +16,6 @@
 
         <div class="grid grid-cols-2 gap-4">
             <input type="hidden" name="difficulty" value="easy">
-            <div class="flex flex-col justify-end pb-2">
-                <label class="relative flex items-center gap-2 cursor-pointer select-none">
-                    <input type="checkbox" name="is_smart_route" value="1" class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4">
-                    <span class="text-sm font-semibold text-gray-700">Smart Route (AI)</span>
-                </label>
-            </div>
         </div>
 
         <div>
