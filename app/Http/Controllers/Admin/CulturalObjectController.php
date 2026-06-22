@@ -155,8 +155,8 @@ class CulturalObjectController extends Controller
 
         if ($shouldCreateNewModel) {
             $modelData = [
-                'name'         => $request->input('new_model_name') ?: $object->name.' Model',
-                'description'  => $request->input('new_model_description') ?: ($object->short_description ?? null),
+                'name' => $request->input('new_model_name') ?: $object->name.' Model',
+                'description' => $request->input('new_model_description') ?: ($object->short_description ?? null),
                 'map_location_id' => $mapLocation->id,
                 'ar_marker_id' => $arMarkerId ?: null,
             ];
@@ -327,7 +327,7 @@ class CulturalObjectController extends Controller
         );
 
         // Sync AR model link
-        $arModelId  = $request->input('ar_model_id');
+        $arModelId = $request->input('ar_model_id');
         $arMarkerId = $request->input('ar_marker_id');
 
         $shouldCreateNewModel = $arModelId === 'new' ||
@@ -335,10 +335,10 @@ class CulturalObjectController extends Controller
 
         if ($shouldCreateNewModel) {
             $modelData = [
-                'name'            => $request->input('new_model_name') ?: $object->name.' Model',
-                'description'     => $request->input('new_model_description') ?: ($object->short_description ?? null),
+                'name' => $request->input('new_model_name') ?: $object->name.' Model',
+                'description' => $request->input('new_model_description') ?: ($object->short_description ?? null),
                 'map_location_id' => $mapLocation->id,
-                'ar_marker_id'    => $arMarkerId ?: null,
+                'ar_marker_id' => $arMarkerId ?: null,
             ];
 
             if ($request->hasFile('model_3d_file')) {

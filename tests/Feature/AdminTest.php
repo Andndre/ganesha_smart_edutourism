@@ -8,16 +8,15 @@ use App\Models\Event;
 use App\Models\Facility;
 use App\Models\Feedback;
 use App\Models\MapLocation;
-use App\Models\Reservation;
 use App\Models\TourPackage;
 use App\Models\TourRoute;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\Support\RegistersDayOfWeekFunction;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Tests\Support\RegistersDayOfWeekFunction;
 use Tests\TestCase;
 
 class AdminTest extends TestCase

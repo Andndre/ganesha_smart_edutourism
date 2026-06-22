@@ -152,7 +152,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     // Capacity Zone Routes
     Route::get('/capacity', [CapacityController::class, 'index'])->name('admin.capacity');
+    Route::post('/capacity', [CapacityController::class, 'store'])->name('admin.capacity.store');
     Route::put('/capacity/{id}/thresholds', [CapacityController::class, 'updateThresholds'])->name('admin.capacity.thresholds');
+    Route::delete('/capacity/{id}', [CapacityController::class, 'destroy'])->name('admin.capacity.destroy');
 
     // Cultural Object Routes
     Route::post('/cultural-objects', [CulturalObjectController::class, 'store'])->name('admin.cultural-objects.store');

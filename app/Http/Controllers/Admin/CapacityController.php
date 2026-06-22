@@ -79,11 +79,8 @@ class CapacityController extends Controller
 
                 // Dynamically increment zone counts
                 foreach ($zones as $zone) {
-                    if ($zone->latitude && $zone->longitude && $zone->radius_meters) {
-                        $distance = $this->calculateHaversineDistance($lat, $lng, $zone->latitude, $zone->longitude);
-                        if ($distance <= $zone->radius_meters) {
-                            $zone->current_count++;
-                        }
+                    if ($zone->containsPoint($lat, $lng)) {
+                        $zone->current_count++;
                     }
                 }
             }
@@ -99,39 +96,63 @@ class CapacityController extends Controller
     }
 
     /**
-     * Update dynamic capacity warning thresholds.
+     * Store a new capacity zone.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        if ($request->filled('polygon_coordinates') && is_string($request->polygon_coordinates)) {
+            $request->merge([
+                'polygon_coordinates' => json_decode($request->polygon_coordinates, true),
+            ]);
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'zone_identifier' => ['required', 'string', 'max:255', 'unique:capacity_zones,zone_identifier'],
+            'max_capacity' => ['required', 'integer', 'min:1'],
+            'warning_threshold' => ['required', 'integer', 'min:1', 'max:100'],
+            'critical_threshold' => ['required', 'integer', 'min:1', 'max:100', 'gt:warning_threshold'],
+            'polygon_coordinates' => ['nullable', 'array'],
+        ]);
+
+        CapacityZone::create($validated);
+
+        return redirect()->back()->with('success', 'Zona baru berhasil ditambahkan.');
+    }
+
+    /**
+     * Update dynamic capacity warning thresholds and polygons.
      */
     public function updateThresholds(Request $request, int $id): RedirectResponse
     {
+        if ($request->filled('polygon_coordinates') && is_string($request->polygon_coordinates)) {
+            $request->merge([
+                'polygon_coordinates' => json_decode($request->polygon_coordinates, true),
+            ]);
+        }
+
         $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
             'warning_threshold' => ['required', 'integer', 'min:1', 'max:100'],
             'critical_threshold' => ['required', 'integer', 'min:1', 'max:100', 'gt:warning_threshold'],
             'max_capacity' => ['required', 'integer', 'min:1'],
-            'radius_meters' => ['nullable', 'integer', 'min:1'],
+            'polygon_coordinates' => ['nullable', 'array'],
         ]);
 
         $zone = CapacityZone::findOrFail($id);
         $zone->update($validated);
 
-        return redirect()->back()->with('success', 'Ambang batas kapasitas dan radius zona berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Detail dan area zona berhasil diperbarui.');
     }
 
     /**
-     * Calculate Haversine distance in meters.
+     * Delete a capacity zone.
      */
-    private function calculateHaversineDistance(float $lat1, float $lon1, float $lat2, float $lon2): float
+    public function destroy(int $id): RedirectResponse
     {
-        $earthRadius = 6371000; // in meters
+        $zone = CapacityZone::findOrFail($id);
+        $zone->delete();
 
-        $dLat = deg2rad($lat2 - $lat1);
-        $dLon = deg2rad($lon2 - $lon1);
-
-        $a = sin($dLat / 2) * sin($dLat / 2) +
-            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-            sin($dLon / 2) * sin($dLon / 2);
-
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-
-        return $earthRadius * $c;
+        return redirect()->back()->with('success', 'Zona berhasil dihapus.');
     }
 }

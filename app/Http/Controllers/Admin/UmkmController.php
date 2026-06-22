@@ -222,8 +222,8 @@ class UmkmController extends Controller
         $arMarkerId = $request->input('ar_marker_id');
         if (! empty($arMarkerId)) {
             ArModel::create([
-                'name'            => $profile->business_name.' Marker',
-                'ar_marker_id'    => $arMarkerId,
+                'name' => $profile->business_name.' Marker',
+                'ar_marker_id' => $arMarkerId,
                 'map_location_id' => $mapLocation->id,
             ]);
         }
@@ -298,8 +298,8 @@ class UmkmController extends Controller
                 $existingModel->update(['ar_marker_id' => $arMarkerId]);
             } else {
                 ArModel::create([
-                    'name'            => $profile->business_name.' Marker',
-                    'ar_marker_id'    => $arMarkerId,
+                    'name' => $profile->business_name.' Marker',
+                    'ar_marker_id' => $arMarkerId,
                     'map_location_id' => $mapLocation->id,
                 ]);
             }

@@ -7,7 +7,6 @@ use App\Models\RouteSession;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
 use App\Models\User;
-use App\Models\UserVisit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

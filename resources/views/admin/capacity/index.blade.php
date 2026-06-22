@@ -21,211 +21,19 @@
         </div>
     </div>
 
-    {{-- Overall Crowd Level --}}
-    <div class="mb-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div class="flex-1">
-                <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Wisatawan Saat Ini</p>
-                <div class="mt-1 flex items-baseline gap-2">
-                    <span class="text-charcoal text-5xl font-bold">{{ $totalCurrentCount }}</span>
-                    <span class="text-lg text-gray-400">/ {{ $totalMaxCapacity }} kapasitas total</span>
-                </div>
-                @php
-                    $overallPct = $totalMaxCapacity > 0 ? round(($totalCurrentCount / $totalMaxCapacity) * 100, 1) : 0;
-                    if ($overallPct >= 80) {
-                        $overallStatus = 'Kapasitas Penuh';
-                        $overallColor = 'text-warning';
-                        $overallBarColor = 'bg-warning';
-                    } elseif ($overallPct >= 60) {
-                        $overallStatus = 'Kapasitas Sedang';
-                        $overallColor = 'text-secondary';
-                        $overallBarColor = 'bg-secondary';
-                    } else {
-                        $overallStatus = 'Kapasitas Aman';
-                        $overallColor = 'text-primary';
-                        $overallBarColor = 'bg-primary';
-                    }
-                @endphp
-                <div class="mt-3 h-3 overflow-hidden rounded-full bg-gray-100">
-                    <div class="{{ $overallBarColor }} h-full transition-all" style="width: {{ min(100, $overallPct) }}%">
-                    </div>
-                </div>
-                <p class="mt-1.5 text-sm text-gray-500">{{ $overallPct }}% — <span
-                        class="{{ $overallColor }} font-semibold">{{ $overallStatus }}</span></p>
-            </div>
-            <div class="grid grid-cols-3 gap-3 sm:text-right">
-                @php
-                    $levels = [
-                        ['label' => 'Aman', 'range' => '< 60%', 'color' => 'bg-primary/10 text-primary'],
-                        ['label' => 'Sedang', 'range' => '60-80%', 'color' => 'bg-secondary/15 text-secondary'],
-                        ['label' => 'Penuh', 'range' => '> 80%', 'color' => 'bg-warning/10 text-warning'],
-                    ];
-                @endphp
-                @foreach ($levels as $l)
-                    <div class="{{ $l['color'] }} rounded-xl p-3 text-center">
-                        <p class="text-xs font-bold">{{ $l['label'] }}</p>
-                        <p class="text-[11px] opacity-70">{{ $l['range'] }}</p>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
+    @include('admin.capacity.partials.stats')
 
-    {{-- Zone Cards --}}
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        @foreach ($zones as $zone)
-            @php
-                $pct = $zone->max_capacity > 0 ? round(($zone->current_count / $zone->max_capacity) * 100) : 0;
-                if ($pct >= ($zone->critical_threshold ?? 80)) {
-                    $statusLabel = 'Kritis';
-                    $barColor = 'bg-warning';
-                    $badgeClass = 'bg-warning/10 text-warning';
-                    $borderClass = 'border-warning/20';
-                } elseif ($pct >= ($zone->warning_threshold ?? 60)) {
-                    $statusLabel = 'Sedang';
-                    $barColor = 'bg-secondary';
-                    $badgeClass = 'bg-secondary/15 text-secondary-700';
-                    $borderClass = 'border-secondary/20';
-                } else {
-                    $statusLabel = 'Aman';
-                    $barColor = 'bg-primary';
-                    $badgeClass = 'bg-primary/10 text-primary';
-                    $borderClass = 'border-gray-100';
-                }
-            @endphp
-            <div class="{{ $borderClass }} rounded-2xl border bg-white p-5 shadow-sm">
-                <div class="mb-3 flex items-start justify-between gap-2">
-                    <div>
-                        <h3 class="text-charcoal font-semibold">{{ $zone->name }}</h3>
-                        <span class="text-[10px] text-gray-400">Limit: {{ $zone->warning_threshold }}% Warning /
-                            {{ $zone->critical_threshold }}% Critical</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span
-                            class="{{ $badgeClass }} shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold">{{ $statusLabel }}</span>
-                        @if ($zone->id)
-                            <button
-                                onclick="openThresholdModal({{ json_encode([
-                                    'id' => $zone->id,
-                                    'name' => $zone->name,
-                                    'warning_threshold' => $zone->warning_threshold,
-                                    'critical_threshold' => $zone->critical_threshold,
-                                    'max_capacity' => $zone->max_capacity,
-                                    'radius_meters' => $zone->radius_meters ?? 0,
-                                ]) }})"
-                                class="hover:text-primary text-gray-400 transition-colors focus:outline-none"
-                                title="Edit Ambang Batas">
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                </svg>
-                            </button>
-                        @endif
-                    </div>
-                </div>
-                <div class="flex items-baseline gap-1">
-                    <span class="text-charcoal text-3xl font-bold">{{ $zone->current_count }}</span>
-                    <span class="font-medium text-gray-400">/ {{ $zone->max_capacity }} orang</span>
-                </div>
-                <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-gray-100">
-                    <div class="{{ $barColor }} h-full rounded-full transition-all"
-                        style="width: {{ min(100, $pct) }}%"></div>
-                </div>
-                <div class="mt-2.5 flex items-center justify-between text-xs text-gray-500">
-                    <span>{{ $pct }}% terisi</span>
-                    <span class="font-medium">Identitas: {{ $zone->zone_identifier }}</span>
-                </div>
-            </div>
-        @endforeach
-    </div>
+    @include('admin.capacity.partials.zones-list')
 
-    {{-- Real-time Map --}}
-    <div class="relative mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-        <h3 class="text-charcoal mb-4 font-semibold">Pemantauan Lokasi Real-time</h3>
-        <div class="relative h-[400px] w-full overflow-hidden rounded-xl border border-gray-200">
-            <div id="map" class="absolute inset-0 z-0"></div>
-            
-            <!-- Heatmap Control FAB -->
-            <button id="btn-admin-heatmap"
-                class="absolute bottom-4 right-4 z-1000 flex h-10 w-10 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 shadow-md transition-all hover:bg-gray-50 active:scale-95"
-                title="Toggle Real Heatmap">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
-                </svg>
-            </button>
-        </div>
-    </div>
+    @include('admin.capacity.partials.map')
 
-    {{-- Historical 24h chart --}}
-    <div class="mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-        <h3 class="text-charcoal mb-4 font-semibold">Tren Kunjungan 24 Jam Terakhir</h3>
-        <canvas id="capacityChart" class="w-full" height="160"></canvas>
-    </div>
-
-    {{-- Edit Threshold Modal --}}
-    <x-modal name="threshold-modal" maxWidth="md" desktopLayout="drawer">
-        <div class="mb-4">
-            <h3 class="font-display text-charcoal text-lg font-bold">Edit Ambang Batas <span id="modal-zone-name"
-                    class="text-gray-400"></span></h3>
-        </div>
-        <form id="modal-threshold-form" method="POST">
-            @csrf
-            @method('PUT')
-            <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="modal-max-capacity"
-                            class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Kapasitas
-                            Maksimal</label>
-                        <input type="number" name="max_capacity" id="modal-max-capacity" required min="1"
-                            class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
-                    </div>
-                    <div>
-                        <label for="modal-radius-meters"
-                            class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Radius
-                            (Meter)</label>
-                        <input type="number" name="radius_meters" id="modal-radius-meters" required min="1"
-                            class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="modal-warning-threshold"
-                            class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Warning (%)</label>
-                        <input type="number" name="warning_threshold" id="modal-warning-threshold" required min="1"
-                            max="100"
-                            class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
-                    </div>
-                    <div>
-                        <label for="modal-critical-threshold"
-                            class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Critical (%)</label>
-                        <input type="number" name="critical_threshold" id="modal-critical-threshold" required
-                            min="1" max="100"
-                            class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
-                    </div>
-                </div>
-            </div>
-            <div class="mt-6 flex justify-end gap-2 border-t border-gray-100 pt-4">
-                <button type="button" onclick="closeThresholdModal()"
-                    class="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">
-                    Batal
-                </button>
-                <button type="submit"
-                    class="bg-primary shadow-primary/20 hover:bg-primary-600 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-md">
-                    Simpan
-                </button>
-            </div>
-        </form>
-    </x-modal>
+    @include('admin.capacity.partials.modals')
 
 @endsection
 
 @push('styles')
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
     <style>
         .leaflet-control-attribution {
             display: none !important;
@@ -234,31 +42,161 @@
 @endpush
 
 @push('scripts')
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
     <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
     <script>
+        // Global variables for Map and Drawn Items
+        let map;
+        let drawnItems;
+        
+        let modalMap = null;
+        let modalDrawnItems;
+        let modalCurrentLayer = null;
+        let modalDrawControl;
+
+        function initModalMap() {
+            if (!modalMap) {
+                modalMap = L.map('modal-map', {
+                    zoomControl: true,
+                    attributionControl: false
+                }).setView([defaultLat, defaultLon], 16);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                }).addTo(modalMap);
+
+                modalDrawnItems = new L.FeatureGroup();
+                modalMap.addLayer(modalDrawnItems);
+
+                modalDrawControl = new L.Control.Draw({
+                    draw: {
+                        polyline: false,
+                        circle: false,
+                        marker: false,
+                        circlemarker: false,
+                        rectangle: false,
+                        polygon: {
+                            allowIntersection: false,
+                            showArea: true,
+                        }
+                    },
+                    edit: false
+                });
+                modalMap.addControl(modalDrawControl);
+
+                modalMap.on(L.Draw.Event.CREATED, function (e) {
+                    const layer = e.layer;
+                    
+                    if (modalCurrentLayer) {
+                        modalDrawnItems.removeLayer(modalCurrentLayer);
+                    }
+                    modalCurrentLayer = layer;
+                    modalDrawnItems.addLayer(layer);
+
+                    const latlngs = layer.getLatLngs()[0].map(latlng => ({
+                        lat: latlng.lat,
+                        lng: latlng.lng
+                    }));
+                    
+                    document.getElementById('modal-polygon').value = JSON.stringify(latlngs);
+                    document.getElementById('btn-clear-polygon').classList.remove('hidden');
+                    document.querySelector('#modal-map .leaflet-draw-toolbar').style.display = 'none';
+                });
+            }
+        }
+
+        function resetModalMap(polygonCoordinates = null) {
+            initModalMap();
+            
+            if (modalCurrentLayer) {
+                modalDrawnItems.removeLayer(modalCurrentLayer);
+                modalCurrentLayer = null;
+            }
+            document.getElementById('modal-polygon').value = '';
+            document.getElementById('btn-clear-polygon').classList.add('hidden');
+            document.querySelector('#modal-map .leaflet-draw-toolbar').style.display = 'block';
+
+            if (polygonCoordinates && Array.isArray(polygonCoordinates) && polygonCoordinates.length > 0) {
+                const latlngs = polygonCoordinates.map(p => [p.lat, p.lng]);
+                modalCurrentLayer = L.polygon(latlngs, {
+                    color: '#3b82f6',
+                    fillOpacity: 0.2,
+                    weight: 2
+                }).addTo(modalDrawnItems);
+                
+                document.getElementById('modal-polygon').value = JSON.stringify(polygonCoordinates);
+                document.getElementById('btn-clear-polygon').classList.remove('hidden');
+                document.querySelector('#modal-map .leaflet-draw-toolbar').style.display = 'none';
+                
+                modalMap.fitBounds(modalCurrentLayer.getBounds(), { padding: [20, 20] });
+            } else {
+                modalMap.setView([defaultLat, defaultLon], 16);
+            }
+
+            setTimeout(() => {
+                modalMap.invalidateSize();
+            }, 300);
+        }
+
         function openThresholdModal(data) {
+            document.getElementById('modal-title').innerHTML = 'Edit Zona <span id="modal-zone-name" class="text-gray-400"></span>';
             document.getElementById('modal-zone-name').innerText = data.name;
+            document.getElementById('modal-name').value = data.name;
             document.getElementById('modal-max-capacity').value = data.max_capacity;
             document.getElementById('modal-warning-threshold').value = data.warning_threshold;
             document.getElementById('modal-critical-threshold').value = data.critical_threshold;
-
-            if (document.getElementById('modal-radius-meters')) {
-                document.getElementById('modal-radius-meters').value = data.radius_meters;
-            }
+            
+            document.getElementById('identifier-group').style.display = 'none';
+            document.getElementById('modal-identifier').removeAttribute('required');
 
             const form = document.getElementById('modal-threshold-form');
             form.action = `/admin/capacity/${data.id}/thresholds`;
+            document.getElementById('form-method').value = 'PUT';
 
             window.dispatchEvent(new CustomEvent('open-threshold-modal'));
+            
+            // Re-init map and draw existing polygon if any
+            resetModalMap(data.polygon_coordinates);
+        }
+
+        function openCreateZoneModal() {
+            document.getElementById('modal-title').innerText = 'Buat Zona Baru';
+            document.getElementById('modal-name').value = '';
+            document.getElementById('modal-max-capacity').value = '';
+            document.getElementById('modal-warning-threshold').value = '70';
+            document.getElementById('modal-critical-threshold').value = '90';
+            
+            document.getElementById('identifier-group').style.display = 'block';
+            document.getElementById('modal-identifier').value = '';
+            document.getElementById('modal-identifier').setAttribute('required', 'required');
+
+            const form = document.getElementById('modal-threshold-form');
+            form.action = `/admin/capacity`;
+            document.getElementById('form-method').value = 'POST';
+
+            window.dispatchEvent(new CustomEvent('open-threshold-modal'));
+            
+            // Empty map
+            resetModalMap(null);
         }
 
         function closeThresholdModal() {
             window.dispatchEvent(new CustomEvent('close-threshold-modal'));
         }
 
+        document.getElementById('btn-clear-polygon').addEventListener('click', function() {
+            if (modalCurrentLayer) {
+                modalDrawnItems.removeLayer(modalCurrentLayer);
+                modalCurrentLayer = null;
+            }
+            document.getElementById('modal-polygon').value = '';
+            this.classList.add('hidden');
+            document.querySelector('#modal-map .leaflet-draw-toolbar').style.display = 'block';
+        });
+
         (function() {
+            // Chart init
             const canvas = document.getElementById('capacityChart');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
@@ -270,7 +208,7 @@
             canvas.style.height = H + 'px';
             ctx.scale(dpr, dpr);
 
-            const data = {{ json_encode($hourlyData) }};
+            const data = {!! json_encode($hourlyData) !!};
             const max = Math.max(...data, 100) * 1.15;
             const padL = 36,
                 padR = 12,
@@ -307,7 +245,7 @@
             ctx.stroke();
 
             // Hour labels (every 4h)
-            const labels = @json($hourlyLabels);
+            const labels = {!! json_encode($hourlyLabels) !!};
             ctx.fillStyle = '#9ca3af';
             ctx.font = '10px Plus Jakarta Sans, sans-serif';
             ctx.textAlign = 'center';
@@ -322,8 +260,9 @@
         // Initialize Leaflet Map
         const defaultLat = {{ $defaultLat }};
         const defaultLon = {{ $defaultLon }};
+        const zonesData = {!! json_encode($zones) !!};
 
-        const map = L.map('map', {
+        map = L.map('map', {
             zoomControl: true
         }).setView([defaultLat, defaultLon], 16);
 
@@ -331,7 +270,38 @@
             maxZoom: 19,
         }).addTo(map);
 
-        let heatmapData = @json($heatmapData);
+        // Add drawn items layer
+        drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+
+
+        // Render existing zones on map
+        zonesData.forEach(zone => {
+            if (zone.polygon_coordinates && Array.isArray(zone.polygon_coordinates)) {
+                const latlngs = zone.polygon_coordinates.map(p => [p.lat, p.lng]);
+                
+                let color = '#3b82f6';
+                let pct = zone.max_capacity > 0 ? (zone.current_count / zone.max_capacity) * 100 : 0;
+                if (pct >= zone.critical_threshold) color = '#ef4444';
+                else if (pct >= zone.warning_threshold) color = '#f59e0b';
+
+                const polygon = L.polygon(latlngs, {
+                    color: color,
+                    fillOpacity: 0.2,
+                    weight: 2
+                }).addTo(drawnItems);
+
+                polygon.bindPopup(`<b>${zone.name}</b><br>${zone.current_count} / ${zone.max_capacity} orang`);
+                
+                polygon.on('click', function(e) {
+                    L.DomEvent.stopPropagation(e);
+                    openThresholdModal(zone);
+                });
+            }
+        });
+
+        let heatmapData = {!! json_encode($heatmapData) !!};
         let realHeatmapLayer = null;
         let realHeatmapVisible = false;
 
@@ -341,7 +311,6 @@
         });
         const liveUserMarkers = {};
 
-        // Initial markers for live users loaded from server
         heatmapData.forEach(point => {
             if (point.is_live_user) {
                 const liveIcon = L.divIcon({
@@ -383,7 +352,7 @@
                 radius: 25,
                 blur: 15,
                 maxZoom: 18,
-                max: 3.0, // Butuh sekitar 3 orang bertumpuk agar titik jadi merah
+                max: 3.0,
                 gradient: {0.4: 'blue', 0.6: 'cyan', 0.7: 'lime', 0.8: 'yellow', 1: 'red'}
             }).addTo(map);
         }
@@ -406,12 +375,10 @@
             }
         }
 
-        // Listen for WebSocket updates
         function setupEchoListener() {
             if (window.Echo) {
                 window.Echo.channel('village-map')
                     .listen('.VisitorLocationUpdated', (e) => {
-                        console.log('📡 [Reverb] VisitorLocationUpdated received (Admin):', e);
                         const existingIndex = heatmapData.findIndex(p => p.session_id === e.session_id);
 
                         const newPoint = {
@@ -432,7 +399,6 @@
 
                         if (realHeatmapVisible) renderRealHeatmap();
 
-                        // Create or update marker for the live user
                         if (liveUserMarkers[e.session_id]) {
                             liveUserMarkers[e.session_id].setLatLng([e.latitude, e.longitude]);
                         } else {
@@ -458,13 +424,11 @@
                         }
                     })
                     .listen('.VisitorLocationRemoved', (e) => {
-                        console.log('📡 [Reverb] VisitorLocationRemoved received (Admin):', e);
                         const existingIndex = heatmapData.findIndex(p => p.session_id === e.session_id);
                         if (existingIndex !== -1) {
                             heatmapData.splice(existingIndex, 1);
                         }
                         
-                        // Remove marker
                         if (liveUserMarkers[e.session_id]) {
                             map.removeLayer(liveUserMarkers[e.session_id]);
                             delete liveUserMarkers[e.session_id];

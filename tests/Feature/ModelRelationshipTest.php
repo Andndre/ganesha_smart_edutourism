@@ -61,7 +61,7 @@ class ModelRelationshipTest extends TestCase
         $this->assertCount(1, $object->favorites);
     }
 
-    public function test_cultural_object_isFavoritedBy_returns_correct_bool(): void
+    public function test_cultural_object_is_favorited_by_returns_correct_bool(): void
     {
         $user = User::factory()->create();
         $object = CulturalObject::factory()->create();
@@ -84,7 +84,7 @@ class ModelRelationshipTest extends TestCase
         $this->assertCount(1, $object->visits);
     }
 
-    public function test_cultural_object_isVisitedBy_returns_correct_bool(): void
+    public function test_cultural_object_is_visited_by_returns_correct_bool(): void
     {
         $user = User::factory()->create();
         $object = CulturalObject::factory()->create();

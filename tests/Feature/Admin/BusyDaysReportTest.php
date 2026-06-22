@@ -8,8 +8,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use ReflectionMethod;
-use Tests\TestCase;
 use Tests\Support\RegistersDayOfWeekFunction;
+use Tests\TestCase;
 
 class BusyDaysReportTest extends TestCase
 {

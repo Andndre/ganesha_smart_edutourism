@@ -12,7 +12,9 @@ class FeedbackReplyTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $user;
+
     private Feedback $feedback;
 
     protected function setUp(): void

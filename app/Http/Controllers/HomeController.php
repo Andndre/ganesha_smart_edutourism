@@ -15,8 +15,16 @@ class HomeController extends Controller
     public function index(): View
     {
         $zones = CapacityZone::where('is_active', true)->get();
-        $totalCurrent = $zones->sum('current_count');
-        $totalMax = $zones->sum('max_capacity');
+        $masterZone = $zones->firstWhere('zone_identifier', 'desa_penglipuran');
+
+        if ($masterZone) {
+            $totalCurrent = $masterZone->current_count;
+            $totalMax = $masterZone->max_capacity;
+        } else {
+            $totalCurrent = $zones->sum('current_count');
+            $totalMax = $zones->sum('max_capacity');
+        }
+
         $densityPercent = $totalMax > 0 ? ($totalCurrent / $totalMax) * 100 : 0;
 
         if ($densityPercent >= 90) {
