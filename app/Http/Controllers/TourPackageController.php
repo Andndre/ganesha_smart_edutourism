@@ -9,7 +9,7 @@ class TourPackageController extends Controller
 {
     public function index()
     {
-        $packages = Cache::remember('tour_packages_active_array', 86400, function () {
+        $packages = Cache::tags(['packages'])->flexible('tour_packages_active_array', [86400, 172800], function () {
             return TourPackage::active()->get()->toArray();
         });
 

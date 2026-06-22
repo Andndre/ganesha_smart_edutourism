@@ -14,7 +14,7 @@ class UmkmCatalogController extends Controller
 {
     public function index()
     {
-        $categories = Cache::remember('umkm_categories_array', 86400, function () {
+        $categories = Cache::tags(['umkm'])->flexible('umkm_categories_array', [86400, 172800], function () {
             return UmkmProductCategory::all()->toArray();
         });
 

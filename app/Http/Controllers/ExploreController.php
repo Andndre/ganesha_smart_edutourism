@@ -17,7 +17,7 @@ class ExploreController extends Controller
      */
     public function index(): View
     {
-        $locations = Cache::remember('explore_map_locations_array', 86400, function () {
+        $locations = Cache::tags(['explore'])->flexible('explore_map_locations_array', [86400, 172800], function () {
             return MapLocation::with(['locationable', 'arModel'])->get()->map(function ($loc) {
                 // Map category to match JavaScript filters
                 $category = $loc->category;
@@ -70,7 +70,7 @@ class ExploreController extends Controller
             })->all();
         });
 
-        $formattedRoutes = Cache::remember('explore_map_routes_array', 86400, function () {
+        $formattedRoutes = Cache::tags(['explore'])->flexible('explore_map_routes_array', [86400, 172800], function () {
             $routes = TourRoute::where('is_active', true)->with('routePoints.locationable')->get();
 
             return $routes->map(function ($route) {

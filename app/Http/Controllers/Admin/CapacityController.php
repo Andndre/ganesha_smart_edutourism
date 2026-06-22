@@ -17,7 +17,7 @@ class CapacityController extends Controller
      */
     public function index(): View
     {
-        $zones = Cache::remember('capacity_zones_active_array', 60, function () {
+        $zones = Cache::tags(['capacity'])->flexible('capacity_zones_active_array', [60, 300], function () {
             return CapacityZone::where('is_active', true)->get()->append('occupancy_percentage')->toArray();
         });
 
@@ -93,9 +93,9 @@ class CapacityController extends Controller
                     if ($this->isInBoundingBox($location['lat'], $location['lng'], $zone['polygon_coordinates'])) {
                         // Create a temporary model instance for the containsPoint method logic
                         // Since containsPoint is a model method, we can either re-implement it or use a temporary model
-                        $tempZone = new CapacityZone();
+                        $tempZone = new CapacityZone;
                         $tempZone->polygon_coordinates = $zone['polygon_coordinates'];
-                        
+
                         if ($tempZone->containsPoint($location['lat'], $location['lng'])) {
                             $zone['current_count']++;
                         }
