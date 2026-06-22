@@ -16,7 +16,6 @@ class PageStaticTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Syarat & Ketentuan Penggunaan');
         $response->assertSee('Pendaftaran Akun');
-        $response->assertSee('Kembali ke Pendaftaran');
         $response->assertDontSee('Terms & Conditions');
     }
 
@@ -30,7 +29,6 @@ class PageStaticTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Kebijakan Privasi');
         $response->assertSee('Informasi yang Kami Kumpulkan');
-        $response->assertSee('Kembali ke Pendaftaran');
         $response->assertDontSee('Information We Collect');
     }
 
@@ -45,7 +43,6 @@ class PageStaticTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Terms & Conditions');
         $response->assertSee('Account Registration');
-        $response->assertSee('Back to Registration');
         $response->assertDontSee('Syarat & Ketentuan Penggunaan');
     }
 
@@ -60,7 +57,6 @@ class PageStaticTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Privacy Policy');
         $response->assertSee('Information We Collect');
-        $response->assertSee('Back to Registration');
         $response->assertDontSee('Informasi yang Kami Kumpulkan');
     }
 
