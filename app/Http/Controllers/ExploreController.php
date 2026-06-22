@@ -17,87 +17,91 @@ class ExploreController extends Controller
      */
     public function index(): View
     {
-        $locations = MapLocation::with(['locationable', 'arModel'])->get()->map(function ($loc) {
-            // Map category to match JavaScript filters
-            $category = $loc->category;
-            if ($loc->locationable_type === Facility::class && $loc->locationable && $loc->locationable->type === 'toilet') {
-                $category = 'toilets';
-            } elseif ($category === 'facility') {
-                $category = 'facilities';
-            } elseif ($category === 'toilet') {
-                $category = 'toilets';
-            } elseif ($category === 'emergency') {
-                $category = 'facilities';
-            }
+        $locations = Cache::remember('explore_map_locations_array', 86400, function () {
+            return MapLocation::with(['locationable', 'arModel'])->get()->map(function ($loc) {
+                // Map category to match JavaScript filters
+                $category = $loc->category;
+                if ($loc->locationable_type === Facility::class && $loc->locationable && $loc->locationable->type === 'toilet') {
+                    $category = 'toilets';
+                } elseif ($category === 'facility') {
+                    $category = 'facilities';
+                } elseif ($category === 'toilet') {
+                    $category = 'toilets';
+                } elseif ($category === 'emergency') {
+                    $category = 'facilities';
+                }
 
-            $description = '';
-            $detailUrl = null;
-            $hasAr = false;
-            $images = [];
+                $description = '';
+                $detailUrl = null;
+                $hasAr = false;
+                $images = [];
 
-            if ($loc->locationable) {
-                $description = $loc->locationable->description ?? '';
-                if ($loc->locationable_type === CulturalObject::class) {
-                    $detailUrl = route('cultural-object', ['slug' => $loc->locationable->slug]);
-                    $hasAr = $loc->arModel !== null && $loc->arModel->model_3d_path !== null;
-                    if ($loc->locationable->historical_images && is_array($loc->locationable->historical_images)) {
-                        foreach ($loc->locationable->historical_images as $img) {
-                            $images[] = asset('storage/'.$img);
+                if ($loc->locationable) {
+                    $description = $loc->locationable->description ?? '';
+                    if ($loc->locationable_type === CulturalObject::class) {
+                        $detailUrl = route('cultural-object', ['slug' => $loc->locationable->slug]);
+                        $hasAr = $loc->arModel !== null && $loc->arModel->model_3d_path !== null;
+                        if ($loc->locationable->historical_images && is_array($loc->locationable->historical_images)) {
+                            foreach ($loc->locationable->historical_images as $img) {
+                                $images[] = asset('storage/'.$img);
+                            }
+                        }
+                    } elseif ($loc->locationable_type === UmkmProfile::class) {
+                        $detailUrl = route('umkm');
+                        if (! empty($loc->locationable->image)) {
+                            $images[] = asset('storage/'.$loc->locationable->image);
                         }
                     }
-                } elseif ($loc->locationable_type === UmkmProfile::class) {
-                    $detailUrl = route('umkm');
-                    if (! empty($loc->locationable->image)) {
-                        $images[] = asset('storage/'.$loc->locationable->image);
-                    }
                 }
-            }
 
-            return [
-                'lat' => (float) $loc->latitude,
-                'lng' => (float) $loc->longitude,
-                'name' => $loc->name,
-                'cat' => $category,
-                'desc' => $description,
-                'is_accessible' => (bool) $loc->is_accessible,
-                'accessibility' => $loc->accessibility_notes ?? '',
-                'detail_url' => $detailUrl,
-                'has_ar' => $hasAr,
-                'image' => $images[0] ?? null,
-                'images' => $images,
-            ];
+                return [
+                    'lat' => (float) $loc->latitude,
+                    'lng' => (float) $loc->longitude,
+                    'name' => $loc->name,
+                    'cat' => $category,
+                    'desc' => $description,
+                    'is_accessible' => (bool) $loc->is_accessible,
+                    'accessibility' => $loc->accessibility_notes ?? '',
+                    'detail_url' => $detailUrl,
+                    'has_ar' => $hasAr,
+                    'image' => $images[0] ?? null,
+                    'images' => $images,
+                ];
+            })->all();
         });
 
-        // Load active tour routes with points
-        $routes = TourRoute::where('is_active', true)->with('routePoints.locationable')->get();
-        $formattedRoutes = $routes->map(function ($route) {
-            $points = $route->routePoints->map(function ($point) {
-                $locationable = $point->locationable;
-                if (! $locationable) {
-                    return null;
-                }
+        $formattedRoutes = Cache::remember('explore_map_routes_array', 86400, function () {
+            $routes = TourRoute::where('is_active', true)->with('routePoints.locationable')->get();
 
-                $lat = $locationable->latitude ?? null;
-                $lng = $locationable->longitude ?? null;
-                if (! $lat || ! $lng) {
-                    if (\method_exists($locationable, 'mapLocation') && $locationable->mapLocation) {
-                        $lat = $locationable->mapLocation->latitude;
-                        $lng = $locationable->mapLocation->longitude;
+            return $routes->map(function ($route) {
+                $points = $route->routePoints->map(function ($point) {
+                    $locationable = $point->locationable;
+                    if (! $locationable) {
+                        return null;
                     }
-                }
 
-                if ($lat !== null && $lng !== null) {
-                    return [$lat, $lng];
-                }
+                    $lat = $locationable->latitude ?? null;
+                    $lng = $locationable->longitude ?? null;
+                    if (! $lat || ! $lng) {
+                        if (\method_exists($locationable, 'mapLocation') && $locationable->mapLocation) {
+                            $lat = $locationable->mapLocation->latitude;
+                            $lng = $locationable->mapLocation->longitude;
+                        }
+                    }
 
-                return null;
-            })->filter()->values();
+                    if ($lat !== null && $lng !== null) {
+                        return [$lat, $lng];
+                    }
 
-            return [
-                'id' => $route->id,
-                'name' => $route->name,
-                'coordinates' => $points,
-            ];
+                    return null;
+                })->filter()->values();
+
+                return [
+                    'id' => $route->id,
+                    'name' => $route->name,
+                    'coordinates' => $points,
+                ];
+            })->all();
         });
 
         // Initialize empty heatmap data array for real-time live visitors only

@@ -1,14 +1,14 @@
 {{-- ponytail: partial dipecah untuk keterbacaan --}}
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
                 @foreach ($categories as $category)
-                    <div id="card-cat-{{ $category->id }}"
+                    <div id="card-cat-{{ $category['id'] }}"
                         class="category-card relative flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:border-gray-200 hover:shadow-md"
-                        data-name="{{ strtolower($category->name) }}"
-                        data-description="{{ strtolower($category->description ?? '') }}"
+                        data-name="{{ strtolower($category['name']) }}"
+                        data-description="{{ strtolower($category['description'] ?? '') }}"
                         onclick="openCategoryModal({{ json_encode($category) }}, event)">
                         <div class="relative aspect-square bg-gray-100">
-                            @if ($category->image_path)
-                                <img src="{{ asset('storage/' . $category->image_path) }}" alt="{{ $category->name }}"
+                            @if ($category['image_path'])
+                                <img src="{{ asset('storage/' . $category['image_path']) }}" alt="{{ $category['name'] }}"
                                     class="h-full w-full object-cover">
                             @else
                                 <div class="text-primary absolute inset-0 flex items-center justify-center opacity-50">
@@ -22,17 +22,17 @@
                             <!-- Checkbox Container at Top-Right -->
                             <div class="absolute right-2 top-2 z-10" onclick="event.stopPropagation()">
                                 <label class="flex cursor-pointer items-center justify-center">
-                                    <input type="checkbox" name="category_ids[]" value="{{ $category->id }}"
-                                        id="checkbox-cat-{{ $category->id }}"
+                                    <input type="checkbox" name="category_ids[]" value="{{ $category['id'] }}"
+                                        id="checkbox-cat-{{ $category['id'] }}"
                                         class="w-5.5 h-5.5 text-primary focus:ring-primary accent-primary cursor-pointer rounded-full border-gray-300 transition-all focus:ring-offset-0"
-                                        onchange="updateCardHighlight({{ $category->id }})">
+                                        onchange="updateCardHighlight({{ $category['id'] }})">
                                 </label>
                             </div>
                         </div>
                         <div class="flex-1 p-3">
-                            <h3 class="text-charcoal text-sm font-bold">{{ $category->name }}</h3>
-                            @if ($category->description)
-                                <p class="mt-1 line-clamp-2 text-xs text-gray-500">{{ $category->description }}</p>
+                            <h3 class="text-charcoal text-sm font-bold">{{ $category['name'] }}</h3>
+                            @if ($category['description'])
+                                <p class="mt-1 line-clamp-2 text-xs text-gray-500">{{ $category['description'] }}</p>
                             @endif
                         </div>
                     </div>

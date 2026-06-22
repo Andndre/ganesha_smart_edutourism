@@ -9,6 +9,7 @@ use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
 use App\Models\UserVisit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -16,9 +17,12 @@ class SmartEdutourismController extends Controller
 {
     public function index(Request $request): View
     {
-        $routes = TourRoute::where('is_active', true)
-            ->withCount('routePoints')
-            ->get();
+        $routes = Cache::remember('edutourism_routes_array', 86400, function () {
+            return TourRoute::where('is_active', true)
+                ->withCount('routePoints')
+                ->get()
+                ->toArray();
+        });
 
         $userId = auth()->id();
         $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
