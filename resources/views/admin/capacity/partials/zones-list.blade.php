@@ -40,7 +40,7 @@
                     <span
                         class="{{ $badgeClass }} shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold">{{ $statusLabel }}</span>
                     @if ($zone['id'])
-                        <button onclick="editThresholds({{ json_encode([
+                        <button onclick="openThresholdModal({{ json_encode([
                                 'id' => $zone['id'],
                                 'name' => $zone['name'],
                                 'warning_threshold' => $zone['warning_threshold'],
