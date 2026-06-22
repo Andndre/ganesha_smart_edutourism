@@ -2,22 +2,23 @@
 
 namespace Tests\Browser;
 
-use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 
 class ExampleTest extends DuskTestCase
 {
-    use DatabaseMigrations;
+    use DatabaseTruncation;
 
-    /**
-     * A basic browser test example.
-     */
     public function test_basic_example(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/')
-                ->assertSee('Edutourism');
+                ->script("localStorage.setItem('has_seen_offline_popup', 'true');");
+
+            $browser->refresh()
+                ->waitForText('Smart Edutourism')
+                ->assertSee('Smart Edutourism');
         });
     }
 }

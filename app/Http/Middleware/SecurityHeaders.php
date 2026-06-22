@@ -32,7 +32,7 @@ class SecurityHeaders
         $fontSrc = "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:";
         $connectSrc = "connect-src 'self' ws: wss: blob: https://nominatim.openstreetmap.org https://router.project-osrm.org https://overpass-api.de https://api.midtrans.com https://app.midtrans.com https://api.sandbox.midtrans.com https://app.sandbox.midtrans.com https://esm.sh https://cdnjs.cloudflare.com https://cloudflareinsights.com https://static.cloudflareinsights.com";
 
-        if (app()->environment('local')) {
+        if (app()->environment('local', 'testing')) {
             $scriptSrc .= ' http://127.0.0.1:5173 http://localhost:5173';
             $styleSrc .= ' http://127.0.0.1:5173 http://localhost:5173 https://fonts.bunny.net';
             $fontSrc .= ' http://127.0.0.1:5173 http://localhost:5173 https://fonts.bunny.net';
