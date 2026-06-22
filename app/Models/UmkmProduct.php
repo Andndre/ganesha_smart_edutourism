@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['umkm_profile_id', 'umkm_product_category_id', 'name', 'slug', 'description', 'price', 'stock', 'unit', 'images', 'ar_model_path', 'is_active'])]
+#[Fillable(['umkm_profile_id', 'umkm_product_category_id', 'name', 'slug', 'description', 'price', 'stock', 'unit', 'images', 'is_active'])]
 class UmkmProduct extends Model
 {
     use HasFactory;

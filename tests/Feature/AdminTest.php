@@ -354,7 +354,6 @@ class AdminTest extends TestCase
 
         $profile = UmkmProfile::where('business_name', 'Warung Luwak')->firstOrFail();
         $this->assertEquals('Made Luwak', $profile->owner_name);
-        $this->assertEquals('culinary', $profile->category);
 
         // Assert MapLocation was created and synchronized
         $this->assertNotNull($profile->mapLocation);
@@ -456,10 +455,7 @@ class AdminTest extends TestCase
         $responseCreateSuccess->assertRedirect();
 
         $product = UmkmProduct::where('name', 'Loloh Cemcem Spesial')->firstOrFail();
-        $this->assertNotNull($product->ar_model_path);
         $this->assertCount(2, $product->images);
-
-        Storage::disk('public')->assertExists($product->ar_model_path);
         foreach ($product->images as $path) {
             Storage::disk('public')->assertExists($path);
         }
@@ -484,7 +480,6 @@ class AdminTest extends TestCase
 
         $product->refresh();
         $this->assertEquals('Loloh Cemcem Premium', $product->name);
-        Storage::disk('public')->assertExists($product->ar_model_path);
         $this->assertCount(1, $product->images);
         Storage::disk('public')->assertExists($product->images[0]);
 

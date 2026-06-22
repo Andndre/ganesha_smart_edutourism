@@ -49,15 +49,12 @@ class OwnerDashboardController extends Controller
         $validated = $request->validate([
             'business_name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'category' => ['required', 'string', 'in:culinary,craft,souvenir,service'],
-            'accepts_in_app_payment' => ['required', 'boolean'],
         ]);
 
         if (! $profile) {
             // Create a default profile if they don't have one
             $validated['user_id'] = $user->id;
             $validated['owner_name'] = $user->name;
-            $validated['ar_marker_id'] = 'UMKM_'.strtoupper(Str::random(8));
             $validated['slug'] = Str::slug($validated['business_name']).'-'.Str::random(5);
             $validated['is_active'] = true;
             $validated['rating'] = 5.0;

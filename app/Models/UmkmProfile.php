@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-#[Fillable(['user_id', 'owner_name', 'business_name', 'slug', 'description', 'category', 'rating', 'is_active', 'recommendation_count', 'accepts_in_app_payment'])]
+#[Fillable(['user_id', 'owner_name', 'business_name', 'slug', 'description', 'rating', 'is_active', 'recommendation_count'])]
 class UmkmProfile extends Model
 {
     use HasFactory;
@@ -25,7 +25,6 @@ class UmkmProfile extends Model
         return [
             'is_active' => 'boolean',
             'rating' => 'float',
-            'accepts_in_app_payment' => 'boolean',
         ];
     }
 
@@ -88,17 +87,6 @@ class UmkmProfile extends Model
     public function scopeActive(Builder $query)
     {
         return $query->where('is_active', true);
-    }
-
-    /**
-     * Scope a query to filter by category.
-     *
-     * @param  Builder<UmkmProfile>  $query
-     * @return Builder<UmkmProfile>
-     */
-    public function scopeCategory(Builder $query, string $category)
-    {
-        return $query->where('category', $category);
     }
 
     /**
