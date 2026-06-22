@@ -24,7 +24,7 @@
                         'bg-gray-50 border-gray-100 text-charcoal hover:bg-green-50 hover:text-primary': selectedTime !==
                             slot
                     }"
-                    x-text="slot + ' WIB'">
+                    x-text="slot + ' WITA'">
                 </button>
             </template>
         </div>
@@ -39,7 +39,8 @@
 
     <!-- Custom Clock Input Section -->
     <div class="mt-4">
-        <p class="mb-3 text-center text-xs text-gray-500">Bebas memilih jam operasional berkunjung (07:00 - 18:00 WIB)
+        {{-- TODO: Jam operasional --}}
+        <p class="mb-3 text-center text-xs text-gray-500">Bebas memilih jam operasional berkunjung (07:00 - 18:00 WITA)
         </p>
         <div class="flex items-center justify-center gap-3">
             <!-- Modern Time Input -->
