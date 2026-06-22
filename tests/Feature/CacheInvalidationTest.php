@@ -24,7 +24,7 @@ class CacheInvalidationTest extends TestCase
 
     public function test_capacity_zone_saved_invalidates_cache(): void
     {
-        Cache::put('capacity_zones_active_array', ['data']);
+        Cache::tags(['capacity'])->put('capacity_zones_active_array', ['data'], 60);
 
         CapacityZone::create([
             'name' => 'Zone A',
@@ -33,14 +33,14 @@ class CacheInvalidationTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->assertNull(Cache::get('capacity_zones_active_array'));
+        $this->assertNull(Cache::tags(['capacity'])->get('capacity_zones_active_array'));
     }
 
     public function test_cultural_object_saved_invalidates_cache(): void
     {
-        Cache::put('cultural_objects_all_array', ['all']);
-        Cache::put('explore_map_locations_array', ['locations']);
-        Cache::put('cultural_object_array_tari-kecak', ['kecak']);
+        Cache::tags(['cultural'])->put('cultural_objects_all_array', ['all'], 3600);
+        Cache::tags(['explore'])->put('explore_map_locations_array', ['locations'], 86400);
+        Cache::tags(['cultural'])->put('cultural_object_array_tari-kecak', ['kecak'], 3600);
 
         $culturalObject = CulturalObject::create([
             'name' => 'Tari Kecak',
@@ -49,26 +49,26 @@ class CacheInvalidationTest extends TestCase
             'category' => 'tradition',
         ]);
 
-        $this->assertNull(Cache::get('cultural_objects_all_array'));
-        $this->assertNull(Cache::get('explore_map_locations_array'));
-        $this->assertNull(Cache::get('cultural_object_array_tari-kecak'));
+        $this->assertNull(Cache::tags(['cultural'])->get('cultural_objects_all_array'));
+        $this->assertNull(Cache::tags(['explore'])->get('explore_map_locations_array'));
+        $this->assertNull(Cache::tags(['cultural'])->get('cultural_object_array_tari-kecak'));
 
-        // Test dirty slug updates also clear old slug
-        Cache::put('cultural_object_array_tari-kecak', ['old']);
-        Cache::put('cultural_object_array_tari-kecak-baru', ['new']);
+        // Test dirty slug updates also flush cultural and explore tags
+        Cache::tags(['cultural'])->put('cultural_object_array_tari-kecak', ['old'], 3600);
+        Cache::tags(['cultural'])->put('cultural_object_array_tari-kecak-baru', ['new'], 3600);
 
         $culturalObject->slug = 'tari-kecak-baru';
         $culturalObject->save();
 
-        $this->assertNull(Cache::get('cultural_object_array_tari-kecak'));
-        $this->assertNull(Cache::get('cultural_object_array_tari-kecak-baru'));
+        $this->assertNull(Cache::tags(['cultural'])->get('cultural_object_array_tari-kecak'));
+        $this->assertNull(Cache::tags(['cultural'])->get('cultural_object_array_tari-kecak-baru'));
     }
 
     public function test_event_saved_invalidates_cache(): void
     {
         foreach (['all', 'ceremony', 'cultural', 'workshop', 'culinary'] as $cat) {
-            Cache::put('public_events_upcoming_'.$cat, ['upcoming']);
-            Cache::put('public_events_calendar_'.$cat, ['calendar']);
+            Cache::tags(['events'])->put('public_events_upcoming_'.$cat, ['upcoming'], 3600);
+            Cache::tags(['events'])->put('public_events_calendar_'.$cat, ['calendar'], 3600);
         }
 
         Event::create([
@@ -82,14 +82,14 @@ class CacheInvalidationTest extends TestCase
         ]);
 
         foreach (['all', 'ceremony', 'cultural', 'workshop', 'culinary'] as $cat) {
-            $this->assertNull(Cache::get('public_events_upcoming_'.$cat));
-            $this->assertNull(Cache::get('public_events_calendar_'.$cat));
+            $this->assertNull(Cache::tags(['events'])->get('public_events_upcoming_'.$cat));
+            $this->assertNull(Cache::tags(['events'])->get('public_events_calendar_'.$cat));
         }
     }
 
     public function test_tour_package_saved_invalidates_cache(): void
     {
-        Cache::put('tour_packages_active_array', ['packages']);
+        Cache::tags(['packages'])->put('tour_packages_active_array', ['packages'], 86400);
 
         TourPackage::create([
             'name' => 'Paket Hemat',
@@ -102,22 +102,22 @@ class CacheInvalidationTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->assertNull(Cache::get('tour_packages_active_array'));
+        $this->assertNull(Cache::tags(['packages'])->get('tour_packages_active_array'));
     }
 
     public function test_tour_route_and_points_saved_invalidates_cache(): void
     {
-        Cache::put('explore_map_routes_array', ['map_routes']);
-        Cache::put('edutourism_routes_array', ['routes']);
+        Cache::tags(['explore'])->put('explore_map_routes_array', ['map_routes'], 86400);
+        Cache::tags(['edutourism'])->put('edutourism_routes_array', ['routes'], 86400);
 
         $route = TourRoute::factory()->create();
 
-        $this->assertNull(Cache::get('explore_map_routes_array'));
-        $this->assertNull(Cache::get('edutourism_routes_array'));
+        $this->assertNull(Cache::tags(['explore'])->get('explore_map_routes_array'));
+        $this->assertNull(Cache::tags(['edutourism'])->get('edutourism_routes_array'));
 
         // Reset cache
-        Cache::put('explore_map_routes_array', ['map_routes']);
-        Cache::put('edutourism_routes_array', ['routes']);
+        Cache::tags(['explore'])->put('explore_map_routes_array', ['map_routes'], 86400);
+        Cache::tags(['edutourism'])->put('edutourism_routes_array', ['routes'], 86400);
 
         // Create a route point
         TourRoutePoint::create([
@@ -127,25 +127,25 @@ class CacheInvalidationTest extends TestCase
             'order' => 1,
         ]);
 
-        $this->assertNull(Cache::get('explore_map_routes_array'));
-        $this->assertNull(Cache::get('edutourism_routes_array'));
+        $this->assertNull(Cache::tags(['explore'])->get('explore_map_routes_array'));
+        $this->assertNull(Cache::tags(['edutourism'])->get('edutourism_routes_array'));
     }
 
     public function test_umkm_product_category_saved_invalidates_cache(): void
     {
-        Cache::put('umkm_categories_array', ['categories']);
+        Cache::tags(['umkm'])->put('umkm_categories_array', ['categories'], 86400);
 
         UmkmProductCategory::create([
             'name' => 'Makanan',
             'slug' => 'makanan',
         ]);
 
-        $this->assertNull(Cache::get('umkm_categories_array'));
+        $this->assertNull(Cache::tags(['umkm'])->get('umkm_categories_array'));
     }
 
     public function test_map_related_models_saved_invalidates_cache(): void
     {
-        Cache::put('explore_map_locations_array', ['locations']);
+        Cache::tags(['explore'])->put('explore_map_locations_array', ['locations'], 86400);
 
         $user = User::factory()->create();
 
@@ -155,10 +155,10 @@ class CacheInvalidationTest extends TestCase
             'type' => 'toilet',
             'description' => 'Toilet bersih',
         ]);
-        $this->assertNull(Cache::get('explore_map_locations_array'));
+        $this->assertNull(Cache::tags(['explore'])->get('explore_map_locations_array'));
 
         // Reset cache
-        Cache::put('explore_map_locations_array', ['locations']);
+        Cache::tags(['explore'])->put('explore_map_locations_array', ['locations'], 86400);
 
         // 2. UmkmProfile
         $umkm = UmkmProfile::create([
@@ -171,10 +171,10 @@ class CacheInvalidationTest extends TestCase
             'category' => 'culinary',
             'user_id' => $user->id,
         ]);
-        $this->assertNull(Cache::get('explore_map_locations_array'));
+        $this->assertNull(Cache::tags(['explore'])->get('explore_map_locations_array'));
 
         // Reset cache
-        Cache::put('explore_map_locations_array', ['locations']);
+        Cache::tags(['explore'])->put('explore_map_locations_array', ['locations'], 86400);
 
         // 3. MapLocation
         $loc = MapLocation::create([
@@ -185,16 +185,16 @@ class CacheInvalidationTest extends TestCase
             'locationable_type' => UmkmProfile::class,
             'locationable_id' => $umkm->id,
         ]);
-        $this->assertNull(Cache::get('explore_map_locations_array'));
+        $this->assertNull(Cache::tags(['explore'])->get('explore_map_locations_array'));
 
         // Reset cache
-        Cache::put('explore_map_locations_array', ['locations']);
+        Cache::tags(['explore'])->put('explore_map_locations_array', ['locations'], 86400);
 
         // 4. ArModel
         ArModel::create([
             'name' => 'Model AR',
             'model_3d_path' => 'models/ar.glb',
         ]);
-        $this->assertNull(Cache::get('explore_map_locations_array'));
+        $this->assertNull(Cache::tags(['explore'])->get('explore_map_locations_array'));
     }
 }

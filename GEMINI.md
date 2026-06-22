@@ -139,6 +139,9 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 ## Caching
 
+- **Redis and Tags Requirement**: We use **Redis** (`CACHE_STORE=redis`) for caching. Cache Tags are utilized to manage cache namespaces.
+- **Avoid Cache Stampede**: Instead of plain `Cache::remember`, use `Cache::tags(['your-tag'])->flexible('key', [$freshSeconds, $staleSeconds], callback)` to implement the Stale-While-Revalidate pattern. This protects the database during traffic spikes (e.g. 2000 concurrent users).
+- **Group Invalidation**: Use `Cache::tags(['your-tag'])->flush()` in observers/models for O(1) cache group clearing instead of forgetting individual keys.
 - **Laravel 13 Security Feature**: Due to Laravel 13's `serializable_classes` feature being disabled by default (`false`), you **must not** cache full Eloquent Models or Collections directly (which causes `__PHP_Incomplete_Class` errors upon unserialization).
 - **Correct Pattern**: Convert data to an array before caching using `->toArray()`. If you need to include accessors or relations, make sure to use `->append(['my_accessor'])` before `toArray()`.
 - **View Consumption**: Ensure that the Views consuming these cached variables treat them as arrays (e.g. `$item['name']` instead of `$item->name`) and use standard array helpers like `!empty($item)` instead of `->isNotEmpty()`.

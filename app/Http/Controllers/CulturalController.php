@@ -13,7 +13,7 @@ class CulturalController extends Controller
      */
     public function index(): View
     {
-        $objects = Cache::remember('cultural_objects_all_array', 3600, function () {
+        $objects = Cache::tags(['cultural'])->flexible('cultural_objects_all_array', [3600, 7200], function () {
             return CulturalObject::with('mapLocation.arModel')
                 ->orderBy('name')
                 ->get()
@@ -29,7 +29,7 @@ class CulturalController extends Controller
      */
     public function show(string $slug): View
     {
-        $object = Cache::remember("cultural_object_array_{$slug}", 3600, function () use ($slug) {
+        $object = Cache::tags(['cultural'])->flexible("cultural_object_array_{$slug}", [3600, 7200], function () use ($slug) {
             return CulturalObject::with(['stories', 'mapLocation.arModel'])
                 ->where('slug', $slug)
                 ->firstOrFail()

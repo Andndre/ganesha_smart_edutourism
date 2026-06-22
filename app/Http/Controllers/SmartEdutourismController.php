@@ -17,7 +17,7 @@ class SmartEdutourismController extends Controller
 {
     public function index(Request $request): View
     {
-        $routes = Cache::remember('edutourism_routes_array', 86400, function () {
+        $routes = Cache::tags(['edutourism'])->flexible('edutourism_routes_array', [86400, 172800], function () {
             return TourRoute::where('is_active', true)
                 ->withCount('routePoints')
                 ->get()

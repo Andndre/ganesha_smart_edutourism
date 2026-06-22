@@ -40,30 +40,19 @@ class CacheInvalidationObserver
     protected function invalidateCache(Model $model): void
     {
         if ($model instanceof CapacityZone) {
-            Cache::forget('capacity_zones_active_array');
+            Cache::tags(['capacity'])->flush();
         } elseif ($model instanceof CulturalObject) {
-            Cache::forget('cultural_objects_all_array');
-            Cache::forget('explore_map_locations_array');
-
-            // Invalidate specific slug cache
-            Cache::forget('cultural_object_array_'.$model->slug);
-            if ($model->isDirty('slug')) {
-                Cache::forget('cultural_object_array_'.$model->getOriginal('slug'));
-            }
+            Cache::tags(['cultural', 'explore'])->flush();
         } elseif ($model instanceof Event) {
-            foreach (['all', 'ceremony', 'cultural', 'workshop', 'culinary'] as $categoryKey) {
-                Cache::forget('public_events_upcoming_'.$categoryKey);
-                Cache::forget('public_events_calendar_'.$categoryKey);
-            }
+            Cache::tags(['events'])->flush();
         } elseif ($model instanceof TourPackage) {
-            Cache::forget('tour_packages_active_array');
+            Cache::tags(['packages'])->flush();
         } elseif ($model instanceof TourRoute || $model instanceof TourRoutePoint) {
-            Cache::forget('explore_map_routes_array');
-            Cache::forget('edutourism_routes_array');
+            Cache::tags(['explore', 'edutourism'])->flush();
         } elseif ($model instanceof UmkmProductCategory) {
-            Cache::forget('umkm_categories_array');
+            Cache::tags(['umkm'])->flush();
         } elseif ($model instanceof MapLocation || $model instanceof Facility || $model instanceof UmkmProfile || $model instanceof ArModel) {
-            Cache::forget('explore_map_locations_array');
+            Cache::tags(['explore'])->flush();
         }
     }
 }

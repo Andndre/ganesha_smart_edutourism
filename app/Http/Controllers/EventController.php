@@ -32,7 +32,7 @@ class EventController extends Controller
         }
 
         // Cache upcoming events (1 hour)
-        $upcomingEvents = Cache::remember('public_events_upcoming_'.$categoryKey, 3600, function () use ($categoryKey) {
+        $upcomingEvents = Cache::tags(['events'])->flexible('public_events_upcoming_'.$categoryKey, [3600, 7200], function () use ($categoryKey) {
             $query = Event::query();
 
             if ($categoryKey !== 'all') {
@@ -65,7 +65,7 @@ class EventController extends Controller
         });
 
         // Cache calendar events (1 hour)
-        $calendarEvents = Cache::remember('public_events_calendar_'.$categoryKey, 3600, function () use ($categoryKey) {
+        $calendarEvents = Cache::tags(['events'])->flexible('public_events_calendar_'.$categoryKey, [3600, 7200], function () use ($categoryKey) {
             $query = Event::query();
 
             if ($categoryKey !== 'all') {

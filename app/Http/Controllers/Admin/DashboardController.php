@@ -19,7 +19,7 @@ class DashboardController extends Controller
     public function index(): View
     {
         // 1. Visitor stats
-        $todayVisitorCount = Cache::remember('dashboard_today_visitor_count', 300, function () {
+        $todayVisitorCount = Cache::tags(['dashboard'])->flexible('dashboard_today_visitor_count', [300, 600], function () {
             return VisitorLog::whereDate('logged_at', Carbon::today())
                 ->where('event_type', 'page_view')
                 ->count();
@@ -28,7 +28,7 @@ class DashboardController extends Controller
             $todayVisitorCount = 617;
         }
 
-        $yesterdayVisitorCount = Cache::remember('dashboard_yesterday_visitor_count', 3600, function () {
+        $yesterdayVisitorCount = Cache::tags(['dashboard'])->flexible('dashboard_yesterday_visitor_count', [3600, 7200], function () {
             return VisitorLog::whereDate('logged_at', Carbon::yesterday())
                 ->where('event_type', 'page_view')
                 ->count();
@@ -41,7 +41,7 @@ class DashboardController extends Controller
             : 0;
 
         // 2. Revenue stats
-        $todayRevenue = Cache::remember('dashboard_today_revenue', 300, function () {
+        $todayRevenue = Cache::tags(['dashboard'])->flexible('dashboard_today_revenue', [300, 600], function () {
             return Reservation::whereIn('status', ['confirmed', 'completed'])
                 ->whereDate('created_at', Carbon::today())
                 ->sum('total_amount');
@@ -50,7 +50,7 @@ class DashboardController extends Controller
             $todayRevenue = 4200000;
         }
 
-        $yesterdayRevenue = Cache::remember('dashboard_yesterday_revenue', 3600, function () {
+        $yesterdayRevenue = Cache::tags(['dashboard'])->flexible('dashboard_yesterday_revenue', [3600, 7200], function () {
             return Reservation::whereIn('status', ['confirmed', 'completed'])
                 ->whereDate('created_at', Carbon::yesterday())
                 ->sum('total_amount');
@@ -93,7 +93,7 @@ class DashboardController extends Controller
         $ratingDelta = round($avgRating - $prevAvgRating, 1);
 
         // 5. Capacity Zones
-        $zones = Cache::remember('capacity_zones_active_array', 60, function () {
+        $zones = Cache::tags(['capacity'])->flexible('capacity_zones_active_array', [60, 300], function () {
             return CapacityZone::where('is_active', true)->get()->append('occupancy_percentage')->toArray();
         });
         if (empty($zones)) {
