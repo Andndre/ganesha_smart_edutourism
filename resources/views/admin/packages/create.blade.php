@@ -30,11 +30,13 @@
                     <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Paket <span class="text-warning">*</span></label>
                     <input type="text" name="name" value="{{ old('name', $package->name ?? '') }}" placeholder="Contoh: Paket Keluarga 1 Hari"
                         class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30" required>
+                    @error('name')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi</label>
                     <textarea name="description" rows="3" placeholder="Jelaskan apa saja yang termasuk dalam paket ini..."
                         class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none">{{ old('description', $package->description ?? '') }}</textarea>
+                    @error('description')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -43,12 +45,14 @@
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">Rp</span>
                             <input type="number" name="price" value="{{ old('price', $package->price ?? '') }}" placeholder="85000"
                                 class="w-full rounded-xl border border-gray-200 py-3 pl-10 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30" required>
+                            @error('price')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                         </div>
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Durasi (Jam)</label>
                         <input type="number" step="any" name="duration_hours" value="{{ old('duration_hours', $package->duration_hours ?? '') }}" placeholder="Contoh: 8"
                             class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
+                        @error('duration_hours')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
                 </div>
             </div>
@@ -96,6 +100,7 @@
                 <div>
                     <label class="mb-1.5 block text-sm font-semibold text-gray-700">Upload Foto</label>
                     <input type="file" name="images[]" id="field-images" accept="image/*" multiple class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                    @error('images.*')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 @if(isset($package) && is_array($package->images) && count($package->images) > 0)
                     <div>
@@ -118,6 +123,7 @@
                     <label class="mb-1.5 block text-sm font-semibold text-gray-700">Maks. Peserta / Sesi (opsional)</label>
                     <input type="number" name="max_capacity" value="{{ old('max_capacity', $package->max_capacity ?? '') }}" placeholder="Contoh: 20"
                         class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
+                    @error('max_capacity')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div class="flex items-center gap-2 py-1">
                     <input type="checkbox" id="is_active" name="is_active" value="1" {{ old('is_active', $package->is_active ?? true) ? 'checked' : '' }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
@@ -154,5 +160,14 @@
         list.appendChild(row);
         row.querySelector('input').focus();
     }
+
+    document.querySelector('input[name="images[]"]')?.addEventListener('change', function() {
+        const maxSize = 5 * 1024 * 1024;
+        const oversized = Array.from(this.files || []).find(f => f.size > maxSize);
+        if (oversized) {
+            Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 5MB per gambar.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+            this.value = '';
+        }
+    });
 </script>
 @endpush

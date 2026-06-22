@@ -41,6 +41,12 @@
                     previewAndSubmit(event, form) {
                         const file = event.target.files[0];
                         if (!file) return;
+                        const maxSize = 2 * 1024 * 1024;
+                        if (file.size > maxSize) {
+                            Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 2MB.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+                            event.target.value = '';
+                            return;
+                        }
                         this.fileName = file.name;
                         const reader = new FileReader();
                         reader.onload = (e) => { this.previewUrl = e.target.result; };
@@ -108,6 +114,7 @@
                             <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required
                                 class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
                                 placeholder="{{ __('Masukkan nama lengkap Anda') }}">
+                            @error('name')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                         </div>
 
                         <!-- Email -->
@@ -117,6 +124,7 @@
                             <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required
                                 class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
                                 placeholder="nama@email.com">
+                            @error('email')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                         </div>
 
                         <!-- Phone -->
@@ -126,6 +134,7 @@
                             <input type="text" name="phone" id="phone" value="{{ old('phone', $user->phone) }}"
                                 class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
                                 placeholder="Contoh: 081234567890">
+                            @error('phone')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                         </div>
 
                         <!-- Nationality -->
@@ -136,6 +145,7 @@
                                 value="{{ old('nationality', $user->nationality) }}"
                                 class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
                                 placeholder="Contoh: Indonesia">
+                            @error('nationality')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                         </div>
 
                         <!-- Preferred Language -->
@@ -163,6 +173,7 @@
                                     </svg>
                                 </div>
                             </div>
+                            @error('preferred_language')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                         </div>
                     </div>
 
@@ -184,6 +195,7 @@
                             <input type="password" name="password" id="password"
                                 class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
                                 placeholder="Minimal 8 karakter">
+                            @error('password')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                         </div>
 
                         <!-- Confirm Password -->
@@ -193,6 +205,7 @@
                             <input type="password" name="password_confirmation" id="password_confirmation"
                                 class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
                                 placeholder="Masukkan kembali kata sandi baru">
+                            @error('password_confirmation')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                         </div>
                     </div>
 

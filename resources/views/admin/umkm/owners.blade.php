@@ -100,23 +100,27 @@
         <form id="modal-form" method="POST" action="">
             @csrf
             <div id="method-container"></div>
+            <input type="hidden" name="owner_id" id="field-owner-id" value="">
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Nama Pemilik <span
                             class="text-warning">*</span></label>
                     <input type="text" name="name" id="field-name" required placeholder="Contoh: Wayan Sudira"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    @error('name')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Email Login <span
                             class="text-warning">*</span></label>
                     <input type="email" name="email" id="field-email" required placeholder="Contoh: wayan@example.com"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    @error('email')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Nomor Telepon</label>
                     <input type="text" name="phone" id="field-phone" placeholder="Contoh: 08123456789"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    @error('phone')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label id="password-label" class="block text-sm font-semibold text-gray-700">Password <span
@@ -142,6 +146,7 @@
                     </div>
                     <p id="password-help" class="mt-1 hidden text-xs text-gray-400">* Biarkan kosong jika tidak ingin
                         mengganti password.</p>
+                    @error('password')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
@@ -171,6 +176,7 @@
             modalTitle.innerText = "Buat Akun Pemilik UMKM";
             form.action = "{{ route('admin.umkm.owners.store') }}";
             methodContainer.innerHTML = "";
+            document.getElementById('field-owner-id').value = "";
 
             fieldName.value = "";
             fieldEmail.value = "";
@@ -188,6 +194,7 @@
             modalTitle.innerText = "Edit Akun Pemilik UMKM";
             form.action = `/admin/umkm/owners/${owner.id}`;
             methodContainer.innerHTML = `@method('PUT')`;
+            document.getElementById('field-owner-id').value = owner.id;
 
             fieldName.value = owner.name;
             fieldEmail.value = owner.email;
@@ -225,5 +232,31 @@
         function closeModal() {
             window.dispatchEvent(new CustomEvent('close-owner-modal'));
         }
+
+        @if($errors->any())
+        document.addEventListener('DOMContentLoaded', function () {
+            window.dispatchEvent(new CustomEvent('open-owner-modal'));
+            @if(old('_method') == 'PUT')
+                form.action = "/admin/umkm/owners/{{ old('owner_id') }}";
+                methodContainer.innerHTML = `@method('PUT')`;
+                modalTitle.innerText = "Edit Akun Pemilik UMKM";
+                document.getElementById('field-owner-id').value = "{{ old('owner_id') }}";
+                fieldPassword.required = false;
+                passwordLabel.innerHTML = 'Password Baru';
+                passwordHelp.classList.remove('hidden');
+            @else
+                form.action = "{{ route('admin.umkm.owners.store') }}";
+                methodContainer.innerHTML = "";
+                modalTitle.innerText = "Buat Akun Pemilik UMKM";
+                document.getElementById('field-owner-id').value = "";
+                fieldPassword.required = true;
+                passwordLabel.innerHTML = 'Password <span class="text-warning">*</span>';
+                passwordHelp.classList.add('hidden');
+            @endif
+            fieldName.value = @json(old('name', ''));
+            fieldEmail.value = @json(old('email', ''));
+            fieldPhone.value = @json(old('phone', ''));
+        });
+        @endif
     </script>
 @endpush

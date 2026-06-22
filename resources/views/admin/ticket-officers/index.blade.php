@@ -93,23 +93,27 @@
         <form id="modal-form" method="POST" action="">
             @csrf
             <div id="method-container"></div>
+            <input type="hidden" name="officer_id" id="field-officer-id" value="">
             <div class="space-y-4 text-left">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Nama Petugas <span
                             class="text-warning">*</span></label>
                     <input type="text" name="name" id="field-name" required placeholder="Contoh: I Kadek Wira"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    @error('name')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Email Login <span
                             class="text-warning">*</span></label>
                     <input type="email" name="email" id="field-email" required placeholder="Contoh: kadek@example.com"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    @error('email')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Nomor Telepon</label>
                     <input type="text" name="phone" id="field-phone" placeholder="Contoh: 08123456789"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    @error('phone')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label id="password-label" class="block text-sm font-semibold text-gray-700">Password <span
@@ -135,6 +139,7 @@
                     </div>
                     <p id="password-help" class="mt-1 hidden text-xs text-gray-400">* Biarkan kosong jika tidak ingin
                         mengganti password.</p>
+                    @error('password')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
@@ -165,6 +170,7 @@
             modalTitle.innerText = "Buat Akun Petugas Tiket";
             form.action = "{{ route('admin.ticket-officers.store') }}";
             methodContainer.innerHTML = "";
+            document.getElementById('field-officer-id').value = "";
 
             fieldName.value = "";
             fieldEmail.value = "";
@@ -182,6 +188,7 @@
             modalTitle.innerText = "Edit Akun Petugas Tiket";
             form.action = `/admin/ticket-officers/${officer.id}`;
             methodContainer.innerHTML = `@method('PUT')`;
+            document.getElementById('field-officer-id').value = officer.id;
 
             fieldName.value = officer.name;
             fieldEmail.value = officer.email;
@@ -219,5 +226,31 @@
         function closeModal() {
             window.dispatchEvent(new CustomEvent('close-officer-modal'));
         }
+
+        @if($errors->any())
+        document.addEventListener('DOMContentLoaded', function () {
+            window.dispatchEvent(new CustomEvent('open-officer-modal'));
+            @if(old('_method') == 'PUT')
+                form.action = "/admin/ticket-officers/{{ old('officer_id') }}";
+                methodContainer.innerHTML = `@method('PUT')`;
+                modalTitle.innerText = "Edit Akun Petugas Tiket";
+                document.getElementById('field-officer-id').value = "{{ old('officer_id') }}";
+                fieldPassword.required = false;
+                passwordLabel.innerHTML = 'Password Baru';
+                passwordHelp.classList.remove('hidden');
+            @else
+                form.action = "{{ route('admin.ticket-officers.store') }}";
+                methodContainer.innerHTML = "";
+                modalTitle.innerText = "Buat Akun Petugas Tiket";
+                document.getElementById('field-officer-id').value = "";
+                fieldPassword.required = true;
+                passwordLabel.innerHTML = 'Password <span class="text-warning">*</span>';
+                passwordHelp.classList.add('hidden');
+            @endif
+            fieldName.value = @json(old('name', ''));
+            fieldEmail.value = @json(old('email', ''));
+            fieldPhone.value = @json(old('phone', ''));
+        });
+        @endif
     </script>
 @endpush

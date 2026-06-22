@@ -134,6 +134,7 @@
         <form id="modal-form" method="POST" action="" enctype="multipart/form-data">
             @csrf
             <div id="method-container"></div>
+            <input type="hidden" name="category_id" id="field-category-id" value="">
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Nama Kategori <span
@@ -141,18 +142,21 @@
                     <input type="text" name="name" id="field-name" required
                         placeholder="Contoh: Pakaian Adat, Makanan Ringan"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    @error('name')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="font-display block text-sm font-semibold text-gray-700">Deskripsi</label>
                     <textarea name="description" id="field-description" placeholder="Deskripsi singkat tentang kategori..." rows="3"
                         class="focus:border-primary mt-1 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
+                    @error('description')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
                     <label class="font-display block text-sm font-semibold text-gray-700">Gambar Kategori</label>
-                    <input type="file" name="image" id="field-image" accept="image/*"
+                    <input type="file" name="image" id="field-image" accept="image/*" onchange="previewCategoryImage(this)"
                         class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
                     <span class="mt-1 block text-[10px] text-gray-400">Format gambar (jpg, jpeg, png), maks 2MB.</span>
+                    @error('image')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     <div id="image-preview-container" class="mt-2.5 hidden">
                         <span class="text-primary block text-[10px] font-bold uppercase tracking-wider">Gambar Saat
                             Ini:</span>
@@ -167,14 +171,16 @@
                         class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
                     <span class="mt-1 block text-[10px] text-gray-400">Format model GLB (kompresi Draco didukung), maks
                         20MB.</span>
+                    @error('model_3d_file')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     <span id="current-model-3d" class="text-primary mt-1 block text-[10px] font-semibold"></span>
                 </div>
                 <div>
                     <label class="font-display block text-sm font-semibold text-gray-700">Model 3D iOS (.usdz)</label>
-                    <input type="file" name="model_3d_usdz_file" id="field-model-3d-usdz" accept=".usdz"
+                    <input type="file" name="model_3d_usdz_file" id="field-model-3d-usdz" accept=".usdz" onchange="previewCategoryUSDZ(this)"
                         class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
                     <span class="mt-1 block text-[10px] text-gray-400">Format model USDZ untuk iOS Apple Quick Look, maks
                         50MB.</span>
+                    @error('model_3d_usdz_file')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     <span id="current-model-3d-usdz" class="text-primary mt-1 block text-[10px] font-semibold"></span>
                 </div>
 
@@ -221,6 +227,7 @@
             modalTitle.innerText = "Tambah Kategori Produk";
             form.action = "{{ route('admin.umkm.categories.store') }}";
             methodContainer.innerHTML = "";
+            document.getElementById('field-category-id').value = "";
             fieldName.value = "";
             fieldDescription.value = "";
             fieldImage.value = "";
@@ -239,6 +246,7 @@
             modalTitle.innerText = "Edit Kategori Produk";
             form.action = `/admin/umkm/categories/${cat.id}`;
             methodContainer.innerHTML = `@method('PUT')`;
+            document.getElementById('field-category-id').value = cat.id;
             fieldName.value = cat.name;
             fieldDescription.value = cat.description || "";
             fieldImage.value = "";
@@ -271,8 +279,34 @@
 
         // 3D Model Modal Viewer Helpers
         function previewModelGLB(input) {
+            const maxSize = 20 * 1024 * 1024;
             const file = input.files[0];
+            if (file && file.size > maxSize) {
+                Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 20MB.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+                input.value = '';
+                resetModal3DViewer();
+                return;
+            }
             if (file) setupModal3DViewer(URL.createObjectURL(file));
+        }
+
+        function previewCategoryImage(input) {
+            const maxSize = 2 * 1024 * 1024;
+            const file = input.files[0];
+            if (file && file.size > maxSize) {
+                Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 2MB.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+                input.value = '';
+                return;
+            }
+        }
+
+        function previewCategoryUSDZ(input) {
+            const maxSize = 50 * 1024 * 1024;
+            const file = input.files[0];
+            if (file && file.size > maxSize) {
+                Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 50MB.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+                input.value = '';
+            }
         }
 
         function setupModal3DViewer(src) {
@@ -387,4 +421,25 @@
             }
         });
     </script>
+
+    @if($errors->any())
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            window.dispatchEvent(new CustomEvent('open-category-modal'));
+            @if(old('_method') == 'PUT')
+                form.action = "/admin/umkm/categories/{{ old('category_id') }}";
+                methodContainer.innerHTML = `@method('PUT')`;
+                modalTitle.innerText = "Edit Kategori Produk";
+                document.getElementById('field-category-id').value = "{{ old('category_id') }}";
+            @else
+                form.action = "{{ route('admin.umkm.categories.store') }}";
+                methodContainer.innerHTML = "";
+                modalTitle.innerText = "Tambah Kategori Produk";
+                document.getElementById('field-category-id').value = "";
+            @endif
+            fieldName.value = @json(old('name', ''));
+            fieldDescription.value = @json(old('description', ''));
+        });
+    </script>
+    @endif
 @endpush

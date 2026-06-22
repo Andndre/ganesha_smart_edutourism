@@ -180,12 +180,14 @@
         <form id="modal-form" method="POST" action="" enctype="multipart/form-data">
             @csrf
             <div id="method-container"></div>
+            <input type="hidden" name="product_id" id="field-product-id" value="">
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Nama Produk <span
                             class="text-warning">*</span></label>
                     <input type="text" name="name" id="field-name" required
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    @error('name')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Kategori Produk <span
@@ -197,6 +199,7 @@
                             <option value="{{ $category->id }}">{{ $category->name }}</option>
                         @endforeach
                     </select>
+                    @error('umkm_product_category_id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Toko / UMKM Profil <span
@@ -208,6 +211,7 @@
                                 ({{ $profile->owner_name }})</option>
                         @endforeach
                     </select>
+                    @error('umkm_profile_id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -215,23 +219,27 @@
                                 class="text-warning">*</span></label>
                         <input type="number" name="price" id="field-price" required
                             class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                        @error('price')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700">Stok</label>
                         <input type="number" name="stock" id="field-stock"
                             class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                        @error('stock')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Satuan (Unit)</label>
                     <input type="text" name="unit" id="field-unit" placeholder="pcs, porsi, bungkus"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    @error('unit')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Foto Produk (PNG, JPG, dll. - Bisa pilih
                         banyak)</label>
                     <input type="file" name="images[]" id="field-images" accept="image/*" multiple
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    @error('images.*')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     <div id="current-images-container" class="mt-2 hidden">
                         <p class="mb-1 text-xs font-semibold text-gray-700">Foto saat ini:</p>
                         <div id="current-images-list" class="flex flex-wrap gap-2"></div>
@@ -241,6 +249,7 @@
                     <label class="block text-sm font-semibold text-gray-700">Deskripsi</label>
                     <textarea name="description" id="field-desc" rows="3"
                         class="focus:border-primary mt-1 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
+                    @error('description')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div class="flex items-center gap-2">
                     <input type="checkbox" name="is_active" id="field-active" value="1" checked
@@ -274,6 +283,7 @@
             form.action = "{{ route('admin.umkm.store') }}";
             methodContainer.innerHTML = "";
 
+            document.getElementById('field-product-id').value = "";
             document.getElementById('field-name').value = "";
             document.getElementById('field-category').value = "";
             document.getElementById('field-price').value = "";
@@ -293,6 +303,7 @@
             form.action = `/admin/umkm/products/${prod.id}`;
             methodContainer.innerHTML = `@method('PUT')`;
 
+            document.getElementById('field-product-id').value = prod.id;
             document.getElementById('field-name').value = prod.name;
             document.getElementById('field-category').value = prod.umkm_product_category_id || "";
             document.getElementById('field-profile').value = prod.umkm_profile_id;
@@ -333,6 +344,48 @@
         function closeModal() {
             window.dispatchEvent(new CustomEvent('close-product-modal'));
         }
+
+        document.getElementById('field-images')?.addEventListener('change', function() {
+            const maxSize = 2 * 1024 * 1024;
+            const oversized = Array.from(this.files || []).find(f => f.size > maxSize);
+            if (oversized) {
+                Swal.fire({
+                    title: 'Ukuran File Terlalu Besar',
+                    text: 'Maksimal 2MB per foto.',
+                    icon: 'warning',
+                    confirmButtonColor: '#1E5128',
+                    confirmButtonText: 'Mengerti',
+                    background: '#ffffff'
+                });
+                this.value = '';
+            }
+        });
+
+        @if($errors->any())
+        document.addEventListener('DOMContentLoaded', function () {
+            window.dispatchEvent(new CustomEvent('open-product-modal'));
+            @if(old('_method') == 'PUT')
+                form.action = "/admin/umkm/products/{{ old('product_id') }}";
+                methodContainer.innerHTML = `@method('PUT')`;
+                modalTitle.innerText = "Edit Produk UMKM";
+                document.getElementById('field-product-id').value = "{{ old('product_id') }}";
+            @else
+                form.action = "{{ route('admin.umkm.store') }}";
+                methodContainer.innerHTML = "";
+                modalTitle.innerText = "Tambah Produk UMKM";
+                document.getElementById('field-product-id').value = "";
+            @endif
+
+            document.getElementById('field-name').value = @json(old('name', ''));
+            document.getElementById('field-category').value = @json(old('umkm_product_category_id', ''));
+            document.getElementById('field-profile').value = @json(old('umkm_profile_id', ''));
+            document.getElementById('field-price').value = @json(old('price', ''));
+            document.getElementById('field-stock').value = @json(old('stock', ''));
+            document.getElementById('field-unit').value = @json(old('unit', 'pcs'));
+            document.getElementById('field-desc').value = @json(old('description', ''));
+            document.getElementById('field-active').checked = {{ old('is_active') ? 'true' : 'false' }};
+        });
+        @endif
 
 
     </script>
