@@ -189,6 +189,7 @@
         <form id="modal-form" method="POST" action="" enctype="multipart/form-data">
             @csrf
             <div id="method-container"></div>
+            <input type="hidden" name="product_id" id="field-product-id" value="">
 
             <div class="grid gap-6 md:grid-cols-2">
                 {{-- Left Column (Text Fields) --}}
@@ -198,6 +199,9 @@
                                 class="text-warning">*</span></label>
                         <input type="text" name="name" id="field-name" required
                             class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                        @error('name')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
@@ -210,6 +214,9 @@
                                 <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                             @endforeach
                         </select>
+                        @error('umkm_product_category_id')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -218,13 +225,19 @@
                                     class="text-warning">*</span></label>
                             <input type="number" name="price" id="field-price" required min="0"
                                 placeholder="5000"
-                                class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                            @error('price')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700">Persediaan (Stok)</label>
                             <input type="number" name="stock" id="field-stock" min="0"
                                 placeholder="Kosongkan jika selalu ada"
-                                class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                            @error('stock')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -233,6 +246,9 @@
                             <label class="block text-sm font-semibold text-gray-700">Satuan</label>
                             <input type="text" name="unit" id="field-unit" placeholder="pcs, bungkus, porsi"
                                 class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                            @error('unit')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div class="flex items-center gap-2 pt-6">
                             <input type="checkbox" name="is_active" id="field-active" value="1" checked
@@ -246,6 +262,9 @@
                         <label class="block text-sm font-semibold text-gray-700">Deskripsi Produk</label>
                         <textarea name="description" id="field-description" rows="3"
                             class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
+                        @error('description')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
@@ -256,6 +275,9 @@
                         <input type="file" name="images[]" id="field-images" multiple accept="image/*"
                             onchange="previewImages(this)"
                             class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
+                        @error('images.*')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
@@ -300,6 +322,23 @@
         const storageUrl = "/storage";
 
         function previewImages(input) {
+            const maxSize = 5 * 1024 * 1024; // 5MB (server limit: 5120 KB)
+            const oversized = Array.from(input.files || []).find(f => f.size > maxSize);
+            if (oversized) {
+                Swal.fire({
+                    title: 'Ukuran File Terlalu Besar',
+                    text: 'Ukuran file maksimal adalah 5MB per gambar.',
+                    icon: 'warning',
+                    confirmButtonColor: '#1E5128',
+                    confirmButtonText: 'Mengerti',
+                    background: '#ffffff'
+                });
+                input.value = '';
+                imagePreviewContainer.innerHTML = '';
+                noImageText.classList.remove('hidden');
+                return;
+            }
+
             imagePreviewContainer.innerHTML = '';
 
             if (input.files && input.files.length > 0) {
@@ -326,6 +365,7 @@
             methodContainer.innerHTML = "";
 
             form.reset();
+            document.getElementById('field-product-id').value = "";
             document.getElementById('field-images').value = "";
             imagePreviewContainer.innerHTML = '';
             noImageText.classList.remove('hidden');
@@ -338,6 +378,7 @@
             form.action = `/owner/products/${product.id}`;
             methodContainer.innerHTML = `@method('PUT')`;
 
+            document.getElementById('field-product-id').value = product.id;
             fieldName.value = product.name;
             fieldCategory.value = product.umkm_product_category_id || "";
             fieldPrice.value = Math.round(product.price);
@@ -367,5 +408,32 @@
         function closeModal() {
             window.dispatchEvent(new CustomEvent('close-product-modal'));
         }
+
+        // Auto-reopen modal & restore old() values on validation error
+        @if($errors->any())
+            document.addEventListener('DOMContentLoaded', function () {
+                window.dispatchEvent(new CustomEvent('open-product-modal'));
+
+                @if(old('_method') == 'PUT')
+                    form.action = "/owner/products/{{ old('product_id') }}";
+                    methodContainer.innerHTML = `@method('PUT')`;
+                    modalTitle.innerText = "Edit Produk UMKM";
+                    document.getElementById('field-product-id').value = "{{ old('product_id') }}";
+                @else
+                    form.action = "{{ route('owner.products.store') }}";
+                    methodContainer.innerHTML = "";
+                    modalTitle.innerText = "Tambah Produk UMKM";
+                    document.getElementById('field-product-id').value = "";
+                @endif
+
+                fieldName.value = @json(old('name', ''));
+                fieldCategory.value = @json(old('umkm_product_category_id', ''));
+                fieldPrice.value = @json(old('price', ''));
+                fieldStock.value = @json(old('stock', ''));
+                fieldUnit.value = @json(old('unit', ''));
+                fieldActive.checked = @json((bool)old('is_active', false));
+                fieldDescription.value = @json(old('description', ''));
+            });
+        @endif
     </script>
 @endpush
