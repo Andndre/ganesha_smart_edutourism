@@ -30,7 +30,7 @@
             </div>
             <span class="mb-0.5 text-xs font-bold text-gray-500">Waktu Kunjungan</span>
             <span class="text-charcoal text-sm font-black"
-                x-text="selectedTime ? selectedTime + ' WIB' : 'Pilih Waktu'"></span>
+                x-text="selectedTime ? selectedTime + ' WITA' : 'Pilih Waktu'"></span>
             <input type="hidden" name="scheduled_time" :value="selectedTime">
         </button>
     </div>
