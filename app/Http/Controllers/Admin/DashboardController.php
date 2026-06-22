@@ -8,6 +8,7 @@ use App\Models\Feedback;
 use App\Models\Reservation;
 use App\Models\VisitorLog;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -18,16 +19,20 @@ class DashboardController extends Controller
     public function index(): View
     {
         // 1. Visitor stats
-        $todayVisitorCount = VisitorLog::whereDate('logged_at', Carbon::today())
-            ->where('event_type', 'page_view')
-            ->count();
+        $todayVisitorCount = Cache::remember('dashboard_today_visitor_count', 300, function () {
+            return VisitorLog::whereDate('logged_at', Carbon::today())
+                ->where('event_type', 'page_view')
+                ->count();
+        });
         if ($todayVisitorCount === 0) {
             $todayVisitorCount = 617;
         }
 
-        $yesterdayVisitorCount = VisitorLog::whereDate('logged_at', Carbon::yesterday())
-            ->where('event_type', 'page_view')
-            ->count();
+        $yesterdayVisitorCount = Cache::remember('dashboard_yesterday_visitor_count', 3600, function () {
+            return VisitorLog::whereDate('logged_at', Carbon::yesterday())
+                ->where('event_type', 'page_view')
+                ->count();
+        });
         if ($yesterdayVisitorCount === 0) {
             $yesterdayVisitorCount = 550;
         }
@@ -36,16 +41,20 @@ class DashboardController extends Controller
             : 0;
 
         // 2. Revenue stats
-        $todayRevenue = Reservation::whereIn('status', ['confirmed', 'completed'])
-            ->whereDate('created_at', Carbon::today())
-            ->sum('total_amount');
+        $todayRevenue = Cache::remember('dashboard_today_revenue', 300, function () {
+            return Reservation::whereIn('status', ['confirmed', 'completed'])
+                ->whereDate('created_at', Carbon::today())
+                ->sum('total_amount');
+        });
         if ($todayRevenue == 0) {
             $todayRevenue = 4200000;
         }
 
-        $yesterdayRevenue = Reservation::whereIn('status', ['confirmed', 'completed'])
-            ->whereDate('created_at', Carbon::yesterday())
-            ->sum('total_amount');
+        $yesterdayRevenue = Cache::remember('dashboard_yesterday_revenue', 3600, function () {
+            return Reservation::whereIn('status', ['confirmed', 'completed'])
+                ->whereDate('created_at', Carbon::yesterday())
+                ->sum('total_amount');
+        });
         if ($yesterdayRevenue == 0) {
             $yesterdayRevenue = 3880000;
         }
@@ -84,14 +93,16 @@ class DashboardController extends Controller
         $ratingDelta = round($avgRating - $prevAvgRating, 1);
 
         // 5. Capacity Zones
-        $zones = CapacityZone::where('is_active', true)->get();
-        if ($zones->isEmpty()) {
-            $zones = collect([
-                new CapacityZone(['name' => 'Zona Utama', 'current_count' => 312, 'max_capacity' => 400, 'warning_threshold' => 70, 'critical_threshold' => 90]),
-                new CapacityZone(['name' => 'Area UMKM', 'current_count' => 178, 'max_capacity' => 300, 'warning_threshold' => 70, 'critical_threshold' => 90]),
-                new CapacityZone(['name' => 'Pura Penataran', 'current_count' => 85, 'max_capacity' => 150, 'warning_threshold' => 70, 'critical_threshold' => 90]),
-                new CapacityZone(['name' => 'Kebun Bambu', 'current_count' => 42, 'max_capacity' => 200, 'warning_threshold' => 70, 'critical_threshold' => 90]),
-            ]);
+        $zones = Cache::remember('capacity_zones_active_array', 60, function () {
+            return CapacityZone::where('is_active', true)->get()->append('occupancy_percentage')->toArray();
+        });
+        if (empty($zones)) {
+            $zones = [
+                ['name' => 'Zona Utama', 'current_count' => 312, 'max_capacity' => 400, 'warning_threshold' => 70, 'critical_threshold' => 90, 'occupancy_percentage' => 78],
+                ['name' => 'Area UMKM', 'current_count' => 178, 'max_capacity' => 300, 'warning_threshold' => 70, 'critical_threshold' => 90, 'occupancy_percentage' => 59],
+                ['name' => 'Pura Penataran', 'current_count' => 85, 'max_capacity' => 150, 'warning_threshold' => 70, 'critical_threshold' => 90, 'occupancy_percentage' => 56],
+                ['name' => 'Kebun Bambu', 'current_count' => 42, 'max_capacity' => 200, 'warning_threshold' => 70, 'critical_threshold' => 90, 'occupancy_percentage' => 21],
+            ];
         }
 
         // 7. Chart data (7 days)

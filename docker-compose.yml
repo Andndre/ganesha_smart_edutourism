@@ -22,6 +22,7 @@ services:
     depends_on:
       - penglipuran-db
       - penglipuran-ors
+      - penglipuran-redis
     networks:
       - penglipuran-network
 
@@ -37,6 +38,7 @@ services:
       - penglipuran-storage:/var/www/storage
     depends_on:
       - penglipuran-db
+      - penglipuran-redis
     networks:
       - penglipuran-network
 
@@ -59,6 +61,7 @@ services:
       - ./.env:/var/www/.env
     depends_on:
       - penglipuran-db
+      - penglipuran-redis
     networks:
       - penglipuran-network
 
@@ -75,6 +78,17 @@ services:
       - "${FORWARD_DB_PORT:-3306}:3306"
     volumes:
       - penglipuran-db-data:/var/lib/mysql
+    networks:
+      - penglipuran-network
+
+  penglipuran-redis:
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-redis
+    restart: unless-stopped
+    ports:
+      - "${FORWARD_REDIS_PORT:-6379}:6379"
+    volumes:
+      - penglipuran-redis-data:/data
     networks:
       - penglipuran-network
 
@@ -126,3 +140,4 @@ networks:
 volumes:
   penglipuran-storage:
   penglipuran-db-data:
+  penglipuran-redis-data:

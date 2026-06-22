@@ -52,7 +52,14 @@ DB_USERNAME=admin
 DB_PASSWORD=masukkan_password_aman_di_sini
 DB_ROOT_PASSWORD=masukkan_password_root_mysql_di_sini
 
-# 3. URL OpenRouteService (Mengarah ke container ORS)
+# 3. Pengaturan Caching & Queue (Redis)
+CACHE_STORE=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+REDIS_CLIENT=predis
+REDIS_HOST=penglipuran-redis
+
+# 4. URL OpenRouteService (Mengarah ke container ORS)
 ORS_BASE_URL=http://penglipuran-ors:8082
 ```
 *Catatan: Tekan `CTRL+O` lalu `Enter` untuk menyimpan di nano, dan `CTRL+X` untuk keluar.*
@@ -61,7 +68,7 @@ ORS_BASE_URL=http://penglipuran-ors:8082
 Kami telah menyediakan script `deploy.sh` yang akan otomatis:
 - Mendownload peta OSM regional Bali terbaru untuk rute pejalan kaki.
 - Membuild images Docker untuk Laravel & Nginx.
-- Menjalankan seluruh container.
+- Menjalankan seluruh container (termasuk Redis dan layanan lainnya).
 - Menunggu database MySQL siap.
 - Membuat Application Key (`APP_KEY`) baru jika belum ada.
 - Menjalankan migrasi database.

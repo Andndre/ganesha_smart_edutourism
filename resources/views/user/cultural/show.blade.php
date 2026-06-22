@@ -1,14 +1,14 @@
 @extends('layouts.app')
-@section('title', $object->name . ' - Penglipuran')
+@section('title', $object['name'] . ' - Penglipuran')
 @section('header_title', 'Storytelling')
 
 @section('content')
     <article
-        class="bg-surface {{ $object->ar_marker_id || $object->model_3d_path ? (isset($activeEdutourismSession) && !Route::is('edutourism.active') ? 'pb-52' : 'pb-32') : 'pb-10' }}">
+        class="bg-surface {{ !empty($object['ar_marker_id']) || !empty($object['model_3d_path']) ? (isset($activeEdutourismSession) && !Route::is('edutourism.active') ? 'pb-52' : 'pb-32') : 'pb-10' }}">
         <!-- Hero Image Area / Carousel -->
         <div class="relative h-[40dvh] w-full overflow-hidden bg-gray-200" x-data="{
             currentIndex: 0,
-            images: {{ json_encode(array_map(fn($img) => asset('storage/' . $img), $object->historical_images ?? [])) }},
+            images: {{ json_encode(array_map(fn($img) => asset('storage/' . $img), $object['historical_images'] ?? [])) }},
             next() {
                 this.currentIndex = (this.currentIndex + 1) % this.images.length;
             },
@@ -17,13 +17,13 @@
             }
         }">
 
-            @if ($object->historical_images && count($object->historical_images) > 0)
+            @if (!empty($object['historical_images']) && count($object['historical_images']) > 0)
                 <!-- Slides -->
                 <template x-for="(img, index) in images" :key="index">
                     <div x-show="currentIndex === index" x-transition:enter="transition ease-out duration-300"
                         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                         class="absolute inset-0 h-full w-full">
-                        <img :src="img" alt="{{ $object->name }}" class="h-full w-full object-cover">
+                        <img :src="img" alt="{{ $object['name'] }}" class="h-full w-full object-cover">
                     </div>
                 </template>
 
@@ -65,15 +65,15 @@
             <div class="bg-linear-to-t from-charcoal/90 via-charcoal/20 absolute inset-0 z-10 to-transparent"></div>
 
             <div class="bottom-18 pointer-events-none absolute left-6 right-6 z-20 text-white">
-                <h1 class="font-playfair mb-2 text-3xl font-bold leading-tight">{{ $object->name }}</h1>
-                @if ($object->short_description)
-                    <p class="text-sm font-medium tracking-wide text-gray-200">{{ $object->short_description }}</p>
+                <h1 class="font-playfair mb-2 text-3xl font-bold leading-tight">{{ $object['name'] }}</h1>
+                @if (!empty($object['short_description']))
+                    <p class="text-sm font-medium tracking-wide text-gray-200">{{ $object['short_description'] }}</p>
                 @endif
             </div>
         </div>
 
         <!-- Audio Player -->
-        @if ($object->audio_narration_path)
+        @if (!empty($object['audio_narration_path']))
             <div class="relative z-30 -mt-6 mb-8 px-6" x-data="{
                 playing: false,
                 dragging: false,
@@ -116,7 +116,7 @@
                 }
             }">
                 <!-- Hidden Audio Element -->
-                <audio x-ref="audioEl" src="{{ route('audio.stream', $object->audio_narration_path) }}"
+                <audio x-ref="audioEl" src="{{ route('audio.stream', $object['audio_narration_path']) }}"
                     preload="auto"></audio>
 
                 <div class="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
@@ -179,21 +179,19 @@
 
         <!-- Article Content -->
         <div
-            class="prose prose-p:text-gray-600 prose-p:leading-relaxed prose-h2:font-playfair prose-h2:text-charcoal prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 max-w-none px-6 {{ !$object->audio_narration_path ? 'pt-8' : '' }}">
+            class="prose prose-p:text-gray-600 prose-p:leading-relaxed prose-h2:font-playfair prose-h2:text-charcoal prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 max-w-none px-6 {{ empty($object['audio_narration_path']) ? 'pt-8' : '' }}">
 
-            <div class="text-charcoal mb-6 text-lg font-medium leading-relaxed">
-                {!! $object->description !!}
-            </div>
+            @if (!empty($object['description']))
+                {!! $object['description'] !!}
+            @endif
         </div>
 
-        @if ($object->stories->isNotEmpty())
-            <div class="mt-10 max-w-none border-t border-gray-100 px-6 pt-8">
-                <h2 class="font-playfair text-charcoal mb-1 text-xl font-bold">Storytelling & Warisan Budaya</h2>
-                <p class="mb-8 text-xs text-gray-500">Mendalami nilai sejarah, makna filosofi, dan kearifan lokal objek
-                    budaya ini.</p>
+        @if (!empty($object['stories']))
+            <div class="mt-10 px-6">
+                <h2 class="font-playfair text-charcoal mb-6 text-2xl font-bold">Kisah & Legenda</h2>
 
                 @php
-                    $groupedStories = $object->stories->groupBy('story_type');
+                    $groupedStories = collect($object['stories'])->groupBy('story_type');
                     $categories = [
                         'history' => [
                             'title' => 'Sejarah & Asal-Usul',
@@ -238,11 +236,11 @@
                                                 class="shadow-2xs hover:shadow-xs rounded-xl border border-gray-100 bg-white p-4 transition-all duration-300 hover:border-gray-200">
                                                 <h4
                                                     class="font-playfair text-charcoal group-hover:text-primary mb-2 text-base font-bold leading-tight transition-colors duration-300">
-                                                    {{ $story->title }}
+                                                    {{ $story['title'] }}
                                                 </h4>
                                                 <div
                                                     class="story-content-prose whitespace-normal text-xs leading-relaxed text-gray-600">
-                                                    {!! $story->content !!}
+                                                    {!! $story['content'] !!}
                                                 </div>
                                             </div>
                                         </div>
@@ -256,7 +254,7 @@
         @endif
 
         <!-- AR Button -->
-        @if ($object->ar_marker_id || $object->model_3d_path)
+        @if (!empty($object['ar_marker_id']) || !empty($object['model_3d_path']))
             <div
                 class="{{ isset($activeEdutourismSession) && !Route::is('edutourism.active') ? 'bottom-22 pb-4' : 'bottom-0 pb-[calc(1rem+env(safe-area-inset-bottom))]' }} fixed inset-x-0 z-30 border-t border-gray-100 bg-white p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
                 <a href="{{ route('ar-scan') }}"

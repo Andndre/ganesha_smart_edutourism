@@ -41,14 +41,14 @@
                 <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
                     @foreach ($zones as $zone)
                         @php
-                            $pct = $zone->occupancy_percentage;
+                            $pct = $zone['occupancy_percentage'] ?? 0;
                             $barColor = $pct >= 80 ? 'bg-warning' : ($pct >= 60 ? 'bg-secondary' : 'bg-primary');
                             $textColor = $pct >= 80 ? 'text-warning' : 'text-primary';
                         @endphp
                         <div class="rounded-xl bg-white p-3 shadow-sm">
-                            <p class="text-[11px] font-semibold text-gray-500">{{ $zone->name }}</p>
-                            <p class="{{ $textColor }} mt-0.5 text-lg font-bold">{{ $zone->current_count }}<span
-                                    class="text-xs font-normal text-gray-400">/{{ $zone->max_capacity }}</span></p>
+                            <p class="text-[11px] font-semibold text-gray-500">{{ $zone['name'] }}</p>
+                            <p class="{{ $textColor }} mt-0.5 text-lg font-bold">{{ $zone['current_count'] }}<span
+                                    class="text-xs font-normal text-gray-400">/{{ $zone['max_capacity'] }}</span></p>
                             <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
                                 <div class="{{ $barColor }} h-full rounded-full transition-all"
                                     style="width: {{ $pct }}%"></div>
