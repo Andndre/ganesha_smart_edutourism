@@ -49,7 +49,7 @@ class FacilityController extends Controller
             'accessibility_notes' => $accessibility_notes,
         ]);
 
-        return redirect()->route('admin.map-manager')->with('success', 'Fasilitas berhasil ditambahkan.');
+        return redirect()->route('admin.map-manager')->with('success', __('Fasilitas berhasil ditambahkan.'));
     }
 
     /**
@@ -95,7 +95,7 @@ class FacilityController extends Controller
             ]
         );
 
-        return redirect()->route('admin.map-manager')->with('success', 'Fasilitas berhasil diperbarui.');
+        return redirect()->route('admin.map-manager')->with('success', __('Fasilitas berhasil diperbarui.'));
     }
 
     /**
@@ -105,6 +105,6 @@ class FacilityController extends Controller
     {
         $facility->delete();
 
-        return redirect()->route('admin.map-manager')->with('success', 'Fasilitas berhasil dihapus.');
+        return redirect()->route('admin.map-manager')->with('success', __('Fasilitas berhasil dihapus.'));
     }
 }

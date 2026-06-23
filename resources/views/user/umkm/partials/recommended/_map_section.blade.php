@@ -8,11 +8,11 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                Lokasi UMKM
+                {{ __('Lokasi UMKM') }}
             </h3>
 
             <div class="rounded-xl border border-gray-100 bg-gray-50 p-2">
                 <div id="map"></div>
             </div>
-            <p class="mt-2 text-center text-xs text-gray-500">Peta ini menunjukkan lokasi UMKM di Desa Penglipuran.</p>
+            <p class="mt-2 text-center text-xs text-gray-500">{{ __('Peta ini menunjukkan lokasi UMKM di Desa Penglipuran.') }}</p>
         </div>

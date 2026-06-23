@@ -134,7 +134,7 @@
                     </button>
                     <div class="flex-1">
                         <div class="text-charcoal text-sm font-bold"
-                            x-text="playing ? 'Memutar Kisah Sejarah...' : 'Dengarkan Kisah Ini'">Dengarkan Kisah Ini</div>
+                            x-text="playing ? '{{ __('Memutar Kisah Sejarah...') }}' : '{{ __('Dengarkan Kisah Ini') }}'">{{ __('Dengarkan Kisah Ini') }}</div>
                         <!-- Playback Seekbar & Timers -->
                         <div class="mt-1.5 flex items-center gap-3">
                             <span class="min-w-7 text-[10px] font-bold tabular-nums text-gray-500"
@@ -188,23 +188,23 @@
 
         @if (!empty($object['stories']))
             <div class="mt-10 px-6">
-                <h2 class="font-playfair text-charcoal mb-6 text-2xl font-bold">Kisah & Legenda</h2>
+                <h2 class="font-playfair text-charcoal mb-6 text-2xl font-bold">{{ __('Kisah & Legenda') }}</h2>
 
                 @php
                     $groupedStories = collect($object['stories'])->groupBy('story_type');
                     $categories = [
                         'history' => [
-                            'title' => 'Sejarah & Asal-Usul',
+                            'title' => __('Sejarah & Asal-Usul'),
                             'color' => 'bg-amber-500 border-amber-200 text-amber-500',
                             'border' => 'border-amber-500 text-amber-700',
                         ],
                         'philosophy' => [
-                            'title' => 'Makna Filosofi',
+                            'title' => __('Makna Filosofi'),
                             'color' => 'bg-emerald-500 border-emerald-200 text-emerald-500',
                             'border' => 'border-emerald-500 text-emerald-700',
                         ],
                         'value' => [
-                            'title' => 'Nilai-Nilai Luhur',
+                            'title' => __('Nilai-Nilai Luhur'),
                             'color' => 'bg-blue-500 border-blue-200 text-blue-500',
                             'border' => 'border-blue-500 text-blue-700',
                         ],
@@ -265,7 +265,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    Jelajahi dalam Mode AR
+                    {{ __('Jelajahi dalam Mode AR') }}
                 </a>
             </div>
         @endif

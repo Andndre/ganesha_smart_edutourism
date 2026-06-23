@@ -17,15 +17,15 @@ class EventController extends Controller
     {
         // Build category-aware cache keys
         $categoryKey = 'all';
-        if ($request->filled('category') && $request->category !== 'Semua') {
+        if ($request->filled('category') && $request->category !== 'All') {
             $categoryMap = [
-                'Upacara Adat' => 'ceremony',
-                'Festival' => 'cultural',
-                'Workshop' => 'workshop',
-                'Pameran' => 'cultural',
-                'Pertunjukan Seni' => 'cultural',
-                'Budaya' => 'cultural',
-                'Kuliner' => 'culinary',
+            'Upacara Adat' => 'ceremony',
+            'Festival' => 'cultural',
+            'Workshop' => 'workshop',
+            'Pameran' => 'cultural',
+            'Pertunjukan Seni' => 'cultural',
+            'Budaya' => 'cultural',
+            'Kuliner' => 'culinary',
             ];
             $mappedCategory = $categoryMap[$request->category] ?? $request->category;
             $categoryKey = $mappedCategory;
@@ -86,7 +86,7 @@ class EventController extends Controller
                         'location' => $event->location_name,
                         'description' => $event->description,
                         'is_free' => $event->is_free,
-                        'price' => $event->is_free ? 'Gratis' : 'Rp '.number_format($event->price, 0, ',', '.'),
+                        'price' => $event->is_free ? __('Gratis') : 'Rp '.number_format($event->price, 0, ',', '.'),
                         'max_participants' => $event->max_participants ?? '-',
                         'color' => match ($event->category) {
                             'ceremony' => '#D4AF37',

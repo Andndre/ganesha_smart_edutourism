@@ -47,7 +47,7 @@ class ARController extends Controller
         }
 
         if (! $model || ! $model->model_3d_path) {
-            return response()->json(['error' => 'Model 3D tidak tersedia untuk objek ini'], 404);
+            return response()->json(['error' => __('Model 3D tidak tersedia untuk objek ini')], 404);
         }
 
         $locationable = $model->mapLocation?->locationable;

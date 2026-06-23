@@ -4,12 +4,10 @@
     <div class="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-[#D4AF37]/10 blur-2xl"></div>
     <div class="relative z-10">
         <span
-            class="inline-block rounded-full bg-white/20 px-3 py-1 text-[9px] font-bold uppercase tracking-wider backdrop-blur-md">Budaya
-            & Event</span>
-        <h1 class="font-display mt-2 text-2xl font-extrabold tracking-tight">Agenda Budaya Penglipuran</h1>
+            class="inline-block rounded-full bg-white/20 px-3 py-1 text-[9px] font-bold uppercase tracking-wider backdrop-blur-md">{{ __('Budaya & Event') }}</span>
+        <h1 class="font-display mt-2 text-2xl font-extrabold tracking-tight">{{ __('Agenda Budaya Penglipuran') }}</h1>
         <p class="mt-1.5 text-xs leading-relaxed text-green-50/90">
-            Saksikan keluhuran ritus adat Bali, keceriaan festival budaya, dan jelajahi kearifan lokal melalui workshop
-            interaktif di desa adat kami.
+            {{ __('Saksikan keluhuran ritus adat Bali, keceriaan festival budaya, dan jelajahi kearifan lokal melalui workshop interaktif di desa adat kami.') }}
         </p>
     </div>
 </div>

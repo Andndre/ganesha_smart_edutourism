@@ -1,6 +1,6 @@
 @extends('layouts.auth')
 
-@section('title', 'Daftar - Penglipuran Smart Tour')
+@section('title', __('Daftar - Penglipuran Smart Tour'))
 
 @section('content')
     <div class="bg-surface flex min-h-full flex-col justify-center px-6 py-10">
@@ -11,9 +11,8 @@
                 <img src="{{ asset('icons/logo-color.png') }}" alt="Penglipuran Logo" class="h-24 w-auto object-contain">
             </div>
 
-            <h1 class="font-display text-charcoal text-3xl font-bold">Buat Akun</h1>
-            <p class="mt-2 text-base leading-relaxed text-gray-500">Bergabunglah untuk memesan tiket dan menjelajahi desa
-                secara interaktif.</p>
+            <h1 class="font-display text-charcoal text-3xl font-bold">{{ __('Buat Akun') }}</h1>
+            <p class="mt-2 text-base leading-relaxed text-gray-500">{{ __('Bergabunglah untuk memesan tiket dan menjelajahi desa secara interaktif.') }}</p>
         </div>
 
         {{-- Register Form --}}
@@ -27,25 +26,25 @@
             @endif
 
             <div class="space-y-1.5">
-                <label for="name" class="text-sm font-semibold text-gray-700">Nama Lengkap</label>
+                <label for="name" class="text-sm font-semibold text-gray-700">{{ __('Nama Lengkap') }}</label>
                 <input type="text" id="name" name="name" value="{{ old('name') }}"
                     class="w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
-                    placeholder="Contoh: Andre Kusuma" required>
+                    placeholder="{{ __('Contoh: Andre Kusuma') }}" required>
             </div>
 
             <div class="space-y-1.5">
-                <label for="email" class="text-sm font-semibold text-gray-700">Email</label>
+                <label for="email" class="text-sm font-semibold text-gray-700">{{ __('Email') }}</label>
                 <input type="email" id="email" name="email" value="{{ old('email') }}"
                     class="w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
-                    placeholder="Masukkan email aktif" required>
+                    placeholder="{{ __('Masukkan email aktif') }}" required>
             </div>
 
             <div class="space-y-1.5">
-                <label for="password" class="text-sm font-semibold text-gray-700">Password</label>
+                <label for="password" class="text-sm font-semibold text-gray-700">{{ __('Password') }}</label>
                 <div class="relative">
                     <input type="password" id="password" name="password"
                         class="w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
-                        placeholder="Minimal 8 karakter" required>
+                        placeholder="{{ __('Minimal 8 karakter') }}" required>
                     <button type="button" id="toggle-password"
                         class="absolute right-4 top-1/2 -translate-y-1/2 z-10 text-gray-400 focus:outline-none">
                         <!-- Eye Icon (Open) -->
@@ -66,11 +65,11 @@
             </div>
 
             <div class="space-y-1.5">
-                <label for="password_confirmation" class="text-sm font-semibold text-gray-700">Konfirmasi Password</label>
+                <label for="password_confirmation" class="text-sm font-semibold text-gray-700">{{ __('Konfirmasi Password') }}</label>
                 <div class="relative">
                     <input type="password" id="password_confirmation" name="password_confirmation"
                         class="w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
-                        placeholder="Ketik ulang password" required>
+                        placeholder="{{ __('Ketik ulang password') }}" required>
                     <button type="button" id="toggle-password-conf"
                         class="absolute right-4 top-1/2 -translate-y-1/2 z-10 text-gray-400 focus:outline-none">
                         <!-- Eye Icon (Open) -->
@@ -104,7 +103,7 @@
 
             <button type="submit"
                 class="tap-target bg-primary shadow-primary/20 hover:bg-primary-600 mt-6 w-full rounded-xl py-3.5 font-bold text-white shadow-lg transition-all active:scale-[0.98]">
-                Daftar Sekarang
+                {{ __('Daftar Sekarang') }}
             </button>
         </form>
 
@@ -112,8 +111,7 @@
         <div class="mx-auto mt-8 w-full max-w-sm">
             <div class="relative flex items-center">
                 <div class="grow border-t border-gray-200"></div>
-                <span class="mx-4 shrink-0 text-xs font-medium uppercase tracking-wider text-gray-400">atau daftar
-                    dengan</span>
+                <span class="mx-4 shrink-0 text-xs font-medium uppercase tracking-wider text-gray-400">{{ __('atau daftar dengan') }}</span>
                 <div class="grow border-t border-gray-200"></div>
             </div>
         </div>
@@ -132,15 +130,14 @@
                     <path fill="#EA4335"
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                 </svg>
-                <span class="text-charcoal text-sm font-bold">Daftar menggunakan Google</span>
+                <span class="text-charcoal text-sm font-bold">{{ __('Daftar menggunakan Google') }}</span>
             </a>
         </div>
 
         {{-- Login Link --}}
         <p class="mt-10 pb-8 text-center text-sm font-medium text-gray-500">
-            Sudah punya akun?
-            <a href="{{ route('login') }}" class="text-primary hover:text-primary-600 font-bold transition-colors">Masuk di
-                sini</a>
+            {{ __('Sudah punya akun?') }}
+            <a href="{{ route('login') }}" class="text-primary hover:text-primary-600 font-bold transition-colors">{{ __('Masuk di sini') }}</a>
         </p>
     </div>
 @endsection

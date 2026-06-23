@@ -5,7 +5,7 @@
             <!-- Image Header -->
             <div class="relative -mx-6 -mt-6 mb-6 h-48 overflow-hidden rounded-t-[2.5rem] bg-gray-100 md:rounded-t-3xl">
                 <template x-if="selectedProduct?.image">
-                    <img :src="selectedProduct.image" class="h-full w-full object-cover" alt="Product Image">
+                    <img :src="selectedProduct.image" class="h-full w-full object-cover" alt="{{ __('Product Image') }}">
                 </template>
                 <template x-if="!selectedProduct?.image">
                     <div class="flex h-full w-full items-center justify-center text-gray-300">
@@ -18,7 +18,7 @@
                 <!-- Close Button on Mobile -->
                 <button type="button" @click="isOpen = false"
                     class="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:text-gray-600 active:scale-95 md:hidden"
-                    title="Tutup">
+                    title="{{ __('Tutup') }}">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>

@@ -1,6 +1,6 @@
 @extends('layouts.auth')
 
-@section('title', 'Masuk - Penglipuran Smart Tour')
+@section('title', __('Masuk - Penglipuran Smart Tour'))
 
 @section('content')
     <div class="bg-surface flex min-h-full flex-col justify-center px-6 py-12">
@@ -11,9 +11,8 @@
                 <img src="{{ asset('icons/logo-color.png') }}" alt="Penglipuran Logo" class="h-24 w-auto object-contain">
             </div>
 
-            <h1 class="font-display text-charcoal text-3xl font-bold">Rahajeng Rauh</h1>
-            <p class="mt-2 text-base leading-relaxed text-gray-500">Masuk untuk memulai petualangan edukasi budaya Anda di
-                Desa Penglipuran.</p>
+            <h1 class="font-display text-charcoal text-3xl font-bold">{{ __('Rahajeng Rauh') }}</h1>
+            <p class="mt-2 text-base leading-relaxed text-gray-500">{{ __('Masuk untuk memulai petualangan edukasi budaya Anda di Desa Penglipuran.') }}</p>
         </div>
 
         {{-- Login Form --}}
@@ -27,16 +26,16 @@
             @endif
 
             <div class="space-y-1.5">
-                <label for="email" class="text-sm font-semibold text-gray-700">Email</label>
+                <label for="email" class="text-sm font-semibold text-gray-700">{{ __('Email') }}</label>
                 <input type="email" id="email" name="email" value="{{ old('email') }}"
                     class="w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
-                    placeholder="Masukkan email Anda" required>
+                    placeholder="{{ __('Masukkan email Anda') }}" required>
             </div>
 
             <div class="space-y-1.5">
                 <div class="flex items-center justify-between">
-                    <label for="password" class="text-sm font-semibold text-gray-700">Password</label>
-                    <a href="{{ route('forgot-password') }}" class="text-xs font-semibold text-primary">Lupa password?</a>
+                    <label for="password" class="text-sm font-semibold text-gray-700">{{ __('Password') }}</label>
+                    <a href="{{ route('forgot-password') }}" class="text-xs font-semibold text-primary">{{ __('Lupa password?') }}</a>
                 </div>
                 <div class="relative">
                     <input type="password" id="password" name="password"
@@ -58,7 +57,7 @@
 
             <button type="submit"
                 class="tap-target bg-primary shadow-primary/20 hover:bg-primary-600 mt-4 w-full rounded-xl py-3.5 font-bold text-white shadow-lg transition-all active:scale-[0.98]">
-                Masuk ke Aplikasi
+                {{ __('Masuk ke Aplikasi') }}
             </button>
         </form>
 
@@ -66,8 +65,7 @@
         <div class="mx-auto mt-8 w-full max-w-sm">
             <div class="relative flex items-center">
                 <div class="grow border-t border-gray-200"></div>
-                <span class="mx-4 shrink-0 text-xs font-medium uppercase tracking-wider text-gray-400">atau masuk
-                    dengan</span>
+                <span class="mx-4 shrink-0 text-xs font-medium uppercase tracking-wider text-gray-400">{{ __('atau masuk dengan') }}</span>
                 <div class="grow border-t border-gray-200"></div>
             </div>
         </div>
@@ -86,15 +84,14 @@
                     <path fill="#EA4335"
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                 </svg>
-                <span class="text-charcoal text-sm font-bold">Lanjutkan dengan Google</span>
+                <span class="text-charcoal text-sm font-bold">{{ __('Lanjutkan dengan Google') }}</span>
             </a>
         </div>
 
         {{-- Register Link --}}
         <p class="mt-10 text-center text-sm font-medium text-gray-500">
-            Belum punya tiket/akun?
-            <a href="{{ route('register') }}" class="text-primary hover:text-primary-600 font-bold transition-colors">Daftar
-                sekarang</a>
+            {{ __('Belum punya tiket/akun?') }}
+            <a href="{{ route('register') }}" class="text-primary hover:text-primary-600 font-bold transition-colors">{{ __('Daftar sekarang') }}</a>
         </p>
     </div>
 @endsection

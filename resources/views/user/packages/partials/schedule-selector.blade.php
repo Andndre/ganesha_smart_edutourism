@@ -1,6 +1,6 @@
 <!-- Schedule / Jadwal Kunjungan (Traveloka-Style Selector) -->
 <div class="space-y-3">
-    <h3 class="text-charcoal font-bold">Jadwal Kunjungan</h3>
+    <h3 class="text-charcoal font-bold">{{ __('Jadwal Kunjungan') }}</h3>
     <div class="grid grid-cols-2 gap-3">
         <!-- Date Trigger Button -->
         <button type="button" @click="$dispatch('open-calendar-modal')"
@@ -12,9 +12,9 @@
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
             </div>
-            <span class="mb-0.5 text-xs font-bold text-gray-500">Tanggal Kunjungan</span>
+            <span class="mb-0.5 text-xs font-bold text-gray-500">{{ __('Tanggal Kunjungan') }}</span>
             <span class="text-charcoal text-sm font-black"
-                x-text="selectedDate ? formatDateLong(selectedDate) : 'Pilih Tanggal'"></span>
+                x-text="selectedDate ? formatDateLong(selectedDate) : '{{ __('Pilih Tanggal') }}'"></span>
             <input type="hidden" name="scheduled_date" :value="selectedDate">
         </button>
 
@@ -28,9 +28,9 @@
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             </div>
-            <span class="mb-0.5 text-xs font-bold text-gray-500">Waktu Kunjungan</span>
+            <span class="mb-0.5 text-xs font-bold text-gray-500">{{ __('Waktu Kunjungan') }}</span>
             <span class="text-charcoal text-sm font-black"
-                x-text="selectedTime ? selectedTime + ' WITA' : 'Pilih Waktu'"></span>
+                x-text="selectedTime ? selectedTime + ' WITA' : '{{ __('Pilih Waktu') }}'"></span>
             <input type="hidden" name="scheduled_time" :value="selectedTime">
         </button>
     </div>

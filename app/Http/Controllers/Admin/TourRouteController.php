@@ -114,7 +114,7 @@ class TourRouteController extends Controller
             }
         }
 
-        return redirect()->route('admin.tour-routes')->with('success', 'Rute wisata berhasil ditambahkan.');
+        return redirect()->route('admin.tour-routes')->with('success', __('Rute wisata berhasil ditambahkan.'));
     }
 
     /**
@@ -173,7 +173,7 @@ class TourRouteController extends Controller
             }
         }
 
-        return redirect()->route('admin.tour-routes')->with('success', 'Rute wisata berhasil diperbarui.');
+        return redirect()->route('admin.tour-routes')->with('success', __('Rute wisata berhasil diperbarui.'));
     }
 
     /**
@@ -185,9 +185,9 @@ class TourRouteController extends Controller
         $route->is_active = ! $route->is_active;
         $route->save();
 
-        $status = $route->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        $status = $route->is_active ? __('diaktifkan') : __('dinonaktifkan');
 
-        return redirect()->route('admin.tour-routes')->with('success', "Rute wisata berhasil {$status}.");
+        return redirect()->route('admin.tour-routes')->with('success', __('Rute wisata berhasil :status', ['status' => $status]));
     }
 
     /**
@@ -199,6 +199,6 @@ class TourRouteController extends Controller
         $route->routePoints()->delete();
         $route->delete();
 
-        return redirect()->route('admin.tour-routes')->with('success', 'Rute wisata berhasil dihapus.');
+        return redirect()->route('admin.tour-routes')->with('success', __('Rute wisata berhasil dihapus.'));
     }
 }

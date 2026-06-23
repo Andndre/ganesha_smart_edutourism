@@ -133,7 +133,7 @@
                                 class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Nomor Telepon (Opsional)') }}</label>
                             <input type="text" name="phone" id="phone" value="{{ old('phone', $user->phone) }}"
                                 class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
-                                placeholder="Contoh: 081234567890">
+                                placeholder="{{ __('Contoh: 081234567890') }}">
                             @error('phone')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                         </div>
 
@@ -144,7 +144,7 @@
                             <input type="text" name="nationality" id="nationality"
                                 value="{{ old('nationality', $user->nationality) }}"
                                 class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
-                                placeholder="Contoh: Indonesia">
+                                placeholder="{{ __('Contoh: Indonesia') }}">
                             @error('nationality')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                         </div>
 
@@ -194,7 +194,7 @@
                                 class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Kata Sandi Baru (Opsional)') }}</label>
                             <input type="password" name="password" id="password"
                                 class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
-                                placeholder="Minimal 8 karakter">
+                                placeholder="{{ __('Minimal 8 karakter') }}">
                             @error('password')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                         </div>
 
@@ -204,7 +204,7 @@
                                 class="text-charcoal mb-1.5 block text-sm font-bold">{{ __('Konfirmasi Kata Sandi Baru') }}</label>
                             <input type="password" name="password_confirmation" id="password_confirmation"
                                 class="focus:border-primary focus:ring-primary w-full rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
-                                placeholder="Masukkan kembali kata sandi baru">
+                                placeholder="{{ __('Masukkan kembali kata sandi baru') }}">
                             @error('password_confirmation')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                         </div>
                     </div>

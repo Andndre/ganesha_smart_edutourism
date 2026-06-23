@@ -58,7 +58,7 @@
                                     </button>
                                     <form method="POST" action="{{ route('admin.ticket-officers.destroy', $officer->id) }}"
                                         class="delete-form inline"
-                                        data-confirm="Apakah Anda yakin ingin menghapus akun petugas tiket ini?">
+                                        data-confirm="{{ __('Apakah Anda yakin ingin menghapus akun petugas tiket ini?') }}">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"

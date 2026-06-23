@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'Favorit Saya')
-@section('header_title', 'Favorit Saya')
+@section('title', __('Favorit Saya'))
+@section('header_title', __('Favorit Saya'))
 
 @section('content')
     <div class="px-4 pb-24 pt-[calc(env(safe-area-inset-top)+6rem)]">
@@ -13,11 +13,11 @@
                 <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                 </svg>
-                <h2 class="text-xl font-bold text-charcoal mb-2">Belum Ada Favorit</h2>
-                <p class="text-sm text-gray-500 mb-6 max-w-xs">Belum ada favorit. Kunjungi tempat dan tambahkan ke favorit!</p>
+                <h2 class="text-xl font-bold text-charcoal mb-2">{{ __('Belum Ada Favorit') }}</h2>
+                <p class="text-sm text-gray-500 mb-6 max-w-xs">{{ __('Belum ada favorit. Kunjungi tempat dan tambahkan ke favorit!') }}</p>
                 <a href="{{ route('edutourism.index') }}"
                     class="bg-primary inline-flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold text-white shadow-lg transition-all active:scale-[0.98]">
-                    Mulai Jelajahi
+                    {{ __('Mulai Jelajahi') }}
                 </a>
             </div>
         @else
@@ -50,7 +50,7 @@
                                 </div>
                                 <button onclick="toggleFavorite('{{ get_class($item) }}', {{ $item->id }}, this)"
                                     class="tap-target flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-50 transition-colors active:bg-gray-100"
-                                    aria-label="Hapus dari favorit">
+                                    aria-label="{{ __('Hapus dari favorit') }}">
                                     <svg class="h-5 w-5 text-yellow-400 fill-current" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                                     </svg>

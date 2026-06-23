@@ -13,7 +13,7 @@
                             4.9
                         </span>
                         <span class="text-gray-400 text-sm">•</span>
-                        <span class="text-gray-500 text-sm">Terjual 120+</span>
+                        <span class="text-gray-500 text-sm">{{ __('Terjual') }} 120+</span>
                     </div>
                 </div>
                 <button class="p-2 bg-gray-50 rounded-full text-gray-400 hover:text-red-500 transition-colors">

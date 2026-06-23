@@ -29,13 +29,13 @@ class EventController extends Controller
 
         if ($request->filled('category') && $request->category !== 'Semua Kategori') {
             $categoryMap = [
-                'Upacara Adat' => 'ceremony',
-                'Festival' => 'cultural',
-                'Workshop' => 'workshop',
-                'Pameran' => 'cultural',
-                'Pertunjukan Seni' => 'cultural',
-                'Budaya' => 'cultural',
-                'Kuliner' => 'culinary',
+            'Upacara Adat' => 'ceremony',
+            'Festival' => 'cultural',
+            'Workshop' => 'workshop',
+            'Pameran' => 'cultural',
+            'Pertunjukan Seni' => 'cultural',
+            'Budaya' => 'cultural',
+                __('Kuliner') => 'culinary',
             ];
             $mappedCategory = $categoryMap[$request->category] ?? $request->category;
             $query->category($mappedCategory);
@@ -130,7 +130,7 @@ class EventController extends Controller
                 'location' => $event->location_name,
                 'description' => $event->description,
                 'is_free' => $event->is_free,
-                'price' => $event->is_free ? 'Gratis' : 'Rp '.number_format($event->price, 0, ',', '.'),
+                'price' => $event->is_free ? __('Gratis') : 'Rp '.number_format($event->price, 0, ',', '.'),
                 'max_participants' => $event->max_participants ?? '-',
                 'edit_url' => route('admin.events.edit', $event->id),
                 'delete_action' => route('admin.events.destroy', $event->id),
@@ -200,7 +200,7 @@ class EventController extends Controller
         $endDatetime = Carbon::parse($validated['end_date'].' '.$endTimeStr);
 
         if ($endDatetime->lt($startDatetime)) {
-            return back()->withErrors(['end_date' => 'Tanggal & waktu selesai harus setelah waktu mulai.'])->withInput();
+            return back()->withErrors(['end_date' => __('Tanggal & waktu selesai harus setelah waktu mulai.')])->withInput();
         }
 
         $isFree = $request->has('is_free') || $request->input('is_free') == '1';
@@ -248,7 +248,7 @@ class EventController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.events')->with('success', 'Event berhasil ditambahkan.');
+        return redirect()->route('admin.events')->with('success', __('Event berhasil ditambahkan.'));
     }
 
     /**
@@ -277,7 +277,7 @@ class EventController extends Controller
                 'location' => $event->location_name,
                 'description' => $event->description,
                 'is_free' => $event->is_free,
-                'price' => $event->is_free ? 'Gratis' : 'Rp '.number_format($event->price, 0, ',', '.'),
+                'price' => $event->is_free ? __('Gratis') : 'Rp '.number_format($event->price, 0, ',', '.'),
                 'max_participants' => $event->max_participants ?? '-',
                 'edit_url' => route('admin.events.edit', $event->id),
                 'delete_action' => route('admin.events.destroy', $event->id),
@@ -363,7 +363,7 @@ class EventController extends Controller
         $endDatetime = Carbon::parse($validated['end_date'].' '.$endTimeStr);
 
         if ($endDatetime->lt($startDatetime)) {
-            return back()->withErrors(['end_date' => 'Tanggal & waktu selesai harus setelah waktu mulai.'])->withInput();
+            return back()->withErrors(['end_date' => __('Tanggal & waktu selesai harus setelah waktu mulai.')])->withInput();
         }
 
         $isFree = $request->has('is_free') || $request->input('is_free') == '1';
@@ -414,7 +414,7 @@ class EventController extends Controller
             $event->mapLocation()->delete();
         }
 
-        return redirect()->route('admin.events')->with('success', 'Event berhasil diperbarui.');
+        return redirect()->route('admin.events')->with('success', __('Event berhasil diperbarui.'));
     }
 
     /**
@@ -425,6 +425,6 @@ class EventController extends Controller
         $event = Event::findOrFail($id);
         $event->delete();
 
-        return redirect()->route('admin.events')->with('success', 'Event berhasil dihapus.');
+        return redirect()->route('admin.events')->with('success', __('Event berhasil dihapus.'));
     }
 }

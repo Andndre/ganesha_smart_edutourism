@@ -101,7 +101,7 @@ class BookingController extends Controller
         if ($request->party_size < $package->min_capacity || $request->party_size > $package->max_capacity) {
             return response()->json([
                 'success' => false,
-                'message' => "Jumlah peserta harus antara {$package->min_capacity} dan {$package->max_capacity} orang.",
+                'message' => __('Jumlah peserta harus antara :min dan :max orang.', ['min' => $package->min_capacity, 'max' => $package->max_capacity]),
             ], 422);
         }
 
@@ -167,7 +167,7 @@ class BookingController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal terhubung ke sistem pembayaran. Silakan coba lagi.',
+                'message' => __('Gagal terhubung ke sistem pembayaran. Silakan coba lagi.'),
             ], 500);
         }
     }

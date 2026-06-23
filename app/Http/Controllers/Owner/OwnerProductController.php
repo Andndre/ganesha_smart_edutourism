@@ -61,7 +61,7 @@ class OwnerProductController extends Controller
         $profile = $user->umkmProfile;
 
         if (! $profile) {
-            return redirect()->route('owner.products')->with('error', 'Silakan buat profil toko terlebih dahulu.');
+            return redirect()->route('owner.products')->with('error', __('Silakan buat profil toko terlebih dahulu.'));
         }
 
         $validated = $request->validate([
@@ -99,7 +99,7 @@ class OwnerProductController extends Controller
 
         UmkmProduct::create($validated);
 
-        return redirect()->route('owner.products')->with('success', 'Produk berhasil ditambahkan.');
+        return redirect()->route('owner.products')->with('success', __('Produk berhasil ditambahkan.'));
     }
 
     /**
@@ -111,7 +111,7 @@ class OwnerProductController extends Controller
         $profile = $user->umkmProfile;
 
         if (! $profile) {
-            return redirect()->route('owner.products')->with('error', 'Silakan buat profil toko terlebih dahulu.');
+            return redirect()->route('owner.products')->with('error', __('Silakan buat profil toko terlebih dahulu.'));
         }
 
         $product = UmkmProduct::where('umkm_profile_id', $profile->id)->findOrFail($id);
@@ -149,7 +149,7 @@ class OwnerProductController extends Controller
 
         $product->update($validated);
 
-        return redirect()->route('owner.products')->with('success', 'Produk berhasil diperbarui.');
+        return redirect()->route('owner.products')->with('success', __('Produk berhasil diperbarui.'));
     }
 
     /**
@@ -161,12 +161,12 @@ class OwnerProductController extends Controller
         $profile = $user->umkmProfile;
 
         if (! $profile) {
-            return redirect()->route('owner.products')->with('error', 'Silakan buat profil toko terlebih dahulu.');
+            return redirect()->route('owner.products')->with('error', __('Silakan buat profil toko terlebih dahulu.'));
         }
 
         $product = UmkmProduct::where('umkm_profile_id', $profile->id)->findOrFail($id);
         $product->delete();
 
-        return redirect()->route('owner.products')->with('success', 'Produk berhasil dihapus.');
+        return redirect()->route('owner.products')->with('success', __('Produk berhasil dihapus.'));
     }
 }

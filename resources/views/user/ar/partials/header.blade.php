@@ -2,7 +2,7 @@
 <div class="pointer-events-none absolute inset-x-0 top-6 z-50 flex justify-center">
     <div id="status-badge"
         class="rounded-full bg-black/40 px-4 py-1.5 text-xs font-bold text-white shadow-lg backdrop-blur-md transition-colors">
-        Arahkan ke Marker QR
+        {{ __('Arahkan ke Marker QR') }}
     </div>
 </div>
 
@@ -26,17 +26,16 @@
                 </svg>
             </div>
         </div>
-        <h3 class="mb-2 text-center text-lg font-bold text-gray-900">Tutup Pemindai?</h3>
-        <p class="mb-6 text-center text-sm text-gray-500">Kamera akan dimatikan dan Anda akan kembali ke halaman
-            sebelumnya.</p>
+        <h3 class="mb-2 text-center text-lg font-bold text-gray-900">{{ __('Tutup Pemindai?') }}</h3>
+        <p class="mb-6 text-center text-sm text-gray-500">{{ __('Kamera akan dimatikan dan Anda akan kembali ke halaman sebelumnya.') }}</p>
         <div class="flex flex-col gap-2">
             <button id="btn-confirm-exit"
                 class="rounded-xl bg-red-500 py-3 font-semibold text-white transition-colors hover:bg-red-600 active:bg-red-700">
-                Ya, Tutup
+                {{ __('Ya, Tutup') }}
             </button>
             <button id="btn-cancel-exit"
                 class="rounded-xl bg-gray-100 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-200 active:bg-gray-300">
-                Batal
+                {{ __('Batal') }}
             </button>
         </div>
     </div>

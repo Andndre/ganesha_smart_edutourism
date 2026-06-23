@@ -67,7 +67,7 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return redirect()->route('profile')->with('success', 'Profil Anda berhasil diperbarui.');
+        return redirect()->route('profile')->with('success', __('Profil Anda berhasil diperbarui.'));
     }
 
     /**
@@ -91,7 +91,7 @@ class ProfileController extends Controller
         $user->avatar_path = $path;
         $user->save();
 
-        return redirect()->route('profile.edit')->with('success', 'Foto profil berhasil diperbarui.');
+        return redirect()->route('profile.edit')->with('success', __('Foto profil berhasil diperbarui.'));
     }
 
     /**
@@ -109,7 +109,7 @@ class ProfileController extends Controller
         $user->avatar_path = null;
         $user->save();
 
-        return redirect()->route('profile.edit')->with('success', 'Foto profil berhasil dihapus.');
+        return redirect()->route('profile.edit')->with('success', __('Foto profil berhasil dihapus.'));
     }
 
     /**

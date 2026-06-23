@@ -2,10 +2,10 @@
 <x-modal name="calendar-modal" maxWidth="md">
     <!-- Header -->
     <div class="mb-4 flex items-center justify-between">
-        <h3 class="text-charcoal text-lg font-bold">Pilih Tanggal Kunjungan</h3>
+        <h3 class="text-charcoal text-lg font-bold">{{ __('Pilih Tanggal Kunjungan') }}</h3>
         <button type="button" @click="isOpen = false"
             class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:text-gray-600 active:scale-95 md:hidden"
-            title="Tutup">
+            title="{{ __('Tutup') }}">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -32,13 +32,13 @@
 
     <!-- Days of Week Header -->
     <div class="mb-2 grid grid-cols-7 text-center text-xs font-bold text-gray-400">
-        <div>MIN</div>
-        <div>SEN</div>
-        <div>SEL</div>
-        <div>RAB</div>
-        <div>KAM</div>
-        <div>JUM</div>
-        <div>SAB</div>
+        <div>{{ __('MIN') }}</div>
+        <div>{{ __('SEN') }}</div>
+        <div>{{ __('SEL') }}</div>
+        <div>{{ __('RAB') }}</div>
+        <div>{{ __('KAM') }}</div>
+        <div>{{ __('JUM') }}</div>
+        <div>{{ __('SAB') }}</div>
     </div>
 
     <!-- Calendar Grid -->
@@ -71,10 +71,10 @@
 
     <div class="mt-6 flex items-center justify-between border-t border-gray-100 pt-4 text-xs text-gray-500">
         <span class="flex items-center gap-1.5">
-            <span class="bg-primary h-2 w-2 rounded-full"></span> Terpilih
+            <span class="bg-primary h-2 w-2 rounded-full"></span> {{ __('Terpilih') }}
         </span>
         <span class="flex items-center gap-1.5">
-            <span class="h-2 w-2 rounded-full bg-gray-200"></span> Tidak Tersedia
+            <span class="h-2 w-2 rounded-full bg-gray-200"></span> {{ __('Tidak Tersedia') }}
         </span>
     </div>
 </x-modal>

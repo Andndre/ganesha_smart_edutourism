@@ -194,7 +194,7 @@ class CulturalObjectController extends Controller
             ArModel::where('id', (int) $arModelId)->update(['map_location_id' => $mapLocation->id]);
         }
 
-        return redirect()->route('admin.map-manager')->with('success', 'Objek budaya berhasil ditambahkan.');
+        return redirect()->route('admin.map-manager')->with('success', __('Objek budaya berhasil ditambahkan.'));
     }
 
     /**
@@ -390,7 +390,7 @@ class CulturalObjectController extends Controller
             ArModel::where('map_location_id', $mapLocation->id)->update(['map_location_id' => null]);
         }
 
-        return redirect()->route('admin.map-manager')->with('success', 'Objek budaya berhasil diperbarui.');
+        return redirect()->route('admin.map-manager')->with('success', __('Objek budaya berhasil diperbarui.'));
     }
 
     /**
@@ -401,7 +401,7 @@ class CulturalObjectController extends Controller
         $object = CulturalObject::findOrFail($id);
         $object->delete();
 
-        return redirect()->route('admin.map-manager')->with('success', 'Objek budaya berhasil dihapus.');
+        return redirect()->route('admin.map-manager')->with('success', __('Objek budaya berhasil dihapus.'));
     }
 
     /**
@@ -421,6 +421,6 @@ class CulturalObjectController extends Controller
             ]);
         }
 
-        return response()->json(['error' => 'Gagal mengunggah gambar.'], 400);
+        return response()->json(['error' => __('Gagal mengunggah gambar.')], 400);
     }
 }

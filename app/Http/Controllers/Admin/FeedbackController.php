@@ -68,7 +68,7 @@ class FeedbackController extends Controller
             'admin_response' => $validated['admin_response'],
         ]);
 
-        return redirect()->route('admin.feedback')->with('success', 'Balasan ulasan berhasil disimpan.');
+        return redirect()->route('admin.feedback')->with('success', __('Balasan ulasan berhasil disimpan.'));
     }
 
     /**
@@ -80,9 +80,9 @@ class FeedbackController extends Controller
         $feedback->is_public = ! $feedback->is_public;
         $feedback->save();
 
-        $status = $feedback->is_public ? 'ditampilkan ke publik' : 'disembunyikan dari publik';
+        $statusLabel = $feedback->is_public ? __('ditampilkan ke publik') : __('disembunyikan dari publik');
 
-        return redirect()->route('admin.feedback')->with('success', "Status ulasan berhasil diperbarui: {$status}.");
+        return redirect()->route('admin.feedback')->with('success', __('Status ulasan berhasil diperbarui: :status', ['status' => $statusLabel]));
     }
 
     /**
@@ -93,6 +93,6 @@ class FeedbackController extends Controller
         $feedback = Feedback::findOrFail($id);
         $feedback->delete();
 
-        return redirect()->route('admin.feedback')->with('success', 'Ulasan berhasil dihapus.');
+        return redirect()->route('admin.feedback')->with('success', __('Ulasan berhasil dihapus.'));
     }
 }

@@ -16,7 +16,6 @@
             </svg>
         </div>
     </div>
-    <h3 class="mb-2 text-xl font-bold text-white">Mengunduh Model 3D</h3>
-    <p class="max-w-xs text-center text-sm text-gray-300">Mohon tunggu sebentar, kami sedang menyiapkan pengalaman AR
-        untuk Anda...</p>
+    <h3 class="mb-2 text-xl font-bold text-white">{{ __('Mengunduh Model 3D') }}</h3>
+    <p class="max-w-xs text-center text-sm text-gray-300">{{ __('Mohon tunggu sebentar, kami sedang menyiapkan pengalaman AR untuk Anda...') }}</p>
 </div>

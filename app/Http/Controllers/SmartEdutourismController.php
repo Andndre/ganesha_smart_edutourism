@@ -60,7 +60,7 @@ class SmartEdutourismController extends Controller
         $points = $route->routePoints->map(function ($point) {
             return [
                 'id' => $point->id,
-                'name' => $point->locationable->name ?? 'Titik Perhentian',
+                'name' => $point->locationable->name ?? __('Titik Perhentian'),
                 'lat' => $point->locationable->mapLocation->latitude ?? null,
                 'lng' => $point->locationable->mapLocation->longitude ?? null,
             ];
@@ -82,7 +82,7 @@ class SmartEdutourismController extends Controller
 
         if (! $userId && ! $guestToken) {
             $guestToken = 'visitor_'.Str::random(32);
-            session(['guest_token' => $guestToken, 'guest_name' => 'Wisatawan']);
+            session(['guest_token' => $guestToken, 'guest_name' => __('Wisatawan')]);
         }
 
         if ($userId) {
@@ -118,7 +118,7 @@ class SmartEdutourismController extends Controller
         $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
 
         if (! $userId && $guestToken && ! session()->has('guest_token')) {
-            session(['guest_token' => $guestToken, 'guest_name' => 'Wisatawan']);
+            session(['guest_token' => $guestToken, 'guest_name' => __('Wisatawan')]);
         }
 
         $sessionQuery = RouteSession::with(['tourRoute', 'currentPoint.locationable.mapLocation', 'tourRoute.routePoints.locationable.mapLocation'])
@@ -137,7 +137,7 @@ class SmartEdutourismController extends Controller
         $activeSession = $sessionQuery->first();
 
         if (! $activeSession) {
-            return redirect()->route('home')->with('info', 'Anda tidak memiliki rute aktif saat ini.');
+            return redirect()->route('home')->with('info', __('Anda tidak memiliki rute aktif saat ini.'));
         }
 
         return view('user.edutourism.active', compact('activeSession'));
@@ -158,7 +158,7 @@ class SmartEdutourismController extends Controller
         if (count($quizzes) === 0) {
 
             if (! $userId && $guestToken && ! session()->has('guest_token')) {
-                session(['guest_token' => $guestToken, 'guest_name' => 'Wisatawan']);
+                session(['guest_token' => $guestToken, 'guest_name' => __('Wisatawan')]);
             }
 
             $sessionQuery = RouteSession::where('status', 'active');
@@ -237,7 +237,7 @@ class SmartEdutourismController extends Controller
         $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
 
         if (! $userId && $guestToken && ! session()->has('guest_token')) {
-            session(['guest_token' => $guestToken, 'guest_name' => 'Wisatawan']);
+            session(['guest_token' => $guestToken, 'guest_name' => __('Wisatawan')]);
         }
 
         $sessionQuery = RouteSession::where('status', 'active');
@@ -246,12 +246,12 @@ class SmartEdutourismController extends Controller
         } elseif ($guestToken) {
             $sessionQuery->where('guest_token', $guestToken);
         } else {
-            return response()->json(['success' => false, 'message' => 'Sesi tidak valid'], 403);
+            return response()->json(['success' => false, 'message' => __('Sesi tidak valid')], 403);
         }
 
         $session = $sessionQuery->first();
         if (! $session) {
-            return response()->json(['success' => false, 'message' => 'Sesi tidak ditemukan'], 404);
+            return response()->json(['success' => false, 'message' => __('Sesi tidak ditemukan')], 404);
         }
 
         if ($isCorrect) {

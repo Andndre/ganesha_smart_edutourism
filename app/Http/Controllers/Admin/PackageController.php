@@ -82,7 +82,7 @@ class PackageController extends Controller
 
         $package->save();
 
-        return redirect()->route('admin.packages')->with('success', 'Paket wisata berhasil ditambahkan.');
+        return redirect()->route('admin.packages')->with('success', __('Paket wisata berhasil ditambahkan.'));
     }
 
     /**
@@ -145,7 +145,7 @@ class PackageController extends Controller
 
         $package->save();
 
-        return redirect()->route('admin.packages')->with('success', 'Paket wisata berhasil diperbarui.');
+        return redirect()->route('admin.packages')->with('success', __('Paket wisata berhasil diperbarui.'));
     }
 
     /**
@@ -156,7 +156,7 @@ class PackageController extends Controller
         $package = TourPackage::findOrFail($id);
         $package->delete();
 
-        return redirect()->route('admin.packages')->with('success', 'Paket wisata berhasil dihapus.');
+        return redirect()->route('admin.packages')->with('success', __('Paket wisata berhasil dihapus.'));
     }
 
     /**

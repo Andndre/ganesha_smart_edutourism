@@ -1,13 +1,13 @@
 @extends('layouts.app')
-@section('title', 'Objek Budaya - Penglipuran')
-@section('header_title', 'Objek Budaya')
+@section('title', __('Objek Budaya - Penglipuran'))
+@section('header_title', __('Objek Budaya'))
 
 @section('content')
     <div class="px-4 py-6 md:px-8 md:py-8 lg:px-12">
 
         <div class="mb-6 md:mb-8">
-            <h2 class="font-playfair text-charcoal text-xl font-bold md:text-3xl">Jelajah Warisan Budaya</h2>
-            <p class="mt-1 text-sm text-gray-500 md:mt-2 md:text-base">Temukan kisah di balik setiap sudut desa</p>
+            <h2 class="font-playfair text-charcoal text-xl font-bold md:text-3xl">{{ __('Jelajah Warisan Budaya') }}</h2>
+            <p class="mt-1 text-sm text-gray-500 md:mt-2 md:text-base">{{ __('Temukan kisah di balik setiap sudut desa') }}</p>
         </div>
 
         @if (!empty($objects))
@@ -33,7 +33,7 @@
                             <div class="absolute bottom-4 left-4 right-4 z-20 text-white">
                                 @if (!empty($object['ar_marker_id']) || !empty($object['model_3d_path']))
                                     <span class="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-primary shadow-sm backdrop-blur-sm">
-                                        AR Tersedia
+                                        {{ __('AR Tersedia') }}
                                     </span>
                                 @endif
                                 <h3 class="font-playfair text-lg font-bold leading-tight md:text-xl">{{ $object['name'] }}
@@ -48,7 +48,7 @@
             </div>
         @else
             <div class="py-10 text-center">
-                <p class="text-gray-500">Belum ada objek budaya yang terdaftar.</p>
+                <p class="text-gray-500">{{ __('Belum ada objek budaya yang terdaftar.') }}</p>
             </div>
         @endif
 

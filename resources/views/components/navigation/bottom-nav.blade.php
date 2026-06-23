@@ -1,5 +1,5 @@
 <nav class="pb-sab w-full bg-white shadow-sm border-t border-slate-200 md:static md:w-20 lg:w-64 md:h-[calc(100vh-2rem)] md:m-4 md:rounded-3xl md:shrink-0 md:border md:border-slate-200 md:shadow-sm md:pb-0 z-50 sticky md:top-4"
-    role="navigation" aria-label="Main navigation">
+    role="navigation" aria-label="{{ __('Main navigation') }}">
     <div class="relative flex h-16 items-center justify-around px-2 md:h-full md:flex-col md:justify-start md:pt-8 md:gap-2 lg:px-4">
 
         @php
@@ -18,7 +18,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M3 8V6a2 2 0 012-2h2M3 16v2a2 2 0 002 2h2M21 8V6a2 2 0 00-2-2h-2M21 16v2a2 2 0 01-2 2h-2M12 8v.01M12 12v.01M12 16v.01" />
                 </svg>
-                <span class="hidden lg:block text-sm font-semibold">AR Scan</span>
+                <span class="hidden lg:block text-sm font-semibold">{{ __('AR Scan') }}</span>
             </a>
         </div>
 
@@ -39,14 +39,14 @@
                 <path stroke-linecap="round" stroke-linejoin="round"
                     d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
             </svg>
-            <span class="text-[10px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">Peta</span>
+            <span class="text-[10px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('Peta') }}</span>
         </a>
 
         <!-- AR Scan Button Mobile Position (Floating on mobile) -->
         <div class="relative z-50 flex h-full w-20 shrink-0 items-center justify-center md:hidden">
             <a href="{{ route('ar-scan') }}"
                 class="bg-primary absolute -top-6 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-sm ring-4 ring-slate-50 transition-all duration-300 hover:-translate-y-1 hover:shadow-md active:scale-95"
-                aria-label="Buka Kamera AR">
+                aria-label="{{ __('Buka Kamera AR') }}">
                 <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M3 8V6a2 2 0 012-2h2M3 16v2a2 2 0 002 2h2M21 8V6a2 2 0 00-2-2h-2M21 16v2a2 2 0 01-2 2h-2M12 8v.01M12 12v.01M12 16v.01" />
@@ -71,7 +71,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                <span class="text-[10px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">Profil</span>
+                <span class="text-[10px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('Profil') }}</span>
             </a>
         @else
             <a href="{{ route('login') }}" wire:navigate
@@ -80,7 +80,7 @@
                     stroke-width="{{ $isLogin ? '2.5' : '2' }}">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                 </svg>
-                <span class="text-[10px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">Masuk</span>
+                <span class="text-[10px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('Masuk') }}</span>
             </a>
         @endauth
 

@@ -4,7 +4,7 @@
         <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-        <input type="text" id="search-input" placeholder="Cari objek budaya atau UMKM..."
+        <input type="text" id="search-input" placeholder="{{ __('Cari objek budaya atau UMKM...') }}"
             class="text-charcoal flex-1 bg-transparent text-sm font-medium placeholder-gray-400 outline-none" />
         <div class="mx-1 h-5 w-[1.5px] bg-gray-200"></div>
         <button type="button" id="btn-filter-toggle"
@@ -20,9 +20,9 @@
     <div id="filter-panel"
         class="mt-3 hidden rounded-2xl border border-gray-100/50 bg-white/95 px-4 py-4 shadow-lg backdrop-blur-md transition-all duration-300">
         <div class="mb-3 flex items-center justify-between">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Kategori Tempat</p>
+            <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400">{{ __('Kategori Tempat') }}</p>
             <button type="button" id="btn-reset-filters"
-                class="text-primary hover:text-primary/80 text-[10px] font-extrabold transition-colors active:scale-95">REKONDISI</button>
+                class="text-primary hover:text-primary/80 text-[10px] font-extrabold transition-colors active:scale-95">{{ __('Reset') }}</button>
         </div>
 
         <div class="grid grid-cols-2 gap-2.5">
@@ -37,7 +37,7 @@
                     </svg>
                 </span>
                 <div>
-                    <p class="text-xs font-bold leading-tight text-gray-800">Objek Budaya</p>
+                    <p class="text-xs font-bold leading-tight text-gray-800">{{ __('Objek Budaya') }}</p>
                     <span class="mt-0.5 inline-block h-1 w-6 rounded-full" style="background: #1E5128;"></span>
                 </div>
             </button>
@@ -53,7 +53,7 @@
                     </svg>
                 </span>
                 <div>
-                    <p class="text-xs font-bold leading-tight text-gray-800">UMKM</p>
+                    <p class="text-xs font-bold leading-tight text-gray-800">{{ __('UMKM') }}</p>
                     <span class="mt-0.5 inline-block h-1 w-6 rounded-full" style="background: #8B5CF6;"></span>
                 </div>
             </button>
@@ -70,7 +70,7 @@
                     </svg>
                 </span>
                 <div>
-                    <p class="text-xs font-bold leading-tight text-gray-800">Fasilitas</p>
+                    <p class="text-xs font-bold leading-tight text-gray-800">{{ __('Fasilitas') }}</p>
                     <span class="mt-0.5 inline-block h-1 w-6 rounded-full" style="background: #3B82F6;"></span>
                 </div>
             </button>
@@ -86,7 +86,7 @@
                     </svg>
                 </span>
                 <div>
-                    <p class="text-xs font-bold leading-tight text-gray-800">Toilet</p>
+                    <p class="text-xs font-bold leading-tight text-gray-800">{{ __('Toilet') }}</p>
                     <span class="mt-0.5 inline-block h-1 w-6 rounded-full" style="background: #06B6D4;"></span>
                 </div>
             </button>
@@ -102,7 +102,7 @@
                     </svg>
                 </span>
                 <div>
-                    <p class="text-xs font-bold leading-tight text-gray-800">Aksesibilitas</p>
+                    <p class="text-xs font-bold leading-tight text-gray-800">{{ __('Aksesibilitas') }}</p>
                     <span class="mt-0.5 inline-block h-1 w-12 rounded-full" style="background: #F59E0B;"></span>
                 </div>
             </button>

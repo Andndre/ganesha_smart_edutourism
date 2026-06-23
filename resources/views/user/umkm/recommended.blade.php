@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'Rekomendasi UMKM - Penglipuran')
-@section('header_title', 'Rekomendasi UMKM')
+@section('title', __('Rekomendasi UMKM - Penglipuran'))
+@section('header_title', __('Rekomendasi UMKM'))
 
 @section('content')
     @include('user.umkm.partials.recommended._styles')

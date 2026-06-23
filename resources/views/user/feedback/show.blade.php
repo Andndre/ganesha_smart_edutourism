@@ -1,12 +1,12 @@
 @extends('layouts.app')
-@section('title', 'Ulasan Saya')
-@section('header_title', 'Ulasan Saya')
+@section('title', __('Ulasan Saya'))
+@section('header_title', __('Ulasan Saya'))
 
 @section('content')
 <div class="mx-auto max-w-2xl px-5 py-6">
     <!-- Rating Summary Card -->
     <div class="mb-6 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm text-center">
-        <div class="mb-4 text-sm font-bold uppercase tracking-wider text-gray-500">Penilaian Anda</div>
+        <div class="mb-4 text-sm font-bold uppercase tracking-wider text-gray-500">{{ __('Penilaian Anda') }}</div>
         <div class="mb-2 flex items-center justify-center gap-1">
             @for ($i = 1; $i <= 5; $i++)
                 <svg class="h-10 w-10 {{ $i <= $feedback->rating ? 'text-accent' : 'text-gray-200' }}" fill="currentColor" viewBox="0 0 20 20">
@@ -21,7 +21,7 @@
 
         @if ($feedback->reservation_id)
             <p class="mt-4 text-xs text-gray-400">
-                Terkait dengan reservasi {{ $feedback->reservation_id }}
+                {{ __('Terkait dengan reservasi') }} {{ $feedback->reservation_id }}
             </p>
         @endif
     </div>
@@ -29,11 +29,11 @@
     <!-- Photos Grid -->
     @if ($feedback->photos && count($feedback->photos) > 0)
         <div class="mb-6">
-            <h3 class="text-charcoal mb-3 text-sm font-bold">Foto</h3>
+            <h3 class="text-charcoal mb-3 text-sm font-bold">{{ __('Foto') }}</h3>
             <div class="grid grid-cols-3 gap-2">
                 @foreach ($feedback->photos as $photo)
                     <div class="aspect-square overflow-hidden rounded-2xl bg-gray-100">
-                        <img src="{{ Storage::url($photo) }}" alt="Foto ulasan" class="h-full w-full object-cover">
+                        <img src="{{ Storage::url($photo) }}" alt="{{ __('Foto ulasan') }}" class="h-full w-full object-cover">
                     </div>
                 @endforeach
             </div>
@@ -50,7 +50,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-sm font-bold text-green-800">Balasan dari Pengelola</p>
+                    <p class="text-sm font-bold text-green-800">{{ __('Balasan dari Pengelola') }}</p>
                     <p class="text-xs text-green-600">{{ $feedback->updated_at->diffForHumans() }}</p>
                 </div>
             </div>
@@ -62,11 +62,11 @@
     <div class="flex flex-col gap-3">
         <a href="{{ route('feedback.edit', $feedback) }}"
             class="bg-primary shadow-primary/30 flex h-14 w-full items-center justify-center rounded-2xl font-bold text-white shadow-lg transition-all active:scale-[0.98]">
-            Edit Penilaian
+            {{ __('Edit Penilaian') }}
         </a>
         <a href="{{ route('profile') }}"
             class="flex h-14 w-full items-center justify-center rounded-2xl font-semibold text-gray-600 transition-all active:scale-[0.98]">
-            Kembali ke Profil
+            {{ __('Kembali ke Profil') }}
         </a>
     </div>
 </div>

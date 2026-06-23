@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'Checkout Paket - Penglipuran')
-@section('header_title', 'Checkout Paket')
+@section('title', __('Checkout Paket - Penglipuran'))
+@section('header_title', __('Checkout Paket'))
 
 @push('styles')
     @if (config('midtrans.is_production'))
@@ -13,9 +13,9 @@
         <div class="mx-auto w-full max-w-5xl px-5 py-6 md:px-6 lg:px-8 lg:py-8">
             <div class="mb-4 lg:mb-6">
                 <span
-                    class="text-primary mb-2 inline-block rounded-lg border border-green-100 bg-green-50 px-2.5 py-1 text-xs font-bold">Checkout</span>
+                    class="text-primary mb-2 inline-block rounded-lg border border-green-100 bg-green-50 px-2.5 py-1 text-xs font-bold">{{ __('Checkout') }}</span>
                 <h1 class="text-charcoal text-xl font-bold lg:text-2xl">{{ $package->name }}</h1>
-                <p class="mt-1 text-sm text-gray-500">Rp {{ number_format($package->price, 0, ',', '.') }} / orang</p>
+                <p class="mt-1 text-sm text-gray-500">{{ __('Rp :price / orang', ['price' => number_format($package->price, 0, ',', '.')]) }}</p>
             </div>
 
             <!-- Form -->
@@ -203,21 +203,21 @@
                                 },
                                 onError: function(result) {
                                     this.errorMessage =
-                                        'Pembayaran gagal atau dibatalkan.';
+                                        '{{ __('Pembayaran gagal atau dibatalkan.') }}';
                                     this.isLoading = false;
                                 }.bind(this),
                                 onClose: function() {
                                     this.errorMessage =
-                                        'Anda menutup popup pembayaran sebelum menyelesaikannya.';
+                                        '{{ __('Anda menutup popup pembayaran sebelum menyelesaikannya.') }}';
                                     this.isLoading = false;
                                 }.bind(this)
                             });
                         } else {
-                            this.errorMessage = data.message || 'Terjadi kesalahan pada sistem.';
+                            this.errorMessage = data.message || '{{ __('Terjadi kesalahan pada sistem.') }}';
                             this.isLoading = false;
                         }
                     } catch (error) {
-                        this.errorMessage = 'Terjadi kesalahan koneksi. Silakan coba lagi.';
+                        this.errorMessage = '{{ __('Terjadi kesalahan koneksi. Silakan coba lagi.') }}';
                         this.isLoading = false;
                     }
                 }

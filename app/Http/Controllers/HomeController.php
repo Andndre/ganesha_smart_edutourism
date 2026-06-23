@@ -27,10 +27,10 @@ class HomeController extends Controller
 
             if ($pct >= ($masterZone['critical_threshold'] ?? 80)) {
                 $statusColor = 'red';
-                $statusText = 'Penuh';
+                $statusText = __('Penuh');
             } elseif ($pct >= ($masterZone['warning_threshold'] ?? 60)) {
                 $statusColor = 'yellow';
-                $statusText = 'Ramai';
+                $statusText = __('Ramai');
             }
         }
 
@@ -40,15 +40,15 @@ class HomeController extends Controller
         $densityPercent = $totalMax > 0 ? ($totalCurrent / $totalMax) * 100 : 0;
 
         if ($densityPercent >= 90) {
-            $densityText = 'Padat (Kritis)';
+            $densityText = __('Padat (Kritis)');
             $densityClass = 'text-red-500';
             $densityBg = 'bg-red-50';
         } elseif ($densityPercent >= 70) {
-            $densityText = 'Ramai (Waspada)';
+            $densityText = __('Ramai (Waspada)');
             $densityClass = 'text-warning';
             $densityBg = 'bg-orange-50';
         } else {
-            $densityText = 'Aman (Lancar)';
+            $densityText = __('Aman (Lancar)');
             $densityClass = 'text-green-500';
             $densityBg = 'bg-green-50';
         }

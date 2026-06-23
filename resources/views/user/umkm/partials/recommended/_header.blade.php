@@ -21,7 +21,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                 </svg>
             </div>
-            <h1 class="text-charcoal text-2xl font-bold">Hore! Kami Menemukannya!</h1>
-            <p class="mx-auto mt-2 max-w-xs text-sm text-gray-600">Kami telah mencarikan UMKM terbaik yang memiliki semua
-                pesanan Anda.</p>
+            <h1 class="text-charcoal text-2xl font-bold">{{ __('Hore! Kami Menemukannya!') }}</h1>
+            <p class="mx-auto mt-2 max-w-xs text-sm text-gray-600">{{ __('Kami telah mencarikan UMKM terbaik yang memiliki semua pesanan Anda.') }}</p>
         </div>

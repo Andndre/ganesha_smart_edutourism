@@ -115,7 +115,7 @@
                         </button>
                         <form method="POST" action="{{ route('admin.umkm.categories.destroy', $cat->id) }}"
                             class="delete-form flex-1"
-                            data-confirm="Apakah Anda yakin ingin menghapus kategori ini? Semua produk di dalamnya akan kehilangan kategori.">
+                            data-confirm="{{ __('Apakah Anda yakin ingin menghapus kategori ini? Semua produk di dalamnya akan kehilangan kategori.') }}">
                             @csrf
                             @method('DELETE')
                             <button type="submit"

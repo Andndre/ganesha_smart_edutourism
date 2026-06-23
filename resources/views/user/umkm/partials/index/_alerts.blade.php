@@ -23,7 +23,7 @@
         @if (session('missing_categories'))
             <div class="relative z-20 mb-4 rounded-xl border border-yellow-400 bg-yellow-50 px-4 py-3 text-yellow-800 shadow-sm"
                 role="alert">
-                <span class="block font-medium sm:inline">Beberapa pesanan Anda tidak tersedia di UMKM manapun:</span>
+                <span class="block font-medium sm:inline">{{ __('Beberapa pesanan Anda tidak tersedia di UMKM manapun:') }}</span>
                 <ul class="mt-1 list-disc pl-5 text-sm">
                     @foreach (session('missing_categories') as $missingName)
                         <li>{{ $missingName }}</li>

@@ -1,14 +1,13 @@
 @extends('layouts.app')
-@section('title', 'Smart Edutourism - Penglipuran')
+@section('title', __('Smart Edutourism - Penglipuran'))
 @section('header_title', 'Smart Edutourism')
 
 @section('content')
     <div class="space-y-5 px-4 py-6" x-data>
 
         <div class="mb-4">
-            <h2 class="font-display text-charcoal text-xl font-bold">Jalur Edukasi & Budaya</h2>
-            <p class="mt-1 text-sm text-gray-500">Pilih rute interaktif untuk memandu penjelajahan budaya Anda di Desa
-                Penglipuran.</p>
+            <h2 class="font-display text-charcoal text-xl font-bold">{{ __('Jalur Edukasi & Budaya') }}</h2>
+            <p class="mt-1 text-sm text-gray-500">{{ __('Pilih rute interaktif untuk memandu penjelajahan budaya Anda di Desa Penglipuran.') }}</p>
         </div>
 
         <div class="space-y-4">
@@ -26,7 +25,7 @@
                                             stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                         </svg>
-                                        Selesai
+                                        {{ __('Selesai') }}
                                     </span>
                                 @endif
                             </div>
@@ -34,7 +33,7 @@
                             <h3 class="font-display text-charcoal mt-1.5 text-lg font-bold leading-tight">
                                 {{ $route['name'] }}</h3>
                             <p class="mt-1 line-clamp-2 text-sm text-gray-500">
-                                {{ $route['description'] ?? 'Nikmati petualangan mendalam menelusuri tradisi dan kearifan lokal.' }}
+                                {{ $route['description'] ?? __('Nikmati petualangan mendalam menelusuri tradisi dan kearifan lokal.') }}
                             </p>
                         </div>
 
@@ -48,19 +47,19 @@
 
                     <div class="mt-4 grid grid-cols-3 gap-2 border-t border-gray-50 pt-4 text-center">
                         <div class="flex flex-col items-center">
-                            <span
-                                class="text-xs font-bold uppercase leading-none tracking-wider text-gray-400">Estimasi</span>
-                            <span
-                                class="mt-1 text-sm font-black text-gray-700">{{ $route['estimated_duration_minutes'] ?? 60 }}
-                                Menit</span>
+                                <span
+                                    class="text-xs font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Estimasi') }}</span>
+                                <span
+                                    class="mt-1 text-sm font-black text-gray-700">{{ $route['estimated_duration_minutes'] ?? 60 }}
+                                    {{ __('Menit') }}</span>
                         </div>
                         <div class="flex flex-col items-center border-x border-gray-100">
-                            <span class="text-xs font-bold uppercase leading-none tracking-wider text-gray-400">Objek</span>
+                            <span class="text-xs font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Objek') }}</span>
                             <span class="mt-1 text-sm font-black text-gray-700">{{ $route['route_points_count'] ?? 0 }}
-                                Titik</span>
+                                {{ __('Titik') }}</span>
                         </div>
                         <div class="flex flex-col items-center">
-                            <span class="text-xs font-bold uppercase leading-none tracking-wider text-gray-400">Jarak</span>
+                            <span class="text-xs font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Jarak') }}</span>
                             <span
                                 class="mt-1 text-sm font-black text-gray-700">{{ $route['distance_meters'] ? round($route['distance_meters'] / 1000, 1) . ' km' : '--' }}</span>
                         </div>
@@ -69,7 +68,7 @@
                     <button
                         @click="@auth $dispatch('open-route-preview-modal'); fetchRoutePreview({{ $route['id'] }}) @else $dispatch('open-save-progress-confirm-modal'); window.pendingRouteId = {{ $route['id'] }} @endauth"
                         class="{{ $completedRouteIds->contains($route['id']) ? 'bg-white border-2 border-[#1E5128] text-[#1E5128] hover:bg-gray-50' : 'bg-[#1E5128] hover:bg-[#152E1D] text-white' }} mt-5 block w-full rounded-2xl py-3 text-center text-sm font-bold shadow-sm transition-transform active:scale-95">
-                        {{ $completedRouteIds->contains($route['id']) ? 'Ulangi Eksplorasi' : 'Mulai Jelajah' }}
+                        {{ $completedRouteIds->contains($route['id']) ? __('Ulangi Eksplorasi') : __('Mulai Jelajah') }}
                     </button>
                 </div>
             @empty
@@ -81,8 +80,8 @@
                                 d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                         </svg>
                     </div>
-                    <h4 class="text-sm font-bold text-gray-700">Belum Ada Rute Aktif</h4>
-                    <p class="mt-1 text-xs text-gray-500">Saat ini belum ada jalur wisata edukasi yang dapat ditampilkan.
+                    <h4 class="text-sm font-bold text-gray-700">{{ __('Belum Ada Rute Aktif') }}</h4>
+                    <p class="mt-1 text-xs text-gray-500">{{ __('Saat ini belum ada jalur wisata edukasi yang dapat ditampilkan.') }}
                     </p>
                 </div>
             @endforelse
@@ -100,7 +99,7 @@
                         Edutourism</span>
                     <button type="button" @click="isOpen = false"
                         class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:text-gray-600 active:scale-95 md:hidden"
-                        title="Tutup">
+                        title="{{ __('Tutup') }}">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -108,13 +107,13 @@
                 </div>
 
                 <h3 id="preview-title" class="font-display text-charcoal text-xl font-black leading-snug tracking-tight">
-                    Memuat...</h3>
+                    {{ __('Memuat...') }}</h3>
                 <p id="preview-desc" class="text-sm text-gray-500"></p>
 
                 <div class="mt-4 max-h-75 overflow-y-auto rounded-xl border border-gray-100 bg-gray-50 p-4">
-                    <h4 class="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">Titik Perhentian</h4>
+                    <h4 class="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">{{ __('Titik Perhentian') }}</h4>
                     <ul id="preview-points" class="space-y-3">
-                        <li class="text-sm text-gray-500">Memuat rute...</li>
+                        <li class="text-sm text-gray-500">{{ __('Memuat rute...') }}</li>
                     </ul>
                 </div>
 
@@ -122,7 +121,7 @@
                     @csrf
                     <button type="button" onclick="startRoute()" id="btn-start-route" disabled
                         class="mt-6 w-full rounded-xl bg-[#1E5128] py-3 text-center text-sm font-bold text-white shadow-sm transition-transform active:scale-95 disabled:opacity-50">
-                        Mulai Eksplorasi
+                        {{ __('Mulai Eksplorasi') }}
                     </button>
                 </form>
             </div>
@@ -139,20 +138,18 @@
                     </svg>
                 </div>
 
-                <h3 class="font-display text-charcoal mt-3 text-lg font-black leading-snug tracking-tight">Simpan Progres
-                    Perjalanan Anda?</h3>
-                <p class="px-2 text-xs leading-relaxed text-gray-500">Anda dapat memulai rute ini tanpa akun. Namun, jika Anda
-                    masuk (login) terlebih dahulu, poin dan misi perjalanan Anda akan tersimpan secara permanen di akun Anda.
+                <h3 class="font-display text-charcoal mt-3 text-lg font-black leading-snug tracking-tight">{{ __('Simpan Progres Perjalanan Anda?') }}</h3>
+                <p class="px-2 text-xs leading-relaxed text-gray-500">{{ __('Anda dapat memulai rute ini tanpa akun. Namun, jika Anda masuk (login) terlebih dahulu, poin dan misi perjalanan Anda akan tersimpan secara permanen di akun Anda.') }}
                 </p>
 
                 <div class="space-y-2.5 pt-4">
                     <a href="{{ route('login') }}?redirect={{ urlencode(route('edutourism.index')) }}"
                         class="block w-full rounded-xl bg-[#1E5128] py-3 text-center text-sm font-bold text-white shadow-sm transition-transform hover:bg-[#152E1D] active:scale-95">
-                        Masuk & Simpan
+                        {{ __('Masuk & Simpan') }}
                     </a>
                     <button type="button" onclick="continueAsGuest()"
                         class="w-full rounded-xl border border-gray-200 py-3 text-center text-sm font-bold text-gray-600 transition-colors hover:bg-gray-50 active:scale-95">
-                        Lanjut Tanpa Akun
+                        {{ __('Lanjut Tanpa Akun') }}
                     </button>
                 </div>
             </div>
@@ -162,9 +159,9 @@
     @push('scripts')
         <script>
             function fetchRoutePreview(id) {
-                document.getElementById('preview-title').textContent = 'Memuat...';
+                document.getElementById('preview-title').textContent = '{{ __('Memuat...') }}';
                 document.getElementById('preview-desc').textContent = '';
-                document.getElementById('preview-points').innerHTML = '<li class="text-sm text-gray-500">Memuat rute...</li>';
+                document.getElementById('preview-points').innerHTML = '<li class="text-sm text-gray-500">{{ __('Memuat rute...') }}</li>';
                 document.getElementById('btn-start-route').disabled = true;
                 document.getElementById('start-route-form').action = `/edutourism/routes/${id}/start`;
 
@@ -173,7 +170,7 @@
                     .then(data => {
                         document.getElementById('preview-title').textContent = data.route.name;
                         document.getElementById('preview-desc').textContent = data.route.description ||
-                            `Estimasi ${data.route.estimated_duration_minutes} Menit`;
+                            `{{ __('Estimasi') }} ${data.route.estimated_duration_minutes} {{ __('Menit') }}`;
 
                         const ul = document.getElementById('preview-points');
                         ul.innerHTML = '';
@@ -188,13 +185,13 @@
                             `;
                             });
                         } else {
-                            ul.innerHTML = '<li class="text-sm text-gray-500">Tidak ada titik perhentian.</li>';
+                            ul.innerHTML = '<li class="text-sm text-gray-500">{{ __('Tidak ada titik perhentian.') }}</li>';
                         }
 
                         document.getElementById('btn-start-route').disabled = false;
                     })
                     .catch(err => {
-                        document.getElementById('preview-title').textContent = 'Gagal memuat data';
+                        document.getElementById('preview-title').textContent = '{{ __('Gagal memuat data') }}';
                     });
             }
 
@@ -202,7 +199,7 @@
                 const form = document.getElementById('start-route-form');
                 const btn = document.getElementById('btn-start-route');
                 btn.disabled = true;
-                btn.textContent = 'Memulai...';
+                btn.textContent = '{{ __('Memulai...') }}';
 
                 fetch(form.action, {
                         method: 'POST',
@@ -216,15 +213,15 @@
                         if (data.success) {
                             window.location.href = data.redirect;
                         } else {
-                            alert(data.message || 'Terjadi kesalahan.');
+                            alert(data.message || '{{ __('Terjadi kesalahan.') }}');
                             btn.disabled = false;
-                            btn.textContent = 'Mulai Eksplorasi';
+                            btn.textContent = '{{ __('Mulai Eksplorasi') }}';
                         }
                     })
                     .catch(err => {
-                        alert('Gagal memulai rute.');
+                        alert('{{ __('Gagal memulai rute.') }}');
                         btn.disabled = false;
-                        btn.textContent = 'Mulai Eksplorasi';
+                        btn.textContent = '{{ __('Mulai Eksplorasi') }}';
                     });
             }
 

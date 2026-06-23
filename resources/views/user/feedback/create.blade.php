@@ -1,15 +1,14 @@
 @extends('layouts.app')
-@section('title', isset($feedback) ? 'Edit Ulasan' : 'Penilaian & Ulasan - Penglipuran')
-@section('header_title', isset($feedback) ? 'Edit Ulasan' : 'Beri Ulasan')
+@section('title', isset($feedback) ? __('Edit Ulasan') : __('Penilaian & Ulasan - Penglipuran'))
+@section('header_title', isset($feedback) ? __('Edit Ulasan') : __('Beri Ulasan'))
 
 @section('content')
     <div class="mx-auto max-w-2xl px-5 py-6">
         <div class="mb-6 text-center">
             <h2 class="text-charcoal mb-2 text-2xl font-bold" style="font-family: 'Playfair Display', serif;">
-                {{ isset($feedback) ? 'Edit Ulasan Anda' : 'Bagaimana Pengalaman Anda?' }}
+                {{ isset($feedback) ? __('Edit Ulasan Anda') : __('Bagaimana Pengalaman Anda?') }}
             </h2>
-            <p class="text-sm text-gray-500">Masukan Anda sangat berharga untuk pengembangan Desa Wisata Penglipuran di masa
-                depan.</p>
+            <p class="text-sm text-gray-500">{{ __('Masukan Anda sangat berharga untuk pengembangan Desa Wisata Penglipuran di masa depan.') }}</p>
         </div>
 
         @if(isset($feedback) && $feedback->admin_response)
@@ -19,7 +18,7 @@
                 <svg class="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-sm font-bold text-blue-900">Balasan Admin</span>
+                <span class="text-sm font-bold text-blue-900">{{ __('Balasan Admin') }}</span>
             </div>
             <p class="text-sm text-blue-800">{{ $feedback->admin_response }}</p>
         </div>
@@ -27,7 +26,7 @@
 
         <!-- Rating Card -->
         <div class="mb-6 flex flex-col items-center rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
-            <div class="mb-4 text-sm font-bold uppercase tracking-wider text-gray-500">Tingkat Kepuasan</div>
+            <div class="mb-4 text-sm font-bold uppercase tracking-wider text-gray-500">{{ __('Tingkat Kepuasan') }}</div>
 
             <div class="mb-2 flex items-center gap-2" id="star-container">
                 <!-- 5 Stars -->
@@ -69,21 +68,20 @@
             </div>
             <input type="hidden" name="rating" id="rating-value" value="0">
 
-            <div id="rating-text" class="text-accent mt-2 h-5 text-sm font-bold opacity-0 transition-opacity">Sangat
-                Memuaskan!</div>
+            <div id="rating-text" class="text-accent mt-2 h-5 text-sm font-bold opacity-0 transition-opacity">{{ __('Sangat Memuaskan!') }}</div>
         </div>
 
         <!-- Comment Form -->
         <div class="mb-6">
-            <label class="text-charcoal mb-2 block text-sm font-bold">Tulis Ulasan (Opsional)</label>
+            <label class="text-charcoal mb-2 block text-sm font-bold">{{ __('Tulis Ulasan (Opsional)') }}</label>
             <textarea id="comment-textarea" rows="5"
                 class="focus:border-primary focus:ring-primary w-full resize-none rounded-2xl border border-gray-200 bg-white p-4 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1"
-                placeholder="Ceritakan pengalaman unik Anda selama berada di desa wisata...">{{ isset($feedback) ? $feedback->comment : '' }}</textarea>
+                placeholder="{{ __('Ceritakan pengalaman unik Anda selama berada di desa wisata...') }}">{{ isset($feedback) ? $feedback->comment : '' }}</textarea>
         </div>
 
         <!-- Photo Upload (Real) -->
         <div class="mb-8">
-            <label class="text-charcoal mb-2 block text-sm font-bold">Lampirkan Foto (Maks. 5)</label>
+            <label class="text-charcoal mb-2 block text-sm font-bold">{{ __('Lampirkan Foto (Maks. 5)') }}</label>
             <div class="no-scrollbar flex gap-3 overflow-x-auto pb-2" id="photo-preview-container">
                 <!-- Preview will be added here via JS -->
             </div>
@@ -93,14 +91,14 @@
                 <svg class="mb-1 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                <span class="text-[10px] font-semibold">Tambah</span>
+                <span class="text-[10px] font-semibold">{{ __('Tambah') }}</span>
             </button>
         </div>
 
         <!-- Submit Button -->
         <button onclick="submitFeedback()"
             class="bg-primary shadow-primary/30 flex h-14 w-full items-center justify-center rounded-2xl font-bold text-white shadow-lg transition-all active:scale-[0.98]">
-            {{ isset($feedback) ? 'Perbarui Ulasan' : 'Kirim Penilaian' }}
+            {{ isset($feedback) ? __('Perbarui Ulasan') : __('Kirim Penilaian') }}
         </button>
     </div>
 
@@ -113,8 +111,8 @@
             </svg>
         </div>
         <div class="flex-1">
-            <h4 class="text-sm font-bold">Terima Kasih!</h4>
-            <p class="text-xs text-gray-300">Ulasan Anda berhasil dikirim.</p>
+            <h4 class="text-sm font-bold">{{ __('Terima Kasih!') }}</h4>
+            <p class="text-xs text-gray-300">{{ __('Ulasan Anda berhasil dikirim.') }}</p>
         </div>
     </div>
     <script>
@@ -147,7 +145,7 @@
                             });
 
                             const ratingText = document.getElementById('rating-text');
-                            const ratingLabels = ["Sangat Buruk", "Kurang Memuaskan", "Cukup Baik", "Memuaskan", "Sangat Memuaskan!"];
+                            const ratingLabels = ["{{ __('Sangat Buruk') }}", "{{ __('Kurang Memuaskan') }}", "{{ __('Cukup Baik') }}", "{{ __('Memuaskan') }}", "{{ __('Sangat Memuaskan!') }}"];
                             if (ratingText) {
                                 ratingText.textContent = ratingLabels[value - 1];
                                 ratingText.classList.remove('opacity-0');
@@ -169,7 +167,7 @@
                 });
                 document.getElementById('rating-value').value = existingRating;
                 const ratingText = document.getElementById('rating-text');
-                const ratingLabels = ["Sangat Buruk", "Kurang Memuaskan", "Cukup Baik", "Memuaskan", "Sangat Memuaskan!"];
+                const ratingLabels = ["{{ __('Sangat Buruk') }}", "{{ __('Kurang Memuaskan') }}", "{{ __('Cukup Baik') }}", "{{ __('Memuaskan') }}", "{{ __('Sangat Memuaskan!') }}"];
                 if (ratingText) {
                     ratingText.textContent = ratingLabels[existingRating - 1];
                     ratingText.classList.remove('opacity-0');
@@ -183,12 +181,12 @@
                 const maxSize = 2 * 1024 * 1024;
                 const oversized = files.find(f => f.size > maxSize);
                 if (oversized) {
-                    Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 2MB per foto.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+                    Swal.fire({ title: '{{ __('Ukuran File Terlalu Besar') }}', text: '{{ __('Maksimal 2MB per foto.') }}', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
                     photoInput.value = '';
                     return;
                 }
                 if (selectedFiles.length + files.length > 5) {
-                    Swal.fire({ title: 'Maksimal 5 Foto', text: 'Anda hanya dapat mengunggah maksimal 5 foto.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+                    Swal.fire({ title: '{{ __('Maksimal 5 Foto') }}', text: '{{ __('Anda hanya dapat mengunggah maksimal 5 foto.') }}', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
                     return;
                 }
                 selectedFiles = selectedFiles.concat(files);
@@ -228,7 +226,7 @@
             const comment = document.getElementById('comment-textarea').value;
 
             if (rating === '0') {
-                Swal.fire({ title: 'Rating Belum Dipilih', text: 'Silakan pilih rating terlebih dahulu.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+                Swal.fire({ title: '{{ __('Rating Belum Dipilih') }}', text: '{{ __('Silakan pilih rating terlebih dahulu.') }}', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
                 return;
             }
 
@@ -257,11 +255,11 @@
                     window.location.href = `/feedback/thank-you/${data.data.id}`;
                 } else {
                     const err = await res.json();
-                    const msg = err.message || Object.values(err.errors || {}).flat().join(', ') || 'Terjadi kesalahan.';
-                    Swal.fire({ title: 'Gagal', text: msg, icon: 'error', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+                    const msg = err.message || Object.values(err.errors || {}).flat().join(', ') || '{{ __('Terjadi kesalahan.') }}';
+                    Swal.fire({ title: '{{ __('Gagal') }}', text: msg, icon: 'error', confirmButtonColor: '#1E5128', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
                 }
             } catch (e) {
-                Swal.fire({ title: 'Koneksi Terputus', text: 'Periksa koneksi internet Anda dan coba lagi.', icon: 'error', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+                Swal.fire({ title: '{{ __('Koneksi Terputus') }}', text: '{{ __('Periksa koneksi internet Anda dan coba lagi.') }}', icon: 'error', confirmButtonColor: '#1E5128', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
             }
         }
     </script>

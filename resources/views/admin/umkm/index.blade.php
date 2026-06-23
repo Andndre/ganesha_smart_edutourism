@@ -67,14 +67,14 @@
                 stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari produk atau toko UMKM..."
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('Cari produk atau toko UMKM...') }}"
                 class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 py-2.5 pl-9 pr-4 text-sm focus:outline-none focus:ring-1">
         </div>
         <select name="category" onchange="this.form.submit()"
             class="focus:border-primary rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none">
-            <option value="Semua Kategori">Semua Kategori</option>
+            <option value="Semua Kategori">{{ __('Semua Kategori') }}</option>
             @foreach (['Kerajinan', 'Kuliner', 'Tekstil', 'Minuman'] as $cat)
-                <option value="{{ $cat }}" {{ request('category') === $cat ? 'selected' : '' }}>{{ $cat }}
+                <option value="{{ $cat }}" {{ request('category') === $cat ? 'selected' : '' }}>{{ __($cat) }}
                 </option>
             @endforeach
         </select>
@@ -152,7 +152,7 @@
                                     </button>
                                     <form method="POST" action="{{ route('admin.umkm.destroy', $p->id) }}"
                                         class="delete-form inline"
-                                        data-confirm="Apakah Anda yakin ingin menghapus produk ini?">
+                                        data-confirm="{{ __('Apakah Anda yakin ingin menghapus produk ini?') }}">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"

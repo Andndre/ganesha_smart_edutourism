@@ -1,7 +1,7 @@
 {{-- ponytail: partial dipecah untuk keterbacaan --}}
         <!-- Products Preview -->
         <div class="mt-2 border-t border-gray-100 bg-white px-4 py-5" x-data>
-            <h3 class="text-charcoal mb-3 font-bold">Produk yang Tersedia</h3>
+            <h3 class="text-charcoal mb-3 font-bold">{{ __('Produk yang Tersedia') }}</h3>
             <div class="space-y-3">
                 @forelse($umkm->activeProducts as $product)
                     <div @click="$dispatch('open-product-modal', {{ json_encode([
@@ -9,7 +9,7 @@
                         'category' => $product->category->name ?? 'Produk',
                         'price' => 'Rp ' . number_format($product->price, 0, ',', '.'),
                         'image' => $product->image_path ? asset('storage/' . $product->image_path) : '',
-                        'description' => $product->description ?? 'Tidak ada deskripsi.',
+                        'description' => $product->description ?? __('Tidak ada deskripsi.'),
                     ]) }})"
                         class="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-100 p-3 transition-colors active:bg-gray-50">
                         <div
@@ -26,14 +26,14 @@
                         </div>
                         <div class="flex-1">
                             <h4 class="text-charcoal line-clamp-1 text-sm font-bold">{{ $product->name }}</h4>
-                            <p class="mt-0.5 text-xs text-gray-500">{{ $product->category->name ?? 'Produk' }}</p>
+                            <p class="mt-0.5 text-xs text-gray-500">{{ $product->category->name ?? __('Produk') }}</p>
                         </div>
                         <div class="text-primary text-sm font-bold">
                             Rp {{ number_format($product->price, 0, ',', '.') }}
                         </div>
                     </div>
                 @empty
-                    <p class="py-4 text-center text-sm text-gray-500">UMKM ini tidak memiliki produk aktif saat ini.</p>
+                    <p class="py-4 text-center text-sm text-gray-500">{{ __('UMKM ini tidak memiliki produk aktif saat ini.') }}</p>
                 @endforelse
             </div>
         </div>

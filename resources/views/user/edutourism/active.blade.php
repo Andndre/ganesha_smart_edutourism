@@ -31,13 +31,12 @@
                     </a>
                     <div>
                         <h2 class="text-charcoal font-bold leading-tight">{{ $activeSession->tourRoute->name }}</h2>
-                        <p class="text-xs text-gray-500">Misi: {{ $activeSession->points_completed }} /
-                            {{ $activeSession->tourRoute->routePoints->count() }} Selesai</p>
+                        <p class="text-xs text-gray-500">{{ __('Misi: :completed / :total Selesai', ['completed' => $activeSession->points_completed, 'total' => $activeSession->tourRoute->routePoints->count()]) }}</p>
                     </div>
                 </div>
                 <div class="text-right">
                     <span class="text-primary text-xl font-black leading-none">{{ $activeSession->total_score }}</span>
-                    <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">Poin</p>
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">{{ __('Poin') }}</p>
                 </div>
             </div>
         </div>
@@ -46,9 +45,9 @@
         @if ($activeSession->currentPoint)
             <div class="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-4 pb-24">
                 <div class="pointer-events-auto rounded-3xl bg-white p-6 shadow-2xl">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">Tujuan Saat Ini</h3>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">{{ __('Tujuan Saat Ini') }}</h3>
                     <h2 class="text-charcoal mt-1 text-xl font-black">
-                        {{ $activeSession->currentPoint->locationable->name ?? 'Titik Perhentian' }}</h2>
+                        {{ $activeSession->currentPoint->locationable->name ?? __('Titik Perhentian') }}</h2>
 
                     <div class="mt-4 flex items-center gap-3 rounded-xl bg-blue-50 p-3">
                         <div
@@ -61,15 +60,14 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-sm font-bold text-blue-900" id="distance-info">Mencari lokasi GPS...</p>
-                            <p class="text-[10px] uppercase tracking-wider text-blue-700">Arahkan ke lokasi untuk membuka
-                                kuis</p>
+                            <p class="text-sm font-bold text-blue-900" id="distance-info">{{ __('Mencari lokasi GPS...') }}</p>
+                            <p class="text-[10px] uppercase tracking-wider text-blue-700">{{ __('Arahkan ke lokasi untuk membuka kuis') }}</p>
                         </div>
                     </div>
 
                     <button id="btn-arrive" disabled onclick="triggerArrive({{ $activeSession->currentPoint->id }})"
                         class="bg-primary mt-4 w-full rounded-xl py-3 text-center text-sm font-bold text-white opacity-50 shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed">
-                        Mendekati Lokasi...
+                        {{ __('Mendekati Lokasi...') }}
                     </button>
                 </div>
             </div>
@@ -83,16 +81,14 @@
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
-                    <h2 class="mt-2 text-3xl font-black text-emerald-900">Misi Selesai!</h2>
-                    <p class="mt-4 text-base leading-relaxed text-emerald-700">Selamat! Anda telah menyelesaikan seluruh
-                        rute ini dengan luar biasa. Skor akhir Anda:</p>
+                    <h2 class="mt-2 text-3xl font-black text-emerald-900">{{ __('Misi Selesai!') }}</h2>
+                    <p class="mt-4 text-base leading-relaxed text-emerald-700">{{ __('Selamat! Anda telah menyelesaikan seluruh rute ini dengan luar biasa. Skor akhir Anda:') }}</p>
                     <div class="my-6 rounded-2xl bg-white py-4 shadow-sm">
                         <span class="block text-4xl font-black text-emerald-600">{{ $activeSession->total_score }}</span>
-                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Total Poin</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">{{ __('Total Poin') }}</span>
                     </div>
                     <a href="{{ route('home') }}"
-                        class="block w-full rounded-xl bg-emerald-600 py-4 text-center text-base font-bold text-white shadow-md transition-transform hover:bg-emerald-700 active:scale-95">Kembali
-                        ke Beranda</a>
+                        class="block w-full rounded-xl bg-emerald-600 py-4 text-center text-base font-bold text-white shadow-md transition-transform hover:bg-emerald-700 active:scale-95">{{ __('Kembali ke Beranda') }}</a>
                 </div>
             </div>
         @endif
@@ -103,8 +99,7 @@
         <div class="space-y-4">
             <div class="flex items-center justify-between">
                 <span
-                    class="rounded-lg border border-amber-100 bg-amber-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-amber-600">Tantangan
-                    Kuis</span>
+                    class="rounded-lg border border-amber-100 bg-amber-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-amber-600">{{ __('Tantangan Kuis') }}</span>
             </div>
             <h3 id="quiz-question" class="font-display text-charcoal text-lg font-bold leading-snug tracking-tight"></h3>
 
@@ -220,15 +215,15 @@
                                 const arriveBtn = document.getElementById('btn-arrive');
 
                                 if (dist < 30) {
-                                    infoText.innerHTML = `Lokasi Ditemukan! (Jarak: ${dist}m)`;
+                                    infoText.innerHTML = `{{ __('Lokasi Ditemukan!') }} ({{ __('Jarak') }}: ${dist}m)`;
                                     arriveBtn.disabled = false;
                                     arriveBtn.classList.remove('opacity-50');
-                                    arriveBtn.textContent = 'Jawab Pertanyaan & Lanjut';
+                                    arriveBtn.textContent = '{{ __('Jawab Pertanyaan & Lanjut') }}';
                                 } else {
-                                    infoText.textContent = `Jarak: ${dist} meter`;
+                                    infoText.textContent = `{{ __('Jarak') }}: ${dist} {{ __('meter') }}`;
                                     arriveBtn.disabled = true;
                                     arriveBtn.classList.add('opacity-50');
-                                    arriveBtn.textContent = 'Mendekati Lokasi...';
+                                    arriveBtn.textContent = '{{ __('Mendekati Lokasi...') }}';
                                 }
                             }
                         }
@@ -265,7 +260,7 @@
                             const quizQuestionEl = document.getElementById('quiz-question');
                             if (quizQuestionEl) {
                                 quizQuestionEl.textContent =
-                                    `Soal ${currentQuizIndex + 1} dari ${currentQuizzes.length}: ` + quiz.question;
+                                    `{{ __('Soal') }} ${currentQuizIndex + 1} {{ __('dari') }} ${currentQuizzes.length}: ` + quiz.question;
                             }
                             const opts = document.getElementById('quiz-options');
                             if (opts) {
@@ -283,7 +278,7 @@
                             const btnArrive = document.getElementById('btn-arrive');
                             if (btnArrive) {
                                 btnArrive.disabled = true;
-                                btnArrive.textContent = 'Memuat Kuis...';
+                                btnArrive.textContent = '{{ __('Memuat Kuis...') }}';
                             }
 
                             const url = `/edutourism/arrive/${pointId}`;
@@ -311,7 +306,7 @@
                                         window.dispatchEvent(new CustomEvent('open-quiz-modal'));
                                         document.getElementById('btn-arrive').disabled = false;
                                         document.getElementById('btn-arrive').textContent =
-                                            'Jawab Pertanyaan & Lanjut';
+                                            '{{ __('Jawab Pertanyaan & Lanjut') }}';
                                     } else {
                                         if (data.session_status === 'completed') {
                                             window.location.reload();
@@ -320,11 +315,11 @@
                                                 "No quizzes found for this point. Showing SweetAlert info..."
                                             );
                                             Swal.fire({
-                                                title: 'Info',
-                                                text: 'Tidak ada kuis untuk titik ini. Rute berlanjut...',
+                                                title: '{{ __('Info') }}',
+                                                text: '{{ __('Tidak ada kuis untuk titik ini. Rute berlanjut...') }}',
                                                 icon: 'info',
                                                 confirmButtonColor: '#1E5128',
-                                                confirmButtonText: 'Lanjut'
+                                                confirmButtonText: '{{ __('Lanjut') }}'
                                             }).then(() => {
                                                 window.location.reload();
                                             });
@@ -335,10 +330,10 @@
                                     console.error("Error occurred in triggerArrive:", err);
                                     document.getElementById('btn-arrive').disabled = false;
                                     document.getElementById('btn-arrive').textContent =
-                                        'Jawab Pertanyaan & Lanjut';
+                                        '{{ __('Jawab Pertanyaan & Lanjut') }}';
                                     Swal.fire({
-                                        title: 'Oops!',
-                                        text: 'Gagal memuat kuis.',
+                                        title: '{{ __('Oops!') }}',
+                                        text: '{{ __('Gagal memuat kuis.') }}',
                                         icon: 'error',
                                         confirmButtonColor: '#1E5128'
                                     });
@@ -369,12 +364,12 @@
                                     if (data.is_correct) {
                                         if (isLast) {
                                             document.getElementById('quiz-question').innerHTML =
-                                                '<span class="text-green-600 text-2xl">🎉 Semua Terjawab!</span><br><span class="text-sm">Rute dilanjutkan...</span>';
+                                                '<span class="text-green-600 text-2xl">🎉 {{ __('Semua Terjawab!') }}</span><br><span class="text-sm">{{ __('Rute dilanjutkan...') }}</span>';
                                             document.getElementById('quiz-options').innerHTML = '';
                                             setTimeout(() => window.location.reload(), 1500);
                                         } else {
                                             document.getElementById('quiz-question').innerHTML =
-                                                '<span class="text-green-600 text-2xl">✅ Benar!</span><br><span class="text-sm">Lanjut ke soal berikutnya...</span>';
+                                                '<span class="text-green-600 text-2xl">✅ {{ __('Benar!') }}</span><br><span class="text-sm">{{ __('Lanjut ke soal berikutnya...') }}</span>';
                                             document.getElementById('quiz-options').innerHTML = '';
                                             setTimeout(() => {
                                                 currentQuizIndex++;
@@ -383,8 +378,8 @@
                                         }
                                     } else {
                                         Swal.fire({
-                                            title: 'Salah!',
-                                            text: 'Jawaban Salah! Coba lagi.',
+                                            title: '{{ __('Salah!') }}',
+                                            text: '{{ __('Jawaban Salah! Coba lagi.') }}',
                                             icon: 'error',
                                             confirmButtonColor: '#1E5128'
                                         });
@@ -393,8 +388,8 @@
                                 })
                                 .catch(err => {
                                     Swal.fire({
-                                        title: 'Oops!',
-                                        text: 'Gagal mengirim jawaban.',
+                                        title: '{{ __('Oops!') }}',
+                                        text: '{{ __('Gagal mengirim jawaban.') }}',
                                         icon: 'error',
                                         confirmButtonColor: '#1E5128'
                                     });
