@@ -744,6 +744,26 @@ class CulturalObjectController extends Controller
             $sheet->getColumnDimension($colLetter)->setAutoSize(true);
         }
 
+        // Write instructions to the right (Column O)
+        $sheet->setCellValue('O1', 'PETUNJUK PENGISIAN IMPORT EXCEL');
+        $sheet->getStyle('O1')->getFont()->setBold(true)->setSize(11);
+
+        $instructions = [
+            '1. Kolom Nama (ID) & (EN) wajib diisi.',
+            '2. Kolom Kategori hanya menerima nilai: temple (Pura), house (Rumah Adat), craft (Kerajinan), atau tradition (Tradisi).',
+            '3. Latitude & Longitude harus berupa angka koordinat desimal (contoh: -8.43169, 115.35246).',
+            '4. Akses Disabilitas diisi dengan "Y" (Ya) atau "N" (Tidak).',
+            '5. Catatan Aksesibilitas menjelaskan detail kemudahan akses (contoh: Pintu masuk landai, ramah kursi roda).',
+            '6. Marker ID (Opsional) diisi jika lokasi ini terhubung dengan Augmented Reality (AR) marker.',
+            '7. Berkas media biner (seperti gambar, file 3D GLB/USDZ, audio) diunggah manual setelah import selesai via tombol edit.',
+        ];
+
+        foreach ($instructions as $idx => $inst) {
+            $sheet->setCellValue('O'.($idx + 2), $inst);
+        }
+
+        $sheet->getColumnDimension('O')->setAutoSize(true);
+
         $writer = new Xlsx($spreadsheet);
         $fileName = 'template_import_objek_budaya.xlsx';
 
