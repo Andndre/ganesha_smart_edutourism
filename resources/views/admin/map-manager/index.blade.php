@@ -63,5 +63,6 @@
 
 @push('scripts')
     @include('admin.map-manager.partials.scripts')
+    <x-tiptap-editor-script />
     <script type="module" src="{{ asset('js/model-viewer.min.js') }}"></script>
 @endpush

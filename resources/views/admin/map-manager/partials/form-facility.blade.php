@@ -40,15 +40,11 @@
 
     <div x-show="locale === 'en'">
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Description (EN)</label>
-        <textarea name="description[en]" rows="3"
-            placeholder="Add complementary information about this facility..."
-            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none"></textarea>
+        <x-tiptap-editor name="description[en]" id="facility-desc-en" placeholder="Add complementary information about this facility..." />
     </div>
     <div x-show="locale === 'id'">
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi (ID)</label>
-        <textarea name="description[id]" rows="3"
-            placeholder="Tambahkan informasi pelengkap untuk fasilitas ini..."
-            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none"></textarea>
+        <x-tiptap-editor name="description[id]" id="facility-desc-id" placeholder="Tambahkan informasi pelengkap untuk fasilitas ini..." />
     </div>
 
     <div class="grid grid-cols-2 gap-3">

@@ -74,13 +74,11 @@
 
     <div x-show="locale === 'en'">
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi Bisnis (EN)</label>
-        <textarea name="description[en]" rows="3" placeholder="Describe the products or services offered..."
-            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none"></textarea>
+        <x-tiptap-editor name="description[en]" id="umkm-desc-en" placeholder="Describe the products or services offered..." />
     </div>
     <div x-show="locale === 'id'">
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi Bisnis (ID)</label>
-        <textarea name="description[id]" rows="3" placeholder="Jelaskan mengenai menu atau layanan yang ditawarkan..."
-            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none"></textarea>
+        <x-tiptap-editor name="description[id]" id="umkm-desc-id" placeholder="Jelaskan mengenai menu atau layanan yang ditawarkan..." />
     </div>
 
     <div class="grid grid-cols-2 gap-3">
