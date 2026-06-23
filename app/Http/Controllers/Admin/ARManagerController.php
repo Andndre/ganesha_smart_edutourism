@@ -21,9 +21,31 @@ class ARManagerController extends Controller
 
     public function storeModel(Request $request): RedirectResponse
     {
+        if ($request->has('name') && is_string($request->input('name'))) {
+            $request->merge([
+                'name' => [
+                    'en' => $request->input('name'),
+                    'id' => $request->input('name'),
+                ],
+            ]);
+        }
+
+        if ($request->has('description') && is_string($request->input('description'))) {
+            $request->merge([
+                'description' => [
+                    'en' => $request->input('description'),
+                    'id' => $request->input('description'),
+                ],
+            ]);
+        }
+
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'ar_marker_id' => ['nullable', 'string', 'max:255', 'unique:ar_models,ar_marker_id'],
             'ar_marker_patt_content' => ['nullable', 'string'],
             'model_3d_file' => ['required', 'file', 'max:20480'],
@@ -65,9 +87,31 @@ class ARManagerController extends Controller
     {
         $model = ArModel::findOrFail($id);
 
+        if ($request->has('name') && is_string($request->input('name'))) {
+            $request->merge([
+                'name' => [
+                    'en' => $request->input('name'),
+                    'id' => $request->input('name'),
+                ],
+            ]);
+        }
+
+        if ($request->has('description') && is_string($request->input('description'))) {
+            $request->merge([
+                'description' => [
+                    'en' => $request->input('description'),
+                    'id' => $request->input('description'),
+                ],
+            ]);
+        }
+
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'name' => ['required', 'array'],
+            'name.en' => ['required', 'string', 'max:255'],
+            'name.id' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.id' => ['nullable', 'string'],
             'ar_marker_id' => ['nullable', 'string', 'max:255', 'unique:ar_models,ar_marker_id,'.$id],
             'ar_marker_patt_content' => ['nullable', 'string'],
             'model_3d_file' => ['nullable', 'file', 'max:20480'],

@@ -210,7 +210,10 @@ function handleMarkerClick(marker) {
             }
 
             form.querySelector('input[name="is_accessible"]').checked = loc.is_accessible;
-            form.querySelector('textarea[name="accessibility_notes"]').value = loc.accessibility_notes || '';
+            const culturalAccEn = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.en || '') : (loc.accessibility_notes || '');
+            const culturalAccId = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.id || '') : (loc.accessibility_notes || '');
+            form.querySelector('textarea[name="accessibility_notes[en]"]').value = culturalAccEn;
+            form.querySelector('textarea[name="accessibility_notes[id]"]').value = culturalAccId;
             updateAccessibilityNotesVisibility(form);
 
             // Populate Quizzes
@@ -281,7 +284,10 @@ function handleMarkerClick(marker) {
             form.querySelector('input[name="ar_marker_id"]').value = '';
             form.querySelector('input[name="is_active"]').checked = details.is_active;
             form.querySelector('input[name="is_accessible"]').checked = loc.is_accessible;
-            form.querySelector('textarea[name="accessibility_notes"]').value = loc.accessibility_notes || '';
+            const umkmAccEn = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.en || '') : (loc.accessibility_notes || '');
+            const umkmAccId = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.id || '') : (loc.accessibility_notes || '');
+            form.querySelector('textarea[name="accessibility_notes[en]"]').value = umkmAccEn;
+            form.querySelector('textarea[name="accessibility_notes[id]"]').value = umkmAccId;
             updateAccessibilityNotesVisibility(form);
 
             // Setup Delete Action
@@ -300,7 +306,10 @@ function handleMarkerClick(marker) {
             form.querySelector('textarea[name="description[id]"]').value = details.description?.id || details.description || '';
             form.querySelector('input[name="is_active"]').checked = details.is_active;
             form.querySelector('input[name="is_accessible"]').checked = loc.is_accessible;
-            form.querySelector('textarea[name="accessibility_notes"]').value = loc.accessibility_notes || '';
+            const facilityAccEn = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.en || '') : (loc.accessibility_notes || '');
+            const facilityAccId = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.id || '') : (loc.accessibility_notes || '');
+            form.querySelector('textarea[name="accessibility_notes[en]"]').value = facilityAccEn;
+            form.querySelector('textarea[name="accessibility_notes[id]"]').value = facilityAccId;
             updateAccessibilityNotesVisibility(form);
 
             // Setup Delete Action

@@ -25,7 +25,7 @@ class AdminTest extends DuskTestCase
             $browser->visit('/login')
                 ->type('email', $admin->email)
                 ->type('password', 'password123')
-                ->press('Masuk ke Aplikasi')
+                ->press('Sign In to App')
                 ->waitForLocation('/admin/dashboard')
                 ->assertPathIs('/admin/dashboard')
                 ->assertSee('Dashboard');

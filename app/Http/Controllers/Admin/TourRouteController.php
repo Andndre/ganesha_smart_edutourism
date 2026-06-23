@@ -68,6 +68,37 @@ class TourRouteController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        if ($request->has('name') && is_string($request->input('name'))) {
+            $request->merge([
+                'name' => [
+                    'en' => $request->input('name'),
+                    'id' => $request->input('name'),
+                ],
+            ]);
+        }
+
+        if ($request->has('description') && is_string($request->input('description'))) {
+            $request->merge([
+                'description' => [
+                    'en' => $request->input('description'),
+                    'id' => $request->input('description'),
+                ],
+            ]);
+        }
+
+        if ($request->has('points') && is_array($request->input('points'))) {
+            $points = $request->input('points');
+            foreach ($points as $index => $point) {
+                if (isset($point['storytelling_content']) && is_string($point['storytelling_content'])) {
+                    $points[$index]['storytelling_content'] = [
+                        'en' => $point['storytelling_content'],
+                        'id' => $point['storytelling_content'],
+                    ];
+                }
+            }
+            $request->merge(['points' => $points]);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'array'],
             'name.en' => ['required', 'string', 'max:255'],
@@ -123,6 +154,37 @@ class TourRouteController extends Controller
     public function update(Request $request, int $id): RedirectResponse
     {
         $route = TourRoute::findOrFail($id);
+
+        if ($request->has('name') && is_string($request->input('name'))) {
+            $request->merge([
+                'name' => [
+                    'en' => $request->input('name'),
+                    'id' => $request->input('name'),
+                ],
+            ]);
+        }
+
+        if ($request->has('description') && is_string($request->input('description'))) {
+            $request->merge([
+                'description' => [
+                    'en' => $request->input('description'),
+                    'id' => $request->input('description'),
+                ],
+            ]);
+        }
+
+        if ($request->has('points') && is_array($request->input('points'))) {
+            $points = $request->input('points');
+            foreach ($points as $index => $point) {
+                if (isset($point['storytelling_content']) && is_string($point['storytelling_content'])) {
+                    $points[$index]['storytelling_content'] = [
+                        'en' => $point['storytelling_content'],
+                        'id' => $point['storytelling_content'],
+                    ];
+                }
+            }
+            $request->merge(['points' => $points]);
+        }
 
         $validated = $request->validate([
             'name' => ['required', 'array'],

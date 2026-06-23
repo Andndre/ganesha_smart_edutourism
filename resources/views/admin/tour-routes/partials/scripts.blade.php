@@ -18,7 +18,7 @@
                 'locationable_type' => $point->locationable_type,
                 'locationable_id' => $point->locationable_id,
                 'estimated_visit_minutes' => $point->estimated_visit_minutes,
-                'storytelling_content' => $point->storytelling_content,
+                'storytelling_content' => $point->getTranslations('storytelling_content'),
             ];
         })->values()) !!};
 
@@ -36,7 +36,7 @@
                         locationable_type: loc.locationable_type,
                         locationable_id: loc.locationable_id,
                         estimated_visit_minutes: p.estimated_visit_minutes || 15,
-                        storytelling_content: p.storytelling_content || ''
+                        storytelling_content: p.storytelling_content || { en: '', id: '' }
                     });
                 }
             });
@@ -187,7 +187,7 @@
             locationable_type: loc.locationable_type,
             locationable_id: loc.locationable_id,
             estimated_visit_minutes: 15,
-            storytelling_content: ''
+            storytelling_content: { en: '', id: '' }
         });
 
         // Close popup, rebuild markers & update layout
@@ -231,12 +231,24 @@
         updateRouting(); // Re-calculate total duration immediately
     }
 
-    function updatePointStorytelling(idx, val) {
-        selectedPoints[idx].storytelling_content = val;
-        // Sync input hidden element
-        const hiddenEl = document.getElementById(`hidden-story-${idx}`);
-        if (hiddenEl) {
-            hiddenEl.value = val;
+    function updatePointStorytelling(idx, locale, val) {
+        if (typeof selectedPoints[idx].storytelling_content !== 'object' || !selectedPoints[idx].storytelling_content) {
+            const currentVal = selectedPoints[idx].storytelling_content || '';
+            selectedPoints[idx].storytelling_content = {
+                en: currentVal,
+                id: currentVal
+            };
+        }
+        selectedPoints[idx].storytelling_content[locale] = val;
+        
+        // Sync input hidden elements
+        const hiddenElEn = document.getElementById(`hidden-story-en-${idx}`);
+        if (hiddenElEn) {
+            hiddenElEn.value = selectedPoints[idx].storytelling_content.en || '';
+        }
+        const hiddenElId = document.getElementById(`hidden-story-id-${idx}`);
+        if (hiddenElId) {
+            hiddenElId.value = selectedPoints[idx].storytelling_content.id || '';
         }
     }
 
@@ -270,6 +282,18 @@
         
         let html = '';
         selectedPoints.forEach((point, index) => {
+            let storytellingEn = '';
+            let storytellingId = '';
+            if (point.storytelling_content) {
+                if (typeof point.storytelling_content === 'object') {
+                    storytellingEn = point.storytelling_content.en || '';
+                    storytellingId = point.storytelling_content.id || '';
+                } else {
+                    storytellingEn = point.storytelling_content;
+                    storytellingId = point.storytelling_content;
+                }
+            }
+
             html += `
                 <div class="p-4 rounded-xl border border-gray-100 bg-gray-50/50 flex flex-col gap-3 relative transition-all hover:border-gray-200">
                     <div class="flex items-start justify-between">
@@ -309,16 +333,23 @@
                                 <span class="absolute right-2 text-[10px] text-gray-400 font-bold">menit</span>
                             </div>
                         </div>
-                        <div class="sm:col-span-3">
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase">Narasi Storytelling</label>
-                            <input type="text" value="${point.storytelling_content || ''}" onchange="updatePointStorytelling(${index}, this.value)" placeholder="Cerita menarik untuk titik ini..." class="mt-1 w-full rounded-lg border border-gray-200 py-1.5 px-3 text-xs focus:border-primary focus:outline-none">
+                        <div class="sm:col-span-3 space-y-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase">Narasi Storytelling (EN)</label>
+                                <input type="text" value="${storytellingEn}" onchange="updatePointStorytelling(${index}, 'en', this.value)" placeholder="e.g. Interesting story about this temple..." class="mt-1 w-full rounded-lg border border-gray-200 py-1.5 px-3 text-xs focus:border-primary focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase">Narasi Storytelling (ID)</label>
+                                <input type="text" value="${storytellingId}" onchange="updatePointStorytelling(${index}, 'id', this.value)" placeholder="Contoh: Cerita menarik untuk titik ini..." class="mt-1 w-full rounded-lg border border-gray-200 py-1.5 px-3 text-xs focus:border-primary focus:outline-none">
+                            </div>
                         </div>
                     </div>
                     
                     <input type="hidden" name="points[${index}][locationable_type]" value="${point.locationable_type}">
                     <input type="hidden" name="points[${index}][locationable_id]" value="${point.locationable_id}">
                     <input type="hidden" name="points[${index}][estimated_visit_minutes]" value="${point.estimated_visit_minutes}">
-                    <input type="hidden" id="hidden-story-${index}" name="points[${index}][storytelling_content]" value="${point.storytelling_content || ''}">
+                    <input type="hidden" id="hidden-story-en-${index}" name="points[${index}][storytelling_content][en]" value="${storytellingEn}">
+                    <input type="hidden" id="hidden-story-id-${index}" name="points[${index}][storytelling_content][id]" value="${storytellingId}">
                 </div>
             `;
         });

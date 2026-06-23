@@ -125,8 +125,14 @@
 
     <div class="accessibility-notes-container">
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas</label>
-        <textarea name="accessibility_notes" rows="2" placeholder="Contoh: Pintu masuk ramah kursi roda..."
-            class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:border-primary focus:outline-none resize-none">Pintu masuk landai, staf siap membantu akses disabilitas.</textarea>
+        <div x-show="locale === 'en'">
+            <textarea name="accessibility_notes[en]" id="umkm-accessibility-notes-en" rows="2" placeholder="e.g. Ramp entrance, staff ready to help..."
+                class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:border-primary focus:outline-none resize-none">Ramp entrance, staff ready to help with accessibility.</textarea>
+        </div>
+        <div x-show="locale === 'id'">
+            <textarea name="accessibility_notes[id]" id="umkm-accessibility-notes-id" rows="2" placeholder="Contoh: Pintu masuk ramah kursi roda..."
+                class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:border-primary focus:outline-none resize-none">Pintu masuk landai, staf siap membantu akses disabilitas.</textarea>
+        </div>
     </div>
 
 </form>

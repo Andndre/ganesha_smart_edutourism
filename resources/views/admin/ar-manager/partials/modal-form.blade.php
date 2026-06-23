@@ -3,20 +3,181 @@
     <div class="mb-4">
         <h3 id="model-modal-title" class="font-display text-charcoal text-lg font-bold">Tambah Model 3D</h3>
     </div>
-    <form id="model-form" method="POST" action="" enctype="multipart/form-data">
+    <form id="model-form" method="POST" action="" enctype="multipart/form-data" x-data="{ locale: 'en' }">
         @csrf
         <div id="model-method-container"></div>
         <input type="hidden" name="ar_marker_patt_content" id="model-field-patt-content">
         <input type="hidden" name="model_id" id="model-field-id" value="">
 
         <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-semibold text-gray-700">Nama Model <span
-                        class="text-warning">*</span></label>
-                <input type="text" name="name" id="model-field-name" required
-                    placeholder="Contoh: Pura Penataran Model"
-                    class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-                @error('name')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+            {{-- Locale tabs --}}
+            <div class="flex gap-2 mb-2">
+                <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+                    class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">English</button>
+                <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+                    class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">Indonesia</button>
+            </div>
+
+            {{-- English Tab Section --}}
+            <div x-show="locale === 'en'" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">Model Name (EN) <span
+                            class="text-warning">*</span></label>
+                    <input type="text" name="name[en]" id="model-field-name-en" required
+                        placeholder="e.g. Traditional Temple Model"
+                        class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    @error('name.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">Description (EN)</label>
+                    <div id="model-desc-toolbar-en"
+                        class="mt-1 flex flex-wrap gap-1 rounded-t-xl border border-b-0 border-gray-200 bg-gray-50 p-1.5 text-gray-600">
+                        <button type="button" data-action="bold"
+                            class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
+                            title="Bold">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 12h8a4 4 0 100-8H6v8zm0 0h10a4 4 0 110 8H6v-8z"></path>
+                            </svg>
+                        </button>
+                        <button type="button" data-action="italic"
+                            class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
+                            title="Italic">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M10 4h4M12 4v16M10 20h4M15 4L9 20"></path>
+                            </svg>
+                        </button>
+                        <span class="mx-1 my-auto h-5 w-px bg-gray-200"></span>
+                        <button type="button" data-action="bulletList"
+                            class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
+                            title="Bullet List">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M4 6h16M4 12h16M4 18h16M8 6h.01M8 12h.01M8 18h.01"></path>
+                            </svg>
+                        </button>
+                        <button type="button" data-action="orderedList"
+                            class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
+                            title="Ordered List">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 5h11M9 12h11M9 19h11M4 4h2v4H4V4zm0 6h2a1 1 0 011 1v1a1 1 0 01-1 1H4v-1h2v-1H4v-1zm0 6h2v3H4v-3z">
+                                </path>
+                            </svg>
+                        </button>
+                        <span class="mx-1 my-auto h-5 w-px bg-gray-200"></span>
+                        <button type="button" data-action="undo"
+                            class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
+                            title="Undo">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                            </svg>
+                        </button>
+                        <button type="button" data-action="redo"
+                            class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
+                            title="Redo">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M21 10H11a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="model-desc-editor-en"
+                        class="focus-within:border-primary focus-within:ring-primary/20 max-h-50 min-h-25 w-full overflow-y-auto rounded-b-xl border border-gray-200 bg-white p-4 text-sm focus-within:ring-1">
+                    </div>
+                    <textarea name="description[en]" id="model-field-desc-en" class="hidden"></textarea>
+                    @error('description.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                </div>
+            </div>
+
+            {{-- Indonesian Tab Section --}}
+            <div x-show="locale === 'id'" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">Nama Model (ID) <span
+                            class="text-warning">*</span></label>
+                    <input type="text" name="name[id]" id="model-field-name-id" required
+                        placeholder="Contoh: Model Pura Tradisional"
+                        class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    @error('name.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">Deskripsi Model (ID)</label>
+                    <div id="model-desc-toolbar-id"
+                        class="mt-1 flex flex-wrap gap-1 rounded-t-xl border border-b-0 border-gray-200 bg-gray-50 p-1.5 text-gray-600">
+                        <button type="button" data-action="bold"
+                            class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
+                            title="Bold">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 12h8a4 4 0 100-8H6v8zm0 0h10a4 4 0 110 8H6v-8z"></path>
+                            </svg>
+                        </button>
+                        <button type="button" data-action="italic"
+                            class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
+                            title="Italic">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M10 4h4M12 4v16M10 20h4M15 4L9 20"></path>
+                            </svg>
+                        </button>
+                        <span class="mx-1 my-auto h-5 w-px bg-gray-200"></span>
+                        <button type="button" data-action="bulletList"
+                            class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
+                            title="Bullet List">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M4 6h16M4 12h16M4 18h16M8 6h.01M8 12h.01M8 18h.01"></path>
+                            </svg>
+                        </button>
+                        <button type="button" data-action="orderedList"
+                            class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
+                            title="Ordered List">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 5h11M9 12h11M9 19h11M4 4h2v4H4V4zm0 6h2a1 1 0 011 1v1a1 1 0 01-1 1H4v-1h2v-1H4v-1zm0 6h2v3H4v-3z">
+                                </path>
+                            </svg>
+                        </button>
+                        <span class="mx-1 my-auto h-5 w-px bg-gray-200"></span>
+                        <button type="button" data-action="undo"
+                            class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
+                            title="Undo">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                            </svg>
+                        </button>
+                        <button type="button" data-action="redo"
+                            class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
+                            title="Redo">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M21 10H11a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="model-desc-editor-id"
+                        class="focus-within:border-primary focus-within:ring-primary/20 max-h-50 min-h-25 w-full overflow-y-auto rounded-b-xl border border-gray-200 bg-white p-4 text-sm focus-within:ring-1">
+                    </div>
+                    <textarea name="description[id]" id="model-field-desc-id" class="hidden"></textarea>
+                    @error('description.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                </div>
             </div>
 
             <div>
@@ -48,75 +209,6 @@
                     </div>
                 </div>
                 @error('ar_marker_id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold text-gray-700">Deskripsi Model</label>
-                <div id="model-desc-toolbar"
-                    class="mt-1 flex flex-wrap gap-1 rounded-t-xl border border-b-0 border-gray-200 bg-gray-50 p-1.5 text-gray-600">
-                    <button type="button" data-action="bold"
-                        class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
-                        title="Bold">
-                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M6 12h8a4 4 0 100-8H6v8zm0 0h10a4 4 0 110 8H6v-8z"></path>
-                        </svg>
-                    </button>
-                    <button type="button" data-action="italic"
-                        class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
-                        title="Italic">
-                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M10 4h4M12 4v16M10 20h4M15 4L9 20"></path>
-                        </svg>
-                    </button>
-                    <span class="mx-1 my-auto h-5 w-px bg-gray-200"></span>
-                    <button type="button" data-action="bulletList"
-                        class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
-                        title="Bullet List">
-                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M4 6h16M4 12h16M4 18h16M8 6h.01M8 12h.01M8 18h.01"></path>
-                        </svg>
-                    </button>
-                    <button type="button" data-action="orderedList"
-                        class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
-                        title="Ordered List">
-                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9 5h11M9 12h11M9 19h11M4 4h2v4H4V4zm0 6h2a1 1 0 011 1v1a1 1 0 01-1 1H4v-1h2v-1H4v-1zm0 6h2v3H4v-3z">
-                            </path>
-                        </svg>
-                    </button>
-                    <span class="mx-1 my-auto h-5 w-px bg-gray-200"></span>
-                    <button type="button" data-action="undo"
-                        class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
-                        title="Undo">
-                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
-                        </svg>
-                    </button>
-                    <button type="button" data-action="redo"
-                        class="flex items-center justify-center rounded-lg border border-transparent p-1.5 transition-colors hover:bg-gray-200/70 hover:text-gray-900"
-                        title="Redo">
-                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M21 10H11a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path>
-                        </svg>
-                    </button>
-                </div>
-                <div id="model-desc-editor"
-                    class="focus-within:border-primary focus-within:ring-primary/20 max-h-50 min-h-25 w-full overflow-y-auto rounded-b-xl border border-gray-200 bg-white p-4 text-sm focus-within:ring-1">
-                </div>
-                <textarea name="description" id="model-field-desc" class="hidden"></textarea>
-                @error('description')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
             </div>
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">

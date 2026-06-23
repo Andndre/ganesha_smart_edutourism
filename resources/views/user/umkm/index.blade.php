@@ -3,12 +3,10 @@
 @section('header_title', __('Katalog UMKM'))
 
 @section('content')
-    <div class="px-4 pb-40 pt-[calc(env(safe-area-inset-top)+6rem)]" x-data="{ tab: 'smart-route' }">
+    <div class="px-4 pb-40 pt-[calc(env(safe-area-inset-top)+6rem)]" x-data="{ tab: 'smart-route' }"
+         x-on:switch-umkm-tab.window="tab = $event.detail">
         {{-- Alerts OUTSIDE the form --}}
         @include('user.umkm.partials.index._alerts')
-
-        {{-- Omni-Search Bar (above tabs, shared) --}}
-        @include('user.umkm.partials.index._hero_search')
 
         {{-- Tab Navigation --}}
         <div class="mb-6 flex gap-4 border-b border-gray-100">

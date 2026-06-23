@@ -90,7 +90,21 @@
                 @endif
 
                 <div @if($loop->first) id="tour-actions" @endif class="mt-3 flex items-center justify-end gap-1 border-t border-gray-50 pt-2">
-                    <button onclick="openModelEditModal({{ json_encode($m) }})"
+                    <button onclick="openModelEditModal({{ json_encode([
+                        'id' => $m->id,
+                        'name' => $m->getTranslations('name'),
+                        'description' => $m->getTranslations('description'),
+                        'ar_marker_id' => $m->ar_marker_id,
+                        'model_3d_path' => $m->model_3d_path,
+                        'model_3d_usdz_path' => $m->model_3d_usdz_path,
+                        'audio_narration_path' => $m->audio_narration_path,
+                        'map_location' => $m->mapLocation ? [
+                            'name' => $m->mapLocation->name,
+                            'locationable' => $m->mapLocation->locationable ? [
+                                'slug' => $m->mapLocation->locationable->slug
+                            ] : null
+                        ] : null
+                    ]) }})"
                         class="hover:text-primary p-1 text-gray-400 transition-colors" title="Edit Model">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -129,63 +143,68 @@
         import StarterKit from 'https://esm.sh/@tiptap/starter-kit';
 
         document.addEventListener('DOMContentLoaded', () => {
-            const textarea = document.getElementById('model-field-desc');
-            const editorEl = document.getElementById('model-desc-editor');
-            if (!editorEl || !textarea) return;
+            const setupEditor = (editorElId, textareaId, toolbarId) => {
+                const editorEl = document.getElementById(editorElId);
+                const textarea = document.getElementById(textareaId);
+                if (!editorEl || !textarea) return null;
 
-            const editor = new Editor({
-                element: editorEl,
-                extensions: [StarterKit],
-                content: '',
-                editorProps: {
-                    attributes: {
-                        class: 'focus:outline-none prose max-w-none text-sm text-gray-700 leading-relaxed min-h-20',
+                const editor = new Editor({
+                    element: editorEl,
+                    extensions: [StarterKit],
+                    content: '',
+                    editorProps: {
+                        attributes: {
+                            class: 'focus:outline-none prose max-w-none text-sm text-gray-700 leading-relaxed min-h-20',
+                        }
+                    },
+                    onUpdate({
+                        editor
+                    }) {
+                        textarea.value = editor.getHTML();
                     }
-                },
-                onUpdate({
-                    editor
-                }) {
-                    textarea.value = editor.getHTML();
-                }
-            });
-
-            window.modelDescEditor = editor;
-
-            const toolbar = document.getElementById('model-desc-toolbar');
-            if (toolbar) {
-                function updateStates() {
-                    const states = {
-                        bold: editor.isActive('bold'),
-                        italic: editor.isActive('italic'),
-                        bulletList: editor.isActive('bulletList'),
-                        orderedList: editor.isActive('orderedList')
-                    };
-                    toolbar.querySelectorAll('button').forEach(btn => {
-                        const action = btn.getAttribute('data-action');
-                        btn.classList.toggle('tiptap-btn-active', !!states[action]);
-                    });
-                }
-
-                toolbar.querySelectorAll('button').forEach(btn => {
-                    btn.addEventListener('click', e => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const action = btn.getAttribute('data-action');
-                        if (action === 'bold') editor.chain().focus().toggleBold().run();
-                        else if (action === 'italic') editor.chain().focus().toggleItalic().run();
-                        else if (action === 'bulletList') editor.chain().focus().toggleBulletList()
-                            .run();
-                        else if (action === 'orderedList') editor.chain().focus()
-                            .toggleOrderedList().run();
-                        else if (action === 'undo') editor.chain().focus().undo().run();
-                        else if (action === 'redo') editor.chain().focus().redo().run();
-                        updateStates();
-                    });
                 });
 
-                editor.on('selectionUpdate', updateStates);
-                editor.on('transaction', updateStates);
-            }
+                const toolbar = document.getElementById(toolbarId);
+                if (toolbar) {
+                    function updateStates() {
+                        const states = {
+                            bold: editor.isActive('bold'),
+                            italic: editor.isActive('italic'),
+                            bulletList: editor.isActive('bulletList'),
+                            orderedList: editor.isActive('orderedList')
+                        };
+                        toolbar.querySelectorAll('button').forEach(btn => {
+                            const action = btn.getAttribute('data-action');
+                            btn.classList.toggle('tiptap-btn-active', !!states[action]);
+                        });
+                    }
+
+                    toolbar.querySelectorAll('button').forEach(btn => {
+                        btn.addEventListener('click', e => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const action = btn.getAttribute('data-action');
+                            if (action === 'bold') editor.chain().focus().toggleBold().run();
+                            else if (action === 'italic') editor.chain().focus().toggleItalic().run();
+                            else if (action === 'bulletList') editor.chain().focus().toggleBulletList()
+                                .run();
+                            else if (action === 'orderedList') editor.chain().focus()
+                                .toggleOrderedList().run();
+                            else if (action === 'undo') editor.chain().focus().undo().run();
+                            else if (action === 'redo') editor.chain().focus().redo().run();
+                            updateStates();
+                        });
+                    });
+
+                    editor.on('selectionUpdate', updateStates);
+                    editor.on('transaction', updateStates);
+                }
+
+                return editor;
+            };
+
+            window.modelDescEditorEn = setupEditor('model-desc-editor-en', 'model-field-desc-en', 'model-desc-toolbar-en');
+            window.modelDescEditorId = setupEditor('model-desc-editor-id', 'model-field-desc-id', 'model-desc-toolbar-id');
         });
     </script>
 
@@ -223,13 +242,18 @@
             modelMethodContainer.innerHTML = "";
             document.getElementById('model-field-id').value = "";
 
-            document.getElementById('model-field-name').value = "";
+            document.getElementById('model-field-name-en').value = "";
+            document.getElementById('model-field-name-id').value = "";
             document.getElementById('model-field-marker-id').value = "";
             document.getElementById('model-field-patt-content').value = "";
-            if (window.modelDescEditor) {
-                window.modelDescEditor.commands.setContent('');
+            if (window.modelDescEditorEn) {
+                window.modelDescEditorEn.commands.setContent('');
             }
-            document.getElementById('model-field-desc').value = "";
+            if (window.modelDescEditorId) {
+                window.modelDescEditorId.commands.setContent('');
+            }
+            document.getElementById('model-field-desc-en').value = "";
+            document.getElementById('model-field-desc-id').value = "";
             document.getElementById('model-field-glb-file').value = "";
             document.getElementById('model-field-glb-file').required = true;
             document.getElementById('glb-required-asterisk').style.display = 'inline';
@@ -251,14 +275,26 @@
             modelMethodContainer.innerHTML = `@method('PUT')`;
             document.getElementById('model-field-id').value = model.id;
 
-            document.getElementById('model-field-name').value = model.name;
+            const nameEn = (typeof model.name === 'object') ? (model.name?.en || "") : model.name;
+            const nameId = (typeof model.name === 'object') ? (model.name?.id || "") : model.name;
+            document.getElementById('model-field-name-en').value = nameEn;
+            document.getElementById('model-field-name-id').value = nameId;
+
             document.getElementById('model-field-marker-id').value = model.ar_marker_id || "";
             document.getElementById('model-field-patt-content').value = "";
-            const descHtml = model.description || '';
-            document.getElementById('model-field-desc').value = descHtml;
-            if (window.modelDescEditor) {
-                window.modelDescEditor.commands.setContent(descHtml);
+
+            const descEn = (typeof model.description === 'object') ? (model.description?.en || "") : (model.description || "");
+            const descId = (typeof model.description === 'object') ? (model.description?.id || "") : (model.description || "");
+            document.getElementById('model-field-desc-en').value = descEn;
+            document.getElementById('model-field-desc-id').value = descId;
+
+            if (window.modelDescEditorEn) {
+                window.modelDescEditorEn.commands.setContent(descEn);
             }
+            if (window.modelDescEditorId) {
+                window.modelDescEditorId.commands.setContent(descId);
+            }
+
             document.getElementById('model-field-glb-file').value = "";
             document.getElementById('model-field-glb-file').required = false;
             document.getElementById('glb-required-asterisk').style.display = 'none';
@@ -657,9 +693,21 @@
                 modelModalTitle.innerText = "Tambah Model 3D";
                 document.getElementById('model-field-id').value = "";
             @endif
-            document.getElementById('model-field-name').value = @json(old('name', ''));
+            document.getElementById('model-field-name-en').value = @json(old('name.en', ''));
+            document.getElementById('model-field-name-id').value = @json(old('name.id', ''));
             document.getElementById('model-field-marker-id').value = @json(old('ar_marker_id', ''));
-            document.getElementById('model-field-desc').value = @json(old('description', ''));
+
+            const oldDescEn = @json(old('description.en', ''));
+            const oldDescId = @json(old('description.id', ''));
+            document.getElementById('model-field-desc-en').value = oldDescEn;
+            document.getElementById('model-field-desc-id').value = oldDescId;
+
+            if (window.modelDescEditorEn) {
+                window.modelDescEditorEn.commands.setContent(oldDescEn);
+            }
+            if (window.modelDescEditorId) {
+                window.modelDescEditorId.commands.setContent(oldDescId);
+            }
         });
     </script>
     @endif

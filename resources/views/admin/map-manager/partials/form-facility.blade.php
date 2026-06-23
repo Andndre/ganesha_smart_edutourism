@@ -79,9 +79,14 @@
 
     <div class="accessibility-notes-container">
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas</label>
-        <textarea name="accessibility_notes" rows="2"
-            placeholder="Contoh: Toilet dilengkapi dengan pegangan besi..."
-            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none">Akses jalan datar ramah kursi roda.</textarea>
+        <div x-show="locale === 'en'">
+            <textarea name="accessibility_notes[en]" id="facility-accessibility-notes-en" rows="2" placeholder="e.g. Toilet is equipped with handrails..."
+                class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none">Flat road access, friendly for wheelchairs.</textarea>
+        </div>
+        <div x-show="locale === 'id'">
+            <textarea name="accessibility_notes[id]" id="facility-accessibility-notes-id" rows="2" placeholder="Contoh: Toilet dilengkapi dengan pegangan besi..."
+                class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none">Akses jalan datar ramah kursi roda.</textarea>
+        </div>
     </div>
 
 </form>

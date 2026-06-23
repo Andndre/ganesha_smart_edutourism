@@ -26,11 +26,11 @@ class UmkmController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where("name->en", 'like', '%'.$search.'%')
-                    ->orWhere("name->id", 'like', '%'.$search.'%')
+                $q->where('name->en', 'like', '%'.$search.'%')
+                    ->orWhere('name->id', 'like', '%'.$search.'%')
                     ->orWhereHas('umkmProfile', function ($qp) use ($search) {
-                        $qp->where("business_name->en", 'like', '%'.$search.'%')
-                            ->orWhere("business_name->id", 'like', '%'.$search.'%')
+                        $qp->where('business_name->en', 'like', '%'.$search.'%')
+                            ->orWhere('business_name->id', 'like', '%'.$search.'%')
                             ->orWhere('owner_name', 'like', '%'.$search.'%');
                     });
             });
@@ -167,6 +167,15 @@ class UmkmController extends Controller
      */
     public function storeProfile(Request $request): RedirectResponse
     {
+        if ($request->has('accessibility_notes') && is_string($request->input('accessibility_notes'))) {
+            $request->merge([
+                'accessibility_notes' => [
+                    'en' => $request->input('accessibility_notes'),
+                    'id' => $request->input('accessibility_notes'),
+                ],
+            ]);
+        }
+
         $validated = $request->validate([
             'user_id' => ['nullable', 'exists:users,id'],
             'business_name' => ['required', 'array'],
@@ -182,7 +191,9 @@ class UmkmController extends Controller
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             'is_accessible' => ['nullable', 'boolean'],
-            'accessibility_notes' => ['nullable', 'string'],
+            'accessibility_notes' => ['nullable', 'array'],
+            'accessibility_notes.en' => ['nullable', 'string'],
+            'accessibility_notes.id' => ['nullable', 'string'],
         ]);
 
         $validated['is_active'] = $request->has('is_active');
@@ -240,6 +251,15 @@ class UmkmController extends Controller
     {
         $profile = UmkmProfile::findOrFail($id);
 
+        if ($request->has('accessibility_notes') && is_string($request->input('accessibility_notes'))) {
+            $request->merge([
+                'accessibility_notes' => [
+                    'en' => $request->input('accessibility_notes'),
+                    'id' => $request->input('accessibility_notes'),
+                ],
+            ]);
+        }
+
         $validated = $request->validate([
             'user_id' => ['nullable', 'exists:users,id'],
             'business_name' => ['required', 'array'],
@@ -255,7 +275,9 @@ class UmkmController extends Controller
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             'is_accessible' => ['nullable', 'boolean'],
-            'accessibility_notes' => ['nullable', 'string'],
+            'accessibility_notes' => ['nullable', 'array'],
+            'accessibility_notes.en' => ['nullable', 'string'],
+            'accessibility_notes.id' => ['nullable', 'string'],
         ]);
 
         $validated['is_active'] = $request->has('is_active');
