@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\ArMarker;
 use App\Models\ArModel;
 use App\Models\CapacityZone;
 use App\Models\CulturalObject;
@@ -116,9 +115,8 @@ class TestSimulationSeeder extends Seeder
                 ]
             );
 
-            ArMarker::create([
+            $arModel->update([
                 'ar_marker_id' => $obj['ar_marker_id'],
-                'ar_model_id' => $arModel->id,
                 'map_location_id' => $mapLocation->id,
             ]);
 
@@ -138,9 +136,6 @@ class TestSimulationSeeder extends Seeder
                 'max_capacity' => 5,
                 'warning_threshold' => 40,
                 'critical_threshold' => 60,
-                'latitude' => -8.488940665135736,
-                'longitude' => 115.38355006544914,
-                'radius_meters' => 100,
                 'is_active' => true,
             ],
             [
@@ -149,9 +144,6 @@ class TestSimulationSeeder extends Seeder
                 'max_capacity' => 8,
                 'warning_threshold' => 50,
                 'critical_threshold' => 75,
-                'latitude' => -8.48806495333438,
-                'longitude' => 115.38410892684315,
-                'radius_meters' => 80,
                 'is_active' => true,
             ],
         ];
