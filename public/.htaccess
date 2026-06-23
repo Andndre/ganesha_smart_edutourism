@@ -1,6 +1,11 @@
 <IfModule mod_mime.c>
-    AddType model/vnd.pixar.usd .usdz
+    AddType model/vnd.usdz+zip .usdz
     AddType model/gltf-binary .glb
+</IfModule>
+
+<IfModule mod_env.c>
+    # Matikan GZIP kompresi untuk USDZ agar AR Quick Look bisa streaming (Range Requests)
+    SetEnvIfNoCase Request_URI "\.usdz$" no-gzip dont-vary
 </IfModule>
 
 <IfModule mod_rewrite.c>
