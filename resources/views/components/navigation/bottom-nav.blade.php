@@ -60,7 +60,7 @@
                 stroke-width="{{ $isUmkm ? '2.5' : '2' }}">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
-            <span class="text-[10px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">UMKM</span>
+            <span class="text-[10px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('UMKM') }}</span>
         </a>
 
         @auth
