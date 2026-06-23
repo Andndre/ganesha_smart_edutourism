@@ -50,13 +50,11 @@
     </div>
     <div x-show="modelLocale === 'en'">
         <label class="mb-1 block text-xs font-semibold text-gray-700">Deskripsi Model (EN)</label>
-        <textarea name="new_model_description[en]" id="new_model_description_en" rows="2" placeholder="Detailed model description..."
-            class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none"></textarea>
+        <x-tiptap-editor name="new_model_description[en]" id="new_model_description_en" placeholder="Detailed model description..." heightClass="min-h-16 max-h-32" has-image="true" />
     </div>
     <div x-show="modelLocale === 'id'">
         <label class="mb-1 block text-xs font-semibold text-gray-700">Deskripsi Model (ID)</label>
-        <textarea name="new_model_description[id]" id="new_model_description_id" rows="2" placeholder="Detail deskripsi model..."
-            class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none"></textarea>
+        <x-tiptap-editor name="new_model_description[id]" id="new_model_description_id" placeholder="Detail deskripsi model..." heightClass="min-h-16 max-h-32" has-image="true" />
     </div>
 
     <div>
@@ -238,16 +236,28 @@
         const clearFieldValues = () => {
             const nameEn = document.getElementById('new_model_name_en');
             const nameId = document.getElementById('new_model_name_id');
-            const descEn = document.getElementById('new_model_description_en');
-            const descId = document.getElementById('new_model_description_id');
+            const descEn = document.getElementById('new_model_description_en-textarea') || document.getElementById('new_model_description_en');
+            const descId = document.getElementById('new_model_description_id-textarea') || document.getElementById('new_model_description_id');
             const markerId = document.getElementById('ar_marker_id');
             const glbInput = document.querySelector('input[name="model_3d_file"]');
             const usdzInput = document.querySelector('input[name="model_3d_usdz_file"]');
             const audioInput = document.querySelector('input[name="audio_narration_file"]');
             if (nameEn) nameEn.value = '';
             if (nameId) nameId.value = '';
-            if (descEn) descEn.value = '';
-            if (descId) descId.value = '';
+            if (descEn) {
+                if (typeof window.setTiptapContent === 'function') {
+                    window.setTiptapContent(descEn, '');
+                } else {
+                    descEn.value = '';
+                }
+            }
+            if (descId) {
+                if (typeof window.setTiptapContent === 'function') {
+                    window.setTiptapContent(descId, '');
+                } else {
+                    descId.value = '';
+                }
+            }
             if (markerId) markerId.value = '';
             if (glbInput) glbInput.value = '';
             if (usdzInput) usdzInput.value = '';
@@ -284,8 +294,23 @@
                     // Populate multilingual fields from data attributes
                     document.getElementById('new_model_name_en').value = nameEn;
                     document.getElementById('new_model_name_id').value = nameId;
-                    document.getElementById('new_model_description_en').value = descEn;
-                    document.getElementById('new_model_description_id').value = descId;
+                    
+                    const descEnInput = document.getElementById('new_model_description_en-textarea') || document.getElementById('new_model_description_en');
+                    const descIdInput = document.getElementById('new_model_description_id-textarea') || document.getElementById('new_model_description_id');
+                    if (descEnInput) {
+                        if (typeof window.setTiptapContent === 'function') {
+                            window.setTiptapContent(descEnInput, descEn);
+                        } else {
+                            descEnInput.value = descEn;
+                        }
+                    }
+                    if (descIdInput) {
+                        if (typeof window.setTiptapContent === 'function') {
+                            window.setTiptapContent(descIdInput, descId);
+                        } else {
+                            descIdInput.value = descId;
+                        }
+                    }
                     document.getElementById('ar_marker_id').value = markerId || '';
 
                     // GLB preview from server URL

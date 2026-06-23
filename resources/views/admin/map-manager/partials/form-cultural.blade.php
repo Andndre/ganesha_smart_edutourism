@@ -59,13 +59,11 @@
     {{-- Description --}}
     <div x-show="locale === 'en'">
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi (EN)</label>
-        <textarea name="description[en]" rows="5" placeholder="e.g. A detailed description of this cultural object..."
-            class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">{{ old('description.en', '') }}</textarea>
+        <x-tiptap-editor name="description[en]" id="cultural-desc-en" value="{{ old('description.en', '') }}" placeholder="e.g. A detailed description of this cultural object..." has-image="true" />
     </div>
     <div x-show="locale === 'id'">
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi (ID)</label>
-        <textarea name="description[id]" rows="5" placeholder="Contoh: Deskripsi detail tentang objek budaya ini..."
-            class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">{{ old('description.id', '') }}</textarea>
+        <x-tiptap-editor name="description[id]" id="cultural-desc-id" value="{{ old('description.id', '') }}" placeholder="Contoh: Deskripsi detail tentang objek budaya ini..." has-image="true" />
     </div>
 
     @include('admin.map-manager.partials.form-cultural.ar-model-section')

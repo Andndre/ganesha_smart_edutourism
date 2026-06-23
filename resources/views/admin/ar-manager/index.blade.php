@@ -135,78 +135,7 @@
 @endsection
 
 @push('scripts')
-    {{-- Tiptap Rich-Text Editor --}}
-    <script type="module">
-        import {
-            Editor
-        } from 'https://esm.sh/@tiptap/core';
-        import StarterKit from 'https://esm.sh/@tiptap/starter-kit';
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const setupEditor = (editorElId, textareaId, toolbarId) => {
-                const editorEl = document.getElementById(editorElId);
-                const textarea = document.getElementById(textareaId);
-                if (!editorEl || !textarea) return null;
-
-                const editor = new Editor({
-                    element: editorEl,
-                    extensions: [StarterKit],
-                    content: '',
-                    editorProps: {
-                        attributes: {
-                            class: 'focus:outline-none prose max-w-none text-sm text-gray-700 leading-relaxed min-h-20',
-                        }
-                    },
-                    onUpdate({
-                        editor
-                    }) {
-                        textarea.value = editor.getHTML();
-                    }
-                });
-
-                const toolbar = document.getElementById(toolbarId);
-                if (toolbar) {
-                    function updateStates() {
-                        const states = {
-                            bold: editor.isActive('bold'),
-                            italic: editor.isActive('italic'),
-                            bulletList: editor.isActive('bulletList'),
-                            orderedList: editor.isActive('orderedList')
-                        };
-                        toolbar.querySelectorAll('button').forEach(btn => {
-                            const action = btn.getAttribute('data-action');
-                            btn.classList.toggle('tiptap-btn-active', !!states[action]);
-                        });
-                    }
-
-                    toolbar.querySelectorAll('button').forEach(btn => {
-                        btn.addEventListener('click', e => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            const action = btn.getAttribute('data-action');
-                            if (action === 'bold') editor.chain().focus().toggleBold().run();
-                            else if (action === 'italic') editor.chain().focus().toggleItalic().run();
-                            else if (action === 'bulletList') editor.chain().focus().toggleBulletList()
-                                .run();
-                            else if (action === 'orderedList') editor.chain().focus()
-                                .toggleOrderedList().run();
-                            else if (action === 'undo') editor.chain().focus().undo().run();
-                            else if (action === 'redo') editor.chain().focus().redo().run();
-                            updateStates();
-                        });
-                    });
-
-                    editor.on('selectionUpdate', updateStates);
-                    editor.on('transaction', updateStates);
-                }
-
-                return editor;
-            };
-
-            window.modelDescEditorEn = setupEditor('model-desc-editor-en', 'model-field-desc-en', 'model-desc-toolbar-en');
-            window.modelDescEditorId = setupEditor('model-desc-editor-id', 'model-field-desc-id', 'model-desc-toolbar-id');
-        });
-    </script>
+    <x-tiptap-editor-script />
 
     {{-- Google Model Viewer --}}
     <script type="module" src="{{ asset('js/model-viewer.min.js') }}"></script>
@@ -246,14 +175,9 @@
             document.getElementById('model-field-name-id').value = "";
             document.getElementById('model-field-marker-id').value = "";
             document.getElementById('model-field-patt-content').value = "";
-            if (window.modelDescEditorEn) {
-                window.modelDescEditorEn.commands.setContent('');
+            if (typeof window.clearAllTiptapEditors === 'function') {
+                window.clearAllTiptapEditors(modelForm);
             }
-            if (window.modelDescEditorId) {
-                window.modelDescEditorId.commands.setContent('');
-            }
-            document.getElementById('model-field-desc-en').value = "";
-            document.getElementById('model-field-desc-id').value = "";
             document.getElementById('model-field-glb-file').value = "";
             document.getElementById('model-field-glb-file').required = true;
             document.getElementById('glb-required-asterisk').style.display = 'inline';
@@ -285,14 +209,9 @@
 
             const descEn = (typeof model.description === 'object') ? (model.description?.en || "") : (model.description || "");
             const descId = (typeof model.description === 'object') ? (model.description?.id || "") : (model.description || "");
-            document.getElementById('model-field-desc-en').value = descEn;
-            document.getElementById('model-field-desc-id').value = descId;
-
-            if (window.modelDescEditorEn) {
-                window.modelDescEditorEn.commands.setContent(descEn);
-            }
-            if (window.modelDescEditorId) {
-                window.modelDescEditorId.commands.setContent(descId);
+            if (typeof window.setTiptapContent === 'function') {
+                window.setTiptapContent('#model-field-desc-en-textarea', descEn);
+                window.setTiptapContent('#model-field-desc-id-textarea', descId);
             }
 
             document.getElementById('model-field-glb-file').value = "";
@@ -670,13 +589,7 @@
         });
     </script>
 
-    <style>
-        .tiptap-btn-active {
-            background-color: rgba(30, 81, 40, 0.1) !important;
-            color: #1E5128 !important;
-            border-color: rgba(30, 81, 40, 0.2) !important;
-        }
-    </style>
+
 
     @if($errors->any())
     <script>
@@ -699,14 +612,9 @@
 
             const oldDescEn = @json(old('description.en', ''));
             const oldDescId = @json(old('description.id', ''));
-            document.getElementById('model-field-desc-en').value = oldDescEn;
-            document.getElementById('model-field-desc-id').value = oldDescId;
-
-            if (window.modelDescEditorEn) {
-                window.modelDescEditorEn.commands.setContent(oldDescEn);
-            }
-            if (window.modelDescEditorId) {
-                window.modelDescEditorId.commands.setContent(oldDescId);
+            if (typeof window.setTiptapContent === 'function') {
+                window.setTiptapContent('#model-field-desc-en-textarea', oldDescEn);
+                window.setTiptapContent('#model-field-desc-id-textarea', oldDescId);
             }
         });
     </script>

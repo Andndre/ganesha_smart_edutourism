@@ -148,6 +148,13 @@
     margin-bottom: 0.75rem !important;
 }
 
+/* Tiptap active button styles */
+.tiptap-btn-active {
+    background-color: rgba(30, 81, 40, 0.1) !important;
+    color: #1e5128 !important;
+    border-color: rgba(30, 81, 40, 0.2) !important;
+}
+
 /* ===========================================
    PREMIUM CUSTOM RANGE SLIDER THUMB (CHROME/FIREFOX/SAFARI)
    =========================================== */

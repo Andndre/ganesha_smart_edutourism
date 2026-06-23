@@ -172,8 +172,8 @@ function handleMarkerClick(marker) {
             form.querySelector('input[name="short_description[en]"]').value = details.short_description?.en || details.short_description || '';
             form.querySelector('input[name="short_description[id]"]').value = details.short_description?.id || details.short_description || '';
             form.querySelector('select[name="category"]').value = details.category;
-            form.querySelector('textarea[name="description[en]"]').value = details.description?.en || details.description || '';
-            form.querySelector('textarea[name="description[id]"]').value = details.description?.id || details.description || '';
+            setTiptapContent(form.querySelector('textarea[name="description[en]"]'), details.description?.en || details.description || '');
+            setTiptapContent(form.querySelector('textarea[name="description[id]"]'), details.description?.id || details.description || '');
             // Select active model and trigger toggle
             const modelSelect = document.getElementById('ar_model_id_select');
             if (modelSelect) {
@@ -196,8 +196,8 @@ function handleMarkerClick(marker) {
                 const descIdInput = document.querySelector('textarea[name="new_model_description[id]"]');
                 if (nameEnInput) nameEnInput.value = nameEn;
                 if (nameIdInput) nameIdInput.value = nameId;
-                if (descEnInput) descEnInput.value = descEn;
-                if (descIdInput) descIdInput.value = descId;
+                if (descEnInput) setTiptapContent(descEnInput, descEn);
+                if (descIdInput) setTiptapContent(descIdInput, descId);
             }
 
             const arModel = loc.ar_model || null;
@@ -295,8 +295,8 @@ function handleMarkerClick(marker) {
             document.getElementById('umkm-owner-user-id').value = details.user_id || '';
             document.getElementById('umkm-owner-search').value = details.owner_name || '';
             form.querySelector('select[name="category"]').value = details.category;
-            form.querySelector('textarea[name="description[en]"]').value = details.description?.en || details.description || '';
-            form.querySelector('textarea[name="description[id]"]').value = details.description?.id || details.description || '';
+            setTiptapContent(form.querySelector('textarea[name="description[en]"]'), details.description?.en || details.description || '');
+            setTiptapContent(form.querySelector('textarea[name="description[id]"]'), details.description?.id || details.description || '');
             form.querySelector('input[name="rating"]').value = details.rating || '5.0';
             form.querySelector('input[name="ar_marker_id"]').value = '';
             form.querySelector('input[name="is_active"]').checked = details.is_active;
@@ -319,8 +319,8 @@ function handleMarkerClick(marker) {
             form.querySelector('input[name="name[en]"]').value = details.name?.en || details.name || '';
             form.querySelector('input[name="name[id]"]').value = details.name?.id || details.name || '';
             form.querySelector('select[name="type"]').value = details.type;
-            form.querySelector('textarea[name="description[en]"]').value = details.description?.en || details.description || '';
-            form.querySelector('textarea[name="description[id]"]').value = details.description?.id || details.description || '';
+            setTiptapContent(form.querySelector('textarea[name="description[en]"]'), details.description?.en || details.description || '');
+            setTiptapContent(form.querySelector('textarea[name="description[id]"]'), details.description?.id || details.description || '');
             form.querySelector('input[name="is_active"]').checked = details.is_active;
             form.querySelector('input[name="is_accessible"]').checked = loc.is_accessible;
             const facilityAccEn = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.en || '') : (loc.accessibility_notes || '');
@@ -382,6 +382,9 @@ function resetForms() {
     const culturalForm = document.getElementById('form-cultural');
     if (culturalForm) {
         culturalForm.reset();
+        if (typeof window.clearAllTiptapEditors === 'function') {
+            window.clearAllTiptapEditors(culturalForm);
+        }
         culturalForm.action = "{{ route('admin.cultural-objects.store') }}";
         document.getElementById('method-cultural').innerHTML = '';
         
@@ -456,6 +459,9 @@ function resetForms() {
     const umkmForm = document.getElementById('form-umkm');
     if (umkmForm) {
         umkmForm.reset();
+        if (typeof window.clearAllTiptapEditors === 'function') {
+            window.clearAllTiptapEditors(umkmForm);
+        }
         umkmForm.action = "{{ route('admin.umkm.profile.store') }}";
         document.getElementById('method-umkm').innerHTML = '';
         document.getElementById('umkm-owner-user-id').value = '';
@@ -468,6 +474,9 @@ function resetForms() {
     const facilityForm = document.getElementById('form-facility');
     if (facilityForm) {
         facilityForm.reset();
+        if (typeof window.clearAllTiptapEditors === 'function') {
+            window.clearAllTiptapEditors(facilityForm);
+        }
         facilityForm.action = "{{ route('admin.facilities.store') }}";
         document.getElementById('method-facility').innerHTML = '';
         updateAccessibilityNotesVisibility(facilityForm);
