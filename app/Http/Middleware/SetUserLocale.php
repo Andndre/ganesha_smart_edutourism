@@ -32,7 +32,7 @@ class SetUserLocale
         } elseif (session()->has('locale')) {
             App::setLocale(session()->get('locale'));
         } else {
-            App::setLocale('id');
+            App::setLocale(config('app.locale'));
         }
 
         return $next($request);
