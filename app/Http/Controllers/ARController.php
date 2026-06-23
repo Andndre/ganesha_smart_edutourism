@@ -94,9 +94,10 @@ class ARController extends Controller
         }
 
         return response()->file($fullPath, [
-            'Content-Type' => 'model/vnd.pixar.usd',
+            'Content-Type' => 'model/vnd.usdz+zip',
             'Content-Disposition' => 'inline; filename="'.$filename.'"',
             'Access-Control-Allow-Origin' => '*',
+            'Cache-Control' => 'public, max-age=31536000, immutable',
         ]);
     }
 }
