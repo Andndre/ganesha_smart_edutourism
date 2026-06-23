@@ -27,27 +27,33 @@
 </div>
 
 <!-- Container for New Model Upload (hidden by default) -->
-<div id="new-model-fields"
+<div id="new-model-fields" x-data="{ modelLocale: 'en' }" x-init="$watch('locale', val => modelLocale = val)"
     class="hidden space-y-4 rounded-2xl border border-dashed border-gray-200 bg-gray-50/50 p-4">
-    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400">Detail Model 3D Baru</h4>
-    <div x-show="locale === 'en'">
+    <div class="flex items-center justify-between">
+        <h4 id="model-fields-title" class="text-xs font-bold uppercase tracking-wider text-gray-400">Detail Model 3D Baru</h4>
+        <div class="flex gap-1 border border-gray-200 bg-white p-0.5 rounded-lg">
+            <button @click="modelLocale = 'en'" :class="modelLocale === 'en' ? 'bg-primary text-white' : 'bg-white text-gray-500 hover:text-gray-900'" class="px-2 py-0.5 rounded text-[10px] font-semibold transition-all" type="button">EN</button>
+            <button @click="modelLocale = 'id'" :class="modelLocale === 'id' ? 'bg-primary text-white' : 'bg-white text-gray-500 hover:text-gray-900'" class="px-2 py-0.5 rounded text-[10px] font-semibold transition-all" type="button">ID</button>
+        </div>
+    </div>
+    <div x-show="modelLocale === 'en'">
         <label class="mb-1 block text-xs font-semibold text-gray-700">Nama Model (EN) <span
                 class="text-warning">*</span></label>
         <input type="text" name="new_model_name[en]" id="new_model_name_en" placeholder="e.g. Temple Gateway Model"
             class="focus:border-primary w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none">
     </div>
-    <div x-show="locale === 'id'">
+    <div x-show="modelLocale === 'id'">
         <label class="mb-1 block text-xs font-semibold text-gray-700">Nama Model (ID) <span
                 class="text-warning">*</span></label>
         <input type="text" name="new_model_name[id]" id="new_model_name_id" placeholder="Contoh: Model Candi Bentar"
             class="focus:border-primary w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none">
     </div>
-    <div x-show="locale === 'en'">
+    <div x-show="modelLocale === 'en'">
         <label class="mb-1 block text-xs font-semibold text-gray-700">Deskripsi Model (EN)</label>
         <textarea name="new_model_description[en]" id="new_model_description_en" rows="2" placeholder="Detailed model description..."
             class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none"></textarea>
     </div>
-    <div x-show="locale === 'id'">
+    <div x-show="modelLocale === 'id'">
         <label class="mb-1 block text-xs font-semibold text-gray-700">Deskripsi Model (ID)</label>
         <textarea name="new_model_description[id]" id="new_model_description_id" rows="2" placeholder="Detail deskripsi model..."
             class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none"></textarea>
