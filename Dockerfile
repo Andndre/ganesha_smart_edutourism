@@ -57,7 +57,7 @@ RUN echo "upload_max_filesize = 64M" > /usr/local/etc/php/conf.d/uploads.ini \
 
 # Setup directory permissions and configure Nginx to run as www-data
 RUN sed -i 's/user nginx;/user www-data;/g' /etc/nginx/nginx.conf \
-    && chown -R www-data:www-data /var/www \
+    && chown -R www-data:www-data /var/www /var/lib/nginx /var/log/nginx \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 # Copy entrypoint script
