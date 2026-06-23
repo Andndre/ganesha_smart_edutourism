@@ -40,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         LogViewer::auth(function ($request) {
-            return $request->user() && $request->user()->email === env('SUPER_ADMIN_EMAIL', 'your_super_admin_email_here');
+            return $request->user() && $request->user()->isAdmin();
         });
 
         View::composer(['layouts.app', 'user.umkm.index'], function ($view) {
