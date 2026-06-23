@@ -9,7 +9,11 @@
                 data-glb="{{ $model->model_3d_path ? asset('storage/' . $model->model_3d_path) : '' }}"
                 data-usdz="{{ $model->model_3d_usdz_path ? asset('storage/' . $model->model_3d_usdz_path) : '' }}"
                 data-audio="{{ $model->audio_narration_path ? route('audio.stream', ['path' => $model->audio_narration_path]) : '' }}"
-                data-marker-id="{{ $model->ar_marker_id ?? '' }}">{{ $model->name }}</option>
+                data-marker-id="{{ $model->ar_marker_id ?? '' }}"
+                data-name-en="{{ $model->getTranslation('name', 'en') }}"
+                data-name-id="{{ $model->getTranslation('name', 'id') }}"
+                data-desc-en="{{ $model->getTranslation('description', 'en') }}"
+                data-desc-id="{{ $model->getTranslation('description', 'id') }}">{{ $model->name }}</option>
         @endforeach
         <option value="new">+ Tambah Model 3D Baru...</option>
     </select>
@@ -26,15 +30,26 @@
 <div id="new-model-fields"
     class="hidden space-y-4 rounded-2xl border border-dashed border-gray-200 bg-gray-50/50 p-4">
     <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400">Detail Model 3D Baru</h4>
-    <div>
-        <label class="mb-1 block text-xs font-semibold text-gray-700">Nama Model <span
+    <div x-show="locale === 'en'">
+        <label class="mb-1 block text-xs font-semibold text-gray-700">Nama Model (EN) <span
                 class="text-warning">*</span></label>
-        <input type="text" name="new_model_name" placeholder="Contoh: Model Candi Bentar"
+        <input type="text" name="new_model_name[en]" id="new_model_name_en" placeholder="e.g. Temple Gateway Model"
             class="focus:border-primary w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none">
     </div>
-    <div>
-        <label class="mb-1 block text-xs font-semibold text-gray-700">Deskripsi Model</label>
-        <textarea name="new_model_description" rows="2" placeholder="Detail deskripsi model..."
+    <div x-show="locale === 'id'">
+        <label class="mb-1 block text-xs font-semibold text-gray-700">Nama Model (ID) <span
+                class="text-warning">*</span></label>
+        <input type="text" name="new_model_name[id]" id="new_model_name_id" placeholder="Contoh: Model Candi Bentar"
+            class="focus:border-primary w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none">
+    </div>
+    <div x-show="locale === 'en'">
+        <label class="mb-1 block text-xs font-semibold text-gray-700">Deskripsi Model (EN)</label>
+        <textarea name="new_model_description[en]" id="new_model_description_en" rows="2" placeholder="Detailed model description..."
+            class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none"></textarea>
+    </div>
+    <div x-show="locale === 'id'">
+        <label class="mb-1 block text-xs font-semibold text-gray-700">Deskripsi Model (ID)</label>
+        <textarea name="new_model_description[id]" id="new_model_description_id" rows="2" placeholder="Detail deskripsi model..."
             class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none"></textarea>
     </div>
 
@@ -68,7 +83,7 @@
         <span class="mb-1 block text-[10px] text-gray-400">Maksimal 20MB.</span>
         <input type="file" name="model_3d_file" accept=".glb"
             class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold"
-            onchange="var maxSize=20*1024*1024;var f=this.files[0];if(f&&f.size>maxSize){Swal.fire({title:'Ukuran File Terlalu Besar',text:'Maksimal 20MB untuk file GLB.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value=''}">
+            onchange="previewLocalGlb(this);var maxSize=20*1024*1024;var f=this.files[0];if(f&&f.size>maxSize){Swal.fire({title:'Ukuran File Terlalu Besar',text:'Maksimal 20MB untuk file GLB.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value=''}">
     </div>
 
     <div>
@@ -84,7 +99,7 @@
         <span class="mb-1 block text-[10px] text-gray-400">Maksimal 10MB.</span>
         <input type="file" name="audio_narration_file" accept="audio/*"
             class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold"
-            onchange="var maxSize=10*1024*1024;var f=this.files[0];if(f&&f.size>maxSize){Swal.fire({title:'Ukuran File Terlalu Besar',text:'Maksimal 10MB untuk file audio.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value=''}">
+            onchange="previewLocalAudio(this);var maxSize=10*1024*1024;var f=this.files[0];if(f&&f.size>maxSize){Swal.fire({title:'Ukuran File Terlalu Besar',text:'Maksimal 10MB untuk file audio.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value=''}">
     </div>
 </div>
 
@@ -214,16 +229,40 @@
             if (audioPreviewContainer) audioPreviewContainer.style.display = 'none';
         };
 
-        if (value === 'new') {
+        const clearFieldValues = () => {
+            const nameEn = document.getElementById('new_model_name_en');
+            const nameId = document.getElementById('new_model_name_id');
+            const descEn = document.getElementById('new_model_description_en');
+            const descId = document.getElementById('new_model_description_id');
+            const markerId = document.getElementById('ar_marker_id');
+            const glbInput = document.querySelector('input[name="model_3d_file"]');
+            const usdzInput = document.querySelector('input[name="model_3d_usdz_file"]');
+            const audioInput = document.querySelector('input[name="audio_narration_file"]');
+            if (nameEn) nameEn.value = '';
+            if (nameId) nameId.value = '';
+            if (descEn) descEn.value = '';
+            if (descId) descId.value = '';
+            if (markerId) markerId.value = '';
+            if (glbInput) glbInput.value = '';
+            if (usdzInput) usdzInput.value = '';
+            if (audioInput) audioInput.value = '';
+        };
+
+        if (value === 'none') {
+            if (fields) fields.classList.add('hidden');
+            if (markerBadge) markerBadge.classList.add('hidden');
+            clearPreviews();
+            clearFieldValues();
+        } else if (value === 'new') {
             if (fields) fields.classList.remove('hidden');
             if (markerBadge) markerBadge.classList.add('hidden');
             clearPreviews();
-        } else if (value === 'none') {
-            if (fields) fields.classList.add('hidden');
-            if (markerBadge) markerBadge.classList.add('hidden');
-            clearPreviews();
+            clearFieldValues();
+            // Show AR marker generation section for new models
+            document.getElementById('ar-download-container').style.display = 'none';
         } else {
-            if (fields) fields.classList.add('hidden');
+            // Numeric ID — existing model: SHOW editable fields
+            if (fields) fields.classList.remove('hidden');
             const select = document.getElementById('ar_model_id_select');
             if (select) {
                 const selectedOption = select.options[select.selectedIndex];
@@ -231,7 +270,19 @@
                     const glbUrl = selectedOption.getAttribute('data-glb');
                     const audioUrl = selectedOption.getAttribute('data-audio');
                     const markerId = selectedOption.getAttribute('data-marker-id');
+                    const nameEn = selectedOption.getAttribute('data-name-en') || '';
+                    const nameId = selectedOption.getAttribute('data-name-id') || '';
+                    const descEn = selectedOption.getAttribute('data-desc-en') || '';
+                    const descId = selectedOption.getAttribute('data-desc-id') || '';
 
+                    // Populate multilingual fields from data attributes
+                    document.getElementById('new_model_name_en').value = nameEn;
+                    document.getElementById('new_model_name_id').value = nameId;
+                    document.getElementById('new_model_description_en').value = descEn;
+                    document.getElementById('new_model_description_id').value = descId;
+                    document.getElementById('ar_marker_id').value = markerId || '';
+
+                    // GLB preview from server URL
                     if (glbUrl && modelPreview && modelPreviewContainer) {
                         modelPreview.src = glbUrl;
                         modelPreviewContainer.style.display = 'flex';
@@ -240,6 +291,7 @@
                         if (modelPreviewContainer) modelPreviewContainer.style.display = 'none';
                     }
 
+                    // Audio preview from server URL
                     if (audioUrl && audioPreview && audioPreviewContainer) {
                         audioPreview.src = audioUrl;
                         audioPreviewContainer.style.display = 'flex';
@@ -248,14 +300,46 @@
                         if (audioPreviewContainer) audioPreviewContainer.style.display = 'none';
                     }
 
+                    // Marker badge
                     if (markerId && markerBadge && markerBadgeText) {
                         markerBadgeText.textContent = markerId;
                         markerBadge.classList.remove('hidden');
                     } else if (markerBadge) {
                         markerBadge.classList.add('hidden');
                     }
+
+                    // Update file preview texts
+                    const glbLabel = selectedOption.getAttribute('data-glb');
+                    const usdzLabel = selectedOption.getAttribute('data-usdz');
+                    document.getElementById('current-model-3d').innerHTML = glbLabel
+                        ? 'File saat ini: <a href="' + glbLabel + '" target="_blank" class="text-primary hover:underline font-semibold text-[10px]">GLB</a>'
+                        : 'Belum ada model 3D';
+                    document.getElementById('current-model-3d-usdz').innerHTML = usdzLabel
+                        ? 'File saat ini: <a href="' + usdzLabel + '" target="_blank" class="text-primary hover:underline font-semibold text-[10px]">USDZ</a>'
+                        : 'Belum ada model 3D iOS (.usdz)';
                 }
             }
+        }
+    }
+
+    function previewLocalGlb(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const modelPreview = document.getElementById('model-3d-preview');
+        if (modelPreview) {
+            modelPreview.src = URL.createObjectURL(file);
+            document.getElementById('model-3d-preview-container').style.display = 'flex';
+        }
+    }
+
+    function previewLocalAudio(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const audioPreview = document.getElementById('audio-preview');
+        if (audioPreview) {
+            audioPreview.src = URL.createObjectURL(file);
+            document.getElementById('audio-preview-container').style.display = 'flex';
+            // Alpine MutationObserver on src already handles reset
         }
     }
 </script>

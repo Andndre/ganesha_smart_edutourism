@@ -63,4 +63,5 @@
 
 @push('scripts')
     @include('admin.map-manager.partials.scripts')
+    <script type="module" src="{{ asset('js/model-viewer.min.js') }}"></script>
 @endpush

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\CapacityZone;
+use App\Models\ArModel;
 use App\Models\CulturalObject;
 use App\Models\Event;
 use App\Models\Facility;
@@ -176,6 +177,40 @@ class AdminTest extends TestCase
             Storage::disk('public')->assertExists($path);
         }
 
+        // 2b. Create with inline AR model editing (select existing model)
+        $existingModel = ArModel::create([
+            'name' => ['en' => 'Original Model', 'id' => 'Model Asli'],
+            'description' => ['en' => 'Original description', 'id' => 'Deskripsi asli'],
+            'model_3d_path' => 'models/original.glb',
+            'audio_narration_path' => 'audio/original.mp3',
+        ]);
+
+        $modelFile2 = UploadedFile::fake()->create('updated_model.glb', 300);
+        $responseInlineEdit = $this->actingAs($this->adminUser)
+            ->post(route('admin.cultural-objects.store'), [
+                'name' => ['en' => 'Pura Inline Edit', 'id' => 'Pura Inline Edit'],
+                'category' => 'temple',
+                'short_description' => ['en' => 'Inline edit test', 'id' => 'Tes edit inline'],
+                'description' => ['en' => 'Testing inline edit.', 'id' => 'Menguji edit inline.'],
+                'latitude' => -8.4,
+                'longitude' => 115.4,
+                'ar_model_id' => (string) $existingModel->id,
+                'new_model_name' => ['en' => 'Updated Model EN', 'id' => 'Model Diperbarui ID'],
+                'new_model_description' => ['en' => 'Updated desc EN', 'id' => 'Deskripsi diperbarui ID'],
+                'model_3d_file' => $modelFile2,
+            ]);
+        $responseInlineEdit->assertRedirect();
+
+        $existingModel->refresh();
+        $this->assertEquals('Updated Model EN', $existingModel->getTranslation('name', 'en'));
+        $this->assertEquals('Model Diperbarui ID', $existingModel->getTranslation('name', 'id'));
+        $this->assertEquals('Updated desc EN', $existingModel->getTranslation('description', 'en'));
+        $this->assertEquals('Deskripsi diperbarui ID', $existingModel->getTranslation('description', 'id'));
+        $this->assertNotNull($existingModel->model_3d_path);
+        $this->assertNotEquals('models/original.glb', $existingModel->model_3d_path);
+        Storage::disk('public')->assertMissing('models/original.glb');
+        $this->assertNotNull($existingModel->map_location_id);
+
         // 3. Update object
         $newModelFile = UploadedFile::fake()->create('new_object.glb', 600);
         $newAudioFile = UploadedFile::fake()->create('new_narration.mp3', 300);
@@ -220,6 +255,66 @@ class AdminTest extends TestCase
         $this->assertEquals('Pura Luhur Updated', $object->mapLocation->name);
         $this->assertEquals(-8.555, $object->mapLocation->latitude);
         $this->assertEquals(115.666, $object->mapLocation->longitude);
+
+        // 4. Create with inline AR model name-only edit (no file upload)
+        $nameOnlyModel = ArModel::create([
+            'name' => ['en' => 'Name Only Model', 'id' => 'Model Nama Saja'],
+            'description' => ['en' => 'Old desc', 'id' => 'Deskripsi lama'],
+            'model_3d_path' => 'models/name_only.glb',
+        ]);
+
+        $responseNameOnly = $this->actingAs($this->adminUser)
+            ->post(route('admin.cultural-objects.store'), [
+                'name' => ['en' => 'Name Only Test', 'id' => 'Tes Nama Saja'],
+                'category' => 'temple',
+                'short_description' => ['en' => 'Name only', 'id' => 'Nama saja'],
+                'description' => ['en' => 'Testing name only.', 'id' => 'Menguji nama saja.'],
+                'latitude' => -8.5,
+                'longitude' => 115.5,
+                'ar_model_id' => (string) $nameOnlyModel->id,
+                'new_model_name' => ['en' => 'Updated Name Only'],
+                // No new_model_name[id] — tests partial locale preservation
+                // No file upload — tests text-only update
+            ]);
+        $responseNameOnly->assertRedirect();
+
+        $nameOnlyModel->refresh();
+        $this->assertEquals('Updated Name Only', $nameOnlyModel->getTranslation('name', 'en'));
+        // id locale should be preserved (not cleared)
+        $this->assertEquals('Model Nama Saja', $nameOnlyModel->getTranslation('name', 'id'));
+        // model_3d_path should NOT be changed (no file uploaded)
+        $this->assertEquals('models/name_only.glb', $nameOnlyModel->model_3d_path);
+
+        // 5. Create with AR model + audio file replacement
+        $audioModel = ArModel::create([
+            'name' => ['en' => 'Audio Model', 'id' => 'Model Audio'],
+            'description' => ['en' => 'Audio desc', 'id' => 'Deskripsi audio'],
+            'model_3d_path' => 'models/audio_model.glb',
+            'audio_narration_path' => 'audio/old_audio.mp3',
+        ]);
+
+        $newAudio = UploadedFile::fake()->create('new_audio.mp3', 150);
+        $responseAudioEdit = $this->actingAs($this->adminUser)
+            ->post(route('admin.cultural-objects.store'), [
+                'name' => ['en' => 'Audio Replace Test', 'id' => 'Tes Ganti Audio'],
+                'category' => 'temple',
+                'short_description' => ['en' => 'Audio replace', 'id' => 'Ganti audio'],
+                'description' => ['en' => 'Testing audio replacement.', 'id' => 'Menguji penggantian audio.'],
+                'latitude' => -8.6,
+                'longitude' => 115.6,
+                'ar_model_id' => (string) $audioModel->id,
+                'new_model_name' => ['en' => 'Audio Model Updated'],
+                'audio_narration_file' => $newAudio,
+            ]);
+        $responseAudioEdit->assertRedirect();
+
+        $audioModel->refresh();
+        $this->assertEquals('Audio Model Updated', $audioModel->getTranslation('name', 'en'));
+        $this->assertNotNull($audioModel->audio_narration_path);
+        $this->assertNotEquals('audio/old_audio.mp3', $audioModel->audio_narration_path);
+        Storage::disk('public')->assertMissing('audio/old_audio.mp3');
+        // model_3d_path should be unchanged (no new GLB uploaded)
+        $this->assertEquals('models/audio_model.glb', $audioModel->model_3d_path);
 
         // Save ID before delete to assert missing later
         $objectId = $object->id;

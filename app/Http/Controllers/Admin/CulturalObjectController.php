@@ -94,8 +94,12 @@ class CulturalObjectController extends Controller
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
             'ar_marker_patt_content' => ['nullable', 'string'],
             'ar_model_id' => ['nullable', 'string'],
-            'new_model_name' => ['nullable', 'string', 'max:255'],
-            'new_model_description' => ['nullable', 'string'],
+            'new_model_name' => ['nullable', 'array'],
+            'new_model_name.en' => ['nullable', 'string', 'max:255'],
+            'new_model_name.id' => ['nullable', 'string', 'max:255'],
+            'new_model_description' => ['nullable', 'array'],
+            'new_model_description.en' => ['nullable', 'string'],
+            'new_model_description.id' => ['nullable', 'string'],
             'model_3d_file' => ['nullable', 'file', 'max:20480'],
             'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
             'audio_narration_file' => ['nullable', 'file', 'max:10240'],
@@ -237,8 +241,17 @@ class CulturalObjectController extends Controller
             (empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file') || $request->hasFile('audio_narration_file')));
 
         if ($shouldCreateNewModel) {
+            $submittedName = $request->input('new_model_name', []);
+            if (is_array($submittedName) && count($submittedName) === 1) {
+                if (isset($submittedName['en']) && !isset($submittedName['id'])) {
+                    $submittedName['id'] = $submittedName['en'];
+                } elseif (isset($submittedName['id']) && !isset($submittedName['en'])) {
+                    $submittedName['en'] = $submittedName['id'];
+                }
+            }
+
             $modelData = [
-                'name' => $request->input('new_model_name') ?: $object->name.' Model',
+                'name' => $submittedName ?: [$defaultLocale => ($object->name[$defaultLocale] ?? 'Model') . ' Model'],
                 'description' => $request->input('new_model_description') ?: ($object->short_description ?? null),
                 'map_location_id' => $mapLocation->id,
                 'ar_marker_id' => $arMarkerId ?: null,
@@ -262,7 +275,52 @@ class CulturalObjectController extends Controller
 
             ArModel::create($modelData);
         } elseif (is_numeric($arModelId)) {
-            ArModel::where('id', (int) $arModelId)->update(['map_location_id' => $mapLocation->id]);
+            $arModel = ArModel::find((int) $arModelId);
+            if ($arModel) {
+                $modelData = ['map_location_id' => $mapLocation->id];
+
+                // Handle multilingual name with partial locale merging
+                if ($request->has('new_model_name')) {
+                    $existingName = $arModel->getTranslations('name');
+                    $newName = array_merge($existingName, $request->input('new_model_name', []));
+                    $modelData['name'] = $newName;
+                }
+
+                // Handle multilingual description with partial locale merging
+                if ($request->has('new_model_description')) {
+                    $existingDesc = $arModel->getTranslations('description');
+                    $newDesc = array_merge($existingDesc, $request->input('new_model_description', []));
+                    $modelData['description'] = $newDesc;
+                }
+
+                // Handle file replacement: upload new, THEN delete old
+                if ($request->hasFile('model_3d_file')) {
+                    $newPath = $request->file('model_3d_file')->store('models', 'public');
+                    if ($arModel->model_3d_path) {
+                        Storage::disk('public')->delete($arModel->model_3d_path);
+                    }
+                    $modelData['model_3d_path'] = $newPath;
+                }
+
+                if ($request->hasFile('model_3d_usdz_file')) {
+                    $newPath = $request->file('model_3d_usdz_file')
+                        ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
+                    if ($arModel->model_3d_usdz_path) {
+                        Storage::disk('public')->delete($arModel->model_3d_usdz_path);
+                    }
+                    $modelData['model_3d_usdz_path'] = $newPath;
+                }
+
+                if ($request->hasFile('audio_narration_file')) {
+                    $newPath = $request->file('audio_narration_file')->store('audio', 'public');
+                    if ($arModel->audio_narration_path) {
+                        Storage::disk('public')->delete($arModel->audio_narration_path);
+                    }
+                    $modelData['audio_narration_path'] = $newPath;
+                }
+
+                $arModel->update($modelData);
+            }
         }
 
         return redirect()->route('admin.map-manager')->with('success', __('Objek budaya berhasil ditambahkan.'));
@@ -348,8 +406,12 @@ class CulturalObjectController extends Controller
             'ar_marker_id' => ['nullable', 'string', 'max:255'],
             'ar_marker_patt_content' => ['nullable', 'string'],
             'ar_model_id' => ['nullable', 'string'],
-            'new_model_name' => ['nullable', 'string', 'max:255'],
-            'new_model_description' => ['nullable', 'string'],
+            'new_model_name' => ['nullable', 'array'],
+            'new_model_name.en' => ['nullable', 'string', 'max:255'],
+            'new_model_name.id' => ['nullable', 'string', 'max:255'],
+            'new_model_description' => ['nullable', 'array'],
+            'new_model_description.en' => ['nullable', 'string'],
+            'new_model_description.id' => ['nullable', 'string'],
             'model_3d_file' => ['nullable', 'file', 'max:20480'],
             'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
             'audio_narration_file' => ['nullable', 'file', 'max:10240'],
@@ -500,8 +562,17 @@ class CulturalObjectController extends Controller
             ($arModelId !== 'none' && empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file') || $request->hasFile('audio_narration_file')));
 
         if ($shouldCreateNewModel) {
+            $submittedName = $request->input('new_model_name', []);
+            if (is_array($submittedName) && count($submittedName) === 1) {
+                if (isset($submittedName['en']) && !isset($submittedName['id'])) {
+                    $submittedName['id'] = $submittedName['en'];
+                } elseif (isset($submittedName['id']) && !isset($submittedName['en'])) {
+                    $submittedName['en'] = $submittedName['id'];
+                }
+            }
+
             $modelData = [
-                'name' => $request->input('new_model_name') ?: $object->name.' Model',
+                'name' => $submittedName ?: [$defaultLocale => ($object->name[$defaultLocale] ?? 'Model') . ' Model'],
                 'description' => $request->input('new_model_description') ?: ($object->short_description ?? null),
                 'map_location_id' => $mapLocation->id,
                 'ar_marker_id' => $arMarkerId ?: null,
@@ -525,8 +596,52 @@ class CulturalObjectController extends Controller
 
             ArModel::create($modelData);
         } elseif (is_numeric($arModelId)) {
-            // Link existing model to this location
-            ArModel::where('id', (int) $arModelId)->update(['map_location_id' => $mapLocation->id]);
+            $arModel = ArModel::find((int) $arModelId);
+            if ($arModel) {
+                $modelData = ['map_location_id' => $mapLocation->id];
+
+                // Handle multilingual name with partial locale merging
+                if ($request->has('new_model_name')) {
+                    $existingName = $arModel->getTranslations('name');
+                    $newName = array_merge($existingName, $request->input('new_model_name', []));
+                    $modelData['name'] = $newName;
+                }
+
+                // Handle multilingual description with partial locale merging
+                if ($request->has('new_model_description')) {
+                    $existingDesc = $arModel->getTranslations('description');
+                    $newDesc = array_merge($existingDesc, $request->input('new_model_description', []));
+                    $modelData['description'] = $newDesc;
+                }
+
+                // Handle file replacement: upload new, THEN delete old
+                if ($request->hasFile('model_3d_file')) {
+                    $newPath = $request->file('model_3d_file')->store('models', 'public');
+                    if ($arModel->model_3d_path) {
+                        Storage::disk('public')->delete($arModel->model_3d_path);
+                    }
+                    $modelData['model_3d_path'] = $newPath;
+                }
+
+                if ($request->hasFile('model_3d_usdz_file')) {
+                    $newPath = $request->file('model_3d_usdz_file')
+                        ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
+                    if ($arModel->model_3d_usdz_path) {
+                        Storage::disk('public')->delete($arModel->model_3d_usdz_path);
+                    }
+                    $modelData['model_3d_usdz_path'] = $newPath;
+                }
+
+                if ($request->hasFile('audio_narration_file')) {
+                    $newPath = $request->file('audio_narration_file')->store('audio', 'public');
+                    if ($arModel->audio_narration_path) {
+                        Storage::disk('public')->delete($arModel->audio_narration_path);
+                    }
+                    $modelData['audio_narration_path'] = $newPath;
+                }
+
+                $arModel->update($modelData);
+            }
         } elseif ($arModelId === 'none') {
             // Detach: clear map_location_id from any model currently linked here
             ArModel::where('map_location_id', $mapLocation->id)->update(['map_location_id' => null]);
