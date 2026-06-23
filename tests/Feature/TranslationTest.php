@@ -183,6 +183,7 @@ class TranslationTest extends TestCase
 
     public function test_existing_plain_string_data_is_accessible(): void
     {
+        app()->setLocale('en');
         $object = CulturalObject::create([
             'name' => 'Legacy Plain Name',
             'slug' => 'legacy-plain-name',
