@@ -20,7 +20,7 @@
 
             <button type="button" @click="isOpen = false"
                 class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:text-gray-600 active:scale-95 md:hidden"
-                title="Tutup">
+                title="{{ __('Tutup') }}">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -55,7 +55,7 @@
                 </svg>
             </div>
             <div class="flex-1">
-                <p class="text-xs font-black text-gray-700">Lokasi Acara</p>
+                <p class="text-xs font-black text-gray-700">{{ __('Lokasi Acara') }}</p>
                 <p class="mt-0.5 text-[11px] leading-relaxed text-gray-500" x-text="selectedEvent.location_name"></p>
             </div>
         </div>
@@ -70,9 +70,9 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">Harga Tiket</p>
+                    <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Harga Tiket') }}</p>
                     <p class="mt-1 text-xs font-black text-gray-700"
-                        x-text="selectedEvent.is_free ? 'Gratis' : 'Rp ' + Number(selectedEvent.price).toLocaleString('id-ID')">
+                        x-text="selectedEvent.is_free ? '{{ __('Gratis') }}' : '{{ __('Rp') }} ' + Number(selectedEvent.price).toLocaleString('id-ID')">
                     </p>
                 </div>
             </div>
@@ -84,18 +84,18 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">Kapasitas</p>
+                    <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Kapasitas') }}</p>
                     <p class="mt-1 text-xs font-black text-gray-700"
-                        x-text="selectedEvent.max_participants ? selectedEvent.max_participants + ' Orang' : '-'"></p>
+                        x-text="selectedEvent.max_participants ? selectedEvent.max_participants + ' {{ __('Orang') }}' : '-'"></p>
                 </div>
             </div>
         </div>
 
         <!-- Description -->
         <div class="border-t border-gray-50 pt-3">
-            <h4 class="mb-1.5 text-[10px] font-black uppercase tracking-wider text-gray-400">Deskripsi Acara</h4>
+            <h4 class="mb-1.5 text-[10px] font-black uppercase tracking-wider text-gray-400">{{ __('Deskripsi Acara') }}</h4>
             <p class="max-h-36 overflow-y-auto text-xs leading-relaxed text-gray-500"
-                x-text="selectedEvent.description || 'Tidak ada deskripsi tambahan.'"></p>
+                x-text="selectedEvent.description || '{{ __('Tidak ada deskripsi tambahan.') }}'"></p>
         </div>
 
         <!-- Open in Maps GPS Button -->
@@ -107,7 +107,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                 </svg>
-                Buka Petunjuk Arah (Maps GPS)
+                {{ __('Buka Petunjuk Arah (Maps GPS)') }}
             </a>
         </template>
     </div>

@@ -45,7 +45,7 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password yang Anda masukkan salah.',
+            'email' => __('Email atau password yang Anda masukkan salah.'),
         ])->onlyInput('email');
     }
 
@@ -96,13 +96,13 @@ class AuthController extends Controller
         $reservation = Reservation::findOrFail($reservationId);
 
         if (md5($reservation->qr_code) !== $hash) {
-            abort(403, 'Link akses tidak valid atau telah kadaluarsa.');
+            abort(403, __('Link akses tidak valid atau telah kadaluarsa.'));
         }
 
         // Store guest token in session
         session(['guest_token' => $reservation->qr_code, 'guest_name' => $reservation->guest_name]);
 
-        return redirect()->route('home')->with('success', 'Selamat datang, '.$reservation->guest_name.'! Anda dapat mulai menjelajahi Ganesha Smart Edutourism.');
+        return redirect()->route('home')->with('success', __('Selamat datang, :name! Anda dapat mulai menjelajahi Ganesha Smart Edutourism.', ['name' => $reservation->guest_name]));
     }
 
     /**
@@ -162,7 +162,7 @@ class AuthController extends Controller
             return redirect()->intended('/');
 
         } catch (\Exception $e) {
-            return redirect('/login')->withErrors(['email' => 'Gagal login dengan Google. Silakan coba lagi.']);
+            return redirect('/login')->withErrors(['email' => __('Gagal login dengan Google. Silakan coba lagi.')]);
         }
     }
 }

@@ -1,13 +1,12 @@
 @extends('layouts.app')
-@section('title', 'Paket Wisata - Penglipuran')
-@section('header_title', 'Paket Wisata')
+@section('title', __('Paket Wisata - Penglipuran'))
+@section('header_title', __('Paket Wisata'))
 
 @section('content')
     <div class="mx-auto w-full max-w-6xl px-4 py-6 md:px-6 md:py-8 lg:px-8">
         <div class="mb-6 md:mb-8">
-            <h2 class="text-charcoal text-xl font-bold md:text-2xl lg:text-3xl">Eksplorasi Bersama</h2>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500 md:text-base">Pilih paket wisata yang sesuai dengan durasi dan
-                preferensi perjalanan Anda.</p>
+            <h2 class="text-charcoal text-xl font-bold md:text-2xl lg:text-3xl">{{ __('Eksplorasi Bersama') }}</h2>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500 md:text-base">{{ __('Pilih paket wisata yang sesuai dengan durasi dan preferensi perjalanan Anda.') }}</p>
         </div>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 xl:grid-cols-3">
@@ -28,7 +27,7 @@
                         @endif
                         <div
                             class="text-primary absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold shadow-sm backdrop-blur">
-                            Paket Wisata
+                            {{ __('Paket Wisata') }}
                         </div>
                     </div>
                     <div class="flex flex-1 flex-col p-4">
@@ -43,7 +42,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    {{ $package['duration_hours'] }} Jam
+                                    {{ $package['duration_hours'] }} {{ __('Jam') }}
                                 </div>
                                 <div class="flex items-center gap-1.5">
                                     <svg class="text-primary h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -51,7 +50,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                     </svg>
-                                    Min. {{ $package['min_capacity'] }} Orang
+                                    {{ __('Min. :count Orang', ['count' => $package['min_capacity']]) }}
                                 </div>
                             </div>
                             <div class="text-primary text-lg font-bold">Rp {{ number_format($package['price'], 0, ',', '.') }}
@@ -62,7 +61,7 @@
             @empty
                 <div
                     class="col-span-full w-full rounded-2xl border border-gray-100 bg-white p-4 py-12 text-center text-sm text-gray-500">
-                    Belum ada paket wisata yang tersedia.
+                    {{ __('Belum ada paket wisata yang tersedia.') }}
                 </div>
             @endforelse
         </div>

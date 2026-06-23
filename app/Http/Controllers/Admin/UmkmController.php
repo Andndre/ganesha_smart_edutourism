@@ -104,7 +104,7 @@ class UmkmController extends Controller
 
         UmkmProduct::create($validated);
 
-        return redirect()->route('admin.umkm')->with('success', 'Produk UMKM berhasil ditambahkan.');
+        return redirect()->route('admin.umkm')->with('success', __('Produk UMKM berhasil ditambahkan.'));
     }
 
     /**
@@ -148,7 +148,7 @@ class UmkmController extends Controller
 
         $product->update($validated);
 
-        return redirect()->route('admin.umkm')->with('success', 'Produk UMKM berhasil diperbarui.');
+        return redirect()->route('admin.umkm')->with('success', __('Produk UMKM berhasil diperbarui.'));
     }
 
     /**
@@ -159,7 +159,7 @@ class UmkmController extends Controller
         $product = UmkmProduct::findOrFail($id);
         $product->delete();
 
-        return redirect()->route('admin.umkm')->with('success', 'Produk UMKM berhasil dihapus.');
+        return redirect()->route('admin.umkm')->with('success', __('Produk UMKM berhasil dihapus.'));
     }
 
     /**
@@ -230,7 +230,7 @@ class UmkmController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.map-manager')->with('success', 'Profil UMKM berhasil ditambahkan.');
+        return redirect()->route('admin.map-manager')->with('success', __('Profil UMKM berhasil ditambahkan.'));
     }
 
     /**
@@ -319,7 +319,7 @@ class UmkmController extends Controller
             }
         }
 
-        return redirect()->route('admin.map-manager')->with('success', 'Profil UMKM berhasil diperbarui.');
+        return redirect()->route('admin.map-manager')->with('success', __('Profil UMKM berhasil diperbarui.'));
     }
 
     /**
@@ -330,7 +330,7 @@ class UmkmController extends Controller
         $profile = UmkmProfile::findOrFail($id);
         $profile->delete();
 
-        return redirect()->route('admin.map-manager')->with('success', 'Profil UMKM berhasil dihapus.');
+        return redirect()->route('admin.map-manager')->with('success', __('Profil UMKM berhasil dihapus.'));
     }
 
     /**
@@ -360,7 +360,7 @@ class UmkmController extends Controller
 
         User::create($validated);
 
-        return redirect()->route('admin.umkm.owners')->with('success', 'Akun pemilik UMKM berhasil dibuat.');
+        return redirect()->route('admin.umkm.owners')->with('success', __('Akun pemilik UMKM berhasil dibuat.'));
     }
 
     /**
@@ -385,7 +385,7 @@ class UmkmController extends Controller
 
         $owner->update($validated);
 
-        return redirect()->route('admin.umkm.owners')->with('success', 'Akun pemilik UMKM berhasil diperbarui.');
+        return redirect()->route('admin.umkm.owners')->with('success', __('Akun pemilik UMKM berhasil diperbarui.'));
     }
 
     /**
@@ -396,6 +396,6 @@ class UmkmController extends Controller
         $owner = User::where('role', 'umkm_owner')->findOrFail($id);
         $owner->delete();
 
-        return redirect()->route('admin.umkm.owners')->with('success', 'Akun pemilik UMKM berhasil dihapus.');
+        return redirect()->route('admin.umkm.owners')->with('success', __('Akun pemilik UMKM berhasil dihapus.'));
     }
 }

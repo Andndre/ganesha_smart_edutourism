@@ -136,7 +136,7 @@ class CapacityController extends Controller
 
         CapacityZone::create($validated);
 
-        return redirect()->back()->with('success', 'Zona baru berhasil ditambahkan.');
+        return redirect()->back()->with('success', __('Zona baru berhasil ditambahkan.'));
     }
 
     /**
@@ -161,7 +161,7 @@ class CapacityController extends Controller
         $zone = CapacityZone::findOrFail($id);
         $zone->update($validated);
 
-        return redirect()->back()->with('success', 'Detail dan area zona berhasil diperbarui.');
+        return redirect()->back()->with('success', __('Detail dan area zona berhasil diperbarui.'));
     }
 
     /**
@@ -172,6 +172,6 @@ class CapacityController extends Controller
         $zone = CapacityZone::findOrFail($id);
         $zone->delete();
 
-        return redirect()->back()->with('success', 'Zona berhasil dihapus.');
+        return redirect()->back()->with('success', __('Zona berhasil dihapus.'));
     }
 }

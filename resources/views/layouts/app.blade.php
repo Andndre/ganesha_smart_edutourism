@@ -110,22 +110,20 @@
                 </div>
 
                 <!-- Title -->
-                <h3 class="text-charcoal mb-2 text-base font-bold">Anda Sedang Luring (Offline)</h3>
+                <h3 class="text-charcoal mb-2 text-base font-bold">{{ __('Anda Sedang Luring (Offline)') }}</h3>
 
                 <!-- Description -->
                 <p class="mb-6 text-xs leading-relaxed text-gray-500">
-                    Koneksi internet Anda terputus. Jangan khawatir, Anda tetap dapat menjelajahi desa melalui data
-                    luring (cache).
+                    {{ __('Koneksi internet Anda terputus. Jangan khawatir, Anda tetap dapat menjelajahi desa melalui data luring (cache).') }}
                     <br><br>
-                    Perhatikan indikator <span
-                        class="rounded-full bg-[#E28F1B] px-2.5 py-0.5 font-bold text-white">Offline</span> di pojok
-                    kanan atas sebagai penanda status koneksi Anda.
+                    {{ __('Perhatikan indikator') }} <span
+                        class="rounded-full bg-[#E28F1B] px-2.5 py-0.5 font-bold text-white">Offline</span> {{ __('di pojok kanan atas sebagai penanda status koneksi Anda.') }}
                 </p>
 
                 <!-- Action Button -->
                 <button id="close-offline-coaching-btn"
                     class="bg-primary w-full rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-[#152E1D] active:scale-95">
-                    Baik, Saya Mengerti
+                    {{ __('Baik, Saya Mengerti') }}
                 </button>
             </div>
         </div>
@@ -166,8 +164,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-green-100">Smart Edutourism
-                                Aktif</p>
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-green-100">{{ __('Smart Edutourism Aktif') }}</p>
                             <h4 class="max-w-37.5 truncate font-bold leading-tight text-white sm:max-w-50">
                                 {{ $activeEdutourismSession->tourRoute->name }}</h4>
                         </div>
@@ -365,7 +362,28 @@
             </script>
         @endenv
 
+        @php
+            $notifMessages = [
+                'geofence_title' => __('Peringatan Batas Area'),
+                'geofence_body' => __('Anda telah keluar dari area wisata Desa Penglipuran. Harap kembali ke jalur utama untuk keamanan Anda.'),
+                'crowd_warning' => __('cukup padat'),
+                'crowd_critical' => __('sangat padat'),
+                'crowd_prefix' => __('Kepadatan'),
+                'crowd_critical_label' => __('Kritis'),
+                'crowd_high_label' => __('Tinggi'),
+                'crowd_body_suffix' => __('Pertimbangkan untuk mengunjungi area lain terlebih dahulu.'),
+                'crowd_padat' => __('padat'),
+                'crowd_area_prefix' => __('Area'),
+                'crowd_sedang' => __('sedang'),
+                'crowd_capacity' => __('% kapasitas'),
+                'event_prefix' => __('Acara akan dimulai pukul'),
+                'event_suffix' => __('di'),
+                'event_end' => __('Jangan sampai ketinggalan!'),
+            ];
+        @endphp
         <script data-navigate-once>
+            const _n = @json($notifMessages);
+
             // ==========================================
             // NOTIFICATION MANAGER
             // ==========================================
@@ -421,13 +439,16 @@
                         this.open = false;
                     },
                     timeAgo(timestamp) {
+                        if (!window.__locale) window.__locale = document.documentElement.lang || 'id';
+                        const rtf = new Intl.RelativeTimeFormat(window.__locale, { numeric: 'auto' });
                         const seconds = Math.floor((Date.now() - timestamp) / 1000);
-                        if (seconds < 60) return 'Baru saja';
+                        if (seconds < 60) return rtf.format(-seconds, 'second');
                         const minutes = Math.floor(seconds / 60);
-                        if (minutes < 60) return minutes + ' menit lalu';
+                        if (minutes < 60) return rtf.format(-minutes, 'minute');
                         const hours = Math.floor(minutes / 60);
-                        if (hours < 24) return hours + ' jam lalu';
-                        return Math.floor(hours / 24) + ' hari lalu';
+                        if (hours < 24) return rtf.format(-hours, 'hour');
+                        const days = Math.floor(hours / 24);
+                        return rtf.format(-days, 'day');
                     }
                 };
             }
@@ -531,8 +552,8 @@
                             id: 'geofence-' + now,
                             type: 'geofence',
                             level: 'warning',
-                            title: 'Peringatan Batas Area',
-                            body: 'Anda telah keluar dari area wisata Desa Penglipuran. Harap kembali ke jalur utama untuk keamanan Anda.',
+                            title: _n.geofence_title,
+                            body: _n.geofence_body,
                             timestamp: now,
                             read: false
                         });
@@ -638,15 +659,15 @@
                     window.Echo.channel('village-notifications')
                         .listen('.CrowdAlertSent', (e) => {
                             const levelLabels = {
-                                warning: 'cukup padat',
-                                critical: 'sangat padat'
+                                warning: _n.crowd_warning,
+                                critical: _n.crowd_critical
                             };
                             addNotification({
                                 id: 'crowd-' + Date.now(),
                                 type: 'crowd',
                                 level: e.level,
-                                title: 'Kepadatan ' + (e.level === 'critical' ? 'Kritis' : 'Tinggi') + ': ' + e.zone_name,
-                                body: 'Area ' + e.zone_name + ' sedang ' + (levelLabels[e.level] || 'padat') + ' (' + e.occupancy_percentage + '% kapasitas). Pertimbangkan untuk mengunjungi area lain terlebih dahulu.',
+                                title: _n.crowd_prefix + ' ' + (e.level === 'critical' ? _n.crowd_critical_label : _n.crowd_high_label) + ': ' + e.zone_name,
+                                body: _n.crowd_area_prefix + ' ' + e.zone_name + ' ' + _n.crowd_sedang + ' ' + (levelLabels[e.level] || _n.crowd_padat) + ' (' + e.occupancy_percentage + _n.crowd_capacity + '). ' + _n.crowd_body_suffix,
                                 timestamp: Date.now(),
                                 read: false
                             });
@@ -657,7 +678,7 @@
                                 type: 'event',
                                 level: 'info',
                                 title: '🎭 ' + e.event_name,
-                                body: 'Acara akan dimulai pukul ' + e.start_time + ' di ' + e.location_name + '. Jangan sampai ketinggalan!',
+                                body: _n.event_prefix + ' ' + e.start_time + ' ' + _n.event_suffix + ' ' + e.location_name + '. ' + _n.event_end,
                                 timestamp: Date.now(),
                                 read: false
                             });

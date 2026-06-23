@@ -52,7 +52,7 @@ class FeedbackController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Terima kasih atas ulasannya!',
+                'message' => __('Terima kasih atas ulasannya!'),
                 'data' => $feedback,
             ]);
         }
@@ -82,7 +82,7 @@ class FeedbackController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Ulasan berhasil diperbarui!',
+                'message' => __('Ulasan berhasil diperbarui!'),
                 'data' => $feedback,
             ]);
         }

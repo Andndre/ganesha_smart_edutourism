@@ -1,10 +1,10 @@
 <!-- Party Size Stepper -->
 <div>
-    <h3 class="text-charcoal mb-3 font-bold">Jumlah Peserta (Party Size)</h3>
+    <h3 class="text-charcoal mb-3 font-bold">{{ __('Jumlah Peserta (Party Size)') }}</h3>
     <div class="flex items-center justify-between rounded-2xl border border-gray-100 bg-gray-50 p-4">
         <div>
-            <div class="text-charcoal font-bold">Peserta</div>
-            <div class="mt-0.5 text-xs text-gray-500">Minimal {{ $package->min_capacity }} Orang</div>
+            <div class="text-charcoal font-bold">{{ __('Peserta') }}</div>
+            <div class="mt-0.5 text-xs text-gray-500">{{ __('Minimal :count Orang', ['count' => $package->min_capacity]) }}</div>
         </div>
 
         <div class="flex items-center gap-4 rounded-full border border-gray-200 bg-white px-2 py-1.5 shadow-sm">

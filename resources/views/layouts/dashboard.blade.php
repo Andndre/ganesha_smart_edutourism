@@ -499,17 +499,17 @@
                     
                     e.preventDefault();
                     
-                    const message = form.getAttribute('data-confirm') || 'Apakah Anda yakin ingin menghapus data ini?';
+                    const message = form.getAttribute('data-confirm') || '{{ __('Apakah Anda yakin ingin menghapus data ini?') }}';
                     
                     Swal.fire({
-                        title: 'Konfirmasi Hapus',
+                        title: '{{ __('Konfirmasi Hapus') }}',
                         text: message,
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonColor: '#1E5128', // Matches primary brand color
+                        confirmButtonColor: '#1E5128',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: 'Ya, Hapus!',
-                        cancelButtonText: 'Batal',
+                        confirmButtonText: '{{ __('Ya, Hapus!') }}',
+                        cancelButtonText: '{{ __('Batal') }}',
                         background: '#ffffff'
                     }).then((result) => {
                         if (result.isConfirmed) {

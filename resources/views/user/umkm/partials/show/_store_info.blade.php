@@ -14,5 +14,5 @@
                 </div>
             </div>
             <button
-                class="px-4 py-1.5 border border-primary text-primary text-sm font-medium rounded-full">Kunjungi</button>
+                class="px-4 py-1.5 border border-primary text-primary text-sm font-medium rounded-full">{{ __('Kunjungi') }}</button>
         </div>

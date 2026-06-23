@@ -1,8 +1,17 @@
 {{-- ponytail: partial dipecah untuk keterbacaan --}}
+@php
+    $umkmMessages = [
+        'category' => __('Kategori'),
+        'no_description' => __('Belum ada deskripsi untuk kategori ini.'),
+        'deselect_category' => __('Batal Pilih Kategori'),
+        'select_category' => __('Pilih Kategori Ini'),
+    ];
+@endphp
     <script>
         (function() {
             let activeModalCategoryId = null;
             let currentModalTab = 'image';
+            const messages = @json($umkmMessages);
 
             function updateCardHighlight(id) {
                 const card = document.getElementById(`card-cat-${id}`);
@@ -52,7 +61,7 @@
                 checkedBoxes.forEach(box => {
                     const id = box.value;
                     const card = document.getElementById(`card-cat-${id}`);
-                    const name = card ? card.querySelector('h3').innerText : 'Kategori';
+                    const name = card ? card.querySelector('h3').innerText : messages.category;
 
                     html += `
                     <div class="flex items-center gap-1.5 bg-primary/[0.08] text-primary text-xs font-bold px-3 py-1.5 rounded-full border border-primary/20 transition-all select-none shrink-0">
@@ -107,7 +116,7 @@
                 // Set content
                 document.getElementById('modal-category-name').innerText = category.name;
                 document.getElementById('modal-category-description').innerText = category.description ||
-                    "Belum ada deskripsi untuk kategori ini.";
+                    messages.no_description;
 
                 const imgEl = document.getElementById('modal-category-image');
                 const fallbackEl = document.getElementById('modal-category-fallback');
@@ -153,11 +162,11 @@
                 const checkbox = document.getElementById(`checkbox-cat-${category.id}`);
                 const btn = document.getElementById('modal-toggle-select-btn');
                 if (checkbox && checkbox.checked) {
-                    btn.innerText = 'Batal Pilih Kategori';
+                    btn.innerText = messages.deselect_category;
                     btn.className =
                         'w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3.5 rounded-xl active:scale-[0.98] transition-transform flex justify-center items-center gap-2';
                 } else {
-                    btn.innerText = 'Pilih Kategori Ini';
+                    btn.innerText = messages.select_category;
                     btn.className =
                         'w-full bg-primary hover:bg-primary-600 text-white font-semibold py-3.5 rounded-xl active:scale-[0.98] transition-transform shadow-lg shadow-primary/20 flex justify-center items-center gap-2';
                 }

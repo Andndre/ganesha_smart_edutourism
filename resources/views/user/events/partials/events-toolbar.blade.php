@@ -11,7 +11,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round"
                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            Kalender
+            {{ __('Kalender') }}
         </button>
         <button type="button" @click="viewMode = 'list'"
             :class="viewMode === 'list' ? 'bg-white text-primary shadow-sm font-bold' :
@@ -20,7 +20,7 @@
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
-            Daftar Acara
+            {{ __('Daftar Acara') }}
         </button>
     </div>
 
@@ -32,14 +32,14 @@
                 <!-- Tiny visual category indicator color dot -->
                 <span
                     :class="{
-                        'bg-primary': selectedCategory === 'Semua',
+                        'bg-primary': selectedCategory === 'All',
                         'bg-amber-500': selectedCategory === 'Upacara Adat',
                         'bg-emerald-500': selectedCategory === 'Festival',
                         'bg-blue-500': selectedCategory === 'Workshop',
                         'bg-rose-500': selectedCategory === 'Kuliner'
                     }"
                     class="h-2 w-2 shrink-0 rounded-full"></span>
-                <span x-text="selectedCategory === 'Semua' ? 'Semua Kategori' : selectedCategory"></span>
+                <span x-text="selectedCategory === 'All' ? '{{ __('Semua Kategori') }}' : selectedCategory"></span>
             </div>
             <svg class="h-3.5 w-3.5 text-gray-400 transition-transform duration-200" :class="isOpen ? 'rotate-180' : ''"
                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -57,7 +57,7 @@
             class="absolute left-0 z-50 mt-2 w-full rounded-2xl border border-gray-100 bg-white p-1.5 shadow-xl sm:w-56"
             style="display: none;">
 
-            <template x-for="cat in ['Semua', 'Upacara Adat', 'Festival', 'Workshop', 'Kuliner']"
+            <template x-for="cat in ['All', 'Upacara Adat', 'Festival', 'Workshop', 'Kuliner']"
                 :key="cat">
                 <button type="button" @click="filterCategory(cat); isOpen = false"
                     :class="selectedCategory === cat ? 'bg-primary/8 text-primary font-bold' :
@@ -66,14 +66,14 @@
                     <!-- Category visual color dot inside list -->
                     <span
                         :class="{
-                            'bg-primary': cat === 'Semua',
+                            'bg-primary': cat === 'All',
                             'bg-amber-500': cat === 'Upacara Adat',
                             'bg-emerald-500': cat === 'Festival',
                             'bg-blue-500': cat === 'Workshop',
                             'bg-rose-500': cat === 'Kuliner'
                         }"
                         class="h-2 w-2 shrink-0 rounded-full"></span>
-                    <span x-text="cat === 'Semua' ? 'Semua Kategori' : cat"></span>
+                    <span x-text="cat === 'All' ? '{{ __('Semua Kategori') }}' : cat"></span>
                 </button>
             </template>
         </div>

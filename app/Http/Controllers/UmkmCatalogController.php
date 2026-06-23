@@ -47,7 +47,7 @@ class UmkmCatalogController extends Controller
 
         if ($recommendedUmkm) {
             return redirect()->route('umkm.recommended', ['id' => $recommendedUmkm->id])
-                ->with('success', 'Kami telah menemukan UMKM terbaik untuk pesanan Anda!');
+                ->with('success', __('Kami telah menemukan UMKM terbaik untuk pesanan Anda!'));
         }
 
         // Fallback: Multi-Stop Recommendation
@@ -65,7 +65,7 @@ class UmkmCatalogController extends Controller
             return $redirect;
         }
 
-        return back()->with('error', 'Maaf, tidak ada UMKM yang saat ini memiliki stok untuk barang pilihan Anda.');
+        return back()->with('error', __('Maaf, tidak ada UMKM yang saat ini memiliki stok untuk barang pilihan Anda.'));
     }
 
     public function recommended(Request $request, $id)

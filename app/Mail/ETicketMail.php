@@ -31,7 +31,7 @@ class ETicketMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'E-Ticket Pesanan Anda - Penglipuran Smart Tour',
+            subject: __('E-Ticket Pesanan Anda - Penglipuran Smart Tour'),
         );
     }
 

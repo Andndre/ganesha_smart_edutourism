@@ -5,11 +5,11 @@
 
     <div class="flex items-center justify-between border-b border-gray-100 pb-2">
         <div>
-            <h2 class="text-charcoal text-base font-bold">Acara Mendatang</h2>
-            <p class="mt-0.5 text-[11px] text-gray-500">Daftar agenda kebudayaan terdekat yang terdaftar</p>
+            <h2 class="text-charcoal text-base font-bold">{{ __('Acara Mendatang') }}</h2>
+            <p class="mt-0.5 text-[11px] text-gray-500">{{ __('Daftar agenda kebudayaan terdekat yang terdaftar') }}</p>
         </div>
         <span class="rounded-lg bg-gray-50 px-2 py-1 text-[10px] font-bold uppercase text-gray-400"
-            x-text="filteredTimelineEvents.length + ' Acara'"></span>
+            x-text="filteredTimelineEvents.length + ' {{ __('Acara') }}'"></span>
     </div>
 
     <!-- Timeline Cards Container -->
@@ -40,13 +40,13 @@
 
                         <span :class="e.is_free ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-600'"
                             class="rounded-md px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider"
-                            x-text="e.is_free ? 'Gratis' : 'Rp ' + Number(e.price).toLocaleString('id-ID')"></span>
+                            x-text="e.is_free ? '{{ __('Gratis') }}' : '{{ __('Rp') }} ' + Number(e.price).toLocaleString('id-ID')"></span>
                     </div>
 
                     <h3 class="text-charcoal group-hover:text-primary mb-1 text-base font-extrabold transition-colors duration-200"
                         x-text="e.name"></h3>
                     <p class="mb-4 line-clamp-2 text-xs leading-relaxed text-gray-500"
-                        x-text="e.description || 'Tidak ada deskripsi tambahan untuk event budaya ini.'"></p>
+                        x-text="e.description || '{{ __('Tidak ada deskripsi tambahan untuk event budaya ini.') }}'"></p>
 
                     <!-- Parameters Grid -->
                     <div
@@ -81,7 +81,7 @@
                     <div class="mt-4 flex gap-2">
                         <button type="button" @click="openDetail(e)"
                             class="hover:bg-primary flex-1 rounded-xl bg-gray-50 px-3 py-2 text-center text-xs font-semibold text-gray-700 transition-all duration-300 hover:text-white active:scale-[0.98]">
-                            Lihat Detail & Waktu
+                            {{ __('Lihat Detail & Waktu') }}
                         </button>
                         <template x-if="e.latitude && e.longitude">
                             <a :href="'https://www.google.com/maps/search/?api=1&query=' + e.latitude + ',' + e.longitude"
@@ -111,7 +111,7 @@
                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
         </div>
-        <h3 class="text-charcoal mt-3 text-sm font-bold">Tidak Ada Event Ditemukan</h3>
-        <p class="mt-1 text-xs text-gray-400">Tidak ada event untuk kategori yang dipilih di bulan ini.</p>
+        <h3 class="text-charcoal mt-3 text-sm font-bold">{{ __('Tidak Ada Event Ditemukan') }}</h3>
+        <p class="mt-1 text-xs text-gray-400">{{ __('Tidak ada event untuk kategori yang dipilih di bulan ini.') }}</p>
     </div>
 </div>

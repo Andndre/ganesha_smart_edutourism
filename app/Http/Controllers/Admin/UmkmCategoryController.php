@@ -59,7 +59,7 @@ class UmkmCategoryController extends Controller
 
         UmkmProductCategory::create($validated);
 
-        return redirect()->route('admin.umkm.categories')->with('success', 'Kategori produk berhasil ditambahkan.');
+        return redirect()->route('admin.umkm.categories')->with('success', __('Kategori produk berhasil ditambahkan.'));
     }
 
     /**
@@ -110,7 +110,7 @@ class UmkmCategoryController extends Controller
 
         $category->update($validated);
 
-        return redirect()->route('admin.umkm.categories')->with('success', 'Kategori produk berhasil diperbarui.');
+        return redirect()->route('admin.umkm.categories')->with('success', __('Kategori produk berhasil diperbarui.'));
     }
 
     /**
@@ -134,6 +134,6 @@ class UmkmCategoryController extends Controller
 
         $category->delete();
 
-        return redirect()->route('admin.umkm.categories')->with('success', 'Kategori produk berhasil dihapus.');
+        return redirect()->route('admin.umkm.categories')->with('success', __('Kategori produk berhasil dihapus.'));
     }
 }

@@ -177,7 +177,7 @@ class TicketingController extends Controller
             return response()->json([
                 'success' => true,
                 'payment_method' => 'cash',
-                'message' => 'Tiket Walk-in (Tunai) berhasil dibuat!',
+                'message' => __('Tiket Walk-in (Tunai) berhasil dibuat!'),
             ]);
         } else {
             $orderId = 'WALKIN-'.strtoupper(Str::random(8)).'-'.time();
@@ -230,7 +230,7 @@ class TicketingController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal terhubung ke Midtrans. Silakan coba lagi.',
+                    'message' => __('Gagal terhubung ke Midtrans. Silakan coba lagi.'),
                 ], 500);
             }
         }
@@ -252,21 +252,21 @@ class TicketingController extends Controller
         if (! $reservation) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tiket tidak ditemukan atau QR Code tidak valid.',
+                'message' => __('Tiket tidak ditemukan atau QR Code tidak valid.'),
             ], 404);
         }
 
         if ($reservation->status === 'completed') {
             return response()->json([
                 'success' => false,
-                'message' => 'Tiket ini sudah digunakan sebelumnya.',
+                'message' => __('Tiket ini sudah digunakan sebelumnya.'),
             ], 400);
         }
 
         if ($reservation->payment_status !== 'paid') {
             return response()->json([
                 'success' => false,
-                'message' => 'Tiket ini belum dibayar.',
+                'message' => __('Tiket ini belum dibayar.'),
             ], 400);
         }
 
@@ -276,7 +276,7 @@ class TicketingController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Tiket berhasil diverifikasi! Selamat datang '.($reservation->user->name ?? $reservation->guest_name),
+            'message' => __('Tiket berhasil diverifikasi! Selamat datang :name', ['name' => $reservation->user->name ?? $reservation->guest_name]),
             'reservation' => $reservation,
         ]);
     }
@@ -326,7 +326,7 @@ class TicketingController extends Controller
         if ($reservation->status !== 'confirmed') {
             return response()->json([
                 'success' => false,
-                'message' => 'Hanya tiket dengan status Menunggu yang dapat di-check-in.',
+                'message' => __('Hanya tiket dengan status Menunggu yang dapat di-check-in.'),
             ], 400);
         }
 
@@ -335,7 +335,7 @@ class TicketingController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Check-in berhasil! Pengunjung silakan masuk.',
+            'message' => __('Check-in berhasil! Pengunjung silakan masuk.'),
         ]);
     }
 
@@ -344,7 +344,7 @@ class TicketingController extends Controller
         if ($reservation->status !== 'pending' || $reservation->payment_method !== 'qris') {
             return response()->json([
                 'success' => false,
-                'message' => 'Hanya tiket pending QRIS yang dapat diproses pembayarannya.',
+                'message' => __('Hanya tiket pending QRIS yang dapat diproses pembayarannya.'),
             ], 400);
         }
 
@@ -387,7 +387,7 @@ class TicketingController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal terhubung ke Midtrans. Silakan coba lagi.',
+                'message' => __('Gagal terhubung ke Midtrans. Silakan coba lagi.'),
             ], 500);
         }
     }
@@ -397,7 +397,7 @@ class TicketingController extends Controller
         if ($reservation->status !== 'pending') {
             return response()->json([
                 'success' => false,
-                'message' => 'Hanya tiket pending yang dapat dibatalkan.',
+                'message' => __('Hanya tiket pending yang dapat dibatalkan.'),
             ], 400);
         }
 
@@ -406,7 +406,7 @@ class TicketingController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Tiket berhasil dibatalkan.',
+            'message' => __('Tiket berhasil dibatalkan.'),
         ]);
     }
 }

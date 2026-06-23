@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'Kalender Event & Budaya')
-@section('header_title', 'Kalender Event')
+@section('title', __('Kalender Event & Budaya'))
+@section('header_title', __('Kalender Event'))
 
 @section('content')
     <!-- FullCalendar CDN and Styles -->
@@ -14,7 +14,7 @@
                     viewMode: 'calendar',
                     showModal: false,
                     selectedEvent: {},
-                    selectedCategory: 'Semua',
+                    selectedCategory: 'All',
                     calendarEvents: @json($calendarEvents),
                     upcomingEvents: @json($upcomingEvents),
 
@@ -28,7 +28,7 @@
                         if (window.fcInstance) {
                             window.fcInstance.removeAllEvents();
                             const filtered = this.calendarEvents.filter(e => {
-                                if (cat === 'Semua') return true;
+                                if (cat === 'All') return true;
                                 return e.category.toLowerCase() === cat.toLowerCase();
                             });
                             window.fcInstance.addEventSource(filtered);
@@ -36,7 +36,7 @@
                     },
 
                     get filteredTimelineEvents() {
-                        if (this.selectedCategory === 'Semua') {
+                        if (this.selectedCategory === 'All') {
                             return this.upcomingEvents;
                         }
                         return this.upcomingEvents.filter(e => e.category === this.selectedCategory);
@@ -48,8 +48,8 @@
                             day: '01'
                         };
                         const d = new Date(dateStr);
-                        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGS', 'SEP',
-                            'OKT', 'NOV', 'DES'
+                        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP',
+                            'OCT', 'NOV', 'DEC'
                         ];
                         return {
                             month: months[d.getMonth()],
@@ -60,9 +60,9 @@
                     formatDateLong(dateStr) {
                         if (!dateStr) return '';
                         const d = new Date(dateStr);
-                        const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-                        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli',
-                            'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+                            'August', 'September', 'October', 'November', 'December'
                         ];
                         return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
                     },
@@ -78,7 +78,7 @@
 
                             const calendar = new FullCalendar.Calendar(calendarEl, {
                                 initialView: 'dayGridMonth',
-                                locale: 'id',
+                                locale: 'en',
                                 headerToolbar: window.innerWidth < 768 ? {
                                     left: 'prev,next',
                                     center: 'title',
@@ -89,9 +89,9 @@
                                     right: 'dayGridMonth,listMonth'
                                 },
                                 buttonText: {
-                                    today: 'Hari Ini',
-                                    month: 'Bulan',
-                                    list: 'Agenda'
+                                    today: '{{ __('Hari Ini') }}',
+                                    month: '{{ __('Bulan') }}',
+                                    list: '{{ __('Agenda') }}'
                                 },
                                 events: this.calendarEvents,
                                 eventClick: (info) => {

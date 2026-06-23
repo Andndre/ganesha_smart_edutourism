@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Beranda - Penglipuran')
+@section('title', __('Beranda - Penglipuran'))
 @section('header_title', 'Smart Edutourism')
 
 @section('content')
@@ -24,15 +24,15 @@
 
                 @auth
                     <a href="{{ route('profile') }}" class="tap-target -mt-1 shrink-0 transition-transform active:scale-95"
-                        aria-label="Buka Profil">
+                        aria-label="{{ __('Buka Profil') }}">
                         <div class="h-12 w-12 overflow-hidden rounded-full border-2 border-slate-200 bg-white p-0.5 shadow-sm">
                             <img src="{{ Auth::user()->avatarUrl() }}"
-                                alt="Profil {{ Auth::user()->name }}" class="h-full w-full rounded-full object-cover">
+                                alt="{{ __('Profil :name', ['name' => Auth::user()->name]) }}" class="h-full w-full rounded-full object-cover">
                         </div>
                     </a>
                 @else
                     <a href="{{ route('login') }}" class="tap-target -mt-1 shrink-0 transition-transform active:scale-95"
-                        aria-label="Masuk">
+                        aria-label="{{ __('Masuk') }}">
                         <div
                             class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border-2 border-slate-200 bg-white p-2 text-gray-600 shadow-sm">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -54,15 +54,15 @@
                 <!-- Weather Widget -->
                 <div @click="$dispatch('open-weather-modal')"
                     class="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center gap-3 cursor-pointer transition-transform active:scale-95 hover:shadow-md"
-                    title="Lihat detail cuaca">
+                    title="{{ __('Lihat detail cuaca') }}">
                     @if (isset($weather) && $weather)
                         <div class="flex shrink-0 items-center justify-center rounded-2xl bg-sky-50 text-sky-500 p-2.5">
                             {!! $weather->getIconHtml() !!}
                         </div>
                         <div class="flex min-w-0 flex-col">
-                            <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">Cuaca</span>
+                            <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Cuaca') }}</span>
                             <span class="mt-1 text-xl font-black leading-none text-gray-800">{{ round($weather->temperature) }}°</span>
-                            <span class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ $weather->condition }}</span>
+                            <span class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ __($weather->condition) }}</span>
                         </div>
                     @else
                         <div class="flex shrink-0 items-center justify-center rounded-2xl bg-gray-50 text-gray-400 p-2.5">
@@ -71,9 +71,9 @@
                             </svg>
                         </div>
                         <div class="flex min-w-0 flex-col">
-                            <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">Cuaca</span>
+                            <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Cuaca') }}</span>
                             <span class="mt-1 text-xl font-black leading-none text-gray-400">--°</span>
-                            <span class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">Belum Ada</span>
+                            <span class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ __('Belum Ada') }}</span>
                         </div>
                     @endif
                 </div>
@@ -86,7 +86,7 @@
                         </svg>
                     </div>
                     <div class="flex min-w-0 flex-col">
-                        <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">Kepadatan</span>
+                        <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Kepadatan') }}</span>
                         <span class="{{ $densityClass }} mt-1 text-xl font-black leading-none">{{ $densityMain }}</span>
                         <span class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ $densitySub }}</span>
                     </div>
@@ -101,7 +101,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                         </svg>
                     </div>
-                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">Peta</span>
+                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Peta') }}</span>
                 </a>
                 
                 <a href="{{ route('edutourism.index') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
@@ -111,7 +111,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479L12 21l-6.825-3.943a12.083 12.083 0 01.665-6.479L12 14z" />
                         </svg>
                     </div>
-                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">Edutourism</span>
+                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Edutourism') }}</span>
                 </a>
 
                 <a href="{{ route('umkm') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
@@ -120,7 +120,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                         </svg>
                     </div>
-                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">UMKM</span>
+                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('UMKM') }}</span>
                 </a>
 
                 <a href="{{ route('cultural-objects') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
@@ -129,7 +129,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
                     </div>
-                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">Budaya</span>
+                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Budaya') }}</span>
                 </a>
 
                 <a href="{{ route('tour-packages') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
@@ -138,7 +138,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                         </svg>
                     </div>
-                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">Tiket</span>
+                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Tiket') }}</span>
                 </a>
 
                 <a href="{{ route('events') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
@@ -147,7 +147,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                     </div>
-                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">Event</span>
+                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Event') }}</span>
                 </a>
 
                 @if (Auth::check() && Auth::user()->isUmkmOwner())
@@ -157,7 +157,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
                             </svg>
                         </div>
-                        <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">Panel</span>
+                        <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Panel') }}</span>
                     </a>
                 @endif
                 </div>
@@ -171,18 +171,17 @@
             <div class="space-y-5">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <span
-                        class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-600">Desa
-                        Penglipuran</span>
+                        class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-600">{{ __('Desa Penglipuran') }}</span>
                     <button type="button" @click="isOpen = false"
                         class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:text-gray-600 active:scale-95 md:hidden"
-                        title="Tutup">
+                        title="{{ __('Tutup') }}">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
-                <h3 class="font-display text-charcoal text-xl font-black leading-snug tracking-tight">Detail Cuaca Desa</h3>
+                <h3 class="font-display text-charcoal text-xl font-black leading-snug tracking-tight">{{ __('Detail Cuaca Desa') }}</h3>
 
                 @if (isset($weather) && $weather)
                     <!-- Main Status Grid -->
@@ -193,7 +192,7 @@
                         </div>
                         <div>
                             <p class="text-2xl font-black leading-none text-gray-800">{{ round($weather->temperature) }}°C</p>
-                            <p class="mt-1.5 text-xs font-black leading-none text-gray-700">{{ $weather->condition }}</p>
+                            <p class="mt-1.5 text-xs font-black leading-none text-gray-700">{{ __($weather->condition) }}</p>
                         </div>
                     </div>
 
@@ -209,7 +208,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">Kelembapan
+                                <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Kelembapan') }}
                                 </p>
                                 <p class="mt-1 text-xs font-black text-gray-700">{{ $weather->humidity }}%</p>
                             </div>
@@ -224,7 +223,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">Angin</p>
+                                <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Angin') }}</p>
                                 <p class="mt-1 text-xs font-black text-gray-700">{{ $weather->wind_speed }} km/h</p>
                             </div>
                         </div>
@@ -232,20 +231,17 @@
 
                     <!-- Recommendation Box based on Weather Code -->
                     <div class="border-t border-gray-50 pt-3">
-                        <h4 class="mb-1.5 text-[10px] font-black uppercase tracking-wider text-gray-400">Rekomendasi Aktivitas
+                        <h4 class="mb-1.5 text-[10px] font-black uppercase tracking-wider text-gray-400">{{ __('Rekomendasi Aktivitas') }}
                         </h4>
                         <p class="text-xs leading-relaxed text-gray-500">
                             @if (in_array($weather->weather_code, [0, 1, 2]))
-                                Cuaca sangat bersahabat untuk berjalan-jalan menjelajahi desa. Jangan lupa menggunakan tabir
-                                surya dan membawa air minum!
+                                {{ __('Cuaca sangat bersahabat untuk berjalan-jalan menjelajahi desa. Jangan lupa menggunakan tabir surya dan membawa air minum!') }}
                             @elseif(in_array($weather->weather_code, [3, 45, 48]))
-                                Cuaca sejuk dan berawan, sangat ideal untuk berkeliling santai tanpa sengatan matahari.
+                                {{ __('Cuaca sejuk dan berawan, sangat ideal untuk berkeliling santai tanpa sengatan matahari.') }}
                             @elseif(in_array($weather->weather_code, [51, 53, 55, 61, 63]))
-                                Gerimis atau hujan ringan. Disarankan membawa payung atau jas hujan saat menjelajahi pekarangan
-                                desa.
+                                {{ __('Gerimis atau hujan ringan. Disarankan membawa payung atau jas hujan saat menjelajahi pekarangan desa.') }}
                             @else
-                                Hujan deras atau badai terdeteksi. Sebaiknya bersantai di cafe lokal, mengunjungi rumah adat
-                                (bale), atau menikmati kuliner lokal di area tertutup.
+                                {{ __('Hujan deras atau badai terdeteksi. Sebaiknya bersantai di cafe lokal, mengunjungi rumah adat (bale), atau menikmati kuliner lokal di area tertutup.') }}
                             @endif
                         </p>
                     </div>
@@ -253,7 +249,7 @@
                     <!-- Footer Info / Updated Time -->
                     <div class="border-t border-gray-50 pt-3 text-center">
                         <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">
-                            Pembaruan Terakhir: {{ $weather->updated_at->timezone('Asia/Makassar')->format('d M Y H:i') }} WITA
+                            {{ __('Pembaruan Terakhir:') }} {{ $weather->updated_at->timezone('Asia/Makassar')->format('d M Y H:i') }} WITA
                         </p>
                     </div>
                 @else
@@ -266,9 +262,8 @@
                             </svg>
                         </div>
                         <div class="space-y-1">
-                            <h4 class="text-sm font-bold text-gray-700">Data Cuaca Belum Tersedia</h4>
-                            <p class="mx-auto max-w-60 text-xs leading-relaxed text-gray-500">Silakan jalankan update
-                                cuaca dari sistem untuk memuat laporan cuaca terkini.</p>
+                            <h4 class="text-sm font-bold text-gray-700">{{ __('Data Cuaca Belum Tersedia') }}</h4>
+                            <p class="mx-auto max-w-60 text-xs leading-relaxed text-gray-500">{{ __('Silakan jalankan update cuaca dari sistem untuk memuat laporan cuaca terkini.') }}</p>
                         </div>
                     </div>
                 @endif

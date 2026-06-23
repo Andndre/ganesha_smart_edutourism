@@ -11,7 +11,7 @@
             </button>
             <button class="flex-1 bg-primary text-white font-bold h-12 rounded-xl active:scale-[0.98] transition-all"
                 onclick="if(navigator.vibrate) navigator.vibrate(50)">
-                Beli Sekarang
+                {{ __('Beli Sekarang') }}
             </button>
         </div>
     </div>

@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Penglipuran">
 
-    <title>@yield('title', 'Penglipuran Smart Tour')</title>
+    <title>@yield('title', __('Penglipuran Smart Tour'))</title>
 
     {{-- Shortcut icon --}}
     <link rel="shortcut icon" href="{{ asset('icons/logo-color-notext-shortcut.ico') }}">

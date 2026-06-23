@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'Detail Produk - Penglipuran')
-@section('header_title', 'Detail Produk')
+@section('title', __('Detail Produk - Penglipuran'))
+@section('header_title', __('Detail Produk'))
 
 @section('content')
     <div class="relative pb-32">

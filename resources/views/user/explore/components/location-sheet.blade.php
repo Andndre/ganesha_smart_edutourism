@@ -64,13 +64,13 @@
         <!-- Header -->
         <div class="mb-4 flex items-start justify-between">
             <div>
-                <h3 id="sheet-title" class="font-display text-charcoal text-xl font-bold tracking-tight">Nama Lokasi
+                <h3 id="sheet-title" class="font-display text-charcoal text-xl font-bold tracking-tight">{{ __('Nama Lokasi') }}
                 </h3>
                 <div class="mt-2 flex flex-wrap gap-2">
                     <span id="sheet-category-badge"
                         class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                         <span id="sheet-category-dot" class="h-2 w-2 rounded-full"></span>
-                        <span id="sheet-category-text">Kategori</span>
+                        <span id="sheet-category-text">{{ __('Kategori') }}</span>
                     </span>
                     <span id="sheet-ar-badge"
                         class="hidden items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-green-700">
@@ -79,14 +79,14 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                         </svg>
-                        AR Tersedia
+                        {{ __('AR Tersedia') }}
                     </span>
                 </div>
             </div>
             <!-- Custom close button for mobile (desktop close button is handled by x-modal template) -->
             <button type="button" onclick="closeSheet()"
                 class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:text-gray-600 active:scale-95 md:hidden"
-                title="Tutup">
+                title="{{ __('Tutup') }}">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
@@ -97,8 +97,8 @@
         <div class="flex-1 space-y-4 overflow-y-auto pr-1 pb-20">
             <!-- Deskripsi Section -->
             <div id="section-desc">
-                <h4 class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Deskripsi</h4>
-                <p id="sheet-desc" class="text-sm leading-relaxed text-gray-600">Detail deskripsi lokasi.</p>
+                <h4 class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{{ __('Deskripsi') }}</h4>
+                <p id="sheet-desc" class="text-sm leading-relaxed text-gray-600">{{ __('Detail deskripsi lokasi.') }}</p>
             </div>
 
             <!-- Aksesibilitas Section -->
@@ -111,7 +111,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h4 class="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-800">Aksesibilitas</h4>
+                    <h4 class="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-800">{{ __('Aksesibilitas') }}</h4>
                     <p id="sheet-accessibility" class="text-xs font-medium leading-relaxed text-amber-700"></p>
                 </div>
             </div>
@@ -129,11 +129,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                 </span>
-                <span id="route-btn-text">Arahkan</span>
+                <span id="route-btn-text">{{ __('Arahkan') }}</span>
             </a>
             <a href="#" id="sheet-detail-btn"
                 class="bg-primary hover:bg-primary/95 shadow-primary/20 flex flex-1 items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95">
-                Detail
+                {{ __('Detail') }}
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                 </svg>

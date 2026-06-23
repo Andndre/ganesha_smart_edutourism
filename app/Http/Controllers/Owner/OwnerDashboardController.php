@@ -84,7 +84,7 @@ class OwnerDashboardController extends Controller
             $profile->update($validated);
         }
 
-        return redirect()->route('owner.profile')->with('success', 'Informasi toko Anda berhasil diperbarui.');
+        return redirect()->route('owner.profile')->with('success', __('Informasi toko Anda berhasil diperbarui.'));
     }
 
     /**
@@ -108,7 +108,7 @@ class OwnerDashboardController extends Controller
         $profile = $user->umkmProfile;
 
         if (! $profile) {
-            return redirect()->route('owner.profile')->with('error', 'Silakan buat profil toko terlebih dahulu.');
+            return redirect()->route('owner.profile')->with('error', __('Silakan buat profil toko terlebih dahulu.'));
         }
 
         $validated = $request->validate([
@@ -135,6 +135,6 @@ class OwnerDashboardController extends Controller
             ]
         );
 
-        return redirect()->route('owner.location')->with('success', 'Lokasi toko Anda berhasil diperbarui.');
+        return redirect()->route('owner.location')->with('success', __('Lokasi toko Anda berhasil diperbarui.'));
     }
 }

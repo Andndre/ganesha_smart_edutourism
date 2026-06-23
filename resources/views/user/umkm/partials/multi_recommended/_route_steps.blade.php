@@ -58,7 +58,7 @@
                         </div>
 
                         <div class="mt-3 border-t border-gray-100 pt-3">
-                            <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Beli di sini:</p>
+                            <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">{{ __('Beli di sini:') }}</p>
                             <div class="space-y-2">
                                 @php
                                     $stopCategoryIds = collect($stop['categories'])

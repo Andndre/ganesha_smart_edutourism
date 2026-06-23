@@ -165,7 +165,7 @@
 
                             <form method="POST" action="{{ route('owner.products.destroy', $p->id) }}"
                                 class="delete-form inline shrink-0"
-                                data-confirm="Apakah Anda yakin ingin menghapus produk ini?">
+                                data-confirm="{{ __('Apakah Anda yakin ingin menghapus produk ini?') }}">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"

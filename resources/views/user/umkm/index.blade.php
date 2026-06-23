@@ -1,15 +1,14 @@
 @extends('layouts.app')
-@section('title', 'Katalog UMKM - Penglipuran')
-@section('header_title', 'Katalog UMKM')
+@section('title', __('Katalog UMKM - Penglipuran'))
+@section('header_title', __('Katalog UMKM'))
 
 @section('content')
     <div class="px-4 pb-40 pt-[calc(env(safe-area-inset-top)+6rem)]">
         @include('user.umkm.partials.index._alerts')
 
         <div class="mb-6">
-            <h2 class="text-charcoal text-xl font-bold">Jelajah UMKM</h2>
-            <p class="mt-1 text-sm text-gray-500">Pilih satu atau lebih kategori yang Anda inginkan. Sistem kami akan
-                membantu mencarikan lokasi UMKM yang memiliki produk tersebut.</p>
+            <h2 class="text-charcoal text-xl font-bold">{{ __('Jelajah UMKM') }}</h2>
+            <p class="mt-1 text-sm text-gray-500">{{ __('Pilih satu atau lebih kategori yang Anda inginkan. Sistem kami akan membantu mencarikan lokasi UMKM yang memiliki produk tersebut.') }}</p>
         </div>
 
         <form action="{{ route('umkm.recommend') }}" method="POST">

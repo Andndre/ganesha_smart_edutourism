@@ -66,7 +66,7 @@
                                     </button>
                                     <form method="POST" action="{{ route('admin.umkm.owners.destroy', $owner->id) }}"
                                         class="delete-form inline"
-                                        data-confirm="Apakah Anda yakin ingin menghapus akun pemilik UMKM ini?">
+                                        data-confirm="{{ __('Apakah Anda yakin ingin menghapus akun pemilik UMKM ini?') }}">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"

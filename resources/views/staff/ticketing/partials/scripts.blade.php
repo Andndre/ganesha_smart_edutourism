@@ -2,7 +2,49 @@
     <script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
 @endif
 
+@php
+    $ticketingMessages = [
+        'checkin_title' => __('Konfirmasi Masuk'),
+        'checkin_text' => __('Apakah Anda yakin ingin melakukan check-in untuk pengunjung ini?'),
+        'checkin_confirm' => __('Ya, Check-in!'),
+        'cancel' => __('Batal'),
+        'success_title' => __('Berhasil!'),
+        'failed_title' => __('Gagal'),
+        'error_occurred' => __('Terjadi kesalahan.'),
+        'error_title' => __('Terjadi Kesalahan'),
+        'checkin_fail' => __('Gagal memproses check-in.'),
+        'paid_label' => __('Sudah Dibayar'),
+        'unpaid_label' => __('Belum Dibayar'),
+        'sync_complete' => __('Sinkronisasi Selesai'),
+        'status_ticket_prefix' => __('Status tiket saat ini:'),
+        'sync_fail' => __('Gagal sinkronisasi data dari Midtrans.'),
+        'cancel_title' => __('Batalkan Tiket'),
+        'cancel_text' => __('Apakah Anda yakin ingin membatalkan pesanan tiket ini?'),
+        'cancel_confirm' => __('Ya, Batalkan!'),
+        'cancel_back' => __('Kembali'),
+        'cancelled_title' => __('Dibatalkan!'),
+        'cancel_fail' => __('Gagal membatalkan tiket.'),
+        'waiting_payment_title' => __('Menunggu Pembayaran'),
+        'qris_new_tab_text' => __('Silakan selesaikan pembayaran QRIS pada tab baru yang terbuka. Setelah selesai, klik OK.'),
+        'ok' => __('OK'),
+        'payment_success_title' => __('Pembayaran Berhasil!'),
+        'qris_validated' => __('Tiket QRIS walk-in berhasil divalidasi.'),
+        'qris_app_text' => __('Silakan selesaikan pembayaran QRIS pada aplikasi Anda.'),
+        'payment_failed_title' => __('Gagal'),
+        'qris_fail_text' => __('Pembayaran QRIS gagal diproses.'),
+        'info_title' => __('Info'),
+        'popup_closed' => __('Pop-up pembayaran QRIS ditutup.'),
+        'token_fail' => __('Gagal mendapatkan token pembayaran.'),
+        'processing' => __('Memproses...'),
+        'system_error' => __('Terjadi kesalahan sistem.'),
+        'payment_fail_retry' => __('Gagal memproses pembayaran. Coba lagi.'),
+        'payment_qris_fail' => __('Gagal memproses pembayaran QRIS.'),
+    ];
+@endphp
+
 <script>
+    const _t = @json($ticketingMessages);
+
     document.addEventListener('alpine:init', () => {
         Alpine.data('ticketingApp', (config) => ({
             reservations: config.reservationsList || [],
@@ -43,14 +85,14 @@
         const {
             isConfirmed
         } = await Swal.fire({
-            title: 'Konfirmasi Masuk',
-            text: 'Apakah Anda yakin ingin melakukan check-in untuk pengunjung ini?',
+            title: _t.checkin_title,
+            text: _t.checkin_text,
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#1E5128',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, Check-in!',
-            cancelButtonText: 'Batal'
+            confirmButtonText: _t.checkin_confirm,
+            cancelButtonText: _t.cancel
         });
 
         if (!isConfirmed) return;
@@ -65,15 +107,15 @@
             });
             const data = await response.json();
             if (data.success) {
-                Swal.fire('Berhasil!', data.message, 'success').then(() => {
+                Swal.fire(_t.success_title, data.message, 'success').then(() => {
                     window.location.reload();
                 });
             } else {
-                Swal.fire('Gagal', data.message || 'Terjadi kesalahan.', 'error');
+                Swal.fire(_t.failed_title, data.message || _t.error_occurred, 'error');
             }
         } catch (error) {
             console.error(error);
-            Swal.fire('Terjadi Kesalahan', 'Gagal memproses check-in.', 'error');
+            Swal.fire(_t.error_title, _t.checkin_fail, 'error');
         }
     }
 
@@ -90,11 +132,11 @@
             const data = await response.json();
             Swal.close();
             if (data.success) {
-                const statusText = data.status === 'completed' ? 'Sudah Dibayar' : 'Belum Dibayar';
+                const statusText = data.status === 'completed' ? _t.paid_label : _t.unpaid_label;
                 const icon = data.status === 'completed' ? 'success' : 'info';
                 Swal.fire({
-                    title: 'Sinkronisasi Selesai',
-                    text: `Status tiket saat ini: ${statusText}`,
+                    title: _t.sync_complete,
+                    text: _t.status_ticket_prefix + ' ' + statusText,
                     icon: icon,
                     confirmButtonColor: '#1E5128'
                 }).then(() => {
@@ -104,7 +146,7 @@
         } catch (error) {
             Swal.close();
             console.error(error);
-            Swal.fire('Gagal', 'Gagal sinkronisasi data dari Midtrans.', 'error');
+            Swal.fire(_t.failed_title, _t.sync_fail, 'error');
         }
     }
 
@@ -112,14 +154,14 @@
         const {
             isConfirmed
         } = await Swal.fire({
-            title: 'Batalkan Tiket',
-            text: 'Apakah Anda yakin ingin membatalkan pesanan tiket ini?',
+            title: _t.cancel_title,
+            text: _t.cancel_text,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, Batalkan!',
-            cancelButtonText: 'Kembali'
+            confirmButtonText: _t.cancel_confirm,
+            cancelButtonText: _t.cancel_back
         });
 
         if (!isConfirmed) return;
@@ -134,15 +176,15 @@
             });
             const data = await response.json();
             if (data.success) {
-                Swal.fire('Dibatalkan!', data.message, 'success').then(() => {
+                Swal.fire(_t.cancelled_title, data.message, 'success').then(() => {
                     window.location.reload();
                 });
             } else {
-                Swal.fire('Gagal', data.message || 'Terjadi kesalahan.', 'error');
+                Swal.fire(_t.failed_title, data.message || _t.error_occurred, 'error');
             }
         } catch (error) {
             console.error(error);
-            Swal.fire('Terjadi Kesalahan', 'Gagal membatalkan tiket.', 'error');
+            Swal.fire(_t.error_title, _t.cancel_fail, 'error');
         }
     }
 
@@ -165,11 +207,11 @@
                     const redirectUrl = `https://app.sandbox.midtrans.com/snap/v2/vtweb/${data.snap_token}`;
                     window.open(redirectUrl, '_blank');
                     Swal.fire({
-                        title: 'Menunggu Pembayaran',
-                        text: 'Silakan selesaikan pembayaran QRIS pada tab baru yang terbuka. Setelah selesai, klik OK.',
+                        title: _t.waiting_payment_title,
+                        text: _t.qris_new_tab_text,
                         icon: 'info',
                         confirmButtonColor: '#1E5128',
-                        confirmButtonText: 'OK'
+                        confirmButtonText: _t.ok
                     }).then(() => {
                         window.location.reload();
                     });
@@ -190,11 +232,11 @@
                             console.error('Sync error:', e);
                         }
                         Swal.fire({
-                            title: 'Pembayaran Berhasil!',
-                            text: 'Tiket QRIS walk-in berhasil divalidasi.',
+                            title: _t.payment_success_title,
+                            text: _t.qris_validated,
                             icon: 'success',
                             confirmButtonColor: '#1E5128',
-                            confirmButtonText: 'OK'
+                            confirmButtonText: _t.ok
                         }).then(() => {
                             window.location.reload();
                         });
@@ -212,39 +254,39 @@
                             console.error('Sync error:', e);
                         }
                         Swal.fire({
-                            title: 'Menunggu Pembayaran',
-                            text: 'Silakan selesaikan pembayaran QRIS pada aplikasi Anda.',
+                            title: _t.waiting_payment_title,
+                            text: _t.qris_app_text,
                             icon: 'info',
                             confirmButtonColor: '#1E5128',
-                            confirmButtonText: 'OK'
+                            confirmButtonText: _t.ok
                         }).then(() => {
                             window.location.reload();
                         });
                     },
                     onError: function(result) {
                         Swal.fire({
-                            title: 'Gagal',
-                            text: 'Pembayaran QRIS gagal diproses.',
+                            title: _t.payment_failed_title,
+                            text: _t.qris_fail_text,
                             icon: 'error',
                             confirmButtonColor: '#1E5128'
                         });
                     },
                     onClose: function() {
                         Swal.fire({
-                            title: 'Info',
-                            text: 'Pop-up pembayaran QRIS ditutup.',
+                            title: _t.info_title,
+                            text: _t.popup_closed,
                             icon: 'info',
                             confirmButtonColor: '#1E5128'
                         });
                     }
                 });
             } else {
-                Swal.fire('Gagal', data.message || 'Gagal mendapatkan token pembayaran.', 'error');
+                Swal.fire(_t.failed_title, data.message || _t.token_fail, 'error');
             }
         } catch (error) {
             Swal.close();
             console.error(error);
-            Swal.fire('Terjadi Kesalahan', 'Gagal memproses pembayaran QRIS.', 'error');
+            Swal.fire(_t.error_title, _t.payment_qris_fail, 'error');
         }
     }
 
@@ -264,7 +306,7 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span class="ml-2">Memproses...</span>
+                    <span class="ml-2">{{ __('Memproses...') }}</span>
                 `;
 
                 const formData = new FormData(form);
@@ -285,11 +327,11 @@
                         if (data.payment_method === 'cash') {
                             window.dispatchEvent(new CustomEvent('close-walkin-modal'));
                             Swal.fire({
-                                title: 'Berhasil!',
+                                title: _t.success_title,
                                 text: data.message,
                                 icon: 'success',
                                 confirmButtonColor: '#1E5128',
-                                confirmButtonText: 'OK'
+                                confirmButtonText: _t.ok
                             }).then(() => {
                                 window.location.reload();
                             });
@@ -303,11 +345,11 @@
                                     `https://app.sandbox.midtrans.com/snap/v2/vtweb/${data.snap_token}`;
                                 window.open(redirectUrl, '_blank');
                                 Swal.fire({
-                                    title: 'Menunggu Pembayaran',
-                                    text: 'Silakan selesaikan pembayaran QRIS pada tab baru yang terbuka. Setelah selesai, klik OK.',
+                                    title: _t.waiting_payment_title,
+                                    text: _t.qris_new_tab_text,
                                     icon: 'info',
                                     confirmButtonColor: '#1E5128',
-                                    confirmButtonText: 'OK'
+                                    confirmButtonText: _t.ok
                                 }).then(() => {
                                     window.location.reload();
                                 });
@@ -329,11 +371,11 @@
                                         console.error('Sync error:', e);
                                     }
                                     Swal.fire({
-                                        title: 'Pembayaran Berhasil!',
-                                        text: 'Tiket QRIS walk-in berhasil divalidasi.',
+                                        title: _t.payment_success_title,
+                                        text: _t.qris_validated,
                                         icon: 'success',
                                         confirmButtonColor: '#1E5128',
-                                        confirmButtonText: 'OK'
+                                        confirmButtonText: _t.ok
                                     }).then(() => {
                                         window.location.reload();
                                     });
@@ -352,19 +394,19 @@
                                         console.error('Sync error:', e);
                                     }
                                     Swal.fire({
-                                        title: 'Menunggu Pembayaran',
-                                        text: 'Silakan selesaikan pembayaran QRIS pada aplikasi Anda.',
+                                        title: _t.waiting_payment_title,
+                                        text: _t.qris_app_text,
                                         icon: 'info',
                                         confirmButtonColor: '#1E5128',
-                                        confirmButtonText: 'OK'
+                                        confirmButtonText: _t.ok
                                     }).then(() => {
                                         window.location.reload();
                                     });
                                 },
                                 onError: function(result) {
                                     Swal.fire({
-                                        title: 'Gagal',
-                                        text: 'Pembayaran QRIS gagal diproses.',
+                                        title: _t.payment_failed_title,
+                                        text: _t.qris_fail_text,
                                         icon: 'error',
                                         confirmButtonColor: '#1E5128'
                                     });
@@ -373,8 +415,8 @@
                                 },
                                 onClose: function() {
                                     Swal.fire({
-                                        title: 'Info',
-                                        text: 'Pop-up pembayaran QRIS ditutup.',
+                                        title: _t.info_title,
+                                        text: _t.popup_closed,
                                         icon: 'info',
                                         confirmButtonColor: '#1E5128'
                                     });
@@ -385,8 +427,8 @@
                         }
                     } else {
                         Swal.fire({
-                            title: 'Gagal',
-                            text: data.message || 'Terjadi kesalahan sistem.',
+                            title: _t.failed_title,
+                            text: data.message || _t.system_error,
                             icon: 'error',
                             confirmButtonColor: '#1E5128'
                         });
@@ -396,8 +438,8 @@
                 } catch (error) {
                     console.error(error);
                     Swal.fire({
-                        title: 'Terjadi Kesalahan',
-                        text: 'Gagal memproses pembayaran. Coba lagi.',
+                        title: _t.error_title,
+                        text: _t.payment_fail_retry,
                         icon: 'error',
                         confirmButtonColor: '#1E5128'
                     });

@@ -38,7 +38,7 @@ class TicketOfficerController extends Controller
 
         User::create($validated);
 
-        return redirect()->route('admin.ticket-officers')->with('success', 'Akun petugas tiket berhasil dibuat.');
+        return redirect()->route('admin.ticket-officers')->with('success', __('Akun petugas tiket berhasil dibuat.'));
     }
 
     /**
@@ -63,7 +63,7 @@ class TicketOfficerController extends Controller
 
         $officer->update($validated);
 
-        return redirect()->route('admin.ticket-officers')->with('success', 'Akun petugas tiket berhasil diperbarui.');
+        return redirect()->route('admin.ticket-officers')->with('success', __('Akun petugas tiket berhasil diperbarui.'));
     }
 
     /**
@@ -74,6 +74,6 @@ class TicketOfficerController extends Controller
         $officer = User::where('role', 'ticket_officer')->findOrFail($id);
         $officer->delete();
 
-        return redirect()->route('admin.ticket-officers')->with('success', 'Akun petugas tiket berhasil dihapus.');
+        return redirect()->route('admin.ticket-officers')->with('success', __('Akun petugas tiket berhasil dihapus.'));
     }
 }

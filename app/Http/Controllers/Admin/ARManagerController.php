@@ -58,7 +58,7 @@ class ARManagerController extends Controller
 
         ArModel::create($modelData);
 
-        return redirect()->route('admin.ar-manager')->with('success', 'Model 3D berhasil ditambahkan.');
+        return redirect()->route('admin.ar-manager')->with('success', __('Model 3D berhasil ditambahkan.'));
     }
 
     public function updateModel(Request $request, int $id): RedirectResponse
@@ -118,7 +118,7 @@ class ARManagerController extends Controller
 
         $model->save();
 
-        return redirect()->route('admin.ar-manager')->with('success', 'Model 3D berhasil diperbarui.');
+        return redirect()->route('admin.ar-manager')->with('success', __('Model 3D berhasil diperbarui.'));
     }
 
     public function destroyModel(int $id): RedirectResponse
@@ -133,6 +133,6 @@ class ARManagerController extends Controller
 
         $model->delete();
 
-        return redirect()->route('admin.ar-manager')->with('success', 'Model 3D berhasil dihapus.');
+        return redirect()->route('admin.ar-manager')->with('success', __('Model 3D berhasil dihapus.'));
     }
 }

@@ -16,7 +16,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        Milik: {{ $umkm->owner_name }}
+                        {{ __('Milik:') }} {{ $umkm->owner_name }}
                     </p>
                     <div class="mt-1.5 flex items-center gap-2">
                         <span class="text-accent flex items-center text-xs font-medium">
@@ -28,7 +28,7 @@
                         </span>
                         <span
                             class="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-                            Rekomendasi
+                            {{ __('Rekomendasi') }}
                         </span>
                     </div>
                 </div>

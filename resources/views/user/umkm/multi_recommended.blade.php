@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'Rute Belanja UMKM - Penglipuran')
-@section('header_title', 'Rute Belanja UMKM')
+@section('title', __('Rute Belanja UMKM - Penglipuran'))
+@section('header_title', __('Rute Belanja UMKM'))
 
 @push('styles')
     @include('user.umkm.partials.multi_recommended._styles')
@@ -10,9 +10,8 @@
     @php $totalPrice = 0; @endphp
     <div class="px-4 pb-32 pt-6">
         <div class="mb-6">
-            <h2 class="text-charcoal text-xl font-bold">Rute Belanja Anda</h2>
-            <p class="mt-1 text-sm text-gray-500">Kami telah menemukan beberapa UMKM terdekat agar Anda mendapatkan semua
-                pesanan Anda.</p>
+            <h2 class="text-charcoal text-xl font-bold">{{ __('Rute Belanja Anda') }}</h2>
+            <p class="mt-1 text-sm text-gray-500">{{ __('Kami telah menemukan beberapa UMKM terdekat agar Anda mendapatkan semua pesanan Anda.') }}</p>
         </div>
 
         <!-- Map Container -->
