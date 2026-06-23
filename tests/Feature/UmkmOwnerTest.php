@@ -301,7 +301,7 @@ class UmkmOwnerTest extends TestCase
         ]);
 
         $response->assertRedirect('/admin/umkm/owners');
-        $response->assertSessionHas('success', 'UMKM owner account created successfully.');
+        $response->assertSessionHas('success', 'Merchant owner account created successfully.');
 
         $owner = User::where('email', 'ketut@example.com')->first();
         $this->assertNotNull($owner);
@@ -317,7 +317,7 @@ class UmkmOwnerTest extends TestCase
         ]);
 
         $response->assertRedirect('/admin/umkm/owners');
-        $response->assertSessionHas('success', 'UMKM owner account updated successfully.');
+        $response->assertSessionHas('success', 'Merchant owner account updated successfully.');
 
         $owner = $owner->fresh();
         $this->assertEquals('Ketut Sukra Update', $owner->name);
@@ -327,7 +327,7 @@ class UmkmOwnerTest extends TestCase
         // Delete owner
         $response = $this->actingAs($admin)->delete('/admin/umkm/owners/'.$owner->id);
         $response->assertRedirect('/admin/umkm/owners');
-        $response->assertSessionHas('success', 'UMKM owner account deleted successfully.');
+        $response->assertSessionHas('success', 'Merchant owner account deleted successfully.');
         $this->assertDatabaseMissing('users', ['id' => $owner->id]);
     }
 }

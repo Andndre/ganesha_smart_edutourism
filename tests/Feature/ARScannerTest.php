@@ -62,7 +62,7 @@ class ARScannerTest extends TestCase
 
         $response->assertStatus(404)
             ->assertJson([
-                'error' => '3D Model is not available for this object',
+                'error' => 'Model 3D tidak tersedia untuk objek ini',
             ]);
     }
 
@@ -87,7 +87,7 @@ class ARScannerTest extends TestCase
 
         $response->assertStatus(404)
             ->assertJson([
-                'error' => '3D Model is not available for this object',
+                'error' => 'Model 3D tidak tersedia untuk objek ini',
             ]);
     }
 
