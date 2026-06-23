@@ -17,6 +17,7 @@ use App\Models\UmkmProfile;
 use App\Observers\CacheInvalidationObserver;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Opcodes\LogViewer\Facades\LogViewer;
 
@@ -39,6 +40,12 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
+        // Definikan gate resmi dari package Log Viewer
+        Gate::define('viewLogViewer', function ($user) {
+            return $user && $user->isAdmin();
+        });
+
+        // Alternatif fallback callback
         LogViewer::auth(function ($request) {
             return $request->user() && $request->user()->isAdmin();
         });
