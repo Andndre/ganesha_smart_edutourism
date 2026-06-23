@@ -71,6 +71,7 @@ Route::middleware('redirect.admin')->group(function () {
     Route::get('/umkm/recommended/{id}', [UmkmCatalogController::class, 'recommended'])->name('umkm.recommended');
     Route::get('/umkm/multi-route', [UmkmCatalogController::class, 'multiRecommended'])->name('umkm.multi_recommended');
     Route::get('/umkm/product/{id}', [UmkmCatalogController::class, 'show'])->name('umkm-product');
+    Route::get('/umkm/api-search', [UmkmCatalogController::class, 'search'])->name('umkm.api-search');
 
     // Cultural Objects
     Route::get('/cultural', [CulturalController::class, 'index'])->name('cultural-objects');

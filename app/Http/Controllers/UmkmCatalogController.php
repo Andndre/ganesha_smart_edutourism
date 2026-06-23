@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use App\Services\UmkmRecommendationService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
@@ -29,11 +31,15 @@ class UmkmCatalogController extends Controller
             })->values()->toArray();
         });
 
+        $umkmList = UmkmProfile::active()
+            ->with(['mapLocation', 'activeProducts.category'])
+            ->paginate(12);
+
         if (session()->has('multi_stop_recommendations')) {
             session()->keep(['multi_stop_recommendations', 'missing_categories']);
         }
 
-        return view('user.umkm.index', compact('categories'));
+        return view('user.umkm.index', compact('categories', 'umkmList'));
     }
 
     public function recommend(Request $request, UmkmRecommendationService $recommendationService)
@@ -94,5 +100,83 @@ class UmkmCatalogController extends Controller
         $umkm = UmkmProfile::with(['user', 'activeProducts.category', 'mapLocation'])->findOrFail($id);
 
         return view('user.umkm.show', compact('umkm'));
+    }
+
+    public function search(Request $request): JsonResponse
+    {
+        $q = $request->query('q', '');
+
+        if (mb_strlen($q) < 2) {
+            return response()->json(['umkms' => [], 'products' => [], 'categories' => []]);
+        }
+
+        $locale = app()->getLocale();
+        $query = addcslashes($q, '%_');
+        $likePattern = "%{$query}%";
+
+        $umkms = UmkmProfile::active()
+            ->whereRaw("business_name->>'$.\"{$locale}\"' LIKE ?", [$likePattern])
+            ->limit(10)
+            ->get()
+            ->map(function ($umkm) use ($locale) {
+                $data = $umkm->toArray();
+                $businessName = $data['business_name'][$locale]
+                    ?? $data['business_name'][config('app.fallback_locale')]
+                    ?? '';
+
+                return [
+                    'id' => $umkm->id,
+                    'business_name' => $businessName,
+                    'slug' => $umkm->slug,
+                    'rating' => $umkm->rating,
+                    'image_path' => $umkm->mapLocation?->arModel?->ar_marker_id,
+                ];
+            });
+
+        $products = UmkmProduct::active()->inStock()
+            ->with('umkmProfile')
+            ->whereRaw("name->>'$.\"{$locale}\"' LIKE ?", [$likePattern])
+            ->limit(5)
+            ->get()
+            ->map(function ($product) use ($locale) {
+                $data = $product->toArray();
+                $name = $data['name'][$locale]
+                    ?? $data['name'][config('app.fallback_locale')]
+                    ?? '';
+                $profileData = $product->umkmProfile?->toArray() ?? [];
+                $businessName = $profileData['business_name'][$locale]
+                    ?? $profileData['business_name'][config('app.fallback_locale')]
+                    ?? '';
+
+                return [
+                    'id' => $product->id,
+                    'name' => $name,
+                    'price' => $product->price,
+                    'umkm_profile_id' => $product->umkm_profile_id,
+                    'umkm_business_name' => $businessName,
+                ];
+            });
+
+        $categories = UmkmProductCategory::whereRaw("name->>'$.\"{$locale}\"' LIKE ?", [$likePattern])
+            ->limit(5)
+            ->get()
+            ->map(function ($category) use ($locale) {
+                $data = $category->toArray();
+                $name = $data['name'][$locale]
+                    ?? $data['name'][config('app.fallback_locale')]
+                    ?? '';
+
+                return [
+                    'id' => $category->id,
+                    'name' => $name,
+                    'slug' => $category->slug,
+                ];
+            });
+
+        return response()->json([
+            'umkms' => $umkms,
+            'products' => $products,
+            'categories' => $categories,
+        ]);
     }
 }
