@@ -13,6 +13,7 @@ class Facility extends Model
     use HasTranslations;
 
     public array $translatable = ['name', 'description'];
+
     /**
      * Get the map location for this facility.
      *

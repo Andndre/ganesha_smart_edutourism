@@ -2,8 +2,8 @@
 
 namespace Tests\Browser\Admin;
 
-use App\Models\User;
 use App\Models\TourRoute;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;

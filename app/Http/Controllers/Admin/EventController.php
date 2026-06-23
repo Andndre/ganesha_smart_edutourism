@@ -29,12 +29,12 @@ class EventController extends Controller
 
         if ($request->filled('category') && $request->category !== 'Semua Kategori') {
             $categoryMap = [
-            'Upacara Adat' => 'ceremony',
-            'Festival' => 'cultural',
-            'Workshop' => 'workshop',
-            'Pameran' => 'cultural',
-            'Pertunjukan Seni' => 'cultural',
-            'Budaya' => 'cultural',
+                'Upacara Adat' => 'ceremony',
+                'Festival' => 'cultural',
+                'Workshop' => 'workshop',
+                'Pameran' => 'cultural',
+                'Pertunjukan Seni' => 'cultural',
+                'Budaya' => 'cultural',
                 __('Kuliner') => 'culinary',
             ];
             $mappedCategory = $categoryMap[$request->category] ?? $request->category;

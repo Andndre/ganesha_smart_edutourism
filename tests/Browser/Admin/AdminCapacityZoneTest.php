@@ -2,8 +2,8 @@
 
 namespace Tests\Browser\Admin;
 
-use App\Models\User;
 use App\Models\CapacityZone;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
@@ -33,7 +33,7 @@ class AdminCapacityZoneTest extends DuskTestCase
                 ->visit('/admin/capacity')
                 ->waitForText('Sistem Peringatan Kapasitas')
                 ->assertSee('Zona Dusk Threshold')
-                ->script("openThresholdModal(" . json_encode($zone->toArray(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ")");
+                ->script('openThresholdModal('.json_encode($zone->toArray(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT).')');
 
             $browser->waitFor('#modal-name', 10)
                 ->type('warning_threshold', '50')

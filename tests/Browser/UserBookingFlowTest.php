@@ -2,8 +2,8 @@
 
 namespace Tests\Browser;
 
-use App\Models\User;
 use App\Models\TourPackage;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
@@ -35,10 +35,10 @@ class UserBookingFlowTest extends DuskTestCase
                 ->waitForText('Paket Dusk Test')
                 ->assertSee('Paket Dusk Test')
                 ->clickLink('Paket Dusk Test')
-                ->waitForLocation('/tour-package/' . $package->id)
+                ->waitForLocation('/tour-package/'.$package->id)
                 ->assertSee('Pesan Tiket Sekarang')
                 ->clickLink('Pesan Tiket Sekarang')
-                ->waitForLocation('/tour-package/' . $package->id . '/book')
+                ->waitForLocation('/tour-package/'.$package->id.'/book')
                 ->assertSee('Checkout')
                 ->type('guest_name', 'Agung Dusk Test')
                 ->type('guest_email', 'dusk@example.com')

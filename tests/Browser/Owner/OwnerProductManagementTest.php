@@ -19,7 +19,7 @@ class OwnerProductManagementTest extends DuskTestCase
     {
         $category = UmkmProductCategory::create([
             'name' => ['en' => 'Test Category', 'id' => 'Kategori Test'],
-            'slug' => 'test-category-' . Str::random(5),
+            'slug' => 'test-category-'.Str::random(5),
         ]);
 
         $owner = User::factory()->create(['role' => 'umkm_owner']);
@@ -28,7 +28,7 @@ class OwnerProductManagementTest extends DuskTestCase
             'user_id' => $owner->id,
             'owner_name' => 'Owner Dusk',
             'business_name' => 'Toko Dusk',
-            'slug' => 'toko-dusk-' . Str::random(5),
+            'slug' => 'toko-dusk-'.Str::random(5),
             'description' => 'Toko untuk test',
             'is_active' => true,
         ]);
@@ -37,7 +37,7 @@ class OwnerProductManagementTest extends DuskTestCase
             'umkm_profile_id' => $profile->id,
             'umkm_product_category_id' => $category->id,
             'name' => ['en' => 'Produk Original EN', 'id' => 'Produk Original ID'],
-            'slug' => 'produk-original-' . Str::random(5),
+            'slug' => 'produk-original-'.Str::random(5),
             'price' => 25000,
             'stock' => 10,
             'unit' => 'pcs',

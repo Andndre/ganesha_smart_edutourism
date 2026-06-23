@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\CapacityZone;
 use App\Models\ArModel;
+use App\Models\CapacityZone;
 use App\Models\CulturalObject;
 use App\Models\Event;
 use App\Models\Facility;

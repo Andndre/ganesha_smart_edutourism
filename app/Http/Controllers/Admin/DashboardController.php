@@ -93,7 +93,7 @@ class DashboardController extends Controller
         $ratingDelta = round($avgRating - $prevAvgRating, 1);
 
         // 5. Capacity Zones
-        $zones = Cache::tags(['capacity'])->flexible("capacity_zones_active_array", [60, 300], function () {
+        $zones = Cache::tags(['capacity'])->flexible('capacity_zones_active_array', [60, 300], function () {
             return CapacityZone::where('is_active', true)->get()->append('occupancy_percentage')->toArray();
         });
         if (empty($zones)) {

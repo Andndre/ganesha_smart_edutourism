@@ -6,8 +6,8 @@ use App\Models\CulturalObject;
 use App\Models\TourPackage;
 use App\Models\UmkmProductCategory;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -153,7 +153,7 @@ class TranslationTest extends TestCase
             'slug' => 'minuman-tradisional',
         ]);
 
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
         UmkmProductCategory::create([
             'name' => 'Minuman Tradisional',
             'slug' => 'minuman-tradisional-dupe',

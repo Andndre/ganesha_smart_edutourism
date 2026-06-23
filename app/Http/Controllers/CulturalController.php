@@ -14,7 +14,7 @@ class CulturalController extends Controller
     public function index(): View
     {
         $locale = app()->getLocale();
-        $objects = Cache::tags(['cultural'])->flexible("cultural_objects_all_array_{$locale}", [3600, 7200], function () use ($locale) {
+        $objects = Cache::tags(['cultural'])->flexible("cultural_objects_all_array_{$locale}", [3600, 7200], function () {
             $models = CulturalObject::with('mapLocation.arModel')
                 ->orderBy('name->'.app()->getLocale())
                 ->get()
@@ -28,6 +28,7 @@ class CulturalController extends Controller
                         $data[$field] = $data[$field][$locale] ?? $data[$field][config('app.fallback_locale')] ?? reset($data[$field]) ?? '';
                     }
                 }
+
                 return $data;
             })->values()->toArray();
         });
