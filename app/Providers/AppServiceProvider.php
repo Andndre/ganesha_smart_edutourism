@@ -45,11 +45,6 @@ class AppServiceProvider extends ServiceProvider
             return $user && $user->isAdmin();
         });
 
-        // Alternatif fallback callback
-        LogViewer::auth(function ($request) {
-            return $request->user() && $request->user()->isAdmin();
-        });
-
         View::composer(['layouts.app', 'user.umkm.index'], function ($view) {
             $userId = auth()->id();
             $guestToken = session('guest_token') ?? request()->cookie('visitor_token');
