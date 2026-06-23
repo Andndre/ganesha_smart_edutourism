@@ -487,13 +487,9 @@
 
         // Description: HTML from Tiptap is inserted directly to full description
         const plainDesc = (fullDesc || "").replace(/<[^>]*>/g, "").trim();
-        const plainShort = (shortDesc || plainDesc).trim();
-
-        const descShortEl = document.getElementById("model-desc-short");
         const descFullEl = document.getElementById("model-desc-full");
         const sheetArrow = document.getElementById("sheet-arrow");
 
-        if (descShortEl) descShortEl.textContent = plainShort;
         if (descFullEl) descFullEl.innerHTML = fullDesc || "";
 
         const hasLongDesc = fullDesc && fullDesc.trim().length > 0;

@@ -61,9 +61,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
                     </svg>
                 </div>
-                <div class="w-full text-center">
+                <div class="flex w-full flex-col items-center justify-center">
                     <h2 id="model-title" class="truncate text-xl font-bold text-gray-900">{{ __('Memuat...') }}</h2>
-                    <p id="model-desc-short" class="mt-1 truncate text-sm text-gray-500"></p>
                 </div>
             </div>
 
