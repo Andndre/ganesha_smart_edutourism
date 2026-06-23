@@ -2,9 +2,9 @@
 
 namespace Tests\Browser;
 
-use App\Models\User;
 use App\Models\RouteSession;
 use App\Models\TourRoute;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
@@ -28,11 +28,11 @@ class SmartEdutourismFlowTest extends DuskTestCase
                 ->press('Mulai Jelajah')
                 ->waitFor('#btn-start-route:not([disabled])');
 
-            $browser->script("
+            $browser->script('
                 navigator.geolocation.getCurrentPosition = function(success, error) {
                     success({ coords: { latitude: -8.4098, longitude: 115.2671 } });
                 };
-            ");
+            ');
 
             $browser->press('Mulai Eksplorasi')
                 ->waitForLocation('/edutourism/active')
@@ -58,7 +58,7 @@ class SmartEdutourismFlowTest extends DuskTestCase
             $browser->loginAs($user)
                 ->visit('/edutourism/active');
 
-            $browser->script("
+            $browser->script('
                 navigator.geolocation.getCurrentPosition = function(success, error) {
                     success({ coords: { latitude: -8.4098, longitude: 115.2671 } });
                 };
@@ -66,7 +66,7 @@ class SmartEdutourismFlowTest extends DuskTestCase
                     success({ coords: { latitude: -8.4098, longitude: 115.2671 } });
                     return 1;
                 };
-            ");
+            ');
 
             $browser->waitForText('Rute Wisata Dusk')
                 ->assertSee('Rute Wisata Dusk');

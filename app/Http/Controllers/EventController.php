@@ -19,13 +19,13 @@ class EventController extends Controller
         $categoryKey = 'all';
         if ($request->filled('category') && $request->category !== 'All') {
             $categoryMap = [
-            'Upacara Adat' => 'ceremony',
-            'Festival' => 'cultural',
-            'Workshop' => 'workshop',
-            'Pameran' => 'cultural',
-            'Pertunjukan Seni' => 'cultural',
-            'Budaya' => 'cultural',
-            'Kuliner' => 'culinary',
+                'Upacara Adat' => 'ceremony',
+                'Festival' => 'cultural',
+                'Workshop' => 'workshop',
+                'Pameran' => 'cultural',
+                'Pertunjukan Seni' => 'cultural',
+                'Budaya' => 'cultural',
+                'Kuliner' => 'culinary',
             ];
             $mappedCategory = $categoryMap[$request->category] ?? $request->category;
             $categoryKey = $mappedCategory;
@@ -34,7 +34,7 @@ class EventController extends Controller
         $locale = app()->getLocale();
 
         // Cache upcoming events (1 hour)
-        $upcomingEvents = Cache::tags(['events'])->flexible('public_events_upcoming_'.$categoryKey.'_'.$locale, [3600, 7200], function () use ($categoryKey, $locale) {
+        $upcomingEvents = Cache::tags(['events'])->flexible('public_events_upcoming_'.$categoryKey.'_'.$locale, [3600, 7200], function () use ($categoryKey) {
             $query = Event::query();
 
             if ($categoryKey !== 'all') {
@@ -67,7 +67,7 @@ class EventController extends Controller
         });
 
         // Cache calendar events (1 hour)
-        $calendarEvents = Cache::tags(['events'])->flexible('public_events_calendar_'.$categoryKey.'_'.$locale, [3600, 7200], function () use ($categoryKey, $locale) {
+        $calendarEvents = Cache::tags(['events'])->flexible('public_events_calendar_'.$categoryKey.'_'.$locale, [3600, 7200], function () use ($categoryKey) {
             $query = Event::query();
 
             if ($categoryKey !== 'all') {

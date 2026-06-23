@@ -18,6 +18,7 @@ class TourPackageController extends Controller
                         $data[$field] = $data[$field][$locale] ?? $data[$field][config('app.fallback_locale')] ?? reset($data[$field]) ?? '';
                     }
                 }
+
                 return $data;
             })->values()->toArray();
         });

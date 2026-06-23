@@ -18,7 +18,7 @@ class ExploreController extends Controller
     public function index(): View
     {
         $locale = app()->getLocale();
-        $locations = Cache::tags(['explore'])->flexible("explore_map_locations_array_{$locale}", [86400, 172800], function () use ($locale) {
+        $locations = Cache::tags(['explore'])->flexible("explore_map_locations_array_{$locale}", [86400, 172800], function () {
             return MapLocation::with(['locationable', 'arModel'])->get()->map(function ($loc) {
                 // Map category to match JavaScript filters
                 $category = $loc->category;
@@ -71,7 +71,7 @@ class ExploreController extends Controller
             })->all();
         });
 
-        $formattedRoutes = Cache::tags(['explore'])->flexible("explore_map_routes_array_{$locale}", [86400, 172800], function () use ($locale) {
+        $formattedRoutes = Cache::tags(['explore'])->flexible("explore_map_routes_array_{$locale}", [86400, 172800], function () {
             $routes = TourRoute::where('is_active', true)->with('routePoints.locationable')->get();
 
             return $routes->map(function ($route) {
