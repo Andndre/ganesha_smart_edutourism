@@ -84,8 +84,61 @@
                     });
                 });
             }
+
+            // Inisialisasi Bottom Sheet Deskripsi
+            initBottomSheet();
         }
     };
+
+    let isSheetExpanded = false;
+
+    function initBottomSheet() {
+        const header = document.getElementById("sheet-header");
+        const sheet = document.getElementById("desc-bottom-sheet");
+        const backdrop = document.getElementById("sheet-backdrop");
+        const arrow = document.getElementById("sheet-arrow");
+
+        if (!header || !sheet || !backdrop || !arrow) return;
+
+        function toggleSheet() {
+            const fullDesc = document.getElementById("model-desc-full").innerHTML;
+            if (!fullDesc || fullDesc.trim() === "") return;
+
+            isSheetExpanded = !isSheetExpanded;
+
+            if (isSheetExpanded) {
+                sheet.classList.remove("translate-y-[calc(100%-100px)]");
+                sheet.classList.add("translate-y-0");
+
+                backdrop.style.display = "block";
+                // Trigger reflow
+                void backdrop.offsetWidth;
+                backdrop.classList.remove("opacity-0");
+                backdrop.classList.add("opacity-100");
+
+                arrow.classList.add("rotate-180");
+            } else {
+                sheet.classList.add("translate-y-[calc(100%-100px)]");
+                sheet.classList.remove("translate-y-0");
+
+                backdrop.classList.remove("opacity-100");
+                backdrop.classList.add("opacity-0");
+
+                arrow.classList.remove("rotate-180");
+
+                setTimeout(() => {
+                    if (!isSheetExpanded) backdrop.style.display = "none";
+                }, 300);
+            }
+        }
+
+        header.addEventListener("click", toggleSheet);
+        backdrop.addEventListener("click", toggleSheet);
+
+        window.closeBottomSheet = () => {
+            if (isSheetExpanded) toggleSheet();
+        };
+    }
 
     function cleanupAndExit() {
         if (heartbeatInterval) {
@@ -432,34 +485,21 @@
         const mTitle = document.getElementById("model-title");
         if (mTitle) mTitle.innerText = name || "";
 
-        // Description: strip HTML tags for plain-text display
+        // Description: HTML from Tiptap is inserted directly to full description
         const plainDesc = (fullDesc || "").replace(/<[^>]*>/g, "").trim();
         const plainShort = (shortDesc || plainDesc).trim();
 
         const descShortEl = document.getElementById("model-desc-short");
         const descFullEl = document.getElementById("model-desc-full");
-        const descToggleBtn = document.getElementById("btn-desc-toggle");
+        const sheetArrow = document.getElementById("sheet-arrow");
 
-        if (descShortEl) descShortEl.textContent = plainShort || plainDesc;
-        if (descFullEl) descFullEl.textContent = plainDesc;
+        if (descShortEl) descShortEl.textContent = plainShort;
+        if (descFullEl) descFullEl.innerHTML = fullDesc || "";
 
-        const needsExpand = plainDesc && plainDesc !== plainShort && plainDesc.length > 120;
-        if (descToggleBtn) {
-            if (needsExpand) {
-                descToggleBtn.classList.remove("hidden");
-                descToggleBtn.textContent = "Baca selengkapnya";
-                descToggleBtn.onclick = function () {
-                    const expanded = !descFullEl.classList.contains("hidden");
-                    descFullEl.classList.toggle("hidden", expanded);
-                    descShortEl.classList.toggle("hidden", !expanded);
-                    descToggleBtn.textContent = expanded ? "Baca selengkapnya" : "Tutup";
-                };
-            } else {
-                descToggleBtn.classList.add("hidden");
-            }
+        const hasLongDesc = fullDesc && fullDesc.trim().length > 0;
+        if (sheetArrow) {
+            sheetArrow.style.opacity = hasLongDesc ? "1" : "0.3";
         }
-        if (descShortEl) descShortEl.classList.remove("hidden");
-        if (descFullEl) descFullEl.classList.add("hidden");
 
         // Audio narasi
         setupAudio(audioUrl);
@@ -544,6 +584,10 @@
         if (btnToggle) {
             btnToggle.classList.add("hidden");
             btnToggle.classList.remove("flex");
+        }
+
+        if (window.closeBottomSheet) {
+            window.closeBottomSheet();
         }
 
         if (html5QrcodeScanner && html5QrcodeScanner.getState() === 3) {

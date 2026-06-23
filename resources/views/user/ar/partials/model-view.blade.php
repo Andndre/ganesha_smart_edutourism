@@ -21,7 +21,7 @@
         </div>
 
         <button slot="ar-button"
-            class="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white px-6 py-3 font-bold text-gray-900 shadow-lg">
+            class="absolute bottom-32 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white px-6 py-3 font-bold text-gray-900 shadow-lg">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round"
                     d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
@@ -47,25 +47,36 @@
         </svg>
     </button>
 
-    <!-- UI Overlay for Model View -->
-    <div
-        class="bg-linear-to-t pointer-events-none absolute bottom-0 left-0 right-0 z-20 from-black/90 via-black/50 to-transparent px-5 pb-8 pt-12 text-white">
-        <h2 id="model-title" class="mb-2 text-2xl font-bold drop-shadow-md">{{ __('Memuat...') }}</h2>
+    <!-- Bottom Sheet for Model Description -->
+    <div class="pointer-events-none absolute inset-0 z-30 flex flex-col justify-end overflow-hidden">
+        <!-- Backdrop -->
+        <div id="sheet-backdrop" class="pointer-events-auto absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300" style="display: none;"></div>
 
-        <!-- Description with expand/collapse -->
-        <div id="model-desc-wrapper" class="pointer-events-auto">
-            <div id="model-desc-short" class="line-clamp-2 text-sm leading-relaxed text-gray-200 drop-shadow"></div>
-            <div id="model-desc-full" class="hidden text-sm leading-relaxed text-gray-200 drop-shadow"></div>
-            <button id="btn-desc-toggle"
-                class="mt-1.5 hidden text-xs font-semibold text-[#E28F1B] underline underline-offset-2 active:opacity-70">
-                {{ __('Baca selengkapnya') }}
-            </button>
+        <!-- Sheet Container -->
+        <div id="desc-bottom-sheet" class="pointer-events-auto relative z-10 flex h-[75vh] w-full translate-y-[calc(100%-100px)] flex-col rounded-t-4xl bg-white shadow-[0_-4px_25px_rgba(0,0,0,0.15)] transition-transform duration-300 ease-in-out">
+            <!-- Header (Always visible, height: 100px) -->
+            <div id="sheet-header" class="flex h-[100px] shrink-0 cursor-pointer flex-col items-center rounded-t-4xl px-6 pt-3 transition-colors active:bg-gray-50">
+                <div class="flex w-full justify-center">
+                    <svg id="sheet-arrow" class="mb-2 h-6 w-6 text-gray-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+                    </svg>
+                </div>
+                <div class="w-full text-center">
+                    <h2 id="model-title" class="truncate text-xl font-bold text-gray-900">{{ __('Memuat...') }}</h2>
+                    <p id="model-desc-short" class="mt-1 truncate text-sm text-gray-500"></p>
+                </div>
+            </div>
+
+            <!-- Expanded Content (Scrollable) -->
+            <div class="flex-1 overflow-y-auto px-6 pb-12 pt-4">
+                <div id="model-desc-full" class="prose prose-sm prose-gray max-w-none text-gray-700 leading-relaxed"></div>
+            </div>
         </div>
     </div>
 
     <!-- Scan Again Button -->
     <button id="btn-scan-again"
-        class="absolute right-4 top-12 z-50 flex h-10 items-center justify-center gap-2 rounded-full bg-[#1E5128] px-4 text-sm font-bold text-white shadow-lg transition-transform hover:bg-[#152E1D] active:scale-95">
+        class="absolute right-4 top-20 z-50 flex h-10 items-center justify-center gap-2 rounded-full bg-[#1E5128] px-4 text-sm font-bold text-white shadow-lg transition-transform hover:bg-[#152E1D] active:scale-95">
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round"
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
