@@ -5,7 +5,7 @@
     <div id="method-facility"></div>
 
     {{-- Locale tabs --}}
-    <div class="flex gap-2 mb-4">
+    <div class="sticky top-0 z-10 bg-white py-3 -mx-6 px-6 -mt-4 border-b border-gray-100 mb-4 flex gap-2">
         <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
             class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" type="button">English</button>
         <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
@@ -78,12 +78,13 @@
     </div>
 
     <div class="accessibility-notes-container">
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas</label>
         <div x-show="locale === 'en'">
+            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (EN)</label>
             <textarea name="accessibility_notes[en]" id="facility-accessibility-notes-en" rows="2" placeholder="e.g. Toilet is equipped with handrails..."
                 class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none">Flat road access, friendly for wheelchairs.</textarea>
         </div>
         <div x-show="locale === 'id'">
+            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (ID)</label>
             <textarea name="accessibility_notes[id]" id="facility-accessibility-notes-id" rows="2" placeholder="Contoh: Toilet dilengkapi dengan pegangan besi..."
                 class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none">Akses jalan datar ramah kursi roda.</textarea>
         </div>

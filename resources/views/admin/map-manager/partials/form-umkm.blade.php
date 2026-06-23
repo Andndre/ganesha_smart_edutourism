@@ -5,7 +5,7 @@
     <div id="method-umkm"></div>
 
     {{-- Locale tabs --}}
-    <div class="flex gap-2 mb-4">
+    <div class="sticky top-0 z-10 bg-white py-3 -mx-6 px-6 -mt-4 border-b border-gray-100 mb-4 flex gap-2">
         <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
             class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" type="button">English</button>
         <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
@@ -124,12 +124,13 @@
     </div>
 
     <div class="accessibility-notes-container">
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas</label>
         <div x-show="locale === 'en'">
+            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (EN)</label>
             <textarea name="accessibility_notes[en]" id="umkm-accessibility-notes-en" rows="2" placeholder="e.g. Ramp entrance, staff ready to help..."
                 class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:border-primary focus:outline-none resize-none">Ramp entrance, staff ready to help with accessibility.</textarea>
         </div>
         <div x-show="locale === 'id'">
+            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (ID)</label>
             <textarea name="accessibility_notes[id]" id="umkm-accessibility-notes-id" rows="2" placeholder="Contoh: Pintu masuk ramah kursi roda..."
                 class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:border-primary focus:outline-none resize-none">Pintu masuk landai, staf siap membantu akses disabilitas.</textarea>
         </div>

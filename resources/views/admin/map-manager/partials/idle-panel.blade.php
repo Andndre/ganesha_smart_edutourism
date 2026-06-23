@@ -55,4 +55,42 @@
             </label>
         </div>
     </div>
+
+    <div class="border-t border-gray-100 pt-4 space-y-3">
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Bulk Import Objek Budaya (Excel)</h3>
+        <p class="text-[10px] text-gray-500 leading-relaxed">
+            Gunakan fitur ini untuk menambahkan banyak lokasi objek budaya sekaligus menggunakan berkas Excel (.xlsx).
+        </p>
+        <div class="flex flex-col gap-2">
+            <a href="{{ route('admin.cultural-objects.import-template') }}" 
+                class="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 px-4 py-2.5 text-xs font-semibold text-charcoal transition-all active:scale-95">
+                <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Unduh Template Excel
+            </a>
+            
+            <form action="{{ route('admin.cultural-objects.import-xlsx') }}" method="POST" enctype="multipart/form-data" class="space-y-2">
+                @csrf
+                <div class="relative flex items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-white p-4 hover:border-primary/50 transition-colors">
+                    <input type="file" name="file" accept=".xlsx" required
+                        class="absolute inset-0 cursor-pointer opacity-0"
+                        onchange="document.getElementById('import-file-name').textContent = this.files[0] ? this.files[0].name : 'Pilih file Excel (.xlsx)';" />
+                    <div class="text-center space-y-1">
+                        <svg class="mx-auto h-6.5 w-6.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span id="import-file-name" class="block text-[10px] font-semibold text-gray-500">Pilih file Excel (.xlsx)</span>
+                    </div>
+                </div>
+                <button type="submit"
+                    class="bg-primary hover:bg-primary-600 shadow-primary/10 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-semibold text-white shadow-lg transition-all active:scale-95">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    Unggah & Import Data
+                </button>
+            </form>
+        </div>
+    </div>
 </div>

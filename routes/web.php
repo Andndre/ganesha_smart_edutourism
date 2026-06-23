@@ -162,6 +162,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::put('/cultural-objects/{id}', [CulturalObjectController::class, 'update'])->name('admin.cultural-objects.update');
     Route::delete('/cultural-objects/{id}', [CulturalObjectController::class, 'destroy'])->name('admin.cultural-objects.destroy');
     Route::post('/cultural-objects/upload-image', [CulturalObjectController::class, 'uploadEditorImage'])->name('admin.cultural-objects.upload-image');
+    Route::get('/cultural-objects/import-template', [CulturalObjectController::class, 'downloadImportTemplate'])->name('admin.cultural-objects.import-template');
+    Route::post('/cultural-objects/import', [CulturalObjectController::class, 'importXlsx'])->name('admin.cultural-objects.import-xlsx');
 
     // Facility Routes
     Route::post('/facilities', [FacilityController::class, 'store'])->name('admin.facilities.store');

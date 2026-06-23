@@ -8,8 +8,13 @@ use App\Models\CulturalObject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class CulturalObjectController extends Controller
 {
@@ -243,15 +248,15 @@ class CulturalObjectController extends Controller
         if ($shouldCreateNewModel) {
             $submittedName = $request->input('new_model_name', []);
             if (is_array($submittedName) && count($submittedName) === 1) {
-                if (isset($submittedName['en']) && !isset($submittedName['id'])) {
+                if (isset($submittedName['en']) && ! isset($submittedName['id'])) {
                     $submittedName['id'] = $submittedName['en'];
-                } elseif (isset($submittedName['id']) && !isset($submittedName['en'])) {
+                } elseif (isset($submittedName['id']) && ! isset($submittedName['en'])) {
                     $submittedName['en'] = $submittedName['id'];
                 }
             }
 
             $modelData = [
-                'name' => $submittedName ?: [$defaultLocale => ($object->name[$defaultLocale] ?? 'Model') . ' Model'],
+                'name' => $submittedName ?: [$defaultLocale => ($object->name[$defaultLocale] ?? 'Model').' Model'],
                 'description' => $request->input('new_model_description') ?: ($object->short_description ?? null),
                 'map_location_id' => $mapLocation->id,
                 'ar_marker_id' => $arMarkerId ?: null,
@@ -564,15 +569,15 @@ class CulturalObjectController extends Controller
         if ($shouldCreateNewModel) {
             $submittedName = $request->input('new_model_name', []);
             if (is_array($submittedName) && count($submittedName) === 1) {
-                if (isset($submittedName['en']) && !isset($submittedName['id'])) {
+                if (isset($submittedName['en']) && ! isset($submittedName['id'])) {
                     $submittedName['id'] = $submittedName['en'];
-                } elseif (isset($submittedName['id']) && !isset($submittedName['en'])) {
+                } elseif (isset($submittedName['id']) && ! isset($submittedName['en'])) {
                     $submittedName['en'] = $submittedName['id'];
                 }
             }
 
             $modelData = [
-                'name' => $submittedName ?: [$defaultLocale => ($object->name[$defaultLocale] ?? 'Model') . ' Model'],
+                'name' => $submittedName ?: [$defaultLocale => ($object->name[$defaultLocale] ?? 'Model').' Model'],
                 'description' => $request->input('new_model_description') ?: ($object->short_description ?? null),
                 'map_location_id' => $mapLocation->id,
                 'ar_marker_id' => $arMarkerId ?: null,
@@ -679,5 +684,177 @@ class CulturalObjectController extends Controller
         }
 
         return response()->json(['error' => __('Gagal mengunggah gambar.')], 400);
+    }
+
+    /**
+     * Download the XLSX template for bulk importing cultural objects.
+     */
+    public function downloadImportTemplate()
+    {
+        $spreadsheet = new Spreadsheet;
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $headers = [
+            'Nama (ID)',
+            'Nama (EN)',
+            'Kategori (temple/house/craft/tradition)',
+            'Deskripsi Singkat (ID)',
+            'Deskripsi Singkat (EN)',
+            'Deskripsi Lengkap (ID)',
+            'Deskripsi Lengkap (EN)',
+            'Latitude',
+            'Longitude',
+            'Akses Disabilitas (Y/N)',
+            'Catatan Aksesibilitas (ID)',
+            'Catatan Aksesibilitas (EN)',
+            'Marker ID (Opsional)',
+        ];
+
+        // Write headers
+        foreach ($headers as $colIndex => $header) {
+            $colLetter = Coordinate::stringFromColumnIndex($colIndex + 1);
+            $sheet->setCellValue($colLetter.'1', $header);
+        }
+
+        // Write a sample row
+        $sampleRow = [
+            'Pura Penataran Agung',
+            'Penataran Agung Temple',
+            'temple',
+            'Jantung spiritual Desa Penglipuran',
+            'Spiritual heart of Penglipuran Village',
+            'Pura ini terletak di bagian paling utara desa...',
+            'This temple is located at the northernmost part...',
+            '-8.43169720',
+            '115.35246720',
+            'Y',
+            'Akses jalan datar ramah kursi roda.',
+            'Flat road access, wheelchair friendly.',
+            'MARKER_PURA_01',
+        ];
+
+        foreach ($sampleRow as $colIndex => $value) {
+            $colLetter = Coordinate::stringFromColumnIndex($colIndex + 1);
+            $sheet->setCellValue($colLetter.'2', $value);
+        }
+
+        // Auto-fit column width
+        foreach (range(1, count($headers)) as $col) {
+            $colLetter = Coordinate::stringFromColumnIndex($col);
+            $sheet->getColumnDimension($colLetter)->setAutoSize(true);
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'template_import_objek_budaya.xlsx';
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+        ]);
+    }
+
+    /**
+     * Import cultural objects from an uploaded XLSX file.
+     */
+    public function importXlsx(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx', 'max:10240'], // Max 10MB
+        ]);
+
+        try {
+            $file = $request->file('file');
+            $spreadsheet = IOFactory::load($file->getRealPath());
+            $worksheet = $spreadsheet->getActiveSheet();
+            $rows = $worksheet->toArray();
+
+            $importedCount = 0;
+
+            foreach ($rows as $index => $row) {
+                if ($index === 0) {
+                    continue; // Skip header row
+                }
+
+                // Check if the row is empty (specifically name columns)
+                if (empty($row[0]) || empty($row[1])) {
+                    continue;
+                }
+
+                $nameId = trim($row[0]);
+                $nameEn = trim($row[1]);
+                $category = trim($row[2] ?? 'temple');
+
+                // Validate category
+                if (! in_array($category, ['temple', 'house', 'craft', 'tradition'])) {
+                    $category = 'temple';
+                }
+
+                $shortDescId = trim($row[3] ?? '');
+                $shortDescEn = trim($row[4] ?? $shortDescId);
+
+                $descId = trim($row[5] ?? '');
+                $descEn = trim($row[6] ?? $descId);
+
+                $latitude = is_numeric($row[7]) ? (float) $row[7] : config('services.penglipuran.latitude');
+                $longitude = is_numeric($row[8]) ? (float) $row[8] : config('services.penglipuran.longitude');
+
+                $isAccessible = in_array(strtoupper(trim($row[9] ?? '')), ['Y', 'YES', '1', 'TRUE']);
+
+                $accNotesId = trim($row[10] ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.');
+                $accNotesEn = trim($row[11] ?? 'Flat road access, friendly for wheelchairs and baby strollers.');
+
+                $markerId = trim($row[12] ?? '');
+
+                $slug = Str::slug($nameEn);
+
+                // Create or update CulturalObject
+                $culturalObject = CulturalObject::updateOrCreate(
+                    ['slug' => $slug],
+                    [
+                        'name' => ['id' => $nameId, 'en' => $nameEn],
+                        'category' => $category,
+                        'short_description' => ['id' => $shortDescId, 'en' => $shortDescEn],
+                        'description' => ['id' => $descId, 'en' => $descEn],
+                    ]
+                );
+
+                // Create or update MapLocation
+                $mapLocation = $culturalObject->mapLocation()->updateOrCreate(
+                    [],
+                    [
+                        'name' => $nameId,
+                        'category' => 'cultural',
+                        'latitude' => $latitude,
+                        'longitude' => $longitude,
+                        'is_accessible' => $isAccessible,
+                        'accessibility_notes' => ['id' => $accNotesId, 'en' => $accNotesEn],
+                    ]
+                );
+
+                // If marker ID is provided, create/link ArModel
+                if (! empty($markerId)) {
+                    ArModel::updateOrCreate(
+                        ['ar_marker_id' => $markerId],
+                        [
+                            'name' => ['id' => $nameId.' Model', 'en' => $nameEn.' Model'],
+                            'description' => ['id' => $shortDescId, 'en' => $shortDescEn],
+                            'map_location_id' => $mapLocation->id,
+                        ]
+                    );
+                }
+
+                $importedCount++;
+            }
+
+            // Clear cache to reflect new locations
+            Cache::tags(['cultural'])->flush();
+
+            return redirect()->route('admin.map-manager')->with('success', __(':count objek budaya berhasil di-import.', ['count' => $importedCount]));
+
+        } catch (\Exception $e) {
+            return redirect()->route('admin.map-manager')->with('error', __('Gagal mengimport data Excel: :error', ['error' => $e->getMessage()]));
+        }
     }
 }
