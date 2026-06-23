@@ -144,7 +144,7 @@ function addStoryField(story = null, forcedCategory = null) {
                     </button>
                     <span class="mx-1 my-auto h-4 w-px bg-gray-200"></span>
                     <button type="button" data-action="image" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Upload Image">
-                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012-2h.93a2 2 0 011.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </button>
                 </div>
                 <div id="${editorIdEn}" class="story-editor focus-within:border-primary focus-within:ring-primary/20 max-h-50 min-h-25 w-full overflow-y-auto rounded-b-lg border border-gray-200 bg-white p-3 text-sm focus-within:ring-1"></div>
@@ -176,7 +176,7 @@ function addStoryField(story = null, forcedCategory = null) {
                     </button>
                     <span class="mx-1 my-auto h-4 w-px bg-gray-200"></span>
                     <button type="button" data-action="image" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Unggah Gambar">
-                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012-2h.93a2 2 0 011.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </button>
                 </div>
                 <div id="${editorIdId}" class="story-editor focus-within:border-primary focus-within:ring-primary/20 max-h-50 min-h-25 w-full overflow-y-auto rounded-b-lg border border-gray-200 bg-white p-3 text-sm focus-within:ring-1"></div>
