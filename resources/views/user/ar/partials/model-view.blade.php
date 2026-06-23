@@ -1,5 +1,23 @@
 <!-- 2. 3D Model View (Hidden Initially) -->
 <div id="model-view" class="absolute inset-0 z-10 hidden bg-[#1a1a1a]">
+
+    <!-- iOS In-App Browser Warning -->
+    <div id="iab-warning" class="absolute inset-0 z-60 hidden flex-col items-center justify-center bg-black/90 p-6 text-center text-white backdrop-blur-sm">
+        <div class="mb-6 rounded-full bg-yellow-500/20 p-4">
+            <svg class="h-12 w-12 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+        </div>
+        <h3 class="mb-3 text-2xl font-bold text-yellow-400">{{ __('Browser Tidak Didukung') }}</h3>
+        <p class="mb-8 text-base leading-relaxed text-gray-300">
+            {{ __('Untuk menggunakan fitur Kamera AR, ketuk ikon 3-titik di pojok layar dan pilih ') }} <br>
+            <strong class="text-white">"Buka di Browser Sistem / Safari"</strong>.
+        </p>
+        <button onclick="document.getElementById('iab-warning').classList.add('hidden'); document.getElementById('iab-warning').classList.remove('flex');" class="rounded-full border border-gray-600 px-6 py-2 text-sm font-medium text-gray-400 transition-colors hover:bg-gray-800 hover:text-white">
+            {{ __('Tetap Lanjutkan (Tanpa AR)') }}
+        </button>
+    </div>
+
     <model-viewer id="ar-model-viewer" src="" alt="3D Model" camera-controls auto-rotate ar ar-scale="auto"
         ar-placement="floor" bounds="tight" ar-modes="scene-viewer quick-look webxr" quick-look-browsers="safari chrome"
         environment-image="neutral" exposure="1" shadow-intensity="1" class="h-full w-full outline-none">
