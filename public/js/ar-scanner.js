@@ -296,7 +296,7 @@
     function showCameraError() {
         const badge = document.getElementById("status-badge");
         if (badge) {
-            badge.innerText = "Kamera tidak ditemukan";
+            badge.innerText = window.AR_MESSAGES?.cameraNotFound || "Kamera tidak ditemukan";
             badge.classList.replace("bg-black/40", "bg-red-500/80");
         }
         const reticles = document.querySelectorAll(
@@ -325,8 +325,8 @@
         const badge = document.getElementById("status-badge");
         if (badge) {
             badge.innerText = insecure
-                ? "Koneksi HTTP"
-                : "Browser Tidak Didukung";
+                ? (window.AR_MESSAGES?.httpConnection || "Koneksi HTTP")
+                : (window.AR_MESSAGES?.browserNotSupported || "Browser Tidak Didukung");
             badge.classList.replace("bg-black/40", "bg-red-500/80");
         }
         const reticles = document.querySelectorAll(
@@ -393,12 +393,12 @@
         } else {
             const statusBadge = document.getElementById("status-badge");
             if (statusBadge) {
-                statusBadge.innerText = "QR Tidak Dikenali!";
+                statusBadge.innerText = window.AR_MESSAGES?.qrNotRecognized || "QR Tidak Dikenali!";
                 statusBadge.classList.replace("bg-black/40", "bg-red-500/80");
             }
             setTimeout(() => {
                 if (!isProcessing && statusBadge) {
-                    statusBadge.innerText = "Arahkan ke Marker QR";
+                    statusBadge.innerText = window.AR_MESSAGES?.pointToQr || "Arahkan ke Marker QR";
                     statusBadge.classList.replace(
                         "bg-red-500/80",
                         "bg-black/40",
@@ -420,7 +420,7 @@
             loadingOverlay.classList.remove("hidden");
             loadingOverlay.classList.add("flex");
         }
-        if (statusBadge) statusBadge.innerText = "Mengunduh Model...";
+        if (statusBadge) statusBadge.innerText = window.AR_MESSAGES?.downloadingModel || "Mengunduh Model...";
 
         let query = slug
             ? `slug=${encodeURIComponent(slug)}`
@@ -468,7 +468,7 @@
 
         if (scanView) scanView.classList.add("hidden");
         if (modelView) modelView.classList.remove("hidden");
-        if (badge) badge.innerText = "Sentuh untuk memutar/zoom";
+        if (badge) badge.innerText = window.AR_MESSAGES?.touchToRotate || "Sentuh untuk memutar/zoom";
 
         const viewer = document.getElementById("ar-model-viewer");
         if (viewer) {
@@ -563,7 +563,7 @@
         if (modelView) modelView.classList.add("hidden");
         if (scanView) scanView.classList.remove("hidden");
         if (badge) {
-            badge.innerText = "Arahkan ke Marker QR";
+            badge.innerText = window.AR_MESSAGES?.pointToQr || "Arahkan ke Marker QR";
             badge.classList.replace("bg-red-500/80", "bg-black/40");
         }
 
