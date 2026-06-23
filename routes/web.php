@@ -61,6 +61,9 @@ Route::middleware('redirect.admin')->group(function () {
 
     // AR Scan
     Route::get('/ar-scan', [ARController::class, 'index'])->name('ar-scan');
+    Route::get('/usdz-file/{path}', [ARController::class, 'serveUsdz'])
+        ->where('path', '.*\.usdz$')
+        ->name('usdz.serve');
 
     // UMKM Catalog & Recommendation
     Route::get('/umkm', [UmkmCatalogController::class, 'index'])->name('umkm');
