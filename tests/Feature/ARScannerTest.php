@@ -52,7 +52,7 @@ class ARScannerTest extends TestCase
                 'success' => true,
                 'name' => $object->name,
                 'short_description' => 'Short desc',
-                'usdz_url' => route('usdz.serve', ['path' => 'models_usdz/test-model.usdz']),
+                'usdz_url' => route('usdz.serve', ['path' => 'test-model.usdz']),
             ]);
     }
 
@@ -95,10 +95,10 @@ class ARScannerTest extends TestCase
     {
         Storage::disk('public')->put('models_usdz/test-model.usdz', 'dummy content');
 
-        $response = $this->get('/usdz-file/models_usdz/test-model.usdz');
+        $response = $this->get('/usdz-file/test-model.usdz');
 
         $response->assertStatus(200);
-        $response->assertHeader('Content-Type', 'model/vnd.pixar.usd');
+        $response->assertHeader('Content-Type', 'model/vnd.usdz+zip');
         $response->assertHeader('Content-Disposition', 'inline; filename="test-model.usdz"');
         $file = $response->getFile();
         $this->assertEquals('dummy content', file_get_contents($file->getPathname()));
@@ -108,7 +108,7 @@ class ARScannerTest extends TestCase
 
     public function test_serve_usdz_returns_404_for_non_existent_file()
     {
-        $response = $this->get('/usdz-file/models_usdz/non-existent.usdz');
+        $response = $this->get('/usdz-file/non-existent.usdz');
 
         $response->assertStatus(404);
     }
@@ -117,10 +117,10 @@ class ARScannerTest extends TestCase
     {
         Storage::disk('public')->put('models_usdz/test-model.zip', 'zip content');
 
-        $response = $this->get('/usdz-file/models_usdz/test-model.zip.usdz');
+        $response = $this->get('/usdz-file/test-model.zip.usdz');
 
         $response->assertStatus(200);
-        $response->assertHeader('Content-Type', 'model/vnd.pixar.usd');
+        $response->assertHeader('Content-Type', 'model/vnd.usdz+zip');
         $response->assertHeader('Content-Disposition', 'inline; filename="test-model.usdz"');
         $file = $response->getFile();
         $this->assertEquals('zip content', file_get_contents($file->getPathname()));
