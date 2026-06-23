@@ -105,8 +105,14 @@
 
     <div class="accessibility-notes-container">
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas</label>
-        <textarea name="accessibility_notes" rows="2" placeholder="Contoh: Pintu masuk landai, ramah kursi roda..."
-            class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 px-4 py-2 text-sm focus:outline-none">Akses jalan datar ramah kursi roda dan stroller bayi.</textarea>
+        <div x-show="locale === 'en'">
+            <textarea name="accessibility_notes[en]" id="cultural-accessibility-notes-en" rows="2" placeholder="e.g. Ramp access, wheelchair friendly..."
+                class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 px-4 py-2 text-sm focus:outline-none">Flat road access, friendly for wheelchairs and baby strollers.</textarea>
+        </div>
+        <div x-show="locale === 'id'">
+            <textarea name="accessibility_notes[id]" id="cultural-accessibility-notes-id" rows="2" placeholder="Contoh: Pintu masuk landai, ramah kursi roda..."
+                class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 px-4 py-2 text-sm focus:outline-none">Akses jalan datar ramah kursi roda dan stroller bayi.</textarea>
+        </div>
     </div>
 
 </form>

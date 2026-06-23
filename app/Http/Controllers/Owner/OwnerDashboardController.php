@@ -111,11 +111,22 @@ class OwnerDashboardController extends Controller
             return redirect()->route('owner.profile')->with('error', __('Silakan buat profil toko terlebih dahulu.'));
         }
 
+        if ($request->has('accessibility_notes') && is_string($request->input('accessibility_notes'))) {
+            $request->merge([
+                'accessibility_notes' => [
+                    'en' => $request->input('accessibility_notes'),
+                    'id' => $request->input('accessibility_notes'),
+                ],
+            ]);
+        }
+
         $validated = $request->validate([
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             'is_accessible' => ['nullable', 'boolean'],
-            'accessibility_notes' => ['nullable', 'string'],
+            'accessibility_notes' => ['nullable', 'array'],
+            'accessibility_notes.en' => ['nullable', 'string'],
+            'accessibility_notes.id' => ['nullable', 'string'],
         ]);
 
         $latitude = $validated['latitude'];

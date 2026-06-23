@@ -80,13 +80,17 @@ function addStoryField(story = null, forcedCategory = null) {
     if (!list) return;
     
     const index = list.children.length;
-    const editorId = `story-editor-${Date.now()}-${index}`;
+    const editorIdEn = `story-editor-en-${Date.now()}-${index}`;
+    const editorIdId = `story-editor-id-${Date.now()}-${index}`;
     
     const item = document.createElement('div');
     item.className = 'story-item relative bg-gray-50/60 p-4 rounded-xl border border-gray-100 shadow-xs space-y-3 transition-all duration-300';
+    item.setAttribute('x-data', '{ locale: "en" }');
     
-    const titleVal = story ? story.title : '';
-    const contentVal = story ? story.content : '';
+    const titleValEn = story ? (typeof story.title === 'object' ? (story.title.en || '') : story.title) : '';
+    const titleValId = story ? (typeof story.title === 'object' ? (story.title.id || '') : story.title) : '';
+    const contentValEn = story ? (typeof story.content === 'object' ? (story.content.en || '') : story.content) : '';
+    const contentValId = story ? (typeof story.content === 'object' ? (story.content.id || '') : story.content) : '';
     
     const categoryLabel = typeVal === 'history' ? 'Sejarah' : (typeVal === 'philosophy' ? 'Filosofi' : 'Nilai Luhur');
     
@@ -94,6 +98,11 @@ function addStoryField(story = null, forcedCategory = null) {
         <div class="flex items-center justify-between border-b border-gray-100 pb-2">
             <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">${categoryLabel} <span class="story-index">${index + 1}</span></span>
             <div class="flex items-center gap-1.5">
+                {{-- Locale switch --}}
+                <div class="flex gap-1 mr-2 border border-gray-200 bg-white p-0.5 rounded-lg">
+                    <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-white text-gray-500 hover:text-gray-900'" class="px-2 py-0.5 rounded text-[10px] font-semibold transition-all" type="button">EN</button>
+                    <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-white text-gray-500 hover:text-gray-900'" class="px-2 py-0.5 rounded text-[10px] font-semibold transition-all" type="button">ID</button>
+                </div>
                 <!-- Move Up Button -->
                 <button type="button" class="btn-move-up p-1 text-gray-400 hover:text-primary hover:bg-white rounded-lg transition-colors border border-transparent hover:border-gray-200" title="Geser ke Atas">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>
@@ -108,147 +117,202 @@ function addStoryField(story = null, forcedCategory = null) {
                 </button>
             </div>
         </div>
-        <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-600">Judul Kisah</label>
-            <input type="text" name="story_title[]" required placeholder="Contoh: Asal Usul Pura" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none bg-white">
-        </div>
-        <input type="hidden" name="story_type[]" value="${typeVal}">
-        <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-600">Konten Kisah</label>
-            
-            <!-- Dynamic TipTap Toolbar -->
-            <div class="story-editor-toolbar flex flex-wrap gap-1 rounded-t-lg border border-b-0 border-gray-200 bg-gray-50 p-1.5 text-gray-600">
-                <button type="button" data-action="bold" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Bold">
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12h8a4 4 0 100-8H6v8zm0 0h10a4 4 0 110 8H6v-8z"></path></svg>
-                </button>
-                <button type="button" data-action="italic" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Italic">
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 4h4M12 4v16M10 20h4M15 4L9 20"></path></svg>
-                </button>
-                <span class="mx-1 my-auto h-4 w-px bg-gray-200"></span>
-                <button type="button" data-action="bulletList" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Bullet List">
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16M8 6h.01M8 12h.01M8 18h.01"></path></svg>
-                </button>
-                <button type="button" data-action="orderedList" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Ordered List">
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5h11M9 12h11M9 19h11M4 4h2v4H4V4zm0 6h2a1 1 0 011 1v1a1 1 0 01-1 1H4v-1h2v-1H4v-1zm0 6h2v3H4v-3z"></path></svg>
-                </button>
-                <span class="mx-1 my-auto h-4 w-px bg-gray-200"></span>
-                <button type="button" data-action="image" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Unggah Gambar">
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012-2h.93a2 2 0 011.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><circle cx="12" cy="13" r="3"></circle></svg>
-                </button>
+        
+        <input type="hidden" name="story_type[${index}]" value="${typeVal}">
+
+        {{-- English inputs --}}
+        <div x-show="locale === 'en'" class="space-y-3">
+            <div>
+                <label class="mb-1 block text-xs font-semibold text-gray-600">Story Title (EN)</label>
+                <input type="text" name="story_title[${index}][en]" required placeholder="e.g. Origin of the Temple" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none bg-white">
             </div>
-            
-            <!-- Editor Container -->
-            <div id="${editorId}" class="story-editor focus-within:border-primary focus-within:ring-primary/20 max-h-50 min-h-25 w-full overflow-y-auto rounded-b-lg border border-gray-200 bg-white p-3 text-sm focus-within:ring-1"></div>
-            <textarea name="story_content[]" class="hidden"></textarea>
+            <div>
+                <label class="mb-1 block text-xs font-semibold text-gray-600">Story Content (EN)</label>
+                <div class="story-editor-toolbar-en flex flex-wrap gap-1 rounded-t-lg border border-b-0 border-gray-200 bg-gray-50 p-1.5 text-gray-600">
+                    <button type="button" data-action="bold" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Bold">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12h8a4 4 0 100-8H6v8zm0 0h10a4 4 0 110 8H6v-8z"></path></svg>
+                    </button>
+                    <button type="button" data-action="italic" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Italic">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 4h4M12 4v16M10 20h4M15 4L9 20"></path></svg>
+                    </button>
+                    <span class="mx-1 my-auto h-4 w-px bg-gray-200"></span>
+                    <button type="button" data-action="bulletList" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Bullet List">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16M8 6h.01M8 12h.01M8 18h.01"></path></svg>
+                    </button>
+                    <button type="button" data-action="orderedList" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Ordered List">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5h11M9 12h11M9 19h11M4 4h2v4H4V4zm0 6h2a1 1 0 011 1v1a1 1 0 01-1 1H4v-1h2v-1H4v-1zm0 6h2v3H4v-3z"></path></svg>
+                    </button>
+                    <span class="mx-1 my-auto h-4 w-px bg-gray-200"></span>
+                    <button type="button" data-action="image" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Upload Image">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012-2h.93a2 2 0 011.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+                    </button>
+                </div>
+                <div id="${editorIdEn}" class="story-editor focus-within:border-primary focus-within:ring-primary/20 max-h-50 min-h-25 w-full overflow-y-auto rounded-b-lg border border-gray-200 bg-white p-3 text-sm focus-within:ring-1"></div>
+                <textarea name="story_content[${index}][en]" class="hidden"></textarea>
+            </div>
+        </div>
+
+        {{-- Indonesian inputs --}}
+        <div x-show="locale === 'id'" class="space-y-3">
+            <div>
+                <label class="mb-1 block text-xs font-semibold text-gray-600">Judul Kisah (ID)</label>
+                <input type="text" name="story_title[${index}][id]" required placeholder="Contoh: Asal Usul Pura" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none bg-white">
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-semibold text-gray-600">Konten Kisah (ID)</label>
+                <div class="story-editor-toolbar-id flex flex-wrap gap-1 rounded-t-lg border border-b-0 border-gray-200 bg-gray-50 p-1.5 text-gray-600">
+                    <button type="button" data-action="bold" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Bold">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12h8a4 4 0 100-8H6v8zm0 0h10a4 4 0 110 8H6v-8z"></path></svg>
+                    </button>
+                    <button type="button" data-action="italic" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Italic">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 4h4M12 4v16M10 20h4M15 4L9 20"></path></svg>
+                    </button>
+                    <span class="mx-1 my-auto h-4 w-px bg-gray-200"></span>
+                    <button type="button" data-action="bulletList" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Bullet List">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16M8 6h.01M8 12h.01M8 18h.01"></path></svg>
+                    </button>
+                    <button type="button" data-action="orderedList" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Ordered List">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5h11M9 12h11M9 19h11M4 4h2v4H4V4zm0 6h2a1 1 0 011 1v1a1 1 0 01-1 1H4v-1h2v-1H4v-1zm0 6h2v3H4v-3z"></path></svg>
+                    </button>
+                    <span class="mx-1 my-auto h-4 w-px bg-gray-200"></span>
+                    <button type="button" data-action="image" class="flex items-center justify-center rounded p-1 transition-colors hover:bg-gray-200/70 hover:text-gray-900" title="Unggah Gambar">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012-2h.93a2 2 0 011.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+                    </button>
+                </div>
+                <div id="${editorIdId}" class="story-editor focus-within:border-primary focus-within:ring-primary/20 max-h-50 min-h-25 w-full overflow-y-auto rounded-b-lg border border-gray-200 bg-white p-3 text-sm focus-within:ring-1"></div>
+                <textarea name="story_content[${index}][id]" class="hidden"></textarea>
+            </div>
         </div>
     `;
     
     // Set initial values
-    item.querySelector('input[name="story_title[]"]').value = titleVal;
-    
-    const textarea = item.querySelector('textarea[name="story_content[]"]');
-    textarea.value = contentVal;
-    
     list.appendChild(item);
+    item.querySelector('input[name="story_title[' + index + '][en]"]').value = titleValEn;
+    item.querySelector('input[name="story_title[' + index + '][id]"]').value = titleValId;
     
-    // Initialize TipTap Editor
-    let editor = null;
+    const textareaEn = item.querySelector('textarea[name="story_content[' + index + '][en]"]');
+    textareaEn.value = contentValEn;
+
+    const textareaId = item.querySelector('textarea[name="story_content[' + index + '][id]"]');
+    textareaId.value = contentValId;
+    
+    function setupStoryToolbar(toolbar, editor) {
+        if (!toolbar || !editor) return;
+        toolbar.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const action = btn.getAttribute('data-action');
+                
+                if (action === 'bold') editor.chain().focus().toggleBold().run();
+                else if (action === 'italic') editor.chain().focus().toggleItalic().run();
+                else if (action === 'bulletList') editor.chain().focus().toggleBulletList().run();
+                else if (action === 'orderedList') editor.chain().focus().toggleOrderedList().run();
+                else if (action === 'image') {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.onchange = async () => {
+                        const file = input.files[0];
+                        if (!file) return;
+
+                        Swal.fire({
+                            title: 'Mengunggah Gambar...',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        const formData = new FormData();
+                        formData.append('image', file);
+                        formData.append('_token', '{{ csrf_token() }}');
+
+                        try {
+                            const response = await fetch('{{ route("admin.cultural-objects.upload-image") }}', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            const data = await response.json();
+                            Swal.close();
+
+                            if (data.url) {
+                                editor.chain().focus().setImage({ src: data.url }).run();
+                            } else {
+                                Swal.fire('Gagal', 'Terjadi kesalahan saat mengunggah gambar.', 'error');
+                            }
+                        } catch (error) {
+                            Swal.close();
+                            Swal.fire('Gagal', 'Koneksi ke server terputus.', 'error');
+                        }
+                    };
+                    input.click();
+                }
+                
+                updateToolbarStates();
+            });
+        });
+        
+        function updateToolbarStates() {
+            const states = {
+                bold: editor.isActive('bold'),
+                italic: editor.isActive('italic'),
+                bulletList: editor.isActive('bulletList'),
+                orderedList: editor.isActive('orderedList')
+            };
+            
+            toolbar.querySelectorAll('button').forEach(btn => {
+                const action = btn.getAttribute('data-action');
+                if (states[action]) {
+                    btn.classList.add('tiptap-btn-active');
+                } else {
+                    btn.classList.remove('tiptap-btn-active');
+                }
+            });
+        }
+        
+        editor.on('selectionUpdate', updateToolbarStates);
+        editor.on('transaction', updateToolbarStates);
+    }
+
+    // Initialize TipTap Editors
+    let editorEn = null;
+    let editorId = null;
+    
     if (window.TipTapEditor && window.TipTapStarterKit && window.TipTapImage) {
-        editor = new window.TipTapEditor({
-            element: document.getElementById(editorId),
+        editorEn = new window.TipTapEditor({
+            element: document.getElementById(editorIdEn),
             extensions: [window.TipTapStarterKit, window.TipTapImage],
-            content: contentVal,
+            content: contentValEn,
             editorProps: {
                 attributes: {
                     class: 'focus:outline-none prose max-w-none text-sm text-gray-700 leading-relaxed min-h-20',
                 }
             },
             onUpdate({ editor }) {
-                textarea.value = editor.getHTML();
-                textarea.dispatchEvent(new Event('input', { bubbles: true }));
-                textarea.dispatchEvent(new Event('change', { bubbles: true }));
+                textareaEn.value = editor.getHTML();
+                textareaEn.dispatchEvent(new Event('input', { bubbles: true }));
+                textareaEn.dispatchEvent(new Event('change', { bubbles: true }));
             }
         });
-        
-        // Connect Toolbar
-        const toolbar = item.querySelector('.story-editor-toolbar');
-        if (toolbar) {
-            toolbar.querySelectorAll('button').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const action = btn.getAttribute('data-action');
-                    
-                    if (action === 'bold') editor.chain().focus().toggleBold().run();
-                    else if (action === 'italic') editor.chain().focus().toggleItalic().run();
-                    else if (action === 'bulletList') editor.chain().focus().toggleBulletList().run();
-                    else if (action === 'orderedList') editor.chain().focus().toggleOrderedList().run();
-                    else if (action === 'image') {
-                        const input = document.createElement('input');
-                        input.type = 'file';
-                        input.accept = 'image/*';
-                        input.onchange = async () => {
-                            const file = input.files[0];
-                            if (!file) return;
+        setupStoryToolbar(item.querySelector('.story-editor-toolbar-en'), editorEn);
 
-                            Swal.fire({
-                                title: 'Mengunggah Gambar...',
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
-                                }
-                            });
-
-                            const formData = new FormData();
-                            formData.append('image', file);
-                            formData.append('_token', '{{ csrf_token() }}');
-
-                            try {
-                                const response = await fetch('{{ route("admin.cultural-objects.upload-image") }}', {
-                                    method: 'POST',
-                                    body: formData
-                                });
-                                const data = await response.json();
-                                Swal.close();
-
-                                if (data.url) {
-                                    editor.chain().focus().setImage({ src: data.url }).run();
-                                } else {
-                                    Swal.fire('Gagal', 'Terjadi kesalahan saat mengunggah gambar.', 'error');
-                                }
-                            } catch (error) {
-                                Swal.close();
-                                Swal.fire('Gagal', 'Koneksi ke server terputus.', 'error');
-                            }
-                        };
-                        input.click();
-                    }
-                    
-                    updateToolbarStates();
-                });
-            });
-            
-            function updateToolbarStates() {
-                const states = {
-                    bold: editor.isActive('bold'),
-                    italic: editor.isActive('italic'),
-                    bulletList: editor.isActive('bulletList'),
-                    orderedList: editor.isActive('orderedList')
-                };
-                
-                toolbar.querySelectorAll('button').forEach(btn => {
-                    const action = btn.getAttribute('data-action');
-                    if (states[action]) {
-                        btn.classList.add('tiptap-btn-active');
-                    } else {
-                        btn.classList.remove('tiptap-btn-active');
-                    }
-                });
+        editorId = new window.TipTapEditor({
+            element: document.getElementById(editorIdId),
+            extensions: [window.TipTapStarterKit, window.TipTapImage],
+            content: contentValId,
+            editorProps: {
+                attributes: {
+                    class: 'focus:outline-none prose max-w-none text-sm text-gray-700 leading-relaxed min-h-20',
+                }
+            },
+            onUpdate({ editor }) {
+                textareaId.value = editor.getHTML();
+                textareaId.dispatchEvent(new Event('input', { bubbles: true }));
+                textareaId.dispatchEvent(new Event('change', { bubbles: true }));
             }
-            
-            editor.on('selectionUpdate', updateToolbarStates);
-            editor.on('transaction', updateToolbarStates);
-        }
+        });
+        setupStoryToolbar(item.querySelector('.story-editor-toolbar-id'), editorId);
     }
     
     // Connect Move buttons
@@ -276,8 +340,11 @@ function addStoryField(story = null, forcedCategory = null) {
     
     // Connect Delete button
     item.querySelector('.btn-delete-story').addEventListener('click', () => {
-        if (editor) {
-            editor.destroy();
+        if (editorEn) {
+            editorEn.destroy();
+        }
+        if (editorId) {
+            editorId.destroy();
         }
         item.remove();
         updateStoryIndexes();

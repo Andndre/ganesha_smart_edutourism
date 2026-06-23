@@ -84,11 +84,19 @@
             <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm self-start">
                 <h3 class="font-display text-lg font-bold text-charcoal mb-4">Detail Koordinat</h3>
 
-                <form method="POST" action="{{ route('owner.location.update') }}">
+                <form method="POST" action="{{ route('owner.location.update') }}" x-data="{ locale: 'en' }">
                     @csrf
                     @method('PUT')
 
                     <div class="space-y-4">
+                        {{-- Locale tabs --}}
+                        <div class="flex gap-2 mb-2">
+                            <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+                                class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">English</button>
+                            <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+                                class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">Indonesia</button>
+                        </div>
+
                         {{-- Latitude --}}
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">Latitude</label>
@@ -122,9 +130,16 @@
                         {{-- Accessibility Notes --}}
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mt-2">Catatan Aksesibilitas</label>
-                            <textarea name="accessibility_notes" rows="3"
-                                placeholder="Contoh: Tersedia ramp landai di pintu masuk utama."
-                                class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">{{ old('accessibility_notes', $location->accessibility_notes ?? '') }}</textarea>
+                            <div x-show="locale === 'en'">
+                                <textarea name="accessibility_notes[en]" rows="3"
+                                    placeholder="e.g. Ramp entrance at the main gate."
+                                    class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">{{ old('accessibility_notes.en', $location ? ($location->getTranslation('accessibility_notes', 'en', false) ?? '') : '') }}</textarea>
+                            </div>
+                            <div x-show="locale === 'id'">
+                                <textarea name="accessibility_notes[id]" rows="3"
+                                    placeholder="Contoh: Tersedia ramp landai di pintu masuk utama."
+                                    class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">{{ old('accessibility_notes.id', $location ? ($location->getTranslation('accessibility_notes', 'id', false) ?? '') : '') }}</textarea>
+                            </div>
                         </div>
                     </div>
 

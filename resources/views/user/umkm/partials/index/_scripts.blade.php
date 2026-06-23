@@ -269,6 +269,31 @@
                 }
             };
 
+            // Listen for custom category selection event from search dropdown
+            window.addEventListener('umkm-search-category', function(e) {
+                const catId = e.detail.id;
+                
+                // Switch tab to 'smart-route'
+                window.dispatchEvent(new CustomEvent('switch-umkm-tab', { detail: 'smart-route' }));
+                
+                // Select category in the grid
+                const checkbox = document.getElementById(`checkbox-cat-${catId}`);
+                if (checkbox) {
+                    if (!checkbox.checked) {
+                        checkbox.checked = true;
+                        checkbox.dispatchEvent(new Event('change'));
+                    }
+                    
+                    // Scroll to the category card
+                    const card = document.getElementById(`card-cat-${catId}`);
+                    if (card) {
+                        setTimeout(() => {
+                            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 100);
+                    }
+                }
+            });
+
             // Expose required functions to window for inline HTML onclick/onchange attributes
             window.updateCardHighlight = updateCardHighlight;
             window.deselectCategory = deselectCategory;

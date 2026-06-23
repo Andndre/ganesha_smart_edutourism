@@ -21,6 +21,63 @@ class CulturalObjectController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        if ($request->has('story_title') && is_array($request->input('story_title'))) {
+            $storyTitles = $request->input('story_title');
+            $normalized = [];
+            foreach ($storyTitles as $val) {
+                if (is_array($val)) {
+                    $normalized[] = $val;
+                } else {
+                    $normalized[] = [
+                        'en' => (string) $val,
+                        'id' => (string) $val,
+                    ];
+                }
+            }
+            $request->merge(['story_title' => $normalized]);
+        }
+
+        if ($request->has('story_content') && is_array($request->input('story_content'))) {
+            $storyContents = $request->input('story_content');
+            $normalized = [];
+            foreach ($storyContents as $val) {
+                if (is_array($val)) {
+                    $normalized[] = $val;
+                } else {
+                    $normalized[] = [
+                        'en' => (string) $val,
+                        'id' => (string) $val,
+                    ];
+                }
+            }
+            $request->merge(['story_content' => $normalized]);
+        }
+
+        if ($request->has('quiz_question') && is_array($request->input('quiz_question'))) {
+            $quizQuestions = $request->input('quiz_question');
+            $normalized = [];
+            foreach ($quizQuestions as $val) {
+                if (is_array($val)) {
+                    $normalized[] = $val;
+                } else {
+                    $normalized[] = [
+                        'en' => (string) $val,
+                        'id' => (string) $val,
+                    ];
+                }
+            }
+            $request->merge(['quiz_question' => $normalized]);
+        }
+
+        if ($request->has('accessibility_notes') && is_string($request->input('accessibility_notes'))) {
+            $request->merge([
+                'accessibility_notes' => [
+                    'en' => $request->input('accessibility_notes'),
+                    'id' => $request->input('accessibility_notes'),
+                ],
+            ]);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'array'],
             'name.en' => ['required', 'string', 'max:255'],
@@ -46,14 +103,28 @@ class CulturalObjectController extends Controller
             'historical_images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
             'has_quiz' => ['nullable', 'boolean'],
             'quiz_question' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_question.*' => ['required_if:has_quiz,1', 'array'],
+            'quiz_question.*.en' => ['required_if:has_quiz,1', 'string'],
+            'quiz_question.*.id' => ['required_if:has_quiz,1', 'string'],
             'quiz_option_a' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_a.*' => ['required_if:has_quiz,1', 'string'],
             'quiz_option_b' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_b.*' => ['required_if:has_quiz,1', 'string'],
             'quiz_option_c' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_c.*' => ['required_if:has_quiz,1', 'string'],
             'quiz_option_d' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_d.*' => ['required_if:has_quiz,1', 'string'],
             'quiz_correct_option' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_correct_option.*' => ['required_if:has_quiz,1', 'string', 'in:A,B,C,D'],
             'has_story' => ['nullable', 'boolean'],
             'story_title' => ['required_if:has_story,1', 'nullable', 'array'],
+            'story_title.*' => ['required_if:has_story,1', 'array'],
+            'story_title.*.en' => ['required_if:has_story,1', 'string', 'max:255'],
+            'story_title.*.id' => ['required_if:has_story,1', 'string', 'max:255'],
             'story_content' => ['required_if:has_story,1', 'nullable', 'array'],
+            'story_content.*' => ['required_if:has_story,1', 'array'],
+            'story_content.*.en' => ['required_if:has_story,1', 'string'],
+            'story_content.*.id' => ['required_if:has_story,1', 'string'],
             'story_type' => ['required_if:has_story,1', 'nullable', 'array'],
             'story_type.*' => ['in:history,philosophy,value'],
         ]);
@@ -116,10 +187,10 @@ class CulturalObjectController extends Controller
             $types = $request->input('story_type');
 
             foreach ($titles as $index => $title) {
-                if (! empty($title)) {
+                if (! empty($title['en']) || ! empty($title['id'])) {
                     $object->stories()->create([
                         'title' => $title,
-                        'content' => $contents[$index] ?? '',
+                        'content' => $contents[$index] ?? null,
                         'story_type' => $types[$index] ?? 'history',
                         'order' => $index + 1,
                     ]);
@@ -136,7 +207,7 @@ class CulturalObjectController extends Controller
             $correctOptions = $request->input('quiz_correct_option');
 
             foreach ($questions as $index => $question) {
-                if (! empty($question)) {
+                if (! empty($question['en']) || ! empty($question['id'])) {
                     $object->quizzes()->create([
                         'question' => $question,
                         'option_a' => $optionA[$index] ?? '',
@@ -204,6 +275,63 @@ class CulturalObjectController extends Controller
     {
         $object = CulturalObject::findOrFail($id);
 
+        if ($request->has('story_title') && is_array($request->input('story_title'))) {
+            $storyTitles = $request->input('story_title');
+            $normalized = [];
+            foreach ($storyTitles as $val) {
+                if (is_array($val)) {
+                    $normalized[] = $val;
+                } else {
+                    $normalized[] = [
+                        'en' => (string) $val,
+                        'id' => (string) $val,
+                    ];
+                }
+            }
+            $request->merge(['story_title' => $normalized]);
+        }
+
+        if ($request->has('story_content') && is_array($request->input('story_content'))) {
+            $storyContents = $request->input('story_content');
+            $normalized = [];
+            foreach ($storyContents as $val) {
+                if (is_array($val)) {
+                    $normalized[] = $val;
+                } else {
+                    $normalized[] = [
+                        'en' => (string) $val,
+                        'id' => (string) $val,
+                    ];
+                }
+            }
+            $request->merge(['story_content' => $normalized]);
+        }
+
+        if ($request->has('quiz_question') && is_array($request->input('quiz_question'))) {
+            $quizQuestions = $request->input('quiz_question');
+            $normalized = [];
+            foreach ($quizQuestions as $val) {
+                if (is_array($val)) {
+                    $normalized[] = $val;
+                } else {
+                    $normalized[] = [
+                        'en' => (string) $val,
+                        'id' => (string) $val,
+                    ];
+                }
+            }
+            $request->merge(['quiz_question' => $normalized]);
+        }
+
+        if ($request->has('accessibility_notes') && is_string($request->input('accessibility_notes'))) {
+            $request->merge([
+                'accessibility_notes' => [
+                    'en' => $request->input('accessibility_notes'),
+                    'id' => $request->input('accessibility_notes'),
+                ],
+            ]);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'array'],
             'name.en' => ['required', 'string', 'max:255'],
@@ -229,14 +357,28 @@ class CulturalObjectController extends Controller
             'historical_images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
             'has_quiz' => ['nullable', 'boolean'],
             'quiz_question' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_question.*' => ['required_if:has_quiz,1', 'array'],
+            'quiz_question.*.en' => ['required_if:has_quiz,1', 'string'],
+            'quiz_question.*.id' => ['required_if:has_quiz,1', 'string'],
             'quiz_option_a' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_a.*' => ['required_if:has_quiz,1', 'string'],
             'quiz_option_b' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_b.*' => ['required_if:has_quiz,1', 'string'],
             'quiz_option_c' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_c.*' => ['required_if:has_quiz,1', 'string'],
             'quiz_option_d' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_option_d.*' => ['required_if:has_quiz,1', 'string'],
             'quiz_correct_option' => ['required_if:has_quiz,1', 'nullable', 'array'],
+            'quiz_correct_option.*' => ['required_if:has_quiz,1', 'string', 'in:A,B,C,D'],
             'has_story' => ['nullable', 'boolean'],
             'story_title' => ['required_if:has_story,1', 'nullable', 'array'],
+            'story_title.*' => ['required_if:has_story,1', 'array'],
+            'story_title.*.en' => ['required_if:has_story,1', 'string', 'max:255'],
+            'story_title.*.id' => ['required_if:has_story,1', 'string', 'max:255'],
             'story_content' => ['required_if:has_story,1', 'nullable', 'array'],
+            'story_content.*' => ['required_if:has_story,1', 'array'],
+            'story_content.*.en' => ['required_if:has_story,1', 'string'],
+            'story_content.*.id' => ['required_if:has_story,1', 'string'],
             'story_type' => ['required_if:has_story,1', 'nullable', 'array'],
             'story_type.*' => ['in:history,philosophy,value'],
         ]);
@@ -303,10 +445,10 @@ class CulturalObjectController extends Controller
             $types = $request->input('story_type');
 
             foreach ($titles as $index => $title) {
-                if (! empty($title)) {
+                if (! empty($title['en']) || ! empty($title['id'])) {
                     $object->stories()->create([
                         'title' => $title,
-                        'content' => $contents[$index] ?? '',
+                        'content' => $contents[$index] ?? null,
                         'story_type' => $types[$index] ?? 'history',
                         'order' => $index + 1,
                     ]);
@@ -325,7 +467,7 @@ class CulturalObjectController extends Controller
             $correctOptions = $request->input('quiz_correct_option');
 
             foreach ($questions as $index => $question) {
-                if (! empty($question)) {
+                if (! empty($question['en']) || ! empty($question['id'])) {
                     $object->quizzes()->create([
                         'question' => $question,
                         'option_a' => $optionA[$index] ?? '',

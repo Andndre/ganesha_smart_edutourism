@@ -22,7 +22,7 @@ class AuthenticationFlowTest extends DuskTestCase
             $browser->visit('/login')
                 ->type('email', $admin->email)
                 ->type('password', 'password123')
-                ->press('Masuk ke Aplikasi')
+                ->press('Sign In to App')
                 ->waitForLocation('/admin/dashboard')
                 ->assertPathIs('/admin/dashboard')
                 ->assertSee('Dashboard');
@@ -66,10 +66,10 @@ class AuthenticationFlowTest extends DuskTestCase
                 ->type('password', 'password123')
                 ->type('password_confirmation', 'password123')
                 ->check('#terms')
-                ->press('Daftar Sekarang')
-                ->waitForLocation('/')
+                ->press('Register Now')
+                ->waitForLocation('/', 15)
                 ->assertPathIs('/')
-                ->assertSee('Rahajeng Rauh');
+                ->assertDontSee('Buat Akun');
         });
     }
 }

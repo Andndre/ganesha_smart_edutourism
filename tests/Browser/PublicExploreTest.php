@@ -32,7 +32,6 @@ class PublicExploreTest extends DuskTestCase
             'owner_name' => 'Owner Test',
             'business_name' => 'Toko Dusk Test',
             'slug' => 'toko-dusk-test',
-            'description' => 'Test',
             'is_active' => true,
         ]);
         UmkmProduct::create([
@@ -46,22 +45,38 @@ class PublicExploreTest extends DuskTestCase
 
         $this->browse(function (Browser $browser) {
             $browser->visit('/umkm')
-                ->waitForText('Jelajah UMKM', 10)
-                ->assertSee('Jelajah UMKM');
+                // Default tab is Smart Route — text is translated to English
+                ->waitForText('Explore Merchants', 10)
+                ->assertSee('Explore Merchants')
+                // Assert new tabbed layout: both tab labels visible
+                ->assertSee('Smart Route')
+                ->assertSee('Merchant Directory')
+                // Assert omni-search bar present (English placeholder)
+                ->assertPresent('input[placeholder*="Merchant"]')
+                // Switch to Merchant Directory tab and verify UMKM card
+                ->press('Merchant Directory')
+                ->waitForText('Toko Dusk Test', 5)
+                ->assertSee('Toko Dusk Test')
+                // Switch back to Smart Route tab
+                ->press('Smart Route')
+                ->waitForText('Explore Merchants', 5)
+                ->assertSee('Explore Merchants');
         });
     }
 
     public function test_umkm_category_filter(): void
     {
-        UmkmProductCategory::create([
+        $category = UmkmProductCategory::create([
             'name' => ['en' => 'Kategori Dusk Test EN', 'id' => 'Kategori Dusk Test ID'],
             'slug' => 'kategori-dusk-test',
         ]);
 
         $this->browse(function (Browser $browser) {
             $browser->visit('/umkm')
-                ->waitForText('Jelajah UMKM', 10)
-                ->assertSee('Jelajah UMKM');
+                ->waitForText('Explore Merchants', 10)
+                ->assertSee('Explore Merchants')
+                // Category card should appear in Smart Route tab
+                ->assertSee('Kategori Dusk Test EN');
         });
     }
 }

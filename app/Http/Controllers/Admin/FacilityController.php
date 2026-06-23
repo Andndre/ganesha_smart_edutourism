@@ -14,6 +14,15 @@ class FacilityController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        if ($request->has('accessibility_notes') && is_string($request->input('accessibility_notes'))) {
+            $request->merge([
+                'accessibility_notes' => [
+                    'en' => $request->input('accessibility_notes'),
+                    'id' => $request->input('accessibility_notes'),
+                ],
+            ]);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'array'],
             'name.en' => ['required', 'string', 'max:255'],
@@ -26,7 +35,9 @@ class FacilityController extends Controller
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             'is_accessible' => ['nullable', 'boolean'],
-            'accessibility_notes' => ['nullable', 'string'],
+            'accessibility_notes' => ['nullable', 'array'],
+            'accessibility_notes.en' => ['nullable', 'string'],
+            'accessibility_notes.id' => ['nullable', 'string'],
         ]);
 
         $latitude = $validated['latitude'];
@@ -57,6 +68,15 @@ class FacilityController extends Controller
      */
     public function update(Request $request, Facility $facility): RedirectResponse
     {
+        if ($request->has('accessibility_notes') && is_string($request->input('accessibility_notes'))) {
+            $request->merge([
+                'accessibility_notes' => [
+                    'en' => $request->input('accessibility_notes'),
+                    'id' => $request->input('accessibility_notes'),
+                ],
+            ]);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'array'],
             'name.en' => ['required', 'string', 'max:255'],
@@ -69,7 +89,9 @@ class FacilityController extends Controller
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             'is_accessible' => ['nullable', 'boolean'],
-            'accessibility_notes' => ['nullable', 'string'],
+            'accessibility_notes' => ['nullable', 'array'],
+            'accessibility_notes.en' => ['nullable', 'string'],
+            'accessibility_notes.id' => ['nullable', 'string'],
         ]);
 
         $latitude = $validated['latitude'];
