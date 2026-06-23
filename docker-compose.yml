@@ -5,6 +5,11 @@ services:
       dockerfile: Dockerfile
     container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-app
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     # --- JIKA MENGGUNAKAN TRAEFIK HOSTINGER (HTTPS / MULTI-PROJECT) ---
     # Ports dinonaktifkan agar port 80 tidak bentrok dengan Traefik pada VPS host:
     # ports:
@@ -48,6 +53,11 @@ services:
       dockerfile: Dockerfile
     container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-reverb
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     command: php artisan reverb:start --host=0.0.0.0 --port=8081
     ports:
       - "${REVERB_PORT:-8081}:8081"
@@ -69,6 +79,11 @@ services:
     image: mysql:8.0
     container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-db
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-db_ganesha_smart_edutourism}
       MYSQL_USER: ${DB_USERNAME:-admin}
@@ -96,6 +111,11 @@ services:
     image: openrouteservice/openrouteservice:latest
     container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-ors
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     ports:
       - "${ORS_PORT:-8080}:8082"
     volumes:

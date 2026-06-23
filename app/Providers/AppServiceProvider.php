@@ -18,6 +18,7 @@ use App\Observers\CacheInvalidationObserver;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Opcodes\LogViewer\Facades\LogViewer;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +38,10 @@ class AppServiceProvider extends ServiceProvider
         if (app()->environment('local') && isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
             URL::forceScheme('https');
         }
+
+        LogViewer::auth(function ($request) {
+            return $request->user() && $request->user()->email === env('SUPER_ADMIN_EMAIL', 'your_super_admin_email_here');
+        });
 
         View::composer(['layouts.app', 'user.umkm.index'], function ($view) {
             $userId = auth()->id();
