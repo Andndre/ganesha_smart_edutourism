@@ -462,6 +462,29 @@
             });
     }
 
+    function checkIOSInAppBrowser() {
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        // Deteksi jika perangkat adalah iOS
+        const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+        if (!isIOS) return;
+
+        // Daftar penanda In-App Browser populer
+        const inAppRules = ['FBAV', 'FBAN', 'Instagram', 'Line', 'WhatsApp', 'Snapchat', 'TikTok'];
+        const isIAB = inAppRules.some(rule => new RegExp(rule, 'i').test(ua));
+        
+        // Deteksi khusus jika bukan Safari (e.g. Chrome di iOS juga kadang rewel soal permission)
+        const isSafari = /Safari/i.test(ua) && !/Chrome|CriOS/i.test(ua);
+
+        // Jika In-App Browser ATAU bukan Safari di iOS
+        if (isIAB || !isSafari) {
+            const warningEl = document.getElementById('iab-warning');
+            if (warningEl) {
+                warningEl.classList.remove('hidden');
+                warningEl.classList.add('flex');
+            }
+        }
+    }
+
     function showModel(url, usdzUrl, name, shortDesc, fullDesc, audioUrl) {
         const scanView = document.getElementById("scanner-view");
         const modelView = document.getElementById("model-view");
@@ -470,6 +493,8 @@
         if (scanView) scanView.classList.add("hidden");
         if (modelView) modelView.classList.remove("hidden");
         if (badge) badge.innerText = window.AR_MESSAGES?.touchToRotate || "Sentuh untuk memutar/zoom";
+
+        checkIOSInAppBrowser();
 
         const viewer = document.getElementById("ar-model-viewer");
         if (viewer) {
