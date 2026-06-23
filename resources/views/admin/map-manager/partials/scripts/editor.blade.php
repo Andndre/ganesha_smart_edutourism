@@ -183,6 +183,23 @@ function handleMarkerClick(marker) {
                 }
             }
 
+            // Populate AR model name/description fields (for inline editing)
+            const arModelData = loc.ar_model || null;
+            if (arModelData) {
+                const nameEn = typeof arModelData.name === 'object' ? (arModelData.name.en || '') : arModelData.name || '';
+                const nameId = typeof arModelData.name === 'object' ? (arModelData.name.id || '') : arModelData.name || '';
+                const descEn = typeof arModelData.description === 'object' ? (arModelData.description.en || '') : arModelData.description || '';
+                const descId = typeof arModelData.description === 'object' ? (arModelData.description.id || '') : arModelData.description || '';
+                const nameEnInput = document.querySelector('input[name="new_model_name[en]"]');
+                const nameIdInput = document.querySelector('input[name="new_model_name[id]"]');
+                const descEnInput = document.querySelector('textarea[name="new_model_description[en]"]');
+                const descIdInput = document.querySelector('textarea[name="new_model_description[id]"]');
+                if (nameEnInput) nameEnInput.value = nameEn;
+                if (nameIdInput) nameIdInput.value = nameId;
+                if (descEnInput) descEnInput.value = descEn;
+                if (descIdInput) descIdInput.value = descId;
+            }
+
             const arModel = loc.ar_model || null;
 
             // File previews
