@@ -1,9 +1,9 @@
 {{-- ponytail: partial dipecah untuk keterbacaan --}}
 <!-- Product Detail Modal -->
 <div x-data="{ selectedProduct: null }" @open-product-modal.window="selectedProduct = $event.detail">
-    <x-modal name="product-modal" maxWidth="sm">
+    <x-modal name="product-modal" maxWidth="md">
         <!-- Image Header -->
-        <div class="relative -mx-6 -mt-6 mb-6 h-48 overflow-hidden rounded-t-[2.5rem] bg-gray-100 md:rounded-t-3xl">
+        <div class="relative mb-6 h-48 w-full overflow-hidden rounded-2xl bg-gray-100">
             <template x-if="selectedProduct?.image">
                 <img :src="selectedProduct.image" class="h-full w-full object-cover" alt="{{ __('Product Image') }}">
             </template>
@@ -17,9 +17,9 @@
             </template>
             <!-- Close Button on Mobile -->
             <button type="button" @click="isOpen = false"
-                class="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:text-gray-600 active:scale-95 md:hidden"
+                class="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition-all hover:bg-black/60 active:scale-95 md:hidden"
                 title="{{ __('Tutup') }}">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
