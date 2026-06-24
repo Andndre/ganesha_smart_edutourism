@@ -84,7 +84,7 @@
                         </div>
 
                         @php
-                            $ticketQrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' . $reservation->qr_code;
+                            $ticketQrUrl = qrSvgDataUri($reservation->qr_code, 250);
                             $ticketDisplayName = addslashes($reservation->tourPackage->name ?? __('Paket Wisata'));
                         @endphp
                         @if ($reservation->status == 'confirmed')

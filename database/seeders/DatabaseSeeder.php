@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         // Seeders that run in all environments
         $this->call([
             AdminSeeder::class,
+            StaffSeeder::class,
             TourPackageSeeder::class,
             CapacityZoneSeeder::class,
         ]);

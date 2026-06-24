@@ -3,9 +3,7 @@
 @section('header_title', __('Checkout Paket'))
 
 @push('styles')
-    @if (config('midtrans.is_production'))
-        <script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
-    @endif
+    <script src="https://{{ config('midtrans.is_production') ? 'app.midtrans.com' : 'app.sandbox.midtrans.com' }}/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
 @endpush
 
 @section('content')
@@ -186,12 +184,6 @@
                         const data = await response.json();
 
                         if (data.success && data.snap_token) {
-                            const isProduction = {{ config('midtrans.is_production') ? 'true' : 'false' }};
-                            if (!isProduction) {
-                                window.location.href = `https://app.sandbox.midtrans.com/snap/v2/vtweb/${data.snap_token}`;
-                                return;
-                            }
-
                             snap.pay(data.snap_token, {
                                 onSuccess: function(result) {
                                     window.location.href =
