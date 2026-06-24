@@ -57,6 +57,27 @@ class AdminTest extends TestCase
     }
 
     /**
+     * Test auto-generation of zone_identifier from name when not provided.
+     */
+    public function test_capacity_zone_auto_generates_identifier(): void
+    {
+        $response = $this->actingAs($this->adminUser)
+            ->post(route('admin.capacity.store'), [
+                'name' => 'Main Entrance',
+                'zone_identifier' => '',
+                'max_capacity' => 500,
+                'warning_threshold' => 70,
+                'critical_threshold' => 90,
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('capacity_zones', [
+            'name' => 'Main Entrance',
+            'zone_identifier' => 'main_entrance',
+        ]);
+    }
+
+    /**
      * Test capacity zone view loading and threshold updates.
      */
     public function test_capacity_zones_rendering_and_threshold_update(): void

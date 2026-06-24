@@ -167,9 +167,9 @@
             document.getElementById('modal-warning-threshold').value = '70';
             document.getElementById('modal-critical-threshold').value = '90';
             
-            document.getElementById('identifier-group').style.display = 'block';
+            document.getElementById('identifier-group').style.display = 'none';
             document.getElementById('modal-identifier').value = '';
-            document.getElementById('modal-identifier').setAttribute('required', 'required');
+            document.getElementById('modal-identifier').removeAttribute('required');
 
             const form = document.getElementById('modal-threshold-form');
             form.action = `/admin/capacity`;

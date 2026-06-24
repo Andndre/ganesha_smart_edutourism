@@ -127,12 +127,22 @@ class CapacityController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'zone_identifier' => ['required', 'string', 'max:255', 'unique:capacity_zones,zone_identifier'],
+            'zone_identifier' => ['nullable', 'string', 'max:255', 'unique:capacity_zones,zone_identifier'],
             'max_capacity' => ['required', 'integer', 'min:1'],
             'warning_threshold' => ['required', 'integer', 'min:1', 'max:100'],
             'critical_threshold' => ['required', 'integer', 'min:1', 'max:100', 'gt:warning_threshold'],
             'polygon_coordinates' => ['nullable', 'array'],
         ]);
+
+        if (empty($validated['zone_identifier'])) {
+            $base = (string) str($validated['name'])->slug('_');
+            $identifier = $base;
+            $suffix = 1;
+            while (CapacityZone::where('zone_identifier', $identifier)->exists()) {
+                $identifier = $base.'_'.$suffix++;
+            }
+            $validated['zone_identifier'] = $identifier;
+        }
 
         CapacityZone::create($validated);
 
