@@ -67,10 +67,13 @@ Route::middleware('redirect.admin')->group(function () {
 
     // UMKM Catalog & Recommendation
     Route::get('/umkm', [UmkmCatalogController::class, 'index'])->name('umkm');
-    Route::post('/umkm/recommend', [UmkmCatalogController::class, 'recommend'])->name('umkm.recommend');
+    Route::post('/umkm/recommend', [UmkmCatalogController::class, 'recommend'])
+        ->middleware('auth')
+        ->name('umkm.recommend');
     Route::get('/umkm/recommended/{id}', [UmkmCatalogController::class, 'recommended'])->name('umkm.recommended');
     Route::get('/umkm/multi-route', [UmkmCatalogController::class, 'multiRecommended'])->name('umkm.multi_recommended');
-    Route::get('/umkm/product/{id}', [UmkmCatalogController::class, 'show'])->name('umkm-product');
+    Route::get('/umkm/store/{id}', [UmkmCatalogController::class, 'show'])->name('umkm.store');
+    Route::get('/umkm/product/{id}', fn ($id) => redirect(route('umkm.store', $id), 301));
     Route::get('/umkm/api-search', [UmkmCatalogController::class, 'search'])->name('umkm.api-search');
 
     // Cultural Objects

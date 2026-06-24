@@ -2,7 +2,7 @@
 @if($umkmList->isNotEmpty())
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
         @foreach($umkmList as $umkm)
-            <a href="{{ route('umkm-product', $umkm->id) }}"
+            <a href="{{ route('umkm.store', $umkm->id) }}"
                class="relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:border-gray-200 hover:shadow-md active:scale-[0.98]">
                 <div class="relative aspect-square bg-gray-100">
                     @if(optional($umkm)->image_path)

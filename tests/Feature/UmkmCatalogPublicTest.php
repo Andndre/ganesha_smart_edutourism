@@ -98,7 +98,8 @@ class UmkmCatalogPublicTest extends TestCase
         ]);
 
         // 5. Query both categories (which forces a multi-stop fallback route since no single UMKM has both!)
-        $response = $this->post('/umkm/recommend', [
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->post('/umkm/recommend', [
             'category_ids' => [$catFood->id, $catCraft->id],
         ]);
 
@@ -444,7 +445,8 @@ class UmkmCatalogPublicTest extends TestCase
         ]);
 
         // 5. POST both categories -> forces multi-stop fallback (no single UMKM has both)
-        $response = $this->post('/umkm/recommend', [
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->post('/umkm/recommend', [
             'category_ids' => [$catFood->id, $catCraft->id],
         ]);
 
@@ -564,5 +566,35 @@ class UmkmCatalogPublicTest extends TestCase
 
         // Load More link present since hasMorePages() is true
         $response->assertSee('Muat Lebih Banyak');
+    }
+
+    /**
+     * Test that guest is redirected to login when trying to recommend.
+     */
+    public function test_guest_redirected_to_login_on_recommend(): void
+    {
+        $response = $this->post('/umkm/recommend', [
+            'category_ids' => [1],
+        ]);
+        $response->assertRedirect('/login');
+    }
+
+    /**
+     * Test that user can access the UMKM store detail page.
+     */
+    public function test_user_can_access_umkm_detail_page(): void
+    {
+        $owner = User::factory()->create(['role' => 'umkm_owner']);
+        $umkm = UmkmProfile::create([
+            'user_id' => $owner->id,
+            'owner_name' => $owner->name,
+            'business_name' => 'Wayan Coffee',
+            'slug' => 'wayan-coffee',
+            'is_active' => true,
+        ]);
+
+        $response = $this->get("/umkm/store/{$umkm->id}");
+        $response->assertStatus(200);
+        $response->assertSee('Wayan Coffee');
     }
 }
