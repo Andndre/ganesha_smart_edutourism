@@ -208,7 +208,7 @@ class StaffTicketingTest extends TestCase
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today(),
-            'scheduled_time' => '10:00',
+            'scheduled_time' => now()->format('H:i'),
             'party_size' => 1,
             'total_amount' => 50000.00,
             'status' => 'confirmed',
