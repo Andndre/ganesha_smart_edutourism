@@ -1,27 +1,34 @@
 {{-- ponytail: partial dipecah untuk keterbacaan --}}
-        <!-- Info -->
-        <div class="px-4 py-6 bg-white -mt-4 rounded-t-3xl relative z-10 border-b border-gray-100 shadow-sm">
-            <div class="flex justify-between items-start mb-2">
-                <div>
-                    <h1 class="text-xl font-bold text-charcoal">Kopi Luwak Penglipuran Asli</h1>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span class="text-accent flex items-center text-sm">
-                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            4.9
-                        </span>
-                        <span class="text-gray-400 text-sm">•</span>
-                        <span class="text-gray-500 text-sm">{{ __('Terjual') }} 120+</span>
-                    </div>
-                </div>
-                <button class="p-2 bg-gray-50 rounded-full text-gray-400 hover:text-red-500 transition-colors">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                </button>
-            </div>
-            <div class="text-2xl font-bold text-primary mt-3 mb-1">Rp 50.000</div>
+<!-- Info Card -->
+<div class="relative z-10 -mt-4 rounded-t-3xl border-b border-gray-100 bg-white px-4 py-6 shadow-sm">
+    <div class="mb-4 flex items-center gap-4">
+        <div class="text-primary flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gray-100 shadow-inner">
+            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
         </div>
+        <div>
+            <h2 class="text-charcoal text-xl font-bold">{{ $umkm->business_name }}</h2>
+            <p class="mt-1 flex items-center gap-1 text-sm text-gray-500">
+                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                {{ __('Milik:') }} {{ $umkm->owner_name }}
+            </p>
+            <div class="mt-1.5 flex items-center gap-2">
+                <span class="text-accent flex items-center text-xs font-medium">
+                    <svg class="mr-1 h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    {{ $umkm->rating ?? '4.8' }}
+                </span>
+            </div>
+        </div>
+    </div>
+    @if ($umkm->description)
+        <p class="mt-2 text-sm text-gray-600 leading-relaxed">{{ $umkm->description }}</p>
+    @endif
+</div>

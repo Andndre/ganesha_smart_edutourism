@@ -99,7 +99,7 @@
                         {{ __('UMKM') }}
                     </div>
                     <template x-for="umkm in results.umkms" :key="'umkm-' + umkm.id">
-                        <a :href="'/umkm/product/' + umkm.id"
+                        <a :href="'/umkm/store/' + umkm.id"
                             class="flex min-h-[44px] items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-primary/[0.04] active:bg-primary/[0.08]">
                             <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/[0.08] text-primary">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,7 +125,7 @@
                         {{ __('Produk') }}
                     </div>
                     <template x-for="product in results.products" :key="'prod-' + product.id">
-                        <a :href="'/umkm/product/' + product.umkm_profile_id"
+                        <a :href="'/umkm/store/' + product.umkm_profile_id"
                             class="flex min-h-[44px] items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-primary/[0.04] active:bg-primary/[0.08]">
                             <div x-show="product.image_path"
                                 class="h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-gray-100">

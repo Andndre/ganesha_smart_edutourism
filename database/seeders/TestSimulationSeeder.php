@@ -8,6 +8,10 @@ use App\Models\CulturalObject;
 use App\Models\Event;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
+use App\Models\UmkmProduct;
+use App\Models\UmkmProductCategory;
+use App\Models\UmkmProfile;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -37,6 +41,7 @@ class TestSimulationSeeder extends Seeder
         $this->seedCapacityZones();
         $this->seedUpcomingEvent();
         $this->seedTourRoute();
+        $this->seedUmkmData();
 
         $this->command->info('✅ Test simulation data seeded successfully!');
         $this->command->info('📍 Center: '.self::CENTER_LAT.', '.self::CENTER_LNG);
@@ -264,5 +269,137 @@ class TestSimulationSeeder extends Seeder
         }
 
         $this->command->line("   🗺️  Created tour route: {$routeName} ({$route->routePoints()->count()} stops)");
+    }
+
+    /**
+     * Seed simulation UMKM data.
+     */
+    private function seedUmkmData(): void
+    {
+        // 1. Create or get categories
+        $categoriesData = [
+            [
+                'name' => ['en' => 'Culinary', 'id' => 'Kuliner'],
+                'slug' => 'culinary',
+                'description' => ['en' => 'Local food and beverages', 'id' => 'Makanan dan minuman khas lokal'],
+            ],
+            [
+                'name' => ['en' => 'Craft', 'id' => 'Kerajinan'],
+                'slug' => 'craft',
+                'description' => ['en' => 'Handmade traditional crafts', 'id' => 'Kerajinan tangan tradisional'],
+            ],
+            [
+                'name' => ['en' => 'Souvenir', 'id' => 'Oleh-oleh'],
+                'slug' => 'souvenir',
+                'description' => ['en' => 'Gifts and souvenirs', 'id' => 'Cendera mata khas Penglipuran'],
+            ],
+        ];
+
+        $categories = [];
+        foreach ($categoriesData as $cat) {
+            $categories[$cat['slug']] = UmkmProductCategory::firstOrCreate(
+                ['slug' => $cat['slug']],
+                [
+                    'name' => $cat['name'],
+                    'description' => $cat['description'],
+                ]
+            );
+        }
+
+        // 2. Create UMKM Owners and Profiles
+        $umkms = [
+            [
+                'business_name' => ['en' => 'Warung Pak Wayan', 'id' => 'Warung Pak Wayan'],
+                'slug' => 'warung-pak-wayan',
+                'owner_name' => 'I Wayan Sudarta',
+                'description' => ['en' => 'Authentic Balinese culinary and traditional drinks.', 'id' => 'Kuliner otentik Bali dan minuman tradisional.'],
+                'latitude' => -8.48820000,
+                'longitude' => 115.38450000,
+                'rating' => 4.9,
+                'products' => [
+                    [
+                        'name' => ['en' => 'Authentic Kopi Luwak', 'id' => 'Kopi Luwak Penglipuran Asli'],
+                        'slug' => 'kopi-luwak-asli',
+                        'description' => ['en' => 'Traditional sangrai Kopi Luwak from local plantation.', 'id' => 'Kopi Luwak khas Desa Wisata Penglipuran, diproses secara tradisional menggunakan metode sangrai manual.'],
+                        'price' => 50000,
+                        'stock' => 15,
+                        'unit' => 'pack',
+                        'category_slug' => 'culinary',
+                    ],
+                ],
+            ],
+            [
+                'business_name' => ['en' => 'Kadek Souvenirs', 'id' => 'Kadek Souvenirs'],
+                'slug' => 'kadek-souvenirs',
+                'owner_name' => 'Ni Kadek Sri',
+                'description' => ['en' => 'Traditional Balinese handicrafts and souvenirs.', 'id' => 'Kerajinan tangan tradisional dan cendera mata khas Bali.'],
+                'latitude' => -8.48900000,
+                'longitude' => 115.38320000,
+                'rating' => 4.8,
+                'products' => [
+                    [
+                        'name' => ['en' => 'Balinese Bamboo Fan', 'id' => 'Kipas Bambu Bali'],
+                        'slug' => 'kipas-bambu-bali',
+                        'description' => ['en' => 'Handmade woven bamboo fan with traditional motifs.', 'id' => 'Kipas bambu anyaman tangan dengan motif tradisional khas Bali.'],
+                        'price' => 15000,
+                        'stock' => 30,
+                        'unit' => 'pcs',
+                        'category_slug' => 'craft',
+                    ],
+                ],
+            ],
+        ];
+
+        foreach ($umkms as $item) {
+            if (UmkmProfile::where('slug', $item['slug'])->exists()) {
+                continue;
+            }
+
+            // Create Owner User
+            $owner = User::create([
+                'name' => $item['owner_name'],
+                'email' => $item['slug'].'@example.com',
+                'password' => bcrypt('password'),
+                'role' => 'umkm_owner',
+                'phone' => '628123456789'.rand(0, 9),
+            ]);
+
+            $profile = UmkmProfile::create([
+                'user_id' => $owner->id,
+                'owner_name' => $item['owner_name'],
+                'business_name' => $item['business_name'],
+                'slug' => $item['slug'],
+                'description' => $item['description'],
+                'rating' => $item['rating'],
+                'is_active' => true,
+            ]);
+
+            // Create Map Location for Leaflet
+            $profile->mapLocation()->create([
+                'name' => $item['business_name']['id'],
+                'category' => 'umkm',
+                'latitude' => $item['latitude'],
+                'longitude' => $item['longitude'],
+                'is_accessible' => true,
+            ]);
+
+            // Create Products
+            foreach ($item['products'] as $prod) {
+                $category = $categories[$prod['category_slug']];
+                UmkmProduct::create([
+                    'umkm_profile_id' => $profile->id,
+                    'umkm_product_category_id' => $category->id,
+                    'name' => $prod['name'],
+                    'slug' => $prod['slug'],
+                    'description' => $prod['description'],
+                    'price' => $prod['price'],
+                    'stock' => $prod['stock'],
+                    'unit' => $prod['unit'],
+                    'is_active' => true,
+                ]);
+            }
+        }
+
+        $this->command->line('   🛒  Created simulation UMKMs and Products');
     }
 }

@@ -110,7 +110,7 @@
                                     {{ __('UMKM') }}
                                 </div>
                                 <template x-for="umkm in results.umkms" :key="'umkm-' + umkm.id">
-                                    <a :href="'/umkm/product/' + umkm.id"
+                                    <a :href="'/umkm/store/' + umkm.id"
                                         class="flex min-h-[44px] items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-primary/4 active:bg-primary/8">
                                         <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/8 text-primary">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,7 +136,7 @@
                                     {{ __('Produk') }}
                                 </div>
                                 <template x-for="product in results.products" :key="'prod-' + product.id">
-                                    <a :href="'/umkm/product/' + product.umkm_profile_id"
+                                    <a :href="'/umkm/store/' + product.umkm_profile_id"
                                         class="flex min-h-[44px] items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-primary/4 active:bg-primary/8">
                                         <div x-show="product.image_path"
                                             class="h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-gray-100">
@@ -246,7 +246,7 @@
 
                 @if ($isMainTab)
                     <div class="relative" x-data="notificationBell()" @notification-received.window="onNewNotification($event.detail)">
-                        <button @click="toggle()" class="hover:text-primary relative p-2.5 text-gray-500 transition-colors active:scale-95"
+                        <button @click="toggle()" class="tap-target hover:text-primary relative p-2.5 text-gray-500 transition-colors active:scale-95"
                             aria-label="{{ __('Notifikasi') }}">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -277,7 +277,7 @@
                 {{-- Language Switcher --}}
                 <div class="relative" x-data="{ langOpen: false, currentLocale: '{{ app()->getLocale() }}' }">
                     <button @click="langOpen = !langOpen"
-                            class="hover:text-primary relative p-2.5 {{ $isMainTab ? 'text-gray-500' : 'text-white/80 hover:text-white' }} transition-colors active:scale-95"
+                            class="tap-target hover:text-primary relative p-2.5 {{ $isMainTab ? 'text-gray-500' : 'text-white/80 hover:text-white' }} transition-colors active:scale-95"
                             aria-label="{{ __('Ganti Bahasa') }}">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 14v1c0 1.1.9 2 2 2v1h2v2.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V6h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
