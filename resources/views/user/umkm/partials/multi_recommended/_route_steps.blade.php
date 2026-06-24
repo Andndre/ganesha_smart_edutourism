@@ -69,7 +69,6 @@
                                 @endphp
                                 @foreach ($umkm->activeProducts as $product)
                                     @if (in_array($product->umkm_product_category_id, $stopCategoryIds))
-                                        @php $totalPrice += $product->price; @endphp
                                         <div class="flex items-center justify-between text-sm">
                                             <span class="text-charcoal">{{ $product->name }}</span>
                                             <span class="text-primary font-bold">Rp
