@@ -1,7 +1,7 @@
 {{-- ponytail: partial dipecah untuk keterbacaan --}}
 @if ($umkm->mapLocation)
     <!-- Store Location Map -->
-    <div class="mt-2 border-y border-gray-100 bg-white px-4 py-5" id="map-section">
+    <div class="border-y border-gray-100 bg-white px-5 py-6 lg:rounded-3xl lg:border lg:border-gray-100 lg:shadow-sm lg:px-7 lg:py-7" id="map-section">
         <h3 class="text-charcoal mb-3 flex items-center gap-2 font-bold">
             <svg class="text-primary h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
