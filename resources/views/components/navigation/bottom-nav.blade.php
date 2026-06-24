@@ -1,4 +1,4 @@
-<nav class="pb-sab w-full bg-white shadow-sm border-t border-slate-200 md:static md:w-20 lg:w-64 md:h-[calc(100vh-2rem)] md:m-4 md:rounded-3xl md:shrink-0 md:border md:border-slate-200 md:shadow-sm md:pb-0 z-50 sticky md:top-4"
+<nav class="pb-sab w-full bg-white shadow-sm border-t border-slate-200 md:static md:w-20 lg:w-64 md:h-[calc(100vh-2rem)] md:m-4 md:rounded-3xl md:shrink-0 md:border md:border-slate-200 md:shadow-sm md:pb-0 z-50 sticky bottom-0 inset-x-0 md:top-4 md:inset-x-auto"
     role="navigation" aria-label="{{ __('Main navigation') }}">
     <div class="relative flex h-16 items-center justify-around px-2 md:h-full md:flex-col md:justify-start md:pt-8 md:gap-2 lg:px-4">
 
