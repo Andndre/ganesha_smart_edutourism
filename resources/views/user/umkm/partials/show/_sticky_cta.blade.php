@@ -1,6 +1,6 @@
 {{-- ponytail: partial dipecah untuk keterbacaan --}}
 <!-- Sticky Bottom CTA -->
-<div class="fixed bottom-[calc(env(safe-area-inset-bottom)+3.5rem)] inset-x-0 p-4 bg-white border-t border-gray-100 z-30 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+<div class="fixed bottom-0 inset-x-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-white border-t border-gray-100 z-30 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
     <div class="flex items-center gap-3">
         @if($umkm->user && $umkm->user->phone)
             @php
