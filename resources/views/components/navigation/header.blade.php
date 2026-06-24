@@ -246,7 +246,7 @@
 
                 @if ($isMainTab)
                     <div class="relative" x-data="notificationBell()" @notification-received.window="onNewNotification($event.detail)">
-                        <button @click="toggle()" class="hover:text-primary relative p-1.5 text-gray-500 transition-colors active:scale-95"
+                        <button @click="toggle()" class="hover:text-primary relative p-2.5 text-gray-500 transition-colors active:scale-95"
                             aria-label="{{ __('Notifikasi') }}">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -265,7 +265,7 @@
 
                 @if ($isVisited)
                     <a href="{{ route('favorites') }}"
-                        class="hover:text-white/80 relative flex items-center gap-1.5 p-1.5 text-white transition-colors active:scale-95"
+                        class="hover:text-white/80 relative flex items-center gap-1.5 p-2.5 text-white transition-colors active:scale-95"
                         aria-label="{{ __('Favorit Saya') }}">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
@@ -277,7 +277,7 @@
                 {{-- Language Switcher --}}
                 <div class="relative" x-data="{ langOpen: false, currentLocale: '{{ app()->getLocale() }}' }">
                     <button @click="langOpen = !langOpen"
-                            class="hover:text-primary relative p-1.5 {{ $isMainTab ? 'text-gray-500' : 'text-white/80 hover:text-white' }} transition-colors active:scale-95"
+                            class="hover:text-primary relative p-2.5 {{ $isMainTab ? 'text-gray-500' : 'text-white/80 hover:text-white' }} transition-colors active:scale-95"
                             aria-label="{{ __('Ganti Bahasa') }}">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 14v1c0 1.1.9 2 2 2v1h2v2.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V6h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
