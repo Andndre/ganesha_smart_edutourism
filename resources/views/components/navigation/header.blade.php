@@ -292,11 +292,11 @@
                          x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                          x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
                          @click.outside="langOpen = false"
-                         class="absolute right-0 top-full mt-2 w-40 overflow-hidden rounded-2xl border border-gray-100/80 bg-white/95 shadow-2xl backdrop-blur-md z-50"
+                         class="absolute right-0 top-full mt-2 w-max min-w-40 overflow-hidden rounded-2xl border border-gray-100/80 bg-white/95 shadow-2xl backdrop-blur-md z-50"
                          style="display: none;">
                         <div class="py-1">
                             <a href="{{ route('lang.switch', 'id') }}"
-                               class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-gray-50"
+                               class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-gray-50 whitespace-nowrap"
                                :class="currentLocale === 'id' ? 'text-[#1E5128]' : 'text-gray-700'">
                                 <span>Bahasa Indonesia</span>
                                 <span x-show="currentLocale === 'id'" class="ml-auto">
@@ -306,7 +306,7 @@
                                 </span>
                             </a>
                             <a href="{{ route('lang.switch', 'en') }}"
-                               class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-gray-50"
+                               class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-gray-50 whitespace-nowrap"
                                :class="currentLocale === 'en' ? 'text-[#1E5128]' : 'text-gray-700'">
                                 <span>English</span>
                                 <span x-show="currentLocale === 'en'" class="ml-auto">
