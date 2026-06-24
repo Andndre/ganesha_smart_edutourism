@@ -66,6 +66,7 @@
     
     {{-- Global Driver.js Styles & Premium Custom Theme --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.css"/>
     <style>
         .driver-popover.driverjs-theme {
             background-color: #ffffff !important;
@@ -522,6 +523,7 @@
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+    <script src="https://unpkg.com/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
     @livewireScripts
     @stack('scripts')
 </body>

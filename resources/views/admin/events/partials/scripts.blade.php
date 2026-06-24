@@ -47,7 +47,7 @@
                 const lat = parseFloat(this.formFields.latitude) || PENGLIPURAN_LAT;
                 const lng = parseFloat(this.formFields.longitude) || PENGLIPURAN_LNG;
 
-                this.formMap = L.map('form-location-map', { zoomControl: true, attributionControl: false })
+                this.formMap = L.map('form-location-map', { zoomControl: true, attributionControl: false, gestureHandling: true })
                     .setView([lat, lng], PENGLIPURAN_ZOOM);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
