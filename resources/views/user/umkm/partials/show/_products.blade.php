@@ -1,7 +1,7 @@
 {{-- ponytail: partial dipecah untuk keterbacaan --}}
 <!-- Products Preview -->
-<div class="mt-2 border-t border-gray-100 bg-white px-4 py-5" x-data>
-    <h3 class="text-charcoal mb-3 font-bold">{{ __('Produk yang Tersedia') }}</h3>
+<div class="border-y border-gray-100 bg-white px-5 py-6 lg:rounded-3xl lg:border lg:border-gray-100 lg:shadow-sm lg:px-7 lg:py-7" x-data>
+    <h3 class="text-charcoal mb-3 font-bold lg:text-lg">{{ __('Produk yang Tersedia') }}</h3>
     <div class="space-y-3">
         @forelse($umkm->activeProducts as $product)
             <div @click="$dispatch('open-product-modal', {{ json_encode([
@@ -11,7 +11,7 @@
                 'image' => $product->image_path ? asset('storage/' . $product->image_path) : ($product->images[0] ?? null ? asset('storage/' . ($product->images[0])) : ''),
                 'description' => $product->description ?? __('Tidak ada deskripsi.'),
             ]) }})"
-                class="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-100 p-3 transition-colors active:bg-gray-50">
+                class="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-100 p-3 transition-colors hover:border-primary/20 hover:bg-primary/5 active:bg-gray-50">
                 <div
                     class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100 text-gray-400">
                     @php
@@ -27,11 +27,11 @@
                         </svg>
                     @endif
                 </div>
-                <div class="flex-1">
-                    <h4 class="text-charcoal line-clamp-1 text-sm font-bold">{{ $product->name }}</h4>
+                <div class="flex-1 min-w-0">
+                    <h4 class="text-charcoal line-clamp-2 text-sm font-bold">{{ $product->name }}</h4>
                     <p class="mt-0.5 text-xs text-gray-500">{{ $product->category->name ?? __('Produk') }}</p>
                 </div>
-                <div class="text-primary text-sm font-bold">
+                <div class="text-primary shrink-0 text-sm font-bold">
                     Rp {{ number_format($product->price, 0, ',', '.') }}
                 </div>
             </div>
