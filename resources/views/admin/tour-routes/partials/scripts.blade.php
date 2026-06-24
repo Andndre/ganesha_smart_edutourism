@@ -58,7 +58,7 @@
     });
 
     function initRouteMap() {
-        map = L.map('route-map', { zoomControl: true, attributionControl: false })
+        map = L.map('route-map', { zoomControl: true, attributionControl: false, gestureHandling: true })
             .setView([PENGLIPURAN_LAT, PENGLIPURAN_LNG], PENGLIPURAN_ZOOM);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

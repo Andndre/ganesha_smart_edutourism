@@ -183,7 +183,7 @@
                 const initialLng = savedLng || PENGLIPURAN_LNG;
                 const initialZoom = savedLat ? 18 : PENGLIPURAN_ZOOM;
 
-                map = L.map('location-map', { zoomControl: true, attributionControl: false })
+                map = L.map('location-map', { zoomControl: true, attributionControl: false, gestureHandling: true })
                     .setView([initialLat, initialLng], initialZoom);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

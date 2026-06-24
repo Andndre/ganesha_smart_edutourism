@@ -59,7 +59,8 @@
             if (!modalMap) {
                 modalMap = L.map('modal-map', {
                     zoomControl: true,
-                    attributionControl: false
+                    attributionControl: false,
+                    gestureHandling: true
                 }).setView([defaultLat, defaultLon], 16);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -263,7 +264,8 @@
         const zonesData = {!! json_encode($zones) !!};
 
         map = L.map('map', {
-            zoomControl: true
+            zoomControl: true,
+            gestureHandling: true
         }).setView([defaultLat, defaultLon], 16);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
