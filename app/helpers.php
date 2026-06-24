@@ -1,5 +1,27 @@
 <?php
 
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
+
+if (! function_exists('qrSvgDataUri')) {
+    /**
+     * Generate a QR code SVG data URI for inline use in <img> tags.
+     */
+    function qrSvgDataUri(string $data, int $size = 250): string
+    {
+        $renderer = new ImageRenderer(
+            new RendererStyle($size),
+            new SvgImageBackEnd
+        );
+        $writer = new Writer($renderer);
+        $svg = $writer->writeString($data);
+
+        return 'data:image/svg+xml;base64,'.base64_encode($svg);
+    }
+}
+
 if (! function_exists('slugFromTranslatable')) {
     /**
      * Extract a slug-safe string from a translatable array field.

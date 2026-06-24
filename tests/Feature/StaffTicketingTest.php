@@ -40,6 +40,9 @@ class StaffTicketingTest extends TestCase
                 }
                 throw new \Exception('Midtrans status mock exception');
             });
+        $transactionMock->shouldReceive('cancel')
+            ->byDefault()
+            ->andReturn(true);
     }
 
     /**

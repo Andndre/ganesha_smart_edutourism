@@ -305,7 +305,7 @@ class UmkmOwnerTest extends TestCase
 
         $owner = User::where('email', 'ketut@example.com')->first();
         $this->assertNotNull($owner);
-        $this->assertEquals('umkm_owner', $owner->role);
+        $this->assertEquals('umkm_owner', $owner->role->value);
         $this->assertTrue(Hash::check('secret-owner-pw', $owner->password));
 
         // Update owner

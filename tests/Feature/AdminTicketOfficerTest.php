@@ -75,7 +75,7 @@ class AdminTicketOfficerTest extends TestCase
 
         $officer = User::where('email', 'officer2@example.com')->first();
         $this->assertNotNull($officer);
-        $this->assertEquals('ticket_officer', $officer->role);
+        $this->assertEquals('ticket_officer', $officer->role->value);
         $this->assertTrue(Hash::check('password123', $officer->password));
     }
 

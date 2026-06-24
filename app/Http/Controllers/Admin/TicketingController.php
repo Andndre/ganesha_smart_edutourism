@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\RefundMidtransTransaction;
+use App\Jobs\VoidMidtransTransaction;
 use App\Models\Reservation;
 use App\Models\TourPackage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Midtrans\Config;
@@ -247,38 +250,61 @@ class TicketingController extends Controller
             'qr_code' => 'required|string',
         ]);
 
-        $reservation = Reservation::where('qr_code', $request->qr_code)->first();
+        return DB::transaction(function () use ($request) {
+            $reservation = Reservation::where('qr_code', $request->qr_code)
+                ->lockForUpdate()
+                ->first();
 
-        if (! $reservation) {
+            if (! $reservation) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Tiket tidak ditemukan atau QR Code tidak valid.'),
+                ], 404);
+            }
+
+            if ($reservation->status === 'completed') {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Tiket ini sudah digunakan sebelumnya.'),
+                ], 400);
+            }
+
+            if ($reservation->payment_status !== 'paid') {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Tiket ini belum dibayar.'),
+                ], 400);
+            }
+
+            if (! $reservation->scheduled_date->isToday()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Tiket ini tidak dapat digunakan hari ini. Tanggal kunjungan tidak sesuai.'),
+                ], 400);
+            }
+
+            // Grace period: allow check-in up to 2 hours after scheduled time
+            $checkInDeadline = $reservation->scheduled_time->copy()->addHours(2);
+            if (now()->greaterThan($checkInDeadline)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Batas waktu check-in telah lewat (maksimal 2 jam setelah jam kunjungan).'),
+                ], 400);
+            }
+
+            // Mark as completed with audit trail
+            $reservation->update([
+                'status' => 'completed',
+                'checked_in_at' => now(),
+                'checked_in_by' => auth()->id(),
+            ]);
+
             return response()->json([
-                'success' => false,
-                'message' => __('Tiket tidak ditemukan atau QR Code tidak valid.'),
-            ], 404);
-        }
-
-        if ($reservation->status === 'completed') {
-            return response()->json([
-                'success' => false,
-                'message' => __('Tiket ini sudah digunakan sebelumnya.'),
-            ], 400);
-        }
-
-        if ($reservation->payment_status !== 'paid') {
-            return response()->json([
-                'success' => false,
-                'message' => __('Tiket ini belum dibayar.'),
-            ], 400);
-        }
-
-        // Mark as completed
-        $reservation->status = 'completed';
-        $reservation->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => __('Tiket berhasil diverifikasi! Selamat datang :name', ['name' => $reservation->user->name ?? $reservation->guest_name]),
-            'reservation' => $reservation,
-        ]);
+                'success' => true,
+                'message' => __('Tiket berhasil diverifikasi! Selamat datang :name', ['name' => $reservation->user->name ?? $reservation->guest_name]),
+                'reservation' => $reservation,
+            ]);
+        });
     }
 
     public function syncStatus(Reservation $reservation)
@@ -394,15 +420,67 @@ class TicketingController extends Controller
 
     public function cancel(Reservation $reservation)
     {
-        if ($reservation->status !== 'pending') {
+        if ($reservation->status === 'completed') {
             return response()->json([
                 'success' => false,
-                'message' => __('Hanya tiket pending yang dapat dibatalkan.'),
+                'message' => __('Tiket yang sudah digunakan tidak dapat dibatalkan.'),
             ], 400);
         }
 
-        $reservation->status = 'cancelled';
-        $reservation->save();
+        if ($reservation->payment_status === 'paid' && $reservation->status === 'confirmed') {
+            // ponytail: refund decision by hours-to-scheduled, add full policy later
+            $hoursUntilScheduled = $reservation->scheduled_date ? now()->diffInHours($reservation->scheduled_date, false) : 0;
+
+            if ($hoursUntilScheduled >= 24) {
+                $reservation->update([
+                    'status' => 'cancelled',
+                    'cancelled_at' => now(),
+                    'cancelled_by' => auth()->id(),
+                    'cancellation_type' => 'staff_refund',
+                    'cancellation_note' => request('reason') ?? 'Full refund (>24h before schedule)',
+                ]);
+
+                if ($reservation->payment_reference) {
+                    RefundMidtransTransaction::dispatch($reservation->payment_reference, (int) $reservation->total_amount);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => __('Tiket dibatalkan dengan refund penuh.'),
+                ]);
+            }
+
+            $reservation->update([
+                'status' => 'cancelled',
+                'cancelled_at' => now(),
+                'cancelled_by' => auth()->id(),
+                'cancellation_type' => 'staff_cancel',
+                'cancellation_note' => request('reason') ?? 'Requires manual refund review (<24h before schedule)',
+            ]);
+
+            Log::info('Manual refund review required', [
+                'reservation_id' => $reservation->id,
+                'hours_until_scheduled' => $hoursUntilScheduled,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('Tiket dibatalkan. Refund perlu diproses manual (kurang dari 24 jam).'),
+            ]);
+        }
+
+        // Cancel pending/unpaid or pending/qris reservations
+        $reservation->update([
+            'status' => 'cancelled',
+            'cancelled_at' => now(),
+            'cancelled_by' => auth()->id(),
+            'cancellation_type' => 'staff_cancel',
+            'cancellation_note' => request('reason'),
+        ]);
+
+        if ($reservation->payment_reference) {
+            VoidMidtransTransaction::dispatch($reservation->payment_reference);
+        }
 
         return response()->json([
             'success' => true,

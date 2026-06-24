@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,6 +30,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => UserRole::class,
         ];
     }
 
@@ -163,7 +165,7 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === UserRole::Admin;
     }
 
     /**
@@ -171,7 +173,7 @@ class User extends Authenticatable
      */
     public function isUmkmOwner(): bool
     {
-        return $this->role === 'umkm_owner';
+        return $this->role === UserRole::UmkmOwner;
     }
 
     /**
@@ -179,7 +181,15 @@ class User extends Authenticatable
      */
     public function isTicketOfficer(): bool
     {
-        return $this->role === 'ticket_officer';
+        return $this->role === UserRole::TicketOfficer;
+    }
+
+    /**
+     * Check if the user is a tourist (standard user).
+     */
+    public function isTourist(): bool
+    {
+        return $this->role === UserRole::Tourist;
     }
 
     /**
