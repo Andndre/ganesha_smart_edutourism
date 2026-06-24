@@ -260,6 +260,10 @@
         );
         reticles.forEach((r) => (r.style.display = "flex"));
         document.getElementById("reader").innerHTML = "";
+        if (html5QrcodeScanner) {
+            try { html5QrcodeScanner.clear(); } catch (e) {}
+            html5QrcodeScanner = null;
+        }
         initAr();
     };
 
