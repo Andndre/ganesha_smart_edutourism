@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\ArModel;
 use App\Models\CapacityZone;
 use App\Models\CulturalObject;
+use App\Models\CulturalObjectQuiz;
 use App\Models\Event;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
@@ -42,6 +43,7 @@ class TestSimulationSeeder extends Seeder
         $this->seedUpcomingEvent();
         $this->seedTourRoute();
         $this->seedUmkmData();
+        $this->seedQuizzes();
 
         $this->command->info('✅ Test simulation data seeded successfully!');
         $this->command->info('📍 Center: '.self::CENTER_LAT.', '.self::CENTER_LNG);
@@ -401,5 +403,48 @@ class TestSimulationSeeder extends Seeder
         }
 
         $this->command->line('   🛒  Created simulation UMKMs and Products');
+    }
+
+    /**
+     * Seed quizzes for cultural objects on the tour route.
+     */
+    private function seedQuizzes(): void
+    {
+        $quizzes = [
+            ['slug' => 'gerbang-utama-desa-test', 'question' => ['en' => 'What traditional material is the main gate made of?', 'id' => 'Dari bahan tradisional apa gerbang utama dibuat?'], 'options' => ['Batu padas dan bata merah', 'Kayu jati dan bambu', 'Batu granit dan semen', 'Anyaman bambu saja'], 'correct' => 'A'],
+            ['slug' => 'gerbang-utama-desa-test', 'question' => ['en' => 'What is the architectural style of the main gate?', 'id' => 'Apa gaya arsitektur dari gerbang utama?'], 'options' => ['Modern Minimalis', 'Tradisional Bali', 'Kolonial Belanda', 'Gotik Eropa'], 'correct' => 'B'],
+            ['slug' => 'pura-pande-test', 'question' => ['en' => 'When was Pura Pande estimated to be established?', 'id' => 'Kapan Pura Pande diperkirakan didirikan?'], 'options' => ['Abad ke-10', 'Abad ke-14', 'Abad ke-16', 'Abad ke-20'], 'correct' => 'B'],
+            ['slug' => 'pura-pande-test', 'question' => ['en' => 'Who were the main worshipers at Pura Pande?', 'id' => 'Siapa yang menjadi pemuja utama di Pura Pande?'], 'options' => ['Para petani', 'Para empu dan pandai besi', 'Para pedagang', 'Para nelayan'], 'correct' => 'B'],
+            ['slug' => 'balai-banjar-adat-test', 'question' => ['en' => 'What is the main function of Balai Banjar Adat?', 'id' => 'Apa fungsi utama dari Balai Banjar Adat?'], 'options' => ['Tempat ibadah', 'Pusat kegiatan sosial dan budaya', 'Pasar tradisional', 'Sekolah adat'], 'correct' => 'B'],
+            ['slug' => 'balai-banjar-adat-test', 'question' => ['en' => 'What traditional performances are held at Balai Banjar Adat?', 'id' => 'Pertunjukan tradisional apa yang diadakan di Balai Banjar Adat?'], 'options' => ['Wayang kulit', 'Tari tradisional dan gamelan', 'Tari modern', 'Sirkus'], 'correct' => 'B'],
+        ];
+
+        foreach ($quizzes as $item) {
+            $object = CulturalObject::where('slug', $item['slug'])->first();
+            if (! $object) {
+                continue;
+            }
+
+            $exists = CulturalObjectQuiz::where('cultural_object_id', $object->id)
+                ->where('correct_option', $item['correct'])
+                ->exists();
+
+            if ($exists) {
+                continue;
+            }
+
+            CulturalObjectQuiz::create([
+                'cultural_object_id' => $object->id,
+                'question' => $item['question'],
+                'option_a' => $item['options'][0],
+                'option_b' => $item['options'][1],
+                'option_c' => $item['options'][2],
+                'option_d' => $item['options'][3],
+                'correct_option' => $item['correct'],
+            ]);
+        }
+
+        $count = CulturalObjectQuiz::count();
+        $this->command->line("   📝  Seeded quizzes for cultural objects (total: {$count})");
     }
 }

@@ -56,19 +56,32 @@ class SmartEdutourismController extends Controller
 
     public function preview($id)
     {
+        $locale = app()->getLocale();
         $route = TourRoute::with(['routePoints.locationable.mapLocation'])->findOrFail($id);
 
-        $points = $route->routePoints->map(function ($point) {
+        $routeData = $route->toArray();
+        foreach (['name', 'description'] as $field) {
+            if (isset($routeData[$field]) && is_array($routeData[$field])) {
+                $routeData[$field] = $routeData[$field][$locale] ?? $routeData[$field][config('app.fallback_locale')] ?? reset($routeData[$field]) ?? '';
+            }
+        }
+
+        $points = $route->routePoints->map(function ($point) use ($locale) {
+            $loc = $point->locationable;
+            $name = $loc->name ?? __('Titik Perhentian');
+            if (is_array($name)) {
+                $name = $name[$locale] ?? $name[config('app.fallback_locale')] ?? reset($name) ?? '';
+            }
             return [
                 'id' => $point->id,
-                'name' => $point->locationable->name ?? __('Titik Perhentian'),
-                'lat' => $point->locationable->mapLocation->latitude ?? null,
-                'lng' => $point->locationable->mapLocation->longitude ?? null,
+                'name' => $name,
+                'lat' => $loc->mapLocation->latitude ?? null,
+                'lng' => $loc->mapLocation->longitude ?? null,
             ];
         });
 
         return response()->json([
-            'route' => $route,
+            'route' => $routeData,
             'points' => $points,
         ]);
     }
