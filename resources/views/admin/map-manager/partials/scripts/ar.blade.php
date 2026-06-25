@@ -35,10 +35,8 @@ window.generateARMarker = function() {
             }
         }
         
-        // Build dynamic tourist destination URL or fallback to scan query
-        const qrValue = slug 
-            ? `${window.location.origin}/cultural/${slug}` 
-            : `${window.location.origin}/explore?marker=${encodeURIComponent(markerId)}`;
+        // Build QR URL pointing to AR scan page
+        const qrValue = `${window.location.origin}/ar/scan/${encodeURIComponent(markerId)}`;
         
         // Render QR using QRious
         const qr = new QRious({

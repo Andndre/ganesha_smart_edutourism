@@ -384,6 +384,9 @@
             } catch (e) {}
         } else if (decodedText.startsWith("MARKER_")) {
             marker = decodedText;
+        } else if (decodedText.includes("/ar/scan/")) {
+            const parts = decodedText.split("/ar/scan/");
+            marker = parts[1].split("?")[0].replace(/\/$/, "");
         }
 
         if (slug || marker) {
