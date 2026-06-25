@@ -1,0 +1,15 @@
+FROM node:20-alpine
+
+# Install docsify-cli globally
+RUN npm install -g docsify-cli
+
+# Set working directory
+WORKDIR /docs
+
+# Copy docs folder
+COPY docs/ .
+
+EXPOSE 3000
+
+# Serve docs using docsify
+CMD ["docsify", "serve", ".", "--port", "3000"]
