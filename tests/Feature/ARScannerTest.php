@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\ArModel;
 use App\Models\CulturalObject;
+use App\Models\Facility;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -126,5 +127,119 @@ class ARScannerTest extends TestCase
         $this->assertEquals('zip content', file_get_contents($file->getPathname()));
 
         Storage::disk('public')->delete('models_usdz/test-model.zip');
+    }
+
+    public function test_ar_scan_redirects_to_cultural_object()
+    {
+        $object = CulturalObject::create([
+            'name' => ['en' => 'Test Temple', 'id' => 'Candi Test'],
+            'slug' => 'test-temple',
+            'description' => ['en' => 'A test', 'id' => 'Test'],
+            'short_description' => ['en' => 'Short', 'id' => 'Pendek'],
+            'category' => 'temple',
+        ]);
+
+        $mapLocation = $object->mapLocation()->create([
+            'name' => 'Test Location',
+            'category' => 'cultural',
+            'latitude' => -8.423,
+            'longitude' => 115.359,
+        ]);
+
+        ArModel::create([
+            'name' => ['en' => 'Test Model', 'id' => 'Model Test'],
+            'model_3d_path' => 'models/test.glb',
+            'ar_marker_id' => 'MARKER_TEMPLE_01',
+            'map_location_id' => $mapLocation->id,
+        ]);
+
+        $response = $this->get('/ar/scan/MARKER_TEMPLE_01');
+        $response->assertRedirect('/cultural/test-temple');
+    }
+
+    public function test_ar_scan_redirects_to_viewer_for_no_map_location()
+    {
+        $model = ArModel::create([
+            'name' => ['en' => 'Standalone Model', 'id' => 'Model Mandiri'],
+            'model_3d_path' => 'models/standalone.glb',
+            'ar_marker_id' => 'MARKER_STANDALONE',
+        ]);
+
+        $response = $this->get('/ar/scan/MARKER_STANDALONE');
+        $response->assertRedirect(route('ar-viewer', ['id' => $model->id]));
+    }
+
+    public function test_ar_scan_returns_404_for_invalid_marker()
+    {
+        $response = $this->get('/ar/scan/DOES_NOT_EXIST');
+        $response->assertNotFound();
+    }
+
+    public function test_ar_viewer_shows_model_page()
+    {
+        $model = ArModel::create([
+            'name' => ['en' => 'Viewer Model', 'id' => 'Model Viewer'],
+            'model_3d_path' => 'models/viewer.glb',
+            'ar_marker_id' => 'MARKER_VIEWER',
+        ]);
+
+        $response = $this->get(route('ar-viewer', ['id' => $model->id]));
+        $response->assertOk();
+    }
+
+    public function test_ar_viewer_returns_404_for_invalid_id()
+    {
+        $response = $this->get('/ar/viewer/99999');
+        $response->assertNotFound();
+    }
+
+    public function test_ar_scan_redirects_to_viewer_for_non_cultural_locationable()
+    {
+        $facility = Facility::create([
+            'name' => 'Test Facility',
+            'type' => 'toilet',
+            'description' => 'A test facility',
+        ]);
+
+        $mapLocation = \App\Models\MapLocation::create([
+            'name' => 'Facility Location',
+            'category' => 'facility',
+            'latitude' => -8.424,
+            'longitude' => 115.360,
+            'locationable_type' => \App\Models\Facility::class,
+            'locationable_id' => $facility->id,
+        ]);
+
+        $model = ArModel::create([
+            'name' => ['en' => 'Facility Model', 'id' => 'Model Fasilitas'],
+            'model_3d_path' => 'models/facility.glb',
+            'ar_marker_id' => 'MARKER_FACILITY_01',
+            'map_location_id' => $mapLocation->id,
+        ]);
+
+        $response = $this->get('/ar/scan/MARKER_FACILITY_01');
+        $response->assertRedirect(route('ar-viewer', ['id' => $model->id]));
+    }
+
+    public function test_ar_scan_redirects_to_viewer_for_orphaned_map_location()
+    {
+        $mapLocation = \App\Models\MapLocation::create([
+            'name' => 'Orphaned Location',
+            'category' => 'cultural',
+            'latitude' => -8.425,
+            'longitude' => 115.361,
+            'locationable_type' => \App\Models\CulturalObject::class,
+            'locationable_id' => 99999, // Doesn't exist
+        ]);
+
+        $model = ArModel::create([
+            'name' => ['en' => 'Orphan Model', 'id' => 'Model Yatim'],
+            'model_3d_path' => 'models/orphan.glb',
+            'ar_marker_id' => 'MARKER_ORPHAN_01',
+            'map_location_id' => $mapLocation->id,
+        ]);
+
+        $response = $this->get('/ar/scan/MARKER_ORPHAN_01');
+        $response->assertRedirect(route('ar-viewer', ['id' => $model->id]));
     }
 }
