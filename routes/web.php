@@ -69,7 +69,7 @@ Route::middleware('redirect.admin')->group(function () {
 
     // AR Scan Redirect & Viewer
     Route::get('/ar/scan/{arMarkerId}', [ArScanController::class, '__invoke'])->name('ar-scan-redirect');
-    Route::get('/ar/viewer/{id}', [ArViewerController::class, '__invoke'])->name('ar-viewer');
+    Route::get('/ar/viewer/{arMarkerId}', [ArViewerController::class, '__invoke'])->name('ar-viewer');
 
     // UMKM Catalog & Recommendation
     Route::get('/umkm', [UmkmCatalogController::class, 'index'])->name('umkm');
