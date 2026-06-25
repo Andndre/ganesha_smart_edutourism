@@ -211,7 +211,7 @@ class ARScannerTest extends TestCase
         ]);
 
         $response = $this->get(route('ar-viewer', ['arMarkerId' => $model->ar_marker_id]));
-        $response->assertRedirect(route('ar-scan', ['model_id' => $model->id]));
+        $response->assertRedirect(route('ar-scan', ['marker' => $model->ar_marker_id]));
     }
 
     public function test_ar_viewer_returns_404_for_invalid_marker()
