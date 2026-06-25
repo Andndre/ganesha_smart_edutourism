@@ -193,7 +193,7 @@ class ARScannerTest extends TestCase
         ]);
 
         $response = $this->get('/ar/scan/MARKER_STANDALONE');
-        $response->assertRedirect(route('ar-viewer', ['id' => $model->id]));
+        $response->assertRedirect(route('ar-viewer', ['arMarkerId' => $model->ar_marker_id]));
     }
 
     public function test_ar_scan_returns_404_for_invalid_marker()
@@ -210,13 +210,13 @@ class ARScannerTest extends TestCase
             'ar_marker_id' => 'MARKER_VIEWER',
         ]);
 
-        $response = $this->get(route('ar-viewer', ['id' => $model->id]));
+        $response = $this->get(route('ar-viewer', ['arMarkerId' => $model->ar_marker_id]));
         $response->assertRedirect(route('ar-scan', ['model_id' => $model->id]));
     }
 
-    public function test_ar_viewer_returns_404_for_invalid_id()
+    public function test_ar_viewer_returns_404_for_invalid_marker()
     {
-        $response = $this->get('/ar/viewer/99999');
+        $response = $this->get('/ar/viewer/DOES_NOT_EXIST');
         $response->assertNotFound();
     }
 
@@ -245,7 +245,7 @@ class ARScannerTest extends TestCase
         ]);
 
         $response = $this->get('/ar/scan/MARKER_FACILITY_01');
-        $response->assertRedirect(route('ar-viewer', ['id' => $model->id]));
+        $response->assertRedirect(route('ar-viewer', ['arMarkerId' => $model->ar_marker_id]));
     }
 
     public function test_ar_scan_redirects_to_viewer_for_orphaned_map_location()
@@ -267,6 +267,6 @@ class ARScannerTest extends TestCase
         ]);
 
         $response = $this->get('/ar/scan/MARKER_ORPHAN_01');
-        $response->assertRedirect(route('ar-viewer', ['id' => $model->id]));
+        $response->assertRedirect(route('ar-viewer', ['arMarkerId' => $model->ar_marker_id]));
     }
 }

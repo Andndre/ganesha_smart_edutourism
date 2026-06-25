@@ -30,6 +30,6 @@ class ArScanController extends Controller
             return redirect()->route('cultural-object', ['slug' => $locationable->slug]);
         }
 
-        return redirect()->route('ar-viewer', ['id' => $arModel->id]);
+        return redirect()->route('ar-viewer', ['arMarkerId' => $arModel->ar_marker_id]);
     }
 }
