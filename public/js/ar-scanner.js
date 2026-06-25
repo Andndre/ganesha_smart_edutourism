@@ -631,9 +631,83 @@
         }, 1500);
     }
 
+    function getUrlParam(name) {
+        return new URLSearchParams(window.location.search).get(name) || null;
+    }
+
+    function loadModelDirect(modelId) {
+        scannerInitialized = true; // ponytail: skip scanner, direct model load
+        initBottomSheet();
+
+        var backBtn = document.getElementById("btn-back-scanner");
+        if (backBtn) {
+            backBtn.onclick = function () { window.history.back(); };
+        }
+
+        var scanAgainBtn = document.getElementById("btn-scan-again");
+        if (scanAgainBtn) {
+            scanAgainBtn.onclick = function () {
+                window.location.href = "/ar-scan";
+            };
+        }
+
+        fetchModelById(modelId);
+    }
+
+    function fetchModelById(id) {
+        var loadingOverlay = document.getElementById("loading-overlay");
+        var statusBadge = document.getElementById("status-badge");
+
+        if (loadingOverlay) {
+            loadingOverlay.classList.remove("hidden");
+            loadingOverlay.classList.add("flex");
+        }
+        if (statusBadge) {
+            statusBadge.innerText =
+                window.AR_MESSAGES?.downloadingModel || "Mengunduh Model...";
+        }
+
+        fetch("/api/ar/model?id=" + encodeURIComponent(id))
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (data.success && data.model_url) {
+                    showModel(
+                        data.model_url,
+                        data.usdz_url,
+                        data.name,
+                        data.short_description,
+                        data.description,
+                        data.audio_url,
+                    );
+                } else {
+                    throw new Error(data.error || "Model tidak ditemukan");
+                }
+            })
+            .catch(function (err) {
+                console.error("fetchModelById error:", err);
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: err.message,
+                    confirmButtonColor: "#1E5128",
+                });
+            })
+            .finally(function () {
+                if (loadingOverlay) {
+                    loadingOverlay.classList.add("hidden");
+                    loadingOverlay.classList.remove("flex");
+                }
+            });
+    }
+
     // Eksekusi AR Scanner saat DOM Ready
-    document.addEventListener("DOMContentLoaded", () => {
-        initAr();
+    document.addEventListener("DOMContentLoaded", function () {
+        var modelId = getUrlParam("model_id");
+        if (modelId) {
+            loadModelDirect(modelId);
+        } else {
+            initAr();
+        }
     });
 
     // Cleanup saat user menutup tab atau me-refresh

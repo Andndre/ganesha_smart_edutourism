@@ -7,17 +7,12 @@ use App\Models\ArModel;
 class ArViewerController extends Controller
 {
     /**
-     * Show standalone 3D model viewer page.
+     * Redirect to AR scanner page with model_id param to skip QR scan.
      */
     public function __invoke(int $id)
     {
-        $model = ArModel::with('mapLocation.locationable')->findOrFail($id);
+        ArModel::findOrFail($id);
 
-        $locationable = $model->mapLocation?->locationable;
-        $model->resolved_name = $locationable?->name ?? $model->name;
-        $model->resolved_description = $locationable?->description ?? $model->description;
-        $model->resolved_short_description = $locationable?->short_description ?? $model->name;
-
-        return view('user.ar.viewer', compact('model'));
+        return redirect()->route('ar-scan', ['model_id' => $id]);
     }
 }

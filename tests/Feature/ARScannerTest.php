@@ -92,6 +92,33 @@ class ARScannerTest extends TestCase
             ]);
     }
 
+    public function test_api_ar_model_returns_model_data_for_valid_id()
+    {
+        $model = ArModel::create([
+            'name' => 'Model By ID',
+            'model_3d_path' => 'models/by-id.glb',
+            'ar_marker_id' => 'MARKER_BY_ID',
+        ]);
+
+        $response = $this->getJson('/api/ar/model?id='.$model->id);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'name' => 'Model By ID',
+            ]);
+    }
+
+    public function test_api_ar_model_returns_404_for_invalid_id()
+    {
+        $response = $this->getJson('/api/ar/model?id=99999');
+
+        $response->assertStatus(404)
+            ->assertJson([
+                'error' => 'Model 3D tidak tersedia untuk objek ini',
+            ]);
+    }
+
     public function test_serve_usdz_returns_correct_response()
     {
         Storage::disk('public')->put('models_usdz/test-model.usdz', 'dummy content');
@@ -175,7 +202,7 @@ class ARScannerTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_ar_viewer_shows_model_page()
+    public function test_ar_viewer_redirects_to_ar_scan_with_model_id()
     {
         $model = ArModel::create([
             'name' => ['en' => 'Viewer Model', 'id' => 'Model Viewer'],
@@ -184,7 +211,7 @@ class ARScannerTest extends TestCase
         ]);
 
         $response = $this->get(route('ar-viewer', ['id' => $model->id]));
-        $response->assertOk();
+        $response->assertRedirect(route('ar-scan', ['model_id' => $model->id]));
     }
 
     public function test_ar_viewer_returns_404_for_invalid_id()
