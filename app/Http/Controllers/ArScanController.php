@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\ArModel;
+use App\Models\CulturalObject;
+
+class ArScanController extends Controller
+{
+    /**
+     * Redirect based on AR marker relationship.
+     *
+     * Resolves ar_marker_id from ArModel → smart redirect:
+     * - CulturalObject → cultural-object page
+     * - Otherwise → ar-viewer page
+     */
+    public function __invoke(string $arMarkerId)
+    {
+        $arModel = ArModel::with('mapLocation.locationable')
+            ->where('ar_marker_id', $arMarkerId)
+            ->first();
+
+        if (! $arModel) {
+            abort(404);
+        }
+
+        $locationable = $arModel->mapLocation?->locationable;
+
+        if ($locationable instanceof CulturalObject) {
+            return redirect()->route('cultural-object', ['slug' => $locationable->slug]);
+        }
+
+        return redirect()->route('ar-viewer', ['id' => $arModel->id]);
+    }
+}
