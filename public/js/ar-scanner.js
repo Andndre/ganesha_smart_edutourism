@@ -635,7 +635,7 @@
         return new URLSearchParams(window.location.search).get(name) || null;
     }
 
-    function loadModelDirect(modelId) {
+    function loadModelDirect(marker) {
         scannerInitialized = true; // ponytail: skip scanner, direct model load
         initBottomSheet();
 
@@ -651,10 +651,10 @@
             };
         }
 
-        fetchModelById(modelId);
+        fetchModelByMarker(marker);
     }
 
-    function fetchModelById(id) {
+    function fetchModelByMarker(marker) {
         var loadingOverlay = document.getElementById("loading-overlay");
         var statusBadge = document.getElementById("status-badge");
 
@@ -667,7 +667,7 @@
                 window.AR_MESSAGES?.downloadingModel || "Mengunduh Model...";
         }
 
-        fetch("/api/ar/model?id=" + encodeURIComponent(id))
+        fetch("/api/ar/model?marker=" + encodeURIComponent(marker))
             .then(function (res) { return res.json(); })
             .then(function (data) {
                 if (data.success && data.model_url) {
@@ -702,9 +702,9 @@
 
     // Eksekusi AR Scanner saat DOM Ready
     document.addEventListener("DOMContentLoaded", function () {
-        var modelId = getUrlParam("model_id");
-        if (modelId) {
-            loadModelDirect(modelId);
+        var marker = getUrlParam("marker");
+        if (marker) {
+            loadModelDirect(marker);
         } else {
             initAr();
         }

@@ -13,6 +13,6 @@ class ArViewerController extends Controller
     {
         $model = ArModel::where('ar_marker_id', $arMarkerId)->firstOrFail();
 
-        return redirect()->route('ar-scan', ['model_id' => $model->id]);
+        return redirect()->route('ar-scan', ['marker' => $arMarkerId]);
     }
 }
