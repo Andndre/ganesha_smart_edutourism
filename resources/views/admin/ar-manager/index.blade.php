@@ -70,7 +70,7 @@
                         <span
                             class="bg-primary/10 text-primary max-w-40 truncate rounded-full px-2 py-0.5 font-mono text-[10px] font-bold">{{ $m->ar_marker_id }}</span>
                         <button type="button"
-                            onclick="triggerMarkerDownload('{{ $m->ar_marker_id }}', '{{ $m->mapLocation?->locationable?->slug ?? '' }}')"
+                            onclick="triggerMarkerDownload('{{ $m->ar_marker_id }}')"
                             class="text-primary hover:bg-primary/10 ml-auto shrink-0 rounded-lg p-1.5 transition-colors"
                             title="Unduh QR Marker">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -330,7 +330,7 @@
             previewWrapper.classList.remove('hidden');
 
             try {
-                const qrValue = `${window.location.origin}/explore?marker=${encodeURIComponent(markerId)}`;
+                const qrValue = `${window.location.origin}/ar/scan/${encodeURIComponent(markerId)}`;
 
                 const qr = new QRious({
                     value: qrValue,
@@ -389,11 +389,9 @@
         // ----------------------------------------------------
         // DOWNLOAD QR FOR EXISTING MARKER (from card)
         // ----------------------------------------------------
-        function triggerMarkerDownload(markerId, slug) {
+        function triggerMarkerDownload(markerId) {
             try {
-                const qrValue = slug ?
-                    `${window.location.origin}/cultural/${slug}` :
-                    `${window.location.origin}/explore?marker=${encodeURIComponent(markerId)}`;
+                const qrValue = `${window.location.origin}/ar/scan/${encodeURIComponent(markerId)}`;
 
                 const qr = new QRious({
                     value: qrValue,
