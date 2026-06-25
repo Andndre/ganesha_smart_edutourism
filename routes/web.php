@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\UmkmCategoryController;
 use App\Http\Controllers\Admin\UmkmController;
 use App\Http\Controllers\Api\RoutingController;
 use App\Http\Controllers\ARController;
+use App\Http\Controllers\ArScanController;
+use App\Http\Controllers\ArViewerController;
 use App\Http\Controllers\AudioController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
@@ -64,6 +66,10 @@ Route::middleware('redirect.admin')->group(function () {
     Route::get('/usdz-file/{path}', [ARController::class, 'serveUsdz'])
         ->where('path', '.*\.usdz$')
         ->name('usdz.serve');
+
+    // AR Scan Redirect & Viewer
+    Route::get('/ar/scan/{arMarkerId}', [ArScanController::class, '__invoke'])->name('ar-scan-redirect');
+    Route::get('/ar/viewer/{id}', [ArViewerController::class, '__invoke'])->name('ar-viewer');
 
     // UMKM Catalog & Recommendation
     Route::get('/umkm', [UmkmCatalogController::class, 'index'])->name('umkm');
