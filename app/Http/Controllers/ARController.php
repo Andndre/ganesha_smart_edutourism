@@ -30,7 +30,12 @@ class ARController extends Controller
 
         $model = null;
 
-        if ($request->filled('marker')) {
+        if ($request->filled('id')) {
+            $model = ArModel::with('mapLocation.locationable')
+                ->find($request->id);
+        }
+
+        if (! $model && $request->filled('marker')) {
             $model = ArModel::with('mapLocation.locationable')
                 ->where('ar_marker_id', $request->marker)
                 ->first();
