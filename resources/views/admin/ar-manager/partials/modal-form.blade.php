@@ -23,7 +23,7 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Model Name (EN) <span
                             class="text-warning">*</span></label>
-                    <input type="text" name="name[en]" id="model-field-name-en" required
+                    <input type="text" name="name[en]" id="model-field-name-en"
                         placeholder="e.g. Traditional Temple Model"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                     @error('name.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
@@ -41,7 +41,7 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Nama Model (ID) <span
                             class="text-warning">*</span></label>
-                    <input type="text" name="name[id]" id="model-field-name-id" required
+                    <input type="text" name="name[id]" id="model-field-name-id"
                         placeholder="Contoh: Model Pura Tradisional"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                     @error('name.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
