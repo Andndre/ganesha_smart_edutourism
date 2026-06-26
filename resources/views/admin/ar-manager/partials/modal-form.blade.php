@@ -5,6 +5,7 @@
     </div>
     <form id="model-form" method="POST" action="" enctype="multipart/form-data" x-data="{ locale: 'en' }">
         @csrf
+        <input type="hidden" name="redirect_to" id="model-field-redirect-to" value="">
         <div id="model-method-container"></div>
         <input type="hidden" name="ar_marker_patt_content" id="model-field-patt-content">
         <input type="hidden" name="model_id" id="model-field-id" value="">
