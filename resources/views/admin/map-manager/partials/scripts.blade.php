@@ -10,3 +10,4 @@
 @include('admin.map-manager.partials.scripts.quiz')
 @include('admin.map-manager.partials.scripts.story')
 @include('admin.map-manager.partials.scripts.ar')
+@include('admin.map-manager.partials.scripts.ar-model-modal')
