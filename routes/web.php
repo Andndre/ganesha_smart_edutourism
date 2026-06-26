@@ -252,6 +252,14 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Report Routes
     Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports');
     Route::get('/reports/download', [ReportController::class, 'downloadPdf'])->name('admin.reports.download');
+
+    // Tus chunked upload — handles POST (create), PATCH (chunk), HEAD, DELETE, OPTIONS
+    // CSRF exempt via bootstrap/app.php except array
+    Route::match(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], '/api/tus/upload', [\App\Http\Controllers\Api\TusController::class, 'handle'])
+        ->middleware(['auth', 'admin']);
+    Route::match(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], '/api/tus/upload/{any}', [\App\Http\Controllers\Api\TusController::class, 'handle'])
+        ->middleware(['auth', 'admin'])
+        ->where('any', '.*');
 });
 
 // Owner Routes
