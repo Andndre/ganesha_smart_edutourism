@@ -19,6 +19,13 @@
             height: 100%;
             --poster-color: transparent;
         }
+
+        .tus-progress-container.tus-error .tus-progress-bar {
+            @apply bg-red-500;
+        }
+        .tus-progress-container.tus-complete .tus-progress-bar {
+            @apply bg-green-500;
+        }
     </style>
 @endpush
 
@@ -179,13 +186,15 @@
                 window.clearAllTiptapEditors(modelForm);
             }
             document.getElementById('model-field-glb-file').value = "";
-            document.getElementById('model-field-glb-file').required = true;
             document.getElementById('glb-required-asterisk').style.display = 'inline';
             document.getElementById('model-field-usdz-file').value = "";
             document.getElementById('model-field-audio-file').value = "";
             document.getElementById('edit-current-glb-container').classList.add('hidden');
             document.getElementById('edit-current-usdz-container').classList.add('hidden');
             document.getElementById('edit-current-audio-container').classList.add('hidden');
+            document.getElementById('model-field-tmp-glb').value = '';
+            document.getElementById('model-field-tmp-usdz').value = '';
+            document.getElementById('model-field-tmp-audio').value = '';
             document.getElementById('modal-marker-preview-wrapper').classList.add('hidden');
             currentModalMarkerCanvas = null;
             resetModal3DViewer();
@@ -206,6 +215,9 @@
 
             document.getElementById('model-field-marker-id').value = model.ar_marker_id || "";
             document.getElementById('model-field-patt-content').value = "";
+            document.getElementById('model-field-tmp-glb').value = '';
+            document.getElementById('model-field-tmp-usdz').value = '';
+            document.getElementById('model-field-tmp-audio').value = '';
 
             const descEn = (typeof model.description === 'object') ? (model.description?.en || "") : (model.description || "");
             const descId = (typeof model.description === 'object') ? (model.description?.id || "") : (model.description || "");
@@ -262,35 +274,36 @@
             window.dispatchEvent(new CustomEvent('close-model-modal'));
         }
 
-        function previewModelGLB(input) {
-            const maxSize = 20 * 1024 * 1024;
-            const file = input.files[0];
-            if (file && file.size > maxSize) {
-                Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 20MB.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
-                input.value = '';
-                resetModal3DViewer();
-                return;
+        // ----------------------------------------------------
+        // Chunked upload initialization
+        // ----------------------------------------------------
+        document.addEventListener('DOMContentLoaded', () => {
+            function initChunkedUpload(inputId, hiddenId, progressId, maxSize, exts) {
+                const input = document.getElementById(inputId);
+                if (!input) return;
+                new ChunkedUploader({
+                    input: input,
+                    hiddenInput: document.getElementById(hiddenId),
+                    progressContainer: document.getElementById(progressId),
+                    maxSize: maxSize,
+                    allowedExtensions: exts,
+                    endpoint: '/admin/api/tus/upload',
+                    onStart: () => {
+                        const fileInput = document.getElementById(inputId);
+                        if (inputId === 'model-field-glb-file' && fileInput?.files[0]) {
+                            setupModal3DViewer(URL.createObjectURL(fileInput.files[0]));
+                        }
+                    },
+                });
             }
-            if (file) setupModal3DViewer(URL.createObjectURL(file));
-        }
 
-        function previewModelUSDZ(input) {
-            const maxSize = 50 * 1024 * 1024;
-            const file = input.files[0];
-            if (file && file.size > maxSize) {
-                Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 50MB.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
-                input.value = '';
-            }
-        }
-
-        function previewModelAudio(input) {
-            const maxSize = 10 * 1024 * 1024;
-            const file = input.files[0];
-            if (file && file.size > maxSize) {
-                Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 10MB.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
-                input.value = '';
-            }
-        }
+            // GLB
+            initChunkedUpload('model-field-glb-file', 'model-field-tmp-glb', 'model-glb-progress', 20 * 1024 * 1024, ['.glb']);
+            // USDZ
+            initChunkedUpload('model-field-usdz-file', 'model-field-tmp-usdz', 'model-usdz-progress', 50 * 1024 * 1024, ['.usdz']);
+            // Audio
+            initChunkedUpload('model-field-audio-file', 'model-field-tmp-audio', 'model-audio-progress', 10 * 1024 * 1024, ['.mp3', '.ogg', '.wav']);
+        });
 
         function setupModal3DViewer(src) {
             if (modalViewerPlaceholder) modalViewerPlaceholder.classList.add('hidden');
