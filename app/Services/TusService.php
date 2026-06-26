@@ -17,9 +17,8 @@ class TusService
      */
     public static function moveFromTemp(string $tempKey, string $destDir, ?string $customFilename = null): string
     {
-        $parts = explode('.', $tempKey);
-        $uuid = $parts[0];
-        $ext = $parts[1] ?? 'glb';
+        $uuid = pathinfo($tempKey, PATHINFO_FILENAME);
+        $ext = pathinfo($tempKey, PATHINFO_EXTENSION);
 
         $tempPath = storage_path('app/tus/temp/' . $uuid);
         if (! file_exists($tempPath)) {
@@ -30,7 +29,15 @@ class TusService
         $destPath = $destDir . '/' . $finalName;
 
         $storage = Storage::disk('public');
-        $storage->put($destPath, file_get_contents($tempPath));
+        $stream = fopen($tempPath, 'r');
+        if ($stream === false) {
+            throw new \RuntimeException("Failed to open temp file: {$tempPath}");
+        }
+        if ($storage->writeStream($destPath, $stream) === false) {
+            fclose($stream);
+            throw new \RuntimeException("Failed to write file to storage: {$destPath}");
+        }
+        fclose($stream);
 
         // Remove temp file
         unlink($tempPath);
