@@ -12,7 +12,7 @@ trait NormalizesMultilingualInput
      */
     protected function normalizeLocaleField(Request $request, string $field): void
     {
-        if ($request->has($field) && is_string($request->input($field))) {
+        if ($request->has($field) && \is_string($request->input($field))) {
             $request->merge([
                 $field => [
                     'en' => $request->input($field),
@@ -50,15 +50,4 @@ trait NormalizesMultilingualInput
         $request->merge([$field => $normalized]);
     }
 
-    /**
-     * Extract a localized string value from a translatable model attribute.
-     * Handles both string (legacy) and array formats.
-     */
-    protected static function extractLocalizedName(mixed $source, string $field = 'name'): string
-    {
-        $value = is_object($source) ? $source->{$field} : $source[$field] ?? '';
-        $locale = config('app.fallback_locale', 'en');
-
-        return is_string($value) ? $value : ($value[$locale] ?? $value['en'] ?? reset($value));
-    }
 }

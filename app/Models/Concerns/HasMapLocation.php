@@ -22,7 +22,7 @@ trait HasMapLocation
         $source = $this->{$this->mapLocationNameField()};
         $locale = config('app.fallback_locale', 'en');
 
-        return is_string($source) ? $source : ($source[$locale] ?? $source['en'] ?? reset($source));
+        return \is_string($source) ? $source : ($source[$locale] ?? $source['en'] ?? reset($source));
     }
 
     /**

@@ -55,7 +55,7 @@ class OwnerDashboardController extends BaseOwnerController
         } else {
             // Update existing profile
             $slugValue = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? reset($validated['business_name']);
-            $currentName = is_string($this->profile->business_name) ? $this->profile->business_name : ($this->profile->business_name[$defaultLocale] ?? '');
+            $currentName = \is_string($this->profile->business_name) ? $this->profile->business_name : ($this->profile->business_name[$defaultLocale] ?? '');
             $newName = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? '';
             if ($currentName !== $newName) {
                 $validated['slug'] = $this->profile->generateCollisionFreeSlug($slugValue, $this->profile->id);

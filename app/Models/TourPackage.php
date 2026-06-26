@@ -52,7 +52,7 @@ class TourPackage extends Model
             $value = [$locale => $value];
         }
 
-        $this->attributes['inclusions'] = is_string($value)
+        $this->attributes['inclusions'] = \is_string($value)
             ? $value
             : json_encode($value, JSON_UNESCAPED_UNICODE);
     }
@@ -90,7 +90,7 @@ class TourPackage extends Model
             $value = [$locale => $value];
         }
 
-        $this->attributes['exclusions'] = is_string($value)
+        $this->attributes['exclusions'] = \is_string($value)
             ? $value
             : json_encode($value, JSON_UNESCAPED_UNICODE);
     }

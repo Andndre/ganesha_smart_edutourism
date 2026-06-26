@@ -25,13 +25,13 @@ class CulturalPublicTest extends TestCase
         $location = MapLocation::create([
             'locationable_type' => CulturalObject::class,
             'locationable_id' => $object->id,
-            'name' => is_string($object->name) ? $object->name : ($object->name[config('app.fallback_locale')] ?? $object->name['en'] ?? ''),
+            'name' => \is_string($object->name) ? $object->name : ($object->name[config('app.fallback_locale')] ?? $object->name['en'] ?? ''),
             'latitude' => -8.4223,
             'longitude' => 115.3839,
             'category' => 'cultural',
         ]);
 
-        $arModelName = is_string($object->name) ? $object->name.' 3D Model' : (($object->name[config('app.fallback_locale')] ?? $object->name['en'] ?? '').' 3D Model');
+        $arModelName = \is_string($object->name) ? $object->name.' 3D Model' : (($object->name[config('app.fallback_locale')] ?? $object->name['en'] ?? '').' 3D Model');
         ArModel::create([
             'name' => $arModelName,
             'model_3d_path' => 'models/test.glb',

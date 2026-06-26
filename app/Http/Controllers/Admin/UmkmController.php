@@ -202,7 +202,7 @@ class UmkmController extends Controller
         }
 
         $defaultLocale = config('app.fallback_locale', 'en');
-        $currentName = is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[$defaultLocale] ?? '');
+        $currentName = \is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[$defaultLocale] ?? '');
         $newName = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? '';
         if ($currentName !== $newName) {
             $slugValue = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? reset($validated['business_name']);
