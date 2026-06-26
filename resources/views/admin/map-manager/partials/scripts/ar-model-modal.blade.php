@@ -26,25 +26,77 @@ function hookModelViewerLoadMap(viewerEl) {
     }, { once: true });
 }
 
-// Intercept form submit — inject thumbnail data
-document.addEventListener('DOMContentLoaded', () => {
-    const mForm = document.getElementById('model-form');
-    if (mForm) {
-        mForm.addEventListener('submit', function() {
-            if (pendingThumbnailDataMap) {
-                let input = document.getElementById('thumbnail-data-input');
-                if (!input) {
-                    input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'thumbnail_data';
-                    input.id = 'thumbnail-data-input';
-                    this.appendChild(input);
-                }
-                input.value = pendingThumbnailDataMap;
-            }
-        });
+// Global submit handler for model form — called via onsubmit=window.submitModelForm(event)
+window.submitModelForm = async function (e) {
+    e.preventDefault(); // Must be synchronous before any await — async return value is a Promise (truthy), so onsubmit="return ..." cannot prevent submit
+    console.log('[AR-MODEL] submitModelForm called, preventDefault done');
+
+    // Inject thumbnail data if captured
+    if (pendingThumbnailDataMap) {
+        var input = document.getElementById('thumbnail-data-input');
+        if (!input) {
+            input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'thumbnail_data';
+            input.id = 'thumbnail-data-input';
+            e.target.appendChild(input);
+        }
+        input.value = pendingThumbnailDataMap;
     }
-});
+
+    var submitBtn = document.getElementById('model-submit-btn');
+    if (!submitBtn) return;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Menyimpan...';
+    submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+
+    try {
+        var formData = new FormData(e.target);
+        console.log('[AR-MODEL] Fetching:', e.target.action);
+        var resp = await fetch(e.target.action, {
+            method: 'POST',
+            body: formData,
+            headers: { 'Accept': 'application/json' },
+        });
+        console.log('[AR-MODEL] Response status:', resp.status, resp.ok);
+
+        if (!resp.ok) {
+            var errData = await resp.json().catch(function () { return {}; });
+            throw new Error(errData.message || errData.title || 'Gagal menyimpan');
+        }
+
+        var data = await resp.json();
+
+        console.log('[AR-MODEL] Response data:', data);
+        if (data.success && data.model) {
+            console.log('[AR-MODEL] Success! Closing modal and dispatching ar-model-created event');
+            closeModelModal();
+            window.dispatchEvent(new CustomEvent('ar-model-created', { detail: { model: data.model } }));
+            console.log('[AR-MODEL] ar-model-created event dispatched');
+        } else {
+            throw new Error(data.message || 'Gagal menyimpan');
+        }
+    } catch (err) {
+        console.error('[AR-MODEL] Error caught:', err);
+        Swal.fire({
+            title: 'Gagal',
+            text: err.message || 'Terjadi kesalahan saat menyimpan model.',
+            icon: 'error',
+            confirmButtonColor: '#1E5128',
+            background: '#ffffff',
+        });
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Simpan Aset';
+        submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+    }
+
+};
+
+// Attach submit handler via addEventListener — more reliable than onsubmit for async handlers
+var _modelForm = document.getElementById('model-form');
+console.log('[AR-MODEL] Attaching submit listener to #model-form:', _modelForm ? 'FOUND' : 'NOT FOUND');
+if (_modelForm) _modelForm.addEventListener('submit', window.submitModelForm);
 
 function openModelModal() {
     document.getElementById('model-modal-title').innerText = "Tambah Model 3D";
@@ -177,7 +229,7 @@ function downloadARMarkerFromModal() {
 }
 
 // Chunked upload init
-document.addEventListener('DOMContentLoaded', () => {
+(function () {
     function initChunkedUpload(inputId, hiddenId, progressId, maxSize, exts) {
         const input = document.getElementById(inputId);
         if (!input) return;
@@ -200,5 +252,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initChunkedUpload('model-field-glb-file', 'model-field-tmp-glb', 'model-glb-progress', 20 * 1024 * 1024, ['.glb']);
     initChunkedUpload('model-field-usdz-file', 'model-field-tmp-usdz', 'model-usdz-progress', 50 * 1024 * 1024, ['.usdz']);
     initChunkedUpload('model-field-audio-file', 'model-field-tmp-audio', 'model-audio-progress', 10 * 1024 * 1024, ['.mp3', '.ogg', '.wav']);
-});
+})();
 </script>

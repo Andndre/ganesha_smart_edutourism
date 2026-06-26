@@ -185,7 +185,7 @@
         <div class="mt-6 flex justify-end gap-3">
             <button type="button" onclick="closeModelModal()"
                 class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">Batal</button>
-            <button type="submit"
+            <button type="submit" id="model-submit-btn"
                 class="bg-primary shadow-primary/20 hover:bg-primary-600 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg">Simpan
                 Aset</button>
         </div>

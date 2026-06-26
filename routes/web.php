@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\TourRouteController;
 use App\Http\Controllers\Admin\UmkmCategoryController;
 use App\Http\Controllers\Admin\UmkmController;
 use App\Http\Controllers\Api\RoutingController;
+use App\Http\Controllers\Api\TusController;
 use App\Http\Controllers\ARController;
 use App\Http\Controllers\ArScanController;
 use App\Http\Controllers\ArViewerController;
@@ -208,6 +209,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     // Map Manager Routes
     Route::get('/map-manager', [MapManagerController::class, 'index'])->name('admin.map-manager');
+    Route::get('/map-manager/models-json', [MapManagerController::class, 'modelsJson'])->name('admin.map-manager.models-json');
 
     // AR Manager Routes
     Route::get('/ar-manager', [ARManagerController::class, 'index'])->name('admin.ar-manager');
@@ -255,9 +257,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     // Tus chunked upload — handles POST (create), PATCH (chunk), HEAD, DELETE, OPTIONS
     // CSRF exempt via bootstrap/app.php except array
-    Route::match(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], '/api/tus/upload', [\App\Http\Controllers\Api\TusController::class, 'handle'])
+    Route::match(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], '/api/tus/upload', [TusController::class, 'handle'])
         ->middleware(['auth', 'admin']);
-    Route::match(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], '/api/tus/upload/{any}', [\App\Http\Controllers\Api\TusController::class, 'handle'])
+    Route::match(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], '/api/tus/upload/{any}', [TusController::class, 'handle'])
         ->middleware(['auth', 'admin'])
         ->where('any', '.*');
 });

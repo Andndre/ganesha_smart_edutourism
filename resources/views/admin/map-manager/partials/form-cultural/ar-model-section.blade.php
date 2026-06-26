@@ -33,7 +33,7 @@
         <div class="min-w-0 flex-1">
             <p class="truncate text-xs font-bold text-charcoal" x-text="selectedModelName"></p>
             <p x-show="selectedModel?.ar_marker_id">
-                <span class="mt-0.5 inline-block rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[10px] font-bold text-primary" x-text="selectedModel.ar_marker_id"></span>
+                <span class="mt-0.5 inline-block rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[10px] font-bold text-primary" x-text="selectedModel?.ar_marker_id || ''"></span>
             </p>
         </div>
         <button type="button" @click="clearSelection" class="shrink-0 rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
@@ -205,20 +205,69 @@ window.arModelSelector = function() {
 };
 
 // Listen for edit-populate event from editor.blade.php
-document.addEventListener('ar-model-select', function (e) {
+window.addEventListener('ar-model-select', function (e) {
     var el = document.querySelector('[x-data="arModelSelector()"]');
-    if (el && el.__x) {
-        el.__x.$data.selectedId = e.detail.modelId || '';
-        el.__x.$data.selectedModel = el.__x.$data.models.find(function (m) { return m.id == e.detail.modelId; }) || null;
+    if (el && el._x_dataStack) {
+        var data = Alpine.$data(el);
+        data.selectedId = e.detail.modelId || '';
+        data.selectedModel = data.models.find(function (m) { return m.id == e.detail.modelId; }) || null;
     }
 });
 
 // Listen for reset event from resetForms()
-document.addEventListener('ar-model-reset', function () {
+window.addEventListener('ar-model-reset', function () {
     var el = document.querySelector('[x-data="arModelSelector()"]');
-    if (el && el.__x) {
-        el.__x.$data.selectedId = '';
-        el.__x.$data.selectedModel = null;
+    if (el && el._x_dataStack) {
+        var data = Alpine.$data(el);
+        data.selectedId = '';
+        data.selectedModel = null;
     }
+});
+
+// Listen for new model created via AJAX — refetch full list, then highlight new model in grid
+window.addEventListener('ar-model-created', function (e) {
+    console.log('[AR-MODEL] ar-model-created event RECEIVED', e.detail);
+    var el = document.querySelector('[x-data="arModelSelector()"]');
+    if (!el || !el._x_dataStack) {
+        console.error('[AR-MODEL] Alpine element NOT found or not initialized');
+        return;
+    }
+    var alpineData = Alpine.$data(el);
+    var newModel = e.detail.model;
+    var newModelId = newModel?.id;
+    if (!newModelId) {
+        console.error('[AR-MODEL] No model id in event detail');
+        return;
+    }
+    console.log('[AR-MODEL] Fetching models-json for refresh, newModelId:', newModelId);
+
+    fetch('{{ route('admin.map-manager.models-json') }}')
+        .then(function (r) { return r.json(); })
+        .then(function (models) {
+            console.log('[AR-MODEL] models-json fetched, count:', models.length);
+            // Put new model first, then the rest (excluding duplicate)
+            var rest = models.filter(function (m) { return m.id != newModelId; });
+            var created = models.find(function (m) { return m.id == newModelId; });
+            alpineData.models = created ? [created].concat(rest) : models;
+            alpineData.selectedId = newModelId;
+            alpineData.selectedModel = created || null;
+            alpineData.search = '';
+            console.log('[AR-MODEL] Grid updated, new model at front');
+        })
+        .catch(function (err) {
+            console.error('[AR-MODEL] models-json fetch failed:', err);
+            // Fallback: prepend single model from event detail
+            if (newModel) {
+                alpineData.models = [newModel].concat(alpineData.models);
+                alpineData.selectedId = newModel.id;
+                alpineData.selectedModel = newModel;
+                alpineData.search = '';
+            }
+        })
+        .finally(function () {
+            // Scroll grid to top so the new model is visible
+            var grid = el.querySelector('.max-h-\\[55vh\\]');
+            if (grid) grid.scrollTop = 0;
+        });
 });
 </script>
