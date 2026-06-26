@@ -439,12 +439,13 @@
             const markerInput = document.getElementById('model-field-marker-id');
             if (!markerInput || !currentModalMarkerCanvas) return;
             const markerId = markerInput.value.trim();
+            const form = document.getElementById('model-form');
             const link = document.createElement('a');
             link.href = currentModalMarkerCanvas.toDataURL('image/png');
             link.download = `${markerId}.png`;
-            document.body.appendChild(link);
+            form.appendChild(link);
             link.click();
-            document.body.removeChild(link);
+            form.removeChild(link);
         }
 
         // ----------------------------------------------------
