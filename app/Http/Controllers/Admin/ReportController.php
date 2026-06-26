@@ -53,10 +53,30 @@ class ReportController extends Controller
     public function index(Request $request): View
     {
         $now = Carbon::now();
-        $defaultPeriod = $now->locale('id')->isoFormat('MMMM YYYY');
-        $selectedPeriod = $request->query('period', $defaultPeriod);
+        $selectedPeriod = $request->query('period', $now->locale('id')->isoFormat('MMMM YYYY'));
 
-        // Parse selected period to month/year (supports "Bulan Tahun" format like "Juni 2026")
+        return view('admin.reports.index', $this->buildReportData($selectedPeriod));
+    }
+
+    /**
+     * Display a printable/downloadable report page.
+     */
+    public function downloadPdf(Request $request): View
+    {
+        $now = Carbon::now();
+        $selectedPeriod = $request->query('period', $now->locale('id')->isoFormat('MMMM YYYY'));
+
+        return view('admin.reports.print', array_merge(
+            $this->buildReportData($selectedPeriod),
+            ['generatedAt' => Carbon::now()->isoFormat('dddd, D MMMM Y [•] HH:mm')],
+        ));
+    }
+
+    private function buildReportData(string $selectedPeriod): array
+    {
+        $now = Carbon::now();
+        $defaultPeriod = $now->locale('id')->isoFormat('MMMM YYYY');
+
         $monthNames = [
             'Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4,
             'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8,
@@ -72,7 +92,7 @@ class ReportController extends Controller
         $prevStartDate = $startDate->copy()->subMonth()->startOfMonth();
         $prevEndDate = $prevStartDate->copy()->endOfMonth();
 
-        // 1. Total Visitors
+        // Visitors
         $visitorCount = VisitorLog::whereBetween('logged_at', [$startDate, $endDate])
             ->where('event_type', 'page_view')
             ->count();
@@ -88,7 +108,7 @@ class ReportController extends Controller
         }
         $visitorDelta = $prevVisitorCount > 0 ? round((($visitorCount - $prevVisitorCount) / $prevVisitorCount) * 100) : 0;
 
-        // 2. Total Revenue
+        // Revenue
         $revenue = Reservation::whereIn('status', ['confirmed', 'completed'])
             ->whereBetween('created_at', [$startDate, $endDate])
             ->sum('total_amount');
@@ -104,7 +124,7 @@ class ReportController extends Controller
         }
         $revenueDelta = $prevRevenue > 0 ? round((($revenue - $prevRevenue) / $prevRevenue) * 100) : 0;
 
-        // 3. Tickets Sold
+        // Tickets Sold
         $ticketsSold = Reservation::where('status', 'confirmed')
             ->whereBetween('scheduled_date', [$startDate, $endDate])
             ->count();
@@ -120,7 +140,7 @@ class ReportController extends Controller
         }
         $ticketsDelta = $prevTicketsSold > 0 ? round((($ticketsSold - $prevTicketsSold) / $prevTicketsSold) * 100) : 0;
 
-        // 4. Rating
+        // Rating
         $rating = Feedback::whereBetween('created_at', [$startDate, $endDate])->avg('rating');
         if (! $rating) {
             $rating = 4.7;
@@ -185,7 +205,7 @@ class ReportController extends Controller
 
         $busyDays = $this->getBusyDays($startDate, $endDate);
 
-        return view('admin.reports.index', compact(
+        return compact(
             'selectedPeriod',
             'visitorCount', 'visitorDelta',
             'revenue', 'revenueDelta',
@@ -193,139 +213,6 @@ class ReportController extends Controller
             'rating', 'ratingDelta',
             'chartData', 'revenueBreakdown',
             'busyDays'
-        ));
-    }
-
-    /**
-     * Display a printable/downloadable report page.
-     */
-    public function downloadPdf(Request $request): View
-    {
-        $now = Carbon::now();
-        $defaultPeriod = $now->locale('id')->isoFormat('MMMM YYYY');
-        $selectedPeriod = $request->query('period', $defaultPeriod);
-
-        $monthNames = [
-            'Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4,
-            'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8,
-            'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12,
-        ];
-        $parts = explode(' ', $selectedPeriod);
-        $month = $monthNames[$parts[0]] ?? $now->month;
-        $year = (int) ($parts[1] ?? $now->year);
-
-        $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
-        $endDate = $startDate->copy()->endOfMonth();
-        $prevStartDate = $startDate->copy()->subMonth()->startOfMonth();
-        $prevEndDate = $prevStartDate->copy()->endOfMonth();
-
-        // Visitors
-        $visitorCount = VisitorLog::whereBetween('logged_at', [$startDate, $endDate])
-            ->where('event_type', 'page_view')->count();
-        if ($visitorCount === 0) {
-            $visitorCount = 14230;
-        }
-        $prevVisitorCount = VisitorLog::whereBetween('logged_at', [$prevStartDate, $prevEndDate])
-            ->where('event_type', 'page_view')->count();
-        if ($prevVisitorCount === 0) {
-            $prevVisitorCount = 12060;
-        }
-        $visitorDelta = $prevVisitorCount > 0 ? round((($visitorCount - $prevVisitorCount) / $prevVisitorCount) * 100) : 0;
-
-        // Revenue
-        $revenue = Reservation::whereIn('status', ['confirmed', 'completed'])
-            ->whereBetween('created_at', [$startDate, $endDate])->sum('total_amount');
-        if ($revenue == 0) {
-            $revenue = 98000000;
-        }
-        $prevRevenue = Reservation::whereIn('status', ['confirmed', 'completed'])
-            ->whereBetween('created_at', [$prevStartDate, $prevEndDate])->sum('total_amount');
-        if ($prevRevenue == 0) {
-            $prevRevenue = 80000000;
-        }
-        $revenueDelta = $prevRevenue > 0 ? round((($revenue - $prevRevenue) / $prevRevenue) * 100) : 0;
-
-        // Tickets
-        $ticketsSold = Reservation::where('status', 'confirmed')
-            ->whereBetween('scheduled_date', [$startDate, $endDate])->count();
-        if ($ticketsSold === 0) {
-            $ticketsSold = 1847;
-        }
-        $prevTicketsSold = Reservation::where('status', 'confirmed')
-            ->whereBetween('scheduled_date', [$prevStartDate, $prevEndDate])->count();
-        if ($prevTicketsSold === 0) {
-            $prevTicketsSold = 1606;
-        }
-        $ticketsDelta = $prevTicketsSold > 0 ? round((($ticketsSold - $prevTicketsSold) / $prevTicketsSold) * 100) : 0;
-
-        // Rating
-        $rating = Feedback::whereBetween('created_at', [$startDate, $endDate])->avg('rating');
-        if (! $rating) {
-            $rating = 4.7;
-        }
-        $rating = round($rating, 1);
-        $prevRating = Feedback::whereBetween('created_at', [$prevStartDate, $prevEndDate])->avg('rating');
-        if (! $prevRating) {
-            $prevRating = 4.4;
-        }
-        $ratingDelta = round($rating - $prevRating, 1);
-
-        // Chart data (21 days)
-        $chartData = [];
-        for ($day = 1; $day <= 21; $day++) {
-            $date = Carbon::createFromDate($year, $month, $day);
-            $count = VisitorLog::whereDate('logged_at', $date)->where('event_type', 'page_view')->count();
-            if ($count === 0) {
-                $mockData = [280, 320, 290, 450, 610, 730, 617, 310, 340, 380, 420, 500, 560, 620, 710, 680, 590, 540, 480, 430, 617];
-                $chartData[] = $mockData[$day - 1];
-            } else {
-                $chartData[] = $count;
-            }
-        }
-
-        // Revenue breakdown
-        $packages = TourPackage::withCount(['reservations as revenue' => function ($q) use ($startDate, $endDate) {
-            $q->whereIn('status', ['confirmed', 'completed'])
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->select(\DB::raw('SUM(total_amount)'));
-        }])->get();
-
-        $revenueBreakdown = [];
-        $totalSum = 0;
-        foreach ($packages as $pkg) {
-            $amt = (float) $pkg->revenue;
-            if ($amt > 0) {
-                $revenueBreakdown[] = ['label' => $pkg->name, 'amount' => $amt];
-                $totalSum += $amt;
-            }
-        }
-        if (empty($revenueBreakdown)) {
-            $revenueBreakdown = [
-                ['label' => 'Paket Keluarga 1 Hari', 'amount' => 48000000],
-                ['label' => 'Paket Edukasi Budaya',  'amount' => 27000000],
-                ['label' => 'Paket Sunrise Trek',    'amount' => 14000000],
-                ['label' => 'Lainnya',               'amount' => 9000000],
-            ];
-            $totalSum = 98000000;
-        }
-        foreach ($revenueBreakdown as &$item) {
-            $item['pct'] = $totalSum > 0 ? round(($item['amount'] / $totalSum) * 100) : 0;
-            $item['amount'] = 'Rp '.number_format($item['amount'] / 1000000, 0, ',', '.').' Jt';
-        }
-
-        $busyDays = $this->getBusyDays($startDate, $endDate);
-
-        $generatedAt = Carbon::now()->isoFormat('dddd, D MMMM Y [•] HH:mm');
-
-        return view('admin.reports.print', compact(
-            'selectedPeriod',
-            'visitorCount', 'visitorDelta',
-            'revenue', 'revenueDelta',
-            'ticketsSold', 'ticketsDelta',
-            'rating', 'ratingDelta',
-            'chartData', 'revenueBreakdown',
-            'busyDays',
-            'generatedAt'
-        ));
+        );
     }
 }

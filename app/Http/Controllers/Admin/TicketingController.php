@@ -7,14 +7,12 @@ use App\Jobs\RefundMidtransTransaction;
 use App\Jobs\VoidMidtransTransaction;
 use App\Models\Reservation;
 use App\Models\TourPackage;
+use App\Services\MidtransService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Midtrans\Config;
-use Midtrans\Snap;
-use Midtrans\Transaction;
 
 class TicketingController extends Controller
 {
@@ -28,15 +26,13 @@ class TicketingController extends Controller
             ->get();
 
         if ($pendingWalkIns->count() > 0) {
-            Config::$serverKey = config('midtrans.server_key');
-            Config::$isProduction = config('midtrans.is_production');
+            $midtrans = new MidtransService;
 
             foreach ($pendingWalkIns as $reservation) {
                 try {
-                    $statusResponse = Transaction::status($reservation->payment_reference);
-
-                    $transactionStatus = \is_array($statusResponse) ? ($statusResponse['transaction_status'] ?? null) : ($statusResponse->transaction_status ?? null);
-                    $paymentType = \is_array($statusResponse) ? ($statusResponse['payment_type'] ?? 'unknown') : ($statusResponse->payment_type ?? 'unknown');
+                    $status = $midtrans->getTransactionStatus($reservation->payment_reference);
+                    $transactionStatus = $status['transaction_status'];
+                    $paymentType = $status['payment_type'];
 
                     if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
                         $reservation->payment_status = 'paid';
@@ -190,34 +186,11 @@ class TicketingController extends Controller
             $reservation->payment_reference = $orderId;
             $reservation->save();
 
-            // Set Midtrans configuration
-            Config::$serverKey = config('midtrans.server_key');
-            Config::$isProduction = config('midtrans.is_production');
-            Config::$isSanitized = config('midtrans.is_sanitized');
-            Config::$is3ds = config('midtrans.is_3ds');
-
-            $params = [
-                'transaction_details' => [
-                    'order_id' => $orderId,
-                    'gross_amount' => $reservation->total_amount,
-                ],
-                'customer_details' => [
-                    'first_name' => $reservation->guest_name,
-                    'email' => $reservation->guest_email ?? 'walkin@example.com',
-                    'phone' => $reservation->guest_phone ?? '0000000000',
-                ],
-                'item_details' => [
-                    [
-                        'id' => 'PKG-'.$package->id,
-                        'price' => $package->price,
-                        'quantity' => $validated['party_size'],
-                        'name' => $package->name,
-                    ],
-                ],
-            ];
-
             try {
-                $snapToken = Snap::getSnapToken($params);
+                $midtrans = new MidtransService;
+                $snapToken = $midtrans->getSnapToken(
+                    $midtrans->buildSnapParams($reservation, $orderId)
+                );
 
                 return response()->json([
                     'success' => true,
@@ -317,14 +290,12 @@ class TicketingController extends Controller
             ]);
         }
 
-        Config::$serverKey = config('midtrans.server_key');
-        Config::$isProduction = config('midtrans.is_production');
+        $midtrans = new MidtransService;
 
         try {
-            $statusResponse = Transaction::status($reservation->payment_reference);
-
-            $transactionStatus = \is_array($statusResponse) ? ($statusResponse['transaction_status'] ?? null) : ($statusResponse->transaction_status ?? null);
-            $paymentType = \is_array($statusResponse) ? ($statusResponse['payment_type'] ?? 'unknown') : ($statusResponse->payment_type ?? 'unknown');
+            $status = $midtrans->getTransactionStatus($reservation->payment_reference);
+            $transactionStatus = $status['transaction_status'];
+            $paymentType = $status['payment_type'];
 
             if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
                 $reservation->payment_status = 'paid';
@@ -374,35 +345,11 @@ class TicketingController extends Controller
             ], 400);
         }
 
-        Config::$serverKey = config('midtrans.server_key');
-        Config::$isProduction = config('midtrans.is_production');
-        Config::$isSanitized = config('midtrans.is_sanitized');
-        Config::$is3ds = config('midtrans.is_3ds');
-
-        $package = $reservation->tourPackage;
-
-        $params = [
-            'transaction_details' => [
-                'order_id' => $reservation->payment_reference,
-                'gross_amount' => $reservation->total_amount,
-            ],
-            'customer_details' => [
-                'first_name' => $reservation->guest_name,
-                'email' => $reservation->guest_email ?? 'walkin@example.com',
-                'phone' => $reservation->guest_phone ?? '0000000000',
-            ],
-            'item_details' => [
-                [
-                    'id' => 'PKG-'.$package->id,
-                    'price' => $package->price,
-                    'quantity' => $reservation->party_size,
-                    'name' => $package->name,
-                ],
-            ],
-        ];
+        $midtrans = new MidtransService;
+        $params = $midtrans->buildSnapParams($reservation, $reservation->payment_reference);
 
         try {
-            $snapToken = Snap::getSnapToken($params);
+            $snapToken = $midtrans->getSnapToken($params);
 
             return response()->json([
                 'success' => true,

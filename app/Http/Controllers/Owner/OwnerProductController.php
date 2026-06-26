@@ -2,26 +2,21 @@
 
 namespace App\Http\Controllers\Owner;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\OwnerProductRequest;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-class OwnerProductController extends Controller
+class OwnerProductController extends BaseOwnerController
 {
     /**
      * Display a listing of the owner's products.
      */
     public function index(Request $request): View
     {
-        $user = Auth::user();
-        $profile = $user->umkmProfile;
-
-        if (! $profile) {
+        if (! $this->profile) {
             return view('owner.products', [
                 'products' => collect(),
                 'categories' => collect(),
@@ -29,7 +24,7 @@ class OwnerProductController extends Controller
             ]);
         }
 
-        $query = UmkmProduct::where('umkm_profile_id', $profile->id)->with('category');
+        $query = UmkmProduct::where('umkm_profile_id', $this->profile->id)->with('category');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -57,12 +52,7 @@ class OwnerProductController extends Controller
      */
     public function store(OwnerProductRequest $request): RedirectResponse
     {
-        $user = Auth::user();
-        $profile = $user->umkmProfile;
-
-        if (! $profile) {
-            return redirect()->route('owner.products')->with('error', __('Silakan buat profil toko terlebih dahulu.'));
-        }
+        $profile = $this->requireProfile('owner.products');
 
         $validated = $request->validated();
 
@@ -94,12 +84,7 @@ class OwnerProductController extends Controller
      */
     public function update(OwnerProductRequest $request, int $id): RedirectResponse
     {
-        $user = Auth::user();
-        $profile = $user->umkmProfile;
-
-        if (! $profile) {
-            return redirect()->route('owner.products')->with('error', __('Silakan buat profil toko terlebih dahulu.'));
-        }
+        $profile = $this->requireProfile('owner.products');
 
         $product = UmkmProduct::where('umkm_profile_id', $profile->id)->findOrFail($id);
 
@@ -130,12 +115,7 @@ class OwnerProductController extends Controller
      */
     public function destroy(int $id): RedirectResponse
     {
-        $user = Auth::user();
-        $profile = $user->umkmProfile;
-
-        if (! $profile) {
-            return redirect()->route('owner.products')->with('error', __('Silakan buat profil toko terlebih dahulu.'));
-        }
+        $profile = $this->requireProfile('owner.products');
 
         $product = UmkmProduct::where('umkm_profile_id', $profile->id)->findOrFail($id);
         $product->delete();
