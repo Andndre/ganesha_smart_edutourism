@@ -9,6 +9,7 @@ use App\Models\TourPackage;
 use App\Models\VisitorLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ReportController extends Controller
@@ -20,7 +21,13 @@ class ReportController extends Controller
      */
     private function getBusyDays(Carbon $startDate, Carbon $endDate): array
     {
-        $busyDays = VisitorLog::selectRaw('DAYOFWEEK(logged_at) as day_num, COUNT(DISTINCT session_id) as total')
+        $driver = DB::getDriverName();
+        $dayExpr = match ($driver) {
+            'sqlite' => "(strftime('%w', logged_at) + 1)",
+            'pgsql' => '(EXTRACT(DOW FROM logged_at)::int + 1)',
+            default => 'DAYOFWEEK(logged_at)',
+        };
+        $busyDays = VisitorLog::selectRaw("{$dayExpr} as day_num, COUNT(DISTINCT session_id) as total")
             ->whereBetween('logged_at', [$startDate, $endDate])
             ->groupBy('day_num')
             ->orderByDesc('total')
