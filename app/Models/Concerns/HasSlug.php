@@ -4,6 +4,10 @@ namespace App\Models\Concerns;
 
 use Illuminate\Support\Str;
 
+/**
+ * @mixin \Illuminate\Database\Eloquent\Model
+ * @mixin \Illuminate\Database\Eloquent\Builder
+ */
 trait HasSlug
 {
     /**

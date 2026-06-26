@@ -42,7 +42,7 @@ class TourRouteRequest extends FormRequest
         if ($this->has('points') && is_array($this->input('points'))) {
             $points = $this->input('points');
             foreach ($points as $index => $point) {
-                if (isset($point['storytelling_content']) && is_string($point['storytelling_content'])) {
+                if (isset($point['storytelling_content']) && \is_string($point['storytelling_content'])) {
                     $points[$index]['storytelling_content'] = [
                         'en' => $point['storytelling_content'],
                         'id' => $point['storytelling_content'],

@@ -119,7 +119,7 @@ class CapacityController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        if ($request->filled('polygon_coordinates') && is_string($request->polygon_coordinates)) {
+        if ($request->filled('polygon_coordinates') && \is_string($request->polygon_coordinates)) {
             $request->merge([
                 'polygon_coordinates' => json_decode($request->polygon_coordinates, true),
             ]);
@@ -154,7 +154,7 @@ class CapacityController extends Controller
      */
     public function updateThresholds(Request $request, int $id): RedirectResponse
     {
-        if ($request->filled('polygon_coordinates') && is_string($request->polygon_coordinates)) {
+        if ($request->filled('polygon_coordinates') && \is_string($request->polygon_coordinates)) {
             $request->merge([
                 'polygon_coordinates' => json_decode($request->polygon_coordinates, true),
             ]);
