@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\PackageRequest;
 use App\Models\TourPackage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,28 +34,9 @@ class PackageController extends Controller
     /**
      * Store a newly created tour package in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(PackageRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'duration_hours' => ['nullable', 'numeric', 'min:0'],
-            'max_capacity' => ['nullable', 'integer', 'min:1'],
-            'inclusions' => ['nullable', 'array'],
-            'inclusions.en' => ['nullable', 'string'],
-            'inclusions.id' => ['nullable', 'string'],
-            'exclusions' => ['nullable', 'array'],
-            'exclusions.en' => ['nullable', 'string'],
-            'exclusions.id' => ['nullable', 'string'],
-            'is_active' => ['nullable', 'boolean'],
-            'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
-        ]);
+        $validated = $request->validated();
 
         $package = new TourPackage;
         $package->name = $validated['name'];
@@ -97,30 +79,11 @@ class PackageController extends Controller
     /**
      * Update the specified tour package in storage.
      */
-    public function update(Request $request, int $id): RedirectResponse
+    public function update(PackageRequest $request, int $id): RedirectResponse
     {
         $package = TourPackage::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'duration_hours' => ['nullable', 'numeric', 'min:0'],
-            'max_capacity' => ['nullable', 'integer', 'min:1'],
-            'inclusions' => ['nullable', 'array'],
-            'inclusions.en' => ['nullable', 'string'],
-            'inclusions.id' => ['nullable', 'string'],
-            'exclusions' => ['nullable', 'array'],
-            'exclusions.en' => ['nullable', 'string'],
-            'exclusions.id' => ['nullable', 'string'],
-            'is_active' => ['nullable', 'boolean'],
-            'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
-        ]);
+        $validated = $request->validated();
 
         $package->name = $validated['name'];
         $defaultLocale = config('app.fallback_locale', 'en');

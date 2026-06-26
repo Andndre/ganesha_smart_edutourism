@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\EventRequest;
 use App\Models\Event;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -170,40 +171,12 @@ class EventController extends Controller
     /**
      * Store a newly created event in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(EventRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'category' => ['required', 'string', 'max:100'],
-            'start_date' => ['required', 'date'],
-            'start_time' => ['nullable', 'string'],
-            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
-            'end_time' => ['nullable', 'string'],
-            'location_name' => ['required', 'array'],
-            'location_name.en' => ['required', 'string', 'max:255'],
-            'location_name.id' => ['required', 'string', 'max:255'],
-            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
-            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
-            'is_free' => ['nullable', 'boolean'],
-            'price' => ['required_if:is_free,0', 'nullable', 'numeric', 'min:0'],
-            'max_participants' => ['nullable', 'integer', 'min:1'],
-        ]);
+        $validated = $request->validated();
 
-        // Combine date and time
-        $startTimeStr = $request->input('start_time') ?: '00:00';
-        $endTimeStr = $request->input('end_time') ?: '23:59';
-
-        $startDatetime = Carbon::parse($validated['start_date'].' '.$startTimeStr);
-        $endDatetime = Carbon::parse($validated['end_date'].' '.$endTimeStr);
-
-        if ($endDatetime->lt($startDatetime)) {
-            return back()->withErrors(['end_date' => __('Tanggal & waktu selesai harus setelah waktu mulai.')])->withInput();
-        }
+        $startDatetime = Carbon::parse($validated['start_date'].' '.($request->input('start_time') ?: '00:00'));
+        $endDatetime = Carbon::parse($validated['end_date'].' '.($request->input('end_time') ?: '23:59'));
 
         $isFree = $request->has('is_free') || $request->input('is_free') == '1';
 
@@ -331,41 +304,14 @@ class EventController extends Controller
     /**
      * Update the specified event in storage.
      */
-    public function update(Request $request, int $id): RedirectResponse
+    public function update(EventRequest $request, int $id): RedirectResponse
     {
         $event = Event::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'category' => ['required', 'string', 'max:100'],
-            'start_date' => ['required', 'date'],
-            'start_time' => ['nullable', 'string'],
-            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
-            'end_time' => ['nullable', 'string'],
-            'location_name' => ['required', 'array'],
-            'location_name.en' => ['required', 'string', 'max:255'],
-            'location_name.id' => ['required', 'string', 'max:255'],
-            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
-            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
-            'is_free' => ['nullable', 'boolean'],
-            'price' => ['required_if:is_free,0', 'nullable', 'numeric', 'min:0'],
-            'max_participants' => ['nullable', 'integer', 'min:1'],
-        ]);
+        $validated = $request->validated();
 
-        $startTimeStr = $request->input('start_time') ?: '00:00';
-        $endTimeStr = $request->input('end_time') ?: '23:59';
-
-        $startDatetime = Carbon::parse($validated['start_date'].' '.$startTimeStr);
-        $endDatetime = Carbon::parse($validated['end_date'].' '.$endTimeStr);
-
-        if ($endDatetime->lt($startDatetime)) {
-            return back()->withErrors(['end_date' => __('Tanggal & waktu selesai harus setelah waktu mulai.')])->withInput();
-        }
+        $startDatetime = Carbon::parse($validated['start_date'].' '.($request->input('start_time') ?: '00:00'));
+        $endDatetime = Carbon::parse($validated['end_date'].' '.($request->input('end_time') ?: '23:59'));
 
         $isFree = $request->has('is_free') || $request->input('is_free') == '1';
 

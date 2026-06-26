@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Owner\OwnerLocationRequest;
+use App\Http\Requests\Owner\OwnerProfileRequest;
 use App\Models\UmkmProfile;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -43,19 +44,12 @@ class OwnerDashboardController extends Controller
     /**
      * Update the UMKM Owner profile.
      */
-    public function updateProfile(Request $request): RedirectResponse
+    public function updateProfile(OwnerProfileRequest $request): RedirectResponse
     {
         $user = Auth::user();
         $profile = $user->umkmProfile;
 
-        $validated = $request->validate([
-            'business_name' => ['required', 'array'],
-            'business_name.en' => ['required', 'string', 'max:255'],
-            'business_name.id' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
 
         $defaultLocale = config('app.fallback_locale', 'en');
 
@@ -99,7 +93,7 @@ class OwnerDashboardController extends Controller
     /**
      * Update the UMKM location on the map.
      */
-    public function updateLocation(Request $request): RedirectResponse
+    public function updateLocation(OwnerLocationRequest $request): RedirectResponse
     {
         $user = Auth::user();
         $profile = $user->umkmProfile;
@@ -108,16 +102,7 @@ class OwnerDashboardController extends Controller
             return redirect()->route('owner.profile')->with('error', __('Silakan buat profil toko terlebih dahulu.'));
         }
 
-        $this->normalizeLocaleField($request, 'accessibility_notes');
-
-        $validated = $request->validate([
-            'latitude' => ['required', 'numeric', 'between:-90,90'],
-            'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'is_accessible' => ['nullable', 'boolean'],
-            'accessibility_notes' => ['nullable', 'array'],
-            'accessibility_notes.en' => ['nullable', 'string'],
-            'accessibility_notes.id' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
 
         $latitude = $validated['latitude'];
         $longitude = $validated['longitude'];

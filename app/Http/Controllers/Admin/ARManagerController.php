@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ARModelRequest;
 use App\Models\ArModel;
 use App\Services\TusService;
 use Illuminate\Http\JsonResponse;
@@ -24,23 +25,9 @@ class ARManagerController extends Controller
         return view('admin.ar-manager.index', compact('models'));
     }
 
-    public function storeModel(Request $request): RedirectResponse|JsonResponse
+    public function storeModel(ARModelRequest $request): RedirectResponse|JsonResponse
     {
-        $this->normalizeLocaleFields($request, ['name', 'description']);
-
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'ar_marker_id' => ['nullable', 'string', 'max:255', 'unique:ar_models,ar_marker_id'],
-            'ar_marker_patt_content' => ['nullable', 'string'],
-            'model_3d_file' => ['required_without:tmp_model_3d_path', 'file', 'max:20480'],
-            'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
-            'audio_narration_file' => ['nullable', 'file', 'max:10240'],
-        ]);
+        $validated = $request->validated();
 
         $modelData = [
             'name' => $validated['name'],
@@ -102,25 +89,11 @@ class ARManagerController extends Controller
         return redirect()->route('admin.ar-manager')->with('success', __('Model 3D berhasil ditambahkan.'));
     }
 
-    public function updateModel(Request $request, int $id): RedirectResponse
+    public function updateModel(ARModelRequest $request, int $id): RedirectResponse
     {
         $model = ArModel::findOrFail($id);
 
-        $this->normalizeLocaleFields($request, ['name', 'description']);
-
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'ar_marker_id' => ['nullable', 'string', 'max:255', 'unique:ar_models,ar_marker_id,'.$id],
-            'ar_marker_patt_content' => ['nullable', 'string'],
-            'model_3d_file' => ['nullable', 'file', 'max:20480'],
-            'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
-            'audio_narration_file' => ['nullable', 'file', 'max:10240'],
-        ]);
+        $validated = $request->validated();
 
         $model->name = $validated['name'];
         $model->description = $validated['description'] ?? null;
