@@ -163,7 +163,7 @@ class TicketingController extends Controller
         $reservation->fill($validated);
         $reservation->reservation_type = 'package';
         $reservation->scheduled_date = today();
-        $reservation->scheduled_time = now()->format('H:i:00');
+        $reservation->scheduled_time = \Illuminate\Support\Carbon::now();
         $reservation->total_amount = $package->price * $validated['party_size'];
         $reservation->qr_code = 'WALKIN-'.strtoupper(Str::random(10));
 
@@ -249,6 +249,7 @@ class TicketingController extends Controller
                 ], 400);
             }
 
+            // TODO: Add time validation if needed (e.g., only allow check-in on the scheduled date)
             if (! $reservation->scheduled_date->isToday()) {
                 return response()->json([
                     'success' => false,

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\ArModel;
 use App\Models\CulturalObject;
 use App\Models\Facility;
+use App\Models\MapLocation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -228,12 +229,12 @@ class ARScannerTest extends TestCase
             'description' => 'A test facility',
         ]);
 
-        $mapLocation = \App\Models\MapLocation::create([
+        $mapLocation = MapLocation::create([
             'name' => 'Facility Location',
             'category' => 'facility',
             'latitude' => -8.424,
             'longitude' => 115.360,
-            'locationable_type' => \App\Models\Facility::class,
+            'locationable_type' => Facility::class,
             'locationable_id' => $facility->id,
         ]);
 
@@ -250,12 +251,12 @@ class ARScannerTest extends TestCase
 
     public function test_ar_scan_redirects_to_viewer_for_orphaned_map_location()
     {
-        $mapLocation = \App\Models\MapLocation::create([
+        $mapLocation = MapLocation::create([
             'name' => 'Orphaned Location',
             'category' => 'cultural',
             'latitude' => -8.425,
             'longitude' => 115.361,
-            'locationable_type' => \App\Models\CulturalObject::class,
+            'locationable_type' => CulturalObject::class,
             'locationable_id' => 99999, // Doesn't exist
         ]);
 

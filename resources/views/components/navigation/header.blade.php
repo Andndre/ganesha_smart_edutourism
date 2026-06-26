@@ -111,7 +111,7 @@
                                 </div>
                                 <template x-for="umkm in results.umkms" :key="'umkm-' + umkm.id">
                                     <a :href="'/umkm/store/' + umkm.id"
-                                        class="flex min-h-[44px] items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-primary/4 active:bg-primary/8">
+                                        class="flex min-h-11 items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-primary/4 active:bg-primary/8">
                                         <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/8 text-primary">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -137,7 +137,7 @@
                                 </div>
                                 <template x-for="product in results.products" :key="'prod-' + product.id">
                                     <a :href="'/umkm/store/' + product.umkm_profile_id"
-                                        class="flex min-h-[44px] items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-primary/4 active:bg-primary/8">
+                                        class="flex min-h-11 items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-primary/4 active:bg-primary/8">
                                         <div x-show="product.image_path"
                                             class="h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-gray-100">
                                             <img :src="'/storage/' + product.image_path" :alt="product.name"
@@ -174,7 +174,7 @@
                                             window.dispatchEvent(new CustomEvent('umkm-search-category', { detail: { id: cat.id, name: cat.name } }));
                                             open = false;
                                         "
-                                        class="flex w-full min-h-[44px] items-center gap-3 px-4 py-3 text-sm text-left transition-colors hover:bg-primary/4 active:bg-primary/8">
+                                        class="flex w-full min-h-11 items-center gap-3 px-4 py-3 text-sm text-left transition-colors hover:bg-primary/4 active:bg-primary/8">
                                         <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

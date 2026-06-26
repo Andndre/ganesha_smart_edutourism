@@ -160,80 +160,110 @@ class SmartEdutourismController extends Controller
     public function arrive(Request $request, $pointId)
     {
         $point = TourRoutePoint::with('locationable')->findOrFail($pointId);
-        // Check for quizzes (now global on CulturalObject)
-        $quizzes = [];
-        if ($point->locationable instanceof CulturalObject) {
-            $quizzes = $point->locationable->quizzes;
+        /** @var \Illuminate\Database\Eloquent\Collection $quizzes */
+        $quizzes = $point->locationable instanceof CulturalObject
+            ? $point->locationable->quizzes
+            : collect();
+
+        $sessionStatus = 'active';
+
+        if ($quizzes->isNotEmpty()) {
+            return response()->json([
+                'success' => true,
+                'point' => $point,
+                'quizzes' => $quizzes,
+                'session_status' => $sessionStatus,
+            ]);
         }
 
         $userId = auth()->id();
         $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
 
-        if (count($quizzes) === 0) {
-
-            if (! $userId && $guestToken && ! session()->has('guest_token')) {
-                session(['guest_token' => $guestToken, 'guest_name' => __('Wisatawan')]);
-            }
-
-            $sessionQuery = RouteSession::where('status', 'active');
-            if ($userId) {
-                $sessionQuery->where('user_id', $userId);
-            } elseif ($guestToken) {
-                $sessionQuery->where('guest_token', $guestToken);
-            } else {
-                $sessionQuery = null;
-            }
-
-            if ($sessionQuery) {
-                $session = $sessionQuery->first();
-                if ($session && $session->current_point_id == $pointId) {
-                    $session->points_completed += 1;
-
-                    $route = TourRoute::with('routePoints')->find($session->tour_route_id);
-                    $points = $route->routePoints;
-                    $currentIndex = $points->search(function ($p) use ($session) {
-                        return $p->id == $session->current_point_id;
-                    });
-
-                    if ($currentIndex !== false && isset($points[$currentIndex + 1])) {
-                        $session->current_point_id = $points[$currentIndex + 1]->id;
-                    } else {
-                        $session->status = 'completed';
-                        $session->current_point_id = null;
-                    }
-
-                    $session->save();
-                    $sessionStatus = $session->status;
-
-                    // Record visit for authenticated users
-                    if ($userId && $point->locationable) {
-                        $locationable = $point->locationable;
-                        $alreadyVisited = UserVisit::where('user_id', $userId)
-                            ->where('visitable_type', $locationable->getMorphClass())
-                            ->where('visitable_id', $locationable->id)
-                            ->where('route_session_id', $session->id)
-                            ->exists();
-
-                        if (! $alreadyVisited) {
-                            UserVisit::create([
-                                'user_id' => $userId,
-                                'visitable_type' => $locationable->getMorphClass(),
-                                'visitable_id' => $locationable->id,
-                                'route_session_id' => $session->id,
-                                'visited_at' => now(),
-                            ]);
-                        }
-                    }
-                }
-            }
+        if (! $userId && $guestToken && ! session()->has('guest_token')) {
+            session(['guest_token' => $guestToken, 'guest_name' => __('Wisatawan')]);
         }
+
+        $session = $this->findActiveSession($userId, $guestToken);
+
+        if (! $session || $session->current_point_id != $pointId) {
+            return response()->json([
+                'success' => true,
+                'point' => $point,
+                'quizzes' => $quizzes,
+                'session_status' => $sessionStatus,
+            ]);
+        }
+
+        $session->points_completed += 1;
+
+        $route = TourRoute::with('routePoints')->find($session->tour_route_id);
+        $points = $route->routePoints;
+        $currentIndex = $points->search(fn ($p) => $p->id == $session->current_point_id);
+
+        if ($currentIndex !== false && isset($points[$currentIndex + 1])) {
+            $session->current_point_id = $points[$currentIndex + 1]->id;
+        } else {
+            $session->status = 'completed';
+            $session->current_point_id = null;
+        }
+
+        $session->save();
+        $sessionStatus = $session->status;
+
+        $this->recordVisit($userId, $point, $session);
 
         return response()->json([
             'success' => true,
             'point' => $point,
             'quizzes' => $quizzes,
-            'session_status' => $sessionStatus ?? 'active',
+            'session_status' => $sessionStatus,
         ]);
+    }
+
+    /**
+     * @param  int|null  $userId
+     * @param  string|null  $guestToken
+     * @return RouteSession|null
+     */
+    private function findActiveSession(?int $userId, ?string $guestToken): ?RouteSession
+    {
+        if ($userId) {
+            return RouteSession::where('status', 'active')
+                ->where('user_id', $userId)
+                ->first();
+        }
+
+        if ($guestToken) {
+            return RouteSession::where('status', 'active')
+                ->where('guest_token', $guestToken)
+                ->first();
+        }
+
+        return null;
+    }
+
+    private function recordVisit(?int $userId, TourRoutePoint $point, RouteSession $session): void
+    {
+        if (! $userId || ! $point->locationable) {
+            return;
+        }
+
+        $locationable = $point->locationable;
+        $alreadyVisited = UserVisit::where('user_id', $userId)
+            ->where('visitable_type', $locationable->getMorphClass())
+            ->where('visitable_id', $locationable->id)
+            ->where('route_session_id', $session->id)
+            ->exists();
+
+        if (! $alreadyVisited) {
+            UserVisit::create([
+                'user_id' => $userId,
+                'visitable_type' => $locationable->getMorphClass(),
+                'visitable_id' => $locationable->id,
+                'route_session_id' => $session->id,
+                'visited_at' => now(),
+            ]);
+        }
     }
 
     public function submitQuiz(Request $request, $quizId)

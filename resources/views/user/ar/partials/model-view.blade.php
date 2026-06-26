@@ -73,7 +73,7 @@
         <!-- Sheet Container -->
         <div id="desc-bottom-sheet" class="pointer-events-auto relative z-10 flex h-[75vh] w-full translate-y-[calc(100%-100px)] flex-col rounded-t-4xl bg-white shadow-[0_-4px_25px_rgba(0,0,0,0.15)] transition-transform duration-300 ease-in-out">
             <!-- Header (Always visible, height: 100px) -->
-            <div id="sheet-header" class="flex h-[100px] shrink-0 cursor-pointer flex-col items-center rounded-t-4xl px-6 pt-3 transition-colors active:bg-gray-50">
+            <div id="sheet-header" class="flex h-25 shrink-0 cursor-pointer flex-col items-center rounded-t-4xl px-6 pt-3 transition-colors active:bg-gray-50">
                 <div class="flex w-full justify-center">
                     <svg id="sheet-arrow" class="mb-2 h-6 w-6 text-gray-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
