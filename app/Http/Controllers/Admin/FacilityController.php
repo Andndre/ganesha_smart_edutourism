@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
 use App\Models\Facility;
 use Illuminate\Http\RedirectResponse;
@@ -9,19 +10,14 @@ use Illuminate\Http\Request;
 
 class FacilityController extends Controller
 {
+    use NormalizesMultilingualInput;
+
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request): RedirectResponse
     {
-        if ($request->has('accessibility_notes') && is_string($request->input('accessibility_notes'))) {
-            $request->merge([
-                'accessibility_notes' => [
-                    'en' => $request->input('accessibility_notes'),
-                    'id' => $request->input('accessibility_notes'),
-                ],
-            ]);
-        }
+        $this->normalizeLocaleField($request, 'accessibility_notes');
 
         $validated = $request->validate([
             'name' => ['required', 'array'],
@@ -51,8 +47,8 @@ class FacilityController extends Controller
 
         $facility = Facility::create($validated);
 
-        $facility->mapLocation()->create([
-            'name' => is_string($facility->name) ? $facility->name : ($facility->name[config('app.fallback_locale')] ?? $facility->name['en'] ?? ''),
+        // TODO: map_locations.name hanya dipakai di admin AR manager — pertimbangkan untuk drop column
+        $facility->syncMapLocation([
             'category' => 'facility',
             'latitude' => $latitude,
             'longitude' => $longitude,
@@ -68,14 +64,7 @@ class FacilityController extends Controller
      */
     public function update(Request $request, Facility $facility): RedirectResponse
     {
-        if ($request->has('accessibility_notes') && is_string($request->input('accessibility_notes'))) {
-            $request->merge([
-                'accessibility_notes' => [
-                    'en' => $request->input('accessibility_notes'),
-                    'id' => $request->input('accessibility_notes'),
-                ],
-            ]);
-        }
+        $this->normalizeLocaleField($request, 'accessibility_notes');
 
         $validated = $request->validate([
             'name' => ['required', 'array'],
@@ -105,17 +94,13 @@ class FacilityController extends Controller
 
         $facility->update($validated);
 
-        $facility->mapLocation()->updateOrCreate(
-            [],
-            [
-                'name' => is_string($facility->name) ? $facility->name : ($facility->name[config('app.fallback_locale')] ?? $facility->name['en'] ?? ''),
-                'category' => 'facility',
-                'latitude' => $latitude,
-                'longitude' => $longitude,
-                'is_accessible' => $is_accessible,
-                'accessibility_notes' => $accessibility_notes,
-            ]
-        );
+        $facility->syncMapLocation([
+            'category' => 'facility',
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'is_accessible' => $is_accessible,
+            'accessibility_notes' => $accessibility_notes,
+        ], isUpdate: true);
 
         return redirect()->route('admin.map-manager')->with('success', __('Fasilitas berhasil diperbarui.'));
     }

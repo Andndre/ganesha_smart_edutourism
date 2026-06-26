@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers\Owner;
 
+use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
 use App\Models\UmkmProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class OwnerDashboardController extends Controller
 {
+    use NormalizesMultilingualInput;
+
     /**
      * Display the UMKM Owner dashboard summary.
      */
@@ -62,7 +64,7 @@ class OwnerDashboardController extends Controller
             $validated['user_id'] = $user->id;
             $validated['owner_name'] = $user->name;
             $slugValue = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? reset($validated['business_name']);
-            $validated['slug'] = Str::slug($slugValue).'-'.Str::random(5);
+            $validated['slug'] = (new UmkmProfile)->generateUniqueSlug($slugValue);
             $validated['is_active'] = true;
             $validated['rating'] = 5.0;
 
@@ -70,15 +72,10 @@ class OwnerDashboardController extends Controller
         } else {
             // Update existing profile
             $slugValue = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? reset($validated['business_name']);
-            $validated['slug'] = Str::slug($slugValue);
             $currentName = is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[$defaultLocale] ?? '');
             $newName = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? '';
             if ($currentName !== $newName) {
-                $originalSlug = $validated['slug'];
-                $count = 1;
-                while (UmkmProfile::where('slug', $validated['slug'])->where('id', '!=', $profile->id)->exists()) {
-                    $validated['slug'] = $originalSlug.'-'.$count++;
-                }
+                $validated['slug'] = $profile->generateCollisionFreeSlug($slugValue, $profile->id);
             }
 
             $profile->update($validated);
@@ -111,14 +108,7 @@ class OwnerDashboardController extends Controller
             return redirect()->route('owner.profile')->with('error', __('Silakan buat profil toko terlebih dahulu.'));
         }
 
-        if ($request->has('accessibility_notes') && is_string($request->input('accessibility_notes'))) {
-            $request->merge([
-                'accessibility_notes' => [
-                    'en' => $request->input('accessibility_notes'),
-                    'id' => $request->input('accessibility_notes'),
-                ],
-            ]);
-        }
+        $this->normalizeLocaleField($request, 'accessibility_notes');
 
         $validated = $request->validate([
             'latitude' => ['required', 'numeric', 'between:-90,90'],
@@ -134,17 +124,13 @@ class OwnerDashboardController extends Controller
         $is_accessible = $request->has('is_accessible');
         $accessibility_notes = $validated['accessibility_notes'] ?? null;
 
-        $profile->mapLocation()->updateOrCreate(
-            [],
-            [
-                'name' => is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[config('app.fallback_locale')] ?? $profile->business_name['en'] ?? ''),
-                'category' => 'umkm',
-                'latitude' => $latitude,
-                'longitude' => $longitude,
-                'is_accessible' => $is_accessible,
-                'accessibility_notes' => $accessibility_notes,
-            ]
-        );
+        $profile->syncMapLocation([
+            'category' => 'umkm',
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'is_accessible' => $is_accessible,
+            'accessibility_notes' => $accessibility_notes,
+        ], isUpdate: true);
 
         return redirect()->route('owner.location')->with('success', __('Lokasi toko Anda berhasil diperbarui.'));
     }

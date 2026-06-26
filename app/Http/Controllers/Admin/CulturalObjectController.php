@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
 use App\Models\ArModel;
 use App\Models\CulturalObject;
@@ -18,70 +19,17 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class CulturalObjectController extends Controller
 {
-    /**
-     * Store a newly created cultural object in storage.
-     */
+    use NormalizesMultilingualInput;
+
     /**
      * Store a newly created cultural object in storage.
      */
     public function store(Request $request): RedirectResponse
     {
-        if ($request->has('story_title') && is_array($request->input('story_title'))) {
-            $storyTitles = $request->input('story_title');
-            $normalized = [];
-            foreach ($storyTitles as $val) {
-                if (is_array($val)) {
-                    $normalized[] = $val;
-                } else {
-                    $normalized[] = [
-                        'en' => (string) $val,
-                        'id' => (string) $val,
-                    ];
-                }
-            }
-            $request->merge(['story_title' => $normalized]);
-        }
-
-        if ($request->has('story_content') && is_array($request->input('story_content'))) {
-            $storyContents = $request->input('story_content');
-            $normalized = [];
-            foreach ($storyContents as $val) {
-                if (is_array($val)) {
-                    $normalized[] = $val;
-                } else {
-                    $normalized[] = [
-                        'en' => (string) $val,
-                        'id' => (string) $val,
-                    ];
-                }
-            }
-            $request->merge(['story_content' => $normalized]);
-        }
-
-        if ($request->has('quiz_question') && is_array($request->input('quiz_question'))) {
-            $quizQuestions = $request->input('quiz_question');
-            $normalized = [];
-            foreach ($quizQuestions as $val) {
-                if (is_array($val)) {
-                    $normalized[] = $val;
-                } else {
-                    $normalized[] = [
-                        'en' => (string) $val,
-                        'id' => (string) $val,
-                    ];
-                }
-            }
-            $request->merge(['quiz_question' => $normalized]);
-        }
-
-        if ($request->has('accessibility_notes') && is_string($request->input('accessibility_notes'))) {
-            $request->merge([
-                'accessibility_notes' => [
-                    'en' => $request->input('accessibility_notes'),
-                    'id' => $request->input('accessibility_notes'),
-                ],
-            ]);
-        }
+        $this->normalizeLocaleArrayField($request, 'story_title');
+        $this->normalizeLocaleArrayField($request, 'story_content');
+        $this->normalizeLocaleArrayField($request, 'quiz_question');
+        $this->normalizeLocaleField($request, 'accessibility_notes');
 
         $validated = $request->validate([
             'name' => ['required', 'array'],
@@ -148,7 +96,7 @@ class CulturalObjectController extends Controller
 
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $validated['slug'] = Str::slug($slugValue);
+        $validated['slug'] = (new CulturalObject)->generateSlug($slugValue);
 
         // Null safety for database constraints
         if (empty($validated['description']['en']) && empty($validated['description']['id'])) {
@@ -229,8 +177,7 @@ class CulturalObjectController extends Controller
             }
         }
 
-        $mapLocation = $object->mapLocation()->create([
-            'name' => is_string($object->name) ? $object->name : ($object->name[config('app.fallback_locale')] ?? $object->name['en'] ?? ''),
+        $mapLocation = $object->syncMapLocation([
             'category' => 'cultural',
             'latitude' => $latitude,
             'longitude' => $longitude,
@@ -338,62 +285,10 @@ class CulturalObjectController extends Controller
     {
         $object = CulturalObject::findOrFail($id);
 
-        if ($request->has('story_title') && is_array($request->input('story_title'))) {
-            $storyTitles = $request->input('story_title');
-            $normalized = [];
-            foreach ($storyTitles as $val) {
-                if (is_array($val)) {
-                    $normalized[] = $val;
-                } else {
-                    $normalized[] = [
-                        'en' => (string) $val,
-                        'id' => (string) $val,
-                    ];
-                }
-            }
-            $request->merge(['story_title' => $normalized]);
-        }
-
-        if ($request->has('story_content') && is_array($request->input('story_content'))) {
-            $storyContents = $request->input('story_content');
-            $normalized = [];
-            foreach ($storyContents as $val) {
-                if (is_array($val)) {
-                    $normalized[] = $val;
-                } else {
-                    $normalized[] = [
-                        'en' => (string) $val,
-                        'id' => (string) $val,
-                    ];
-                }
-            }
-            $request->merge(['story_content' => $normalized]);
-        }
-
-        if ($request->has('quiz_question') && is_array($request->input('quiz_question'))) {
-            $quizQuestions = $request->input('quiz_question');
-            $normalized = [];
-            foreach ($quizQuestions as $val) {
-                if (is_array($val)) {
-                    $normalized[] = $val;
-                } else {
-                    $normalized[] = [
-                        'en' => (string) $val,
-                        'id' => (string) $val,
-                    ];
-                }
-            }
-            $request->merge(['quiz_question' => $normalized]);
-        }
-
-        if ($request->has('accessibility_notes') && is_string($request->input('accessibility_notes'))) {
-            $request->merge([
-                'accessibility_notes' => [
-                    'en' => $request->input('accessibility_notes'),
-                    'id' => $request->input('accessibility_notes'),
-                ],
-            ]);
-        }
+        $this->normalizeLocaleArrayField($request, 'story_title');
+        $this->normalizeLocaleArrayField($request, 'story_content');
+        $this->normalizeLocaleArrayField($request, 'quiz_question');
+        $this->normalizeLocaleField($request, 'accessibility_notes');
 
         $validated = $request->validate([
             'name' => ['required', 'array'],
@@ -462,7 +357,7 @@ class CulturalObjectController extends Controller
 
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $validated['slug'] = Str::slug($slugValue);
+        $validated['slug'] = $object->generateSlug($slugValue);
 
         // Null safety for database constraints
         if (empty($validated['description']['en']) && empty($validated['description']['id'])) {
@@ -547,17 +442,13 @@ class CulturalObjectController extends Controller
             }
         }
 
-        $mapLocation = $object->mapLocation()->updateOrCreate(
-            [],
-            [
-                'name' => is_string($object->name) ? $object->name : ($object->name[config('app.fallback_locale')] ?? $object->name['en'] ?? ''),
-                'category' => 'cultural',
-                'latitude' => $latitude,
-                'longitude' => $longitude,
-                'is_accessible' => $request->has('is_accessible'),
-                'accessibility_notes' => $request->input('accessibility_notes') ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.',
-            ]
-        );
+        $mapLocation = $object->syncMapLocation([
+            'category' => 'cultural',
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'is_accessible' => $request->has('is_accessible'),
+            'accessibility_notes' => $request->input('accessibility_notes') ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.',
+        ], isUpdate: true);
 
         // Sync AR model link
         $arModelId = $request->input('ar_model_id');

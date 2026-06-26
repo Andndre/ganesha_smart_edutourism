@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
 use App\Models\ArModel;
 use App\Models\UmkmProduct;
@@ -16,6 +17,8 @@ use Illuminate\View\View;
 
 class UmkmController extends Controller
 {
+    use NormalizesMultilingualInput;
+
     /**
      * Display a listing of UMKM products and profiles.
      */
@@ -95,7 +98,7 @@ class UmkmController extends Controller
 
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $validated['slug'] = Str::slug($slugValue).'-'.Str::random(5);
+        $validated['slug'] = (new UmkmProduct)->generateUniqueSlug($slugValue);
         $validated['is_active'] = true;
 
         if (! isset($validated['unit'])) {
@@ -143,7 +146,7 @@ class UmkmController extends Controller
 
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $validated['slug'] = Str::slug($slugValue).'-'.Str::random(5);
+        $validated['slug'] = $product->generateUniqueSlug($slugValue);
         $validated['is_active'] = $request->has('is_active') ? true : false;
 
         $product->update($validated);
@@ -167,14 +170,7 @@ class UmkmController extends Controller
      */
     public function storeProfile(Request $request): RedirectResponse
     {
-        if ($request->has('accessibility_notes') && is_string($request->input('accessibility_notes'))) {
-            $request->merge([
-                'accessibility_notes' => [
-                    'en' => $request->input('accessibility_notes'),
-                    'id' => $request->input('accessibility_notes'),
-                ],
-            ]);
-        }
+        $this->normalizeLocaleField($request, 'accessibility_notes');
 
         $validated = $request->validate([
             'user_id' => ['nullable', 'exists:users,id'],
@@ -204,13 +200,7 @@ class UmkmController extends Controller
 
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? reset($validated['business_name']);
-        $slug = Str::slug($slugValue);
-        $originalSlug = $slug;
-        $count = 1;
-        while (UmkmProfile::where('slug', $slug)->exists()) {
-            $slug = $originalSlug.'-'.$count++;
-        }
-        $validated['slug'] = $slug;
+        $validated['slug'] = (new UmkmProfile)->generateCollisionFreeSlug($slugValue);
 
         $latitude = $validated['latitude'];
         $longitude = $validated['longitude'];
@@ -221,8 +211,7 @@ class UmkmController extends Controller
 
         $profile = UmkmProfile::create($validated);
 
-        $mapLocation = $profile->mapLocation()->create([
-            'name' => is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[config('app.fallback_locale')] ?? $profile->business_name['en'] ?? ''),
+        $mapLocation = $profile->syncMapLocation([
             'category' => 'umkm',
             'latitude' => $latitude,
             'longitude' => $longitude,
@@ -233,9 +222,8 @@ class UmkmController extends Controller
         // AR marker via ArModel (marker-only, no 3D model)
         $arMarkerId = $request->input('ar_marker_id');
         if (! empty($arMarkerId)) {
-            $profileName = is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[config('app.fallback_locale')] ?? $profile->business_name['en'] ?? '');
             ArModel::create([
-                'name' => $profileName.' Marker',
+                'name' => $profile->getMapDisplayName().' Marker',
                 'ar_marker_id' => $arMarkerId,
                 'map_location_id' => $mapLocation->id,
             ]);
@@ -251,14 +239,7 @@ class UmkmController extends Controller
     {
         $profile = UmkmProfile::findOrFail($id);
 
-        if ($request->has('accessibility_notes') && is_string($request->input('accessibility_notes'))) {
-            $request->merge([
-                'accessibility_notes' => [
-                    'en' => $request->input('accessibility_notes'),
-                    'id' => $request->input('accessibility_notes'),
-                ],
-            ]);
-        }
+        $this->normalizeLocaleField($request, 'accessibility_notes');
 
         $validated = $request->validate([
             'user_id' => ['nullable', 'exists:users,id'],
@@ -291,13 +272,7 @@ class UmkmController extends Controller
         $newName = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? '';
         if ($currentName !== $newName) {
             $slugValue = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? reset($validated['business_name']);
-            $slug = Str::slug($slugValue);
-            $originalSlug = $slug;
-            $count = 1;
-            while (UmkmProfile::where('slug', $slug)->where('id', '!=', $id)->exists()) {
-                $slug = $originalSlug.'-'.$count++;
-            }
-            $validated['slug'] = $slug;
+            $validated['slug'] = $profile->generateCollisionFreeSlug($slugValue, $profile->id);
         }
 
         $latitude = $validated['latitude'];
@@ -309,17 +284,13 @@ class UmkmController extends Controller
 
         $profile->update($validated);
 
-        $mapLocation = $profile->mapLocation()->updateOrCreate(
-            [],
-            [
-                'name' => is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[config('app.fallback_locale')] ?? $profile->business_name['en'] ?? ''),
-                'category' => 'umkm',
-                'latitude' => $latitude,
-                'longitude' => $longitude,
-                'is_accessible' => $is_accessible,
-                'accessibility_notes' => $accessibility_notes,
-            ]
-        );
+        $mapLocation = $profile->syncMapLocation([
+            'category' => 'umkm',
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'is_accessible' => $is_accessible,
+            'accessibility_notes' => $accessibility_notes,
+        ], isUpdate: true);
 
         // AR marker via ArModel
         $arMarkerId = $request->input('ar_marker_id');
@@ -328,9 +299,8 @@ class UmkmController extends Controller
             if ($existingModel) {
                 $existingModel->update(['ar_marker_id' => $arMarkerId]);
             } else {
-                $profileName = is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[config('app.fallback_locale')] ?? $profile->business_name['en'] ?? '');
                 ArModel::create([
-                    'name' => $profileName.' Marker',
+                    'name' => $profile->getMapDisplayName().' Marker',
                     'ar_marker_id' => $arMarkerId,
                     'map_location_id' => $mapLocation->id,
                 ]);

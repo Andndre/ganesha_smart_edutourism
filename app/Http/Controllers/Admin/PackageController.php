@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\TourPackage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class PackageController extends Controller
@@ -61,7 +60,7 @@ class PackageController extends Controller
         $package->name = $validated['name'];
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $package->slug = Str::slug($slugValue).'-'.Str::random(5);
+        $package->slug = $package->generateUniqueSlug($slugValue);
         $package->description = $validated['description'];
         $package->price = $validated['price'];
         $package->duration_hours = $validated['duration_hours'] ?? null;
@@ -126,7 +125,7 @@ class PackageController extends Controller
         $package->name = $validated['name'];
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $package->slug = Str::slug($slugValue).'-'.Str::random(5);
+        $package->slug = $package->generateUniqueSlug($slugValue);
         $package->description = $validated['description'];
         $package->price = $validated['price'];
         $package->duration_hours = $validated['duration_hours'] ?? null;
