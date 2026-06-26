@@ -23,6 +23,30 @@ class ChunkedUploader {
         this.progressText = opts.progressContainer?.querySelector('.tus-progress-text');
         this.statusIcon = opts.progressContainer?.querySelector('.tus-status-icon');
 
+        // Find submit button — explicit or first [type="submit"] in form
+        const form = opts.progressContainer?.closest('form');
+        this.submitBtn = opts.submitButton || form?.querySelector('[type="submit"]');
+
+        // Track all uploaders on this form for cross-upload coordination
+        if (form) {
+            if (!form._tusUploaders) form._tusUploaders = [];
+            form._tusUploaders.push(this);
+            form.addEventListener('submit', (e) => {
+                const anyUploading = form._tusUploaders.some(u => u.state === 'uploading');
+                if (anyUploading) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Upload Masih Berlangsung',
+                        text: 'Harap tunggu hingga semua file selesai diupload.',
+                        icon: 'warning',
+                        confirmButtonColor: '#1E5128',
+                        confirmButtonText: 'Mengerti',
+                        background: '#ffffff'
+                    });
+                }
+            });
+        }
+
         opts.input.addEventListener('change', () => this.onFileSelect());
     }
 
@@ -56,6 +80,7 @@ class ChunkedUploader {
         this.opts.progressContainer?.classList.remove('hidden');
         this.showProgress(0, file.size);
         this.opts.hiddenInput.value = '';
+        this.disableSubmit(true);
         this.opts.onStart?.();
 
         this.upload = new tus.Upload(file, {
@@ -76,11 +101,13 @@ class ChunkedUploader {
                 this.opts.hiddenInput.value = uuid + '.' + ext;
                 this.state = 'complete';
                 this.showComplete(file.name);
+                this.disableSubmit(false);
                 this.opts.onComplete?.(uuid + '.' + ext);
             },
             onError: (error) => {
                 this.state = 'error';
                 this.showError('Upload gagal: ' + (error.message || 'Unknown error'));
+                this.disableSubmit(false);
                 this.opts.onError?.(error);
             },
         });
@@ -130,5 +157,13 @@ class ChunkedUploader {
         this.opts.progressContainer?.classList.add('tus-error');
         this.state = 'error';
         this.opts.onComplete?.();
+    }
+
+    disableSubmit(disabled) {
+        if (this.submitBtn) {
+            this.submitBtn.disabled = disabled;
+            this.submitBtn.classList.toggle('opacity-50', disabled);
+            this.submitBtn.classList.toggle('cursor-not-allowed', disabled);
+        }
     }
 }
