@@ -48,14 +48,14 @@ if (! function_exists('translateValue')) {
         if (is_string($value)) {
             // Check if it's a JSON string (sometimes stored raw in SQLite/MySQL)
             $decoded = json_decode($value, true);
-            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            if (json_last_error() === JSON_ERROR_NONE && \is_array($decoded)) {
                 $value = $decoded;
             } else {
                 return $value;
             }
         }
 
-        if (! is_array($value)) {
+        if (! \is_array($value)) {
             return '';
         }
 

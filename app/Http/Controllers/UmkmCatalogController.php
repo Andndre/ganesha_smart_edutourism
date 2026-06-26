@@ -24,7 +24,7 @@ class UmkmCatalogController extends Controller
                 $data = $model->toArray();
                 $locale = app()->getLocale();
                 foreach (['name', 'description'] as $field) {
-                    if (isset($data[$field]) && is_array($data[$field])) {
+                    if (isset($data[$field]) && \is_array($data[$field])) {
                         $data[$field] = $data[$field][$locale] ?? $data[$field][config('app.fallback_locale')] ?? reset($data[$field]) ?? '';
                     }
                 }

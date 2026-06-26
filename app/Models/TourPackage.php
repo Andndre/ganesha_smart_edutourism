@@ -27,7 +27,7 @@ class TourPackage extends Model
     {
         $decoded = $value ? json_decode($value, true) : [];
 
-        if (! is_array($decoded)) {
+        if (!  \is_array($decoded)) {
             return [];
         }
 
@@ -47,7 +47,7 @@ class TourPackage extends Model
      */
     public function setInclusionsAttribute($value): void
     {
-        if (is_array($value) && array_is_list($value)) {
+        if ( \is_array($value) && array_is_list($value)) {
             $locale = app()->getLocale();
             $value = [$locale => $value];
         }
@@ -65,7 +65,7 @@ class TourPackage extends Model
     {
         $decoded = $value ? json_decode($value, true) : [];
 
-        if (! is_array($decoded)) {
+        if (!  \is_array($decoded)) {
             return [];
         }
 
@@ -85,7 +85,7 @@ class TourPackage extends Model
      */
     public function setExclusionsAttribute($value): void
     {
-        if (is_array($value) && array_is_list($value)) {
+        if ( \is_array($value) && array_is_list($value)) {
             $locale = app()->getLocale();
             $value = [$locale => $value];
         }
@@ -103,7 +103,7 @@ class TourPackage extends Model
         $raw = $this->getRawOriginal('inclusions');
         $decoded = $raw ? json_decode($raw, true) : [];
 
-        if (! is_array($decoded) || array_is_list($decoded)) {
+        if (!  \is_array($decoded) || array_is_list($decoded)) {
             return $decoded ?? [];
         }
 
@@ -118,7 +118,7 @@ class TourPackage extends Model
         $raw = $this->getRawOriginal('exclusions');
         $decoded = $raw ? json_decode($raw, true) : [];
 
-        if (! is_array($decoded) || array_is_list($decoded)) {
+        if (!  \is_array($decoded) || array_is_list($decoded)) {
             return $decoded ?? [];
         }
 

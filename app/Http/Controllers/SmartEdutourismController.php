@@ -27,7 +27,7 @@ class SmartEdutourismController extends Controller
                 $data = $model->toArray();
                 $locale = app()->getLocale();
                 foreach (['name', 'description'] as $field) {
-                    if (isset($data[$field]) && is_array($data[$field])) {
+                    if (isset($data[$field]) && \is_array($data[$field])) {
                         $data[$field] = $data[$field][$locale] ?? $data[$field][config('app.fallback_locale')] ?? reset($data[$field]) ?? '';
                     }
                 }
@@ -61,7 +61,7 @@ class SmartEdutourismController extends Controller
 
         $routeData = $route->toArray();
         foreach (['name', 'description'] as $field) {
-            if (isset($routeData[$field]) && is_array($routeData[$field])) {
+            if (isset($routeData[$field]) && \is_array($routeData[$field])) {
                 $routeData[$field] = $routeData[$field][$locale] ?? $routeData[$field][config('app.fallback_locale')] ?? reset($routeData[$field]) ?? '';
             }
         }
@@ -69,7 +69,7 @@ class SmartEdutourismController extends Controller
         $points = $route->routePoints->map(function ($point) use ($locale) {
             $loc = $point->locationable;
             $name = $loc->name ?? __('Titik Perhentian');
-            if (is_array($name)) {
+            if (\is_array($name)) {
                 $name = $name[$locale] ?? $name[config('app.fallback_locale')] ?? reset($name) ?? '';
             }
             return [

@@ -14,7 +14,7 @@ class TourPackageController extends Controller
             return TourPackage::active()->get()->map(function ($package) use ($locale) {
                 $data = $package->toArray();
                 foreach (['name', 'description'] as $field) {
-                    if (isset($data[$field]) && is_array($data[$field])) {
+                    if (isset($data[$field]) && \is_array($data[$field])) {
                         $data[$field] = $data[$field][$locale] ?? $data[$field][config('app.fallback_locale')] ?? reset($data[$field]) ?? '';
                     }
                 }
