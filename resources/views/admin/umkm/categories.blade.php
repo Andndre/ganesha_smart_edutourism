@@ -211,7 +211,7 @@
                             <span class="tus-progress-text flex-1 text-[10px] text-gray-500"></span>
                         </div>
                         <div class="mt-1 h-1 w-full overflow-hidden rounded-full bg-gray-200">
-                            <div class="tus-progress-bar h-full rounded-full bg-penglipuran-green transition-all duration-300" style="width:0%"></div>
+                            <div class="tus-progress-bar h-full rounded-full bg-primary transition-all duration-300" style="width:0%"></div>
                         </div>
                     </div>
                     <span id="current-model-3d" class="text-primary mt-1 block text-[10px] font-semibold"></span>
@@ -230,7 +230,7 @@
                             <span class="tus-progress-text flex-1 text-[10px] text-gray-500"></span>
                         </div>
                         <div class="mt-1 h-1 w-full overflow-hidden rounded-full bg-gray-200">
-                            <div class="tus-progress-bar h-full rounded-full bg-penglipuran-green transition-all duration-300" style="width:0%"></div>
+                            <div class="tus-progress-bar h-full rounded-full bg-primary transition-all duration-300" style="width:0%"></div>
                         </div>
                     </div>
 
