@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class EventController extends Controller
 {
+    use NormalizesMultilingualInput;
+
     /**
      * Display a listing of events.
      */
@@ -223,7 +225,7 @@ class EventController extends Controller
         $event->name = $validated['name'];
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $event->slug = Str::slug($slugValue).'-'.Str::random(5);
+        $event->slug = $event->generateUniqueSlug($slugValue);
         $event->description = $validated['description'] ?? null;
         $event->category = $categoryMap[$validated['category']] ?? 'cultural';
         $event->start_datetime = $startDatetime;
@@ -239,8 +241,7 @@ class EventController extends Controller
         $event->save();
 
         if ($latitude !== null && $longitude !== null) {
-            $event->mapLocation()->create([
-                'name' => is_string($event->name) ? $event->name : ($event->name[config('app.fallback_locale')] ?? $event->name['en'] ?? ''),
+            $event->syncMapLocation([
                 'category' => 'cultural',
                 'latitude' => $latitude,
                 'longitude' => $longitude,
@@ -385,7 +386,7 @@ class EventController extends Controller
         $event->name = $validated['name'];
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $event->slug = Str::slug($slugValue).'-'.Str::random(5);
+        $event->slug = $event->generateUniqueSlug($slugValue);
         $event->description = $validated['description'] ?? null;
         $event->category = $categoryMap[$validated['category']] ?? 'cultural';
         $event->start_datetime = $startDatetime;
@@ -400,16 +401,12 @@ class EventController extends Controller
         $event->save();
 
         if ($latitude !== null && $longitude !== null) {
-            $event->mapLocation()->updateOrCreate(
-                [],
-                [
-                    'name' => is_string($event->name) ? $event->name : ($event->name[config('app.fallback_locale')] ?? $event->name['en'] ?? ''),
-                    'category' => 'cultural',
-                    'latitude' => $latitude,
-                    'longitude' => $longitude,
-                    'is_accessible' => true,
-                ]
-            );
+            $event->syncMapLocation([
+                'category' => 'cultural',
+                'latitude' => $latitude,
+                'longitude' => $longitude,
+                'is_accessible' => true,
+            ], isUpdate: true);
         } else {
             $event->mapLocation()->delete();
         }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasSlug;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ use Spatie\Translatable\HasTranslations;
 class UmkmProductCategory extends Model
 {
     use HasFactory;
+    use HasSlug;
     use HasTranslations;
 
     public array $translatable = ['name', 'description'];

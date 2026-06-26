@@ -42,7 +42,7 @@ class UmkmCategoryController extends Controller
 
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $validated['slug'] = Str::slug($slugValue);
+        $validated['slug'] = (new UmkmProductCategory)->generateSlug($slugValue);
 
         if ($request->hasFile('image')) {
             $validated['image_path'] = $request->file('image')->store('categories', 'public');
@@ -88,7 +88,7 @@ class UmkmCategoryController extends Controller
 
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $validated['slug'] = Str::slug($slugValue);
+        $validated['slug'] = $category->generateSlug($slugValue);
 
         if ($request->hasFile('image')) {
             if ($category->image_path) {

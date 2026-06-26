@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
 use App\Models\MapLocation;
 use App\Models\TourRoute;
@@ -11,6 +12,8 @@ use Illuminate\View\View;
 
 class TourRouteController extends Controller
 {
+    use NormalizesMultilingualInput;
+
     /**
      * Display a listing of tour routes.
      */
@@ -68,23 +71,7 @@ class TourRouteController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        if ($request->has('name') && is_string($request->input('name'))) {
-            $request->merge([
-                'name' => [
-                    'en' => $request->input('name'),
-                    'id' => $request->input('name'),
-                ],
-            ]);
-        }
-
-        if ($request->has('description') && is_string($request->input('description'))) {
-            $request->merge([
-                'description' => [
-                    'en' => $request->input('description'),
-                    'id' => $request->input('description'),
-                ],
-            ]);
-        }
+        $this->normalizeLocaleFields($request, ['name', 'description']);
 
         if ($request->has('points') && is_array($request->input('points'))) {
             $points = $request->input('points');
@@ -155,23 +142,7 @@ class TourRouteController extends Controller
     {
         $route = TourRoute::findOrFail($id);
 
-        if ($request->has('name') && is_string($request->input('name'))) {
-            $request->merge([
-                'name' => [
-                    'en' => $request->input('name'),
-                    'id' => $request->input('name'),
-                ],
-            ]);
-        }
-
-        if ($request->has('description') && is_string($request->input('description'))) {
-            $request->merge([
-                'description' => [
-                    'en' => $request->input('description'),
-                    'id' => $request->input('description'),
-                ],
-            ]);
-        }
+        $this->normalizeLocaleFields($request, ['name', 'description']);
 
         if ($request->has('points') && is_array($request->input('points'))) {
             $points = $request->input('points');

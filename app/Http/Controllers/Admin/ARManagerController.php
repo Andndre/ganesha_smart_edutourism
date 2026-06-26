@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
 use App\Models\ArModel;
 use App\Services\TusService;
@@ -14,6 +15,8 @@ use Illuminate\View\View;
 
 class ARManagerController extends Controller
 {
+    use NormalizesMultilingualInput;
+
     public function index(): View
     {
         $models = ArModel::with('mapLocation.locationable')->orderBy('name')->get();
@@ -23,23 +26,7 @@ class ARManagerController extends Controller
 
     public function storeModel(Request $request): RedirectResponse|JsonResponse
     {
-        if ($request->has('name') && is_string($request->input('name'))) {
-            $request->merge([
-                'name' => [
-                    'en' => $request->input('name'),
-                    'id' => $request->input('name'),
-                ],
-            ]);
-        }
-
-        if ($request->has('description') && is_string($request->input('description'))) {
-            $request->merge([
-                'description' => [
-                    'en' => $request->input('description'),
-                    'id' => $request->input('description'),
-                ],
-            ]);
-        }
+        $this->normalizeLocaleFields($request, ['name', 'description']);
 
         $validated = $request->validate([
             'name' => ['required', 'array'],
@@ -119,23 +106,7 @@ class ARManagerController extends Controller
     {
         $model = ArModel::findOrFail($id);
 
-        if ($request->has('name') && is_string($request->input('name'))) {
-            $request->merge([
-                'name' => [
-                    'en' => $request->input('name'),
-                    'id' => $request->input('name'),
-                ],
-            ]);
-        }
-
-        if ($request->has('description') && is_string($request->input('description'))) {
-            $request->merge([
-                'description' => [
-                    'en' => $request->input('description'),
-                    'id' => $request->input('description'),
-                ],
-            ]);
-        }
+        $this->normalizeLocaleFields($request, ['name', 'description']);
 
         $validated = $request->validate([
             'name' => ['required', 'array'],

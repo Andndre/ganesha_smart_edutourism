@@ -8,7 +8,6 @@ use App\Models\UmkmProductCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class OwnerProductController extends Controller
@@ -90,7 +89,7 @@ class OwnerProductController extends Controller
         $validated['umkm_profile_id'] = $profile->id;
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $validated['slug'] = Str::slug($slugValue).'-'.Str::random(5);
+        $validated['slug'] = (new UmkmProduct)->generateUniqueSlug($slugValue);
         $validated['is_active'] = true;
 
         if (! isset($validated['unit'])) {
@@ -144,7 +143,7 @@ class OwnerProductController extends Controller
 
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $validated['slug'] = Str::slug($slugValue).'-'.Str::random(5);
+        $validated['slug'] = $product->generateUniqueSlug($slugValue);
         $validated['is_active'] = $request->has('is_active') ? true : false;
 
         $product->update($validated);

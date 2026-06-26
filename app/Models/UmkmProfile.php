@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasMapLocation;
+use App\Models\Concerns\HasSlug;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,9 +17,21 @@ use Spatie\Translatable\HasTranslations;
 class UmkmProfile extends Model
 {
     use HasFactory;
+    use HasMapLocation;
+    use HasSlug;
     use HasTranslations;
 
     public array $translatable = ['business_name', 'description'];
+
+    protected function slugSourceField(): string
+    {
+        return 'business_name';
+    }
+
+    protected function mapLocationNameField(): string
+    {
+        return 'business_name';
+    }
 
     /**
      * The attributes that should be cast.
