@@ -1,3 +1,109 @@
+# AR Model Grid Modal Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development for implementation. Steps use checkbox (`- [ ]`) syntax.
+
+**Goal:** Replace the `<select>` dropdown AR model picker with a modal grid selector + add-new flow that reuses the existing drawer modal form.
+
+**Architecture:** Single Blade partial rewrite (`ar-model-section.blade.php`) with Alpine.js inline + embedded `<x-modal>`. Reuses `admin.ar-manager.partials.modal-form` for the add-new drawer. Two controllers get minor changes.
+
+**Tech Stack:** Laravel 13, Blade, Alpine.js, TailwindCSS v4
+
+## Global Constraints
+
+- UI strings in Indonesian (admin context)
+- Grid modal: `desktopLayout="center"`, `maxWidth="5xl"`
+- Add-new drawer: reuse existing `admin.ar-manager.partials.modal-form`
+- Disabled models: `opacity-40 pointer-events-none` + overlay badge "Terpakai"
+- Search via Alpine: no Livewire
+- Alpine component registered as `window.arModelSelector` function, not `Alpine.data()` (since Alpine initializes before `@stack('scripts')`)
+- Chunked upload (TUS) must keep working
+- `editor.blade.php` references to old select logic must be updated
+
+---
+
+### Task 1: Controller Changes
+
+**Files:**
+- Modify: `app/Http/Controllers/Admin/MapManagerController.php`
+- Modify: `app/Http/Controllers/Admin/ARManagerController.php`
+
+**Interfaces:**
+- MapManagerController produces `$unavailableModelIds` (dict of `id => map_location_id`)
+- ARManagerController accepts `redirect_to` POST param
+
+- [ ] **Step 1: MapManagerController — pass unavailable model IDs**
+
+In `MapManagerController@index`, after existing `$models` line:
+
+```php
+// models already linked to a different map_location — mark as disabled
+$unavailableModelIds = ArModel::whereNotNull('map_location_id')
+    ->pluck('map_location_id', 'id');
+```
+
+Update compact:
+
+```php
+return view('admin.map-manager.index', compact('locations', 'owners', 'models', 'unavailableModelIds'));
+```
+
+- [ ] **Step 2: ARManagerController — accept redirect_to**
+
+In `storeModel()`, replace the final redirect:
+
+```php
+if ($request->input('redirect_to') === 'map-manager') {
+    return redirect()->route('admin.map-manager', ['select_model' => $model->id])
+        ->with('success', __('Model 3D berhasil ditambahkan.'));
+}
+
+return redirect()->route('admin.ar-manager')->with('success', __('Model 3D berhasil ditambahkan.'));
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add app/Http/Controllers/Admin/MapManagerController.php app/Http/Controllers/Admin/ARManagerController.php
+git commit -m "feat: pass unavailable model IDs, support redirect_to in AR store"
+```
+
+---
+
+### Task 2: Add `redirect_to` hidden field to AR modal form
+
+**Files:**
+- Modify: `resources/views/admin/ar-manager/partials/modal-form.blade.php`
+
+- [ ] **Step 1: Add hidden field after the CSRF field**
+
+In `modal-form.blade.php`, after the CSRF line:
+
+```blade
+<input type="hidden" name="redirect_to" id="model-field-redirect-to" value="">
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add resources/views/admin/ar-manager/partials/modal-form.blade.php
+git commit -m "feat: add redirect_to hidden field to AR modal form"
+```
+
+---
+
+### Task 3: Rewrite `ar-model-section.blade.php` — Full replacement
+
+**Files:**
+- Overwrite: `resources/views/admin/map-manager/partials/form-cultural/ar-model-section.blade.php`
+
+**Interfaces:**
+- Consumes: `$models` (ArModel collection), `$unavailableModelIds` (dict)
+- Produces: `<input name="ar_model_id">` (hidden) with selected model ID
+- Opens grid modal `ar-model-grid-modal` and references existing drawer `model-modal`
+
+- [ ] **Step 1: Write the new partial**
+
+```blade
 <div x-data="arModelSelector()" x-init="initSelector()">
     <label class="mb-1.5 block text-sm font-semibold text-gray-700">Model 3D Aset AR</label>
     <span class="mb-2 block text-xs text-gray-500">Pilih model 3D yang sudah ada atau buat baru.</span>
@@ -44,8 +150,7 @@
     </div>
 
     {{-- GRID MODAL --}}
-    <x-modal name="ar-model-grid-modal" maxWidth="5xl" desktopLayout="center" zIndex="z-[90]"
-        :closeOnOutsideClick="false">
+    <x-modal name="ar-model-grid-modal" maxWidth="5xl" desktopLayout="center">
         <div class="flex flex-col gap-4">
             <div>
                 <h3 class="font-display text-charcoal text-lg font-bold">Pilih Model 3D</h3>
@@ -86,7 +191,7 @@
                             :class="model.isTaken ? 'opacity-40 pointer-events-none' : 'cursor-pointer hover:border-primary hover:shadow-sm'"
                             class="relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white transition-all">
                             {{-- Thumbnail --}}
-                            <div class="h-32 w-full overflow-hidden bg-gray-100">
+                            <div class="aspect-4/3 overflow-hidden bg-gray-100">
                                 <template x-if="model.thumbnail_path">
                                     <img :src="'{{ asset('storage') }}/' + model.thumbnail_path" class="h-full w-full object-cover">
                                 </template>
@@ -142,7 +247,18 @@ window.arModelSelector = function() {
         selectedId: '',
         selectedModel: null,
         search: '',
-        models: @json($modelsJson),
+        models: @json($models->map(function ($m) use ($unavailableModelIds) {
+            $name = $m->getTranslations('name');
+            return [
+                'id' => (string) $m->id,
+                'name' => $name,
+                'displayName' => $name[app()->getLocale()] ?? $name['en'] ?? $name['id'] ?? '',
+                'ar_marker_id' => $m->ar_marker_id,
+                'thumbnail_path' => $m->thumbnail_path,
+                'model_3d_path' => $m->model_3d_path,
+                'isTaken' => $m->map_location_id !== null,
+            ];
+        })),
 
         get filteredModels() {
             if (!this.search) return this.models;
@@ -195,14 +311,17 @@ window.arModelSelector = function() {
         clearSelection: function () {
             this.selectedId = '';
             this.selectedModel = null;
+            this.closeGridModal();
         },
 
         openAddNew: function () {
+            this.closeGridModal();
             // Enable redirect_to on the modal form
             var redirectTo = document.getElementById('model-field-redirect-to');
             if (redirectTo) redirectTo.value = 'map-manager';
-            // Open drawer ON TOP of grid modal (grid z-[90] < drawer z-100)
-            window.openModelModal();
+            setTimeout(function () {
+                window.openModelModal();
+            }, 300);
         },
     };
 };
@@ -225,3 +344,102 @@ document.addEventListener('ar-model-reset', function () {
     }
 });
 </script>
+```
+
+Note: `aspect-4/3` is a Tailwind custom utility. If it doesn't exist, the fallback works — it just won't enforce aspect ratio. Add it if needed, or use `h-32 w-full` instead.
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add resources/views/admin/map-manager/partials/form-cultural/ar-model-section.blade.php
+git commit -m "feat: replace AR model dropdown with modal grid selector"
+```
+
+---
+
+### Task 4: Update editor.blade.php to use new selector
+
+**Files:**
+- Modify: `resources/views/admin/map-manager/partials/scripts/editor.blade.php`
+
+- [ ] **Step 1: Replace old modelSelect references with custom events**
+
+In editor.blade.php, find the block (lines 177-184):
+
+```javascript
+            // Select active model and trigger toggle
+            const modelSelect = document.getElementById('ar_model_id_select');
+            if (modelSelect) {
+                modelSelect.value = loc.ar_model ? loc.ar_model.id : 'none';
+                if (typeof toggleModelSelect === 'function') {
+                    toggleModelSelect(modelSelect.value);
+                }
+            }
+```
+
+Replace with:
+
+```javascript
+            // Select active model via custom event to Alpine component
+            window.dispatchEvent(new CustomEvent('ar-model-select', {
+                detail: { modelId: loc.ar_model ? String(loc.ar_model.id) : '' }
+            }));
+```
+
+Next, in `resetForms()` (lines 390-397), find:
+
+```javascript
+        const modelSelect = document.getElementById('ar_model_id_select');
+        if (modelSelect) {
+            modelSelect.value = 'none';
+            if (typeof toggleModelSelect === 'function') {
+                toggleModelSelect('none');
+            }
+        }
+```
+
+Replace with:
+
+```javascript
+        window.dispatchEvent(new CustomEvent('ar-model-reset'));
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add resources/views/admin/map-manager/partials/scripts/editor.blade.php
+git commit -m "fix: update editor script to use Alpine event-based model selector"
+```
+
+---
+
+### Task 5: Final verification
+
+**Files:**
+- Run: `php artisan tinker` to verify `ArModel::whereNotNull('map_location_id')->pluck('map_location_id', 'id')` syntax
+- Run: `vendor/bin/pint --dirty --format agent` to format
+
+- [ ] **Step 1: Format code**
+
+```bash
+vendor/bin/pint --dirty --format agent
+```
+
+- [ ] **Step 2: Quick test — load map-manager page**
+
+```bash
+php artisan serve &>/dev/null &
+```
+
+Verify the page loads without Blade errors. The grid modal should open on click, show model cards, search should filter, disabled models should appear greyed out.
+
+- [ ] **Step 3: Verify add-new flow**
+
+Open grid modal → click "Tambah Baru" → drawer opens → fill form → save → redirects back with `?select_model=ID` → auto-selects the new model.
+
+- [ ] **Step 4: Commit any final fixes**
+
+```bash
+git add -A
+git commit -m "chore: formatting and final adjustments for AR model grid modal"
+```
