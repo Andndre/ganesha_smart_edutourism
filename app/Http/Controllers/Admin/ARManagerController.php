@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ArModel;
 use App\Services\TusService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -20,7 +21,7 @@ class ARManagerController extends Controller
         return view('admin.ar-manager.index', compact('models'));
     }
 
-    public function storeModel(Request $request): RedirectResponse
+    public function storeModel(Request $request): RedirectResponse|JsonResponse
     {
         if ($request->has('name') && is_string($request->input('name'))) {
             $request->merge([
@@ -87,6 +88,24 @@ class ARManagerController extends Controller
 
         $model = ArModel::create($modelData);
         $this->handleThumbnail($request, $model);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            $name = $model->getTranslations('name');
+
+            return response()->json([
+                'success' => true,
+                'message' => __('Model 3D berhasil ditambahkan.'),
+                'model' => [
+                    'id' => (string) $model->id,
+                    'name' => $name,
+                    'displayName' => $name[app()->getLocale()] ?? $name['en'] ?? $name['id'] ?? '',
+                    'ar_marker_id' => $model->ar_marker_id,
+                    'thumbnail_path' => $model->thumbnail_path,
+                    'model_3d_path' => $model->model_3d_path,
+                    'isTaken' => false,
+                ],
+            ]);
+        }
 
         if ($request->input('redirect_to') === 'map-manager') {
             return redirect()->route('admin.map-manager', ['select_model' => $model->id])

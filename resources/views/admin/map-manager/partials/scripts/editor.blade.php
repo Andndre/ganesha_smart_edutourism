@@ -197,20 +197,6 @@ function handleMarkerClick(marker) {
             }
 
             const arModel = loc.ar_model || null;
-
-            // File previews
-            document.getElementById('current-model-3d').innerHTML = arModel && arModel.model_3d_path
-                ? `File saat ini: <a href="${storageUrl}/${arModel.model_3d_path}" target="_blank" class="text-primary hover:underline font-semibold">${arModel.model_3d_path.split('/').pop()}</a>`
-                : 'Belum ada model 3D';
-
-            document.getElementById('current-model-3d-usdz').innerHTML = arModel && arModel.model_3d_usdz_path
-                ? `File saat ini: <a href="${storageUrl}/${arModel.model_3d_usdz_path}" target="_blank" class="text-primary hover:underline font-semibold">${arModel.model_3d_usdz_path.split('/').pop()}</a>`
-                : 'Belum ada model 3D iOS (.usdz)';
-
-            document.getElementById('current-audio').innerHTML = arModel && arModel.audio_narration_path
-                ? `File saat ini: <a href="${storageUrl}/${arModel.audio_narration_path}" target="_blank" class="text-primary hover:underline font-semibold">${arModel.audio_narration_path.split('/').pop()}</a>`
-                : 'Belum ada audio narasi';
-
             const imgContainer = document.getElementById('current-images');
             imgContainer.innerHTML = '';
             if (details.historical_images && details.historical_images.length > 0) {
@@ -386,36 +372,7 @@ function resetForms() {
         
         window.dispatchEvent(new CustomEvent('ar-model-reset'));
 
-        document.getElementById('current-model-3d').innerHTML = '';
-        const usdzEl = document.getElementById('current-model-3d-usdz');
-        if (usdzEl) usdzEl.innerHTML = '';
-        document.getElementById('current-audio').innerHTML = '';
         document.getElementById('current-images').innerHTML = '';
-
-        const pattInput = document.getElementById('ar_marker_patt_content');
-        if (pattInput) {
-            pattInput.value = '';
-        }
-        const downloadContainer = document.getElementById('ar-download-container');
-        if (downloadContainer) {
-            downloadContainer.style.display = 'none';
-        }
-
-        const modelPreviewContainer = document.getElementById('model-3d-preview-container');
-        const modelPreview = document.getElementById('model-3d-preview');
-        if (modelPreview && modelPreviewContainer) {
-            modelPreview.src = '';
-            modelPreviewContainer.style.display = 'none';
-        }
-
-        const audioPreviewContainer = document.getElementById('audio-preview-container');
-        const audioPreview = document.getElementById('audio-preview');
-        if (audioPreview && audioPreviewContainer) {
-            audioPreview.src = '';
-            audioPreviewContainer.style.display = 'none';
-        }
-
-        // Reset Quizzes
         if(culturalForm.querySelector('input[name="has_quiz"]')) {
             culturalForm.querySelector('input[name="has_quiz"]').checked = false;
             const manageBtn = document.getElementById('btn-manage-quizzes');
