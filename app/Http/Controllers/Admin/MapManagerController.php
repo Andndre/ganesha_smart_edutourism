@@ -29,6 +29,10 @@ class MapManagerController extends Controller
         $owners = User::where('role', 'umkm_owner')->orderBy('name')->get();
         $models = ArModel::orderBy('name')->get();
 
-        return view('admin.map-manager.index', compact('locations', 'owners', 'models'));
+        // models already linked to a different map_location — mark as disabled
+        $unavailableModelIds = ArModel::whereNotNull('map_location_id')
+            ->pluck('map_location_id', 'id');
+
+        return view('admin.map-manager.index', compact('locations', 'owners', 'models', 'unavailableModelIds'));
     }
 }

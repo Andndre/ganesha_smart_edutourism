@@ -88,6 +88,11 @@ class ARManagerController extends Controller
         $model = ArModel::create($modelData);
         $this->handleThumbnail($request, $model);
 
+        if ($request->input('redirect_to') === 'map-manager') {
+            return redirect()->route('admin.map-manager', ['select_model' => $model->id])
+                ->with('success', __('Model 3D berhasil ditambahkan.'));
+        }
+
         return redirect()->route('admin.ar-manager')->with('success', __('Model 3D berhasil ditambahkan.'));
     }
 
