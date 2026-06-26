@@ -28,9 +28,9 @@
 
     $desktopContainerClass = match ($desktopLayout) {
         'drawer' => $drawerFromSide === 'right'
-            ? 'md:rounded-none md:rounded-t-none md:border-l md:border-gray-200 md:h-screen overflow-y-auto'
-            : 'md:rounded-none md:rounded-t-none md:border-r md:border-gray-200 md:h-screen overflow-y-auto',
-        default => 'md:rounded-3xl overflow-hidden md:max-h-[85vh]',
+            ? 'max-h-sheet overflow-y-auto md:rounded-none md:rounded-t-none md:border-l md:border-gray-200 md:h-screen'
+            : 'max-h-sheet overflow-y-auto md:rounded-none md:rounded-t-none md:border-r md:border-gray-200 md:h-screen',
+        default => 'max-h-sheet overflow-y-auto md:rounded-3xl md:overflow-hidden md:max-h-[85vh]',
     };
 
     $desktopTransitionStart = match ($desktopLayout) {
