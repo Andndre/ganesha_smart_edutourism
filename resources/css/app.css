@@ -66,6 +66,10 @@
         max-height: calc(100dvh - 2rem);
     }
 
+    .max-h-none {
+        max-height: unset;
+    }
+
     /* Safe area padding for notched phones */
     .pb-sab {
         padding-bottom: env(safe-area-inset-bottom);
@@ -325,8 +329,6 @@ input[type="checkbox"]:focus-visible {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-
-
 /* My Location Arrow */
 .location-arrow {
     position: absolute;
@@ -362,7 +364,6 @@ input[type="checkbox"]:focus-visible {
 
 /* FAB Active State */
 .fab-btn-active {
-    background: #1E5128 !important;
+    background: #1e5128 !important;
     color: white !important;
 }
-
