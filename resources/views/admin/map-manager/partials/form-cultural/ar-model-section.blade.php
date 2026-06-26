@@ -131,9 +131,6 @@
             </div>
         </div>
     </x-modal>
-
-    {{-- Include the drawer modal form for Tambah Baru --}}
-    @include('admin.ar-manager.partials.modal-form')
 </div>
 
 <script>
