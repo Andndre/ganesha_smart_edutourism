@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\UmkmProductCategory;
+use App\Services\TusService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -47,11 +48,15 @@ class UmkmCategoryController extends Controller
             $validated['image_path'] = $request->file('image')->store('categories', 'public');
         }
 
-        if ($request->hasFile('model_3d_file')) {
+        if ($tmpUuid = $request->input('tmp_model_3d_path')) {
+            $validated['model_3d_path'] = TusService::moveFromTemp($tmpUuid, 'models');
+        } elseif ($request->hasFile('model_3d_file')) {
             $validated['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
         }
 
-        if ($request->hasFile('model_3d_usdz_file')) {
+        if ($tmpUuid = $request->input('tmp_model_3d_usdz_path')) {
+            $validated['model_3d_usdz_path'] = TusService::moveFromTemp($tmpUuid, 'models', Str::random(40).'.usdz');
+        } elseif ($request->hasFile('model_3d_usdz_file')) {
             $file = $request->file('model_3d_usdz_file');
             $filename = Str::random(40).'.usdz';
             $validated['model_3d_usdz_path'] = $file->storeAs('models', $filename, 'public');
@@ -92,14 +97,24 @@ class UmkmCategoryController extends Controller
             $validated['image_path'] = $request->file('image')->store('categories', 'public');
         }
 
-        if ($request->hasFile('model_3d_file')) {
+        if ($tmpUuid = $request->input('tmp_model_3d_path')) {
+            if ($category->model_3d_path) {
+                Storage::disk('public')->delete($category->model_3d_path);
+            }
+            $validated['model_3d_path'] = TusService::moveFromTemp($tmpUuid, 'models');
+        } elseif ($request->hasFile('model_3d_file')) {
             if ($category->model_3d_path) {
                 Storage::disk('public')->delete($category->model_3d_path);
             }
             $validated['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
         }
 
-        if ($request->hasFile('model_3d_usdz_file')) {
+        if ($tmpUuid = $request->input('tmp_model_3d_usdz_path')) {
+            if ($category->model_3d_usdz_path) {
+                Storage::disk('public')->delete($category->model_3d_usdz_path);
+            }
+            $validated['model_3d_usdz_path'] = TusService::moveFromTemp($tmpUuid, 'models', Str::random(40).'.usdz');
+        } elseif ($request->hasFile('model_3d_usdz_file')) {
             if ($category->model_3d_usdz_path) {
                 Storage::disk('public')->delete($category->model_3d_usdz_path);
             }

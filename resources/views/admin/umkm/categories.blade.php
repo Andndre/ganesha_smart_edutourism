@@ -199,22 +199,40 @@
                 </div>
                 <div>
                     <label class="font-display block text-sm font-semibold text-gray-700">Model 3D (.glb)</label>
-                    <input type="file" name="model_3d_file" id="field-model-3d" accept=".glb" onchange="previewModelGLB(this)"
+                    <input type="file" name="model_3d_file" id="field-model-3d" accept=".glb"
                         class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
                     <span class="mt-1 block text-[10px] text-gray-400">Format model GLB (kompresi Draco didukung), maks
                         20MB.</span>
                     @error('model_3d_file')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    <input type="hidden" name="tmp_model_3d_path" id="field-tmp-model-3d" value="">
+                    <div id="model-3d-progress" class="mt-2 hidden tus-progress-container">
+                        <div class="flex items-center gap-2">
+                            <span class="tus-status-icon"></span>
+                            <span class="tus-progress-text flex-1 text-[10px] text-gray-500"></span>
+                        </div>
+                        <div class="mt-1 h-1 w-full overflow-hidden rounded-full bg-gray-200">
+                            <div class="tus-progress-bar h-full rounded-full bg-penglipuran-green transition-all duration-300" style="width:0%"></div>
+                        </div>
+                    </div>
                     <span id="current-model-3d" class="text-primary mt-1 block text-[10px] font-semibold"></span>
                 </div>
                 <div>
                     <label class="font-display block text-sm font-semibold text-gray-700">Model 3D iOS (.usdz)</label>
-                    <input type="file" name="model_3d_usdz_file" id="field-model-3d-usdz" accept=".usdz" onchange="previewCategoryUSDZ(this)"
+                    <input type="file" name="model_3d_usdz_file" id="field-model-3d-usdz" accept=".usdz"
                         class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
                     <span class="mt-1 block text-[10px] text-gray-400">Format model USDZ untuk iOS Apple Quick Look, maks
                         50MB.</span>
                     @error('model_3d_usdz_file')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
-                    <span id="current-model-3d-usdz" class="text-primary mt-1 block text-[10px] font-semibold"></span>
-                </div>
+                    <input type="hidden" name="tmp_model_3d_usdz_path" id="field-tmp-model-3d-usdz" value="">
+                    <div id="model-usdz-progress" class="mt-2 hidden tus-progress-container">
+                        <div class="flex items-center gap-2">
+                            <span class="tus-status-icon"></span>
+                            <span class="tus-progress-text flex-1 text-[10px] text-gray-500"></span>
+                        </div>
+                        <div class="mt-1 h-1 w-full overflow-hidden rounded-full bg-gray-200">
+                            <div class="tus-progress-bar h-full rounded-full bg-penglipuran-green transition-all duration-300" style="width:0%"></div>
+                        </div>
+                    </div>
 
                 {{-- 3D Model Preview --}}
                 <div class="mt-2.5 rounded-2xl border border-dashed border-gray-200 bg-gray-50/50 p-3">
@@ -269,6 +287,8 @@
             fieldImage.value = "";
             fieldModel3d.value = "";
             fieldModel3dUsdz.value = "";
+            document.getElementById('field-tmp-model-3d').value = '';
+            document.getElementById('field-tmp-model-3d-usdz').value = '';
             imagePreviewContainer.classList.add('hidden');
             imagePreview.src = "";
             currentModel3d.innerText = "";
@@ -293,6 +313,8 @@
             fieldImage.value = "";
             fieldModel3d.value = "";
             fieldModel3dUsdz.value = "";
+            document.getElementById('field-tmp-model-3d').value = '';
+            document.getElementById('field-tmp-model-3d-usdz').value = '';
             currentModel3d.innerText = cat.model_3d_path ? "File aktif: " + cat.model_3d_path.split('/').pop() : "";
             currentModel3dUsdz.innerText = cat.model_3d_usdz_path ? "File aktif: " + cat.model_3d_usdz_path.split('/')
             .pop() : "";
@@ -365,6 +387,35 @@
             }
             if (modalViewerPlaceholder) modalViewerPlaceholder.classList.remove('hidden');
         }
+
+        // ----------------------------------------------------
+        // Chunked upload initialization
+        // ----------------------------------------------------
+        document.addEventListener('DOMContentLoaded', () => {
+            function initChunkedUpload(inputId, hiddenId, progressId, maxSize, exts) {
+                const input = document.getElementById(inputId);
+                if (!input) return;
+                new ChunkedUploader({
+                    input: input,
+                    hiddenInput: document.getElementById(hiddenId),
+                    progressContainer: document.getElementById(progressId),
+                    maxSize: maxSize,
+                    allowedExtensions: exts,
+                    endpoint: '/admin/api/tus/upload',
+                    onStart: () => {
+                        const fileInput = document.getElementById(inputId);
+                        if (inputId === 'field-model-3d' && fileInput?.files[0]) {
+                            setupModal3DViewer(URL.createObjectURL(fileInput.files[0]));
+                        }
+                    },
+                });
+            }
+
+            // GLB
+            initChunkedUpload('field-model-3d', 'field-tmp-model-3d', 'model-3d-progress', 20 * 1024 * 1024, ['.glb']);
+            // USDZ
+            initChunkedUpload('field-model-3d-usdz', 'field-tmp-model-3d-usdz', 'model-usdz-progress', 50 * 1024 * 1024, ['.usdz']);
+        });
 
         // Driver.js Categories Interactive Tour
         function startTutorial() {
