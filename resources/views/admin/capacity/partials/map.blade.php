@@ -4,7 +4,7 @@
         <h3 class="text-charcoal font-semibold">Pemantauan Lokasi Real-time & Geofence</h3>
         <p class="text-xs text-gray-500">Anda dapat menggambar poligon zona pada map ini melalui form Edit/Buat Zona.</p>
     </div>
-    <div class="relative h-[500px] w-full overflow-hidden rounded-xl border border-gray-200">
+    <div class="relative h-125 w-full overflow-hidden rounded-xl border border-gray-200">
         <div id="map" class="absolute inset-0 z-0"></div>
         
         <!-- Heatmap Control FAB -->
@@ -20,7 +20,7 @@
         </button>
 
         <!-- Custom Context Menu -->
-        <div id="map-context-menu" class="hidden absolute z-2000 bg-white rounded-lg shadow-lg border border-gray-100 py-1 text-sm min-w-[150px] divide-y divide-gray-100 overflow-hidden">
+        <div id="map-context-menu" class="hidden absolute z-2000 bg-white rounded-lg shadow-lg border border-gray-100 py-1 text-sm min-w-37.5 divide-y divide-gray-100 overflow-hidden">
             <div class="px-4 py-2 text-xs font-bold text-gray-500 bg-gray-50" id="context-menu-title">Nama Zona</div>
             <button id="btn-context-edit" class="w-full text-left px-4 py-2 hover:bg-gray-50 text-gray-700 font-medium transition-colors mt-1">Edit Zona</button>
         </div>

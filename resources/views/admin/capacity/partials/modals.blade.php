@@ -62,7 +62,7 @@
                 </p>
 
                 <div id="modal-map"
-                    class="relative z-0 mb-2 h-[300px] w-full overflow-hidden rounded-xl border border-gray-200"></div>
+                    class="relative z-0 mb-2 h-75 w-full overflow-hidden rounded-xl border border-gray-200"></div>
 
                 <input type="hidden" name="polygon_coordinates" id="modal-polygon">
 

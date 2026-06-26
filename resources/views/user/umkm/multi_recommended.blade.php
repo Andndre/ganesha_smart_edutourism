@@ -1,3 +1,8 @@
+@php
+    use App\Models\MapLocation;
+    use App\Models\UmkmProduct;
+    use App\Models\UmkmProfile;
+@endphp
 @extends('layouts.app')
 @section('title', __('Rute Belanja UMKM - Penglipuran'))
 @section('header_title', __('Rute Belanja UMKM'))
@@ -11,16 +16,16 @@
         $totalPrice = 0;
         foreach ($route as $stop) {
             $umkm = $stop['umkm'];
-            if (is_object($umkm) && !($umkm instanceof \App\Models\UmkmProfile)) {
+            if (is_object($umkm) && !($umkm instanceof UmkmProfile)) {
                 $umkm = json_decode(json_encode($umkm), true);
             }
             if (\is_array($umkm)) {
-                $umkmModel = new \App\Models\UmkmProfile();
+                $umkmModel = new UmkmProfile();
                 $umkmModel->exists = true;
                 $umkmModel->forceFill($umkm);
                 if (isset($umkm['products'])) {
                     $products = collect($umkm['products'])->map(function ($p) {
-                        return new \App\Models\UmkmProduct()->forceFill($p);
+                        return new UmkmProduct()->forceFill($p);
                     });
                     $umkmModel->setRelation('products', $products);
                     $umkmModel->setRelation('activeProducts', $products);

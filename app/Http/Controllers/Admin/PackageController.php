@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PackageRequest;
 use App\Models\TourPackage;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PackageController extends Controller
@@ -47,8 +46,8 @@ class PackageController extends Controller
         $package->price = $validated['price'];
         $package->duration_hours = $validated['duration_hours'] ?? null;
         $package->max_capacity = $validated['max_capacity'] ?? null;
-        $package->inclusions = $this->parseLocaleTextarea('inclusions', $request);
-        $package->exclusions = $this->parseLocaleTextarea('exclusions', $request);
+        $package->setAttribute('inclusions', self::parseLocaleTextarea('inclusions', $validated));
+        $package->setAttribute('exclusions', self::parseLocaleTextarea('exclusions', $validated));
         $package->is_active = $request->has('is_active') ? true : false;
 
         if ($request->hasFile('images')) {
@@ -93,8 +92,8 @@ class PackageController extends Controller
         $package->price = $validated['price'];
         $package->duration_hours = $validated['duration_hours'] ?? null;
         $package->max_capacity = $validated['max_capacity'] ?? null;
-        $package->inclusions = $this->parseLocaleTextarea('inclusions', $request);
-        $package->exclusions = $this->parseLocaleTextarea('exclusions', $request);
+        $package->setAttribute('inclusions', self::parseLocaleTextarea('inclusions', $validated));
+        $package->setAttribute('exclusions', self::parseLocaleTextarea('exclusions', $validated));
         $package->is_active = $request->has('is_active') ? true : false;
 
         if ($request->hasFile('images')) {
@@ -124,12 +123,12 @@ class PackageController extends Controller
     /**
      * Parse a per-locale textarea field into a per-locale array.
      */
-    private function parseLocaleTextarea(string $field, Request $request): array
+    private static function parseLocaleTextarea(string $field, array $data): array
     {
         $result = [];
 
         foreach (['en', 'id'] as $locale) {
-            $value = $request->input("{$field}.{$locale}");
+            $value = $data[$field][$locale] ?? null;
 
             if (is_string($value) && trim($value) !== '') {
                 $items = array_values(

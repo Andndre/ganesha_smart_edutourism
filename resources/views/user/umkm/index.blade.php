@@ -1,3 +1,4 @@
+@php use App\Models\RouteSession; @endphp
 @extends('layouts.app')
 @section('title', __('Katalog UMKM - Penglipuran'))
 @section('header_title', __('Katalog UMKM'))
@@ -36,7 +37,7 @@
                 @php
                     $hasActiveSession = false;
                     if (auth()->check() || session()->has('guest_token')) {
-                        $hasActiveSession = \App\Models\RouteSession::where('status', 'active')
+                        $hasActiveSession = RouteSession::where('status', 'active')
                             ->where(function ($q) {
                                 $q->where('user_id', auth()->id())->orWhere('guest_token', session('guest_token'));
                             })
