@@ -12,3 +12,4 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('app:update-weather')->everyTenMinutes();
 Schedule::command('events:send-reminders')->everyMinute();
 Schedule::command('reservations:expire-stale')->hourly();
+Schedule::command('app:cleanup-tus')->daily();

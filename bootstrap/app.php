@@ -30,6 +30,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'umkm_owner' => UmkmOwnerMiddleware::class,
             'staff' => StaffMiddleware::class,
         ]);
+
+        $middleware->preventRequestForgery(
+            except: [
+                'admin/api/tus/upload',
+                'admin/api/tus/upload/*',
+            ],
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
