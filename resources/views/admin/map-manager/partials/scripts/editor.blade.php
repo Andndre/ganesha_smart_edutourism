@@ -174,14 +174,10 @@ function handleMarkerClick(marker) {
             form.querySelector('select[name="category"]').value = details.category;
             setTiptapContent(form.querySelector('textarea[name="description[en]"]'), details.description?.en || details.description || '');
             setTiptapContent(form.querySelector('textarea[name="description[id]"]'), details.description?.id || details.description || '');
-            // Select active model and trigger toggle
-            const modelSelect = document.getElementById('ar_model_id_select');
-            if (modelSelect) {
-                modelSelect.value = loc.ar_model ? loc.ar_model.id : 'none';
-                if (typeof toggleModelSelect === 'function') {
-                    toggleModelSelect(modelSelect.value);
-                }
-            }
+            // Select active model via custom event to Alpine component
+            window.dispatchEvent(new CustomEvent('ar-model-select', {
+                detail: { modelId: loc.ar_model ? String(loc.ar_model.id) : '' }
+            }));
 
             // Populate AR model name/description fields (for inline editing)
             const arModelData = loc.ar_model || null;
@@ -388,13 +384,7 @@ function resetForms() {
         culturalForm.action = "{{ route('admin.cultural-objects.store') }}";
         document.getElementById('method-cultural').innerHTML = '';
         
-        const modelSelect = document.getElementById('ar_model_id_select');
-        if (modelSelect) {
-            modelSelect.value = 'none';
-            if (typeof toggleModelSelect === 'function') {
-                toggleModelSelect('none');
-            }
-        }
+        window.dispatchEvent(new CustomEvent('ar-model-reset'));
 
         document.getElementById('current-model-3d').innerHTML = '';
         const usdzEl = document.getElementById('current-model-3d-usdz');
