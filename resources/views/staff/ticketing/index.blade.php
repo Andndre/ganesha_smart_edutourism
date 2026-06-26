@@ -51,18 +51,6 @@
             </div>
         </div>
 
-        @if (session('success'))
-            <div
-                class="bg-primary/10 border-primary/20 text-primary mb-6 flex items-center gap-3 rounded-xl border p-4 text-sm">
-                <svg class="text-primary h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span class="font-semibold">{{ session('success') }}</span>
-            </div>
-        @endif
-
         <!-- Tabel Transaksi Hari Ini -->
         <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
             <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

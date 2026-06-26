@@ -22,27 +22,7 @@
     </div>
 
     @if ($noProfile)
-        <div class="border-warning/20 bg-warning/5 max-w-3xl rounded-2xl border p-6 shadow-sm">
-            <div class="flex items-start gap-4">
-                <div class="bg-warning/10 text-warning rounded-xl p-3">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="font-display text-warning-800 text-lg font-bold">Profil Toko Belum Dibuat</h3>
-                    <p class="text-warning-700 mt-1 text-sm">Anda belum memiliki profil toko UMKM yang aktif. Silakan buat
-                        profil toko terlebih dahulu sebelum menambahkan katalog produk.</p>
-                    <div class="mt-4">
-                        <a href="{{ route('owner.profile') }}"
-                            class="bg-warning shadow-warning/20 hover:bg-warning-600 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all active:scale-[0.98]">
-                            Buat Profil Toko
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-owner.no-profile-warning message="Anda belum memiliki profil toko UMKM yang aktif. Silakan buat profil toko terlebih dahulu sebelum menambahkan katalog produk." />
     @else
         {{-- Search + Filter --}}
         <form method="GET" action="{{ route('owner.products') }}" class="mb-6 flex max-w-6xl flex-col gap-3 sm:flex-row">
@@ -205,12 +185,7 @@
                 {{-- Left Column (Text Fields) --}}
                 <div class="space-y-4">
                     {{-- Locale tabs --}}
-                    <div class="sticky top-0 z-10 bg-white py-2.5 border-b border-gray-100 mb-4 flex gap-2">
-                        <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-                            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">English</button>
-                        <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-                            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">Indonesia</button>
-                    </div>
+                    <x-locale-toggle />
 
                     {{-- Name --}}
                     <div x-show="locale === 'en'">
