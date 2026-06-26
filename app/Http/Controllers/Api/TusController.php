@@ -10,30 +10,27 @@ class TusController extends Controller
 {
     public function handle()
     {
-        $server = new Server('file');
-
-        // Ensure dirs exist
-        $uploadDir = storage_path('app/tus/temp');
+        $tempDir = storage_path('app/tus/temp');
         $cacheDir = storage_path('app/tus/cache');
-        if (! is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+        if (! is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
         }
         if (! is_dir($cacheDir)) {
             mkdir($cacheDir, 0755, true);
         }
 
+        $server = new Server('file');
         $server->setApiPath('/admin/api/tus/upload');
-        $server->setUploadDir($uploadDir);
+        $server->setUploadDir($tempDir);
 
         $cache = new FileStore($cacheDir);
-        $cache->setTtl(86400); // 24 hours
+        $cache->setTtl(86400);
         $server->setCache($cache);
 
-        $server->setMaxUploadSize(52428800); // 50MB
+        $server->setMaxUploadSize(52428800);
 
         $response = $server->serve();
 
-        // Convert Symfony response to Laravel response
         return response(
             $response->getContent(),
             $response->getStatusCode(),

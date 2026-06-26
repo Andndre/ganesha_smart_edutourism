@@ -342,6 +342,8 @@
 
         // 3D Model Modal Viewer Helpers
         function previewModelGLB(input) {
+            // Delegate to ChunkedUploader's preview (via onStart callback)
+            // This function is kept for backward compat with other callers.
             const maxSize = 20 * 1024 * 1024;
             const file = input.files[0];
             if (file && file.size > maxSize) {
