@@ -1,8 +1,3 @@
-@php
-    use App\Models\MapLocation;
-    use App\Models\UmkmProduct;
-    use App\Models\UmkmProfile;
-@endphp
 {{-- ponytail: partial dipecah untuk keterbacaan --}}
 <!-- Itinerary / Route Steps -->
 <div
@@ -10,22 +5,22 @@
     @foreach ($route as $index => $stop)
         @php
             $umkm = $stop['umkm'];
-            if (is_object($umkm) && !($umkm instanceof UmkmProfile)) {
+            if (is_object($umkm) && !($umkm instanceof \App\Models\UmkmProfile)) {
                 $umkm = json_decode(json_encode($umkm), true);
             }
             if (\is_array($umkm)) {
-                $umkmModel = new UmkmProfile();
+                $umkmModel = new \App\Models\UmkmProfile();
                 $umkmModel->exists = true;
                 $umkmModel->forceFill($umkm);
                 if (isset($umkm['products'])) {
                     $products = collect($umkm['products'])->map(function ($p) {
-                        return new UmkmProduct()->forceFill($p);
+                        return new \App\Models\UmkmProduct()->forceFill($p);
                     });
                     $umkmModel->setRelation('products', $products);
                     $umkmModel->setRelation('activeProducts', $products);
                 }
                 if (isset($umkm['map_location'])) {
-                    $loc = new MapLocation()->forceFill($umkm['map_location']);
+                    $loc = new \App\Models\MapLocation()->forceFill($umkm['map_location']);
                     $umkmModel->setRelation('mapLocation', $loc);
                 }
                 $umkm = $umkmModel;
