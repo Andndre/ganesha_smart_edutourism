@@ -87,7 +87,7 @@ class TourRouteController extends Controller
 
         $route = TourRoute::create($validated);
 
-        if ($request->has('points') && is_array($request->points)) {
+        if ($request->has('points') && \is_array($request->points)) {
             foreach ($request->points as $index => $point) {
                 $route->routePoints()->create([
                     'locationable_type' => $point['locationable_type'],
@@ -127,7 +127,7 @@ class TourRouteController extends Controller
 
         // Re-sync points
         $route->routePoints()->delete();
-        if ($request->has('points') && is_array($request->points)) {
+        if ($request->has('points') && \is_array($request->points)) {
             foreach ($request->points as $index => $point) {
                 $route->routePoints()->create([
                     'locationable_type' => $point['locationable_type'],

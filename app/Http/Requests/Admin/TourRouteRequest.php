@@ -39,7 +39,7 @@ class TourRouteRequest extends FormRequest
         $this->normalizeLocaleFields(['name', 'description']);
 
         // Normalize points[].storytelling_content from string to locale array
-        if ($this->has('points') && is_array($this->input('points'))) {
+        if ($this->has('points') &&  \is_array($this->input('points'))) {
             $points = $this->input('points');
             foreach ($points as $index => $point) {
                 if (isset($point['storytelling_content']) && \is_string($point['storytelling_content'])) {

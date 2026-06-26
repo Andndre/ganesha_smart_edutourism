@@ -88,7 +88,7 @@ class CulturalObjectRequest extends FormRequest
     private function normalizeLocaleArrayField(string $field): void
     {
         $values = $this->input($field);
-        if (! is_array($values)) {
+        if (! \is_array($values)) {
             return;
         }
         $changed = false;

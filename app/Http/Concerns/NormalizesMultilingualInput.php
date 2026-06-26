@@ -38,14 +38,14 @@ trait NormalizesMultilingualInput
      */
     protected function normalizeLocaleArrayField(Request $request, string $field): void
     {
-        if (! $request->has($field) || ! is_array($request->input($field))) {
+        if (! $request->has($field) || ! \is_array($request->input($field))) {
             return;
         }
 
         $items = $request->input($field);
         $normalized = [];
         foreach ($items as $val) {
-            $normalized[] = is_array($val) ? $val : ['en' => (string) $val, 'id' => (string) $val];
+            $normalized[] = \is_array($val) ? $val : ['en' => (string) $val, 'id' => (string) $val];
         }
         $request->merge([$field => $normalized]);
     }

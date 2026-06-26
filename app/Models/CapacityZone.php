@@ -105,7 +105,7 @@ class CapacityZone extends Model
     {
         $polygon = $this->polygon_coordinates;
 
-        if (empty($polygon) || ! is_array($polygon) || count($polygon) < 3) {
+        if (empty($polygon) || ! \is_array($polygon) || count($polygon) < 3) {
             return false;
         }
 

@@ -24,7 +24,7 @@ class CulturalController extends Controller
                 $data = $model->toArray();
                 $locale = app()->getLocale();
                 foreach (['name', 'short_description', 'description'] as $field) {
-                    if (isset($data[$field]) && is_array($data[$field])) {
+                    if (isset($data[$field]) && \is_array($data[$field])) {
                         $data[$field] = $data[$field][$locale] ?? $data[$field][config('app.fallback_locale')] ?? reset($data[$field]) ?? '';
                     }
                 }
@@ -53,16 +53,16 @@ class CulturalController extends Controller
             // Resolve translatable fields to locale-specific strings
             $locale = app()->getLocale();
             foreach (['name', 'short_description', 'description'] as $field) {
-                if (isset($data[$field]) && is_array($data[$field])) {
+                if (isset($data[$field]) && \is_array($data[$field])) {
                     $data[$field] = $data[$field][$locale] ?? $data[$field][config('app.fallback_locale')] ?? reset($data[$field]) ?? '';
                 }
             }
 
             // Resolve translatable fields in nested stories
-            if (isset($data['stories']) && is_array($data['stories'])) {
+            if (isset($data['stories']) && \is_array($data['stories'])) {
                 foreach ($data['stories'] as $i => $story) {
                     foreach (['title', 'content'] as $sf) {
-                        if (isset($story[$sf]) && is_array($story[$sf])) {
+                        if (isset($story[$sf]) && \is_array($story[$sf])) {
                             $data['stories'][$i][$sf] = $story[$sf][$locale] ?? $story[$sf][config('app.fallback_locale')] ?? reset($story[$sf]) ?? '';
                         }
                     }

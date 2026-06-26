@@ -30,7 +30,7 @@ trait HasSlug
 
         if ($fromValue === null) {
             $source = $this->{$this->slugSourceField()};
-            $fromValue = is_array($source)
+            $fromValue =  \is_array($source)
                 ? ($source[$locale] ?? $source['en'] ?? reset($source))
                 : $source;
         }

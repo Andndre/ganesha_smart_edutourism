@@ -138,7 +138,7 @@ class CulturalObjectController extends Controller
 
         if ($shouldCreateNewModel) {
             $submittedName = $request->input('new_model_name', []);
-            if (is_array($submittedName) && count($submittedName) === 1) {
+            if (\is_array($submittedName) && count($submittedName) === 1) {
                 if (isset($submittedName['en']) && ! isset($submittedName['id'])) {
                     $submittedName['id'] = $submittedName['en'];
                 } elseif (isset($submittedName['id']) && ! isset($submittedName['en'])) {
@@ -345,7 +345,7 @@ class CulturalObjectController extends Controller
 
         if ($shouldCreateNewModel) {
             $submittedName = $request->input('new_model_name', []);
-            if (is_array($submittedName) && count($submittedName) === 1) {
+            if (\is_array($submittedName) && count($submittedName) === 1) {
                 if (isset($submittedName['en']) && ! isset($submittedName['id'])) {
                     $submittedName['id'] = $submittedName['en'];
                 } elseif (isset($submittedName['id']) && ! isset($submittedName['en'])) {

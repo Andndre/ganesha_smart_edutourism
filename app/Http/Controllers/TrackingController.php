@@ -116,7 +116,7 @@ class TrackingController extends Controller
 
             $centerLat = 0;
             $centerLng = 0;
-            if (is_array($zone->polygon_coordinates) && count($zone->polygon_coordinates) > 0) {
+            if (\is_array($zone->polygon_coordinates) && count($zone->polygon_coordinates) > 0) {
                 $centerLat = collect($zone->polygon_coordinates)->avg('lat');
                 $centerLng = collect($zone->polygon_coordinates)->avg('lng');
             }
