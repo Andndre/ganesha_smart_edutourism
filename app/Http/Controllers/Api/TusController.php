@@ -23,7 +23,8 @@ class TusController extends Controller
         $server->setApiPath('/admin/api/tus/upload');
         $server->setUploadDir($tempDir);
 
-        $cache = new FileStore($cacheDir);
+        // Trailing slash required — FileStore joins dir + filename without separator
+        $cache = new FileStore($cacheDir . '/');
         $cache->setTtl(86400);
         $server->setCache($cache);
 

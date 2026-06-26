@@ -52,9 +52,17 @@ class TusService
      */
     private static function resolveTempPath(string $uuid): string
     {
-        // Look for tus cache file (stored at cache dir root)
-        $cacheFilePath = storage_path('app/tus/cache/tus_php.server.cache');
-        if (file_exists($cacheFilePath)) {
+        // Tus-php FileStore join dir + filename without separator if dir lacks trailing slash.
+        // Check both possible cache file paths.
+        $cachePaths = [
+            storage_path('app/tus/cache/tus_php.server.cache'),
+            storage_path('app/tus/cachetus_php.server.cache'),
+        ];
+
+        foreach ($cachePaths as $cacheFilePath) {
+            if (! file_exists($cacheFilePath)) {
+                continue;
+            }
             $cache = json_decode(file_get_contents($cacheFilePath), true);
             $key = 'tus:server:' . $uuid;
             if (isset($cache[$key]['file_path']) && file_exists($cache[$key]['file_path'])) {
