@@ -85,7 +85,8 @@ class ARManagerController extends Controller
             $modelData['ar_marker_patt_path'] = $pattPath;
         }
 
-        ArModel::create($modelData);
+        $model = ArModel::create($modelData);
+        $this->handleThumbnail($request, $model);
 
         return redirect()->route('admin.ar-manager')->with('success', __('Model 3D berhasil ditambahkan.'));
     }
@@ -183,6 +184,7 @@ class ARManagerController extends Controller
         }
 
         $model->save();
+        $this->handleThumbnail($request, $model);
 
         return redirect()->route('admin.ar-manager')->with('success', __('Model 3D berhasil diperbarui.'));
     }
@@ -191,7 +193,7 @@ class ARManagerController extends Controller
     {
         $model = ArModel::findOrFail($id);
 
-        foreach (['model_3d_path', 'model_3d_usdz_path', 'audio_narration_path', 'ar_marker_patt_path'] as $file) {
+        foreach (['model_3d_path', 'model_3d_usdz_path', 'audio_narration_path', 'ar_marker_patt_path', 'thumbnail_path'] as $file) {
             if ($model->$file) {
                 Storage::disk('public')->delete($model->$file);
             }
@@ -200,5 +202,23 @@ class ARManagerController extends Controller
         $model->delete();
 
         return redirect()->route('admin.ar-manager')->with('success', __('Model 3D berhasil dihapus.'));
+    }
+
+    private function handleThumbnail(Request $request, ArModel $model): void
+    {
+        if (! $request->filled('thumbnail_data')) {
+            return;
+        }
+
+        if ($model->thumbnail_path) {
+            Storage::disk('public')->delete($model->thumbnail_path);
+        }
+
+        $data = $request->input('thumbnail_data');
+        $data = substr($data, strpos($data, ',') + 1);
+        $path = 'thumbnails/'.$model->id.'-'.time().'.png';
+        Storage::disk('public')->put($path, base64_decode($data));
+        $model->thumbnail_path = $path;
+        $model->save();
     }
 }

@@ -60,9 +60,15 @@
             <div @if($loop->first) id="tour-first-card" @endif
                 class="shadow-2xs hover:shadow-xs flex flex-col rounded-xl border border-gray-100 bg-white p-4 transition-shadow">
                 <div @if($loop->first) id="tour-viewer-wrapper" @endif class="model-viewer-wrapper mb-3">
-                    <model-viewer src="{{ asset('storage/' . $m->model_3d_path) }}" camera-controls auto-rotate
-                        shadow-intensity="1">
-                    </model-viewer>
+                    @if ($m->thumbnail_path)
+                        <img src="{{ asset('storage/' . $m->thumbnail_path) }}"
+                             alt="{{ $m->name }}"
+                             class="h-full w-full object-cover">
+                    @else
+                        <div class="flex h-full w-full items-center justify-center p-4 text-center">
+                            <span class="text-xs text-gray-400">Tidak ada pratinjau</span>
+                        </div>
+                    @endif
                 </div>
                 <h3 class="text-charcoal truncate text-sm font-bold">{{ $m->name }}</h3>
                 <div class="relative mt-2 max-h-16 flex-1 overflow-hidden text-xs text-gray-500">
@@ -162,6 +168,47 @@
     <script>
         const storageUrl = "{{ asset('storage') }}";
         let currentModalMarkerCanvas = null;
+        let pendingThumbnailData = null;
+
+        // ----------------------------------------------------
+        // THUMBNAIL CAPTURE
+        // ----------------------------------------------------
+        function captureModelThumbnail() {
+            const viewer = document.getElementById('modal-viewer-3d');
+            if (!viewer || viewer.classList.contains('hidden') || !viewer.src) return;
+            try {
+                const canvas = viewer.shadowRoot?.querySelector('canvas');
+                if (canvas) {
+                    pendingThumbnailData = canvas.toDataURL('image/png');
+                }
+            } catch(e) {
+                console.warn('Thumbnail capture failed:', e);
+            }
+        }
+
+        function hookModelViewerLoad(viewerEl) {
+            if (!viewerEl) return;
+            viewerEl.addEventListener('load', () => {
+                setTimeout(captureModelThumbnail, 500);
+            }, { once: true });
+        }
+
+        // Intercept form submit — inject thumbnail data
+        document.addEventListener('DOMContentLoaded', () => {
+            modelForm?.addEventListener('submit', function() {
+                if (pendingThumbnailData) {
+                    let input = document.getElementById('thumbnail-data-input');
+                    if (!input) {
+                        input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'thumbnail_data';
+                        input.id = 'thumbnail-data-input';
+                        this.appendChild(input);
+                    }
+                    input.value = pendingThumbnailData;
+                }
+            });
+        });
 
         // ----------------------------------------------------
         // MODEL MODAL
@@ -310,6 +357,7 @@
             if (modalViewer3d) {
                 modalViewer3d.classList.remove('hidden');
                 modalViewer3d.src = src;
+                hookModelViewerLoad(modalViewer3d);
             }
         }
 
