@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UmkmCategoryRequest;
 use App\Models\UmkmProductCategory;
 use App\Services\TusService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -26,19 +26,9 @@ class UmkmCategoryController extends Controller
     /**
      * Store a newly created category in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(UmkmCategoryRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'image' => ['nullable', 'image', 'max:2048'],
-            'model_3d_file' => ['nullable', 'file', 'max:20480'],
-            'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
-        ]);
+        $validated = $request->validated();
 
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
@@ -70,21 +60,11 @@ class UmkmCategoryController extends Controller
     /**
      * Update the specified category in storage.
      */
-    public function update(Request $request, int $id): RedirectResponse
+    public function update(UmkmCategoryRequest $request, int $id): RedirectResponse
     {
         $category = UmkmProductCategory::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'image' => ['nullable', 'image', 'max:2048'],
-            'model_3d_file' => ['nullable', 'file', 'max:20480'],
-            'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
-        ]);
+        $validated = $request->validated();
 
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);

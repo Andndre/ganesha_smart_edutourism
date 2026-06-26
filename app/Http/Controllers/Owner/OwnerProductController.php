@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Owner\OwnerProductRequest;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use Illuminate\Http\RedirectResponse;
@@ -54,7 +55,7 @@ class OwnerProductController extends Controller
     /**
      * Store a newly created product in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(OwnerProductRequest $request): RedirectResponse
     {
         $user = Auth::user();
         $profile = $user->umkmProfile;
@@ -63,20 +64,7 @@ class OwnerProductController extends Controller
             return redirect()->route('owner.products')->with('error', __('Silakan buat profil toko terlebih dahulu.'));
         }
 
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'stock' => ['nullable', 'integer', 'min:0'],
-            'unit' => ['nullable', 'string', 'max:50'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'umkm_product_category_id' => ['nullable', 'exists:umkm_product_categories,id'],
-            'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('images')) {
             $imagePaths = [];
@@ -104,7 +92,7 @@ class OwnerProductController extends Controller
     /**
      * Update the specified product in storage.
      */
-    public function update(Request $request, int $id): RedirectResponse
+    public function update(OwnerProductRequest $request, int $id): RedirectResponse
     {
         $user = Auth::user();
         $profile = $user->umkmProfile;
@@ -115,21 +103,7 @@ class OwnerProductController extends Controller
 
         $product = UmkmProduct::where('umkm_profile_id', $profile->id)->findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'stock' => ['nullable', 'integer', 'min:0'],
-            'unit' => ['nullable', 'string', 'max:50'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'umkm_product_category_id' => ['nullable', 'exists:umkm_product_categories,id'],
-            'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
-            'is_active' => ['nullable', 'boolean'],
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('images')) {
             $imagePaths = [];

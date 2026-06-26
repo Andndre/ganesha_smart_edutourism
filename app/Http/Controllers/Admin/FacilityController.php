@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\FacilityRequest;
 use App\Models\Facility;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class FacilityController extends Controller
 {
@@ -15,26 +15,9 @@ class FacilityController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(FacilityRequest $request): RedirectResponse
     {
-        $this->normalizeLocaleField($request, 'accessibility_notes');
-
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'string', 'in:toilet,information,emergency,parking,accessibility'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'is_active' => ['nullable', 'boolean'],
-            'latitude' => ['required', 'numeric', 'between:-90,90'],
-            'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'is_accessible' => ['nullable', 'boolean'],
-            'accessibility_notes' => ['nullable', 'array'],
-            'accessibility_notes.en' => ['nullable', 'string'],
-            'accessibility_notes.id' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
 
         $latitude = $validated['latitude'];
         $longitude = $validated['longitude'];
@@ -62,26 +45,9 @@ class FacilityController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Facility $facility): RedirectResponse
+    public function update(FacilityRequest $request, Facility $facility): RedirectResponse
     {
-        $this->normalizeLocaleField($request, 'accessibility_notes');
-
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'string', 'in:toilet,information,emergency,parking,accessibility'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'is_active' => ['nullable', 'boolean'],
-            'latitude' => ['required', 'numeric', 'between:-90,90'],
-            'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'is_accessible' => ['nullable', 'boolean'],
-            'accessibility_notes' => ['nullable', 'array'],
-            'accessibility_notes.en' => ['nullable', 'string'],
-            'accessibility_notes.id' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
 
         $latitude = $validated['latitude'];
         $longitude = $validated['longitude'];

@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\CulturalObjectRequest;
+use App\Http\Requests\Admin\ImportXlsxRequest;
+use App\Http\Requests\Admin\UploadEditorImageRequest;
 use App\Models\ArModel;
 use App\Models\CulturalObject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -24,67 +26,9 @@ class CulturalObjectController extends Controller
     /**
      * Store a newly created cultural object in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(CulturalObjectRequest $request): RedirectResponse
     {
-        $this->normalizeLocaleArrayField($request, 'story_title');
-        $this->normalizeLocaleArrayField($request, 'story_content');
-        $this->normalizeLocaleArrayField($request, 'quiz_question');
-        $this->normalizeLocaleField($request, 'accessibility_notes');
-
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'string', 'in:temple,house,craft,tradition'],
-            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
-            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
-            'short_description' => ['nullable', 'array'],
-            'short_description.en' => ['nullable', 'string', 'max:255'],
-            'short_description.id' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'ar_marker_id' => ['nullable', 'string', 'max:255'],
-            'ar_marker_patt_content' => ['nullable', 'string'],
-            'ar_model_id' => ['nullable', 'string'],
-            'new_model_name' => ['nullable', 'array'],
-            'new_model_name.en' => ['nullable', 'string', 'max:255'],
-            'new_model_name.id' => ['nullable', 'string', 'max:255'],
-            'new_model_description' => ['nullable', 'array'],
-            'new_model_description.en' => ['nullable', 'string'],
-            'new_model_description.id' => ['nullable', 'string'],
-            'model_3d_file' => ['nullable', 'file', 'max:20480'],
-            'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
-            'audio_narration_file' => ['nullable', 'file', 'max:10240'],
-            'historical_images' => ['nullable', 'array'],
-            'historical_images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
-            'has_quiz' => ['nullable', 'boolean'],
-            'quiz_question' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_question.*' => ['required_if:has_quiz,1', 'array'],
-            'quiz_question.*.en' => ['required_if:has_quiz,1', 'string'],
-            'quiz_question.*.id' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_a' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_option_a.*' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_b' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_option_b.*' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_c' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_option_c.*' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_d' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_option_d.*' => ['required_if:has_quiz,1', 'string'],
-            'quiz_correct_option' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_correct_option.*' => ['required_if:has_quiz,1', 'string', 'in:A,B,C,D'],
-            'has_story' => ['nullable', 'boolean'],
-            'story_title' => ['required_if:has_story,1', 'nullable', 'array'],
-            'story_title.*' => ['required_if:has_story,1', 'array'],
-            'story_title.*.en' => ['required_if:has_story,1', 'string', 'max:255'],
-            'story_title.*.id' => ['required_if:has_story,1', 'string', 'max:255'],
-            'story_content' => ['required_if:has_story,1', 'nullable', 'array'],
-            'story_content.*' => ['required_if:has_story,1', 'array'],
-            'story_content.*.en' => ['required_if:has_story,1', 'string'],
-            'story_content.*.id' => ['required_if:has_story,1', 'string'],
-            'story_type' => ['required_if:has_story,1', 'nullable', 'array'],
-            'story_type.*' => ['in:history,philosophy,value'],
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('historical_images')) {
             $images = [];
@@ -281,69 +225,11 @@ class CulturalObjectController extends Controller
     /**
      * Update the specified cultural object in storage.
      */
-    public function update(Request $request, int $id): RedirectResponse
+    public function update(CulturalObjectRequest $request, int $id): RedirectResponse
     {
         $object = CulturalObject::findOrFail($id);
 
-        $this->normalizeLocaleArrayField($request, 'story_title');
-        $this->normalizeLocaleArrayField($request, 'story_content');
-        $this->normalizeLocaleArrayField($request, 'quiz_question');
-        $this->normalizeLocaleField($request, 'accessibility_notes');
-
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'string', 'in:temple,house,craft,tradition'],
-            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
-            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
-            'short_description' => ['nullable', 'array'],
-            'short_description.en' => ['nullable', 'string', 'max:255'],
-            'short_description.id' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'ar_marker_id' => ['nullable', 'string', 'max:255'],
-            'ar_marker_patt_content' => ['nullable', 'string'],
-            'ar_model_id' => ['nullable', 'string'],
-            'new_model_name' => ['nullable', 'array'],
-            'new_model_name.en' => ['nullable', 'string', 'max:255'],
-            'new_model_name.id' => ['nullable', 'string', 'max:255'],
-            'new_model_description' => ['nullable', 'array'],
-            'new_model_description.en' => ['nullable', 'string'],
-            'new_model_description.id' => ['nullable', 'string'],
-            'model_3d_file' => ['nullable', 'file', 'max:20480'],
-            'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
-            'audio_narration_file' => ['nullable', 'file', 'max:10240'],
-            'historical_images' => ['nullable', 'array'],
-            'historical_images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
-            'has_quiz' => ['nullable', 'boolean'],
-            'quiz_question' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_question.*' => ['required_if:has_quiz,1', 'array'],
-            'quiz_question.*.en' => ['required_if:has_quiz,1', 'string'],
-            'quiz_question.*.id' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_a' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_option_a.*' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_b' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_option_b.*' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_c' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_option_c.*' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_d' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_option_d.*' => ['required_if:has_quiz,1', 'string'],
-            'quiz_correct_option' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_correct_option.*' => ['required_if:has_quiz,1', 'string', 'in:A,B,C,D'],
-            'has_story' => ['nullable', 'boolean'],
-            'story_title' => ['required_if:has_story,1', 'nullable', 'array'],
-            'story_title.*' => ['required_if:has_story,1', 'array'],
-            'story_title.*.en' => ['required_if:has_story,1', 'string', 'max:255'],
-            'story_title.*.id' => ['required_if:has_story,1', 'string', 'max:255'],
-            'story_content' => ['required_if:has_story,1', 'nullable', 'array'],
-            'story_content.*' => ['required_if:has_story,1', 'array'],
-            'story_content.*.en' => ['required_if:has_story,1', 'string'],
-            'story_content.*.id' => ['required_if:has_story,1', 'string'],
-            'story_type' => ['required_if:has_story,1', 'nullable', 'array'],
-            'story_type.*' => ['in:history,philosophy,value'],
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('historical_images')) {
             $images = [];
@@ -560,11 +446,9 @@ class CulturalObjectController extends Controller
     /**
      * Upload an image from TipTap editor and return its public URL.
      */
-    public function uploadEditorImage(Request $request): JsonResponse
+    public function uploadEditorImage(UploadEditorImageRequest $request): JsonResponse
     {
-        $request->validate([
-            'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'],
-        ]);
+        $request->validated();
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('editor-images', 'public');
@@ -669,11 +553,9 @@ class CulturalObjectController extends Controller
     /**
      * Import cultural objects from an uploaded XLSX file.
      */
-    public function importXlsx(Request $request): RedirectResponse
+    public function importXlsx(ImportXlsxRequest $request): RedirectResponse
     {
-        $request->validate([
-            'file' => ['required', 'file', 'mimes:xlsx', 'max:10240'], // Max 10MB
-        ]);
+        $validated = $request->validated();
 
         try {
             $file = $request->file('file');

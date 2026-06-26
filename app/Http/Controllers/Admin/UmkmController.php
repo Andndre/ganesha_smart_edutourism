@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UmkmOwnerRequest;
+use App\Http\Requests\Admin\UmkmProductRequest;
+use App\Http\Requests\Admin\UmkmProfileRequest;
 use App\Models\ArModel;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
@@ -70,23 +73,9 @@ class UmkmController extends Controller
     /**
      * Store a newly created product in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(UmkmProductRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'umkm_profile_id' => ['required', 'exists:umkm_profiles,id'],
-            'umkm_product_category_id' => ['nullable', 'exists:umkm_product_categories,id'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'stock' => ['nullable', 'integer', 'min:0'],
-            'unit' => ['nullable', 'string', 'max:50'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('images')) {
             $imagePaths = [];
@@ -113,26 +102,11 @@ class UmkmController extends Controller
     /**
      * Update the specified product in storage.
      */
-    public function update(Request $request, int $id): RedirectResponse
+    public function update(UmkmProductRequest $request, int $id): RedirectResponse
     {
         $product = UmkmProduct::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:255'],
-            'name.id' => ['required', 'string', 'max:255'],
-            'umkm_profile_id' => ['required', 'exists:umkm_profiles,id'],
-            'umkm_product_category_id' => ['nullable', 'exists:umkm_product_categories,id'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'stock' => ['nullable', 'integer', 'min:0'],
-            'unit' => ['nullable', 'string', 'max:50'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
-            'is_active' => ['nullable', 'boolean'],
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('images')) {
             $imagePaths = [];
@@ -168,29 +142,9 @@ class UmkmController extends Controller
     /**
      * Store a newly created UMKM profile in storage.
      */
-    public function storeProfile(Request $request): RedirectResponse
+    public function storeProfile(UmkmProfileRequest $request): RedirectResponse
     {
-        $this->normalizeLocaleField($request, 'accessibility_notes');
-
-        $validated = $request->validate([
-            'user_id' => ['nullable', 'exists:users,id'],
-            'business_name' => ['required', 'array'],
-            'business_name.en' => ['required', 'string', 'max:255'],
-            'business_name.id' => ['required', 'string', 'max:255'],
-            'owner_name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'ar_marker_id' => ['nullable', 'string', 'max:255'],
-            'rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
-            'is_active' => ['nullable', 'boolean'],
-            'latitude' => ['required', 'numeric', 'between:-90,90'],
-            'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'is_accessible' => ['nullable', 'boolean'],
-            'accessibility_notes' => ['nullable', 'array'],
-            'accessibility_notes.en' => ['nullable', 'string'],
-            'accessibility_notes.id' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
 
         $validated['is_active'] = $request->has('is_active');
 
@@ -235,31 +189,11 @@ class UmkmController extends Controller
     /**
      * Update the specified UMKM profile in storage.
      */
-    public function updateProfile(Request $request, int $id): RedirectResponse
+    public function updateProfile(UmkmProfileRequest $request, int $id): RedirectResponse
     {
         $profile = UmkmProfile::findOrFail($id);
 
-        $this->normalizeLocaleField($request, 'accessibility_notes');
-
-        $validated = $request->validate([
-            'user_id' => ['nullable', 'exists:users,id'],
-            'business_name' => ['required', 'array'],
-            'business_name.en' => ['required', 'string', 'max:255'],
-            'business_name.id' => ['required', 'string', 'max:255'],
-            'owner_name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.en' => ['nullable', 'string'],
-            'description.id' => ['nullable', 'string'],
-            'ar_marker_id' => ['nullable', 'string', 'max:255'],
-            'rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
-            'is_active' => ['nullable', 'boolean'],
-            'latitude' => ['required', 'numeric', 'between:-90,90'],
-            'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'is_accessible' => ['nullable', 'boolean'],
-            'accessibility_notes' => ['nullable', 'array'],
-            'accessibility_notes.en' => ['nullable', 'string'],
-            'accessibility_notes.id' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
 
         $validated['is_active'] = $request->has('is_active');
 
@@ -338,14 +272,9 @@ class UmkmController extends Controller
     /**
      * Store a newly created UMKM owner in storage.
      */
-    public function storeOwner(Request $request): RedirectResponse
+    public function storeOwner(UmkmOwnerRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['nullable', 'string', 'max:50'],
-            'password' => ['required', 'string', 'min:8'],
-        ]);
+        $validated = $request->validated();
 
         $validated['role'] = 'umkm_owner';
         $validated['password'] = Hash::make($validated['password']);
@@ -358,16 +287,11 @@ class UmkmController extends Controller
     /**
      * Update the specified UMKM owner in storage.
      */
-    public function updateOwner(Request $request, int $id): RedirectResponse
+    public function updateOwner(UmkmOwnerRequest $request, int $id): RedirectResponse
     {
         $owner = User::where('role', 'umkm_owner')->findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$id],
-            'phone' => ['nullable', 'string', 'max:50'],
-            'password' => ['nullable', 'string', 'min:8'],
-        ]);
+        $validated = $request->validated();
 
         if (! empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
