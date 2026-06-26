@@ -61,6 +61,11 @@
         @apply min-h-11 min-w-11 flex items-center justify-center;
     }
 
+    /* Mobile bottom sheet max height (leaves ~2rem breathing room at top) */
+    .max-h-sheet {
+        max-height: calc(100dvh - 2rem);
+    }
+
     /* Safe area padding for notched phones */
     .pb-sab {
         padding-bottom: env(safe-area-inset-bottom);
