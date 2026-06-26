@@ -28,9 +28,9 @@
 
     $desktopContainerClass = match ($desktopLayout) {
         'drawer' => $drawerFromSide === 'right'
-            ? 'max-h-sheet overflow-y-auto md:rounded-none md:rounded-t-none md:border-l md:border-gray-200 md:h-screen'
-            : 'max-h-sheet overflow-y-auto md:rounded-none md:rounded-t-none md:border-r md:border-gray-200 md:h-screen',
-        default => 'max-h-sheet overflow-y-auto md:rounded-3xl md:overflow-hidden md:max-h-[85vh]',
+            ? 'max-h-sheet overflow-y-auto md:h-full md:!max-h-none md:rounded-none md:rounded-t-none md:border-l md:border-gray-200'
+            : 'max-h-sheet overflow-y-auto md:h-full md:!max-h-none md:rounded-none md:rounded-t-none md:border-r md:border-gray-200',
+        default => 'overflow-y-auto md:rounded-3xl md:overflow-hidden md:max-h-[85vh]',
     };
 
     $desktopTransitionStart = match ($desktopLayout) {
@@ -56,8 +56,8 @@
 
     <div class="{{ $desktopContainerClass }} {{ $maxWidthClass }} pointer-events-auto relative flex w-full flex-col rounded-t-[2.5rem] bg-white p-6 pb-10 shadow-2xl md:pb-6"
         style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));"
-        @click.outside="! {{ $closeOnOutsideClick ? 'true' : 'false' }} || (!document.querySelector('.swal2-container') && (isOpen = false))" x-show="isOpen"
-        x-transition:enter="transition ease-out duration-300 transform"
+        @click.outside="! {{ $closeOnOutsideClick ? 'true' : 'false' }} || (!document.querySelector('.swal2-container') && (isOpen = false))"
+        x-show="isOpen" x-transition:enter="transition ease-out duration-300 transform"
         x-transition:enter-start="translate-y-full {{ $desktopTransitionStart }}"
         x-transition:enter-end="translate-y-0 {{ $desktopTransitionEnd }}"
         x-transition:leave="transition ease-in duration-200 transform"
