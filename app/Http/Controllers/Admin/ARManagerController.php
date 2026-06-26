@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ArModel;
+use App\Services\TusService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -48,7 +49,7 @@ class ARManagerController extends Controller
             'description.id' => ['nullable', 'string'],
             'ar_marker_id' => ['nullable', 'string', 'max:255', 'unique:ar_models,ar_marker_id'],
             'ar_marker_patt_content' => ['nullable', 'string'],
-            'model_3d_file' => ['required', 'file', 'max:20480'],
+            'model_3d_file' => ['required_without:tmp_model_3d_path', 'file', 'max:20480'],
             'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
             'audio_narration_file' => ['nullable', 'file', 'max:10240'],
         ]);
@@ -59,16 +60,22 @@ class ARManagerController extends Controller
             'ar_marker_id' => $validated['ar_marker_id'] ?? null,
         ];
 
-        if ($request->hasFile('model_3d_file')) {
+        if ($tmpUuid = $request->input('tmp_model_3d_path')) {
+            $modelData['model_3d_path'] = TusService::moveFromTemp($tmpUuid, 'models');
+        } elseif ($request->hasFile('model_3d_file')) {
             $modelData['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
         }
 
-        if ($request->hasFile('model_3d_usdz_file')) {
+        if ($tmpUuid = $request->input('tmp_model_3d_usdz_path')) {
+            $modelData['model_3d_usdz_path'] = TusService::moveFromTemp($tmpUuid, 'models_usdz', Str::random(40).'.usdz');
+        } elseif ($request->hasFile('model_3d_usdz_file')) {
             $file = $request->file('model_3d_usdz_file');
             $modelData['model_3d_usdz_path'] = $file->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
         }
 
-        if ($request->hasFile('audio_narration_file')) {
+        if ($tmpUuid = $request->input('tmp_audio_narration_path')) {
+            $modelData['audio_narration_path'] = TusService::moveFromTemp($tmpUuid, 'audio');
+        } elseif ($request->hasFile('audio_narration_file')) {
             $modelData['audio_narration_path'] = $request->file('audio_narration_file')->store('audio', 'public');
         }
 
@@ -123,14 +130,24 @@ class ARManagerController extends Controller
         $model->description = $validated['description'] ?? null;
         $model->ar_marker_id = $validated['ar_marker_id'] ?? null;
 
-        if ($request->hasFile('model_3d_file')) {
+        if ($tmpUuid = $request->input('tmp_model_3d_path')) {
+            if ($model->model_3d_path) {
+                Storage::disk('public')->delete($model->model_3d_path);
+            }
+            $model->model_3d_path = TusService::moveFromTemp($tmpUuid, 'models');
+        } elseif ($request->hasFile('model_3d_file')) {
             if ($model->model_3d_path) {
                 Storage::disk('public')->delete($model->model_3d_path);
             }
             $model->model_3d_path = $request->file('model_3d_file')->store('models', 'public');
         }
 
-        if ($request->hasFile('model_3d_usdz_file')) {
+        if ($tmpUuid = $request->input('tmp_model_3d_usdz_path')) {
+            if ($model->model_3d_usdz_path) {
+                Storage::disk('public')->delete($model->model_3d_usdz_path);
+            }
+            $model->model_3d_usdz_path = TusService::moveFromTemp($tmpUuid, 'models_usdz', Str::random(40).'.usdz');
+        } elseif ($request->hasFile('model_3d_usdz_file')) {
             if ($model->model_3d_usdz_path) {
                 Storage::disk('public')->delete($model->model_3d_usdz_path);
             }
@@ -138,7 +155,12 @@ class ARManagerController extends Controller
                 ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
         }
 
-        if ($request->hasFile('audio_narration_file')) {
+        if ($tmpUuid = $request->input('tmp_audio_narration_path')) {
+            if ($model->audio_narration_path) {
+                Storage::disk('public')->delete($model->audio_narration_path);
+            }
+            $model->audio_narration_path = TusService::moveFromTemp($tmpUuid, 'audio');
+        } elseif ($request->hasFile('audio_narration_file')) {
             if ($model->audio_narration_path) {
                 Storage::disk('public')->delete($model->audio_narration_path);
             }
