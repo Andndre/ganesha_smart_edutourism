@@ -31,16 +31,7 @@ class EventController extends Controller
         }
 
         if ($request->filled('category') && $request->category !== 'Semua Kategori') {
-            $categoryMap = [
-                'Upacara Adat' => 'ceremony',
-                'Festival' => 'cultural',
-                'Workshop' => 'workshop',
-                'Pameran' => 'cultural',
-                'Pertunjukan Seni' => 'cultural',
-                'Budaya' => 'cultural',
-                __('Kuliner') => 'culinary',
-            ];
-            $mappedCategory = $categoryMap[$request->category] ?? $request->category;
+            $mappedCategory = $this->categoryMap()[$request->category] ?? $request->category;
             $query->category($mappedCategory);
         }
 
@@ -66,45 +57,7 @@ class EventController extends Controller
         }
 
         $allEvents = (clone $query)->orderBy('start_datetime', 'desc')->get();
-        $calendarEvents = $allEvents->map(function (Event $event) {
-            return [
-                'id' => $event->id,
-                'title' => $event->name,
-                'start' => $event->start_datetime->toIso8601String(),
-                'end' => $event->end_datetime->toIso8601String(),
-                'category' => $event->getCategoryLabel(),
-                'location' => $event->location_name,
-                'description' => $event->description,
-                'is_free' => $event->is_free,
-                'price' => $event->is_free ? 'Gratis' : 'Rp '.number_format($event->price, 0, ',', '.'),
-                'max_participants' => $event->max_participants ?? '-',
-                'edit_url' => route('admin.events.edit', $event->id),
-                'delete_action' => route('admin.events.destroy', $event->id),
-                'color' => match ($event->category) {
-                    'ceremony' => '#D4AF37', // Gold / ceremony
-                    'cultural' => '#1E5128', // Green / brand
-                    'workshop' => '#1A365D', // Deep Blue
-                    'culinary' => '#C53030', // Red
-                    default => '#4A5568'
-                },
-                'raw' => [
-                    'id' => $event->id,
-                    'name' => $event->getTranslations('name'),
-                    'description' => $event->getTranslations('description'),
-                    'category' => $event->getCategoryLabel(),
-                    'start_date' => $event->start_datetime->format('Y-m-d'),
-                    'start_time' => $event->start_datetime->format('H:i'),
-                    'end_date' => $event->end_datetime->format('Y-m-d'),
-                    'end_time' => $event->end_datetime->format('H:i'),
-                    'location_name' => $event->getTranslations('location_name'),
-                    'latitude' => $event->mapLocation->latitude ?? '',
-                    'longitude' => $event->mapLocation->longitude ?? '',
-                    'is_free' => $event->is_free,
-                    'price' => $event->price,
-                    'max_participants' => $event->max_participants,
-                ],
-            ];
-        });
+        $calendarEvents = $this->mapCalendarEvents($allEvents);
 
         return view('admin.events.index', compact('events', 'calendarEvents', 'upcomingCount', 'thisMonthCount', 'pastCount'));
     }
@@ -114,58 +67,10 @@ class EventController extends Controller
      */
     public function create(): View
     {
-        $query = Event::query();
-        $events = $query->orderBy('start_datetime', 'desc')->paginate(10);
-
-        $now = Carbon::now();
-        $upcomingCount = Event::where('start_datetime', '>', $now)->count() ?: 5;
-        $thisMonthCount = Event::whereMonth('start_datetime', $now->month)->whereYear('start_datetime', $now->year)->count() ?: 8;
-        $pastCount = Event::where('end_datetime', '<', $now)->count() ?: 23;
-
-        $allEvents = Event::orderBy('start_datetime', 'desc')->get();
-        $calendarEvents = $allEvents->map(function (Event $event) {
-            return [
-                'id' => $event->id,
-                'title' => $event->name,
-                'start' => $event->start_datetime->toIso8601String(),
-                'end' => $event->end_datetime->toIso8601String(),
-                'category' => $event->getCategoryLabel(),
-                'location' => $event->location_name,
-                'description' => $event->description,
-                'is_free' => $event->is_free,
-                'price' => $event->is_free ? __('Gratis') : 'Rp '.number_format($event->price, 0, ',', '.'),
-                'max_participants' => $event->max_participants ?? '-',
-                'edit_url' => route('admin.events.edit', $event->id),
-                'delete_action' => route('admin.events.destroy', $event->id),
-                'color' => match ($event->category) {
-                    'ceremony' => '#D4AF37',
-                    'cultural' => '#1E5128',
-                    'workshop' => '#1A365D',
-                    'culinary' => '#C53030',
-                    default => '#4A5568'
-                },
-                'raw' => [
-                    'id' => $event->id,
-                    'name' => $event->getTranslations('name'),
-                    'description' => $event->getTranslations('description'),
-                    'category' => $event->getCategoryLabel(),
-                    'start_date' => $event->start_datetime->format('Y-m-d'),
-                    'start_time' => $event->start_datetime->format('H:i'),
-                    'end_date' => $event->end_datetime->format('Y-m-d'),
-                    'end_time' => $event->end_datetime->format('H:i'),
-                    'location_name' => $event->getTranslations('location_name'),
-                    'latitude' => $event->mapLocation->latitude ?? '',
-                    'longitude' => $event->mapLocation->longitude ?? '',
-                    'is_free' => $event->is_free,
-                    'price' => $event->price,
-                    'max_participants' => $event->max_participants,
-                ],
-            ];
-        });
-
-        $openCreateOnLoad = true;
-
-        return view('admin.events.index', compact('events', 'calendarEvents', 'upcomingCount', 'thisMonthCount', 'pastCount', 'openCreateOnLoad'));
+        return view('admin.events.index', array_merge(
+            $this->fetchCalendarData(),
+            ['openCreateOnLoad' => true],
+        ));
     }
 
     /**
@@ -180,27 +85,13 @@ class EventController extends Controller
 
         $isFree = $request->has('is_free') || $request->input('is_free') == '1';
 
-        $categoryMap = [
-            'Upacara Adat' => 'ceremony',
-            'Festival' => 'cultural',
-            'Workshop' => 'workshop',
-            'Pameran' => 'cultural',
-            'Pertunjukan Seni' => 'cultural',
-            'Budaya' => 'cultural',
-            'Kuliner' => 'culinary',
-            'ceremony' => 'ceremony',
-            'cultural' => 'cultural',
-            'workshop' => 'workshop',
-            'culinary' => 'culinary',
-        ];
-
         $event = new Event;
         $event->name = $validated['name'];
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
         $event->slug = $event->generateUniqueSlug($slugValue);
         $event->description = $validated['description'] ?? null;
-        $event->category = $categoryMap[$validated['category']] ?? 'cultural';
+        $event->category = $this->categoryMap()[$validated['category']] ?? 'cultural';
         $event->start_datetime = $startDatetime;
         $event->end_datetime = $endDatetime;
         $latitude = $validated['latitude'] ?? null;
@@ -232,55 +123,6 @@ class EventController extends Controller
     {
         $event = Event::findOrFail($id);
 
-        $query = Event::query();
-        $events = $query->orderBy('start_datetime', 'desc')->paginate(10);
-
-        $now = Carbon::now();
-        $upcomingCount = Event::where('start_datetime', '>', $now)->count() ?: 5;
-        $thisMonthCount = Event::whereMonth('start_datetime', $now->month)->whereYear('start_datetime', $now->year)->count() ?: 8;
-        $pastCount = Event::where('end_datetime', '<', $now)->count() ?: 23;
-
-        $allEvents = Event::orderBy('start_datetime', 'desc')->get();
-        $calendarEvents = $allEvents->map(function (Event $event) {
-            return [
-                'id' => $event->id,
-                'title' => $event->name,
-                'start' => $event->start_datetime->toIso8601String(),
-                'end' => $event->end_datetime->toIso8601String(),
-                'category' => $event->getCategoryLabel(),
-                'location' => $event->location_name,
-                'description' => $event->description,
-                'is_free' => $event->is_free,
-                'price' => $event->is_free ? __('Gratis') : 'Rp '.number_format($event->price, 0, ',', '.'),
-                'max_participants' => $event->max_participants ?? '-',
-                'edit_url' => route('admin.events.edit', $event->id),
-                'delete_action' => route('admin.events.destroy', $event->id),
-                'color' => match ($event->category) {
-                    'ceremony' => '#D4AF37',
-                    'cultural' => '#1E5128',
-                    'workshop' => '#1A365D',
-                    'culinary' => '#C53030',
-                    default => '#4A5568'
-                },
-                'raw' => [
-                    'id' => $event->id,
-                    'name' => $event->name,
-                    'description' => $event->description,
-                    'category' => $event->getCategoryLabel(),
-                    'start_date' => $event->start_datetime->format('Y-m-d'),
-                    'start_time' => $event->start_datetime->format('H:i'),
-                    'end_date' => $event->end_datetime->format('Y-m-d'),
-                    'end_time' => $event->end_datetime->format('H:i'),
-                    'location_name' => $event->location_name,
-                    'latitude' => $event->mapLocation->latitude ?? '',
-                    'longitude' => $event->mapLocation->longitude ?? '',
-                    'is_free' => $event->is_free,
-                    'price' => $event->price,
-                    'max_participants' => $event->max_participants,
-                ],
-            ];
-        });
-
         $editEventRaw = [
             'id' => $event->id,
             'name' => $event->getTranslations('name'),
@@ -298,7 +140,10 @@ class EventController extends Controller
             'max_participants' => $event->max_participants,
         ];
 
-        return view('admin.events.index', compact('events', 'calendarEvents', 'upcomingCount', 'thisMonthCount', 'pastCount', 'editEventRaw'));
+        return view('admin.events.index', array_merge(
+            $this->fetchCalendarData(),
+            compact('editEventRaw'),
+        ));
     }
 
     /**
@@ -315,26 +160,12 @@ class EventController extends Controller
 
         $isFree = $request->has('is_free') || $request->input('is_free') == '1';
 
-        $categoryMap = [
-            'Upacara Adat' => 'ceremony',
-            'Festival' => 'cultural',
-            'Workshop' => 'workshop',
-            'Pameran' => 'cultural',
-            'Pertunjukan Seni' => 'cultural',
-            'Budaya' => 'cultural',
-            'Kuliner' => 'culinary',
-            'ceremony' => 'ceremony',
-            'cultural' => 'cultural',
-            'workshop' => 'workshop',
-            'culinary' => 'culinary',
-        ];
-
         $event->name = $validated['name'];
         $defaultLocale = config('app.fallback_locale', 'en');
         $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
         $event->slug = $event->generateUniqueSlug($slugValue);
         $event->description = $validated['description'] ?? null;
-        $event->category = $categoryMap[$validated['category']] ?? 'cultural';
+        $event->category = $this->categoryMap()[$validated['category']] ?? 'cultural';
         $event->start_datetime = $startDatetime;
         $event->end_datetime = $endDatetime;
         $latitude = $validated['latitude'] ?? null;
@@ -369,5 +200,80 @@ class EventController extends Controller
         $event->delete();
 
         return redirect()->route('admin.events')->with('success', __('Event berhasil dihapus.'));
+    }
+
+    private function categoryMap(): array
+    {
+        return [
+            'Upacara Adat' => 'ceremony',
+            'Festival' => 'cultural',
+            'Workshop' => 'workshop',
+            'Pameran' => 'cultural',
+            'Pertunjukan Seni' => 'cultural',
+            'Budaya' => 'cultural',
+            'Kuliner' => 'culinary',
+            'ceremony' => 'ceremony',
+            'cultural' => 'cultural',
+            'workshop' => 'workshop',
+            'culinary' => 'culinary',
+        ];
+    }
+
+    private function mapCalendarEvents($events): array
+    {
+        return $events->map(function (Event $event) {
+            return [
+                'id' => $event->id,
+                'title' => $event->name,
+                'start' => $event->start_datetime->toIso8601String(),
+                'end' => $event->end_datetime->toIso8601String(),
+                'category' => $event->getCategoryLabel(),
+                'location' => $event->location_name,
+                'description' => $event->description,
+                'is_free' => $event->is_free,
+                'price' => $event->is_free ? __('Gratis') : 'Rp '.number_format($event->price, 0, ',', '.'),
+                'max_participants' => $event->max_participants ?? '-',
+                'edit_url' => route('admin.events.edit', $event->id),
+                'delete_action' => route('admin.events.destroy', $event->id),
+                'color' => match ($event->category) {
+                    'ceremony' => '#D4AF37',
+                    'cultural' => '#1E5128',
+                    'workshop' => '#1A365D',
+                    'culinary' => '#C53030',
+                    default => '#4A5568'
+                },
+                'raw' => [
+                    'id' => $event->id,
+                    'name' => $event->getTranslations('name'),
+                    'description' => $event->getTranslations('description'),
+                    'category' => $event->getCategoryLabel(),
+                    'start_date' => $event->start_datetime->format('Y-m-d'),
+                    'start_time' => $event->start_datetime->format('H:i'),
+                    'end_date' => $event->end_datetime->format('Y-m-d'),
+                    'end_time' => $event->end_datetime->format('H:i'),
+                    'location_name' => $event->getTranslations('location_name'),
+                    'latitude' => $event->mapLocation->latitude ?? '',
+                    'longitude' => $event->mapLocation->longitude ?? '',
+                    'is_free' => $event->is_free,
+                    'price' => $event->price,
+                    'max_participants' => $event->max_participants,
+                ],
+            ];
+        })->toArray();
+    }
+
+    private function fetchCalendarData(): array
+    {
+        $now = Carbon::now();
+        $query = Event::query();
+        $events = $query->orderBy('start_datetime', 'desc')->paginate(10);
+
+        return [
+            'events' => $events,
+            'calendarEvents' => $this->mapCalendarEvents(Event::orderBy('start_datetime', 'desc')->get()),
+            'upcomingCount' => max(Event::where('start_datetime', '>', $now)->count(), 5),
+            'thisMonthCount' => max(Event::whereMonth('start_datetime', $now->month)->whereYear('start_datetime', $now->year)->count(), 8),
+            'pastCount' => max(Event::where('end_datetime', '<', $now)->count(), 23),
+        ];
     }
 }

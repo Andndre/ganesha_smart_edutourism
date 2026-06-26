@@ -3,15 +3,13 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Concerns\NormalizesMultilingualInput;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\OwnerLocationRequest;
 use App\Http\Requests\Owner\OwnerProfileRequest;
 use App\Models\UmkmProfile;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-class OwnerDashboardController extends Controller
+class OwnerDashboardController extends BaseOwnerController
 {
     use NormalizesMultilingualInput;
 
@@ -20,14 +18,11 @@ class OwnerDashboardController extends Controller
      */
     public function index(): View
     {
-        $user = Auth::user();
-        $profile = $user->umkmProfile;
-
         // Statistics
-        $productCount = $profile ? $profile->products()->count() : 0;
-        $activeProductCount = $profile ? $profile->activeProducts()->count() : 0;
+        $productCount = $this->profile ? $this->profile->products()->count() : 0;
+        $activeProductCount = $this->profile ? $this->profile->activeProducts()->count() : 0;
 
-        return view('owner.dashboard', compact('profile', 'productCount', 'activeProductCount'));
+        return view('owner.dashboard', ['profile' => $this->profile] + compact('productCount', 'activeProductCount'));
     }
 
     /**
@@ -35,10 +30,7 @@ class OwnerDashboardController extends Controller
      */
     public function editProfile(): View
     {
-        $user = Auth::user();
-        $profile = $user->umkmProfile;
-
-        return view('owner.profile', compact('profile'));
+        return view('owner.profile', ['profile' => $this->profile]);
     }
 
     /**
@@ -46,17 +38,14 @@ class OwnerDashboardController extends Controller
      */
     public function updateProfile(OwnerProfileRequest $request): RedirectResponse
     {
-        $user = Auth::user();
-        $profile = $user->umkmProfile;
-
         $validated = $request->validated();
 
         $defaultLocale = config('app.fallback_locale', 'en');
 
-        if (! $profile) {
+        if (! $this->profile) {
             // Create a default profile if they don't have one
-            $validated['user_id'] = $user->id;
-            $validated['owner_name'] = $user->name;
+            $validated['user_id'] = $this->user->id;
+            $validated['owner_name'] = $this->user->name;
             $slugValue = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? reset($validated['business_name']);
             $validated['slug'] = (new UmkmProfile)->generateUniqueSlug($slugValue);
             $validated['is_active'] = true;
@@ -66,13 +55,13 @@ class OwnerDashboardController extends Controller
         } else {
             // Update existing profile
             $slugValue = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? reset($validated['business_name']);
-            $currentName = is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[$defaultLocale] ?? '');
+            $currentName = is_string($this->profile->business_name) ? $this->profile->business_name : ($this->profile->business_name[$defaultLocale] ?? '');
             $newName = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? '';
             if ($currentName !== $newName) {
-                $validated['slug'] = $profile->generateCollisionFreeSlug($slugValue, $profile->id);
+                $validated['slug'] = $this->profile->generateCollisionFreeSlug($slugValue, $this->profile->id);
             }
 
-            $profile->update($validated);
+            $this->profile->update($validated);
         }
 
         return redirect()->route('owner.profile')->with('success', __('Informasi toko Anda berhasil diperbarui.'));
@@ -83,11 +72,9 @@ class OwnerDashboardController extends Controller
      */
     public function editLocation(): View
     {
-        $user = Auth::user();
-        $profile = $user->umkmProfile;
-        $location = $profile ? $profile->mapLocation : null;
+        $location = $this->profile ? $this->profile->mapLocation : null;
 
-        return view('owner.location', compact('profile', 'location'));
+        return view('owner.location', ['profile' => $this->profile, 'location' => $location]);
     }
 
     /**
@@ -95,12 +82,7 @@ class OwnerDashboardController extends Controller
      */
     public function updateLocation(OwnerLocationRequest $request): RedirectResponse
     {
-        $user = Auth::user();
-        $profile = $user->umkmProfile;
-
-        if (! $profile) {
-            return redirect()->route('owner.profile')->with('error', __('Silakan buat profil toko terlebih dahulu.'));
-        }
+        $profile = $this->requireProfile();
 
         $validated = $request->validated();
 
