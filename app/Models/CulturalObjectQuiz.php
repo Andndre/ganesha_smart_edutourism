@@ -12,7 +12,7 @@ class CulturalObjectQuiz extends Model
     use HasFactory;
     use HasTranslations;
 
-    public array $translatable = ['question'];
+    public array $translatable = ['question', 'option_a', 'option_b', 'option_c', 'option_d'];
 
     protected $fillable = [
         'cultural_object_id',
