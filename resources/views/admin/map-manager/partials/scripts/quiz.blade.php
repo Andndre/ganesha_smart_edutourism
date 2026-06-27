@@ -57,22 +57,20 @@ function addQuizField(quiz = null) {
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-3 mb-3">
-                <div>
-                    <label class="mb-1 block text-xs font-semibold text-gray-600">Opsi A</label>
-                    <input type="text" name="quiz_option_a[${index}]" required value="${quiz ? quiz.option_a : ''}" class="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:border-primary focus:outline-none">
-                </div>
-                <div>
-                    <label class="mb-1 block text-xs font-semibold text-gray-600">Opsi B</label>
-                    <input type="text" name="quiz_option_b[${index}]" required value="${quiz ? quiz.option_b : ''}" class="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:border-primary focus:outline-none">
-                </div>
-                <div>
-                    <label class="mb-1 block text-xs font-semibold text-gray-600">Opsi C</label>
-                    <input type="text" name="quiz_option_c[${index}]" required value="${quiz ? quiz.option_c : ''}" class="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:border-primary focus:outline-none">
-                </div>
-                <div>
-                    <label class="mb-1 block text-xs font-semibold text-gray-600">Opsi D</label>
-                    <input type="text" name="quiz_option_d[${index}]" required value="${quiz ? quiz.option_d : ''}" class="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:border-primary focus:outline-none">
-                </div>
+                ${['A', 'B', 'C', 'D'].map(opt => {
+                    const key = 'option_' + opt.toLowerCase();
+                    const val = quiz ? (typeof quiz[key] === 'object' ? quiz[key] : { en: quiz[key], id: quiz[key] }) : { en: '', id: '' };
+                    return `
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold text-gray-600">Opsi ${opt}</label>
+                        <div x-show="locale === 'en'">
+                            <input type="text" name="quiz_${key}[${index}][en]" required value="${val.en || ''}" placeholder="EN" class="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:border-primary focus:outline-none">
+                        </div>
+                        <div x-show="locale === 'id'">
+                            <input type="text" name="quiz_${key}[${index}][id]" required value="${val.id || ''}" placeholder="ID" class="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:border-primary focus:outline-none">
+                        </div>
+                    </div>`;
+                }).join('')}
             </div>
             <div>
                 <label class="mb-1.5 block text-sm font-semibold text-gray-700">Jawaban Benar</label>

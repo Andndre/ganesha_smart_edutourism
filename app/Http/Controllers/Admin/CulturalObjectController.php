@@ -111,10 +111,10 @@ class CulturalObjectController extends Controller
                 if (! empty($question['en']) || ! empty($question['id'])) {
                     $object->quizzes()->create([
                         'question' => $question,
-                        'option_a' => $optionA[$index] ?? '',
-                        'option_b' => $optionB[$index] ?? '',
-                        'option_c' => $optionC[$index] ?? '',
-                        'option_d' => $optionD[$index] ?? '',
+                        'option_a' => $optionA[$index] ?? ['en' => '', 'id' => ''],
+                        'option_b' => $optionB[$index] ?? ['en' => '', 'id' => ''],
+                        'option_c' => $optionC[$index] ?? ['en' => '', 'id' => ''],
+                        'option_d' => $optionD[$index] ?? ['en' => '', 'id' => ''],
                         'correct_option' => $correctOptions[$index] ?? 'A',
                     ]);
                 }
@@ -318,10 +318,10 @@ class CulturalObjectController extends Controller
                 if (! empty($question['en']) || ! empty($question['id'])) {
                     $object->quizzes()->create([
                         'question' => $question,
-                        'option_a' => $optionA[$index] ?? '',
-                        'option_b' => $optionB[$index] ?? '',
-                        'option_c' => $optionC[$index] ?? '',
-                        'option_d' => $optionD[$index] ?? '',
+                        'option_a' => $optionA[$index] ?? ['en' => '', 'id' => ''],
+                        'option_b' => $optionB[$index] ?? ['en' => '', 'id' => ''],
+                        'option_c' => $optionC[$index] ?? ['en' => '', 'id' => ''],
+                        'option_d' => $optionD[$index] ?? ['en' => '', 'id' => ''],
                         'correct_option' => $correctOptions[$index] ?? 'A',
                     ]);
                 }
