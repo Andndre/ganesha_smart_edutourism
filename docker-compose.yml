@@ -153,29 +153,6 @@ services:
       - penglipuran-network
 
 
-  penglipuran-docs:
-    build:
-      context: .
-      dockerfile: Dockerfile.docs
-    container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-docs
-    restart: unless-stopped
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:-penglipuran}-docs.rule=Host(`${DOCS_DOMAIN:-docs.digowave.com}`)"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:-penglipuran}-docs.entrypoints=websecure"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:-penglipuran}-docs.tls.certresolver=letsencrypt"
-      - "traefik.http.services.${COMPOSE_PROJECT_NAME:-penglipuran}-docs.loadbalancer.server.port=3000"
-    volumes:
-      - ./docs:/docs
-    networks:
-      - penglipuran-network
-
-
 networks:
   penglipuran-network:
     driver: bridge
