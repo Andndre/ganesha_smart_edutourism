@@ -18,14 +18,8 @@ class ExpireStaleReservations extends Command
      */
     public function handle(): void
     {
-        $expiredCount = Reservation::where('status', 'confirmed')
-            ->where('scheduled_date', '<', Carbon::today())
-            ->update([
-                'status' => 'expired',
-                'cancelled_at' => now(),
-                'cancellation_type' => 'system_expire',
-                'cancellation_note' => 'Expired by system: scheduled date passed',
-            ]);
+        // ponytail: previously expired confirmed tickets past scheduled_date, removed per policy
+        // (tickets are valid any date as long as not used). Add expiry back if policy changes.
 
         $cancelledCount = Reservation::where('status', 'pending')
             ->where('created_at', '<', Carbon::now()->subHours(24))
@@ -36,8 +30,8 @@ class ExpireStaleReservations extends Command
                 'cancellation_note' => 'Cancelled by system: pending > 24 hours',
             ]);
 
-        Log::info("Expired {$expiredCount} confirmed, cancelled {$cancelledCount} pending reservations");
+        Log::info("Cancelled {$cancelledCount} pending reservations");
 
-        $this->info("Expired {$expiredCount} confirmed, cancelled {$cancelledCount} pending reservations");
+        $this->info("Cancelled {$cancelledCount} pending reservations");
     }
 }
