@@ -249,23 +249,6 @@ class TicketingController extends Controller
                 ], 400);
             }
 
-            // TODO: Add time validation if needed (e.g., only allow check-in on the scheduled date)
-            if (! $reservation->scheduled_date->isToday()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => __('Tiket ini tidak dapat digunakan hari ini. Tanggal kunjungan tidak sesuai.'),
-                ], 400);
-            }
-
-            // Grace period: allow check-in up to 2 hours after scheduled time
-            $checkInDeadline = $reservation->scheduled_time->copy()->addHours(2);
-            if (now()->greaterThan($checkInDeadline)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => __('Batas waktu check-in telah lewat (maksimal 2 jam setelah jam kunjungan).'),
-                ], 400);
-            }
-
             // Mark as completed with audit trail
             $reservation->update([
                 'status' => 'completed',
