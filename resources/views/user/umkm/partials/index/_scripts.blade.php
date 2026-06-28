@@ -135,7 +135,11 @@
                 const modelViewer = document.getElementById('modal-category-3d');
                 const tabsContainer = document.getElementById('modal-tabs-container');
 
-                const arBtn = document.getElementById('modal-category-ar-btn');
+                const arBtn = document.getElementById('modal-ar-btn');
+
+                // Hide AR button by default; ar-status event will show it if supported
+                arBtn.classList.remove('flex');
+                arBtn.classList.add('hidden');
 
                 if (category.model_3d_path) {
                     modelViewer.src = `/storage/${category.model_3d_path}`;
@@ -150,15 +154,11 @@
                     }
                     tabsContainer.classList.remove('hidden');
                     tabsContainer.classList.add('flex');
-                    arBtn.classList.remove('hidden');
-                    arBtn.classList.add('flex');
                 } else {
                     modelViewer.src = '';
                     modelViewer.removeAttribute('ios-src');
                     tabsContainer.classList.remove('flex');
                     tabsContainer.classList.add('hidden');
-                    arBtn.classList.remove('flex');
-                    arBtn.classList.add('hidden');
                 }
 
                 // Default to Image tab
@@ -207,6 +207,13 @@
                 closeCategoryModal();
             }
 
+            function activateCategoryAR() {
+                const modelViewer = document.getElementById('modal-category-3d');
+                if (modelViewer && typeof modelViewer.activateAR === 'function') {
+                    modelViewer.activateAR();
+                }
+            }
+
             const initUmkm = function() {
                 // Check highlights on load for pre-selected items (if any)
                 document.querySelectorAll('input[name="category_ids[]"]').forEach(box => {
@@ -219,6 +226,20 @@
                 if (ModelViewerElement) {
                     ModelViewerElement.meshoptDecoderLocation =
                         'https://unpkg.com/meshoptimizer@0.17.0/meshopt_decoder.js';
+                }
+
+                // Show AR button only when device supports AR
+                const modelViewer = document.getElementById('modal-category-3d');
+                if (modelViewer) {
+                    modelViewer.addEventListener('ar-status', function(e) {
+                        const arBtn = document.getElementById('modal-ar-btn');
+                        if (!arBtn) return;
+                        if (e.detail.status === 'session-started' || e.detail.status === 'object-placed') return;
+                        if (modelViewer.canActivateAR) {
+                            arBtn.classList.remove('hidden');
+                            arBtn.classList.add('flex');
+                        }
+                    });
                 }
 
                 const searchInput = document.getElementById('search-input');
@@ -307,6 +328,7 @@
             window.openCategoryModal = openCategoryModal;
             window.closeCategoryModal = closeCategoryModal;
             window.toggleSelectFromModal = toggleSelectFromModal;
+            window.activateCategoryAR = activateCategoryAR;
 
             // Run immediately
             initUmkm();
@@ -318,6 +340,7 @@
                 delete window.openCategoryModal;
                 delete window.closeCategoryModal;
                 delete window.toggleSelectFromModal;
+                delete window.activateCategoryAR;
                 document.removeEventListener('livewire:navigating', cleanupUmkm);
             });
         })();

@@ -40,14 +40,6 @@
                 ar-placement="floor" ar-modes="scene-viewer quick-look webxr" quick-look-browsers="safari chrome"
                 shadow-intensity="1" touch-action="pan-y"
                 draco-decoder-location="https://www.gstatic.com/draco/versioned/decoders/1.5.6/">
-                <button slot="ar-button" id="modal-category-ar-btn"
-                    class="absolute bottom-4 left-1/2 hidden -translate-x-1/2 items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-gray-900 shadow-lg">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" />
-                    </svg>
-                    {{ __('Tampilkan di Ruang Nyata') }}
-                </button>
             </model-viewer>
         </div>
 
@@ -57,8 +49,16 @@
             <p id="modal-category-description" class="mt-2 min-h-12.5 text-sm leading-relaxed text-gray-500">{{ __('Deskripsi kategori...') }}</p>
         </div>
 
-        <!-- Action Button -->
-        <div class="mt-6">
+        <!-- Action Buttons -->
+        <div class="mt-6 flex flex-col gap-2.5">
+            <button type="button" id="modal-ar-btn" onclick="activateCategoryAR()"
+                class="hidden w-full items-center justify-center gap-2 rounded-xl border-2 border-primary/20 bg-white py-3 font-semibold text-primary transition-all hover:bg-primary/5 active:scale-[0.98]">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" />
+                </svg>
+                {{ __('Tampilkan di Ruang Nyata') }}
+            </button>
             <button type="button" id="modal-toggle-select-btn" onclick="toggleSelectFromModal()"
                 class="bg-primary shadow-primary/20 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-semibold text-white shadow-lg transition-transform active:scale-[0.98]">
                 {{ __('Pilih Kategori Ini') }}
