@@ -72,6 +72,24 @@
 
     @include('admin.map-manager.partials.form-cultural.story-section')
 
+    {{-- Audio Narasi --}}
+    <div>
+        <label class="mb-1 block text-sm font-semibold text-gray-700">Audio Narasi</label>
+        <span class="mb-2 block text-xs text-gray-500">MP3/OGG/WAV/M4A, maks. 10 MB per bahasa</span>
+        <div x-show="locale === 'en'" class="space-y-1">
+            <p id="current-audio-en" class="hidden text-xs text-green-700 font-medium"></p>
+            <input type="file" name="cultural_audio_file[en]" accept=".mp3,.ogg,.wav,.m4a,audio/*"
+                class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold"
+                onchange="var maxSize=10*1024*1024;if(this.files[0]&&this.files[0].size>maxSize){Swal.fire({title:'File Terlalu Besar',text:'Maksimal 10MB per file audio.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value=''}">
+        </div>
+        <div x-show="locale === 'id'" class="space-y-1">
+            <p id="current-audio-id" class="hidden text-xs text-green-700 font-medium"></p>
+            <input type="file" name="cultural_audio_file[id]" accept=".mp3,.ogg,.wav,.m4a,audio/*"
+                class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold"
+                onchange="var maxSize=10*1024*1024;if(this.files[0]&&this.files[0].size>maxSize){Swal.fire({title:'File Terlalu Besar',text:'Maksimal 10MB per file audio.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value=''}">
+        </div>
+    </div>
+
     <div>
         <label class="mb-1 block text-sm font-semibold text-gray-700">Foto Sejarah</label>
         <span class="mb-2 block text-xs text-gray-500">Dapat memilih beberapa file gambar sekaligus</span>
