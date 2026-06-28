@@ -77,8 +77,21 @@ class CulturalObjectController extends Controller
             $validated['new_model_description'],
             $validated['model_3d_file'],
             $validated['model_3d_usdz_file'],
-            $validated['audio_narration_file']
+            $validated['audio_narration_file'],
+            $validated['cultural_audio_file']
         );
+
+        // Handle locale-specific audio narration uploads
+        $audioPaths = [];
+        foreach (['en', 'id'] as $locale) {
+            $fileKey = "cultural_audio_file.{$locale}";
+            if ($request->hasFile($fileKey)) {
+                $audioPaths[$locale] = $request->file($fileKey)->store('audio', 'public');
+            }
+        }
+        if (!empty($audioPaths)) {
+            $validated['audio_narration_paths'] = $audioPaths;
+        }
 
         $object = CulturalObject::create($validated);
 
@@ -280,8 +293,27 @@ class CulturalObjectController extends Controller
             $validated['new_model_description'],
             $validated['model_3d_file'],
             $validated['model_3d_usdz_file'],
-            $validated['audio_narration_file']
+            $validated['audio_narration_file'],
+            $validated['cultural_audio_file']
         );
+
+        // Handle locale-specific audio narration uploads (merge, replace old files)
+        $existingAudioPaths = $object->audio_narration_paths ?? [];
+        $audioChanged = false;
+        foreach (['en', 'id'] as $locale) {
+            $fileKey = "cultural_audio_file.{$locale}";
+            if ($request->hasFile($fileKey)) {
+                $newPath = $request->file($fileKey)->store('audio', 'public');
+                if (!empty($existingAudioPaths[$locale])) {
+                    Storage::disk('public')->delete($existingAudioPaths[$locale]);
+                }
+                $existingAudioPaths[$locale] = $newPath;
+                $audioChanged = true;
+            }
+        }
+        if ($audioChanged) {
+            $validated['audio_narration_paths'] = $existingAudioPaths;
+        }
 
         $object->update($validated);
 
