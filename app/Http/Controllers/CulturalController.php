@@ -69,6 +69,16 @@ class CulturalController extends Controller
                 }
             }
 
+            // Override audio_narration_path dengan versi locale-spesifik jika tersedia
+            if (!empty($data['audio_narration_paths']) && is_array($data['audio_narration_paths'])) {
+                $localePath = $data['audio_narration_paths'][$locale]
+                    ?? $data['audio_narration_paths'][config('app.fallback_locale', 'en')]
+                    ?? null;
+                if ($localePath) {
+                    $data['audio_narration_path'] = $localePath;
+                }
+            }
+
             return $data;
         });
 
