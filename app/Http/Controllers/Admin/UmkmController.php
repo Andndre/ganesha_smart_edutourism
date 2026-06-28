@@ -148,7 +148,7 @@ class UmkmController extends Controller
     {
         $validated = $request->validated();
 
-        $validated['is_active'] = $request->boolean('is_active');
+        $validated['is_active'] = $request->has('is_active');
 
         if (empty($validated['ar_marker_id'])) {
             $validated['ar_marker_id'] = 'UMKM_'.strtoupper(Str::random(8));
@@ -160,7 +160,7 @@ class UmkmController extends Controller
 
         $latitude = $validated['latitude'];
         $longitude = $validated['longitude'];
-        $is_accessible = $request->boolean('is_accessible');
+        $is_accessible = $request->has('is_accessible');
         $accessibility_notes = $validated['accessibility_notes'] ?? null;
 
         unset($validated['latitude'], $validated['longitude'], $validated['is_accessible'], $validated['accessibility_notes'], $validated['ar_marker_id']);
@@ -197,7 +197,7 @@ class UmkmController extends Controller
 
         $validated = $request->validated();
 
-        $validated['is_active'] = $request->boolean('is_active');
+        $validated['is_active'] = $request->has('is_active');
 
         if (empty($validated['ar_marker_id'])) {
             $validated['ar_marker_id'] = 'UMKM_'.strtoupper(Str::random(8));
@@ -213,7 +213,7 @@ class UmkmController extends Controller
 
         $latitude = $validated['latitude'];
         $longitude = $validated['longitude'];
-        $is_accessible = $request->boolean('is_accessible');
+        $is_accessible = $request->has('is_accessible');
         $accessibility_notes = $validated['accessibility_notes'] ?? null;
 
         unset($validated['latitude'], $validated['longitude'], $validated['is_accessible'], $validated['accessibility_notes'], $validated['ar_marker_id']);

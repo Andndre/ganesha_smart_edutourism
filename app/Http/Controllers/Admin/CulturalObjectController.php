@@ -125,7 +125,7 @@ class CulturalObjectController extends Controller
             'category' => 'cultural',
             'latitude' => $latitude,
             'longitude' => $longitude,
-            'is_accessible' => $request->boolean('is_accessible'),
+            'is_accessible' => $request->has('is_accessible'),
             'accessibility_notes' => $request->input('accessibility_notes') ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.',
         ]);
 
@@ -332,7 +332,7 @@ class CulturalObjectController extends Controller
             'category' => 'cultural',
             'latitude' => $latitude,
             'longitude' => $longitude,
-            'is_accessible' => $request->boolean('is_accessible'),
+            'is_accessible' => $request->has('is_accessible'),
             'accessibility_notes' => $request->input('accessibility_notes') ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.',
         ], isUpdate: true);
 

@@ -21,12 +21,12 @@ class FacilityController extends Controller
 
         $latitude = $validated['latitude'];
         $longitude = $validated['longitude'];
-        $is_accessible = $request->boolean('is_accessible');
+        $is_accessible = $request->has('is_accessible');
         $accessibility_notes = $validated['accessibility_notes'] ?? null;
 
         unset($validated['latitude'], $validated['longitude'], $validated['is_accessible'], $validated['accessibility_notes']);
 
-        $validated['is_active'] = $request->boolean('is_active');
+        $validated['is_active'] = $request->has('is_active');
 
         $facility = Facility::create($validated);
 
@@ -51,12 +51,12 @@ class FacilityController extends Controller
 
         $latitude = $validated['latitude'];
         $longitude = $validated['longitude'];
-        $is_accessible = $request->boolean('is_accessible');
+        $is_accessible = $request->has('is_accessible');
         $accessibility_notes = $validated['accessibility_notes'] ?? null;
 
         unset($validated['latitude'], $validated['longitude'], $validated['is_accessible'], $validated['accessibility_notes']);
 
-        $validated['is_active'] = $request->boolean('is_active');
+        $validated['is_active'] = $request->has('is_active');
 
         $facility->update($validated);
 
