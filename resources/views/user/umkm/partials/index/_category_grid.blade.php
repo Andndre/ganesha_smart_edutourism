@@ -6,7 +6,7 @@
                         data-name="{{ strtolower($category['name']) }}"
                         data-description="{{ strtolower($category['description'] ?? '') }}"
                         onclick="openCategoryModal({{ json_encode($category) }}, event)">
-                        <div class="relative aspect-square bg-gray-100">
+                        <div class="relative aspect-video bg-gray-100">
                             @if ($category['image_path'])
                                 <img src="{{ asset('storage/' . $category['image_path']) }}" alt="{{ $category['name'] }}"
                                     class="h-full w-full object-cover">
