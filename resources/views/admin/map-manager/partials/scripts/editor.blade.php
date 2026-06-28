@@ -208,6 +208,19 @@ function handleMarkerClick(marker) {
                 });
             }
 
+            // Populate existing audio narration indicators
+            ['en', 'id'].forEach(function(locale) {
+                var audioEl = document.getElementById('current-audio-' + locale);
+                if (!audioEl) return;
+                var path = details.audio_narration_paths && details.audio_narration_paths[locale];
+                if (path) {
+                    audioEl.textContent = 'File aktif: ' + path.split('/').pop();
+                    audioEl.classList.remove('hidden');
+                } else {
+                    audioEl.classList.add('hidden');
+                }
+            });
+
             form.querySelector('input[type="checkbox"][name="is_accessible"]').checked = loc.is_accessible;
             const culturalAccEn = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.en || '') : (loc.accessibility_notes || '');
             const culturalAccId = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.id || '') : (loc.accessibility_notes || '');
@@ -367,10 +380,17 @@ function resetForms() {
         }
         culturalForm.action = "{{ route('admin.cultural-objects.store') }}";
         document.getElementById('method-cultural').innerHTML = '';
-        
+
         window.dispatchEvent(new CustomEvent('ar-model-reset'));
 
         document.getElementById('current-images').innerHTML = '';
+        ['current-audio-en', 'current-audio-id'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.textContent = '';
+                el.classList.add('hidden');
+            }
+        });
         if(culturalForm.querySelector('input[name="has_quiz"]')) {
             culturalForm.querySelector('input[name="has_quiz"]').checked = false;
             const manageBtn = document.getElementById('btn-manage-quizzes');
