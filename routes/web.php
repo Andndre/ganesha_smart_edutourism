@@ -37,6 +37,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SmartEdutourismController;
 use App\Http\Controllers\TourPackageController;
 use App\Http\Controllers\UmkmCatalogController;
+use App\Http\Controllers\PushSubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 // Auth Routes (Guest Only)
@@ -110,6 +111,9 @@ Route::middleware('redirect.admin')->group(function () {
 // Authenticated Routes (Users)
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Push Subscriptions
+    Route::post('/push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push-subscriptions.store');
 
     Route::middleware('redirect.admin')->group(function () {
         // Feedback (Requires login)

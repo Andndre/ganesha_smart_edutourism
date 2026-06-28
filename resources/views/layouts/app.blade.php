@@ -694,6 +694,43 @@
     @include('components.cookie-consent')
 
     @livewireScripts
+
+    @auth
+    <script>
+    (function () {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
+        }
+
+        navigator.serviceWorker.register('/sw.js').then(async reg => {
+            const existing = await reg.pushManager.getSubscription();
+            if (existing) return; // already subscribed
+
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') return;
+
+            const sub = await reg.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array('{{ config("webpush.vapid.public_key") }}')
+            });
+
+            await fetch('{{ route("push-subscriptions.store") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify(sub.toJSON())
+            });
+        }).catch(console.error);
+    }());
+    </script>
+    @endauth
 </body>
 
 </html>
