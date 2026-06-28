@@ -62,12 +62,14 @@
 
     <div class="flex flex-wrap gap-4 py-1">
         <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input type="hidden" name="is_active" value="0">
             <input type="checkbox" name="is_active" value="1" checked
                 class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
             <span class="text-sm font-semibold text-gray-700">Aktifkan Fasilitas</span>
         </label>
         <label class="flex items-center gap-2 cursor-pointer select-none">
-            <input type="checkbox" id="facility_is_accessible" name="is_accessible" value="1" checked
+            <input type="hidden" name="is_accessible" value="0">
+            <input type="checkbox" id="facility_is_accessible" name="is_accessible" value="1"
                 class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
             <span class="text-sm font-semibold text-gray-700">Akses Ramah Disabilitas</span>
         </label>
