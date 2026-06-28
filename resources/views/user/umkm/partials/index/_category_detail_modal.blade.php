@@ -36,8 +36,18 @@
         <!-- Category 3D Viewer Container -->
         <div class="relative hidden aspect-video w-full overflow-hidden rounded-2xl border border-gray-100 bg-gray-100"
             id="modal-category-3d-container">
-            <model-viewer id="modal-category-3d" class="h-full w-full" camera-controls auto-rotate shadow-intensity="1"
-                touch-action="pan-y" draco-decoder-location="https://www.gstatic.com/draco/versioned/decoders/1.5.6/">
+            <model-viewer id="modal-category-3d" class="h-full w-full" camera-controls auto-rotate ar ar-scale="auto"
+                ar-placement="floor" ar-modes="scene-viewer quick-look webxr" quick-look-browsers="safari chrome"
+                shadow-intensity="1" touch-action="pan-y"
+                draco-decoder-location="https://www.gstatic.com/draco/versioned/decoders/1.5.6/">
+                <button slot="ar-button" id="modal-category-ar-btn"
+                    class="absolute bottom-4 left-1/2 hidden -translate-x-1/2 items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-gray-900 shadow-lg">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" />
+                    </svg>
+                    {{ __('Tampilkan di Ruang Nyata') }}
+                </button>
             </model-viewer>
         </div>
 
