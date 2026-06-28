@@ -132,6 +132,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
         Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
         Route::get('/profile/bookings', [BookingController::class, 'index'])->name('bookings');
+        Route::post('/profile/bookings/{reservation}/pay', [BookingController::class, 'repay'])->name('bookings.repay');
         Route::get('/profile/favorites', [FavoriteController::class, 'index'])->name('favorites');
         Route::post('/favorites/toggle', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
         Route::get('/profile/visited', [ProfileController::class, 'visited'])->name('visited');

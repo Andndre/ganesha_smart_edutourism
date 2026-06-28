@@ -101,8 +101,8 @@
                             </div>
                         @elseif($reservation->status == 'pending')
                             <div class="mt-4 flex gap-2 border-t border-gray-100 pt-4">
-                                <!-- Could redirect back to midtrans snap page or just show a message -->
-                                <button
+                                <button type="button"
+                                    onclick="payBooking({{ $reservation->id }})"
                                     class="flex-1 rounded-xl bg-yellow-100 py-2.5 text-sm font-bold text-yellow-700 transition-colors active:bg-yellow-200">
                                     {{ __('Lanjutkan Pembayaran') }}
                                 </button>
@@ -131,6 +131,46 @@
 
     </div>
 @endsection
+
+@push('head-scripts')
+    <script src="https://{{ config('midtrans.is_production') ? 'app.midtrans.com' : 'app.sandbox.midtrans.com' }}/snap/snap.js"
+        data-client-key="{{ config('midtrans.client_key') }}"></script>
+@endpush
+
+@push('scripts')
+<script>
+async function payBooking(id) {
+    try {
+        const response = await fetch(`/profile/bookings/${id}/pay`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        });
+        const data = await response.json();
+
+        if (!data.success) {
+            alert(data.message);
+            return;
+        }
+
+        @if(config('midtrans.is_production'))
+        snap.pay(data.snap_token, {
+            onSuccess: function() { window.location.href = '{{ route('bookings') }}'; },
+            onPending: function() { window.location.href = '{{ route('bookings') }}'; },
+            onError: function() { alert('{{ __('Pembayaran gagal atau dibatalkan.') }}'); },
+            onClose: function() { alert('{{ __('Anda menutup popup pembayaran sebelum menyelesaikannya.') }}'); }
+        });
+        @else
+        window.open(`https://app.sandbox.midtrans.com/snap/v2/vtweb/${data.snap_token}`, '_blank');
+        @endif
+    } catch (e) {
+        alert('{{ __('Gagal terhubung ke sistem pembayaran. Silakan coba lagi.') }}');
+    }
+}
+</script>
+@endpush
 
 @push('modals')
     <!-- QR Code Modal -->

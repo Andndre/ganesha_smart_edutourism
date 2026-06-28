@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\ETicketMail;
 use App\Models\Reservation;
 use App\Models\TourPackage;
+use App\Services\MidtransService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -164,6 +165,40 @@ class BookingController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Midtrans Snap Error: '.$e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => __('Gagal terhubung ke sistem pembayaran. Silakan coba lagi.'),
+            ], 500);
+        }
+    }
+
+    /**
+     * Re-generate a Snap token for an existing pending reservation.
+     */
+    public function repay(Reservation $reservation)
+    {
+        abort_if($reservation->user_id !== auth()->id(), 403);
+
+        if ($reservation->status !== 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => __('Hanya pesanan dengan status menunggu yang dapat dilanjutkan pembayarannya.'),
+            ], 400);
+        }
+
+        $midtrans = new MidtransService;
+        $params = $midtrans->buildSnapParams($reservation, $reservation->payment_reference);
+
+        try {
+            $snapToken = $midtrans->getSnapToken($params);
+
+            return response()->json([
+                'success' => true,
+                'snap_token' => $snapToken,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Midtrans Repay Error: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
