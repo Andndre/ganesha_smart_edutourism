@@ -67,18 +67,6 @@
             class="w-full rounded-xl bg-gray-50 border border-gray-200 px-4 py-2.5 text-sm text-gray-500 focus:outline-none">
     </div>
 
-    <div>
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Kategori UMKM <span
-                class="text-warning">*</span></label>
-        <select name="category" required
-            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-            <option value="culinary">Kuliner / Makanan</option>
-            <option value="craft">Kerajinan / Kerajinan Tangan</option>
-            <option value="souvenir">Oleh-oleh / Cendera Mata</option>
-            <option value="service">Jasa Wisata / Massage</option>
-        </select>
-    </div>
-
     <div x-show="locale === 'en'">
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi Bisnis (EN)</label>
         <x-tiptap-editor name="description[en]" id="umkm-desc-en" placeholder="Describe the products or services offered..." />
@@ -88,18 +76,10 @@
         <x-tiptap-editor name="description[id]" id="umkm-desc-id" placeholder="Jelaskan mengenai menu atau layanan yang ditawarkan..." />
     </div>
 
-    <div class="grid grid-cols-2 gap-3">
-        <div>
-            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Rating Awal</label>
-            <input type="number" step="0.1" name="rating" min="0" max="5" value="5.0"
-                class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:border-primary focus:outline-none">
-        </div>
-        <div>
-            <label class="mb-1 block text-sm font-semibold text-gray-700">ID Marker AR</label>
-            <span class="mb-2 block text-xs text-gray-500">Opsional. Digunakan untuk integrasi Augmented Reality</span>
-            <input type="text" name="ar_marker_id" placeholder="Contoh: UMKM_DEDARI_01"
-                class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-        </div>
+    <div>
+        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Rating Awal</label>
+        <input type="number" step="0.1" name="rating" min="0" max="5" value="5.0"
+            class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:border-primary focus:outline-none">
     </div>
 
     <div class="grid grid-cols-2 gap-3">
