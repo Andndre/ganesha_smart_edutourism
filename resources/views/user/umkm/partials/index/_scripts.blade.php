@@ -135,6 +135,8 @@
                 const modelViewer = document.getElementById('modal-category-3d');
                 const tabsContainer = document.getElementById('modal-tabs-container');
 
+                const arBtn = document.getElementById('modal-category-ar-btn');
+
                 if (category.model_3d_path) {
                     modelViewer.src = `/storage/${category.model_3d_path}`;
                     if (category.model_3d_usdz_path) {
@@ -148,11 +150,15 @@
                     }
                     tabsContainer.classList.remove('hidden');
                     tabsContainer.classList.add('flex');
+                    arBtn.classList.remove('hidden');
+                    arBtn.classList.add('flex');
                 } else {
                     modelViewer.src = '';
                     modelViewer.removeAttribute('ios-src');
                     tabsContainer.classList.remove('flex');
                     tabsContainer.classList.add('hidden');
+                    arBtn.classList.remove('flex');
+                    arBtn.classList.add('hidden');
                 }
 
                 // Default to Image tab
