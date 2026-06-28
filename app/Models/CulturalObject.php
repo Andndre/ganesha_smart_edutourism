@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\Translatable\HasTranslations;
 
-#[Fillable(['name', 'slug', 'short_description', 'description', 'category', 'historical_images'])]
+#[Fillable(['name', 'slug', 'short_description', 'description', 'category', 'historical_images', 'audio_narration_paths'])]
 class CulturalObject extends Model
 {
     use HasFactory;
@@ -32,6 +32,7 @@ class CulturalObject extends Model
     {
         return [
             'historical_images' => 'array',
+            'audio_narration_paths' => 'array',
         ];
     }
 
@@ -149,7 +150,11 @@ class CulturalObject extends Model
 
     public function getAudioNarrationPathAttribute(): ?string
     {
-        return $this->mapLocation?->arModel?->audio_narration_path;
+        $locale = app()->getLocale();
+        $paths = $this->audio_narration_paths ?? [];
+        return $paths[$locale]
+            ?? $paths[config('app.fallback_locale', 'en')]
+            ?? $this->mapLocation?->arModel?->audio_narration_path;
     }
 
     /**
