@@ -30,7 +30,7 @@
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Pilih Akun Pemilik <span class="text-warning">*</span></label>
         <div class="relative">
             <input type="hidden" name="user_id" id="umkm-owner-user-id">
-            <input type="text" id="umkm-owner-search" placeholder="Cari nama atau email pemilik..." 
+            <input type="text" id="umkm-owner-search" placeholder="Cari nama atau email pemilik..."
                 class="w-full rounded-xl border border-gray-200 px-4 py-2.5 pr-10 text-sm focus:border-primary focus:outline-none"
                 onfocus="showOwnerDropdown()" oninput="filterOwners(this.value)" autocomplete="off">
             <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
@@ -38,20 +38,27 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
             </div>
-            
+
             {{-- Dropdown options --}}
             <div id="umkm-owner-dropdown" class="absolute left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-xl border border-gray-100 bg-white shadow-lg hidden z-50">
                 @forelse ($owners as $owner)
-                    <div class="owner-option px-4 py-2.5 text-sm text-charcoal hover:bg-primary hover:text-white cursor-pointer transition-colors" 
+                    <div class="owner-option px-4 py-2.5 text-sm text-charcoal hover:bg-primary hover:text-white cursor-pointer transition-colors"
                         data-id="{{ $owner->id }}" data-name="{{ $owner->name }}" data-email="{{ $owner->email }}" onclick="selectOwner({{ $owner->id }}, '{{ $owner->name }}')">
                         <div class="font-semibold">{{ $owner->name }}</div>
                         <div class="text-[10px] opacity-75 font-mono">{{ $owner->email }}</div>
                     </div>
                 @empty
-                    <div class="px-4 py-3 text-sm text-gray-400 italic">Belum ada akun pemilik UMKM. Buat terlebih dahulu di menu Pemilik UMKM.</div>
+                    <div class="px-4 py-3 text-sm text-gray-400 italic">Belum ada akun pemilik UMKM.</div>
                 @endforelse
             </div>
         </div>
+        <button type="button" onclick="document.getElementById('modal-create-owner').classList.remove('hidden')"
+            class="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 transition-colors">
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Buat Akun Baru
+        </button>
     </div>
 
     <div>
@@ -136,7 +143,59 @@
 
 </form>
 
+{{-- Modal: Create Owner Inline (outside form to avoid nested <form>) --}}
+<div id="modal-create-owner" class="fixed inset-0 z-999 hidden bg-black/40 backdrop-blur-sm" style="display:none">
+    <div class="flex h-full items-center justify-center" onclick="closeCreateOwnerModal()">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 space-y-4" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-bold text-charcoal">Buat Akun Pemilik Baru</h3>
+            <button type="button" onclick="closeCreateOwnerModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <form id="form-create-owner" onsubmit="submitCreateOwner(event)" class="space-y-3">
+            @csrf
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">Nama <span class="text-warning">*</span></label>
+                <input type="text" name="name" required placeholder="Nama lengkap pemilik"
+                    class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+            </div>
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">Email <span class="text-warning">*</span></label>
+                <input type="email" name="email" required placeholder="email@contoh.com" id="create-owner-email"
+                    onblur="checkOwnerEmail(this.value)"
+                    class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+                <p id="email-status" class="mt-1 text-xs hidden"></p>
+            </div>
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">No. Telepon</label>
+                <input type="text" name="phone" placeholder="08xxxxxxxxxx"
+                    class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+            </div>
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">Password <span class="text-warning">*</span></label>
+                <input type="password" name="password" required placeholder="Minimal 8 karakter" minlength="8"
+                    class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+            </div>
+            <div id="create-owner-error" class="hidden rounded-xl bg-red-50 border border-red-200 px-4 py-2 text-xs text-red-600"></div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" onclick="closeCreateOwnerModal()"
+                    class="rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors">Batal</button>
+                <button type="submit" id="btn-create-owner"
+                    class="rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Buat Akun
+                </button>
+            </div>
+        </form>
+    </div>
+    </div>
+</div>
+
 <script>
+    // --- Owner Dropdown ---
     function showOwnerDropdown() {
         document.getElementById('umkm-owner-dropdown').classList.remove('hidden');
     }
@@ -147,11 +206,7 @@
         options.forEach(opt => {
             const name = opt.getAttribute('data-name').toLowerCase();
             const email = opt.getAttribute('data-email').toLowerCase();
-            if (name.includes(lowerQuery) || email.includes(lowerQuery)) {
-                opt.style.display = 'block';
-            } else {
-                opt.style.display = 'none';
-            }
+            opt.style.display = (name.includes(lowerQuery) || email.includes(lowerQuery)) ? 'block' : 'none';
         });
     }
 
@@ -162,7 +217,6 @@
         document.getElementById('umkm-owner-dropdown').classList.add('hidden');
     }
 
-    // Close dropdown on click outside
     document.addEventListener('click', function(e) {
         const searchInput = document.getElementById('umkm-owner-search');
         const dropdown = document.getElementById('umkm-owner-dropdown');
@@ -170,4 +224,127 @@
             dropdown.classList.add('hidden');
         }
     });
+
+    // --- Create Owner Modal ---
+    const CHECK_EMAIL_URL = '{{ route("admin.umkm.owners.check-email") }}';
+    const STORE_OWNER_URL = '{{ route("admin.umkm.owners.store.json") }}';
+
+    function openCreateOwnerModal() {
+        document.getElementById('modal-create-owner').style.display = 'block';
+    }
+
+    function closeCreateOwnerModal() {
+        document.getElementById('modal-create-owner').style.display = 'none';
+        document.getElementById('form-create-owner').reset();
+        const status = document.getElementById('email-status');
+        status.classList.add('hidden');
+        document.getElementById('create-owner-error').classList.add('hidden');
+    }
+
+    // Open modal button
+    document.querySelector('[onclick*="modal-create-owner"]')
+        ?.setAttribute('onclick', 'openCreateOwnerModal()');
+
+    // Close on backdrop click
+    document.getElementById('modal-create-owner').addEventListener('click', function(e) {
+        if (e.target === this) closeCreateOwnerModal();
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeCreateOwnerModal();
+    });
+
+    // --- Email uniqueness check ---
+    let emailCheckTimer;
+    async function checkOwnerEmail(email) {
+        const status = document.getElementById('email-status');
+        if (!email) { status.classList.add('hidden'); return; }
+
+        clearTimeout(emailCheckTimer);
+        emailCheckTimer = setTimeout(async () => {
+            try {
+                const res = await fetch(CHECK_EMAIL_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ email }),
+                });
+                const data = await res.json();
+                status.classList.remove('hidden');
+                if (data.taken) {
+                    status.className = 'mt-1 text-xs text-red-600';
+                    status.textContent = 'Email sudah digunakan akun lain.';
+                } else {
+                    status.className = 'mt-1 text-xs text-green-600';
+                    status.textContent = 'Email tersedia.';
+                }
+            } catch (e) { /* silent */ }
+        }, 400);
+    }
+
+    // --- Submit new owner ---
+    async function submitCreateOwner(event) {
+        event.preventDefault();
+        const form = event.target;
+        const btn = document.getElementById('btn-create-owner');
+        const errorBox = document.getElementById('create-owner-error');
+
+        btn.disabled = true;
+        btn.textContent = 'Membuat...';
+        errorBox.classList.add('hidden');
+
+        const formData = new FormData(form);
+
+        try {
+            const res = await fetch(STORE_OWNER_URL, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+                body: formData,
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                const messages = data.errors
+                    ? Object.values(data.errors).flat().join('\n')
+                    : (data.message || 'Terjadi kesalahan.');
+                errorBox.textContent = messages;
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            // Add new owner to dropdown
+            const dropdown = document.getElementById('umkm-owner-dropdown');
+            const emptyMsg = dropdown.querySelector('.italic');
+            if (emptyMsg) emptyMsg.remove();
+
+            const opt = document.createElement('div');
+            opt.className = 'owner-option px-4 py-2.5 text-sm text-charcoal hover:bg-primary hover:text-white cursor-pointer transition-colors';
+            opt.dataset.id = data.owner.id;
+            opt.dataset.name = data.owner.name;
+            opt.dataset.email = data.owner.email;
+            opt.onclick = () => selectOwner(data.owner.id, data.owner.name);
+            opt.innerHTML = `<div class="font-semibold">${data.owner.name}</div><div class="text-[10px] opacity-75 font-mono">${data.owner.email}</div>`;
+            dropdown.prepend(opt);
+
+            // Auto-select
+            selectOwner(data.owner.id, data.owner.name);
+            closeCreateOwnerModal();
+
+            // Haptic feedback
+            if (navigator.vibrate) navigator.vibrate(50);
+        } catch (e) {
+            errorBox.textContent = 'Gagal menghubungi server.';
+            errorBox.classList.remove('hidden');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Buat Akun';
+        }
+    }
 </script>
