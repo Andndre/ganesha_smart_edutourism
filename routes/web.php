@@ -198,6 +198,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // UMKM Owner Routes
     Route::get('/umkm/owners', [UmkmController::class, 'ownersList'])->name('admin.umkm.owners');
     Route::post('/umkm/owners', [UmkmController::class, 'storeOwner'])->name('admin.umkm.owners.store');
+    Route::post('/umkm/owners/json', [UmkmController::class, 'storeOwnerJson'])->name('admin.umkm.owners.store.json');
+    Route::post('/umkm/owners/check-email', [UmkmController::class, 'checkEmail'])->name('admin.umkm.owners.check-email');
     Route::put('/umkm/owners/{id}', [UmkmController::class, 'updateOwner'])->name('admin.umkm.owners.update');
     Route::delete('/umkm/owners/{id}', [UmkmController::class, 'destroyOwner'])->name('admin.umkm.owners.destroy');
 

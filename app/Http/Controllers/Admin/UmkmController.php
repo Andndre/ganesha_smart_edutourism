@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreUmkmOwnerJsonRequest;
 use App\Http\Requests\Admin\UmkmOwnerRequest;
 use App\Http\Requests\Admin\UmkmProductRequest;
 use App\Http\Requests\Admin\UmkmProfileRequest;
@@ -12,6 +13,7 @@ use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -282,6 +284,40 @@ class UmkmController extends Controller
         User::create($validated);
 
         return redirect()->route('admin.umkm.owners')->with('success', __('Akun pemilik UMKM berhasil dibuat.'));
+    }
+
+    /**
+     * Store a new UMKM owner via AJAX (returns JSON for inline creation).
+     */
+    public function storeOwnerJson(StoreUmkmOwnerJsonRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
+        $validated['role'] = 'umkm_owner';
+        $validated['password'] = Hash::make($validated['password']);
+
+        $user = User::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'owner' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
+            'message' => 'Akun pemilik UMKM berhasil dibuat.',
+        ]);
+    }
+
+    /**
+     * Check if an email is already taken (AJAX).
+     */
+    public function checkEmail(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        return response()->json(['taken' => User::where('email', $request->email)->exists()]);
     }
 
     /**
