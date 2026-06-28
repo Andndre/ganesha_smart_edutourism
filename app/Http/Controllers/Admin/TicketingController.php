@@ -164,7 +164,6 @@ class TicketingController extends Controller
         $reservation->fill($validated);
         $reservation->reservation_type = 'package';
         $reservation->scheduled_date = today();
-        $reservation->scheduled_time = \Illuminate\Support\Carbon::now();
         $reservation->total_amount = $package->price * $validated['party_size'];
         $reservation->qr_code = 'WALKIN-'.strtoupper(Str::random(10));
 

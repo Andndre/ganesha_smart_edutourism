@@ -38,7 +38,6 @@
         </div>
 
         @include('user.packages.partials.calendar-modal')
-        @include('user.packages.partials.time-modal')
     </div>
 @endsection
 
@@ -51,11 +50,9 @@
                 isLoading: false,
                 errorMessage: '',
 
-                // Traveloka-style Dynamic Date & Time Picker
+                // Traveloka-style Dynamic Date Picker
                 selectedDate: '{{ date('Y-m-d') }}',
-                selectedTime: '09:00',
                 isOpenCalendarModal: false,
-                isOpenTimeModal: false,
 
                 currentYear: new Date().getFullYear(),
                 currentMonth: new Date().getMonth(), // 0-indexed
@@ -152,8 +149,6 @@
                     ];
                     return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
                 },
-
-                timeSlots: ['09:00', '11:00', '13:00', '15:00', '17:00'],
 
                 get totalAmount() {
                     return this.partySize * this.pricePerPax;

@@ -68,15 +68,10 @@
                                 </p>
                             </div>
                             <div>
-                                <p class="mb-0.5 text-xs text-gray-500">{{ __('Waktu') }}</p>
-                                <p class="text-charcoal font-medium">
-                                    {{ \Carbon\Carbon::parse($reservation->scheduled_time)->format('H:i') }} WITA</p>
-                            </div>
-                            <div>
                                 <p class="mb-0.5 text-xs text-gray-500">{{ __('Peserta') }}</p>
                                 <p class="text-charcoal font-medium">{{ $reservation->party_size }} {{ __('Orang') }}</p>
                             </div>
-                            <div>
+                            <div class="col-span-2">
                                 <p class="mb-0.5 text-xs text-gray-500">{{ __('Total Pembayaran') }}</p>
                                 <p class="text-primary font-bold">Rp
                                     {{ number_format($reservation->total_amount, 0, ',', '.') }}</p>
