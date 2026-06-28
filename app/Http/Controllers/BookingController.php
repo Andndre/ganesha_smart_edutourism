@@ -90,7 +90,6 @@ class BookingController extends Controller
     {
         $request->validate([
             'scheduled_date' => 'required|date|after_or_equal:today',
-            'scheduled_time' => 'required',
             'party_size' => 'required|integer|min:1',
             'guest_name' => 'required|string|max:255',
             'guest_email' => 'required|email|max:255',
@@ -119,7 +118,6 @@ class BookingController extends Controller
         $reservation->tour_package_id = $package->id;
         $reservation->reservation_type = 'package';
         $reservation->scheduled_date = $request->scheduled_date;
-        $reservation->scheduled_time = $request->scheduled_time;
         $reservation->party_size = $request->party_size;
         $reservation->total_amount = $totalAmount;
         $reservation->status = 'pending';
