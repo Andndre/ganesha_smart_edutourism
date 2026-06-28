@@ -47,8 +47,10 @@ COPY . .
 # Copy built assets from node-builder stage
 COPY --from=node-builder /app/public/build /var/www/public/build
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Install PHP dependencies (retry up to 3x for transient GitHub CDN failures)
+RUN composer install --no-dev --optimize-autoloader --no-interaction \
+    || composer install --no-dev --optimize-autoloader --no-interaction \
+    || composer install --no-dev --optimize-autoloader --no-interaction
 
 # Configure Nginx & PHP upload limits
 COPY nginx/default.conf /etc/nginx/http.d/default.conf
