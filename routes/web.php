@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\MapManagerController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TicketingController;
 use App\Http\Controllers\Admin\TicketOfficerController;
 use App\Http\Controllers\Admin\TourRouteController;
@@ -257,6 +258,10 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Report Routes
     Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports');
     Route::get('/reports/download', [ReportController::class, 'downloadPdf'])->name('admin.reports.download');
+
+    // Settings
+    Route::get('/settings', [SettingsController::class, 'index'])->name('admin.settings');
+    Route::put('/settings', [SettingsController::class, 'update'])->name('admin.settings.update');
 
     // Tus chunked upload — handles POST (create), PATCH (chunk), HEAD, DELETE, OPTIONS
     // CSRF exempt via bootstrap/app.php except array
