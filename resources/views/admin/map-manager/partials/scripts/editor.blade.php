@@ -276,11 +276,9 @@ function handleMarkerClick(marker) {
             form.querySelector('input[name="owner_name"]').value = details.owner_name;
             document.getElementById('umkm-owner-user-id').value = details.user_id || '';
             document.getElementById('umkm-owner-search').value = details.owner_name || '';
-            form.querySelector('select[name="category"]').value = details.category;
             setTiptapContent(form.querySelector('textarea[name="description[en]"]'), details.description?.en || details.description || '');
             setTiptapContent(form.querySelector('textarea[name="description[id]"]'), details.description?.id || details.description || '');
             form.querySelector('input[name="rating"]').value = details.rating || '5.0';
-            form.querySelector('input[name="ar_marker_id"]').value = '';
             form.querySelector('input[type="checkbox"][name="is_active"]').checked = details.is_active;
             form.querySelector('input[type="checkbox"][name="is_accessible"]').checked = loc.is_accessible;
             const umkmAccEn = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.en || '') : (loc.accessibility_notes || '');
