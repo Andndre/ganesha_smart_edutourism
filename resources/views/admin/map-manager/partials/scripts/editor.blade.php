@@ -208,7 +208,7 @@ function handleMarkerClick(marker) {
                 });
             }
 
-            form.querySelector('input[name="is_accessible"]').checked = loc.is_accessible;
+            form.querySelector('input[type="checkbox"][name="is_accessible"]').checked = loc.is_accessible;
             const culturalAccEn = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.en || '') : (loc.accessibility_notes || '');
             const culturalAccId = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.id || '') : (loc.accessibility_notes || '');
             form.querySelector('textarea[name="accessibility_notes[en]"]').value = culturalAccEn;
@@ -281,8 +281,8 @@ function handleMarkerClick(marker) {
             setTiptapContent(form.querySelector('textarea[name="description[id]"]'), details.description?.id || details.description || '');
             form.querySelector('input[name="rating"]').value = details.rating || '5.0';
             form.querySelector('input[name="ar_marker_id"]').value = '';
-            form.querySelector('input[name="is_active"]').checked = details.is_active;
-            form.querySelector('input[name="is_accessible"]').checked = loc.is_accessible;
+            form.querySelector('input[type="checkbox"][name="is_active"]').checked = details.is_active;
+            form.querySelector('input[type="checkbox"][name="is_accessible"]').checked = loc.is_accessible;
             const umkmAccEn = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.en || '') : (loc.accessibility_notes || '');
             const umkmAccId = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.id || '') : (loc.accessibility_notes || '');
             form.querySelector('textarea[name="accessibility_notes[en]"]').value = umkmAccEn;
@@ -303,8 +303,8 @@ function handleMarkerClick(marker) {
             form.querySelector('select[name="type"]').value = details.type;
             setTiptapContent(form.querySelector('textarea[name="description[en]"]'), details.description?.en || details.description || '');
             setTiptapContent(form.querySelector('textarea[name="description[id]"]'), details.description?.id || details.description || '');
-            form.querySelector('input[name="is_active"]').checked = details.is_active;
-            form.querySelector('input[name="is_accessible"]').checked = loc.is_accessible;
+            form.querySelector('input[type="checkbox"][name="is_active"]').checked = details.is_active;
+            form.querySelector('input[type="checkbox"][name="is_accessible"]').checked = loc.is_accessible;
             const facilityAccEn = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.en || '') : (loc.accessibility_notes || '');
             const facilityAccId = (typeof loc.accessibility_notes === 'object') ? (loc.accessibility_notes?.id || '') : (loc.accessibility_notes || '');
             form.querySelector('textarea[name="accessibility_notes[en]"]').value = facilityAccEn;
@@ -432,10 +432,10 @@ function resetForms() {
 
 function updateAccessibilityNotesVisibility(formElement) {
     if (!formElement) return;
-    const checkbox = formElement.querySelector('input[name="is_accessible"]');
+    const checkbox = formElement.querySelector('input[type="checkbox"][name="is_accessible"]');
     const container = formElement.querySelector('.accessibility-notes-container');
     if (!checkbox || !container) return;
-    
+
     container.style.display = checkbox.checked ? 'block' : 'none';
 }
 
@@ -444,8 +444,8 @@ document.addEventListener('DOMContentLoaded', () => {
     ['form-cultural', 'form-umkm', 'form-facility'].forEach(formId => {
         const form = document.getElementById(formId);
         if (!form) return;
-        
-        const checkbox = form.querySelector('input[name="is_accessible"]');
+
+        const checkbox = form.querySelector('input[type="checkbox"][name="is_accessible"]');
         if (checkbox) {
             checkbox.addEventListener('change', () => {
                 updateAccessibilityNotesVisibility(form);
