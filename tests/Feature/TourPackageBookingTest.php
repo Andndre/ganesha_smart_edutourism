@@ -497,4 +497,46 @@ class TourPackageBookingTest extends TestCase
         $response->assertDontSee('TKT-PENDING');
         $response->assertSee('TKT-CANCEL');
     }
+
+    /**
+     * Test booking does not require scheduled_time.
+     */
+    public function test_booking_does_not_require_scheduled_time(): void
+    {
+        $user = User::factory()->create(['role' => 'tourist']);
+        $package = TourPackage::create([
+            'name' => 'Paket Test No Time',
+            'slug' => 'paket-test-no-time',
+            'description' => 'Test package',
+            'price' => 100000.00,
+            'duration_hours' => 3.0,
+            'max_capacity' => 10,
+            'min_capacity' => 1,
+            'is_active' => true,
+        ]);
+
+        config(['midtrans.server_key' => 'test-server-key']);
+
+        $response = $this->actingAs($user)->postJson(route('tour-package.process', $package->id), [
+            'scheduled_date' => now()->addDay()->format('Y-m-d'),
+            'party_size'     => 2,
+            'guest_name'     => 'Test User',
+            'guest_email'    => 'test@example.com',
+            'guest_phone'    => '081234567890',
+        ]);
+
+        // Should NOT fail with "scheduled_time is required"
+        $response->assertJsonMissingValidationErrors(['scheduled_time']);
+    }
+
+    /**
+     * Test reservation has no scheduled_time column.
+     */
+    public function test_reservation_has_no_scheduled_time_column(): void
+    {
+        $this->assertFalse(
+            \Illuminate\Support\Facades\Schema::hasColumn('reservations', 'scheduled_time'),
+            'scheduled_time column should have been dropped'
+        );
+    }
 }

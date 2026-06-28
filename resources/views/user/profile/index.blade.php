@@ -81,17 +81,11 @@
                                 </div>
                             </div>
                             <div>
-                                <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{{ __('Jam') }}</div>
-                                <div class="text-charcoal text-sm font-bold">
-                                    {{ \Carbon\Carbon::parse($latestActiveBooking->scheduled_time)->format('H:i') }} WITA
-                                </div>
-                            </div>
-                            <div>
                                 <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{{ __('Peserta') }}</div>
                                 <div class="text-charcoal text-sm font-bold">{{ $latestActiveBooking->party_size }} {{ __('Orang') }}
                                 </div>
                             </div>
-                            <div>
+                            <div class="col-span-2">
                                 <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{{ __('Status') }}</div>
                                 <div class="text-sm font-bold text-green-600">{{ __('Aktif & Lunas') }}</div>
                             </div>
