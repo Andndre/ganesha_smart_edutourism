@@ -160,7 +160,7 @@ class AdminTest extends TestCase
                 'longitude' => 115.345,
                 'ar_marker_id' => 'MARKER_PURA_LUHUR',
                 'model_3d_file' => $modelFile,
-                'audio_narration_file' => $audioFile,
+                'cultural_audio_file' => ['en' => $audioFile],
                 'historical_images' => [$image1, $image2],
                 'has_story' => '1',
                 'story_title' => ['Kisah Sejarah Pura', 'Filosofi Bangunan'],
@@ -203,7 +203,7 @@ class AdminTest extends TestCase
             'name' => ['en' => 'Original Model', 'id' => 'Model Asli'],
             'description' => ['en' => 'Original description', 'id' => 'Deskripsi asli'],
             'model_3d_path' => 'models/original.glb',
-            'audio_narration_path' => 'audio/original.mp3',
+            'audio_narration_paths' => ['en' => 'audio/original.mp3'],
         ]);
 
         $modelFile2 = UploadedFile::fake()->create('updated_model.glb', 300);
@@ -247,7 +247,7 @@ class AdminTest extends TestCase
                 'longitude' => 115.666,
                 'ar_marker_id' => 'MARKER_PURA_LUHUR_UPDATED',
                 'model_3d_file' => $newModelFile,
-                'audio_narration_file' => $newAudioFile,
+                'cultural_audio_file' => ['en' => $newAudioFile],
                 'historical_images' => [$newImage],
                 'has_story' => '1',
                 'story_title' => ['Kisah Sejarah Pura Updated'],
@@ -311,7 +311,7 @@ class AdminTest extends TestCase
             'name' => ['en' => 'Audio Model', 'id' => 'Model Audio'],
             'description' => ['en' => 'Audio desc', 'id' => 'Deskripsi audio'],
             'model_3d_path' => 'models/audio_model.glb',
-            'audio_narration_path' => 'audio/old_audio.mp3',
+            'audio_narration_paths' => ['en' => 'audio/old_audio.mp3'],
         ]);
 
         $newAudio = UploadedFile::fake()->create('new_audio.mp3', 150);
@@ -325,7 +325,7 @@ class AdminTest extends TestCase
                 'longitude' => 115.6,
                 'ar_model_id' => (string) $audioModel->id,
                 'new_model_name' => ['en' => 'Audio Model Updated'],
-                'audio_narration_file' => $newAudio,
+                'audio_narration_file' => ['en' => $newAudio],
             ]);
         $responseAudioEdit->assertRedirect();
 

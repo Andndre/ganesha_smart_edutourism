@@ -146,8 +146,10 @@ class CulturalObjectController extends Controller
         $arModelId = $request->input('ar_model_id');
         $arMarkerId = $request->input('ar_marker_id');
 
+        $hasArAudio = collect(['en', 'id'])->contains(fn($l) => $request->hasFile("audio_narration_file.$l"));
+
         $shouldCreateNewModel = $arModelId === 'new' ||
-            (empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file') || $request->hasFile('audio_narration_file')));
+            (empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file') || $hasArAudio));
 
         if ($shouldCreateNewModel) {
             $submittedName = $request->input('new_model_name', []);
@@ -173,8 +175,14 @@ class CulturalObjectController extends Controller
                 $modelData['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')
                     ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
             }
-            if ($request->hasFile('audio_narration_file')) {
-                $modelData['audio_narration_path'] = $request->file('audio_narration_file')->store('audio', 'public');
+            $arAudioPaths = [];
+            foreach (['en', 'id'] as $locale) {
+                if ($request->hasFile("audio_narration_file.$locale")) {
+                    $arAudioPaths[$locale] = $request->file("audio_narration_file.$locale")->store('audio', 'public');
+                }
+            }
+            if ($arAudioPaths) {
+                $modelData['audio_narration_paths'] = $arAudioPaths;
             }
             if ($request->filled('ar_marker_patt_content') && $arMarkerId) {
                 $pattPath = 'ar-markers/'.$arMarkerId.'.patt';
@@ -220,13 +228,16 @@ class CulturalObjectController extends Controller
                     $modelData['model_3d_usdz_path'] = $newPath;
                 }
 
-                if ($request->hasFile('audio_narration_file')) {
-                    $newPath = $request->file('audio_narration_file')->store('audio', 'public');
-                    if ($arModel->audio_narration_path) {
-                        Storage::disk('public')->delete($arModel->audio_narration_path);
+                $existingAudioPaths = $arModel->audio_narration_paths ?? [];
+                foreach (['en', 'id'] as $locale) {
+                    if ($request->hasFile("audio_narration_file.$locale")) {
+                        if (!empty($existingAudioPaths[$locale])) {
+                            Storage::disk('public')->delete($existingAudioPaths[$locale]);
+                        }
+                        $existingAudioPaths[$locale] = $request->file("audio_narration_file.$locale")->store('audio', 'public');
                     }
-                    $modelData['audio_narration_path'] = $newPath;
                 }
+                $modelData['audio_narration_paths'] = $existingAudioPaths ?: null;
 
                 $arModel->update($modelData);
             }
@@ -372,8 +383,10 @@ class CulturalObjectController extends Controller
         $arModelId = $request->input('ar_model_id');
         $arMarkerId = $request->input('ar_marker_id');
 
+        $hasArAudio = collect(['en', 'id'])->contains(fn($l) => $request->hasFile("audio_narration_file.$l"));
+
         $shouldCreateNewModel = $arModelId === 'new' ||
-            ($arModelId !== 'none' && empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file') || $request->hasFile('audio_narration_file')));
+            ($arModelId !== 'none' && empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file') || $hasArAudio));
 
         if ($shouldCreateNewModel) {
             $submittedName = $request->input('new_model_name', []);
@@ -399,8 +412,14 @@ class CulturalObjectController extends Controller
                 $modelData['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')
                     ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
             }
-            if ($request->hasFile('audio_narration_file')) {
-                $modelData['audio_narration_path'] = $request->file('audio_narration_file')->store('audio', 'public');
+            $arAudioPaths = [];
+            foreach (['en', 'id'] as $locale) {
+                if ($request->hasFile("audio_narration_file.$locale")) {
+                    $arAudioPaths[$locale] = $request->file("audio_narration_file.$locale")->store('audio', 'public');
+                }
+            }
+            if ($arAudioPaths) {
+                $modelData['audio_narration_paths'] = $arAudioPaths;
             }
             if ($request->filled('ar_marker_patt_content') && $arMarkerId) {
                 $pattPath = 'ar-markers/'.$arMarkerId.'.patt';
@@ -446,13 +465,16 @@ class CulturalObjectController extends Controller
                     $modelData['model_3d_usdz_path'] = $newPath;
                 }
 
-                if ($request->hasFile('audio_narration_file')) {
-                    $newPath = $request->file('audio_narration_file')->store('audio', 'public');
-                    if ($arModel->audio_narration_path) {
-                        Storage::disk('public')->delete($arModel->audio_narration_path);
+                $existingAudioPaths = $arModel->audio_narration_paths ?? [];
+                foreach (['en', 'id'] as $locale) {
+                    if ($request->hasFile("audio_narration_file.$locale")) {
+                        if (!empty($existingAudioPaths[$locale])) {
+                            Storage::disk('public')->delete($existingAudioPaths[$locale]);
+                        }
+                        $existingAudioPaths[$locale] = $request->file("audio_narration_file.$locale")->store('audio', 'public');
                     }
-                    $modelData['audio_narration_path'] = $newPath;
                 }
+                $modelData['audio_narration_paths'] = $existingAudioPaths ?: null;
 
                 $arModel->update($modelData);
             }

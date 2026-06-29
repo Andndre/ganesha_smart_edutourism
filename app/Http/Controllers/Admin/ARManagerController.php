@@ -48,10 +48,14 @@ class ARManagerController extends Controller
             $modelData['model_3d_usdz_path'] = $file->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
         }
 
-        if ($tmpUuid = $request->input('tmp_audio_narration_path')) {
-            $modelData['audio_narration_path'] = TusService::moveFromTemp($tmpUuid, 'audio');
-        } elseif ($request->hasFile('audio_narration_file')) {
-            $modelData['audio_narration_path'] = $request->file('audio_narration_file')->store('audio', 'public');
+        $audioPaths = [];
+        foreach (['en', 'id'] as $locale) {
+            if ($request->hasFile("audio_narration_file.$locale")) {
+                $audioPaths[$locale] = $request->file("audio_narration_file.$locale")->store('audio', 'public');
+            }
+        }
+        if ($audioPaths) {
+            $modelData['audio_narration_paths'] = $audioPaths;
         }
 
         if ($request->filled('ar_marker_patt_content') && ! empty($validated['ar_marker_id'])) {
@@ -124,17 +128,16 @@ class ARManagerController extends Controller
                 ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
         }
 
-        if ($tmpUuid = $request->input('tmp_audio_narration_path')) {
-            if ($model->audio_narration_path) {
-                Storage::disk('public')->delete($model->audio_narration_path);
+        $audioPaths = $model->audio_narration_paths ?? [];
+        foreach (['en', 'id'] as $locale) {
+            if ($request->hasFile("audio_narration_file.$locale")) {
+                if (!empty($audioPaths[$locale])) {
+                    Storage::disk('public')->delete($audioPaths[$locale]);
+                }
+                $audioPaths[$locale] = $request->file("audio_narration_file.$locale")->store('audio', 'public');
             }
-            $model->audio_narration_path = TusService::moveFromTemp($tmpUuid, 'audio');
-        } elseif ($request->hasFile('audio_narration_file')) {
-            if ($model->audio_narration_path) {
-                Storage::disk('public')->delete($model->audio_narration_path);
-            }
-            $model->audio_narration_path = $request->file('audio_narration_file')->store('audio', 'public');
         }
+        $model->audio_narration_paths = $audioPaths ?: null;
 
         if ($request->filled('ar_marker_patt_content') && ! empty($validated['ar_marker_id'])) {
             if ($model->ar_marker_patt_path) {
@@ -161,10 +164,13 @@ class ARManagerController extends Controller
     {
         $model = ArModel::findOrFail($id);
 
-        foreach (['model_3d_path', 'model_3d_usdz_path', 'audio_narration_path', 'ar_marker_patt_path', 'thumbnail_path'] as $file) {
+        foreach (['model_3d_path', 'model_3d_usdz_path', 'ar_marker_patt_path', 'thumbnail_path'] as $file) {
             if ($model->$file) {
                 Storage::disk('public')->delete($model->$file);
             }
+        }
+        foreach ($model->audio_narration_paths ?? [] as $path) {
+            if ($path) Storage::disk('public')->delete($path);
         }
 
         $model->delete();

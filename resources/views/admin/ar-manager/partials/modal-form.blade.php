@@ -133,26 +133,26 @@
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-gray-700">Audio Narasi (.mp3 / .ogg / .wav)</label>
-                <span class="mb-1 block text-[10px] text-gray-400">Maksimal 10MB. Diputar otomatis di web viewer saat
-                    model dimuat.</span>
-                <input type="file" name="audio_narration_file" id="model-field-audio-file" accept="audio/*"
-                    class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:outline-none">
-                @error('audio_narration_file')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
-                <input type="hidden" name="tmp_audio_narration_path" id="model-field-tmp-audio" value="">
-                <div id="model-audio-progress" class="mt-2 hidden tus-progress-container">
-                    <div class="flex items-center gap-2">
-                        <span class="tus-status-icon"></span>
-                        <span class="tus-progress-text flex-1 text-[10px] text-gray-500"></span>
+                <label class="block text-sm font-semibold text-gray-700">Audio Narasi (ID) / (EN)</label>
+                <span class="mb-2 block text-[10px] text-gray-400">Maksimal 10MB per file. Diputar otomatis di web viewer.</span>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <span class="mb-1 block text-[10px] font-semibold text-gray-500">Audio (ID)</span>
+                        <input type="file" name="audio_narration_file[id]" id="model-field-audio-file-id" accept=".mp3,.ogg,.wav,.m4a,audio/*"
+                            class="focus:border-primary w-full rounded-xl border border-gray-200 px-3 py-2 text-xs focus:outline-none"
+                            onchange="var maxSize=10*1024*1024;if(this.files[0]&&this.files[0].size>maxSize){Swal.fire({title:'File Terlalu Besar',text:'Maksimal 10MB per file audio.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value=''}">
+                        @include('admin.partials.mini-audio-player', ['playerId' => 'edit-current-audio-id'])
                     </div>
-                    <div class="mt-1 h-1 w-full overflow-hidden rounded-full bg-gray-200">
-                        <div class="tus-progress-bar h-full rounded-full bg-primary transition-all duration-300" style="width:0%"></div>
+                    <div>
+                        <span class="mb-1 block text-[10px] font-semibold text-gray-500">Audio (EN)</span>
+                        <input type="file" name="audio_narration_file[en]" id="model-field-audio-file-en" accept=".mp3,.ogg,.wav,.m4a,audio/*"
+                            class="focus:border-primary w-full rounded-xl border border-gray-200 px-3 py-2 text-xs focus:outline-none"
+                            onchange="var maxSize=10*1024*1024;if(this.files[0]&&this.files[0].size>maxSize){Swal.fire({title:'File Terlalu Besar',text:'Maksimal 10MB per file audio.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value=''}">
+                        @include('admin.partials.mini-audio-player', ['playerId' => 'edit-current-audio-en'])
                     </div>
                 </div>
-                <p id="edit-current-audio-container" class="mt-1.5 hidden text-[10px] text-gray-500">
-                    File aktif: <span id="edit-current-audio-path"
-                        class="text-primary rounded border border-gray-100 bg-gray-50 px-1 py-0.5 font-mono font-semibold"></span>
-                </p>
+                @error('audio_narration_file.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                @error('audio_narration_file.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 <div class="mt-2 flex gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3">
                     <svg class="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2">

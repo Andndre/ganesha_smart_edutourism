@@ -116,13 +116,14 @@ function openModelModal() {
     document.getElementById('model-field-glb-file').value = "";
     document.getElementById('glb-required-asterisk').style.display = 'inline';
     document.getElementById('model-field-usdz-file').value = "";
-    document.getElementById('model-field-audio-file').value = "";
+    document.getElementById('model-field-audio-file-en').value = "";
+    document.getElementById('model-field-audio-file-id').value = "";
+    document.getElementById('edit-current-audio-en')?.classList.add('hidden');
+    document.getElementById('edit-current-audio-id')?.classList.add('hidden');
     document.getElementById('edit-current-glb-container')?.classList.add('hidden');
     document.getElementById('edit-current-usdz-container')?.classList.add('hidden');
-    document.getElementById('edit-current-audio-container')?.classList.add('hidden');
     document.getElementById('model-field-tmp-glb').value = '';
     document.getElementById('model-field-tmp-usdz').value = '';
-    document.getElementById('model-field-tmp-audio').value = '';
     document.getElementById('modal-marker-preview-wrapper')?.classList.add('hidden');
     currentModalMarkerCanvasMap = null;
     resetModal3DViewerMap();
@@ -253,6 +254,5 @@ function downloadARMarkerFromModal() {
 
     initChunkedUpload('model-field-glb-file', 'model-field-tmp-glb', 'model-glb-progress', 20 * 1024 * 1024, ['.glb']);
     initChunkedUpload('model-field-usdz-file', 'model-field-tmp-usdz', 'model-usdz-progress', 50 * 1024 * 1024, ['.usdz']);
-    initChunkedUpload('model-field-audio-file', 'model-field-tmp-audio', 'model-audio-progress', 10 * 1024 * 1024, ['.mp3', '.ogg', '.wav']);
 })();
 </script>

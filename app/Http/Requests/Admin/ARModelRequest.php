@@ -24,7 +24,9 @@ class ARModelRequest extends FormRequest
             'description.id' => ['nullable', 'string'],
             'ar_marker_patt_content' => ['nullable', 'string'],
             'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
-            'audio_narration_file' => ['nullable', 'file', 'max:10240'],
+            'audio_narration_file' => ['nullable', 'array'],
+            'audio_narration_file.en' => ['nullable', 'file', 'mimes:mp3,ogg,wav,m4a', 'max:10240'],
+            'audio_narration_file.id' => ['nullable', 'file', 'mimes:mp3,ogg,wav,m4a', 'max:10240'],
         ];
 
         // Store: require model_3d_file unless tmp path provided
