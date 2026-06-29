@@ -439,7 +439,7 @@
                     this.open = false;
                 },
                 selectById(id) {
-                    const c = this.items.find(x => x.id == id);
+                    const c = this.items.find(x => x.id === id);
                     if (c) this.select(c);
                 },
                 openCreate() {
@@ -502,7 +502,7 @@
         }
 
         function openCategoryEdit(id) {
-            const cat = Alpine.$data(productForm).items.find(c => c.id == id);
+            const cat = Alpine.$data(productForm).items.find(c => c.id === id);
             if (!cat) return;
             categoryModalTitle.innerText = "{{ __('Ubah Kategori') }}";
             categoryForm.reset();
