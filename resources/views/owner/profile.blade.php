@@ -73,10 +73,6 @@
                             <span class="font-mono">{{ $profile->owner_name }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="font-medium text-gray-600">AR Marker ID:</span>
-                            <span class="font-mono">{{ $profile->ar_marker_id }}</span>
-                        </div>
-                        <div class="flex justify-between">
                             <span class="font-medium text-gray-600">Rating Toko:</span>
                             <span class="font-semibold text-charcoal">{{ number_format($profile->rating ?? 5.0, 1) }} /
                                 5.0</span>
