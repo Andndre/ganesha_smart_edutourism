@@ -28,7 +28,7 @@
         const mapEl = document.getElementById('location-map');
         if (!mapEl) return;
         
-        map = L.map('location-map', { zoomControl: true, attributionControl: false, gestureHandling: true })
+        map = L.map('location-map', { zoomControl: true, attributionControl: false })
             .setView([PENGLIPURAN_LAT, PENGLIPURAN_LNG], PENGLIPURAN_ZOOM);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

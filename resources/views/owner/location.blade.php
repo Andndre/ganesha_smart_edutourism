@@ -138,7 +138,6 @@
     @if ($profile)
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-        <script src="https://unpkg.com/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
         <script>
             const PENGLIPURAN_LAT = {{ config('services.penglipuran.latitude') }};
             const PENGLIPURAN_LNG = {{ config('services.penglipuran.longitude') }};
@@ -159,7 +158,7 @@
                 const initialLng = savedLng || PENGLIPURAN_LNG;
                 const initialZoom = savedLat ? 18 : PENGLIPURAN_ZOOM;
 
-                map = L.map('location-map', { zoomControl: true, attributionControl: false, gestureHandling: true })
+                map = L.map('location-map', { zoomControl: true, attributionControl: false })
                     .setView([initialLat, initialLng], initialZoom);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
