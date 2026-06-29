@@ -9,7 +9,7 @@
             width: 100%;
             height: 180px;
             background: radial-gradient(circle, #f9fafb 0%, #f3f4f6 100%);
-            border: 1px border-dashed #d1d5db;
+            border: 1px dashed #d1d5db;
             border-radius: 12px;
             overflow: hidden;
         }
