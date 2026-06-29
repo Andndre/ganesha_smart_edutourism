@@ -110,7 +110,7 @@
                         'ar_marker_id' => $m->ar_marker_id,
                         'model_3d_path' => $m->model_3d_path,
                         'model_3d_usdz_path' => $m->model_3d_usdz_path,
-                        'audio_narration_path' => $m->audio_narration_path,
+                        'audio_narration_paths' => $m->audio_narration_paths ?? [],
                         'map_location' => $m->mapLocation ? [
                             'name' => $m->mapLocation->name,
                             'locationable' => $m->mapLocation->locationable ? [
@@ -148,6 +148,57 @@
 @endsection
 
 @push('scripts')
+    <script>
+    if (!window.toggleMiniAudio) {
+        window.toggleMiniAudio = function(btn) {
+            const row = btn.parentElement;
+            const audio = row.querySelector('.mini-audio-el');
+            if (!audio) return;
+            const playIcon = btn.querySelector('.mini-audio-play');
+            const pauseIcon = btn.querySelector('.mini-audio-pause');
+            document.querySelectorAll('.mini-audio-el').forEach(function(a) {
+                if (a === audio) return;
+                a.pause();
+                const b = a.parentElement?.querySelector('.mini-audio-btn');
+                if (b) { b.querySelector('.mini-audio-play')?.classList.remove('hidden'); b.querySelector('.mini-audio-pause')?.classList.add('hidden'); }
+            });
+            if (audio.paused) {
+                audio.play();
+                playIcon?.classList.add('hidden');
+                pauseIcon?.classList.remove('hidden');
+                audio.onended = function() { playIcon?.classList.remove('hidden'); pauseIcon?.classList.add('hidden'); };
+            } else {
+                audio.pause();
+                playIcon?.classList.remove('hidden');
+                pauseIcon?.classList.add('hidden');
+            }
+        };
+    }
+    if (!window.setMiniAudio) {
+        window.setMiniAudio = function(id, path) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const name = path.split('/').pop();
+            el.querySelector('.mini-audio-name').textContent = name;
+            el.querySelector('.mini-audio-name').title = name;
+            el.querySelector('.mini-audio-el').src = '/audio-stream/' + path;
+            el.querySelector('.mini-audio-play')?.classList.remove('hidden');
+            el.querySelector('.mini-audio-pause')?.classList.add('hidden');
+            el.classList.remove('hidden');
+        };
+    }
+    if (!window.resetMiniAudio) {
+        window.resetMiniAudio = function(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const audio = el.querySelector('.mini-audio-el');
+            if (audio) { audio.pause(); audio.src = ''; }
+            el.querySelector('.mini-audio-play')?.classList.remove('hidden');
+            el.querySelector('.mini-audio-pause')?.classList.add('hidden');
+            el.classList.add('hidden');
+        };
+    }
+    </script>
     <x-tiptap-editor-script />
 
     {{-- Google Model Viewer --}}
@@ -235,13 +286,13 @@
             document.getElementById('model-field-glb-file').value = "";
             document.getElementById('glb-required-asterisk').style.display = 'inline';
             document.getElementById('model-field-usdz-file').value = "";
-            document.getElementById('model-field-audio-file').value = "";
+            document.getElementById('model-field-audio-file-en').value = "";
+            document.getElementById('model-field-audio-file-id').value = "";
+            ['edit-current-audio-en', 'edit-current-audio-id'].forEach(window.resetMiniAudio);
             document.getElementById('edit-current-glb-container').classList.add('hidden');
             document.getElementById('edit-current-usdz-container').classList.add('hidden');
-            document.getElementById('edit-current-audio-container').classList.add('hidden');
             document.getElementById('model-field-tmp-glb').value = '';
             document.getElementById('model-field-tmp-usdz').value = '';
-            document.getElementById('model-field-tmp-audio').value = '';
             document.getElementById('modal-marker-preview-wrapper').classList.add('hidden');
             currentModalMarkerCanvas = null;
             resetModal3DViewer();
@@ -264,7 +315,6 @@
             document.getElementById('model-field-patt-content').value = "";
             document.getElementById('model-field-tmp-glb').value = '';
             document.getElementById('model-field-tmp-usdz').value = '';
-            document.getElementById('model-field-tmp-audio').value = '';
 
             const descEn = (typeof model.description === 'object') ? (model.description?.en || "") : (model.description || "");
             const descId = (typeof model.description === 'object') ? (model.description?.id || "") : (model.description || "");
@@ -277,7 +327,8 @@
             document.getElementById('model-field-glb-file').required = false;
             document.getElementById('glb-required-asterisk').style.display = 'none';
             document.getElementById('model-field-usdz-file').value = "";
-            document.getElementById('model-field-audio-file').value = "";
+            document.getElementById('model-field-audio-file-en').value = "";
+            document.getElementById('model-field-audio-file-id').value = "";
 
             const glbContainer = document.getElementById('edit-current-glb-container');
             if (model.model_3d_path) {
@@ -297,14 +348,14 @@
                 usdzContainer.classList.add('hidden');
             }
 
-            const audioContainer = document.getElementById('edit-current-audio-container');
-            if (model.audio_narration_path) {
-                document.getElementById('edit-current-audio-path').textContent = model.audio_narration_path.split('/')
-                    .pop();
-                audioContainer.classList.remove('hidden');
-            } else {
-                audioContainer.classList.add('hidden');
-            }
+            ['en', 'id'].forEach(function(locale) {
+                const path = model.audio_narration_paths && model.audio_narration_paths[locale];
+                if (path) {
+                    window.setMiniAudio('edit-current-audio-' + locale, path);
+                } else {
+                    window.resetMiniAudio('edit-current-audio-' + locale);
+                }
+            });
 
             // Regenerate marker preview if marker ID exists
             if (model.ar_marker_id) {
@@ -348,8 +399,6 @@
             initChunkedUpload('model-field-glb-file', 'model-field-tmp-glb', 'model-glb-progress', 20 * 1024 * 1024, ['.glb']);
             // USDZ
             initChunkedUpload('model-field-usdz-file', 'model-field-tmp-usdz', 'model-usdz-progress', 50 * 1024 * 1024, ['.usdz']);
-            // Audio
-            initChunkedUpload('model-field-audio-file', 'model-field-tmp-audio', 'model-audio-progress', 10 * 1024 * 1024, ['.mp3', '.ogg', '.wav']);
         });
 
         function setupModal3DViewer(src) {

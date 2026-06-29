@@ -39,8 +39,9 @@ class CulturalObject extends Model
     /**
      * Override attributesToArray to handle Spatie translatable attributes.
      * Spatie's getAttributeValue() override is not called by Laravel's default
-     * attributesToArray(), so translatable fields (name, short_description,
-     * description) would be serialized as raw JSON strings in toArray() output.
+     * attributesToArray(), so translatable fields would be serialized as raw JSON
+     * strings in toArray() output. We use getTranslations() to return all locales
+     * as ['en' => ..., 'id' => ...] instead of a single-locale string.
      */
     public function attributesToArray(): array
     {
@@ -48,7 +49,7 @@ class CulturalObject extends Model
 
         foreach ($this->getTranslatableAttributes() as $key) {
             if (array_key_exists($key, $attributes)) {
-                $attributes[$key] = $this->getAttributeValue($key);
+                $attributes[$key] = $this->getTranslations($key);
             }
         }
 
@@ -152,9 +153,7 @@ class CulturalObject extends Model
     {
         $locale = app()->getLocale();
         $paths = $this->audio_narration_paths ?? [];
-        return $paths[$locale]
-            ?? $paths[config('app.fallback_locale', 'en')]
-            ?? $this->mapLocation?->arModel?->audio_narration_path;
+        return $paths[$locale] ?? $paths[config('app.fallback_locale', 'en')] ?? null;
     }
 
     /**

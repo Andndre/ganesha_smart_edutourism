@@ -131,7 +131,7 @@ translateValue($model->name)          // uses current locale with fallback
 translateValue($model->name, 'en')    // explicit locale
 ```
 
-**`CulturalObject::attributesToArray()` override** — Spatie's `getAttributeValue()` is not called by Laravel's default `attributesToArray()`, so translatable fields would serialize as raw JSON strings in `toArray()` output. `CulturalObject` overrides this to apply `getAttributeValue()` per translatable field. **If you add a new model that is serialized to JSON (e.g., for `@json()` in Blade), check whether it needs this same override.**
+**`CulturalObject::attributesToArray()` override** — Spatie's `getAttributeValue()` is not called by Laravel's default `attributesToArray()`, so translatable fields would serialize as raw JSON strings in `toArray()` output. `CulturalObject` overrides this to call `getTranslations($key)` instead, returning `['en' => ..., 'id' => ...]` for each field. Consumers like `CulturalController::resolveTrans()` check `is_array()` before resolving to a single locale. **If you add a new model that is serialized to JSON (e.g., for `@json()` in Blade), check whether it needs this same override.**
 
 ### Locale Switching
 `SetUserLocale` middleware (applied globally) sets app locale in this priority order:

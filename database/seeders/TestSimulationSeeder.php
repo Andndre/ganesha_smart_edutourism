@@ -98,11 +98,14 @@ class TestSimulationSeeder extends Seeder
                 continue;
             }
 
+            // ponytail: seed content is Indonesian — file it under the `id` locale
+            // explicitly. Passing a bare string lets Spatie store it under the
+            // current app locale (en), which is what corrupted the EN/ID tabs.
             $cultural = CulturalObject::create([
-                'name' => $obj['name'],
+                'name' => ['id' => $obj['name']],
                 'slug' => $obj['slug'],
-                'short_description' => $obj['short_description'],
-                'description' => $obj['description'],
+                'short_description' => ['id' => $obj['short_description']],
+                'description' => ['id' => $obj['description']],
                 'category' => $obj['category'],
             ]);
 
