@@ -195,17 +195,17 @@
         <div class="mb-4">
             <h3 id="modal-title" class="font-display text-charcoal text-lg font-bold">Tambah Produk UMKM</h3>
         </div>
-        <form id="modal-form" method="POST" action="" enctype="multipart/form-data" x-data="{ locale: 'en' }">
+        <form id="modal-form" method="POST" action="" enctype="multipart/form-data" x-data="{ locale: 'id' }">
             @csrf
             <div id="method-container"></div>
             <input type="hidden" name="product_id" id="field-product-id" value="">
             <div class="space-y-4">
                 {{-- Locale tabs --}}
                 <div class="sticky top-0 z-10 bg-white py-2.5 border-b border-gray-100 mb-4 flex gap-2">
-                    <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-                        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">English</button>
                     <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
                         class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">Indonesia</button>
+                    <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+                        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">English</button>
                 </div>
 
                 {{-- Name --}}

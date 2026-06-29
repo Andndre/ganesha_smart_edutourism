@@ -51,12 +51,12 @@ window.submitModelForm = async function (e) {
     submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
 
     try {
-        var formData = new FormData(e.target);
+        const formData = new FormData(e.target);
         console.log('[AR-MODEL] Fetching:', e.target.action);
-        var resp = await fetch(e.target.action, {
+        const resp = await fetch(e.target.action, {
             method: 'POST',
             body: formData,
-            headers: { 'Accept': 'application/json' },
+            headers: {'Accept': 'application/json'},
         });
         console.log('[AR-MODEL] Response status:', resp.status, resp.ok);
 

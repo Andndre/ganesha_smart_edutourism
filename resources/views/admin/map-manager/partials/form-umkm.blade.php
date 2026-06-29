@@ -1,17 +1,17 @@
 {{-- FORM 2: UMKM Profile --}}
 <form id="form-umkm" action="{{ route('admin.umkm.profile.store') }}" method="POST" class="hidden space-y-4"
-    x-data="{ locale: 'en' }">
+    x-data="{ locale: 'id' }">
     @csrf
     <div id="method-umkm"></div>
 
     {{-- Locale tabs --}}
     <div class="sticky top-0 z-10 -mx-6 mb-4 flex gap-2 border-b border-gray-100 bg-white px-6 py-3">
-        <button @click="locale = 'en'"
-            :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-            class="rounded-xl px-4 py-2 text-sm font-semibold transition-all" type="button">English</button>
         <button @click="locale = 'id'"
             :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
             class="rounded-xl px-4 py-2 text-sm font-semibold transition-all" type="button">Indonesia</button>
+        <button @click="locale = 'en'"
+            :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+            class="rounded-xl px-4 py-2 text-sm font-semibold transition-all" type="button">English</button>
     </div>
 
     {{-- Business Name --}}

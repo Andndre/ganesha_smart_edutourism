@@ -545,6 +545,7 @@
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
     <script src="{{ asset('js/chunked-upload.js') }}"></script>
+    @include('admin.partials.translate-button')
     @livewireScripts
     @stack('scripts')
 </body>

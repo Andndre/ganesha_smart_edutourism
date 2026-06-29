@@ -39,6 +39,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\SmartEdutourismController;
 use App\Http\Controllers\TourPackageController;
+use App\Http\Controllers\TranslateController;
 use App\Http\Controllers\UmkmCatalogController;
 use Illuminate\Support\Facades\Route;
 
@@ -164,6 +165,10 @@ Route::prefix('staff')->middleware(['auth', 'staff'])->group(function () {
     Route::post('/ticketing/pay/{reservation}', [TicketingController::class, 'getSnapToken'])->name('staff.ticketing.pay');
     Route::post('/ticketing/cancel/{reservation}', [TicketingController::class, 'cancel'])->name('staff.ticketing.cancel');
 });
+
+// Translation proxy (LibreTranslate) — used by admin multilingual form auto-translate
+Route::post('/translate', TranslateController::class)
+    ->middleware('auth')->name('translate');
 
 // Admin Routes
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
