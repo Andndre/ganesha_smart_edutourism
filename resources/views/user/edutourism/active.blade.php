@@ -115,23 +115,17 @@
         (function() {
                 let mapInstance = null;
                 let watchId = null;
+                const hasCurrentPoint = @json((bool) $activeSession->currentPoint);
+                const targetLat = {{ $activeSession->currentPoint?->locationable->mapLocation->latitude ?? 0 }};
+                const targetLng = {{ $activeSession->currentPoint?->locationable->mapLocation->longitude ?? 0 }};
 
                 const initActiveEdutourism = function() {
                     const mapEl = document.getElementById('map');
                     if (mapEl && !mapInstance) {
-                        @if ($activeSession->currentPoint)
-                            const targetLat =
-                                {{ $activeSession->currentPoint->locationable->mapLocation->latitude ?? 0 }};
-                            const targetLng =
-                                {{ $activeSession->currentPoint->locationable->mapLocation->longitude ?? 0 }};
-                        @else
-                            const targetLat = 0;
-                            const targetLng = 0;
-
-                            // Fire confetti when mission is completed
-                            var duration = 3 * 1000;
-                            var animationEnd = Date.now() + duration;
-                            var defaults = {
+                        if (!hasCurrentPoint) {
+                            const duration = 3 * 1000;
+                            const animationEnd = Date.now() + duration;
+                            const defaults = {
                                 startVelocity: 30,
                                 spread: 360,
                                 ticks: 60,
@@ -142,14 +136,15 @@
                                 return Math.random() * (max - min) + min;
                             }
 
-                            var interval = setInterval(function() {
-                                var timeLeft = animationEnd - Date.now();
+                            const interval = setInterval(function() {
+                                const timeLeft = animationEnd - Date.now();
 
                                 if (timeLeft <= 0) {
-                                    return clearInterval(interval);
+                                    clearInterval(interval);
+                                    return;
                                 }
 
-                                var particleCount = 50 * (timeLeft / duration);
+                                const particleCount = 50 * (timeLeft / duration);
                                 confetti(Object.assign({}, defaults, {
                                     particleCount,
                                     origin: {
@@ -165,7 +160,7 @@
                                     }
                                 }));
                             }, 250);
-                        @endif
+                        }
 
                         const map = L.map(mapEl, {
                             zoomControl: false
@@ -214,16 +209,18 @@
                                 const infoText = document.getElementById('distance-info');
                                 const arriveBtn = document.getElementById('btn-arrive');
 
-                                if (dist < 30) {
-                                    infoText.innerHTML = `{{ __('Lokasi Ditemukan!') }} ({{ __('Jarak') }}: ${dist}m)`;
-                                    arriveBtn.disabled = false;
-                                    arriveBtn.classList.remove('opacity-50');
-                                    arriveBtn.textContent = '{{ __('Jawab Pertanyaan & Lanjut') }}';
-                                } else {
-                                    infoText.textContent = `{{ __('Jarak') }}: ${dist} {{ __('meter') }}`;
-                                    arriveBtn.disabled = true;
-                                    arriveBtn.classList.add('opacity-50');
-                                    arriveBtn.textContent = '{{ __('Mendekati Lokasi...') }}';
+                                if (infoText && arriveBtn) {
+                                    if (dist < 30) {
+                                        infoText.innerHTML = `{{ __('Lokasi Ditemukan!') }} ({{ __('Jarak') }}: ${dist}m)`;
+                                        arriveBtn.disabled = false;
+                                        arriveBtn.classList.remove('opacity-50');
+                                        arriveBtn.textContent = '{{ __('Jawab Pertanyaan & Lanjut') }}';
+                                    } else {
+                                        infoText.textContent = `{{ __('Jarak') }}: ${dist} {{ __('meter') }}`;
+                                        arriveBtn.disabled = true;
+                                        arriveBtn.classList.add('opacity-50');
+                                        arriveBtn.textContent = '{{ __('Mendekati Lokasi...') }}';
+                                    }
                                 }
                             }
                         }
@@ -415,6 +412,7 @@
                         delete window.submitQuiz;
                         document.removeEventListener('livewire:navigating', cleanup);
                     });
-                })();
+                }
+        })();
     </script>
 @endsection

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('reservations', function (Blueprint $table) {
             $table->timestamp('checked_in_at')->nullable()->after('qr_code');
-            $table->foreignId('checked_in_by')->nullable()->constrained('users')->after('checked_in_at');
+            $table->foreignId('checked_in_by')->nullable()->after('checked_in_at')->constrained('users');
             $table->index('checked_in_at');
         });
     }

@@ -376,6 +376,11 @@
 
         {{-- Footer: User info + Logout --}}
         <div class="border-t border-white/10 p-4">
+            @if (auth()->user()?->isAdmin())
+                <div class="mb-3 px-1">
+                    @include('layouts.partials.admin-bell', ['dark' => true])
+                </div>
+            @endif
             <div class="mb-3 flex items-center gap-3 px-1">
                 <div
                     class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
@@ -414,8 +419,13 @@
             </svg>
         </button>
         <h1 class="text-sm font-bold text-charcoal">@yield('title', 'Dashboard')</h1>
-        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
-            {{ strtoupper(substr(auth()->user()?->name ?? 'U', 0, 1)) }}
+        <div class="flex items-center gap-2">
+            @if (auth()->user()?->isAdmin())
+                @include('layouts.partials.admin-bell')
+            @endif
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
+                {{ strtoupper(substr(auth()->user()?->name ?? 'U', 0, 1)) }}
+            </div>
         </div>
     </header>
 

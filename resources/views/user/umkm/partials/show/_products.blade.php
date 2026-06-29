@@ -5,20 +5,17 @@
     <div class="space-y-3">
         @forelse($umkm->activeProducts as $product)
             <div @click="$dispatch('open-product-modal', {{ json_encode([
-                'name' => $product->name,
-                'category' => $product->category->name ?? __('Produk'),
-                'price' => 'Rp ' . number_format($product->price, 0, ',', '.'),
-                'image' => $product->image_path ? asset('storage/' . $product->image_path) : ($product->images[0] ?? null ? asset('storage/' . ($product->images[0])) : ''),
-                'description' => $product->description ?? __('Tidak ada deskripsi.'),
+                'name' => $product->display_name,
+                'category' => translateValue($product->category?->name) ?? __('Produk'),
+                'price' => $product->display_price !== null ? 'Rp ' . number_format($product->display_price, 0, ',', '.') : '',
+                'image' => $product->display_image ? asset('storage/' . $product->display_image) : '',
+                'description' => $product->display_description ?? __('Tidak ada deskripsi.'),
             ]) }})"
                 class="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-100 p-3 transition-colors hover:border-primary/20 hover:bg-primary/5 active:bg-gray-50">
                 <div
                     class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100 text-gray-400">
-                    @php
-                        $prodImg = $product->image_path ?: ($product->images[0] ?? null);
-                    @endphp
-                    @if ($prodImg)
-                        <img src="{{ asset('storage/' . $prodImg) }}" alt="{{ $product->name }}"
+                    @if ($product->display_image)
+                        <img src="{{ asset('storage/' . $product->display_image) }}" alt="{{ $product->display_name }}"
                             class="h-full w-full object-cover">
                     @else
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -28,11 +25,13 @@
                     @endif
                 </div>
                 <div class="flex-1 min-w-0">
-                    <h4 class="text-charcoal line-clamp-2 text-sm font-bold">{{ $product->name }}</h4>
-                    <p class="mt-0.5 text-xs text-gray-500">{{ $product->category->name ?? __('Produk') }}</p>
+                    <h4 class="text-charcoal line-clamp-2 text-sm font-bold">{{ $product->display_name }}</h4>
+                    <p class="mt-0.5 text-xs text-gray-500">{{ translateValue($product->category?->name) ?? __('Produk') }}</p>
                 </div>
                 <div class="text-primary shrink-0 text-sm font-bold">
-                    Rp {{ number_format($product->price, 0, ',', '.') }}
+                    @if ($product->display_price !== null)
+                        Rp {{ number_format($product->display_price, 0, ',', '.') }}
+                    @endif
                 </div>
             </div>
         @empty

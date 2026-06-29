@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 use NotificationChannels\WebPush\HasPushSubscriptions;
@@ -104,7 +105,7 @@ class User extends Authenticatable
     /**
      * Get all favorited models as a collection.
      */
-    public function favoriteItems()
+    public function favoriteItems(): Collection
     {
         return $this->favorites()->with('favoritable')->get()->pluck('favoritable');
     }
@@ -112,7 +113,7 @@ class User extends Authenticatable
     /**
      * Get all visited models as a collection.
      */
-    public function visitedItems()
+    public function visitedItems(): Collection
     {
         return $this->visits()->with('visitable')->get()->pluck('visitable');
     }

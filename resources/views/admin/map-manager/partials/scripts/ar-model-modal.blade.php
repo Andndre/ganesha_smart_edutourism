@@ -33,7 +33,7 @@ window.submitModelForm = async function (e) {
 
     // Inject thumbnail data if captured
     if (pendingThumbnailDataMap) {
-        var input = document.getElementById('thumbnail-data-input');
+        let input = document.getElementById('thumbnail-data-input');
         if (!input) {
             input = document.createElement('input');
             input.type = 'hidden';
@@ -44,7 +44,7 @@ window.submitModelForm = async function (e) {
         input.value = pendingThumbnailDataMap;
     }
 
-    var submitBtn = document.getElementById('model-submit-btn');
+    const submitBtn = document.getElementById('model-submit-btn');
     if (!submitBtn) return;
     submitBtn.disabled = true;
     submitBtn.textContent = 'Menyimpan...';
@@ -61,11 +61,13 @@ window.submitModelForm = async function (e) {
         console.log('[AR-MODEL] Response status:', resp.status, resp.ok);
 
         if (!resp.ok) {
-            var errData = await resp.json().catch(function () { return {}; });
+            const errData = await resp.json().catch(function () {
+                return {};
+            });
             throw new Error(errData.message || errData.title || 'Gagal menyimpan');
         }
 
-        var data = await resp.json();
+        const data = await resp.json();
 
         console.log('[AR-MODEL] Response data:', data);
         if (data.success && data.model) {
@@ -78,7 +80,7 @@ window.submitModelForm = async function (e) {
         }
     } catch (err) {
         console.error('[AR-MODEL] Error caught:', err);
-        Swal.fire({
+        await Swal.fire({
             title: 'Gagal',
             text: err.message || 'Terjadi kesalahan saat menyimpan model.',
             icon: 'error',
@@ -94,7 +96,7 @@ window.submitModelForm = async function (e) {
 };
 
 // Attach submit handler via addEventListener — more reliable than onsubmit for async handlers
-var _modelForm = document.getElementById('model-form');
+const _modelForm = document.getElementById('model-form');
 console.log('[AR-MODEL] Attaching submit listener to #model-form:', _modelForm ? 'FOUND' : 'NOT FOUND');
 if (_modelForm) _modelForm.addEventListener('submit', window.submitModelForm);
 

@@ -101,7 +101,7 @@ class CulturalObject extends Model
      * @param  Builder<CulturalObject>  $query
      * @return Builder<CulturalObject>
      */
-    public function scopeWithCoordinates(Builder $query)
+    public function scopeWithCoordinates(Builder $query): Builder
     {
         return $query->whereHas('mapLocation');
     }
@@ -112,7 +112,7 @@ class CulturalObject extends Model
      * @param  Builder<CulturalObject>  $query
      * @return Builder<CulturalObject>
      */
-    public function scopeCategory(Builder $query, string $category)
+    public function scopeCategory(Builder $query, string $category): Builder
     {
         return $query->where('category', $category);
     }
@@ -123,7 +123,7 @@ class CulturalObject extends Model
      * @param  Builder<CulturalObject>  $query
      * @return Builder<CulturalObject>
      */
-    public function scopeWithAr(Builder $query)
+    public function scopeWithAr(Builder $query): Builder
     {
         return $query->whereHas('mapLocation.arModel');
     }

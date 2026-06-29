@@ -152,7 +152,7 @@ window.arModelSelector = function() {
 
         get selectedModelName() {
             if (!this.selectedModel) return '';
-            var name = this.selectedModel.name;
+            const name = this.selectedModel.name;
             if (typeof name === 'object') {
                 return name['{{ app()->getLocale() }}'] || name['en'] || name['id'] || '';
             }
@@ -161,14 +161,14 @@ window.arModelSelector = function() {
 
         initSelector: function () {
             if (this.selectedId) {
-                this.selectedModel = this.models.find(function (m) { return m.id == this.selectedId; }.bind(this)) || null;
+                this.selectedModel = this.models.find(function (m) { return m.id === this.selectedId; }.bind(this)) || null;
             }
             // Handle ?select_model=ID from add-new redirect
             var params = new URLSearchParams(window.location.search);
             var selectModel = params.get('select_model');
             if (selectModel) {
                 this.selectedId = selectModel;
-                this.selectedModel = this.models.find(function (m) { return m.id == selectModel; }) || null;
+                this.selectedModel = this.models.find(function (m) { return m.id === selectModel; }) || null;
                 var url = new URL(window.location);
                 url.searchParams.delete('select_model');
                 window.history.replaceState({}, '', url);

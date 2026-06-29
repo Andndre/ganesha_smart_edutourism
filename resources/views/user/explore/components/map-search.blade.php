@@ -199,7 +199,6 @@
                             }));
                         }
                     });
-                    return;
                 }
             });
             window.mapSearchListenersRegistered = true;

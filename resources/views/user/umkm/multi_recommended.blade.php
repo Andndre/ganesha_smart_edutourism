@@ -36,7 +36,7 @@
 
             foreach ($umkm->activeProducts as $product) {
                 if (in_array($product->umkm_product_category_id, $stopCategoryIds)) {
-                    $totalPrice += $product->price;
+                    $totalPrice += (float) ($product->display_price ?? 0);
                 }
             }
         }
