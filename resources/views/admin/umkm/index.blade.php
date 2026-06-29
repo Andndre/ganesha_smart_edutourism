@@ -129,6 +129,8 @@
                                     <span
                                         class="bg-warning/10 text-warning rounded-full px-2.5 py-0.5 text-xs font-bold">{{ $p->stock }}
                                         — Stok Rendah</span>
+                                @elseif ($p->stock === null)
+                                    <span class="text-gray-400 text-xs italic">{{ __('Tidak terbatas') }}</span>
                                 @else
                                     <span class="text-gray-600">{{ $p->stock }} {{ $p->display_unit }}</span>
                                 @endif
@@ -258,7 +260,8 @@
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700">Stok</label>
-                        <input type="number" name="stock" id="field-stock"
+                        <input type="number" name="stock" id="field-stock" min="0"
+                            placeholder="{{ __('Kosongkan jika tidak terbatas') }}"
                             class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                         @error('stock')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
@@ -359,7 +362,7 @@
             document.getElementById('field-category').value = prod.umkm_product_category_id || "";
             document.getElementById('field-profile').value = prod.umkm_profile_id;
             document.getElementById('field-price').value = Math.round(prod.price);
-            document.getElementById('field-stock').value = prod.stock;
+            document.getElementById('field-stock').value = prod.stock !== null ? prod.stock : '';
             document.getElementById('field-unit').value = prod.unit || "pcs";
             
             document.getElementById('field-desc-en').value = (typeof prod.description === 'object') ? (prod.description?.en || "") : (prod.description || "");
