@@ -5,7 +5,9 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "host": "cloudflared tunnel run --protocol http2 --url http://localhost:8000 ganesha-tunnel"
+        "host": "cloudflared tunnel run --protocol http2 --url http://localhost:8000 ganesha-tunnel",
+        "i18n": "node scripts/i18n-sync.mjs",
+        "i18n:write": "node scripts/i18n-sync.mjs --write"
     },
     "devDependencies": {
         "@tailwindcss/vite": "4.3.0",

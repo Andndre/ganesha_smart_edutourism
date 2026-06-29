@@ -345,6 +345,44 @@ Layer 2 — Konten Model (spatie/laravel-translatable)
 
 **Aturan penulisan penting:** Kode yang menulis ke field translatable (seeder, factory, tinker) **wajib** menggunakan array berlabel locale — `['id' => '...', 'en' => '...']`. Menulis string polos akan menyimpan nilai hanya di locale aktif saat itu (default `en` di CLI), membuat tab bahasa lain kosong.
 
+### Workflow Sinkronisasi UI Strings (`i18n-sync`)
+
+Ketika menambah `__('Teks baru')` di blade/PHP, gunakan script otomatis untuk mendeteksi string yang belum ada di `lang/id.json` dan `lang/en.json`, lalu auto-translate via LibreTranslate:
+
+```bash
+npm run i18n              # dry-run: lihat string yang hilang (tanpa ubah file)
+npm run i18n:write       # auto-translate & tulis ke lang/*.json (butuh Docker)
+```
+
+**Prasyarat:**
+- Docker running: `docker compose up -d libretranslate`
+- LibreTranslate menyediakan translasi ID ↔ EN secara lokal
+
+**Cara kerjanya:**
+1. Scan semua `__()` di `resources/`, `app/`, `routes/`
+2. Bandingkan dengan kunci yang sudah ada di kedua file lang
+3. Deteksi: string baru (di source tapi hilang di lang) + orphan keys (ada di satu file lang tapi hilang di file lain)
+4. `--write`: translate via LibreTranslate, insert ke lang files dengan sort ordinal (uppercase sebelum lowercase)
+
+**Contoh:**
+```bash
+$ npm run i18n
+Found 3 missing key(s):
+  [id:✗ en:✗] Belum ada deskripsi.
+  [id:✓ en:✗] Lihat Semua
+  [id:✗ en:✓] Avatar
+
+$ npm run i18n:write
+Translating via http://172.26.0.2:5000...
+  [id] + "Belum ada deskripsi."
+  [en] + "Belum ada deskripsi." → "No description."
+  [id] + "Avatar"
+  [en] + "Avatar" → "Avatar"
+  [id] + "Lihat Semua"
+  [id] + "Lihat Semua" → "View All"
+✓ Added 3 key(s). Both lang files updated and sorted.
+```
+
 ---
 
 ## Stack Teknologi
