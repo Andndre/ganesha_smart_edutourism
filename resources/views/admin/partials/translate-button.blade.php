@@ -4,11 +4,77 @@
     toggle), so no per-form markup is needed. On click it reads the active locale from
     Alpine's x-show display state, grabs every `name="x[active]"` field (TipTap-aware),
     sends it through /translate (LibreTranslate), and fills the matching `name="x[other]"`.
+
+    GLOSSARY: proper nouns listed in PROTECTED_TERMS are swapped for tokens before
+    translation and restored after, so LibreTranslate never mangles them.
+    Edit the list below to add/remove terms. Longer phrases first (handled by sort).
 --}}
 <script>
 (function () {
     const URL = '{{ route('translate') }}';
     const CSRF = document.querySelector('meta[name="csrf-token"]')?.content;
+
+    // --- Glossary: terms that must NOT be translated ---
+    // Note: "Desa X" and "Pura X" are handled by TRANSFORM_RULES below, not here.
+    const PROTECTED_TERMS = [
+        // Place names that should stay verbatim (no prefix swap needed)
+        'Penglipuran',
+        // Cultural terms
+        'Dadia', 'Banjar', 'Subak', 'Pecalang', 'Ngaben', 'Melasti', 'Ogoh-ogoh',
+        'Bale Agung', 'Bale Banjar', 'Bale', 'Paon', 'Aling-aling',
+    ];
+
+    // Sort longest first so "Desa Wisata Penglipuran" is protected before "Penglipuran"
+    const SORTED_TERMS = [...PROTECTED_TERMS].sort((a, b) => b.length - a.length);
+
+    // --- Directional transforms: rewrite and protect in one step ---
+    // Static terms run first (longest-first) so e.g. "Desa Wisata Penglipuran" is
+    // tokenised before the generic "Desa [Name]" rule can touch it.
+    const TRANSFORM_RULES = {
+        'id→en': [
+            // Specific phrases before generic patterns
+            { re: /\bDesa Wisata Penglipuran\b/gi,                fn: () => 'Penglipuran Tourism Village' },
+            { re: /\bPura\s+([A-Z]\w*(?:\s+[A-Z]\w*)*)/g,       fn: (_, n) => n.trim() + ' Temple' },
+            { re: /\bDesa\s+([A-Z]\w*(?:\s+[A-Z]\w*)*)/g,       fn: (_, n) => n.trim() + ' Village' },
+        ],
+        'en→id': [
+            { re: /\bPenglipuran Tourism Village\b/gi,            fn: () => 'Desa Wisata Penglipuran' },
+            { re: /\b([A-Z]\w*(?:\s+[A-Z]\w*)*)\s+Temple\b/g,   fn: (_, n) => 'Pura ' + n.trim() },
+            { re: /\b([A-Z]\w*(?:\s+[A-Z]\w*)*)\s+Village\b/g,  fn: (_, n) => 'Desa ' + n.trim() },
+        ],
+    };
+
+    function glossaryProtect(text, src, tgt) {
+        const map = [];
+        let out = text;
+
+        // 1. Transforms first — specific rules listed before generic ones, so
+        //    "Desa Wisata Penglipuran" is consumed before "Desa [Name]" can run.
+        (TRANSFORM_RULES[`${src}→${tgt}`] || []).forEach(({ re, fn }) => {
+            out = out.replace(re, (...args) => {
+                const transformed = fn(...args);
+                const token = `GLOSS${map.length}Z`;
+                map.push({ token, original: transformed });
+                return token;
+            });
+        });
+
+        // 2. Static terms on whatever is left (handles standalone words like "Penglipuran")
+        SORTED_TERMS.forEach(term => {
+            const re = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+            out = out.replace(re, match => {
+                const token = `GLOSS${map.length}Z`;
+                map.push({ token, original: match });
+                return token;
+            });
+        });
+
+        return { text: out, map };
+    }
+
+    function glossaryRestore(text, map) {
+        return map.reduce((s, { token, original }) => s.replaceAll(token, original), text);
+    }
 
     function makeBtn() {
         const b = document.createElement('button');
@@ -36,13 +102,14 @@
     }
 
     async function translate(q, source, target, format) {
+        const { text: protected_, map } = glossaryProtect(q, source, target);
         const res = await fetch(URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
-            body: JSON.stringify({ q, source, target, format }),
+            body: JSON.stringify({ q: protected_, source, target, format }),
         });
         if (!res.ok) throw new Error('translate failed');
-        return (await res.json()).translatedText || '';
+        return glossaryRestore((await res.json()).translatedText || '', map);
     }
 
     async function run(btn) {
