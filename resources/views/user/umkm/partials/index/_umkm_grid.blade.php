@@ -28,7 +28,16 @@
 
                 <div class="flex-1 p-3">
                     <h3 class="text-charcoal text-sm font-bold line-clamp-1">{{ $umkm->business_name }}</h3>
-                    @if($umkm->activeProducts->isNotEmpty())
+                    @php $range = $umkm->price_range; @endphp
+                    @if ($range)
+                        <p class="text-primary mt-1 text-xs font-semibold">
+                            @if ($range['min'] === $range['max'])
+                                Rp {{ number_format($range['min'], 0, ',', '.') }}
+                            @else
+                                Rp {{ number_format($range['min'], 0, ',', '.') }} – {{ number_format($range['max'], 0, ',', '.') }}
+                            @endif
+                        </p>
+                    @elseif ($umkm->activeProducts->isNotEmpty())
                         <p class="mt-1 text-xs text-gray-400">{{ $umkm->activeProducts->first()->category?->name ?? '' }}</p>
                     @else
                         <p class="mt-1 text-xs text-amber-500">{{ __('Tidak ada produk') }}</p>
