@@ -11,9 +11,6 @@ use Illuminate\View\View;
 
 class OwnerProductController extends BaseOwnerController
 {
-    /**
-     * Display a listing of the owner's products.
-     */
     public function index(Request $request): View
     {
         if (! $this->profile) {
@@ -28,7 +25,7 @@ class OwnerProductController extends BaseOwnerController
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function ($q) use ($search) {
+            $query->whereHas('category', function ($q) use ($search) {
                 $q->where('name->en', 'like', '%'.$search.'%')
                     ->orWhere('name->id', 'like', '%'.$search.'%');
             });
@@ -47,41 +44,19 @@ class OwnerProductController extends BaseOwnerController
         return view('owner.products', compact('products', 'categories') + ['noProfile' => false]);
     }
 
-    /**
-     * Store a newly created product in storage.
-     */
     public function store(OwnerProductRequest $request): RedirectResponse
     {
         $profile = $this->requireProfile('owner.products');
 
         $validated = $request->validated();
-
-        if ($request->hasFile('images')) {
-            $imagePaths = [];
-            foreach ($request->file('images') as $file) {
-                $imagePaths[] = $file->store('images', 'public');
-            }
-            $validated['images'] = $imagePaths;
-        }
-
         $validated['umkm_profile_id'] = $profile->id;
-        $defaultLocale = config('app.fallback_locale', 'en');
-        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $validated['slug'] = (new UmkmProduct)->generateUniqueSlug($slugValue);
-        $validated['is_active'] = true;
-
-        if (! isset($validated['unit'])) {
-            $validated['unit'] = 'pcs';
-        }
+        $validated['is_active'] = $request->boolean('is_active', true);
 
         UmkmProduct::create($validated);
 
         return redirect()->route('owner.products')->with('success', __('Produk berhasil ditambahkan.'));
     }
 
-    /**
-     * Update the specified product in storage.
-     */
     public function update(OwnerProductRequest $request, int $id): RedirectResponse
     {
         $profile = $this->requireProfile('owner.products');
@@ -89,30 +64,13 @@ class OwnerProductController extends BaseOwnerController
         $product = UmkmProduct::where('umkm_profile_id', $profile->id)->findOrFail($id);
 
         $validated = $request->validated();
-
-        if ($request->hasFile('images')) {
-            $imagePaths = [];
-            foreach ($request->file('images') as $file) {
-                $imagePaths[] = $file->store('images', 'public');
-            }
-            $validated['images'] = $imagePaths;
-        } else {
-            $validated['images'] = $product->images;
-        }
-
-        $defaultLocale = config('app.fallback_locale', 'en');
-        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $validated['slug'] = $product->generateUniqueSlug($slugValue);
-        $validated['is_active'] = $request->has('is_active') ? true : false;
+        $validated['is_active'] = $request->boolean('is_active');
 
         $product->update($validated);
 
         return redirect()->route('owner.products')->with('success', __('Produk berhasil diperbarui.'));
     }
 
-    /**
-     * Remove the specified product from storage.
-     */
     public function destroy(int $id): RedirectResponse
     {
         $profile = $this->requireProfile('owner.products');

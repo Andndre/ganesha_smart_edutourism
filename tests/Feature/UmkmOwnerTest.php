@@ -145,24 +145,23 @@ class UmkmOwnerTest extends TestCase
             'ar_marker_id' => 'UMKM_TEST01',
         ]);
 
-        // Create category
+        // Create category with price/unit (now category-level)
         $category = UmkmProductCategory::create([
             'name' => ['en' => 'Typical Souvenir', 'id' => 'Souvenir Khas'],
             'slug' => 'souvenir-khas',
+            'price' => 75000,
+            'unit' => 'pcs',
         ]);
 
         // Access product index
         $response = $this->actingAs($owner)->get('/owner/products');
         $response->assertStatus(200);
 
-        // Store product
+        // Store product — owner only provides category + stock + is_active
         $response = $this->actingAs($owner)->post('/owner/products', [
-            'name' => ['en' => 'Premium Barong Shirt', 'id' => 'Baju Barong Premium'],
-            'price' => 75000,
-            'stock' => 10,
-            'unit' => 'pcs',
-            'description' => ['en' => 'A fine Balinese barong shirt.', 'id' => 'Kemeja barong Bali berkualitas.'],
             'umkm_product_category_id' => $category->id,
+            'stock' => 10,
+            'is_active' => '1',
         ]);
 
         $response->assertRedirect('/owner/products');
@@ -170,23 +169,23 @@ class UmkmOwnerTest extends TestCase
 
         $product = UmkmProduct::first();
         $this->assertNotNull($product);
-        $this->assertEquals('Premium Barong Shirt', $product->name);
-        $this->assertEquals(75000, $product->price);
+        $this->assertEquals($category->id, $product->umkm_product_category_id);
+        $this->assertEquals(10, $product->stock);
+        $this->assertTrue($product->is_active);
+        $this->assertEquals('Typical Souvenir', $product->display_name);
+        $this->assertEquals('75000.00', (string) $product->display_price);
 
-        // Update product
+        // Update stock + toggle off
         $response = $this->actingAs($owner)->put('/owner/products/'.$product->id, [
-            'name' => ['en' => 'Special Edition Barong Shirt', 'id' => 'Baju Barong Edisi Spesial'],
-            'price' => 85000,
-            'stock' => 5,
-            'unit' => 'pcs',
-            'description' => ['en' => 'Special limited edition.', 'id' => 'Edisi terbatas spesial.'],
             'umkm_product_category_id' => $category->id,
-            'is_active' => '1',
+            'stock' => 5,
         ]);
 
         $response->assertRedirect('/owner/products');
         $response->assertSessionHas('success', 'Product updated successfully.');
-        $this->assertEquals('Special Edition Barong Shirt', $product->fresh()->name);
+        $product->refresh();
+        $this->assertEquals(5, $product->stock);
+        $this->assertFalse($product->is_active);
 
         // Delete product
         $response = $this->actingAs($owner)->delete('/owner/products/'.$product->id);

@@ -9,9 +9,10 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
         "ankitpokhrel/tus-php": "dev-main",
         "bacon/bacon-qr-code": "^3.1",
+        "doctrine/dbal": "^4.4",
         "laravel-notification-channels/webpush": "^11.0",
         "laravel/framework": "^13.8",
         "laravel/reverb": "^1.0",
@@ -23,7 +24,8 @@
         "opcodesio/log-viewer": "^3.24",
         "phpoffice/phpspreadsheet": "^5.8",
         "predis/predis": "^2.0.3 || ^3.5",
-        "spatie/laravel-translatable": "^6.14"
+        "spatie/laravel-translatable": "^6.14",
+        "ext-pdo": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.7",
