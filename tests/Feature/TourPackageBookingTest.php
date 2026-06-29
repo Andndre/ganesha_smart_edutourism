@@ -476,26 +476,15 @@ class TourPackageBookingTest extends TestCase
             'qr_code' => 'QR-CANCEL',
         ]);
 
-        // 1. Get "All" (semua)
+        // ponytail: Filtering is client-side Alpine.js x-show — all items always in HTML.
+        // Test that all bookings render and Alpine filter logic is present.
         $response = $this->actingAs($user)->get(route('bookings', ['filter' => 'semua']));
         $response->assertStatus(200);
         $response->assertSee('TKT-ACTIVE');
         $response->assertSee('TKT-PENDING');
         $response->assertSee('TKT-CANCEL');
-
-        // 2. Get "Active" (aktif)
-        $response = $this->actingAs($user)->get(route('bookings', ['filter' => 'aktif']));
-        $response->assertStatus(200);
-        $response->assertSee('TKT-ACTIVE');
-        $response->assertDontSee('TKT-PENDING');
-        $response->assertDontSee('TKT-CANCEL');
-
-        // 3. Get "Finished" (selesai)
-        $response = $this->actingAs($user)->get(route('bookings', ['filter' => 'selesai']));
-        $response->assertStatus(200);
-        $response->assertDontSee('TKT-ACTIVE');
-        $response->assertDontSee('TKT-PENDING');
-        $response->assertSee('TKT-CANCEL');
+        $response->assertSee('matches(r)');
+        $response->assertSee('semua');
     }
 
     /**

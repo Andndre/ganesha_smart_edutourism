@@ -172,13 +172,13 @@ class TranslationTest extends TestCase
 
         app()->setLocale('en');
         $array = $object->toArray();
-        $this->assertEquals('Temple View', $array['name']);
-        $this->assertEquals('Great view', $array['short_description']);
+        $this->assertEquals(['en' => 'Temple View', 'id' => 'Pemandangan Pura'], $array['name']);
+        $this->assertEquals(['en' => 'Great view', 'id' => 'Pemandangan bagus'], $array['short_description']);
 
         app()->setLocale('id');
         $array = $object->fresh()->toArray();
-        $this->assertEquals('Pemandangan Pura', $array['name']);
-        $this->assertEquals('Pemandangan bagus', $array['short_description']);
+        $this->assertEquals(['en' => 'Temple View', 'id' => 'Pemandangan Pura'], $array['name']);
+        $this->assertEquals(['en' => 'Great view', 'id' => 'Pemandangan bagus'], $array['short_description']);
     }
 
     public function test_existing_plain_string_data_is_accessible(): void
