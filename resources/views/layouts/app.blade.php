@@ -25,6 +25,7 @@
     {{-- Shortcut icon --}}
     <link rel="shortcut icon" href="{{ asset('icons/logo-color-notext-shortcut.ico') }}">
 
+    <!--suppress CssUnusedSymbol -->
     <style>
         :root {
             --sat: env(safe-area-inset-top);
@@ -51,7 +52,7 @@
             height: 3px;
             background-color: #1E5128;
             z-index: 9999;
-            width: 0%;
+            width: 0;
             opacity: 1;
             transition: width 0.4s cubic-bezier(0.1, 0.8, 0.3, 1), opacity 0.2s ease-in-out;
             pointer-events: none;
@@ -178,7 +179,7 @@
                 </a>
             </div>
         @endif
-        
+
         </div> <!-- End of Content Area Wrapper -->
 
         @if ($isMainTab)
@@ -196,7 +197,7 @@
                 });
             }
         </script>
-        
+
         <script data-navigate-once>
             // Visual transitions and tab synchronization are handled by livewire:navigating and livewire:navigated below.
 
@@ -216,25 +217,25 @@
                 } else {
                     nav.classList.add('hidden');
                 }
-                
+
                 const bottomNavLinks = nav.querySelectorAll('a');
                 bottomNavLinks.forEach(link => {
                     const isARScan = link.pathname.includes('/ar-scan');
                     if (isARScan) return;
-                    
+
                     const isHome = link.pathname === '/' || link.pathname === '/home';
                     const isExplore = link.pathname === '/explore';
                     const isUmkm = link.pathname.startsWith('/umkm');
                     const isProfile = link.pathname.startsWith('/profile');
                     const isLogin = link.pathname.startsWith('/login') || link.pathname.startsWith('/register');
-                    
+
                     let isActive = false;
                     if (isHome && (currentPath === '/' || currentPath === '/home')) isActive = true;
                     else if (isExplore && currentPath === '/explore') isActive = true;
                     else if (isUmkm && currentPath.startsWith('/umkm')) isActive = true;
                     else if (isProfile && currentPath.startsWith('/profile')) isActive = true;
                     else if (isLogin && (currentPath.startsWith('/login') || currentPath.startsWith('/register'))) isActive = true;
-                    
+
                     const svg = link.querySelector('svg');
                     if (isActive) {
                         link.classList.remove('text-gray-400', 'hover:text-gray-600', 'lg:hover:bg-gray-100');
@@ -516,14 +517,14 @@
                 // Generate a persistent session ID for tracking
                 let sessionId = localStorage.getItem('gps_session_id');
                 if (!sessionId) {
-                    sessionId = crypto.randomUUID ? crypto.randomUUID() : 'session-' + Math.random().toString(36).substr(2, 9);
+                    sessionId = crypto.randomUUID ? crypto.randomUUID() : `session-${Math.random().toString(36).slice(2, 11)}`;
                     localStorage.setItem('gps_session_id', sessionId);
                 }
 
                 // Geofence: Desa Penglipuran center + radius (circle-based)
                 const VILLAGE_CENTER = { lat: {{ config('services.penglipuran.latitude', -8.48858951350677) }}, lng: {{ config('services.penglipuran.longitude', 115.38392483153403) }} };
                 const VILLAGE_RADIUS_METERS = {{ config('services.penglipuran.geofence_radius', 500) }}; // Dynamic radius from config/services.php
-                
+
                 // Read persisted geofence state from localStorage to prevent re-alerting on page reload
                 let wasInsideVillage = localStorage.getItem('was_inside_village'); // 'true' | 'false' | null (unknown)
                 let lastGeofenceAlert = parseInt(localStorage.getItem('last_geofence_alert') || '0', 10);
@@ -581,12 +582,12 @@
                 navigator.geolocation.watchPosition(
                     (pos) => {
                         if (window._mockGpsActive) return; // Ignore real GPS if mock is active
-                        
+
                         lastKnownPos = {
                             latitude: pos.coords.latitude,
                             longitude: pos.coords.longitude
                         };
-                        
+
                         // Send ping immediately on first location fix
                         if (!window._firstGpsPingSent) {
                             sendPing();

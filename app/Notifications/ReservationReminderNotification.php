@@ -26,7 +26,8 @@ class ReservationReminderNotification extends Notification
         $openTime = Carbon::parse(VillageSettings::get()->open_time)->format('H:i');
         $date = $this->reservation->scheduled_date->translatedFormat('d F Y');
 
-        return WebPushMessage::create()
+        // TODO: add multi-language support for the notification message
+        return new WebPushMessage()
             ->title('Pengingat Kunjungan Besok 🌿')
             ->body("Kunjungan Anda ke Desa Penglipuran dijadwalkan besok, {$date}. Desa buka pukul {$openTime} WITA.")
             ->icon('/favicon.ico')

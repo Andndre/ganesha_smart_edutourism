@@ -70,9 +70,12 @@
                         @foreach ($umkm->activeProducts as $product)
                             @if (in_array($product->umkm_product_category_id, $stopCategoryIds))
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="text-charcoal">{{ $product->name }}</span>
-                                    <span class="text-primary font-bold">Rp
-                                        {{ number_format($product->price, 0, ',', '.') }}</span>
+                                    <span class="text-charcoal">{{ $product->display_name }}</span>
+                                    <span class="text-primary font-bold">
+                                        @if ($product->display_price !== null)
+                                            Rp {{ number_format($product->display_price, 0, ',', '.') }}
+                                        @endif
+                                    </span>
                                 </div>
                             @endif
                         @endforeach

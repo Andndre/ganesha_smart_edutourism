@@ -184,4 +184,21 @@ class CapacityController extends Controller
 
         return redirect()->back()->with('success', __('Zona berhasil dihapus.'));
     }
+
+    /**
+     * Quick bounding box check before ray casting.
+     */
+    private function isInBoundingBox(float $lat, float $lng, array $polygonCoordinates): bool
+    {
+        $minLat = $maxLat = $minLng = $maxLng = null;
+
+        foreach ($polygonCoordinates as $coord) {
+            $minLat = $minLat === null ? $coord['lat'] : min($minLat, $coord['lat']);
+            $maxLat = $maxLat === null ? $coord['lat'] : max($maxLat, $coord['lat']);
+            $minLng = $minLng === null ? $coord['lng'] : min($minLng, $coord['lng']);
+            $maxLng = $maxLng === null ? $coord['lng'] : max($maxLng, $coord['lng']);
+        }
+
+        return $lat >= $minLat && $lat <= $maxLat && $lng >= $minLng && $lng <= $maxLng;
+    }
 }

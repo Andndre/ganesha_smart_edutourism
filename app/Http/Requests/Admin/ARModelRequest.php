@@ -22,7 +22,6 @@ class ARModelRequest extends FormRequest
             'description' => ['nullable', 'array'],
             'description.en' => ['nullable', 'string'],
             'description.id' => ['nullable', 'string'],
-            'ar_marker_id' => ['nullable', 'string', 'max:255'],
             'ar_marker_patt_content' => ['nullable', 'string'],
             'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
             'audio_narration_file' => ['nullable', 'file', 'max:10240'],

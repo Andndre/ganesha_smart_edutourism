@@ -238,7 +238,7 @@
                         </div>
                         <div class="mt-1 h-1 w-full overflow-hidden rounded-full bg-gray-200">
                             <div class="tus-progress-bar bg-primary h-full rounded-full transition-all duration-300"
-                                style="width:0%"></div>
+                                style="width:0"></div>
                         </div>
                     </div>
                     <span id="current-model-3d" class="text-primary mt-1 block text-[10px] font-semibold"></span>
@@ -260,7 +260,7 @@
                         </div>
                         <div class="mt-1 h-1 w-full overflow-hidden rounded-full bg-gray-200">
                             <div class="tus-progress-bar bg-primary h-full rounded-full transition-all duration-300"
-                                style="width:0%"></div>
+                                style="width:0"></div>
                         </div>
                     </div>
                     <span id="current-model-3d-usdz" class="text-primary mt-1 block text-[10px] font-semibold"></span>
@@ -285,6 +285,7 @@
                     <button type="submit"
                         class="bg-primary shadow-primary/20 hover:bg-primary-600 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg">Simpan</button>
                 </div>
+            </div>
         </form>
     </x-modal>
 
@@ -411,7 +412,6 @@
                     background: '#ffffff'
                 });
                 input.value = '';
-                return;
             }
         }
 

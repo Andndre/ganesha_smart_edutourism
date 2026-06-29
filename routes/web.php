@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\MapManagerController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingsController;
@@ -30,14 +31,15 @@ use App\Http\Controllers\ExploreController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Owner\OwnerCategoryController;
 use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\Owner\OwnerProductController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\SmartEdutourismController;
 use App\Http\Controllers\TourPackageController;
 use App\Http\Controllers\UmkmCatalogController;
-use App\Http\Controllers\PushSubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 // Auth Routes (Guest Only)
@@ -267,6 +269,11 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/settings', [SettingsController::class, 'index'])->name('admin.settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('admin.settings.update');
 
+    // Admin Notifications (bell dropdown JSON)
+    Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('admin.notifications.index');
+    Route::post('/notifications/{id}/read', [AdminNotificationController::class, 'markRead'])->name('admin.notifications.read');
+    Route::post('/notifications/mark-all-read', [AdminNotificationController::class, 'markAllRead'])->name('admin.notifications.mark-all-read');
+
     // Tus chunked upload — handles POST (create), PATCH (chunk), HEAD, DELETE, OPTIONS
     // CSRF exempt via bootstrap/app.php except array
     Route::match(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], '/api/tus/upload', [TusController::class, 'handle'])
@@ -289,6 +296,11 @@ Route::prefix('owner')->middleware(['auth', 'umkm_owner'])->group(function () {
     Route::post('/products', [OwnerProductController::class, 'store'])->name('owner.products.store');
     Route::put('/products/{id}', [OwnerProductController::class, 'update'])->name('owner.products.update');
     Route::delete('/products/{id}', [OwnerProductController::class, 'destroy'])->name('owner.products.destroy');
+
+    // Owner-side Category management (inline create + edit/request-edit)
+    Route::post('/categories', [OwnerCategoryController::class, 'store'])->name('owner.categories.store');
+    Route::post('/categories/{category}', [OwnerCategoryController::class, 'update'])->name('owner.categories.update');
+    Route::post('/categories/{category}/request-edit', [OwnerCategoryController::class, 'requestEdit'])->name('owner.categories.request-edit');
 });
 
 // Audio Range Stream Route (for Chrome seeking/scrubbing support)

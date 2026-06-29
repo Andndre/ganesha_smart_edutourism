@@ -102,7 +102,7 @@ class UmkmProfile extends Model
      * @param  Builder<UmkmProfile>  $query
      * @return Builder<UmkmProfile>
      */
-    public function scopeActive(Builder $query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
@@ -113,16 +113,8 @@ class UmkmProfile extends Model
      * @param  Builder<UmkmProfile>  $query
      * @return Builder<UmkmProfile>
      */
-    public function scopeWithCoordinates(Builder $query)
+    public function scopeWithCoordinates(Builder $query): Builder
     {
         return $query->whereHas('mapLocation');
-    }
-
-    /**
-     * Accessor for ar_marker_id.
-     */
-    public function getArMarkerIdAttribute(): ?string
-    {
-        return $this->mapLocation?->arModel?->ar_marker_id;
     }
 }

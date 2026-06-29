@@ -105,7 +105,7 @@
                         <tr class="hover:bg-gray-50/50">
                             <td class="text-charcoal px-5 py-4 font-medium">
                                 <div>
-                                    <p>{{ $p->name }}</p>
+                                    <p>{{ $p->display_name }}</p>
                                     @if (!$p->is_active)
                                         <span
                                             class="mt-0.5 inline-block rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-400">Nonaktif</span>
@@ -115,17 +115,22 @@
                             <td class="px-5 py-4 text-gray-500">{{ $p->umkmProfile->business_name ?? 'Lokal' }}</td>
                             <td class="px-5 py-4">
                                 <span
-                                    class="bg-primary/10 text-primary-800 rounded-lg px-2.5 py-1 text-xs font-semibold">{{ $p->category->name ?? 'Lainnya' }}</span>
+                                    class="bg-primary/10 text-primary-800 rounded-lg px-2.5 py-1 text-xs font-semibold">{{ translateValue($p->category?->name) ?? 'Lainnya' }}</span>
                             </td>
-                            <td class="text-charcoal px-5 py-4 font-semibold">Rp
-                                {{ number_format($p->price, 0, ',', '.') }}</td>
+                            <td class="text-charcoal px-5 py-4 font-semibold">
+                                @if ($p->display_price !== null)
+                                    Rp {{ number_format($p->display_price, 0, ',', '.') }}
+                                @else
+                                    <span class="text-xs italic text-gray-400">—</span>
+                                @endif
+                            </td>
                             <td class="px-5 py-4">
-                                @if ($p->stock <= 5)
+                                @if ($p->stock !== null && $p->stock <= 5)
                                     <span
                                         class="bg-warning/10 text-warning rounded-full px-2.5 py-0.5 text-xs font-bold">{{ $p->stock }}
                                         — Stok Rendah</span>
                                 @else
-                                    <span class="text-gray-600">{{ $p->stock }} {{ $p->unit ?? 'pcs' }}</span>
+                                    <span class="text-gray-600">{{ $p->stock }} {{ $p->display_unit }}</span>
                                 @endif
                             </td>
                             <td class="px-5 py-4">
