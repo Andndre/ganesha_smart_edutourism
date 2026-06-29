@@ -8,7 +8,7 @@ class VillageSettings extends Model
 {
     protected $table = 'village_settings';
 
-    protected $fillable = ['open_time', 'close_time', 'id'];
+    protected $fillable = ['open_time', 'close_time'];
 
     protected function casts(): array
     {
