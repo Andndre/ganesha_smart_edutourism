@@ -3,6 +3,7 @@
 @section('title', 'Aset AR & Marker')
 
 @push('styles')
+    <!--suppress CssUnusedSymbol -->
     <style>
         .model-viewer-wrapper {
             position: relative;
@@ -23,6 +24,7 @@
         .tus-progress-container.tus-error .tus-progress-bar {
             @apply bg-red-500;
         }
+
         .tus-progress-container.tus-complete .tus-progress-bar {
             @apply bg-green-500;
         }
@@ -38,7 +40,7 @@
         </div>
         <div class="flex items-center gap-2">
             <button id="tour-trigger-btn" onclick="startTutorial()"
-                class="hover:bg-gray-100 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition-all active:scale-[0.98]"
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition-all hover:bg-gray-100 active:scale-[0.98]"
                 title="Panduan Interaktif">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -57,13 +59,12 @@
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         @forelse ($models as $m)
-            <div @if($loop->first) id="tour-first-card" @endif
+            <div @if ($loop->first) id="tour-first-card" @endif
                 class="shadow-2xs hover:shadow-xs flex flex-col rounded-xl border border-gray-100 bg-white p-4 transition-shadow">
-                <div @if($loop->first) id="tour-viewer-wrapper" @endif class="model-viewer-wrapper mb-3">
+                <div @if ($loop->first) id="tour-viewer-wrapper" @endif class="model-viewer-wrapper mb-3">
                     @if ($m->thumbnail_path)
-                        <img src="{{ asset('storage/' . $m->thumbnail_path) }}"
-                             alt="{{ $m->name }}"
-                             class="h-full w-full object-cover">
+                        <img src="{{ asset('storage/' . $m->thumbnail_path) }}" alt="{{ $m->name }}"
+                            class="h-full w-full object-cover">
                     @else
                         <div class="flex h-full w-full items-center justify-center p-4 text-center">
                             <span class="text-xs text-gray-400">Tidak ada pratinjau</span>
@@ -79,11 +80,11 @@
                 </div>
 
                 @if ($m->ar_marker_id)
-                    <div @if($loop->first) id="tour-marker-download" @endif class="mt-3 flex items-center gap-1.5">
+                    <div @if ($loop->first) id="tour-marker-download" @endif
+                        class="mt-3 flex items-center gap-1.5">
                         <span
                             class="bg-primary/10 text-primary max-w-40 truncate rounded-full px-2 py-0.5 font-mono text-[10px] font-bold">{{ $m->ar_marker_id }}</span>
-                        <button type="button"
-                            onclick="triggerMarkerDownload('{{ $m->ar_marker_id }}')"
+                        <button type="button" onclick="triggerMarkerDownload('{{ $m->ar_marker_id }}')"
                             class="text-primary hover:bg-primary/10 ml-auto shrink-0 rounded-lg p-1.5 transition-colors"
                             title="Unduh QR Marker">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -93,7 +94,7 @@
                         </button>
                     </div>
                 @else
-                    <div @if($loop->first) id="tour-marker-download" @endif class="mt-3">
+                    <div @if ($loop->first) id="tour-marker-download" @endif class="mt-3">
                         <span class="text-[10px] italic text-gray-400">Belum ada marker QR</span>
                     </div>
                 @endif
@@ -102,22 +103,28 @@
                     <span class="mt-1 truncate text-[10px] font-medium text-gray-500">📍 {{ $m->mapLocation->name }}</span>
                 @endif
 
-                <div @if($loop->first) id="tour-actions" @endif class="mt-3 flex items-center justify-end gap-1 border-t border-gray-50 pt-2">
-                    <button onclick="openModelEditModal({{ json_encode([
-                        'id' => $m->id,
-                        'name' => $m->getTranslations('name'),
-                        'description' => $m->getTranslations('description'),
-                        'ar_marker_id' => $m->ar_marker_id,
-                        'model_3d_path' => $m->model_3d_path,
-                        'model_3d_usdz_path' => $m->model_3d_usdz_path,
-                        'audio_narration_paths' => $m->audio_narration_paths ?? [],
-                        'map_location' => $m->mapLocation ? [
-                            'name' => $m->mapLocation->name,
-                            'locationable' => $m->mapLocation->locationable ? [
-                                'slug' => $m->mapLocation->locationable->slug
-                            ] : null
-                        ] : null
-                    ]) }})"
+                <div @if ($loop->first) id="tour-actions" @endif
+                    class="mt-3 flex items-center justify-end gap-1 border-t border-gray-50 pt-2">
+                    <button
+                        onclick="openModelEditModal({{ json_encode([
+                            'id' => $m->id,
+                            'name' => $m->getTranslations('name'),
+                            'description' => $m->getTranslations('description'),
+                            'ar_marker_id' => $m->ar_marker_id,
+                            'model_3d_path' => $m->model_3d_path,
+                            'model_3d_usdz_path' => $m->model_3d_usdz_path,
+                            'audio_narration_paths' => $m->audio_narration_paths ?? [],
+                            'map_location' => $m->mapLocation
+                                ? [
+                                    'name' => $m->mapLocation->name,
+                                    'locationable' => $m->mapLocation->locationable
+                                        ? [
+                                            'slug' => $m->mapLocation->locationable->slug,
+                                        ]
+                                        : null,
+                                ]
+                                : null,
+                        ]) }})"
                         class="hover:text-primary p-1 text-gray-400 transition-colors" title="Edit Model">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -139,7 +146,8 @@
                 </div>
             </div>
         @empty
-            <div id="tour-empty-state" class="col-span-3 py-12 text-center text-sm text-gray-400">Belum ada model 3D ditambahkan.</div>
+            <div id="tour-empty-state" class="col-span-3 py-12 text-center text-sm text-gray-400">Belum ada model 3D
+                ditambahkan.</div>
         @endforelse
     </div>
 
@@ -149,55 +157,64 @@
 
 @push('scripts')
     <script>
-    if (!window.toggleMiniAudio) {
-        window.toggleMiniAudio = function(btn) {
-            const row = btn.parentElement;
-            const audio = row.querySelector('.mini-audio-el');
-            if (!audio) return;
-            const playIcon = btn.querySelector('.mini-audio-play');
-            const pauseIcon = btn.querySelector('.mini-audio-pause');
-            document.querySelectorAll('.mini-audio-el').forEach(function(a) {
-                if (a === audio) return;
-                a.pause();
-                const b = a.parentElement?.querySelector('.mini-audio-btn');
-                if (b) { b.querySelector('.mini-audio-play')?.classList.remove('hidden'); b.querySelector('.mini-audio-pause')?.classList.add('hidden'); }
-            });
-            if (audio.paused) {
-                audio.play();
-                playIcon?.classList.add('hidden');
-                pauseIcon?.classList.remove('hidden');
-                audio.onended = function() { playIcon?.classList.remove('hidden'); pauseIcon?.classList.add('hidden'); };
-            } else {
-                audio.pause();
-                playIcon?.classList.remove('hidden');
-                pauseIcon?.classList.add('hidden');
-            }
-        };
-    }
-    if (!window.setMiniAudio) {
-        window.setMiniAudio = function(id, path) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            const name = path.split('/').pop();
-            el.querySelector('.mini-audio-name').textContent = name;
-            el.querySelector('.mini-audio-name').title = name;
-            el.querySelector('.mini-audio-el').src = '/audio-stream/' + path;
-            el.querySelector('.mini-audio-play')?.classList.remove('hidden');
-            el.querySelector('.mini-audio-pause')?.classList.add('hidden');
-            el.classList.remove('hidden');
-        };
-    }
-    if (!window.resetMiniAudio) {
-        window.resetMiniAudio = function(id) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            const audio = el.querySelector('.mini-audio-el');
-            if (audio) { audio.pause(); audio.src = ''; }
-            el.querySelector('.mini-audio-play')?.classList.remove('hidden');
-            el.querySelector('.mini-audio-pause')?.classList.add('hidden');
-            el.classList.add('hidden');
-        };
-    }
+        if (!window.toggleMiniAudio) {
+            window.toggleMiniAudio = function(btn) {
+                const row = btn.parentElement;
+                const audio = row.querySelector('.mini-audio-el');
+                if (!audio) return;
+                const playIcon = btn.querySelector('.mini-audio-play');
+                const pauseIcon = btn.querySelector('.mini-audio-pause');
+                document.querySelectorAll('.mini-audio-el').forEach(function(a) {
+                    if (a === audio) return;
+                    a.pause();
+                    const b = a.parentElement?.querySelector('.mini-audio-btn');
+                    if (b) {
+                        b.querySelector('.mini-audio-play')?.classList.remove('hidden');
+                        b.querySelector('.mini-audio-pause')?.classList.add('hidden');
+                    }
+                });
+                if (audio.paused) {
+                    audio.play();
+                    playIcon?.classList.add('hidden');
+                    pauseIcon?.classList.remove('hidden');
+                    audio.onended = function() {
+                        playIcon?.classList.remove('hidden');
+                        pauseIcon?.classList.add('hidden');
+                    };
+                } else {
+                    audio.pause();
+                    playIcon?.classList.remove('hidden');
+                    pauseIcon?.classList.add('hidden');
+                }
+            };
+        }
+        if (!window.setMiniAudio) {
+            window.setMiniAudio = function(id, path) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const name = path.split('/').pop();
+                el.querySelector('.mini-audio-name').textContent = name;
+                el.querySelector('.mini-audio-name').title = name;
+                el.querySelector('.mini-audio-el').src = '/audio-stream/' + path;
+                el.querySelector('.mini-audio-play')?.classList.remove('hidden');
+                el.querySelector('.mini-audio-pause')?.classList.add('hidden');
+                el.classList.remove('hidden');
+            };
+        }
+        if (!window.resetMiniAudio) {
+            window.resetMiniAudio = function(id) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const audio = el.querySelector('.mini-audio-el');
+                if (audio) {
+                    audio.pause();
+                    audio.src = '';
+                }
+                el.querySelector('.mini-audio-play')?.classList.remove('hidden');
+                el.querySelector('.mini-audio-pause')?.classList.add('hidden');
+                el.classList.add('hidden');
+            };
+        }
     </script>
     <x-tiptap-editor-script />
 
@@ -232,7 +249,7 @@
                 if (canvas) {
                     pendingThumbnailData = canvas.toDataURL('image/png');
                 }
-            } catch(e) {
+            } catch (e) {
                 console.warn('Thumbnail capture failed:', e);
             }
         }
@@ -241,7 +258,9 @@
             if (!viewerEl) return;
             viewerEl.addEventListener('load', () => {
                 setTimeout(captureModelThumbnail, 500);
-            }, { once: true });
+            }, {
+                once: true
+            });
         }
 
         // Intercept form submit — inject thumbnail data
@@ -316,8 +335,10 @@
             document.getElementById('model-field-tmp-glb').value = '';
             document.getElementById('model-field-tmp-usdz').value = '';
 
-            const descEn = (typeof model.description === 'object') ? (model.description?.en || "") : (model.description || "");
-            const descId = (typeof model.description === 'object') ? (model.description?.id || "") : (model.description || "");
+            const descEn = (typeof model.description === 'object') ? (model.description?.en || "") : (model.description ||
+                "");
+            const descId = (typeof model.description === 'object') ? (model.description?.id || "") : (model.description ||
+                "");
             if (typeof window.setTiptapContent === 'function') {
                 window.setTiptapContent('#model-field-desc-en-textarea', descEn);
                 window.setTiptapContent('#model-field-desc-id-textarea', descId);
@@ -396,9 +417,11 @@
             }
 
             // GLB
-            initChunkedUpload('model-field-glb-file', 'model-field-tmp-glb', 'model-glb-progress', 20 * 1024 * 1024, ['.glb']);
+            initChunkedUpload('model-field-glb-file', 'model-field-tmp-glb', 'model-glb-progress', 20 * 1024 * 1024,
+                ['.glb']);
             // USDZ
-            initChunkedUpload('model-field-usdz-file', 'model-field-tmp-usdz', 'model-usdz-progress', 50 * 1024 * 1024, ['.usdz']);
+            initChunkedUpload('model-field-usdz-file', 'model-field-tmp-usdz', 'model-usdz-progress', 50 * 1024 *
+                1024, ['.usdz']);
         });
 
         function setupModal3DViewer(src) {
@@ -700,32 +723,32 @@
 
 
 
-    @if($errors->any())
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            window.dispatchEvent(new CustomEvent('open-model-modal'));
-            @if(old('_method') == 'PUT')
-                modelForm.action = "/admin/ar-manager/models/{{ old('model_id') }}";
-                modelMethodContainer.innerHTML = `@method('PUT')`;
-                modelModalTitle.innerText = "Edit Model 3D";
-                document.getElementById('model-field-id').value = "{{ old('model_id') }}";
-            @else
-                modelForm.action = "{{ route('admin.ar-manager.models.store') }}";
-                modelMethodContainer.innerHTML = "";
-                modelModalTitle.innerText = "Tambah Model 3D";
-                document.getElementById('model-field-id').value = "";
-            @endif
-            document.getElementById('model-field-name-en').value = @json(old('name.en', ''));
-            document.getElementById('model-field-name-id').value = @json(old('name.id', ''));
-            document.getElementById('model-field-marker-id').value = @json(old('ar_marker_id', ''));
+    @if ($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                window.dispatchEvent(new CustomEvent('open-model-modal'));
+                @if (old('_method') == 'PUT')
+                    modelForm.action = "/admin/ar-manager/models/{{ old('model_id') }}";
+                    modelMethodContainer.innerHTML = `@method('PUT')`;
+                    modelModalTitle.innerText = "Edit Model 3D";
+                    document.getElementById('model-field-id').value = "{{ old('model_id') }}";
+                @else
+                    modelForm.action = "{{ route('admin.ar-manager.models.store') }}";
+                    modelMethodContainer.innerHTML = "";
+                    modelModalTitle.innerText = "Tambah Model 3D";
+                    document.getElementById('model-field-id').value = "";
+                @endif
+                document.getElementById('model-field-name-en').value = @json(old('name.en', ''));
+                document.getElementById('model-field-name-id').value = @json(old('name.id', ''));
+                document.getElementById('model-field-marker-id').value = @json(old('ar_marker_id', ''));
 
-            const oldDescEn = @json(old('description.en', ''));
-            const oldDescId = @json(old('description.id', ''));
-            if (typeof window.setTiptapContent === 'function') {
-                window.setTiptapContent('#model-field-desc-en-textarea', oldDescEn);
-                window.setTiptapContent('#model-field-desc-id-textarea', oldDescId);
-            }
-        });
-    </script>
+                const oldDescEn = @json(old('description.en', ''));
+                const oldDescId = @json(old('description.id', ''));
+                if (typeof window.setTiptapContent === 'function') {
+                    window.setTiptapContent('#model-field-desc-en-textarea', oldDescEn);
+                    window.setTiptapContent('#model-field-desc-id-textarea', oldDescId);
+                }
+            });
+        </script>
     @endif
 @endpush

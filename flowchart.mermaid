@@ -3,79 +3,108 @@ flowchart TD
     classDef startEnd fill:#1b5e20,stroke:#fff,stroke-width:2px,color:#fff;
     classDef process fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px,color:#000;
     classDef decision fill:#fff3e0,stroke:#e65100,stroke-width:1px,color:#000;
-    classDef actor fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000;
+    classDef system fill:#e3f2fd,stroke:#1565c0,stroke-width:1px,color:#000;
 
-    Start([Mulai: Buka Aplikasi Wisata]):::startEnd --> Auth{Pilih Akses}:::decision
-    Auth -->|Login / Register| UserDashboard[User / Profile Dashboard]:::process
-    Auth -->|Guest Access| GuestPanel[Guest Mode / Offline Mode]:::process
+    Start([Buka Aplikasi Wisata]):::startEnd --> Auth{Pilih Akses}:::decision
+    Auth -->|Login / Register / Google OAuth| UserDashboard[Dashboard Pengguna]:::process
+    Auth -->|Tanpa Login| GuestPanel[Mode Tamu]:::process
 
-    UserDashboard --> PusatInfo[Smart Tourism Information Center]:::process
-    GuestPanel --> PusatInfo
+    UserDashboard --> Home[Beranda — Cuaca & Info Desa]:::process
+    GuestPanel --> Home
 
     %% ================= FASE 1: PRE-VISIT =================
-    subgraph Fase1 ["Fase 1: Persiapan & Pemesanan Tiket (Pre-Visit)"]
+    subgraph Fase1 ["Fase 1 — Persiapan & Pemesanan (Pre-Visit)"]
         direction TB
-        PusatInfo --> CekEvent[Lihat Event & Cultural Calendar]:::process
-        PusatInfo --> Explore[Eksplorasi Desa & Fasilitas]:::process
-        
-        CekEvent --> PesanTiket{Pilih Cara Pesan?}:::decision
-        Explore --> PesanTiket
-        
-        PesanTiket -->|Paket Tour| Reservasi[Pilih & Booking Tour Package]:::process
-        PesanTiket -->|Walk-in| WalkIn["Beli di Staff Ticketing (On-site)"]:::process
-        
-        Reservasi --> BayarTiket[Digital Payment via Midtrans]:::process
-        BayarTiket --> TiketDigital[Terima E-Ticket & QR Code]:::process
+        Home --> CekEvent[Lihat Event & Kalender Budaya]:::process
+        Home --> Explore[Eksplorasi Peta Interaktif]:::process
+        Home --> LihatPaket[Lihat Paket Tour]:::process
+
+        CekEvent & Explore & LihatPaket --> PesanTiket{Cara Pesan?}:::decision
+
+        PesanTiket -->|Paket Tour Online| Reservasi[Booking Paket Tour]:::process
+        PesanTiket -->|Walk-in On-site| WalkIn[Petugas Input Data Tamu]:::process
+
+        Reservasi --> BayarMidtrans[Bayar via Midtrans Snap]:::process
+        BayarMidtrans -->|Sukses| TiketDigital[E-Ticket + QR Code dikirim via Email]:::system
+        BayarMidtrans -->|Gagal/Pending| TungguBayar[Status: unpaid — bisa repay]:::process
     end
 
     %% ================= FASE 2: ARRIVAL =================
-    subgraph Fase2 ["Fase 2: Kedatangan & Check-In"]
+    subgraph Fase2 ["Fase 2 — Kedatangan & Check-In"]
         direction TB
-        TiketDigital --> StaffScan[Staff Memindai QR Code Tiket]:::process
-        WalkIn --> StaffScan
-        StaffScan --> Validasi[Validasi & Check-in Sukses]:::process
+        TiketDigital --> StaffScan[Petugas Scan QR Tiket]:::process
+        WalkIn --> StaffBayar[Petugas Proses Pembayaran Snap]:::process
+        StaffBayar --> StaffScan
+
+        StaffScan --> Validasi{QR Valid?}:::decision
+        Validasi -->|Ya| CheckIn[Check-In — catat checked_in_at & by]:::system
+        Validasi -->|Tidak| Tolak[Tolak / Cek Status Midtrans]:::process
     end
 
-    Validasi --> MulaiTour([Mulai Tour di Desa Penglipuran]):::startEnd
+    CheckIn --> MulaiTour([Mulai Tour Desa Penglipuran]):::startEnd
 
     %% ================= FASE 3: ON-SITE & EDUTOURISM =================
-    subgraph Fase3 ["Fase 3: Smart Edutourism, Navigasi & AR (On-Site)"]
+    subgraph Fase3 ["Fase 3 — Smart Edutourism, Navigasi & AR (On-Site)"]
         direction TB
         MulaiTour --> PilihRute[Preview & Pilih Rute Edutourism]:::process
-        PilihRute --> MulaiNavigasi["Mulai Rute (Smart Routing / Map)"]:::process
-        
-        MulaiNavigasi -.-> AksesOffline[Offline Mode Tersedia jika Sinyal Hilang]:::process
-        
-        MulaiNavigasi --> TibaDiTitik{Tiba di Titik / Objek}:::decision
-        
-        %% AR & Edukasi
-        TibaDiTitik -->|Budaya/Objek| BukaAR["Buka AR Scanner (WebAR/iOS Quick Look)"]:::process
-        BukaAR --> AudioStory[Dengarkan Audio Storytelling]:::process
-        
-        TibaDiTitik -->|Pos Edukasi| EduQuiz[Akses Materi Edukasi & Jawab Quiz]:::process
-        
-        AudioStory --> CekKapasitas[Cek Crowd/Capacity di Titik Berikutnya]:::process
-        EduQuiz --> CekKapasitas
+        PilihRute --> StartSession[Buat RouteSession — status: active]:::system
+        StartSession --> Navigasi[Navigasi ke Titik Berikutnya]:::process
+
+        Navigasi --> TibaDiTitik{Tiba di Titik?}:::decision
+
+        %% Cultural Object branch
+        TibaDiTitik -->|Objek Budaya| BukaAR[Buka AR Scanner]:::process
+        BukaAR -->|Marker terdeteksi| TampilModel[Tampil Model 3D GLB/USDZ]:::process
+        TampilModel --> AudioStory[Dengarkan Audio Storytelling]:::process
+        AudioStory --> BacaCerita[Baca Cerita: Sejarah / Filosofi / Nilai]:::process
+
+        %% Quiz branch
+        TibaDiTitik -->|Pos Edutourism| Kuis[Jawab Kuis Budaya]:::process
+        Kuis --> SkorUpdate[Update total_score di RouteSession]:::system
+
+        BacaCerita & SkorUpdate --> RecordVisit[Catat UserVisit — visitable morph]:::system
+        RecordVisit --> CekKapasitas[Cek Kapasitas Zona Berikutnya — Reverb WS]:::process
+
+        CekKapasitas -->|Zona Normal| LanjutRute{Titik Berikutnya?}:::decision
+        CekKapasitas -->|Zona Kritis| PeringatanZona[Tampil Peringatan Keramaian]:::process
+        PeringatanZona --> LanjutRute
+
+        LanjutRute -->|Ya| Navigasi
+        LanjutRute -->|Selesai| SelesaiRute[Tandai RouteSession: completed]:::system
     end
 
-    CekKapasitas --> LanjutTour{Lanjut Rute?}:::decision
-    LanjutTour -->|Ya| MulaiNavigasi
-    LanjutTour -->|Selesai / Belanja| KeUMKM([Lanjut ke Area Belanja UMKM]):::startEnd
+    SelesaiRute --> KeUMKM([Lanjut ke Area UMKM]):::startEnd
 
-    %% ================= FASE 4: UMKM & TRANSAKSI =================
-    subgraph Fase4 ["Fase 4: UMKM & Marketplace"]
+    %% ================= FASE 4: UMKM =================
+    subgraph Fase4 ["Fase 4 — Katalog & Belanja UMKM"]
         direction TB
-        KeUMKM --> ScanUMKM[Lihat Katalog / Multi-route UMKM]:::process
-        ScanUMKM --> Rekomendasi[Dapat Rekomendasi UMKM]:::process
-        Rekomendasi --> Marketplace[Lihat Produk dari UMKM Owner]:::process
-        Marketplace --> BeliProduk[Transaksi / Pemesanan]:::process
+        KeUMKM --> LihatKatalog[Lihat Katalog UMKM]:::process
+        LihatKatalog --> Rekomendasi[Rekomendasi Adil via UmkmRecommendationService]:::system
+        Rekomendasi --> MultiRoute[Multi-Route ke Beberapa Toko]:::process
+        MultiRoute --> LihatProduk[Lihat Produk & Harga]:::process
     end
 
     %% ================= FASE 5: POST-VISIT =================
-    subgraph Fase5 ["Fase 5: Evaluasi (Post-Visit)"]
+    subgraph Fase5 ["Fase 5 — Post-Visit"]
         direction TB
-        BeliProduk --> BeriFeedback[Isi Form Feedback & Rating]:::process
-        BeriFeedback --> ProfileUpdate[Update Profile: Visited & Favorites]:::process
+        LihatProduk --> Favorit[Tambah ke Favorit — UserFavorite morph]:::process
+        Favorit --> Feedback[Isi Feedback & Rating]:::process
+        Feedback --> AdminReply[Admin balas Feedback — opsional]:::system
     end
 
-    ProfileUpdate --> Selesai([Selesai Kunjungan]):::startEnd
+    Feedback --> Selesai([Selesai Kunjungan]):::startEnd
+
+    %% ================= SISTEM BACKGROUND =================
+    subgraph Background ["Proses Background & Real-Time"]
+        direction LR
+        WS[Laravel Reverb WebSocket]:::system
+        QUEUE[Queue Worker]:::system
+        CRON[Cron Jobs]:::system
+
+        CRON -->|Tiap 10 menit saat share| WeatherUpdate[Update WeatherReport]:::system
+        CRON -->|H-1 event| EventReminder[Kirim Pengingat Email Event]:::system
+        CRON -->|Harian| TusCleanup[Cleanup TUS Upload Basi]:::system
+        QUEUE --> ETicketMail[Kirim E-Ticket via Mail]:::system
+        WS --> CrowdAlert[Broadcast CrowdAlertSent ke subscriber]:::system
+        WS --> VisitorTracking[Broadcast VisitorLocationUpdated ke peta admin]:::system
+    end

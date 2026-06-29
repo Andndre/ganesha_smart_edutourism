@@ -1,9 +1,9 @@
-// DBML Schema for Ganesha Smart Edutourism
-// Auto-generated from migrations
+// DBML Schema — Website Wisata Desa Penglipuran
+// Generated from live MySQL schema via laravel-boost
 
-Project ganesha_smart_edutourism {
-  database_type: 'SQLite'
-  Note: 'Smart Edutourism Application for Ganesha Temple Tourism'
+Project website_wisata_penglipuran {
+  database_type: 'MySQL'
+  Note: 'Smart Sustainable Edutourism Platform for Desa Wisata Penglipuran'
 }
 
 // ============================================
@@ -11,60 +11,71 @@ Project ganesha_smart_edutourism {
 // ============================================
 
 Table users {
-  id integer [primary key, not null]
+  id bigint [primary key, not null, increment]
   name varchar(255) [not null]
   email varchar(255) [not null, unique]
+  google_id varchar(255) [nullable]
   email_verified_at timestamp [nullable]
   password varchar(255) [not null]
-  role varchar(20) [default: 'tourist', note: 'enum: tourist, umkm_owner, admin']
-  phone varchar(20) [nullable]
-  nationality varchar(50) [nullable]
+  role enum [not null, note: 'tourist | umkm_owner | admin | ticket_officer']
+  phone varchar(255) [nullable]
+  nationality varchar(255) [nullable]
   preferred_language varchar(10) [default: 'id']
   avatar_path varchar(255) [nullable]
   remember_token varchar(100) [nullable]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-
-  indexes: [
-    { name: 'users_email_unique', columns: [email], unique: true }
-  ]
+  created_at timestamp
+  updated_at timestamp
 }
 
-Table personal_access_tokens {
-  id integer [primary key, not null]
-  tokenable_type varchar(255) [not null]
-  tokenable_id bigint unsigned [not null]
-  name varchar(255) [not null]
-  token varchar(64) [not null, unique]
-  abilities text [nullable]
-  last_used_at timestamp [nullable]
-  expires_at timestamp [nullable]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-
-  indexes: [
-    { name: 'personal_access_tokens_tokenable_type_tokenable_id_index', columns: [tokenable_type, tokenable_id] }
-  ]
+Table sessions {
+  id varchar(255) [primary key]
+  user_id bigint [nullable, ref: > users.id]
+  ip_address varchar(45) [nullable]
+  user_agent text [nullable]
+  payload longtext [not null]
+  last_activity int [not null]
 }
 
 Table password_reset_tokens {
-  email varchar(255) [primary key, not null]
+  email varchar(255) [primary key]
   token varchar(255) [not null]
   created_at timestamp [nullable]
 }
 
-Table sessions {
-  id varchar(255) [primary key, not null]
-  user_id bigint unsigned [nullable]
-  ip_address varchar(45) [nullable]
-  user_agent text [nullable]
-  payload longtext [not null]
-  last_activity integer [not null]
+Table personal_access_tokens {
+  id bigint [primary key, not null, increment]
+  tokenable_type varchar(255) [not null]
+  tokenable_id bigint [not null]
+  name text [not null]
+  token varchar(64) [not null, unique]
+  abilities text [nullable]
+  last_used_at timestamp [nullable]
+  expires_at timestamp [nullable]
+  created_at timestamp
+  updated_at timestamp
+}
 
-  indexes: [
-    { name: 'sessions_user_id_index', columns: [user_id] }
-    { name: 'sessions_last_activity_index', columns: [last_activity] }
-  ]
+Table push_subscriptions {
+  id bigint [primary key, not null, increment]
+  subscribable_type varchar(255) [not null, note: 'morph to users']
+  subscribable_id bigint [not null]
+  endpoint varchar(500) [not null]
+  public_key varchar(255) [nullable]
+  auth_token varchar(255) [nullable]
+  content_encoding varchar(255) [nullable]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table notifications {
+  id char(36) [primary key]
+  type varchar(255) [not null]
+  notifiable_type varchar(255) [not null]
+  notifiable_id bigint [not null]
+  data text [not null]
+  read_at timestamp [nullable]
+  created_at timestamp
+  updated_at timestamp
 }
 
 // ============================================
@@ -72,391 +83,402 @@ Table sessions {
 // ============================================
 
 Table cultural_objects {
-  id integer [primary key, not null]
-  name varchar(255) [not null]
+  id bigint [primary key, not null, increment]
+  name varchar(255) [not null, note: 'JSON translatable: {en, id}']
   slug varchar(255) [not null, unique]
-  description text [not null]
-  category varchar(20) [not null, note: 'enum: temple, house, craft, tradition']
-  latitude decimal(10, 8) [not null]
-  longitude decimal(11, 8) [not null]
-  ar_marker_id varchar(255) [not null, unique]
-  model_3d_path varchar(255) [nullable]
+  short_description varchar(255) [nullable, note: 'JSON translatable: {en, id}']
+  description text [not null, note: 'JSON translatable: {en, id}']
+  category enum [not null, note: 'temple | house | craft | tradition']
   historical_images json [nullable]
-  audio_narration_path varchar(255) [nullable]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
+  audio_narration_paths json [nullable, note: 'locale-keyed: {en: path, id: path}']
+  created_at timestamp
+  updated_at timestamp
 
-  indexes: [
-    { name: 'cultural_objects_category_index', columns: [category] }
-    { name: 'cultural_objects_created_at_index', columns: [created_at] }
-  ]
+  indexes {
+    (category) [name: 'cultural_objects_category_index']
+    (created_at) [name: 'cultural_objects_created_at_index']
+  }
 }
 
 Table cultural_stories {
-  id integer [primary key, not null]
-  cultural_object_id bigint unsigned [not null, ref: > cultural_objects.id]
-  title varchar(255) [not null]
-  content text [not null]
-  story_type varchar(20) [not null, note: 'enum: history, philosophy, value']
-  "order" integer [default: 0]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
+  id bigint [primary key, not null, increment]
+  cultural_object_id bigint [not null, ref: > cultural_objects.id]
+  title varchar(255) [not null, note: 'JSON translatable: {en, id}']
+  content text [not null, note: 'JSON translatable: {en, id}']
+  story_type enum [not null, note: 'history | philosophy | value']
+  order int [default: 0]
+  created_at timestamp
+  updated_at timestamp
 
-  indexes: [
-    { name: 'cultural_stories_cultural_object_id_order_index', columns: [cultural_object_id, "order"] }
-  ]
+  indexes {
+    (cultural_object_id, order) [name: 'cultural_stories_cultural_object_id_order_index']
+  }
 }
 
-
-
-// ============================================
-// UMKM (MICRO BUSINESS)
-// ============================================
-
-Table umkm_profiles {
-  id integer [primary key, not null]
-  user_id bigint unsigned [nullable, ref: > users.id]
-  owner_name varchar(255) [not null]
-  business_name varchar(255) [not null]
-  slug varchar(255) [not null, unique]
-  description text [nullable]
-  category varchar(20) [not null, note: 'enum: culinary, craft, souvenir, service']
-  latitude decimal(10, 8) [nullable]
-  longitude decimal(11, 8) [nullable]
-  ar_marker_id varchar(255) [not null, unique]
-  rating decimal(2, 1) [default: 0]
-  is_active boolean [default: true]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-
-  indexes: [
-    { name: 'umkm_profiles_category_index', columns: [category] }
-    { name: 'umkm_profiles_is_active_index', columns: [is_active] }
-  ]
-}
-
-Table umkm_products {
-  id integer [primary key, not null]
-  umkm_profile_id bigint unsigned [not null, ref: > umkm_profiles.id]
-  name varchar(255) [not null]
-  slug varchar(255) [not null, unique]
-  description text [nullable]
-  price decimal(12, 2) [not null]
-  stock integer [default: 0]
-  unit varchar(50) [default: 'pcs']
-  images json [nullable]
-  ar_model_path varchar(255) [nullable]
-  is_active boolean [default: true]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-
-  indexes: [
-    { name: 'umkm_products_is_active_index', columns: [is_active] }
-  ]
+Table cultural_object_quizzes {
+  id bigint [primary key, not null, increment]
+  cultural_object_id bigint [not null, ref: > cultural_objects.id]
+  question text [not null, note: 'JSON translatable: {en, id}']
+  option_a varchar(255) [not null]
+  option_b varchar(255) [not null]
+  option_c varchar(255) [not null]
+  option_d varchar(255) [not null]
+  correct_option char(1) [not null, note: 'a | b | c | d']
+  created_at timestamp
+  updated_at timestamp
 }
 
 // ============================================
-// MAPS & TOUR ROUTING
+// AR MODELS
+// ============================================
+
+Table ar_models {
+  id bigint [primary key, not null, increment]
+  name varchar(255) [not null, note: 'JSON translatable: {en, id}']
+  ar_marker_id varchar(255) [nullable, unique]
+  ar_marker_patt_path varchar(255) [nullable, note: 'PATT file for AR.js/A-Frame']
+  map_location_id bigint [nullable, ref: > map_locations.id]
+  description text [nullable, note: 'JSON translatable: {en, id}']
+  model_3d_path varchar(255) [nullable, note: 'GLB/GLTF for Android/WebAR']
+  model_3d_usdz_path varchar(255) [nullable, note: 'USDZ for iOS AR Quick Look']
+  audio_narration_paths json [nullable, note: 'locale-keyed: {en: path, id: path}']
+  thumbnail_path varchar(255) [nullable]
+  created_at timestamp
+  updated_at timestamp
+}
+
+// ============================================
+// MAPS & FACILITIES
 // ============================================
 
 Table map_locations {
-  id integer [primary key, not null]
-  name varchar(255) [not null]
-  category varchar(20) [not null, note: 'enum: cultural, umkm, facility, emergency, accessibility']
-  locationable_type varchar(255) [not null, note: 'morphable']
-  locationable_id bigint unsigned [not null, note: 'morphable']
-  latitude decimal(10, 8) [not null]
-  longitude decimal(11, 8) [not null]
-  is_accessible boolean [default: true]
-  accessibility_notes text [nullable]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
+  id bigint [primary key, not null, increment]
+  name varchar(255) [not null, note: 'JSON translatable: {en, id}']
+  category enum [not null, note: 'cultural | umkm | facility | emergency | accessibility']
+  locationable_type varchar(255) [not null, note: 'morph: CulturalObject | UmkmProfile | Facility | ArModel']
+  locationable_id bigint [not null]
+  latitude decimal(10,8) [not null]
+  longitude decimal(11,8) [not null]
+  is_accessible tinyint(1) [default: 1]
+  accessibility_notes text [nullable, note: 'JSON translatable: {en, id}']
+  created_at timestamp
+  updated_at timestamp
 
-  indexes: [
-    { name: 'map_locations_category_index', columns: [category] }
-    { name: 'map_locations_is_accessible_index', columns: [is_accessible] }
-  ]
+  indexes {
+    (category) [name: 'map_locations_category_index']
+    (is_accessible) [name: 'map_locations_is_accessible_index']
+    (locationable_type, locationable_id) [name: 'map_locations_locationable_index']
+  }
 }
 
-Table tour_routes {
-  id integer [primary key, not null]
-  name varchar(255) [not null]
-  description text [nullable]
-  difficulty varchar(20) [not null, note: 'enum: easy, moderate, challenging']
-  estimated_duration_minutes integer [not null]
-  distance_meters integer [not null]
-  is_smart_route boolean [default: false]
-  is_active boolean [default: true]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-
-  indexes: [
-    { name: 'tour_routes_difficulty_index', columns: [difficulty] }
-    { name: 'tour_routes_is_active_index', columns: [is_active] }
-  ]
-}
-
-Table tour_route_points {
-  id integer [primary key, not null]
-  tour_route_id bigint unsigned [not null, ref: > tour_routes.id]
-  locationable_type varchar(255) [not null, note: 'morphable']
-  locationable_id bigint unsigned [not null, note: 'morphable']
-  "order" integer [not null]
-  estimated_visit_minutes integer [default: 15]
-  storytelling_content text [nullable]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-
-  indexes: [
-    { name: 'tour_route_points_tour_route_id_order_index', columns: [tour_route_id, "order"] }
-  ]
-}
-
-// ============================================
-// EVENTS & RESERVATIONS
-// ============================================
-
-Table events {
-  id integer [primary key, not null]
-  name varchar(255) [not null]
-  slug varchar(255) [not null, unique]
-  description text [nullable]
-  category varchar(20) [not null, note: 'enum: cultural, culinary, workshop, ceremony']
-  start_datetime datetime [not null]
-  end_datetime datetime [not null]
-  location_name varchar(255) [not null]
-  latitude decimal(10, 8) [nullable]
-  longitude decimal(11, 8) [nullable]
-  is_free boolean [default: false]
-  price decimal(12, 2) [nullable]
-  max_participants integer [nullable]
-  current_participants integer [default: 0]
-  registration_url varchar(255) [nullable]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-
-  indexes: [
-    { name: 'events_start_datetime_index', columns: [start_datetime] }
-    { name: 'events_category_index', columns: [category] }
-  ]
-}
-
-Table tour_packages {
-  id integer [primary key, not null]
-  name varchar(255) [not null]
-  slug varchar(255) [not null, unique]
-  description text [nullable]
-  inclusions json [nullable]
-  exclusions json [nullable]
-  price decimal(12, 2) [not null]
-  duration_hours decimal(4, 1) [not null]
-  max_capacity integer [not null]
-  min_capacity integer [default: 1]
-  images json [nullable]
-  is_active boolean [default: true]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-
-  indexes: [
-    { name: 'tour_packages_is_active_index', columns: [is_active] }
-  ]
-}
-
-Table reservations {
-  id integer [primary key, not null]
-  user_id bigint unsigned [nullable, ref: > users.id]
-  guest_name varchar(255) [not null]
-  guest_email varchar(255) [not null]
-  guest_phone varchar(50) [not null]
-  tour_package_id bigint unsigned [nullable, ref: > tour_packages.id]
-  reservation_type varchar(20) [not null, note: 'enum: package, custom_tour, event']
-  scheduled_date date [not null]
-  scheduled_time time [not null]
-  party_size integer [not null]
-  total_amount decimal(12, 2) [not null]
-  status varchar(20) [default: 'pending', note: 'enum: pending, confirmed, completed, cancelled, refunded']
-  payment_status varchar(20) [default: 'unpaid', note: 'enum: unpaid, paid, refunded']
-  payment_method varchar(50) [nullable]
-  payment_reference varchar(255) [nullable]
-  qr_code varchar(255) [not null, unique]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-
-  indexes: [
-    { name: 'reservations_status_index', columns: [status] }
-    { name: 'reservations_payment_status_index', columns: [payment_status] }
-    { name: 'reservations_scheduled_date_index', columns: [scheduled_date] }
-    { name: 'reservations_scheduled_date_status_index', columns: [scheduled_date, status] }
-  ]
-}
-
-// ============================================
-// LEARNING MODULES
-// ============================================
-
-Table learning_modules {
-  id integer [primary key, not null]
-  name varchar(255) [not null]
-  slug varchar(255) [not null, unique]
-  category varchar(20) [not null, note: 'enum: history, craft, culinary, tradition, environment']
-  description text [nullable]
-  thumbnail_path varchar(255) [nullable]
-  difficulty varchar(20) [not null, note: 'enum: beginner, intermediate, advanced']
-  estimated_duration_minutes integer [not null]
-  is_active boolean [default: true]
-  "order" integer [default: 0]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-
-  indexes: [
-    { name: 'learning_modules_category_index', columns: [category] }
-    { name: 'learning_modules_difficulty_index', columns: [difficulty] }
-    { name: 'learning_modules_is_active_index', columns: [is_active] }
-    { name: 'learning_modules_order_index', columns: ["order"] }
-  ]
-}
-
-Table learning_contents {
-  id integer [primary key, not null]
-  learning_module_id bigint unsigned [not null, ref: > learning_modules.id]
-  content_type varchar(20) [not null, note: 'enum: text, image, video, audio, quiz']
-  title varchar(255) [not null]
-  content text [not null]
-  media_path varchar(255) [nullable]
-  duration_seconds integer [nullable]
-  "order" integer [default: 0]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-
-  indexes: [
-    { name: 'learning_contents_learning_module_id_order_index', columns: [learning_module_id, "order"] }
-  ]
-}
-
-Table learning_quizzes {
-  id integer [primary key, not null]
-  learning_content_id bigint unsigned [not null, ref: > learning_contents.id]
-  question text [not null]
-  options json [not null]
-  explanation text [nullable]
-  "order" integer [default: 0]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-
-  indexes: [
-    { name: 'learning_quizzes_learning_content_id_order_index', columns: [learning_content_id, "order"] }
-  ]
-}
-
-Table user_learning_progress {
-  id integer [primary key, not null]
-  user_id bigint unsigned [not null, ref: > users.id]
-  learning_module_id bigint unsigned [not null, ref: > learning_modules.id]
-  status varchar(20) [default: 'not_started', note: 'enum: not_started, in_progress, completed']
-  progress_percentage integer [default: 0]
-  last_content_id bigint unsigned [nullable, ref: > learning_contents.id]
-  completed_at datetime [nullable]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-
-  indexes: [
-    { name: 'user_learning_progress_user_id_learning_module_id_unique', columns: [user_id, learning_module_id], unique: true }
-    { name: 'user_learning_progress_status_index', columns: [status] }
-  ]
-}
-
-// ============================================
-// FEEDBACK & ANALYTICS
-// ============================================
-
-Table feedbacks {
-  id integer [primary key, not null]
-  user_id bigint unsigned [nullable, ref: > users.id]
-  reservation_id bigint unsigned [nullable, ref: > reservations.id]
-  feedback_type varchar(20) [not null, note: 'enum: general, cultural, service, facility, umkm']
-  rating integer [not null]
-  comment text [nullable]
-  photos json [nullable]
-  is_public boolean [default: true]
-  admin_response text [nullable]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-
-  indexes: [
-    { name: 'feedbacks_feedback_type_index', columns: [feedback_type] }
-    { name: 'feedbacks_is_public_index', columns: [is_public] }
-    { name: 'feedbacks_rating_index', columns: [rating] }
-  ]
+Table facilities {
+  id bigint [primary key, not null, increment]
+  name varchar(255) [not null, note: 'JSON translatable: {en, id}']
+  type varchar(255) [not null, note: 'toilet | parking | info_center | etc.']
+  description text [nullable, note: 'JSON translatable: {en, id}']
+  is_active tinyint(1) [default: 1]
+  created_at timestamp
+  updated_at timestamp
 }
 
 Table capacity_zones {
-  id integer [primary key, not null]
+  id bigint [primary key, not null, increment]
   name varchar(255) [not null]
   zone_identifier varchar(255) [not null, unique]
-  max_capacity integer [not null]
-  warning_threshold integer [default: 70]
-  critical_threshold integer [default: 90]
-  current_count integer [default: 0]
-  is_active boolean [default: true]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
+  polygon_coordinates json [not null, note: 'Geofence polygon [[lat,lng],...]']
+  max_capacity int [not null]
+  warning_threshold int [default: 70, note: 'percent']
+  critical_threshold int [default: 90, note: 'percent']
+  current_count int [default: 0]
+  is_active tinyint(1) [default: 1]
+  created_at timestamp
+  updated_at timestamp
+}
 
-  indexes: [
-    { name: 'capacity_zones_is_active_index', columns: [is_active] }
-  ]
+// ============================================
+// TOUR ROUTES & EDUTOURISM
+// ============================================
+
+Table tour_routes {
+  id bigint [primary key, not null, increment]
+  name varchar(255) [not null, note: 'JSON translatable: {en, id}']
+  description text [nullable, note: 'JSON translatable: {en, id}']
+  difficulty enum [not null, note: 'easy | moderate | challenging']
+  estimated_duration_minutes int [not null]
+  distance_meters int [not null]
+  is_active tinyint(1) [default: 1]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table tour_route_points {
+  id bigint [primary key, not null, increment]
+  tour_route_id bigint [not null, ref: > tour_routes.id]
+  locationable_type varchar(255) [not null, note: 'morph: CulturalObject | Facility | UmkmProfile']
+  locationable_id bigint [not null]
+  order int [not null]
+  estimated_visit_minutes int [default: 15]
+  storytelling_content text [nullable, note: 'JSON translatable: {en, id}']
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (tour_route_id, order) [name: 'tour_route_points_order_index']
+  }
+}
+
+Table route_sessions {
+  id bigint [primary key, not null, increment]
+  user_id bigint [nullable, ref: > users.id]
+  guest_token varchar(255) [nullable, note: 'for unauthenticated users']
+  tour_route_id bigint [not null, ref: > tour_routes.id]
+  current_point_id bigint [nullable, ref: > tour_route_points.id]
+  points_completed int [default: 0]
+  total_score int [default: 0]
+  status enum [not null, note: 'active | completed | abandoned']
+  created_at timestamp
+  updated_at timestamp
+}
+
+// ============================================
+// EVENTS & TOUR PACKAGES
+// ============================================
+
+Table events {
+  id bigint [primary key, not null, increment]
+  name varchar(255) [not null, note: 'JSON translatable: {en, id}']
+  slug varchar(255) [not null, unique]
+  description text [nullable, note: 'JSON translatable: {en, id}']
+  category enum [not null, note: 'cultural | culinary | workshop | ceremony']
+  start_datetime datetime [not null]
+  end_datetime datetime [not null]
+  location_name varchar(255) [not null, note: 'JSON translatable: {en, id}']
+  is_free tinyint(1) [default: 0]
+  price decimal(12,2) [nullable]
+  max_participants int [nullable]
+  current_participants int [default: 0]
+  registration_url varchar(255) [nullable]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table tour_packages {
+  id bigint [primary key, not null, increment]
+  name varchar(255) [not null, note: 'JSON translatable: {en, id}']
+  slug varchar(255) [not null, unique]
+  description text [nullable, note: 'JSON translatable: {en, id}']
+  inclusions json [nullable, note: 'JSON translatable per-item: [{en, id}]']
+  exclusions json [nullable, note: 'JSON translatable per-item: [{en, id}]']
+  price decimal(12,2) [not null]
+  duration_hours decimal(4,1) [not null]
+  max_capacity int [not null]
+  min_capacity int [default: 1]
+  images json [nullable]
+  is_active tinyint(1) [default: 1]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table reservations {
+  id bigint [primary key, not null, increment]
+  user_id bigint [nullable, ref: > users.id]
+  guest_name varchar(255) [not null]
+  guest_email varchar(255) [nullable]
+  guest_phone varchar(255) [nullable]
+  tour_package_id bigint [nullable, ref: > tour_packages.id]
+  reservation_type enum [not null, note: 'package | custom_tour | event']
+  scheduled_date date [not null]
+  party_size int [not null]
+  total_amount decimal(12,2) [not null]
+  status enum [default: 'pending', note: 'pending | confirmed | completed | cancelled | refunded']
+  payment_status enum [default: 'unpaid', note: 'unpaid | paid | refunded']
+  payment_method varchar(255) [nullable]
+  payment_reference varchar(255) [nullable]
+  qr_code varchar(255) [not null, unique]
+  checked_in_at timestamp [nullable]
+  checked_in_by bigint [nullable, ref: > users.id]
+  cancelled_at timestamp [nullable]
+  cancelled_by bigint [nullable, ref: > users.id]
+  cancellation_type varchar(255) [nullable]
+  cancellation_note text [nullable]
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (status) [name: 'reservations_status_index']
+    (payment_status) [name: 'reservations_payment_status_index']
+    (scheduled_date) [name: 'reservations_scheduled_date_index']
+    (scheduled_date, status) [name: 'reservations_scheduled_date_status_index']
+    (checked_in_at) [name: 'reservations_checked_in_at_index']
+  }
+}
+
+// ============================================
+// UMKM (LOCAL MICRO BUSINESSES)
+// ============================================
+
+Table umkm_profiles {
+  id bigint [primary key, not null, increment]
+  user_id bigint [nullable, ref: > users.id]
+  owner_name varchar(255) [not null]
+  business_name varchar(255) [not null, note: 'JSON translatable: {en, id}']
+  slug varchar(255) [not null, unique]
+  description text [nullable, note: 'JSON translatable: {en, id}']
+  rating decimal(2,1) [default: 0]
+  is_active tinyint(1) [default: 1]
+  recommendation_count int [default: 0, note: 'for fair distribution algorithm']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table umkm_product_categories {
+  id bigint [primary key, not null, increment]
+  name varchar(255) [not null, note: 'JSON translatable: {en, id}']
+  slug varchar(255) [not null, unique]
+  description text [nullable, note: 'JSON translatable: {en, id}']
+  price decimal(12,2) [nullable]
+  unit varchar(50) [nullable]
+  image_path varchar(255) [nullable]
+  model_3d_path varchar(255) [nullable]
+  model_3d_usdz_path varchar(255) [nullable]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table umkm_products {
+  id bigint [primary key, not null, increment]
+  umkm_profile_id bigint [not null, ref: > umkm_profiles.id]
+  umkm_product_category_id bigint [nullable, ref: > umkm_product_categories.id]
+  name varchar(255) [not null, note: 'JSON translatable: {en, id}']
+  slug varchar(255) [not null, unique]
+  description text [nullable, note: 'JSON translatable: {en, id}']
+  price decimal(12,2) [not null]
+  stock int [default: 0]
+  unit varchar(50) [default: 'pcs']
+  images json [nullable]
+  is_active tinyint(1) [default: 1]
+  created_at timestamp
+  updated_at timestamp
+}
+
+// ============================================
+// USER ACTIVITY
+// ============================================
+
+Table user_favorites {
+  id bigint [primary key, not null, increment]
+  user_id bigint [not null, ref: > users.id]
+  favoritable_type varchar(255) [not null, note: 'morph: CulturalObject | Event | TourPackage | UmkmProfile']
+  favoritable_id bigint [not null]
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (user_id, favoritable_type, favoritable_id) [unique, name: 'user_favorites_unique']
+  }
+}
+
+Table user_visits {
+  id bigint [primary key, not null, increment]
+  user_id bigint [not null, ref: > users.id]
+  visitable_type varchar(255) [not null, note: 'morph: CulturalObject']
+  visitable_id bigint [not null]
+  route_session_id bigint [nullable, ref: > route_sessions.id]
+  visited_at timestamp [not null]
+  created_at timestamp
+  updated_at timestamp
 }
 
 Table visitor_logs {
-  id integer [primary key, not null]
+  id bigint [primary key, not null, increment]
   session_id varchar(255) [not null]
-  user_id bigint unsigned [nullable, ref: > users.id]
-  event_type varchar(20) [not null, note: 'enum: page_view, feature_use, location_visit, purchase']
+  user_id bigint [nullable, ref: > users.id]
+  event_type enum [not null, note: 'page_view | feature_use | location_visit | purchase']
   event_data json [nullable]
-  latitude decimal(10, 8) [nullable]
-  longitude decimal(11, 8) [nullable]
-  device_type varchar(50) [nullable]
+  latitude decimal(10,8) [nullable]
+  longitude decimal(11,8) [nullable]
+  device_type varchar(255) [nullable]
   browser varchar(255) [nullable]
-  nationality varchar(50) [nullable]
+  nationality varchar(255) [nullable]
   logged_at datetime [not null]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
+  created_at timestamp
+  updated_at timestamp
 
-  indexes: [
-    { name: 'visitor_logs_session_id_index', columns: [session_id] }
-    { name: 'visitor_logs_logged_at_index', columns: [logged_at] }
-    { name: 'visitor_logs_event_type_index', columns: [event_type] }
-    { name: 'visitor_logs_session_id_logged_at_index', columns: [session_id, logged_at] }
-  ]
+  indexes {
+    (session_id) [name: 'visitor_logs_session_id_index']
+    (logged_at) [name: 'visitor_logs_logged_at_index']
+    (event_type) [name: 'visitor_logs_event_type_index']
+  }
+}
+
+Table feedbacks {
+  id bigint [primary key, not null, increment]
+  user_id bigint [nullable, ref: > users.id]
+  reservation_id bigint [nullable, ref: > reservations.id]
+  feedback_type enum [not null, note: 'general | cultural | service | facility | umkm']
+  rating int [not null]
+  comment text [nullable]
+  photos json [nullable]
+  is_public tinyint(1) [default: 1]
+  admin_response text [nullable]
+  created_at timestamp
+  updated_at timestamp
 }
 
 // ============================================
-// RELATIONSHIPS
+// SYSTEM & SETTINGS
 // ============================================
 
-// Cultural Objects relationships
+Table village_settings {
+  id bigint [primary key, not null, increment]
+  open_time time [not null]
+  close_time time [not null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table weather_reports {
+  id bigint [primary key, not null, increment]
+  temperature decimal(4,1) [not null]
+  condition varchar(255) [not null]
+  weather_code int [not null]
+  humidity int [not null]
+  wind_speed decimal(5,2) [not null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+// ============================================
+// RELATIONSHIPS SUMMARY
+// ============================================
+
+// Cultural
 Ref: cultural_stories.cultural_object_id > cultural_objects.id [delete: cascade]
+Ref: cultural_object_quizzes.cultural_object_id > cultural_objects.id [delete: cascade]
 
-// UMKM relationships
-Ref: umkm_profiles.user_id > users.id [delete: set null]
-Ref: umkm_products.umkm_profile_id > umkm_profiles.id [delete: cascade]
+// AR
+Ref: ar_models.map_location_id > map_locations.id [delete: set null]
 
-// Map & Tour relationships
+// Tour Routes & Edutourism
 Ref: tour_route_points.tour_route_id > tour_routes.id [delete: cascade]
+Ref: route_sessions.tour_route_id > tour_routes.id [delete: cascade]
+Ref: route_sessions.current_point_id > tour_route_points.id [delete: set null]
 
-// Reservation relationships
+// Reservations
 Ref: reservations.user_id > users.id [delete: set null]
 Ref: reservations.tour_package_id > tour_packages.id [delete: set null]
+Ref: reservations.checked_in_by > users.id
+Ref: reservations.cancelled_by > users.id
 
-// Learning relationships
-Ref: learning_contents.learning_module_id > learning_modules.id [delete: cascade]
-Ref: learning_quizzes.learning_content_id > learning_contents.id [delete: cascade]
-Ref: user_learning_progress.user_id > users.id [delete: cascade]
-Ref: user_learning_progress.learning_module_id > learning_modules.id [delete: cascade]
-Ref: user_learning_progress.last_content_id > learning_contents.id [delete: set null]
+// UMKM
+Ref: umkm_profiles.user_id > users.id [delete: set null]
+Ref: umkm_products.umkm_profile_id > umkm_profiles.id [delete: cascade]
+Ref: umkm_products.umkm_product_category_id > umkm_product_categories.id [delete: set null]
 
-// Feedback relationships
+// User Activity
+Ref: user_favorites.user_id > users.id [delete: cascade]
+Ref: user_visits.user_id > users.id [delete: cascade]
+Ref: user_visits.route_session_id > route_sessions.id [delete: set null]
+Ref: visitor_logs.user_id > users.id [delete: set null]
 Ref: feedbacks.user_id > users.id [delete: set null]
 Ref: feedbacks.reservation_id > reservations.id [delete: set null]
-
-// Visitor Log relationships
-Ref: visitor_logs.user_id > users.id [delete: set null]
