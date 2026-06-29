@@ -4,3 +4,10 @@ services:
       - "${APP_PORT:-8000}:80"
     volumes:
       - .:/var/www
+
+  # Local only: expose LibreTranslate to the host so `composer dev` (php artisan
+  # serve on host) can reach it at http://localhost:5000. Prod stays internal-only
+  # because deploy.sh runs `docker compose -f docker-compose.yml` (override ignored).
+  penglipuran-libretranslate:
+    ports:
+      - "${LIBRETRANSLATE_PORT:-5000}:5000"

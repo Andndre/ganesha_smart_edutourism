@@ -28,6 +28,7 @@ services:
       - penglipuran-db
       - penglipuran-ors
       - penglipuran-redis
+      - penglipuran-libretranslate
     networks:
       - penglipuran-network
 
@@ -131,6 +132,27 @@ services:
     networks:
       - penglipuran-network
 
+  penglipuran-libretranslate:
+    image: libretranslate/libretranslate:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-libretranslate
+    restart: unless-stopped
+    user: root
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Internal-only: reached by the app via DNS name on penglipuran-network, no public port.
+    environment:
+      - LT_LOAD_ONLY=en,id
+      - LT_DISABLE_WEB_UI=true
+      - LT_UPDATE_MODELS=false
+    volumes:
+      # Persist downloaded en<->id models so rebuilds don't re-download them
+      - penglipuran-libretranslate-models:/home/libretranslate/.local/share/argos-translate
+    networks:
+      - penglipuran-network
+
   penglipuran-pma:
     image: phpmyadmin:latest
     container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-pma
@@ -161,3 +183,4 @@ volumes:
   penglipuran-storage:
   penglipuran-db-data:
   penglipuran-redis-data:
+  penglipuran-libretranslate-models:

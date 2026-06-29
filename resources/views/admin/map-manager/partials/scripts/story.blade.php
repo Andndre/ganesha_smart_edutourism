@@ -85,7 +85,7 @@ function addStoryField(story = null, forcedCategory = null) {
     
     const item = document.createElement('div');
     item.className = 'story-item relative bg-gray-50/60 p-4 rounded-xl border border-gray-100 shadow-xs space-y-3 transition-all duration-300';
-    item.setAttribute('x-data', '{ locale: "en" }');
+    item.setAttribute('x-data', '{ locale: "id" }');
     
     const titleValEn = story ? (typeof story.title === 'object' ? (story.title.en || '') : story.title) : '';
     const titleValId = story ? (typeof story.title === 'object' ? (story.title.id || '') : story.title) : '';
@@ -100,8 +100,8 @@ function addStoryField(story = null, forcedCategory = null) {
             <div class="flex items-center gap-1.5">
                 {{-- Locale switch --}}
                 <div class="flex gap-1 mr-2 border border-gray-200 bg-white p-0.5 rounded-lg">
-                    <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-white text-gray-500 hover:text-gray-900'" class="px-2 py-0.5 rounded text-[10px] font-semibold transition-all" type="button">EN</button>
                     <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-white text-gray-500 hover:text-gray-900'" class="px-2 py-0.5 rounded text-[10px] font-semibold transition-all" type="button">ID</button>
+                    <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-white text-gray-500 hover:text-gray-900'" class="px-2 py-0.5 rounded text-[10px] font-semibold transition-all" type="button">EN</button>
                 </div>
                 <!-- Move Up Button -->
                 <button type="button" class="btn-move-up p-1 text-gray-400 hover:text-primary hover:bg-white rounded-lg transition-colors border border-transparent hover:border-gray-200" title="Geser ke Atas">

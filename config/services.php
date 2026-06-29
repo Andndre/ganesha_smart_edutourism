@@ -39,6 +39,11 @@ return [
         'base_url' => env('ORS_BASE_URL', 'http://localhost:8080'),
     ],
 
+    'libretranslate' => [
+        'url' => env('LIBRETRANSLATE_URL', 'http://localhost:5000'),
+        'key' => env('LIBRETRANSLATE_API_KEY'),
+    ],
+
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),

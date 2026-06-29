@@ -31,16 +31,16 @@
             <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
                 <h2 class="text-charcoal mb-5 font-semibold">Detail Paket</h2>
                 <div class="space-y-4">
-                    <div x-data="{ locale: 'en' }">
+                    <div x-data="{ locale: 'id' }">
                         <div class="sticky top-0 z-10 mb-4 flex gap-2 border-b border-gray-100 bg-white py-3">
-                            <button @click="locale = 'en'"
-                                :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-                                type="button"
-                                class="rounded-xl px-4 py-2 text-sm font-semibold transition-all">English</button>
                             <button @click="locale = 'id'"
                                 :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
                                 type="button"
                                 class="rounded-xl px-4 py-2 text-sm font-semibold transition-all">Indonesia</button>
+                            <button @click="locale = 'en'"
+                                :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+                                type="button"
+                                class="rounded-xl px-4 py-2 text-sm font-semibold transition-all">English</button>
                         </div>
 
                         <div x-show="locale === 'en'">
@@ -116,16 +116,16 @@
 
             <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
                 <h2 class="text-charcoal mb-5 font-semibold">Yang Termasuk & Tidak Termasuk</h2>
-                <div x-data="{ locale: 'en' }">
+                <div x-data="{ locale: 'id' }">
                     <div class="sticky top-0 z-10 mb-4 flex gap-2 border-b border-gray-100 bg-white py-3">
-                        <button @click="locale = 'en'"
-                            :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-                            type="button"
-                            class="rounded-xl px-4 py-2 text-sm font-semibold transition-all">English</button>
                         <button @click="locale = 'id'"
                             :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
                             type="button"
                             class="rounded-xl px-4 py-2 text-sm font-semibold transition-all">Indonesia</button>
+                        <button @click="locale = 'en'"
+                            :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
+                            type="button"
+                            class="rounded-xl px-4 py-2 text-sm font-semibold transition-all">English</button>
                     </div>
 
                     <div x-show="locale === 'en'">
