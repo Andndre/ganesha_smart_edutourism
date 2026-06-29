@@ -75,7 +75,7 @@ class CulturalController extends Controller
      * @param mixed $model
      * @return array
      */
-    public function resolveTrans(mixed $model): array
+    private function resolveTrans(mixed $model): array
     {
         $data = $model->toArray();
 

@@ -1,5 +1,5 @@
 @php($dark = $dark ?? false)
-<div x-data="adminBell()" x-init="load()" class="relative">
+<div x-data="adminBell()" class="relative">
     <button type="button" @click="toggle()"
         class="relative inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors {{ $dark ? 'text-white/70 hover:bg-white/10 hover:text-white' : 'text-charcoal hover:bg-gray-100' }}"
         :aria-label="'{{ __('Notifikasi') }}'">
