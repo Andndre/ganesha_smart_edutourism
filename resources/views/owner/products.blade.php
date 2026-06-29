@@ -265,19 +265,17 @@
                 </div>
 
                 {{-- Harga & Satuan --}}
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">{{ __('Harga (Rp)') }}</label>
-                        <input type="number" name="price" id="field-price" min="0" step="500"
-                            placeholder="{{ __('Kosongkan jika pakai harga kategori') }}"
-                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">{{ __('Satuan') }}</label>
-                        <input type="text" name="unit" id="field-unit"
-                            placeholder="pcs / kg / porsi"
-                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-                    </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">{{ __('Harga (Rp)') }}</label>
+                    <input type="number" name="price" id="field-price" min="0" step="500"
+                        placeholder="{{ __('Kosongkan jika menggunakan harga kategori') }}"
+                        class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">{{ __('Satuan') }}</label>
+                    <input type="text" name="unit" id="field-unit"
+                        placeholder="pcs / kg / porsi"
+                        class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">

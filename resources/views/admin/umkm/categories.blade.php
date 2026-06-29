@@ -113,6 +113,8 @@
                                 'id' => $cat->id,
                                 'name' => $cat->getTranslations('name'),
                                 'description' => $cat->getTranslations('description'),
+                                'price' => $cat->price,
+                                'unit' => $cat->unit,
                                 'image_path' => $cat->image_path,
                                 'model_3d_path' => $cat->model_3d_path,
                                 'model_3d_usdz_path' => $cat->model_3d_usdz_path,
@@ -202,6 +204,23 @@
                     @error('description.id')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
+                </div>
+
+                {{-- Harga & Satuan --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">Harga Default (Rp)</label>
+                        <input type="number" name="price" id="field-price" min="0" step="500"
+                            placeholder="Kosongkan jika belum ada"
+                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                        @error('price')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">Satuan</label>
+                        <input type="text" name="unit" id="field-unit" placeholder="pcs / kg / porsi"
+                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                        @error('unit')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    </div>
                 </div>
 
                 <div>
@@ -319,6 +338,8 @@
             fieldNameId.value = "";
             fieldDescriptionEn.value = "";
             fieldDescriptionId.value = "";
+            document.getElementById('field-price').value = "";
+            document.getElementById('field-unit').value = "";
             fieldImage.value = "";
             fieldModel3d.value = "";
             fieldModel3dUsdz.value = "";
@@ -346,6 +367,8 @@
                 .description || "");
             fieldDescriptionId.value = (typeof cat.description === 'object') ? (cat.description?.id || "") : (cat
                 .description || "");
+            document.getElementById('field-price').value = cat.price !== null ? cat.price : "";
+            document.getElementById('field-unit').value = cat.unit ?? "";
 
             fieldImage.value = "";
             fieldModel3d.value = "";
