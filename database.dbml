@@ -14,24 +14,24 @@ Table users {
   id bigint [primary key, not null, increment]
   name varchar(255) [not null]
   email varchar(255) [not null, unique]
-  google_id varchar(255) [nullable]
-  email_verified_at timestamp [nullable]
+  google_id varchar(255)
+  email_verified_at timestamp
   password varchar(255) [not null]
   role enum [not null, note: 'tourist | umkm_owner | admin | ticket_officer']
-  phone varchar(255) [nullable]
-  nationality varchar(255) [nullable]
+  phone varchar(255)
+  nationality varchar(255)
   preferred_language varchar(10) [default: 'id']
-  avatar_path varchar(255) [nullable]
-  remember_token varchar(100) [nullable]
+  avatar_path varchar(255)
+  remember_token varchar(100)
   created_at timestamp
   updated_at timestamp
 }
 
 Table sessions {
   id varchar(255) [primary key]
-  user_id bigint [nullable, ref: > users.id]
-  ip_address varchar(45) [nullable]
-  user_agent text [nullable]
+  user_id bigint [ref: > users.id]
+  ip_address varchar(45)
+  user_agent text
   payload longtext [not null]
   last_activity int [not null]
 }
@@ -39,7 +39,7 @@ Table sessions {
 Table password_reset_tokens {
   email varchar(255) [primary key]
   token varchar(255) [not null]
-  created_at timestamp [nullable]
+  created_at timestamp
 }
 
 Table personal_access_tokens {
@@ -48,9 +48,9 @@ Table personal_access_tokens {
   tokenable_id bigint [not null]
   name text [not null]
   token varchar(64) [not null, unique]
-  abilities text [nullable]
-  last_used_at timestamp [nullable]
-  expires_at timestamp [nullable]
+  abilities text
+  last_used_at timestamp
+  expires_at timestamp
   created_at timestamp
   updated_at timestamp
 }
@@ -60,9 +60,9 @@ Table push_subscriptions {
   subscribable_type varchar(255) [not null, note: 'morph to users']
   subscribable_id bigint [not null]
   endpoint varchar(500) [not null]
-  public_key varchar(255) [nullable]
-  auth_token varchar(255) [nullable]
-  content_encoding varchar(255) [nullable]
+  public_key varchar(255)
+  auth_token varchar(255)
+  content_encoding varchar(255)
   created_at timestamp
   updated_at timestamp
 }
@@ -73,7 +73,7 @@ Table notifications {
   notifiable_type varchar(255) [not null]
   notifiable_id bigint [not null]
   data text [not null]
-  read_at timestamp [nullable]
+  read_at timestamp
   created_at timestamp
   updated_at timestamp
 }
@@ -86,11 +86,11 @@ Table cultural_objects {
   id bigint [primary key, not null, increment]
   name varchar(255) [not null, note: 'JSON translatable: {en, id}']
   slug varchar(255) [not null, unique]
-  short_description varchar(255) [nullable, note: 'JSON translatable: {en, id}']
+  short_description varchar(255) [note: 'JSON translatable: {en, id}']
   description text [not null, note: 'JSON translatable: {en, id}']
   category enum [not null, note: 'temple | house | craft | tradition']
-  historical_images json [nullable]
-  audio_narration_paths json [nullable, note: 'locale-keyed: {en: path, id: path}']
+  historical_images json
+  audio_narration_paths json [note: 'locale-keyed: {en: path, id: path}']
   created_at timestamp
   updated_at timestamp
 
@@ -135,14 +135,14 @@ Table cultural_object_quizzes {
 Table ar_models {
   id bigint [primary key, not null, increment]
   name varchar(255) [not null, note: 'JSON translatable: {en, id}']
-  ar_marker_id varchar(255) [nullable, unique]
-  ar_marker_patt_path varchar(255) [nullable, note: 'PATT file for AR.js/A-Frame']
-  map_location_id bigint [nullable, ref: > map_locations.id]
-  description text [nullable, note: 'JSON translatable: {en, id}']
-  model_3d_path varchar(255) [nullable, note: 'GLB/GLTF for Android/WebAR']
-  model_3d_usdz_path varchar(255) [nullable, note: 'USDZ for iOS AR Quick Look']
-  audio_narration_paths json [nullable, note: 'locale-keyed: {en: path, id: path}']
-  thumbnail_path varchar(255) [nullable]
+  ar_marker_id varchar(255) [unique]
+  ar_marker_patt_path varchar(255) [note: 'PATT file for AR.js/A-Frame']
+  map_location_id bigint [ref: > map_locations.id]
+  description text [note: 'JSON translatable: {en, id}']
+  model_3d_path varchar(255) [note: 'GLB/GLTF for Android/WebAR']
+  model_3d_usdz_path varchar(255) [note: 'USDZ for iOS AR Quick Look']
+  audio_narration_paths json [note: 'locale-keyed: {en: path, id: path}']
+  thumbnail_path varchar(255)
   created_at timestamp
   updated_at timestamp
 }
@@ -160,7 +160,7 @@ Table map_locations {
   latitude decimal(10,8) [not null]
   longitude decimal(11,8) [not null]
   is_accessible tinyint(1) [default: 1]
-  accessibility_notes text [nullable, note: 'JSON translatable: {en, id}']
+  accessibility_notes text [note: 'JSON translatable: {en, id}']
   created_at timestamp
   updated_at timestamp
 
@@ -175,7 +175,7 @@ Table facilities {
   id bigint [primary key, not null, increment]
   name varchar(255) [not null, note: 'JSON translatable: {en, id}']
   type varchar(255) [not null, note: 'toilet | parking | info_center | etc.']
-  description text [nullable, note: 'JSON translatable: {en, id}']
+  description text [note: 'JSON translatable: {en, id}']
   is_active tinyint(1) [default: 1]
   created_at timestamp
   updated_at timestamp
@@ -202,7 +202,7 @@ Table capacity_zones {
 Table tour_routes {
   id bigint [primary key, not null, increment]
   name varchar(255) [not null, note: 'JSON translatable: {en, id}']
-  description text [nullable, note: 'JSON translatable: {en, id}']
+  description text [note: 'JSON translatable: {en, id}']
   difficulty enum [not null, note: 'easy | moderate | challenging']
   estimated_duration_minutes int [not null]
   distance_meters int [not null]
@@ -218,7 +218,7 @@ Table tour_route_points {
   locationable_id bigint [not null]
   order int [not null]
   estimated_visit_minutes int [default: 15]
-  storytelling_content text [nullable, note: 'JSON translatable: {en, id}']
+  storytelling_content text [note: 'JSON translatable: {en, id}']
   created_at timestamp
   updated_at timestamp
 
@@ -229,10 +229,10 @@ Table tour_route_points {
 
 Table route_sessions {
   id bigint [primary key, not null, increment]
-  user_id bigint [nullable, ref: > users.id]
-  guest_token varchar(255) [nullable, note: 'for unauthenticated users']
+  user_id bigint [ref: > users.id]
+  guest_token varchar(255) [note: 'for unauthenticated users']
   tour_route_id bigint [not null, ref: > tour_routes.id]
-  current_point_id bigint [nullable, ref: > tour_route_points.id]
+  current_point_id bigint [ref: > tour_route_points.id]
   points_completed int [default: 0]
   total_score int [default: 0]
   status enum [not null, note: 'active | completed | abandoned']
@@ -248,16 +248,16 @@ Table events {
   id bigint [primary key, not null, increment]
   name varchar(255) [not null, note: 'JSON translatable: {en, id}']
   slug varchar(255) [not null, unique]
-  description text [nullable, note: 'JSON translatable: {en, id}']
+  description text [note: 'JSON translatable: {en, id}']
   category enum [not null, note: 'cultural | culinary | workshop | ceremony']
   start_datetime datetime [not null]
   end_datetime datetime [not null]
   location_name varchar(255) [not null, note: 'JSON translatable: {en, id}']
   is_free tinyint(1) [default: 0]
-  price decimal(12,2) [nullable]
-  max_participants int [nullable]
+  price decimal(12,2)
+  max_participants int
   current_participants int [default: 0]
-  registration_url varchar(255) [nullable]
+  registration_url varchar(255)
   created_at timestamp
   updated_at timestamp
 }
@@ -266,14 +266,14 @@ Table tour_packages {
   id bigint [primary key, not null, increment]
   name varchar(255) [not null, note: 'JSON translatable: {en, id}']
   slug varchar(255) [not null, unique]
-  description text [nullable, note: 'JSON translatable: {en, id}']
-  inclusions json [nullable, note: 'JSON translatable per-item: [{en, id}]']
-  exclusions json [nullable, note: 'JSON translatable per-item: [{en, id}]']
+  description text [note: 'JSON translatable: {en, id}']
+  inclusions json [note: 'JSON translatable per-item: [{en, id}]']
+  exclusions json [note: 'JSON translatable per-item: [{en, id}]']
   price decimal(12,2) [not null]
   duration_hours decimal(4,1) [not null]
   max_capacity int [not null]
   min_capacity int [default: 1]
-  images json [nullable]
+  images json
   is_active tinyint(1) [default: 1]
   created_at timestamp
   updated_at timestamp
@@ -281,26 +281,26 @@ Table tour_packages {
 
 Table reservations {
   id bigint [primary key, not null, increment]
-  user_id bigint [nullable, ref: > users.id]
+  user_id bigint [ref: > users.id]
   guest_name varchar(255) [not null]
-  guest_email varchar(255) [nullable]
-  guest_phone varchar(255) [nullable]
-  tour_package_id bigint [nullable, ref: > tour_packages.id]
+  guest_email varchar(255)
+  guest_phone varchar(255)
+  tour_package_id bigint [ref: > tour_packages.id]
   reservation_type enum [not null, note: 'package | custom_tour | event']
   scheduled_date date [not null]
   party_size int [not null]
   total_amount decimal(12,2) [not null]
   status enum [default: 'pending', note: 'pending | confirmed | completed | cancelled | refunded']
   payment_status enum [default: 'unpaid', note: 'unpaid | paid | refunded']
-  payment_method varchar(255) [nullable]
-  payment_reference varchar(255) [nullable]
+  payment_method varchar(255)
+  payment_reference varchar(255)
   qr_code varchar(255) [not null, unique]
-  checked_in_at timestamp [nullable]
-  checked_in_by bigint [nullable, ref: > users.id]
-  cancelled_at timestamp [nullable]
-  cancelled_by bigint [nullable, ref: > users.id]
-  cancellation_type varchar(255) [nullable]
-  cancellation_note text [nullable]
+  checked_in_at timestamp
+  checked_in_by bigint [ref: > users.id]
+  cancelled_at timestamp
+  cancelled_by bigint [ref: > users.id]
+  cancellation_type varchar(255)
+  cancellation_note text
   created_at timestamp
   updated_at timestamp
 
@@ -319,11 +319,11 @@ Table reservations {
 
 Table umkm_profiles {
   id bigint [primary key, not null, increment]
-  user_id bigint [nullable, ref: > users.id]
+  user_id bigint [ref: > users.id]
   owner_name varchar(255) [not null]
   business_name varchar(255) [not null, note: 'JSON translatable: {en, id}']
   slug varchar(255) [not null, unique]
-  description text [nullable, note: 'JSON translatable: {en, id}']
+  description text [note: 'JSON translatable: {en, id}']
   rating decimal(2,1) [default: 0]
   is_active tinyint(1) [default: 1]
   recommendation_count int [default: 0, note: 'for fair distribution algorithm']
@@ -335,12 +335,12 @@ Table umkm_product_categories {
   id bigint [primary key, not null, increment]
   name varchar(255) [not null, note: 'JSON translatable: {en, id}']
   slug varchar(255) [not null, unique]
-  description text [nullable, note: 'JSON translatable: {en, id}']
-  price decimal(12,2) [nullable]
-  unit varchar(50) [nullable]
-  image_path varchar(255) [nullable]
-  model_3d_path varchar(255) [nullable]
-  model_3d_usdz_path varchar(255) [nullable]
+  description text [note: 'JSON translatable: {en, id}']
+  price decimal(12,2)
+  unit varchar(50)
+  image_path varchar(255)
+  model_3d_path varchar(255)
+  model_3d_usdz_path varchar(255)
   created_at timestamp
   updated_at timestamp
 }
@@ -348,14 +348,14 @@ Table umkm_product_categories {
 Table umkm_products {
   id bigint [primary key, not null, increment]
   umkm_profile_id bigint [not null, ref: > umkm_profiles.id]
-  umkm_product_category_id bigint [nullable, ref: > umkm_product_categories.id]
+  umkm_product_category_id bigint [ref: > umkm_product_categories.id]
   name varchar(255) [not null, note: 'JSON translatable: {en, id}']
   slug varchar(255) [not null, unique]
-  description text [nullable, note: 'JSON translatable: {en, id}']
+  description text [note: 'JSON translatable: {en, id}']
   price decimal(12,2) [not null]
   stock int [default: 0]
   unit varchar(50) [default: 'pcs']
-  images json [nullable]
+  images json
   is_active tinyint(1) [default: 1]
   created_at timestamp
   updated_at timestamp
@@ -383,7 +383,7 @@ Table user_visits {
   user_id bigint [not null, ref: > users.id]
   visitable_type varchar(255) [not null, note: 'morph: CulturalObject']
   visitable_id bigint [not null]
-  route_session_id bigint [nullable, ref: > route_sessions.id]
+  route_session_id bigint [ref: > route_sessions.id]
   visited_at timestamp [not null]
   created_at timestamp
   updated_at timestamp
@@ -392,14 +392,14 @@ Table user_visits {
 Table visitor_logs {
   id bigint [primary key, not null, increment]
   session_id varchar(255) [not null]
-  user_id bigint [nullable, ref: > users.id]
+  user_id bigint [ref: > users.id]
   event_type enum [not null, note: 'page_view | feature_use | location_visit | purchase']
-  event_data json [nullable]
-  latitude decimal(10,8) [nullable]
-  longitude decimal(11,8) [nullable]
-  device_type varchar(255) [nullable]
-  browser varchar(255) [nullable]
-  nationality varchar(255) [nullable]
+  event_data json
+  latitude decimal(10,8)
+  longitude decimal(11,8)
+  device_type varchar(255)
+  browser varchar(255)
+  nationality varchar(255)
   logged_at datetime [not null]
   created_at timestamp
   updated_at timestamp
@@ -413,14 +413,14 @@ Table visitor_logs {
 
 Table feedbacks {
   id bigint [primary key, not null, increment]
-  user_id bigint [nullable, ref: > users.id]
-  reservation_id bigint [nullable, ref: > reservations.id]
+  user_id bigint [ref: > users.id]
+  reservation_id bigint [ref: > reservations.id]
   feedback_type enum [not null, note: 'general | cultural | service | facility | umkm']
   rating int [not null]
-  comment text [nullable]
-  photos json [nullable]
+  comment text
+  photos json
   is_public tinyint(1) [default: 1]
-  admin_response text [nullable]
+  admin_response text
   created_at timestamp
   updated_at timestamp
 }
@@ -447,38 +447,3 @@ Table weather_reports {
   created_at timestamp
   updated_at timestamp
 }
-
-// ============================================
-// RELATIONSHIPS SUMMARY
-// ============================================
-
-// Cultural
-Ref: cultural_stories.cultural_object_id > cultural_objects.id [delete: cascade]
-Ref: cultural_object_quizzes.cultural_object_id > cultural_objects.id [delete: cascade]
-
-// AR
-Ref: ar_models.map_location_id > map_locations.id [delete: set null]
-
-// Tour Routes & Edutourism
-Ref: tour_route_points.tour_route_id > tour_routes.id [delete: cascade]
-Ref: route_sessions.tour_route_id > tour_routes.id [delete: cascade]
-Ref: route_sessions.current_point_id > tour_route_points.id [delete: set null]
-
-// Reservations
-Ref: reservations.user_id > users.id [delete: set null]
-Ref: reservations.tour_package_id > tour_packages.id [delete: set null]
-Ref: reservations.checked_in_by > users.id
-Ref: reservations.cancelled_by > users.id
-
-// UMKM
-Ref: umkm_profiles.user_id > users.id [delete: set null]
-Ref: umkm_products.umkm_profile_id > umkm_profiles.id [delete: cascade]
-Ref: umkm_products.umkm_product_category_id > umkm_product_categories.id [delete: set null]
-
-// User Activity
-Ref: user_favorites.user_id > users.id [delete: cascade]
-Ref: user_visits.user_id > users.id [delete: cascade]
-Ref: user_visits.route_session_id > route_sessions.id [delete: set null]
-Ref: visitor_logs.user_id > users.id [delete: set null]
-Ref: feedbacks.user_id > users.id [delete: set null]
-Ref: feedbacks.reservation_id > reservations.id [delete: set null]
