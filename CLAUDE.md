@@ -135,6 +135,19 @@ translateValue($model->name, 'en')    // explicit locale
 
 **⚠️ Programmatic writes (seeders, factories, imports, tinker) MUST pass a locale-keyed array** — `['id' => '...', 'en' => '...']`, never a bare string. Assigning a plain string to a translatable field makes Spatie file it under the **current app locale** (which is `en` during `db:seed`/CLI), silently leaving the other locale empty and putting the value in the wrong slot. This is exactly what corrupted the cultural-object EN/ID tabs: Indonesian text ended up stored as `{"en":"<indonesian>"}` with no `id` key, so the admin form's English tab showed Indonesian. The admin **forms** are safe because they already submit `name[en]`/`name[id]` arrays — the bug only enters through code that writes bare strings. When in doubt, store the locale you actually have (e.g. `['id' => $indonesianText]`) rather than letting the locale default decide.
 
+### Dashboard Translation Policy (Layer 1 Constraint)
+**Do not use UI translation (`__()` helper) in dashboard views** (`resources/views/admin/*`, `resources/views/owner/*`, `resources/views/staff/*`). Dashboard is internal-only and must use hardcoded English strings to avoid:
+- Incomplete translations fragmenting the UI (e.g., some buttons in ID, labels in EN)
+- Maintenance burden of syncing N dashboard strings across locales
+- Stale translations post-refactor (orphaned keys clutter lang files)
+
+**Translation script (`i18n-sync`) scans only `resources/`, `app/`, `routes/` — it skips dashboard folders.** If you need to add a new dashboard string, write it bare (no `__()`). For user-facing public content (`/` routes), use `__()` and let i18n-sync manage it.
+
+To clean up orphaned keys from lang files post-refactor:
+```bash
+npm run i18n:cleanup-orphans    # removes keys not found in source code
+```
+
 ### Locale Switching
 `SetUserLocale` middleware (applied globally) sets app locale in this priority order:
 1. `?locale=en` query param → stores in session and `user.preferred_language`

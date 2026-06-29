@@ -42,7 +42,7 @@
         {{-- DELETE BUTTON FORM (Hidden on Create) --}}
         <div id="delete-container" class="hidden">
             <form id="form-delete" action="" method="POST" class="delete-form"
-                data-confirm="{{ __('Apakah Anda yakin ingin menghapus lokasi ini?') }}">
+                data-confirm="{{ 'Apakah Anda yakin ingin menghapus lokasi ini?' }}">
                 @csrf
                 @method('DELETE')
                 <button type="submit"

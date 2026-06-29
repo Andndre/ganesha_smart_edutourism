@@ -132,7 +132,7 @@
                         </svg>
                     </button>
                     <form method="POST" action="{{ route('admin.ar-manager.models.destroy', $m->id) }}"
-                        class="delete-form inline" data-confirm="{{ __('Apakah Anda yakin ingin menghapus model ini?') }}">
+                        class="delete-form inline" data-confirm="{{ 'Apakah Anda yakin ingin menghapus model ini?' }}">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="hover:text-warning p-1 text-gray-400 transition-colors"

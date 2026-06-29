@@ -96,7 +96,7 @@
         </button>
 
         <form :action="selectedEvent.delete_action" method="POST" class="delete-form inline"
-            data-confirm="{{ __('Apakah Anda yakin ingin menghapus event ini?') }}">
+            data-confirm="{{ 'Apakah Anda yakin ingin menghapus event ini?' }}">
             @csrf
             @method('DELETE')
             <button type="submit"

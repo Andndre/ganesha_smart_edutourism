@@ -67,14 +67,14 @@
                 stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('Cari produk atau toko UMKM...') }}"
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ 'Cari produk atau toko UMKM...' }}"
                 class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 py-2.5 pl-9 pr-4 text-sm focus:outline-none focus:ring-1">
         </div>
         <select name="category" onchange="this.form.submit()"
             class="focus:border-primary rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none">
-            <option value="Semua Kategori">{{ __('Semua Kategori') }}</option>
+            <option value="Semua Kategori">{{ 'Semua Kategori' }}</option>
             @foreach (['Kerajinan', 'Kuliner', 'Tekstil', 'Minuman'] as $cat)
-                <option value="{{ $cat }}" {{ request('category') === $cat ? 'selected' : '' }}>{{ __($cat) }}
+                <option value="{{ $cat }}" {{ request('category') === $cat ? 'selected' : '' }}>{{ $cat }}
                 </option>
             @endforeach
         </select>
@@ -130,7 +130,7 @@
                                         class="bg-warning/10 text-warning rounded-full px-2.5 py-0.5 text-xs font-bold">{{ $p->stock }}
                                         — Stok Rendah</span>
                                 @elseif ($p->stock === null)
-                                    <span class="text-gray-400 text-xs italic">{{ __('Tidak terbatas') }}</span>
+                                    <span class="text-gray-400 text-xs italic">{{ 'Tidak terbatas' }}</span>
                                 @else
                                     <span class="text-gray-600">{{ $p->stock }} {{ $p->display_unit }}</span>
                                 @endif
@@ -159,7 +159,7 @@
                                     </button>
                                     <form method="POST" action="{{ route('admin.umkm.destroy', $p->id) }}"
                                         class="delete-form inline"
-                                        data-confirm="{{ __('Apakah Anda yakin ingin menghapus produk ini?') }}">
+                                        data-confirm="{{ 'Apakah Anda yakin ingin menghapus produk ini?' }}">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
@@ -261,7 +261,7 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-700">Stok</label>
                         <input type="number" name="stock" id="field-stock" min="0"
-                            placeholder="{{ __('Kosongkan jika tidak terbatas') }}"
+                            placeholder="{{ 'Kosongkan jika tidak terbatas' }}"
                             class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                         @error('stock')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>

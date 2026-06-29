@@ -97,7 +97,7 @@
                     </form>
 
                     <form action="{{ route('admin.feedback.destroy', $f->id) }}" method="POST" class="delete-form inline"
-                        data-confirm="{{ __('Apakah Anda yakin ingin menghapus ulasan ini?') }}">
+                        data-confirm="{{ 'Apakah Anda yakin ingin menghapus ulasan ini?' }}">
                         @csrf
                         @method('DELETE')
                         <button type="submit"

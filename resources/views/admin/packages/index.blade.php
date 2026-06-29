@@ -60,7 +60,7 @@
                     <a href="{{ route('admin.packages.edit', $pkg->id) }}"
                         class="flex-1 rounded-xl border border-gray-200 py-2 text-center text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-50">Edit</a>
                     <form method="POST" action="{{ route('admin.packages.destroy', $pkg->id) }}" class="delete-form flex-1"
-                        data-confirm="{{ __('Apakah Anda yakin ingin menghapus paket ini?') }}">
+                        data-confirm="{{ 'Apakah Anda yakin ingin menghapus paket ini?' }}">
                         @csrf
                         @method('DELETE')
                         <button type="submit"
