@@ -129,10 +129,12 @@
 
                         <div class="flex shrink-0 gap-2 px-5 pb-5">
                             <button onclick="openEditModal({{ json_encode([
-                                'id' => $p->id,
+                                'id'                       => $p->id,
                                 'umkm_product_category_id' => $p->umkm_product_category_id,
-                                'stock' => $p->stock,
-                                'is_active' => $p->is_active,
+                                'price'                    => $p->getAttribute('price'),
+                                'unit'                     => $p->unit,
+                                'stock'                    => $p->stock,
+                                'is_active'                => $p->is_active,
                             ]) }})"
                                 class="border-primary/20 bg-primary/5 text-primary hover:bg-primary inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border py-2.5 text-xs font-bold transition-all hover:text-white">
                                 <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -259,6 +261,22 @@
                                 · <span x-text="selected?.unit || 'pcs'"></span>
                             </p>
                         </div>
+                    </div>
+                </div>
+
+                {{-- Harga & Satuan --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">{{ __('Harga (Rp)') }}</label>
+                        <input type="number" name="price" id="field-price" min="0" step="500"
+                            placeholder="{{ __('Kosongkan jika pakai harga kategori') }}"
+                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">{{ __('Satuan') }}</label>
+                        <input type="text" name="unit" id="field-unit"
+                            placeholder="pcs / kg / porsi"
+                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                     </div>
                 </div>
 
@@ -397,6 +415,8 @@
         const productForm = document.getElementById('modal-form');
         const productModalTitle = document.getElementById('modal-title');
         const methodContainer = document.getElementById('method-container');
+        const fieldPrice = document.getElementById('field-price');
+        const fieldUnit  = document.getElementById('field-unit');
         const fieldStock = document.getElementById('field-stock');
         const fieldActive = document.getElementById('field-active');
         const fieldProductId = document.getElementById('field-product-id');
@@ -453,7 +473,9 @@
             productForm.action = `/owner/products/${product.id}`;
             methodContainer.innerHTML = `@method('PUT')`;
             fieldProductId.value = product.id;
-            fieldStock.value = product.stock !== null ? product.stock : "";
+            fieldPrice.value  = product.price !== null ? product.price : '';
+            fieldUnit.value   = product.unit ?? '';
+            fieldStock.value  = product.stock !== null ? product.stock : '';
             fieldActive.checked = product.is_active;
 
             const root = Alpine.$data(productForm);
