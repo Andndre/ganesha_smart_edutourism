@@ -378,7 +378,7 @@
         <div class="border-t border-white/10 p-4">
             @if (auth()->user()?->isAdmin())
                 <div class="mb-3 px-1">
-                    @include('layouts.partials.admin-bell', ['dark' => true])
+                    @include('layouts.partials.admin-bell', ['onDarkBg' => true])
                 </div>
             @endif
             <div class="mb-3 flex items-center gap-3 px-1">
