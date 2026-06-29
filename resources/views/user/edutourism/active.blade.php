@@ -393,7 +393,7 @@
                                     buttons.forEach(btn => btn.disabled = false);
                                 });
                         }
-                    };
+                    }
 
                     // Run immediately
                     initActiveEdutourism();
