@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 /**
- * i18n-sync: find missing __() keys and optionally auto-translate via LibreTranslate (docker).
+ * i18n-sync: find missing __() keys, detect orphans, and optionally auto-translate via LibreTranslate (docker).
  *
  * Usage:
- *   node scripts/i18n-sync.mjs          # dry-run: list missing keys
- *   node scripts/i18n-sync.mjs --write  # translate & write to lang/*.json
+ *   node scripts/i18n-sync.mjs                  # dry-run: list missing keys and orphans
+ *   node scripts/i18n-sync.mjs --write          # translate missing & write to lang/*.json
+ *   node scripts/i18n-sync.mjs --cleanup-orphans # remove unused keys from lang files
  */
 
 import { execSync } from 'child_process';
@@ -28,6 +29,7 @@ const LT_URL = (() => {
   } catch { return null; }
 })();
 const WRITE = process.argv.includes('--write');
+const CLEANUP_ORPHANS = process.argv.includes('--cleanup-orphans');
 
 // ── 1. Extract all __() keys from source files ──────────────────────────────
 
@@ -97,20 +99,61 @@ const missingId = [...allKeys].filter(k => !(k in idMap));
 const missingEn = [...allKeys].filter(k => !(k in enMap));
 const missing = [...new Set([...missingId, ...missingEn])].sort();
 
-if (missing.length === 0) {
-  console.log('✓ All __() keys are present in both lang files.');
+// Detect orphan keys: present in lang files but not used in source
+const sourceKeys = extractKeys();
+const orphans = [...Object.keys(idMap), ...Object.keys(enMap)]
+  .filter(k => !sourceKeys.has(k))
+  .filter((k, i, arr) => i === arr.indexOf(k))
+  .sort();
+
+if (missing.length === 0 && orphans.length === 0) {
+  console.log('✓ All __() keys are present in both lang files, and no orphan keys found.');
   process.exit(0);
 }
 
-console.log(`\nFound ${missing.length} missing key(s):\n`);
-for (const key of missing) {
-  const inId = key in idMap ? '✓' : '✗';
-  const inEn = key in enMap ? '✓' : '✗';
-  console.log(`  [id:${inId} en:${inEn}] ${key}`);
+if (missing.length > 0) {
+  console.log(`\nFound ${missing.length} missing key(s):\n`);
+  for (const key of missing) {
+    const inId = key in idMap ? '✓' : '✗';
+    const inEn = key in enMap ? '✓' : '✗';
+    console.log(`  [id:${inId} en:${inEn}] ${key}`);
+  }
+}
+
+if (orphans.length > 0) {
+  console.log(`\n⚠ Found ${orphans.length} orphan key(s) in lang files but not used in source:\n`);
+  for (const key of orphans) {
+    console.log(`  • ${key}`);
+  }
+  console.log(`\nTo remove orphans, use: node scripts/i18n-sync.mjs --cleanup-orphans\n`);
+}
+
+if (CLEANUP_ORPHANS) {
+  if (orphans.length === 0) {
+    console.log('✓ No orphan keys to clean up.\n');
+    process.exit(0);
+  }
+
+  const sourceKeys = extractKeys();
+  let removed = 0;
+  for (const key of orphans) {
+    if (!(key in sourceKeys)) {
+      delete idMap[key];
+      delete enMap[key];
+      console.log(`  [removed] ${key}`);
+      removed++;
+    }
+  }
+
+  writeSorted(ID_JSON, idMap);
+  writeSorted(EN_JSON, enMap);
+  console.log(`\n✓ Removed ${removed} orphan key(s). Both lang files updated.\n`);
+  process.exit(0);
 }
 
 if (!WRITE) {
-  console.log(`\nRun with --write to auto-translate and insert into lang files.\n`);
+  console.log(`\nRun with --write to auto-translate and insert into lang files.`);
+  console.log(`Run with --cleanup-orphans to remove unused keys from lang files.\n`);
   process.exit(0);
 }
 

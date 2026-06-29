@@ -345,13 +345,16 @@ Layer 2 — Konten Model (spatie/laravel-translatable)
 
 **Aturan penulisan penting:** Kode yang menulis ke field translatable (seeder, factory, tinker) **wajib** menggunakan array berlabel locale — `['id' => '...', 'en' => '...']`. Menulis string polos akan menyimpan nilai hanya di locale aktif saat itu (default `en` di CLI), membuat tab bahasa lain kosong.
 
+⚠️ **Dashboard Translation Policy:** Dashboard admin (`/admin/*`), owner (`/owner/*`), dan staff (`/staff/*`) **tidak menggunakan UI translation** (`__()` helper). Gunakan hardcoded English strings di views untuk dashboard guna menghindari fragment UI dari terjemahan yang tidak lengkap. Translasi `__()` hanya untuk konten publik (`/`).
+
 ### Workflow Sinkronisasi UI Strings (`i18n-sync`)
 
-Ketika menambah `__('Teks baru')` di blade/PHP, gunakan script otomatis untuk mendeteksi string yang belum ada di `lang/id.json` dan `lang/en.json`, lalu auto-translate via LibreTranslate:
+Ketika menambah `__('Teks baru')` di blade/PHP **publik**, gunakan script otomatis untuk mendeteksi string yang belum ada di `lang/id.json` dan `lang/en.json`, lalu auto-translate via LibreTranslate:
 
 ```bash
-npm run i18n              # dry-run: lihat string yang hilang (tanpa ubah file)
-npm run i18n:write       # auto-translate & tulis ke lang/*.json (butuh Docker)
+npm run i18n                    # dry-run: lihat string yang hilang & orphan keys
+npm run i18n:write             # auto-translate & tulis ke lang/*.json (butuh Docker)
+npm run i18n:cleanup-orphans   # hapus unused keys dari lang files
 ```
 
 **Prasyarat:**
@@ -359,10 +362,13 @@ npm run i18n:write       # auto-translate & tulis ke lang/*.json (butuh Docker)
 - LibreTranslate menyediakan translasi ID ↔ EN secara lokal
 
 **Cara kerjanya:**
-1. Scan semua `__()` di `resources/`, `app/`, `routes/`
+1. Scan semua `__()` di `resources/`, `app/`, `routes/` **kecuali** dashboard folders
 2. Bandingkan dengan kunci yang sudah ada di kedua file lang
-3. Deteksi: string baru (di source tapi hilang di lang) + orphan keys (ada di satu file lang tapi hilang di file lain)
+3. Deteksi:
+   - **String baru** (di source tapi hilang di lang) → `[id:✗ en:✗]`
+   - **Orphan keys** (ada di lang files tapi tidak digunakan di source) → `⚠ Found N orphan key(s)`
 4. `--write`: translate via LibreTranslate, insert ke lang files dengan sort ordinal (uppercase sebelum lowercase)
+5. `--cleanup-orphans`: hapus unused keys dari kedua lang files secara aman
 
 **Contoh:**
 ```bash

@@ -22,8 +22,8 @@
 @section('content')
     <div class="mb-8 flex max-w-6xl flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="font-display text-charcoal text-3xl font-extrabold tracking-tight">{{ __('Daftar Produk Toko') }}</h1>
-            <p class="mt-1 text-sm text-gray-500">{{ __('Pilih kategori, atur stok, dan kelola katalog produk Anda.') }}</p>
+            <h1 class="font-display text-charcoal text-3xl font-extrabold tracking-tight">{{ 'Daftar Produk Toko' }}</h1>
+            <p class="mt-1 text-sm text-gray-500">{{ 'Pilih kategori, atur stok, dan kelola katalog produk Anda.' }}</p>
         </div>
         @if (!$noProfile)
             <button onclick="openCreateModal()"
@@ -31,7 +31,7 @@
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
-                {{ __('Tambah Produk') }}
+                {{ 'Tambah Produk' }}
             </button>
         @endif
     </div>
@@ -46,12 +46,12 @@
                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('Cari kategori...') }}"
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ 'Cari kategori...' }}"
                     class="focus:border-primary focus:ring-primary/20 w-full rounded-xl border border-gray-200 py-2.5 pl-9 pr-4 text-sm focus:outline-none focus:ring-1">
             </div>
             <select name="category" onchange="this.form.submit()"
                 class="focus:border-primary rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none">
-                <option value="Semua Kategori">{{ __('Semua Kategori') }}</option>
+                <option value="Semua Kategori">{{ 'Semua Kategori' }}</option>
                 @foreach ($categories as $cat)
                     <option value="{{ $cat->name }}" {{ request('category') === $cat->name ? 'selected' : '' }}>
                         {{ translateValue($cat->name) }}
@@ -63,7 +63,7 @@
         {{-- Products Grid --}}
         @if ($products->isEmpty())
             <div class="max-w-6xl rounded-2xl border border-gray-100 bg-white p-8 text-center text-gray-400">
-                {{ __('Belum ada produk terdaftar.') }}
+                {{ 'Belum ada produk terdaftar.' }}
             </div>
         @else
             <div class="grid max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -78,18 +78,18 @@
                                     <svg class="h-10 w-10 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                     </svg>
-                                    <span class="mt-2 text-[10px] font-bold uppercase tracking-widest opacity-60">{{ __('Tanpa Foto') }}</span>
+                                    <span class="mt-2 text-[10px] font-bold uppercase tracking-widest opacity-60">{{ 'Tanpa Foto' }}</span>
                                 </div>
                             @endif
 
                             <div class="absolute left-3 right-3 top-3 z-10 flex items-center justify-between">
                                 <span class="text-primary rounded-lg bg-white/95 px-2.5 py-1 text-[10px] font-bold shadow-sm backdrop-blur-sm">
-                                    {{ translateValue($p->category?->name) ?? __('Lainnya') }}
+                                    {{ translateValue($p->category?->name) ?? 'Lainnya' }}
                                 </span>
                                 @if ($p->is_active)
-                                    <span class="bg-secondary rounded-lg px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">{{ __('Aktif') }}</span>
+                                    <span class="bg-secondary rounded-lg px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">{{ 'Aktif' }}</span>
                                 @else
-                                    <span class="rounded-lg bg-gray-500 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">{{ __('Nonaktif') }}</span>
+                                    <span class="rounded-lg bg-gray-500 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">{{ 'Nonaktif' }}</span>
                                 @endif
                             </div>
                         </div>
@@ -99,27 +99,27 @@
                                 <h4 class="font-display text-charcoal group-hover:text-primary text-lg font-bold leading-snug tracking-tight transition-colors">
                                     {{ $p->display_name }}</h4>
                                 <p class="mt-2 line-clamp-2 text-xs leading-relaxed text-gray-500">
-                                    {{ $p->display_description ?? __('Belum ada deskripsi.') }}</p>
+                                    {{ $p->display_description ?? 'Belum ada deskripsi.' }}</p>
                             </div>
 
                             <div class="mt-4 flex items-center justify-between border-t border-gray-50 pt-4">
                                 <div>
-                                    <span class="block text-[10px] font-semibold uppercase text-gray-400">{{ __('Harga') }}</span>
+                                    <span class="block text-[10px] font-semibold uppercase text-gray-400">{{ 'Harga' }}</span>
                                     <span class="text-charcoal text-base font-bold">
                                         @if ($p->display_price !== null)
                                             Rp {{ number_format($p->display_price, 0, ',', '.') }}
                                         @else
-                                            <span class="text-xs italic text-gray-400">{{ __('Belum diatur') }}</span>
+                                            <span class="text-xs italic text-gray-400">{{ 'Belum diatur' }}</span>
                                         @endif
                                     </span>
                                 </div>
 
                                 <div class="text-right">
-                                    <span class="block text-[10px] font-semibold uppercase text-gray-400">{{ __('Stok') }}</span>
+                                    <span class="block text-[10px] font-semibold uppercase text-gray-400">{{ 'Stok' }}</span>
                                     @if ($p->stock !== null && $p->stock <= 5)
-                                        <span class="text-warning text-xs font-bold">{{ $p->stock }} ({{ __('Menipis') }})</span>
+                                        <span class="text-warning text-xs font-bold">{{ $p->stock }} ({{ 'Menipis' }})</span>
                                     @elseif ($p->stock === null)
-                                        <span class="text-xs font-semibold italic text-gray-400">{{ __('Tersedia') }}</span>
+                                        <span class="text-xs font-semibold italic text-gray-400">{{ 'Tersedia' }}</span>
                                     @else
                                         <span class="text-xs font-bold text-gray-600">{{ $p->stock }} {{ $p->display_unit }}</span>
                                     @endif
@@ -140,15 +140,15 @@
                                 <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
-                                {{ __('Ubah') }}
+                                {{ 'Ubah' }}
                             </button>
 
                             <form method="POST" action="{{ route('owner.products.destroy', $p->id) }}"
                                 class="delete-form inline shrink-0"
-                                data-confirm="{{ __('Apakah Anda yakin ingin menghapus produk ini?') }}">
+                                data-confirm="{{ 'Apakah Anda yakin ingin menghapus produk ini?' }}">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="border-warning/20 bg-warning/5 text-warning hover:bg-warning rounded-xl border p-2.5 transition-all hover:text-white" title="{{ __('Hapus') }}">
+                                <button type="submit" class="border-warning/20 bg-warning/5 text-warning hover:bg-warning rounded-xl border p-2.5 transition-all hover:text-white" title="{{ 'Hapus' }}">
                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
@@ -168,8 +168,8 @@
         @php($myCategoryIds = $products->pluck('umkm_product_category_id')->unique()->filter())
         @if ($myCategoryIds->isNotEmpty())
             <div class="mt-12 max-w-6xl">
-                <h2 class="font-display text-charcoal text-xl font-bold tracking-tight">{{ __('Kategori yang Saya Pakai') }}</h2>
-                <p class="mt-1 text-sm text-gray-500">{{ __('Ubah langsung jika seluruh produk pada kategori ini milik Anda. Jika tidak, ajukan permintaan edit ke admin.') }}</p>
+                <h2 class="font-display text-charcoal text-xl font-bold tracking-tight">{{ 'Kategori yang Saya Pakai' }}</h2>
+                <p class="mt-1 text-sm text-gray-500">{{ 'Ubah langsung jika seluruh produk pada kategori ini milik Anda. Jika tidak, ajukan permintaan edit ke admin.' }}</p>
                 <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($categories->whereIn('id', $myCategoryIds) as $cat)
                         @php($editable = $cat->editableByOwner(auth()->user()->umkmProfile))
@@ -177,18 +177,18 @@
                             <div class="min-w-0">
                                 <p class="truncate font-semibold text-charcoal">{{ translateValue($cat->name) }}</p>
                                 <p class="text-[10px] font-bold uppercase tracking-wider {{ $editable ? 'text-primary' : 'text-warning' }}">
-                                    {{ $editable ? __('Bisa diubah langsung') : __('Perlu izin admin') }}
+                                    {{ $editable ? 'Bisa diubah langsung' : 'Perlu izin admin' }}
                                 </p>
                             </div>
                             @if ($editable)
                                 <button onclick="openCategoryEdit({{ $cat->id }})"
                                     class="border-primary/20 bg-primary/5 text-primary hover:bg-primary inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-bold transition-all hover:text-white">
-                                    {{ __('Ubah') }}
+                                    {{ 'Ubah' }}
                                 </button>
                             @else
                                 <button onclick="openCategoryRequestEdit({{ $cat->id }}, '{{ addslashes(translateValue($cat->name)) }}')"
                                     class="border-warning/20 bg-warning/5 text-warning hover:bg-warning inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-bold transition-all hover:text-white">
-                                    {{ __('Minta Edit ke Admin') }}
+                                    {{ 'Minta Edit ke Admin' }}
                                 </button>
                             @endif
                         </div>
@@ -203,7 +203,7 @@
          ========================= --}}
     <x-modal name="product-modal" maxWidth="lg" desktopLayout="drawer">
         <div class="mb-4">
-            <h3 id="modal-title" class="font-display text-charcoal text-lg font-bold">{{ __('Tambah Produk UMKM') }}</h3>
+            <h3 id="modal-title" class="font-display text-charcoal text-lg font-bold">{{ 'Tambah Produk UMKM' }}</h3>
         </div>
         <form id="modal-form" method="POST" action="" x-data="categoryPicker(@js($categoryPayload->all()))">
             @csrf
@@ -214,10 +214,10 @@
             <div class="space-y-4">
                 {{-- Searchable Category Dropdown --}}
                 <div class="relative">
-                    <label class="block text-sm font-semibold text-gray-700">{{ __('Kategori') }} <span class="text-warning">*</span></label>
+                    <label class="block text-sm font-semibold text-gray-700">{{ 'Kategori' }} <span class="text-warning">*</span></label>
                     <div class="relative mt-1">
                         <input type="text" x-model="query" @focus="open = true" @click="open = true"
-                            placeholder="{{ __('Cari kategori...') }}"
+                            placeholder="{{ 'Cari kategori...' }}"
                             class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                         <svg class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
@@ -236,12 +236,12 @@
                             </button>
                         </template>
                         <template x-if="filtered().length === 0">
-                            <p class="px-4 py-2.5 text-xs italic text-gray-400">{{ __('Tidak ada kategori cocok.') }}</p>
+                            <p class="px-4 py-2.5 text-xs italic text-gray-400">{{ 'Tidak ada kategori cocok.' }}</p>
                         </template>
                         <button type="button" @click="openCreate()"
                             class="flex w-full items-center gap-2 border-t border-gray-100 bg-primary/5 px-4 py-3 text-left text-sm font-bold text-primary hover:bg-primary/10">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                            {{ __('Tambah Kategori Baru') }}
+                            {{ 'Tambah Kategori Baru' }}
                         </button>
                     </div>
                     @error('umkm_product_category_id')
@@ -254,7 +254,7 @@
                     <div class="flex items-center gap-3">
                         <img x-show="selected?.image_path" :src="`/storage/${selected?.image_path}`" class="h-12 w-12 rounded-lg object-cover">
                         <div>
-                            <p class="text-xs uppercase tracking-wider text-gray-500">{{ __('Kategori dipilih') }}</p>
+                            <p class="text-xs uppercase tracking-wider text-gray-500">{{ 'Kategori dipilih' }}</p>
                             <p class="font-bold text-charcoal" x-text="selected?.name"></p>
                             <p class="text-[11px] text-gray-500">
                                 Rp <span x-text="selected?.price !== null ? Number(selected?.price).toLocaleString('id-ID') : '—'"></span>
@@ -266,13 +266,13 @@
 
                 {{-- Harga & Satuan --}}
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700">{{ __('Harga (Rp)') }}</label>
+                    <label class="block text-sm font-semibold text-gray-700">{{ 'Harga (Rp)' }}</label>
                     <input type="number" name="price" id="field-price" min="0" step="500"
-                        placeholder="{{ __('Kosongkan jika menggunakan harga kategori') }}"
+                        placeholder="{{ 'Kosongkan jika menggunakan harga kategori' }}"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700">{{ __('Satuan') }}</label>
+                    <label class="block text-sm font-semibold text-gray-700">{{ 'Satuan' }}</label>
                     <input type="text" name="unit" id="field-unit"
                         placeholder="pcs / kg / porsi"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
@@ -280,23 +280,23 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700">{{ __('Persediaan (Stok)') }}</label>
-                        <input type="number" name="stock" id="field-stock" min="0" placeholder="{{ __('Kosongkan jika selalu ada') }}"
+                        <label class="block text-sm font-semibold text-gray-700">{{ 'Persediaan (Stok)' }}</label>
+                        <input type="number" name="stock" id="field-stock" min="0" placeholder="{{ 'Kosongkan jika selalu ada' }}"
                             class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                     </div>
                     <div class="flex items-center gap-2 pt-6">
                         <input type="checkbox" name="is_active" id="field-active" value="1" checked
                             class="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300">
-                        <label for="field-active" class="text-sm font-semibold text-gray-700">{{ __('Produk Aktif / Tampil') }}</label>
+                        <label for="field-active" class="text-sm font-semibold text-gray-700">{{ 'Produk Aktif / Tampil' }}</label>
                     </div>
                 </div>
             </div>
 
             <div class="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-4">
                 <button type="button" onclick="closeProductModal()"
-                    class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">{{ __('Batal') }}</button>
+                    class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">{{ 'Batal' }}</button>
                 <button type="submit"
-                    class="bg-primary shadow-primary/20 hover:bg-primary-600 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg">{{ __('Simpan Produk') }}</button>
+                    class="bg-primary shadow-primary/20 hover:bg-primary-600 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg">{{ 'Simpan Produk' }}</button>
             </div>
         </form>
     </x-modal>
@@ -306,7 +306,7 @@
          ========================= --}}
     <x-modal name="category-form-modal" maxWidth="2xl" desktopLayout="drawer">
         <div class="mb-4">
-            <h3 id="category-modal-title" class="font-display text-charcoal text-lg font-bold">{{ __('Tambah Kategori Baru') }}</h3>
+            <h3 id="category-modal-title" class="font-display text-charcoal text-lg font-bold">{{ 'Tambah Kategori Baru' }}</h3>
         </div>
         <form id="category-form" method="POST" action="" enctype="multipart/form-data">
             @csrf
@@ -339,26 +339,26 @@
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700">{{ __('Harga') }} (Rp)</label>
+                            <label class="block text-sm font-semibold text-gray-700">{{ 'Harga' }} (Rp)</label>
                             <input type="number" name="price" id="cat-price" min="0" step="0.01"
                                 class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700">{{ __('Satuan') }}</label>
+                            <label class="block text-sm font-semibold text-gray-700">{{ 'Satuan' }}</label>
                             <input type="text" name="unit" id="cat-unit" placeholder="pcs, kg"
                                 class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700">{{ __('Gambar Kategori') }}</label>
+                        <label class="block text-sm font-semibold text-gray-700">{{ 'Gambar Kategori' }}</label>
                         <input type="file" name="image" id="cat-image" accept="image/*"
                             class="file:bg-primary/10 file:text-primary mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
                     </div>
 
                     <details class="rounded-xl border border-gray-100 bg-gray-50 p-3">
-                        <summary class="cursor-pointer text-sm font-semibold text-gray-700">{{ __('Tingkat lanjut (Model 3D, opsional)') }}</summary>
+                        <summary class="cursor-pointer text-sm font-semibold text-gray-700">{{ 'Tingkat lanjut (Model 3D, opsional)' }}</summary>
                         <div class="mt-3 space-y-3">
-                            <p class="text-[11px] italic text-gray-500">{{ __('Biarkan kosong jika ingin admin yang menambahkan model 3D.') }}</p>
+                            <p class="text-[11px] italic text-gray-500">{{ 'Biarkan kosong jika ingin admin yang menambahkan model 3D.' }}</p>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-700">Model 3D (GLB/GLTF, ≤20MB)</label>
                                 <input type="file" name="model_3d_file" accept=".glb,.gltf"
@@ -378,9 +378,9 @@
 
             <div class="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-4">
                 <button type="button" onclick="closeCategoryModal()"
-                    class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">{{ __('Batal') }}</button>
+                    class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">{{ 'Batal' }}</button>
                 <button type="submit"
-                    class="bg-primary shadow-primary/20 hover:bg-primary-600 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg">{{ __('Simpan Kategori') }}</button>
+                    class="bg-primary shadow-primary/20 hover:bg-primary-600 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg">{{ 'Simpan Kategori' }}</button>
             </div>
         </form>
     </x-modal>
@@ -389,19 +389,19 @@
          Modal: Minta Edit ke Admin
          ========================= --}}
     <x-modal name="category-request-edit-modal" maxWidth="md" desktopLayout="centered">
-        <h3 class="font-display text-charcoal text-lg font-bold">{{ __('Minta Edit ke Admin') }}</h3>
+        <h3 class="font-display text-charcoal text-lg font-bold">{{ 'Minta Edit ke Admin' }}</h3>
         <p class="mt-1 text-xs text-gray-500" id="request-edit-target"></p>
         <form id="request-edit-form" class="mt-4 space-y-3">
             @csrf
             <textarea name="note" id="request-edit-note" rows="4" required maxlength="1000"
-                placeholder="{{ __('Misal: tolong ganti harga jadi Rp 25.000, atau perbarui foto kategori...') }}"
+                placeholder="{{ 'Misal: tolong ganti harga jadi Rp 25.000, atau perbarui foto kategori...' }}"
                 class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
             <p id="request-edit-error" class="hidden text-xs text-red-500"></p>
             <div class="flex justify-end gap-3">
                 <button type="button" onclick="closeRequestEditModal()"
-                    class="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-500 hover:bg-gray-50">{{ __('Batal') }}</button>
+                    class="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-500 hover:bg-gray-50">{{ 'Batal' }}</button>
                 <button type="submit"
-                    class="bg-primary hover:bg-primary-600 rounded-xl px-4 py-2 text-sm font-semibold text-white">{{ __('Kirim Permintaan') }}</button>
+                    class="bg-primary hover:bg-primary-600 rounded-xl px-4 py-2 text-sm font-semibold text-white">{{ 'Kirim Permintaan' }}</button>
             </div>
         </form>
     </x-modal>
@@ -454,7 +454,7 @@
         }
 
         function openCreateModal() {
-            productModalTitle.innerText = "{{ __('Tambah Produk UMKM') }}";
+            productModalTitle.innerText = "{{ 'Tambah Produk UMKM' }}";
             productForm.action = "{{ route('owner.products.store') }}";
             methodContainer.innerHTML = "";
             productForm.reset();
@@ -467,7 +467,7 @@
         }
 
         function openEditModal(product) {
-            productModalTitle.innerText = "{{ __('Edit Produk UMKM') }}";
+            productModalTitle.innerText = "{{ 'Edit Produk UMKM' }}";
             productForm.action = `/owner/products/${product.id}`;
             methodContainer.innerHTML = `@method('PUT')`;
             fieldProductId.value = product.id;
@@ -493,7 +493,7 @@
         const categoryFormId = document.getElementById('category-form-id');
 
         function openCategoryCreate() {
-            categoryModalTitle.innerText = "{{ __('Tambah Kategori Baru') }}";
+            categoryModalTitle.innerText = "{{ 'Tambah Kategori Baru' }}";
             categoryForm.reset();
             categoryForm.action = "{{ route('owner.categories.store') }}";
             categoryFormId.value = "";
@@ -504,7 +504,7 @@
         function openCategoryEdit(id) {
             const cat = Alpine.$data(productForm).items.find(c => c.id === id);
             if (!cat) return;
-            categoryModalTitle.innerText = "{{ __('Ubah Kategori') }}";
+            categoryModalTitle.innerText = "{{ 'Ubah Kategori' }}";
             categoryForm.reset();
             categoryForm.action = `/owner/categories/${id}`;
             categoryFormId.value = id;
@@ -535,7 +535,7 @@
                 if (!res.ok) {
                     const errJson = await res.json().catch(() => null);
                     const firstErr = errJson?.errors ? Object.values(errJson.errors).flat()[0] : (errJson?.message || res.statusText);
-                    categoryFormError.innerText = firstErr || '{{ __('Gagal menyimpan kategori.') }}';
+                    categoryFormError.innerText = firstErr || '{{ 'Gagal menyimpan kategori.' }}';
                     categoryFormError.classList.remove('hidden');
                     return;
                 }
@@ -557,7 +557,7 @@
                     });
                 }
             } catch (err) {
-                categoryFormError.innerText = '{{ __('Terjadi kesalahan jaringan.') }}';
+                categoryFormError.innerText = '{{ 'Terjadi kesalahan jaringan.' }}';
                 categoryFormError.classList.remove('hidden');
             }
         });
@@ -570,7 +570,7 @@
 
         function openCategoryRequestEdit(id, name) {
             currentRequestEditCategoryId = id;
-            requestEditTarget.innerText = "{{ __('Kategori:') }} " + name;
+            requestEditTarget.innerText = "{{ 'Kategori:' }} " + name;
             requestEditForm.reset();
             requestEditError.classList.add('hidden');
             window.dispatchEvent(new CustomEvent('open-category-request-edit-modal'));
@@ -593,19 +593,19 @@
                 if (!res.ok) {
                     const errJson = await res.json().catch(() => null);
                     const firstErr = errJson?.errors ? Object.values(errJson.errors).flat()[0] : (errJson?.message || res.statusText);
-                    requestEditError.innerText = firstErr || '{{ __('Gagal mengirim permintaan.') }}';
+                    requestEditError.innerText = firstErr || '{{ 'Gagal mengirim permintaan.' }}';
                     requestEditError.classList.remove('hidden');
                     return;
                 }
                 closeRequestEditModal();
                 Swal.fire({
-                    title: '{{ __('Permintaan terkirim') }}',
-                    text: '{{ __('Admin akan menerima notifikasi dan menindaklanjuti permintaan Anda.') }}',
+                    title: '{{ 'Permintaan terkirim' }}',
+                    text: '{{ 'Admin akan menerima notifikasi dan menindaklanjuti permintaan Anda.' }}',
                     icon: 'success',
                     confirmButtonColor: '#1E5128',
                 });
             } catch (err) {
-                requestEditError.innerText = '{{ __('Terjadi kesalahan jaringan.') }}';
+                requestEditError.innerText = '{{ 'Terjadi kesalahan jaringan.' }}';
                 requestEditError.classList.remove('hidden');
             }
         });
