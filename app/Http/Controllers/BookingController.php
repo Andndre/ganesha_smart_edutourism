@@ -56,19 +56,12 @@ class BookingController extends Controller
             }
         }
 
-        // 2. Fetch reservations with optional filter
-        $filter = $request->query('filter', 'semua');
-        $query = Reservation::where('user_id', auth()->id())
+        $reservations = Reservation::where('user_id', auth()->id())
             ->with('tourPackage')
-            ->orderBy('created_at', 'desc');
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        if ($filter === 'aktif') {
-            $query->where('status', 'confirmed');
-        } elseif ($filter === 'selesai') {
-            $query->whereIn('status', ['completed', 'cancelled']);
-        }
-
-        $reservations = $query->get();
+        $filter = $request->query('filter', 'semua');
 
         return view('user.profile.bookings', compact('reservations', 'filter'));
     }
