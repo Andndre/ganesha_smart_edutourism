@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ArModel;
 use App\Models\CulturalObject;
+use App\Models\Facility;
 use App\Models\MapLocation;
+use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\JsonResponse;
@@ -15,6 +17,9 @@ class MapManagerController extends Controller
 {
     /**
      * Display the map interface managing all locations.
+     *
+     * Scoped to CulturalObject/UmkmProfile/Facility — the only types this editor's
+     * forms support. Other locationables (e.g. Event) get their own management page.
      */
     public function index(): View
     {
@@ -25,7 +30,9 @@ class MapManagerController extends Controller
                 ]);
             },
             'arModel',
-        ])->get();
+        ])
+            ->whereIn('locationable_type', [CulturalObject::class, UmkmProfile::class, Facility::class])
+            ->get();
 
         $owners = User::where('role', 'umkm_owner')->orderBy('name')->get();
         $models = ArModel::orderBy('name')->get();

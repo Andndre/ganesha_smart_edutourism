@@ -297,32 +297,6 @@ function handleMarkerClick(marker) {
                 }
             }
 
-            // Populate Stories
-            ['history', 'philosophy', 'value'].forEach(cat => {
-                const list = document.getElementById(`stories-list-${cat}`);
-                if (list) list.innerHTML = '';
-            });
-            if (typeof switchStoryTab === 'function') {
-                switchStoryTab('history');
-            }
-            
-            if (details.stories && details.stories.length > 0) {
-                form.querySelector('input[name="has_story"]').checked = true;
-                const manageStoriesBtn = document.getElementById('btn-manage-stories');
-                if (manageStoriesBtn) {
-                    manageStoriesBtn.classList.remove('hidden');
-                    manageStoriesBtn.classList.add('flex');
-                }
-                details.stories.forEach(s => addStoryField(s));
-            } else {
-                form.querySelector('input[name="has_story"]').checked = false;
-                const manageStoriesBtn = document.getElementById('btn-manage-stories');
-                if (manageStoriesBtn) {
-                    manageStoriesBtn.classList.add('hidden');
-                    manageStoriesBtn.classList.remove('flex');
-                }
-            }
-
             // Setup Delete Action
             document.getElementById('form-delete').action = `/admin/cultural-objects/${details.id}`;
 
@@ -444,22 +418,6 @@ function resetForms() {
             if (quizzesList) quizzesList.innerHTML = '';
         }
 
-        // Reset Stories
-        if(culturalForm.querySelector('input[name="has_story"]')) {
-            culturalForm.querySelector('input[name="has_story"]').checked = false;
-            const manageBtn = document.getElementById('btn-manage-stories');
-            if (manageBtn) {
-                manageBtn.classList.add('hidden');
-                manageBtn.classList.remove('flex');
-            }
-            ['history', 'philosophy', 'value'].forEach(cat => {
-                const storiesList = document.getElementById(`stories-list-${cat}`);
-                if (storiesList) storiesList.innerHTML = '';
-            });
-            if (typeof switchStoryTab === 'function') {
-                switchStoryTab('history');
-            }
-        }
         updateAccessibilityNotesVisibility(culturalForm);
     }
 
