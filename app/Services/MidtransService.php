@@ -47,7 +47,7 @@ class MidtransService
             'customer_details' => [
                 'first_name' => $reservation->guest_name,
                 'email' => $reservation->guest_email ?? 'walkin@example.com',
-                'phone' => $reservation->guest_phone ?? '0000000000',
+                'phone' => $reservation->user?->phone ?? '0000000000',
             ],
             'item_details' => [
                 [

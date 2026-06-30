@@ -172,7 +172,6 @@ class TourPackageBookingTest extends TestCase
             'party_size' => 1, // too small
             'guest_name' => 'Agung Andre',
             'guest_email' => 'andre@test.com',
-            'guest_phone' => '0812345678',
         ]);
 
         $response->assertStatus(422);
@@ -208,7 +207,6 @@ class TourPackageBookingTest extends TestCase
             'party_size' => 3,
             'guest_name' => 'Wayan Sukra',
             'guest_email' => 'wayan@test.com',
-            'guest_phone' => '08122334455',
         ]);
 
         $response->assertStatus(500);
@@ -223,7 +221,6 @@ class TourPackageBookingTest extends TestCase
             'tour_package_id' => $package->id,
             'guest_name' => 'Wayan Sukra',
             'guest_email' => 'wayan@test.com',
-            'guest_phone' => '08122334455',
             'party_size' => 3,
             'total_amount' => 300000.00,
             'status' => 'pending',
@@ -257,7 +254,6 @@ class TourPackageBookingTest extends TestCase
             'party_size' => 2,
             'guest_name' => 'Made Sukra',
             'guest_email' => 'made@test.com',
-            'guest_phone' => '08122334466',
         ]);
 
         $response->assertStatus(200);
@@ -302,7 +298,6 @@ class TourPackageBookingTest extends TestCase
             'user_id' => $user->id,
             'guest_name' => 'Ketut Sukra',
             'guest_email' => 'ketut@test.com',
-            'guest_phone' => '0812345',
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today()->addDays(3),
@@ -370,7 +365,6 @@ class TourPackageBookingTest extends TestCase
             'user_id' => $user->id,
             'guest_name' => 'Ketut Sukra',
             'guest_email' => 'ketut@test.com',
-            'guest_phone' => '0812345',
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today()->addDays(3),
@@ -427,7 +421,6 @@ class TourPackageBookingTest extends TestCase
             'user_id' => $user->id,
             'guest_name' => 'User Active',
             'guest_email' => 'active@test.com',
-            'guest_phone' => '0812',
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today()->addDays(3),
@@ -445,7 +438,6 @@ class TourPackageBookingTest extends TestCase
             'user_id' => $user->id,
             'guest_name' => 'User Pending',
             'guest_email' => 'pending@test.com',
-            'guest_phone' => '0813',
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today()->addDays(4),
@@ -463,7 +455,6 @@ class TourPackageBookingTest extends TestCase
             'user_id' => $user->id,
             'guest_name' => 'User Cancelled',
             'guest_email' => 'cancel@test.com',
-            'guest_phone' => '0814',
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today()->addDays(5),
@@ -511,7 +502,6 @@ class TourPackageBookingTest extends TestCase
             'party_size'     => 2,
             'guest_name'     => 'Test User',
             'guest_email'    => 'test@example.com',
-            'guest_phone'    => '081234567890',
         ]);
 
         // Should NOT fail with "scheduled_time is required"

@@ -86,7 +86,6 @@ class BookingController extends Controller
             'party_size' => 'required|integer|min:1',
             'guest_name' => 'required|string|max:255',
             'guest_email' => 'required|email|max:255',
-            'guest_phone' => 'required|string|max:20',
         ]);
 
         $package = TourPackage::findOrFail($id);
@@ -107,7 +106,6 @@ class BookingController extends Controller
         $reservation->user_id = auth()->id();
         $reservation->guest_name = $request->guest_name;
         $reservation->guest_email = $request->guest_email;
-        $reservation->guest_phone = $request->guest_phone;
         $reservation->tour_package_id = $package->id;
         $reservation->reservation_type = 'package';
         $reservation->scheduled_date = $request->scheduled_date;
@@ -133,7 +131,7 @@ class BookingController extends Controller
             'customer_details' => [
                 'first_name' => $request->guest_name,
                 'email' => $request->guest_email,
-                'phone' => $request->guest_phone,
+                'phone' => auth()->user()->phone ?? '0000000000',
             ],
             'item_details' => [
                 [
