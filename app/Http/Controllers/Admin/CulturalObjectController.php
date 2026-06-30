@@ -65,10 +65,6 @@ class CulturalObjectController extends Controller
             $validated['quiz_option_c'],
             $validated['quiz_option_d'],
             $validated['quiz_correct_option'],
-            $validated['has_story'],
-            $validated['story_title'],
-            $validated['story_content'],
-            $validated['story_type'],
             // Decoupled AR fields
             $validated['ar_marker_id'],
             $validated['ar_marker_patt_content'],
@@ -94,23 +90,6 @@ class CulturalObjectController extends Controller
         }
 
         $object = CulturalObject::create($validated);
-
-        if ($request->has('has_story') && $request->has('story_title')) {
-            $titles = $request->input('story_title');
-            $contents = $request->input('story_content');
-            $types = $request->input('story_type');
-
-            foreach ($titles as $index => $title) {
-                if (! empty($title['en']) || ! empty($title['id'])) {
-                    $object->stories()->create([
-                        'title' => $title,
-                        'content' => $contents[$index] ?? null,
-                        'story_type' => $types[$index] ?? 'history',
-                        'order' => $index + 1,
-                    ]);
-                }
-            }
-        }
 
         if ($request->has('has_quiz') && $request->has('quiz_question')) {
             $questions = $request->input('quiz_question');
@@ -292,10 +271,6 @@ class CulturalObjectController extends Controller
             $validated['quiz_option_c'],
             $validated['quiz_option_d'],
             $validated['quiz_correct_option'],
-            $validated['has_story'],
-            $validated['story_title'],
-            $validated['story_content'],
-            $validated['story_type'],
             // Decoupled AR fields
             $validated['ar_marker_id'],
             $validated['ar_marker_patt_content'],
@@ -327,25 +302,6 @@ class CulturalObjectController extends Controller
         }
 
         $object->update($validated);
-
-        $object->stories()->delete();
-
-        if ($request->has('has_story') && $request->has('story_title')) {
-            $titles = $request->input('story_title');
-            $contents = $request->input('story_content');
-            $types = $request->input('story_type');
-
-            foreach ($titles as $index => $title) {
-                if (! empty($title['en']) || ! empty($title['id'])) {
-                    $object->stories()->create([
-                        'title' => $title,
-                        'content' => $contents[$index] ?? null,
-                        'story_type' => $types[$index] ?? 'history',
-                        'order' => $index + 1,
-                    ]);
-                }
-            }
-        }
 
         $object->quizzes()->delete();
 

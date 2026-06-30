@@ -21,7 +21,7 @@ class MapManagerController extends Controller
         $locations = MapLocation::with([
             'locationable' => function (MorphTo $morphTo) {
                 $morphTo->morphWith([
-                    CulturalObject::class => ['quizzes', 'stories'],
+                    CulturalObject::class => ['quizzes'],
                 ]);
             },
             'arModel',

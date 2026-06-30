@@ -31,29 +31,18 @@ class CulturalController extends Controller
     }
 
     /**
-     * Display the specified cultural object with its stories.
+     * Display the specified cultural object.
      */
     public function show(string $slug): View
     {
         $locale = app()->getLocale();
         $object = Cache::tags(['cultural'])->flexible("cultural_object_array_{$slug}_$locale", [3600, 7200], function () use ($slug, $locale) {
-            $model = CulturalObject::with(['stories', 'mapLocation.arModel'])
+            $model = CulturalObject::with('mapLocation.arModel')
                 ->where('slug', $slug)
                 ->firstOrFail()
                 ->append(['ar_marker_id', 'model_3d_path', 'audio_narration_path', 'model_3d_usdz_path', 'ar_marker_patt_path']);
 
             list($data, $locale) = $this->resolveTrans($model);
-
-            // Resolve translatable fields in nested stories
-            if (isset($data['stories']) && \is_array($data['stories'])) {
-                foreach ($data['stories'] as $i => $story) {
-                    foreach (['title', 'content'] as $sf) {
-                        if (isset($story[$sf]) && \is_array($story[$sf])) {
-                            $data['stories'][$i][$sf] = $story[$sf][$locale] ?? $story[$sf][config('app.fallback_locale')] ?? reset($story[$sf]) ?? '';
-                        }
-                    }
-                }
-            }
 
             // Override audio_narration_path dengan versi locale-spesifik jika tersedia
             if (!empty($data['audio_narration_paths']) && is_array($data['audio_narration_paths'])) {

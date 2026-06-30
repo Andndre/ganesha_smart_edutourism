@@ -70,7 +70,6 @@
 
     @include('admin.map-manager.partials.form-cultural.quiz-section')
 
-    @include('admin.map-manager.partials.form-cultural.story-section')
 
     {{-- Audio Narasi --}}
     <div>
