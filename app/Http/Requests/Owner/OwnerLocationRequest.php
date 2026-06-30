@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests\Owner;
 
+use App\Http\Concerns\NormalizesMultilingualInput;
 use Illuminate\Foundation\Http\FormRequest;
 
 class OwnerLocationRequest extends FormRequest
 {
+    use NormalizesMultilingualInput;
+
     public function authorize(): bool
     {
         return true;
@@ -26,13 +29,5 @@ class OwnerLocationRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->normalizeLocaleField('accessibility_notes');
-    }
-
-    private function normalizeLocaleField(string $field): void
-    {
-        $value = $this->input($field);
-        if (is_string($value) && ! empty($value)) {
-            $this->merge([$field => ['en' => $value, 'id' => $value]]);
-        }
     }
 }
