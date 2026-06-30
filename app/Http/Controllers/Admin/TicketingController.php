@@ -153,7 +153,6 @@ class TicketingController extends Controller
         $validated = $request->validate([
             'guest_name' => 'required|string|max:255',
             'guest_email' => 'nullable|email|max:255',
-            'guest_phone' => 'nullable|string|max:20',
             'party_size' => 'required|integer|min:1',
             'tour_package_id' => 'required|exists:tour_packages,id',
             'payment_method' => 'required|in:cash,qris',

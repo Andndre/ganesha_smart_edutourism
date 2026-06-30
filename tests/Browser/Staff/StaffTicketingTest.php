@@ -50,7 +50,6 @@ class StaffTicketingTest extends DuskTestCase
         $reservation = Reservation::create([
             'guest_name' => 'Tamu Verify',
             'guest_email' => 'verify@example.com',
-            'guest_phone' => '08123456789',
             'reservation_type' => 'custom_tour',
             'scheduled_date' => now()->addDay()->toDateString(),
             'scheduled_time' => '10:00:00',

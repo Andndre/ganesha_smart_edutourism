@@ -112,7 +112,6 @@ class StaffTicketingTest extends TestCase
         $response = $this->actingAs($officer)->postJson('/staff/ticketing/walk-in', [
             'guest_name' => 'Guest Walkin',
             'guest_email' => 'walkin@example.com',
-            'guest_phone' => '08123456789',
             'tour_package_id' => $package->id,
             'party_size' => 2,
             'payment_method' => 'cash',
@@ -128,7 +127,6 @@ class StaffTicketingTest extends TestCase
         $this->assertDatabaseHas('reservations', [
             'guest_name' => 'Guest Walkin',
             'guest_email' => 'walkin@example.com',
-            'guest_phone' => '08123456789',
             'tour_package_id' => $package->id,
             'party_size' => 2,
             'payment_method' => 'cash',
@@ -159,7 +157,6 @@ class StaffTicketingTest extends TestCase
         $response = $this->actingAs($officer)->postJson('/staff/ticketing/walk-in', [
             'guest_name' => 'Guest Walkin QRIS',
             'guest_email' => 'qris@example.com',
-            'guest_phone' => '08123456789',
             'tour_package_id' => $package->id,
             'party_size' => 1,
             'payment_method' => 'qris',
@@ -175,7 +172,6 @@ class StaffTicketingTest extends TestCase
         $this->assertDatabaseHas('reservations', [
             'guest_name' => 'Guest Walkin QRIS',
             'guest_email' => 'qris@example.com',
-            'guest_phone' => '08123456789',
             'tour_package_id' => $package->id,
             'party_size' => 1,
             'payment_method' => 'qris',
@@ -204,7 +200,6 @@ class StaffTicketingTest extends TestCase
         $reservation = Reservation::create([
             'guest_name' => 'Guest Ticket',
             'guest_email' => 'test@example.com',
-            'guest_phone' => '08123456789',
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today(),
@@ -249,7 +244,6 @@ class StaffTicketingTest extends TestCase
         $reservation = Reservation::create([
             'guest_name' => 'Guest Ticket',
             'guest_email' => 'test@example.com',
-            'guest_phone' => '08123456789',
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today(),
@@ -291,7 +285,6 @@ class StaffTicketingTest extends TestCase
         $reservation = Reservation::create([
             'guest_name' => 'Guest Sync',
             'guest_email' => 'sync@example.com',
-            'guest_phone' => '08123456789',
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today(),
@@ -338,7 +331,6 @@ class StaffTicketingTest extends TestCase
         $reservation = Reservation::create([
             'guest_name' => 'Guest Auto Sync',
             'guest_email' => 'autosync@example.com',
-            'guest_phone' => '08123456789',
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today(),
@@ -379,7 +371,6 @@ class StaffTicketingTest extends TestCase
         $reservation = Reservation::create([
             'guest_name' => 'Guest Checkin',
             'guest_email' => 'checkin@example.com',
-            'guest_phone' => '08123456789',
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today(),
@@ -421,7 +412,6 @@ class StaffTicketingTest extends TestCase
         $reservation = Reservation::create([
             'guest_name' => 'Guest Repay',
             'guest_email' => 'repay@example.com',
-            'guest_phone' => '08123456789',
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today(),
@@ -465,7 +455,6 @@ class StaffTicketingTest extends TestCase
         $reservation = Reservation::create([
             'guest_name' => 'Guest Cancel',
             'guest_email' => 'cancel@example.com',
-            'guest_phone' => '08123456789',
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today(),
@@ -525,7 +514,6 @@ class StaffTicketingTest extends TestCase
         Reservation::create([
             'guest_name' => 'Guest Today',
             'guest_email' => 'today@example.com',
-            'guest_phone' => '08123456789',
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today(),
@@ -542,7 +530,6 @@ class StaffTicketingTest extends TestCase
         Reservation::create([
             'guest_name' => 'Guest Mid',
             'guest_email' => 'mid@example.com',
-            'guest_phone' => '08123456789',
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today()->subDays(15),
@@ -559,7 +546,6 @@ class StaffTicketingTest extends TestCase
         Reservation::create([
             'guest_name' => 'Guest Old',
             'guest_email' => 'old@example.com',
-            'guest_phone' => '08123456789',
             'tour_package_id' => $package->id,
             'reservation_type' => 'package',
             'scheduled_date' => today()->subDays(45),

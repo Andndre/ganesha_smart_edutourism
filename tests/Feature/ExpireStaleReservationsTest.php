@@ -38,7 +38,6 @@ class ExpireStaleReservationsTest extends TestCase
             'tour_package_id' => $this->package->id,
             'guest_name' => 'Test User',
             'guest_email' => 'test@test.com',
-            'guest_phone' => '0812',
             'reservation_type' => 'package',
             'scheduled_date' => now()->addDays(3),
             'party_size' => 1,

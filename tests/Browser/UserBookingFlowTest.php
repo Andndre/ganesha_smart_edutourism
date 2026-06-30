@@ -42,7 +42,6 @@ class UserBookingFlowTest extends DuskTestCase
                 ->assertSee('Checkout')
                 ->type('guest_name', 'Agung Dusk Test')
                 ->type('guest_email', 'dusk@example.com')
-                ->type('guest_phone', '081234567890')
                 ->press('Bayar Sekarang');
 
             // ponytail: accept either Midtrans redirect or error if not configured

@@ -284,7 +284,6 @@ Table reservations {
   user_id bigint [ref: > users.id]
   guest_name varchar(255) [not null]
   guest_email varchar(255)
-  guest_phone varchar(255)
   tour_package_id bigint [ref: > tour_packages.id]
   reservation_type enum [not null, note: 'package | custom_tour | event']
   scheduled_date date [not null]
