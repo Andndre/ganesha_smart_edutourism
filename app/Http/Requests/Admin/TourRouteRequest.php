@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Concerns\NormalizesMultilingualInput;
 use Illuminate\Foundation\Http\FormRequest;
 
 class TourRouteRequest extends FormRequest
 {
+    use NormalizesMultilingualInput;
+
     public function authorize(): bool
     {
         return true;
@@ -50,16 +53,6 @@ class TourRouteRequest extends FormRequest
                 }
             }
             $this->merge(['points' => $points]);
-        }
-    }
-
-    private function normalizeLocaleFields(array $fields): void
-    {
-        foreach ($fields as $field) {
-            $value = $this->input($field);
-            if (is_string($value) && ! empty($value)) {
-                $this->merge([$field => ['en' => $value, 'id' => $value]]);
-            }
         }
     }
 }

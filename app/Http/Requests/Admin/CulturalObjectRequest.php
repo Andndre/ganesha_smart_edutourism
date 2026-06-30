@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Concerns\NormalizesMultilingualInput;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CulturalObjectRequest extends FormRequest
 {
+    use NormalizesMultilingualInput;
+
     public function authorize(): bool
     {
         return true;
@@ -75,31 +78,5 @@ class CulturalObjectRequest extends FormRequest
     {
         $this->normalizeLocaleArrayField('quiz_question');
         $this->normalizeLocaleField('accessibility_notes');
-    }
-
-    private function normalizeLocaleField(string $field): void
-    {
-        $value = $this->input($field);
-        if (\is_string($value) && ! empty($value)) {
-            $this->merge([$field => ['en' => $value, 'id' => $value]]);
-        }
-    }
-
-    private function normalizeLocaleArrayField(string $field): void
-    {
-        $values = $this->input($field);
-        if (! \is_array($values)) {
-            return;
-        }
-        $changed = false;
-        foreach ($values as $index => $item) {
-            if (\is_string($item) && ! empty($item)) {
-                $values[$index] = ['en' => $item, 'id' => $item];
-                $changed = true;
-            }
-        }
-        if ($changed) {
-            $this->merge([$field => $values]);
-        }
     }
 }

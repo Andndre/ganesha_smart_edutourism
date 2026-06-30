@@ -20,7 +20,7 @@ class OwnerCategoryController extends BaseOwnerController
     {
         $this->requireProfile('owner.products');
 
-        $this->normalizeLocaleFields($request, ['name', 'description']);
+        $this->normalizeLocaleFields(['name', 'description'], $request);
 
         $validated = $request->validate($this->categoryRules());
 
@@ -55,7 +55,7 @@ class OwnerCategoryController extends BaseOwnerController
 
         abort_unless($category->editableByOwner($profile), 403, __('Kategori ini berisi produk milik toko lain. Silakan ajukan permintaan edit ke admin.'));
 
-        $this->normalizeLocaleFields($request, ['name', 'description']);
+        $this->normalizeLocaleFields(['name', 'description'], $request);
 
         $validated = $request->validate($this->categoryRules());
 
