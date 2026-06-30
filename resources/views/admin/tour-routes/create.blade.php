@@ -67,6 +67,8 @@
 
 @endsection
 
+<x-map-style-modal />
+
 @push('scripts')
     @include('admin.tour-routes.partials.scripts')
 @endpush

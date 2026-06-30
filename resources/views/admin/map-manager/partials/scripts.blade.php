@@ -2,6 +2,7 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 
+@include('components.map-style-script')
 @include('admin.map-manager.partials.scripts.config')
 @include('admin.map-manager.partials.scripts.previews')
 @include('admin.map-manager.partials.scripts.map')

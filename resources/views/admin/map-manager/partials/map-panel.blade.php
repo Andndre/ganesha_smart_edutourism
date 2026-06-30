@@ -1,8 +1,10 @@
 {{-- Right Side Panel: The Interactive Map --}}
 <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm h-full flex flex-col">
     <div id="location-map"
-        class="w-full rounded-xl border border-gray-200 shadow-inner flex-1 min-h-112.5 lg:min-h-0"
-        style="z-index: 0;"></div>
+        class="relative w-full rounded-xl border border-gray-200 shadow-inner flex-1 min-h-112.5 lg:min-h-0"
+        style="z-index: 0;">
+        <x-map-style-fab size="sm" class="absolute bottom-4 right-4 z-1000" />
+    </div>
 
     {{-- Legend --}}
     <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-gray-500 shrink-0">

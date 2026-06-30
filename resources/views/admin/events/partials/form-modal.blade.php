@@ -185,7 +185,9 @@
             {{-- Map Selection --}}
             <div>
                 <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Pilih Lokasi Peta <span class="text-[10px] font-normal text-gray-400">(Klik pada peta untuk menentukan koordinat)</span></label>
-                <div id="form-location-map" class="h-64 w-full rounded-xl border border-gray-200 shadow-inner" style="z-index: 0;"></div>
+                <div id="form-location-map" class="relative h-64 w-full rounded-xl border border-gray-200 shadow-inner" style="z-index: 0;">
+                    <x-map-style-fab size="sm" class="absolute bottom-3 right-3 z-1000" />
+                </div>
                 <input type="hidden" name="latitude" x-model="formFields.latitude">
                 <input type="hidden" name="longitude" x-model="formFields.longitude">
                 @error('latitude')

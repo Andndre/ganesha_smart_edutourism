@@ -12,9 +12,11 @@
         @include('user.explore.components.map-fab')
     </div>
 
-    @include('user.explore.components.map-style-modal')
+    <x-map-style-modal />
     @include('user.explore.components.location-sheet')
 
+
+    @include('components.map-style-script')
 
     <script>
         // Execution wrapper to handle Livewire and page navigation
@@ -104,7 +106,8 @@
                     maxZoom: 19,
                     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 }).addTo(map);
-                window.mapTileLayer = tileLayer;
+
+                initMapStyleSwitcher(map);
 
                 // 3. Data from ExploreController
                 const locations = @json($locations);
@@ -253,11 +256,6 @@
                         toggleRealHeatmap();
                     });
                 }
-
-                document.getElementById('btn-map-style').addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    window.dispatchEvent(new CustomEvent('open-map-style-modal'));
-                });
 
                 document.getElementById('btn-my-location').addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -1176,70 +1174,6 @@
                 delete window.closeSheet;
                 document.removeEventListener('livewire:navigating', cleanupMap);
             });
-
-            // Map Style Switcher
-            const TILE_URLS = {
-                standard: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                satellite: 'https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-            };
-
-            function switchMapStyle(style) {
-                if (!style || style === currentMapStyle) return;
-                const tl = window.mapTileLayer;
-                if (!tl) return;
-                map.removeLayer(tl);
-                const opts = {
-                    maxZoom: 19,
-                    attribution: '&copy; OpenStreetMap contributors',
-                };
-                if (style === 'satellite') {
-                    opts.subdomains = ['mt0','mt1','mt2','mt3'];
-                    opts.attribution = '';
-                }
-                const newLayer = L.tileLayer(TILE_URLS[style], opts).addTo(map);
-                window.mapTileLayer = newLayer;
-
-                // Update thumbnails
-                document.querySelectorAll('.map-style-option').forEach(btn => {
-                    btn.classList.toggle('border-primary', btn.dataset.style === style);
-                    btn.classList.toggle('border-transparent', btn.dataset.style !== style);
-                });
-
-                // Save preference
-                try { localStorage.setItem('mapStyle', style); } catch(e) {}
-                currentMapStyle = style;
-            }
-
-            let currentMapStyle = localStorage.getItem('mapStyle') || 'standard';
-
-            // Load thumbnails
-            document.getElementById('map-style-thumb-standard').src =
-                'https://a.tile.openstreetmap.org/12/2048/1365.png';
-            document.getElementById('map-style-thumb-satellite').src =
-                'https://mt1.google.com/vt/lyrs=s&x=2048&y=1365&z=12';
-
-            // Wire option buttons
-            document.querySelectorAll('.map-style-option').forEach(btn => {
-                const style = btn.id.replace('map-style-option-', '');
-                btn.dataset.style = style;
-                btn.addEventListener('click', () => {
-                    switchMapStyle(style);
-                    window.dispatchEvent(new CustomEvent('close-map-style-modal'));
-                });
-            });
-
-            // Apply saved style on init
-            if (currentMapStyle !== 'standard') {
-                // Wait for map tileLayer to exist
-                const waitForInit = setInterval(() => {
-                    if (window.mapTileLayer) {
-                        switchMapStyle(currentMapStyle);
-                        clearInterval(waitForInit);
-                    }
-                }, 50);
-                // Safety timeout
-                setTimeout(() => clearInterval(waitForInit), 5000);
-            }
         })();
     </script>
 @endsection

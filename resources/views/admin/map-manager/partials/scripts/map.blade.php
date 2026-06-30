@@ -35,6 +35,8 @@
             maxZoom: 19
         }).addTo(map);
 
+        initMapStyleSwitcher(map);
+
         renderMarkers();
 
         // Map Click handler: trigger create mode

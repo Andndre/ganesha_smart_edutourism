@@ -6,8 +6,9 @@
     </div>
     <div class="relative h-125 w-full overflow-hidden rounded-xl border border-gray-200">
         <div id="map" class="absolute inset-0 z-0"></div>
-        
-        <!-- Heatmap Control FAB -->
+
+        <!-- Style Switcher FAB + Heatmap FAB -->
+        <x-map-style-fab size="sm" class="absolute bottom-16 right-4 z-1000" />
         <button id="btn-admin-heatmap"
             class="absolute bottom-4 right-4 z-1000 flex h-10 w-10 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 shadow-md transition-all hover:bg-gray-50 active:scale-95"
             title="Toggle Real Heatmap">

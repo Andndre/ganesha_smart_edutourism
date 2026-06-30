@@ -1,5 +1,5 @@
-<!-- Map Style Switcher Modal -->
-<x-modal name="map-style-modal" maxWidth="sm">
+@props(['zIndex' => 'z-100'])
+<x-modal name="map-style-modal" maxWidth="sm" :zIndex="$zIndex">
     <div class="p-4">
         <h3 class="text-lg font-bold text-charcoal mb-4">{{ __('Pilih Jenis Peta') }}</h3>
         <div class="grid grid-cols-2 gap-3">
