@@ -67,16 +67,6 @@ class CulturalObject extends Model
     }
 
     /**
-     * Get the stories associated with this cultural object.
-     *
-     * @return HasMany<CulturalStory>
-     */
-    public function stories(): HasMany
-    {
-        return $this->hasMany(CulturalStory::class)->orderBy('order');
-    }
-
-    /**
      * Get the map location for this cultural object.
      *
      * @return MorphOne<MapLocation>

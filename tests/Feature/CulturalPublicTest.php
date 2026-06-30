@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\ArModel;
 use App\Models\CulturalObject;
-use App\Models\CulturalStory;
 use App\Models\MapLocation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -71,40 +70,6 @@ class CulturalPublicTest extends TestCase
         $response->assertSee('Pura Penataran Agung');
         $response->assertSee('Pura Dadia Penarukan');
         $response->assertSee('AR Tersedia');
-    }
-
-    /**
-     * Test public cultural object detail page renders successfully with stories.
-     */
-    public function test_public_cultural_object_detail_page_renders_successfully_with_stories(): void
-    {
-        // Arrange — create object with full AR setup
-        $object = $this->createCulturalObjectWithAr([
-            'name' => ['en' => 'Pura Penataran Agung', 'id' => 'Pura Penataran Agung'],
-            'slug' => 'pura-penataran-agung',
-            'short_description' => ['en' => 'Spiritual Heart of Penglipuran Village', 'id' => 'Jantung Spiritual Desa Penglipuran'],
-            'description' => ['en' => 'Main temple of Penglipuran.', 'id' => 'Pura utama di desa Penglipuran.'],
-            'category' => 'temple',
-        ], 'marker_pura_penataran');
-
-        CulturalStory::create([
-            'cultural_object_id' => $object->id,
-            'title' => ['en' => 'Origin of Pura Penataran', 'id' => 'Asal Usul Pura Penataran'],
-            'content' => ['en' => 'The story of the founding of Pura Penataran Agung.', 'id' => 'Kisah pendirian pura penataran agung oleh leluhur.'],
-            'story_type' => 'history',
-            'order' => 1,
-        ]);
-
-        // Act
-        $response = $this->get(route('cultural-object', ['slug' => $object->slug]));
-
-        // Assert
-        $response->assertStatus(200);
-        $response->assertSee('Pura Penataran Agung');
-        $response->assertSee('Jantung Spiritual Desa Penglipuran');
-        $response->assertSee('Asal Usul Pura Penataran');
-        $response->assertSee('Kisah pendirian pura penataran agung oleh leluhur.');
-        $response->assertSee('Jelajahi dalam Mode AR');
     }
 
     /**
