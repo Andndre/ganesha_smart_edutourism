@@ -7,6 +7,7 @@ use App\Jobs\RefundMidtransTransaction;
 use App\Jobs\VoidMidtransTransaction;
 use App\Models\Reservation;
 use App\Models\TourPackage;
+use App\Models\User;
 use App\Services\MidtransService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -166,6 +167,14 @@ class TicketingController extends Controller
         $reservation->scheduled_date = today();
         $reservation->total_amount = $package->price * $validated['party_size'];
         $reservation->qr_code = 'WALKIN-'.strtoupper(Str::random(10));
+
+        // Link to existing user account if email matches
+        if (! empty($validated['guest_email'])) {
+            $existingUser = User::where('email', $validated['guest_email'])->first();
+            if ($existingUser) {
+                $reservation->user_id = $existingUser->id;
+            }
+        }
 
         if ($validated['payment_method'] === 'cash') {
             $reservation->status = 'completed';
