@@ -68,24 +68,11 @@ class CulturalObjectRequest extends FormRequest
             'quiz_option_d.*.id' => ['required_if:has_quiz,1', 'string'],
             'quiz_correct_option' => ['required_if:has_quiz,1', 'nullable', 'array'],
             'quiz_correct_option.*' => ['required_if:has_quiz,1', 'string', 'in:A,B,C,D'],
-            'has_story' => ['nullable', 'boolean'],
-            'story_title' => ['required_if:has_story,1', 'nullable', 'array'],
-            'story_title.*' => ['required_if:has_story,1', 'array'],
-            'story_title.*.en' => ['required_if:has_story,1', 'string', 'max:255'],
-            'story_title.*.id' => ['required_if:has_story,1', 'string', 'max:255'],
-            'story_content' => ['required_if:has_story,1', 'nullable', 'array'],
-            'story_content.*' => ['required_if:has_story,1', 'array'],
-            'story_content.*.en' => ['required_if:has_story,1', 'string'],
-            'story_content.*.id' => ['required_if:has_story,1', 'string'],
-            'story_type' => ['required_if:has_story,1', 'nullable', 'array'],
-            'story_type.*' => ['in:history,philosophy,value'],
         ];
     }
 
     protected function prepareForValidation(): void
     {
-        $this->normalizeLocaleArrayField('story_title');
-        $this->normalizeLocaleArrayField('story_content');
         $this->normalizeLocaleArrayField('quiz_question');
         $this->normalizeLocaleField('accessibility_notes');
     }
@@ -93,7 +80,7 @@ class CulturalObjectRequest extends FormRequest
     private function normalizeLocaleField(string $field): void
     {
         $value = $this->input($field);
-        if (is_string($value) && ! empty($value)) {
+        if (\is_string($value) && ! empty($value)) {
             $this->merge([$field => ['en' => $value, 'id' => $value]]);
         }
     }
@@ -106,7 +93,7 @@ class CulturalObjectRequest extends FormRequest
         }
         $changed = false;
         foreach ($values as $index => $item) {
-            if (is_string($item) && ! empty($item)) {
+            if (\is_string($item) && ! empty($item)) {
                 $values[$index] = ['en' => $item, 'id' => $item];
                 $changed = true;
             }
