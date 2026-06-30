@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -130,39 +129,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if the user has visited a specific model.
-     */
-    public function hasVisited($visitable): bool
-    {
-        return $this->visits()
-            ->where('visitable_type', $visitable->getMorphClass())
-            ->where('visitable_id', $visitable->id)
-            ->exists();
-    }
-
-    /**
-     * Scope a query to only include admin users.
-     *
-     * @param  Builder<User>  $query
-     * @return Builder<User>
-     */
-    public function scopeAdmins(Builder $query)
-    {
-        return $query->where('role', 'admin');
-    }
-
-    /**
-     * Scope a query to only include active users.
-     *
-     * @param  Builder<User>  $query
-     * @return Builder<User>
-     */
-    public function scopeActive(Builder $query)
-    {
-        return $query->whereNotNull('email_verified_at');
-    }
-
-    /**
      * Check if the user is an admin.
      */
     public function isAdmin(): bool
@@ -184,14 +150,6 @@ class User extends Authenticatable
     public function isTicketOfficer(): bool
     {
         return $this->role === UserRole::TicketOfficer;
-    }
-
-    /**
-     * Check if the user is a tourist (standard user).
-     */
-    public function isTourist(): bool
-    {
-        return $this->role === UserRole::Tourist;
     }
 
     /**

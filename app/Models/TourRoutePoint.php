@@ -48,26 +48,4 @@ class TourRoutePoint extends Model
     {
         return $this->morphTo();
     }
-
-    /**
-     * Scope a query to order by sequence.
-     *
-     * @param  Builder<TourRoutePoint>  $query
-     * @return Builder<TourRoutePoint>
-     */
-    public function scopeOrdered(Builder $query)
-    {
-        return $query->orderBy('order');
-    }
-
-    /**
-     * Scope a query to filter by route.
-     *
-     * @param  Builder<TourRoutePoint>  $query
-     * @return Builder<TourRoutePoint>
-     */
-    public function scopeInRoute(Builder $query, int $routeId)
-    {
-        return $query->where('tour_route_id', $routeId)->ordered();
-    }
 }

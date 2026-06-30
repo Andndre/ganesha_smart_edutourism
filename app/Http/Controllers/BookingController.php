@@ -14,8 +14,6 @@ use Midtrans\Config;
 use Midtrans\Snap;
 use Midtrans\Transaction;
 
-// To be created
-
 class BookingController extends Controller
 {
     /**
@@ -69,7 +67,7 @@ class BookingController extends Controller
     /**
      * Show the checkout page for a tour package.
      */
-    public function checkout(Request $request, $id)
+    public function checkout(Request $request, int $id)
     {
         $package = TourPackage::findOrFail($id);
 

@@ -87,27 +87,6 @@ class UmkmProfile extends Model
     }
 
     /**
-     * Returns ['min' => float, 'max' => float] from active products' effective prices,
-     * or null when no product has a price set. Requires activeProducts.category eager-loaded.
-     *
-     * @return array{min: float, max: float}|null
-     */
-    public function getPriceRangeAttribute(): ?array
-    {
-        $prices = $this->activeProducts
-            ->map(fn ($p) => (float) ($p->category?->price ?? $p->getRawOriginal('price')))
-            ->filter()
-            ->sort()
-            ->values();
-
-        if ($prices->isEmpty()) {
-            return null;
-        }
-
-        return ['min' => $prices->first(), 'max' => $prices->last()];
-    }
-
-    /**
      * Get the map location for this profile.
      *
      * @return MorphOne<MapLocation>
@@ -115,27 +94,5 @@ class UmkmProfile extends Model
     public function mapLocation(): MorphOne
     {
         return $this->morphOne(MapLocation::class, 'locationable');
-    }
-
-    /**
-     * Scope a query to only include active profiles.
-     *
-     * @param  Builder<UmkmProfile>  $query
-     * @return Builder<UmkmProfile>
-     */
-    public function scopeActive(Builder $query): Builder
-    {
-        return $query->where('is_active', true);
-    }
-
-    /**
-     * Scope a query to include profiles with coordinates.
-     *
-     * @param  Builder<UmkmProfile>  $query
-     * @return Builder<UmkmProfile>
-     */
-    public function scopeWithCoordinates(Builder $query): Builder
-    {
-        return $query->whereHas('mapLocation');
     }
 }

@@ -85,11 +85,6 @@ class WeatherReport extends Model
                     <path class="text-blue-400" d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
                     <path class="text-blue-500" d="M8 19v2M12 21v2M16 19v2" />
                 </svg>',
-            61, 63, 65, 80, 81, 82 => '
-                <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path class="text-blue-400" d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
-                    <path class="text-blue-500" d="M16 14v6M8 14v6M12 16v6" />
-                </svg>',
             95, 96, 99 => '
                 <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path class="text-purple-400" d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />

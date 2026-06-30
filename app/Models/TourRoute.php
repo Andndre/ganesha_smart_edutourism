@@ -40,26 +40,4 @@ class TourRoute extends Model
     {
         return $this->hasMany(TourRoutePoint::class)->orderBy('order');
     }
-
-    /**
-     * Scope a query to only include active routes.
-     *
-     * @param  Builder<TourRoute>  $query
-     * @return Builder<TourRoute>
-     */
-    public function scopeActive(Builder $query)
-    {
-        return $query->where('is_active', true);
-    }
-
-    /**
-     * Scope a query to filter by difficulty.
-     *
-     * @param  Builder<TourRoute>  $query
-     * @return Builder<TourRoute>
-     */
-    public function scopeDifficulty(Builder $query, string $difficulty)
-    {
-        return $query->where('difficulty', $difficulty);
-    }
 }
