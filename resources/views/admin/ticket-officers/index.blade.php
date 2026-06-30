@@ -5,22 +5,32 @@
 @section('content')
 
     <div class="mb-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div id="tour-header">
             <h1 class="font-display text-charcoal text-2xl font-bold">Akun Petugas Tiket</h1>
             <p class="mt-0.5 text-sm text-gray-500">Kelola kredensial akun petugas tiket untuk pemindaian tiket masuk dan
                 layanan walk-in.</p>
         </div>
-        <button onclick="openCreateModal()"
-            class="bg-primary shadow-primary/20 hover:bg-primary-600 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all active:scale-[0.98]">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            Buat Akun Petugas
-        </button>
+        <div class="flex items-center gap-2">
+            <button id="tour-trigger-btn" onclick="startTutorial()"
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition-all hover:bg-gray-100 active:scale-[0.98]"
+                title="Panduan Interaktif">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+            <button id="tour-add-btn" onclick="openCreateModal()"
+                class="bg-primary shadow-primary/20 hover:bg-primary-600 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all active:scale-[0.98]">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Buat Akun Petugas
+            </button>
+        </div>
     </div>
 
     {{-- Officers Table --}}
-    <div class="max-w-5xl overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+    <div id="tour-table" class="max-w-5xl overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
@@ -46,7 +56,7 @@
                             <td class="px-5 py-4 text-xs text-gray-500">
                                 {{ $officer->created_at ? $officer->created_at->translatedFormat('d M Y H:i') : '-' }}</td>
                             <td class="px-5 py-4">
-                                <div class="flex items-center gap-2">
+                                <div @if ($loop->first) id="tour-actions" @endif class="flex items-center gap-2">
                                     <button onclick="openEditModal({{ json_encode($officer) }})"
                                         class="hover:bg-primary/10 hover:text-primary rounded-lg p-1.5 text-gray-400 transition-colors"
                                         title="Edit">
@@ -76,7 +86,8 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-5 py-8 text-center text-gray-400">Belum ada akun petugas tiket.
+                            <td id="tour-empty-state" colspan="5" class="px-5 py-8 text-center text-gray-400">Belum ada
+                                akun petugas tiket.
                             </td>
                         </tr>
                     @endforelse
@@ -252,5 +263,90 @@
             fieldPhone.value = @json(old('phone', ''));
         });
         @endif
+    </script>
+
+    <script>
+        function startTutorial() {
+            const driver = window.driver.js.driver;
+            const hasOfficer = document.getElementById('tour-actions') !== null;
+            const steps = [];
+
+            // Langkah 1: Pengantar
+            steps.push({
+                element: '#tour-header',
+                popover: {
+                    title: '👋 Selamat Datang!',
+                    description: 'Panduan ini akan menunjukkan cara mengelola akun petugas tiket untuk pemindaian tiket masuk dan layanan walk-in.',
+                    side: 'bottom',
+                    align: 'start'
+                }
+            });
+
+            // Langkah 2: Tombol Buat Akun
+            steps.push({
+                element: '#tour-add-btn',
+                popover: {
+                    title: '➕ Buat Akun Petugas',
+                    description: 'Gunakan tombol ini untuk membuat akun login baru bagi petugas tiket, lengkap dengan email dan password.',
+                    side: 'bottom',
+                    align: 'end'
+                }
+            });
+
+            // Langkah 3: Tabel Petugas
+            steps.push({
+                element: '#tour-table',
+                popover: {
+                    title: '📋 Daftar Akun Petugas',
+                    description: 'Semua akun petugas tiket yang terdaftar akan tampil di tabel ini, lengkap dengan email, nomor telepon, dan tanggal terdaftar.',
+                    side: 'top',
+                    align: 'start'
+                }
+            });
+
+            if (hasOfficer) {
+                // Langkah 4: Aksi Edit & Hapus
+                steps.push({
+                    element: '#tour-actions',
+                    popover: {
+                        title: '⚙️ Edit & Hapus Akun',
+                        description: 'Klik ikon pensil untuk mengubah data petugas (termasuk mengganti password), atau ikon tempat sampah untuk menghapus akun yang sudah tidak digunakan.',
+                        side: 'top',
+                        align: 'end'
+                    }
+                });
+            } else {
+                // Langkah Alternatif jika kosong
+                steps.push({
+                    element: '#tour-empty-state',
+                    popover: {
+                        title: '📭 Belum Ada Data',
+                        description: 'Setelah Anda membuat akun petugas pertama, datanya akan muncul di tabel ini.',
+                        side: 'top',
+                        align: 'start'
+                    }
+                });
+            }
+
+            const driverObj = driver({
+                showProgress: true,
+                allowClose: true,
+                steps: steps,
+                popoverClass: 'driverjs-theme'
+            });
+
+            driverObj.drive();
+        }
+
+        // Auto-run for first-time visitors
+        document.addEventListener('DOMContentLoaded', () => {
+            const tourCompleted = localStorage.getItem('admin_ticket_officers_tour_completed');
+            if (!tourCompleted) {
+                setTimeout(() => {
+                    startTutorial();
+                    localStorage.setItem('admin_ticket_officers_tour_completed', 'true');
+                }, 1000);
+            }
+        });
     </script>
 @endpush

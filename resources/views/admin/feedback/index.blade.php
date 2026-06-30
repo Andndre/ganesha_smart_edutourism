@@ -4,13 +4,25 @@
 
 @section('content')
 
-    <div class="mb-6">
-        <h1 class="font-display text-2xl font-bold text-charcoal">Ulasan & Feedback Wisatawan</h1>
-        <p class="mt-0.5 text-sm text-gray-500">Pantau kepuasan pengunjung berdasarkan survei pasca kunjungan.</p>
+    <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div id="tour-header">
+            <h1 class="font-display text-2xl font-bold text-charcoal">Ulasan & Feedback Wisatawan</h1>
+            <p class="mt-0.5 text-sm text-gray-500">Pantau kepuasan pengunjung berdasarkan survei pasca kunjungan.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="tour-trigger-btn" onclick="startTutorial()"
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition-all hover:bg-gray-100 active:scale-[0.98]"
+                title="Panduan Interaktif">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+        </div>
     </div>
 
     {{-- Rating Summary --}}
-    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div id="tour-rating-summary" class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Rating Rata-rata</p>
             <div class="mt-2 flex items-baseline gap-2">
@@ -43,9 +55,10 @@
     </div>
 
     {{-- Feedback List --}}
-    <div class="space-y-4">
+    <div id="tour-feedback-list" class="space-y-4">
         @forelse ($feedbacks as $f)
-            <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <div @if ($loop->first) id="tour-first-feedback" @endif
+                class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
                 <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3">
                         <div
@@ -79,7 +92,7 @@
                     </div>
                 @endif
 
-                <div class="mt-3 flex gap-2">
+                <div @if ($loop->first) id="tour-feedback-actions" @endif class="mt-3 flex gap-2">
                     @if (!$f->admin_response)
                         <button onclick="toggleReplyForm({{ $f->id }})"
                             class="rounded-lg border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/5 transition-colors">
@@ -131,7 +144,7 @@
                 </div>
             </div>
         @empty
-            <div class="rounded-2xl border border-gray-100 bg-white p-8 text-center text-gray-400">
+            <div id="tour-empty-state" class="rounded-2xl border border-gray-100 bg-white p-8 text-center text-gray-400">
                 Tidak ada ulasan atau feedback dari wisatawan.
             </div>
         @endforelse
@@ -153,6 +166,91 @@
                     el.classList.add('hidden');
                 }
             }
+        </script>
+
+        <script>
+            function startTutorial() {
+                const driver = window.driver.js.driver;
+                const hasFeedback = document.getElementById('tour-first-feedback') !== null;
+                const steps = [];
+
+                // Langkah 1: Pengantar
+                steps.push({
+                    element: '#tour-header',
+                    popover: {
+                        title: '👋 Selamat Datang!',
+                        description: 'Panduan ini akan menunjukkan cara memantau ulasan dan feedback wisatawan, serta cara membalasnya.',
+                        side: 'bottom',
+                        align: 'start'
+                    }
+                });
+
+                // Langkah 2: Ringkasan Rating
+                steps.push({
+                    element: '#tour-rating-summary',
+                    popover: {
+                        title: '⭐ Ringkasan Rating',
+                        description: 'Lihat rata-rata rating, jumlah ulasan bulan ini, dan distribusi bintang dari seluruh wisatawan di sini.',
+                        side: 'bottom',
+                        align: 'start'
+                    }
+                });
+
+                if (hasFeedback) {
+                    // Langkah 3: Daftar Feedback
+                    steps.push({
+                        element: '#tour-feedback-list',
+                        popover: {
+                            title: '📋 Daftar Ulasan',
+                            description: 'Setiap ulasan wisatawan beserta rating bintang dan komentarnya akan tampil di sini.',
+                            side: 'top',
+                            align: 'start'
+                        }
+                    });
+
+                    // Langkah 4: Aksi pada Feedback
+                    steps.push({
+                        element: '#tour-feedback-actions',
+                        popover: {
+                            title: '💬 Balas & Kelola Ulasan',
+                            description: 'Gunakan tombol "Balas" untuk menanggapi ulasan, atur visibilitasnya secara publik, atau hapus jika diperlukan.',
+                            side: 'top',
+                            align: 'start'
+                        }
+                    });
+                } else {
+                    // Langkah Alternatif jika kosong
+                    steps.push({
+                        element: '#tour-empty-state',
+                        popover: {
+                            title: '📭 Belum Ada Ulasan',
+                            description: 'Setelah wisatawan mengisi survei kepuasan, ulasan mereka akan muncul di area ini.',
+                            side: 'top',
+                            align: 'start'
+                        }
+                    });
+                }
+
+                const driverObj = driver({
+                    showProgress: true,
+                    allowClose: true,
+                    steps: steps,
+                    popoverClass: 'driverjs-theme'
+                });
+
+                driverObj.drive();
+            }
+
+            // Auto-run for first-time visitors
+            document.addEventListener('DOMContentLoaded', () => {
+                const tourCompleted = localStorage.getItem('admin_feedback_tour_completed');
+                if (!tourCompleted) {
+                    setTimeout(() => {
+                        startTutorial();
+                        localStorage.setItem('admin_feedback_tour_completed', 'true');
+                    }, 1000);
+                }
+            });
         </script>
     @endpush
 

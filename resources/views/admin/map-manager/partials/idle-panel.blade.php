@@ -18,7 +18,7 @@
         </p>
     </div>
 
-    <div class="border-t border-gray-100 pt-4">
+    <div id="tour-filters" class="border-t border-gray-100 pt-4">
         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Filter Kategori Peta</h3>
         <div class="space-y-2.5">
             <label class="flex items-center gap-2.5 cursor-pointer select-none">

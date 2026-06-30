@@ -7,21 +7,31 @@
 @section('content')
 
     <div class="mb-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div id="tour-header">
             <h1 class="font-display text-charcoal text-2xl font-bold">UMKM Desa</h1>
             <p class="mt-0.5 text-sm text-gray-500">Kelola produk dan toko UMKM lokal Desa Penglipuran.</p>
         </div>
-        <button onclick="openCreateModal()"
-            class="bg-primary shadow-primary/20 hover:bg-primary-600 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all active:scale-[0.98]">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            Tambah Produk
-        </button>
+        <div class="flex items-center gap-2">
+            <button id="tour-trigger-btn" onclick="startTutorial()"
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition-all hover:bg-gray-100 active:scale-[0.98]"
+                title="Panduan Interaktif">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+            <button id="tour-add-btn" onclick="openCreateModal()"
+                class="bg-primary shadow-primary/20 hover:bg-primary-600 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all active:scale-[0.98]">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Tambah Produk
+            </button>
+        </div>
     </div>
 
     {{-- Summary Stats --}}
-    <div class="mb-6 grid grid-cols-3 gap-4">
+    <div id="tour-stats" class="mb-6 grid grid-cols-3 gap-4">
         @php
             $umkmStats = [
                 [
@@ -61,7 +71,7 @@
     </div>
 
     {{-- Search + Filter --}}
-    <form method="GET" action="{{ route('admin.umkm') }}" class="mb-4 flex flex-col gap-3 sm:flex-row">
+    <form id="tour-filters" method="GET" action="{{ route('admin.umkm') }}" class="mb-4 flex flex-col gap-3 sm:flex-row">
         <div class="relative flex-1">
             <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor" stroke-width="2">
@@ -81,7 +91,7 @@
     </form>
 
     {{-- Product Table --}}
-    <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+    <div id="tour-table" class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
@@ -102,7 +112,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-50">
                     @forelse ($products as $p)
-                        <tr class="hover:bg-gray-50/50">
+                        <tr @if ($loop->first) id="tour-first-row" @endif class="hover:bg-gray-50/50">
                             <td class="text-charcoal px-5 py-4 font-medium">
                                 <div>
                                     <p>{{ $p->display_name }}</p>
@@ -135,7 +145,7 @@
                                     <span class="text-gray-600">{{ $p->stock }} {{ $p->display_unit }}</span>
                                 @endif
                             </td>
-                            <td class="px-5 py-4">
+                            <td @if ($loop->first) id="tour-row-actions" @endif class="px-5 py-4">
                                 <div class="flex items-center gap-2">
                                     <button onclick="openEditModal({{ json_encode([
                                         'id' => $p->id,
@@ -177,7 +187,8 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-5 py-8 text-center text-gray-400">Belum ada data produk UMKM.</td>
+                            <td id="tour-empty-state" colspan="6" class="px-5 py-8 text-center text-gray-400">Belum ada
+                                data produk UMKM.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -446,6 +457,110 @@
         });
         @endif
 
+        // Driver.js UMKM Interactive Tour
+        function startTutorial() {
+            const driver = window.driver.js.driver;
+            const hasRow = document.getElementById('tour-first-row') !== null;
+            const steps = [];
 
+            // Langkah 1: Pengantar
+            steps.push({
+                element: '#tour-header',
+                popover: {
+                    title: '👋 Selamat Datang!',
+                    description: 'Panduan ini akan menunjukkan cara mengelola produk dan toko UMKM lokal Desa Penglipuran.',
+                    side: 'bottom',
+                    align: 'start'
+                }
+            });
+
+            // Langkah 2: Tombol Tambah Produk
+            steps.push({
+                element: '#tour-add-btn',
+                popover: {
+                    title: '➕ Tambah Produk Baru',
+                    description: 'Gunakan tombol ini untuk menambahkan produk UMKM baru, lengkap dengan kategori, toko pemilik, harga, stok, dan foto.',
+                    side: 'bottom',
+                    align: 'end'
+                }
+            });
+
+            // Langkah 3: Ringkasan Statistik
+            steps.push({
+                element: '#tour-stats',
+                popover: {
+                    title: '📊 Ringkasan UMKM',
+                    description: 'Pantau jumlah total UMKM terdaftar, total produk, dan jumlah produk yang terjual bulan ini.',
+                    side: 'bottom',
+                    align: 'start'
+                }
+            });
+
+            // Langkah 4: Pencarian & Filter
+            steps.push({
+                element: '#tour-filters',
+                popover: {
+                    title: '🔍 Cari & Filter Produk',
+                    description: 'Cari produk atau toko berdasarkan nama, atau saring daftar produk berdasarkan kategori tertentu.',
+                    side: 'bottom',
+                    align: 'start'
+                }
+            });
+
+            // Langkah 5: Tabel Produk
+            steps.push({
+                element: '#tour-table',
+                popover: {
+                    title: '📋 Daftar Produk UMKM',
+                    description: 'Semua produk UMKM tampil di sini beserta toko pemilik, kategori, harga, dan status stok.',
+                    side: 'top',
+                    align: 'start'
+                }
+            });
+
+            if (hasRow) {
+                // Langkah 6: Aksi per Produk
+                steps.push({
+                    element: '#tour-row-actions',
+                    popover: {
+                        title: '⚙️ Aksi Cepat',
+                        description: 'Gunakan ikon Edit untuk mengubah data produk atau ikon Hapus untuk menghapusnya dari daftar.',
+                        side: 'top',
+                        align: 'end'
+                    }
+                });
+            } else {
+                // Langkah Alternatif jika kosong
+                steps.push({
+                    element: '#tour-empty-state',
+                    popover: {
+                        title: '📭 Belum Ada Data',
+                        description: 'Setelah produk pertama ditambahkan, datanya akan tampil di tabel ini.',
+                        side: 'top',
+                        align: 'start'
+                    }
+                });
+            }
+
+            const driverObj = driver({
+                showProgress: true,
+                allowClose: true,
+                steps: steps,
+                popoverClass: 'driverjs-theme'
+            });
+
+            driverObj.drive();
+        }
+
+        // Auto-run for first-time visitors
+        document.addEventListener('DOMContentLoaded', () => {
+            const tourCompleted = localStorage.getItem('admin_umkm_tour_completed');
+            if (!tourCompleted) {
+                setTimeout(() => {
+                    startTutorial();
+                    localStorage.setItem('admin_umkm_tour_completed', 'true');
+                }, 1000);
+            }
+        });
     </script>
 @endpush

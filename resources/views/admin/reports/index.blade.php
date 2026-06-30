@@ -5,7 +5,7 @@
 @section('content')
 
 <div class="mb-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-    <div>
+    <div id="tour-header">
         <h1 class="font-display text-2xl font-bold text-charcoal">Laporan & Analitik</h1>
         <p class="mt-0.5 text-sm text-gray-500">Ringkasan performa desa wisata secara periodik.</p>
     </div>
@@ -18,12 +18,20 @@
                 $availableMonths[] = $date->locale('id')->isoFormat('MMMM YYYY');
             }
         @endphp
-        <select id="period-selector" onchange="window.location.href = '{{ route('admin.reports') }}?period=' + this.value" class="rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:border-primary focus:outline-none bg-white text-charcoal">
+        <button id="tour-trigger-btn" onclick="startTutorial()"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition-all hover:bg-gray-100 active:scale-[0.98]"
+            title="Panduan Interaktif">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </button>
+        <select id="tour-filters" onchange="window.location.href = '{{ route('admin.reports') }}?period=' + this.value" class="rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:border-primary focus:outline-none bg-white text-charcoal">
             @foreach ($availableMonths as $month)
                 <option value="{{ $month }}" {{ $selectedPeriod === $month ? 'selected' : '' }}>{{ $month }}</option>
             @endforeach
         </select>
-        <a href="{{ route('admin.reports.download', ['period' => $selectedPeriod]) }}" class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-dark">
+        <a id="tour-export-btn" href="{{ route('admin.reports.download', ['period' => $selectedPeriod]) }}" class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-dark">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
@@ -33,7 +41,7 @@
 </div>
 
 {{-- Monthly KPI Summary --}}
-<div class="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+<div id="tour-stats" class="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
     {{-- Visitor KPI --}}
     <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
         <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Pengunjung</p>
@@ -69,7 +77,7 @@
 </div>
 
 {{-- Charts Row --}}
-<div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+<div id="tour-charts" class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
     <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
         <h3 class="mb-4 font-semibold text-charcoal">Pengunjung per Hari ({{ $selectedPeriod }})</h3>
         <canvas id="monthlyChart" class="w-full" height="180"></canvas>
@@ -195,5 +203,95 @@
             ctx.fillText(d + ' ' + labelSuffix, x, H - 6);
         });
     })();
+</script>
+
+<script>
+    function startTutorial() {
+        const driver = window.driver.js.driver;
+        const steps = [];
+
+        // Langkah 1: Pengantar
+        steps.push({
+            element: '#tour-header',
+            popover: {
+                title: '👋 Selamat Datang!',
+                description: 'Panduan ini akan menunjukkan cara membaca laporan dan analitik performa desa wisata secara periodik.',
+                side: 'bottom',
+                align: 'start'
+            }
+        });
+
+        // Langkah 2: Filter Periode
+        if (document.getElementById('tour-filters') !== null) {
+            steps.push({
+                element: '#tour-filters',
+                popover: {
+                    title: '🗓️ Pilih Periode',
+                    description: 'Gunakan menu ini untuk memilih bulan laporan yang ingin Anda lihat datanya.',
+                    side: 'bottom',
+                    align: 'start'
+                }
+            });
+        }
+
+        // Langkah 3: Unduh Laporan
+        if (document.getElementById('tour-export-btn') !== null) {
+            steps.push({
+                element: '#tour-export-btn',
+                popover: {
+                    title: '📄 Unduh Laporan PDF',
+                    description: 'Klik tombol ini untuk mengunduh laporan lengkap periode terpilih dalam format PDF.',
+                    side: 'bottom',
+                    align: 'end'
+                }
+            });
+        }
+
+        // Langkah 4: Kartu Statistik
+        if (document.getElementById('tour-stats') !== null) {
+            steps.push({
+                element: '#tour-stats',
+                popover: {
+                    title: '📊 Ringkasan KPI',
+                    description: 'Empat kartu ini menampilkan ringkasan jumlah pengunjung, pendapatan, tiket terjual, dan rating kepuasan beserta perubahannya dari bulan lalu.',
+                    side: 'bottom',
+                    align: 'start'
+                }
+            });
+        }
+
+        // Langkah 5: Grafik & Diagram
+        if (document.getElementById('tour-charts') !== null) {
+            steps.push({
+                element: '#tour-charts',
+                popover: {
+                    title: '📈 Grafik Pengunjung & Pendapatan',
+                    description: 'Lihat tren jumlah pengunjung harian dan rincian pendapatan per kategori paket wisata di sini.',
+                    side: 'top',
+                    align: 'start'
+                }
+            });
+        }
+
+        const driverObj = driver({
+            showProgress: true,
+            allowClose: true,
+            steps: steps,
+            popoverClass: 'driverjs-theme'
+        });
+
+        driverObj.drive();
+    }
+
+    // Auto-run for first-time visitors
+    document.addEventListener('DOMContentLoaded', () => {
+        const tourCompleted = localStorage.getItem('admin_reports_tour_completed');
+        if (!tourCompleted) {
+            setTimeout(() => {
+                startTutorial();
+                localStorage.setItem('admin_reports_tour_completed', 'true');
+            }, 1000);
+        }
+    });
 </script>
 @endpush
