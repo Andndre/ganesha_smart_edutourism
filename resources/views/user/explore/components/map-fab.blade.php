@@ -1,12 +1,6 @@
 <div class="absolute bottom-24 right-4 z-10 flex flex-col gap-3">
     <!-- Map Style Button (Jenis Peta) -->
-    <button id="btn-map-style"
-        class="tap-target flex h-12 w-12 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 shadow-md transition-all active:scale-95"
-        title="{{ __('Jenis Peta') }}">
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z" />
-        </svg>
-    </button>
+    <x-map-style-fab />
 
     <!-- Layer Map Button (Wisatawan Live) -->
     <button id="btn-layer-map"

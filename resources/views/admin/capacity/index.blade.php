@@ -29,6 +29,8 @@
 
     @include('admin.capacity.partials.modals')
 
+    <x-map-style-modal />
+
 @endsection
 
 @push('styles')
@@ -46,6 +48,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
     <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
     <script src="https://unpkg.com/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
+    @include('components.map-style-script')
     <script>
         // Global variables for Map and Drawn Items
         let map;
@@ -272,6 +275,8 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
         }).addTo(map);
+
+        initMapStyleSwitcher(map);
 
         // Add drawn items layer
         drawnItems = new L.FeatureGroup();

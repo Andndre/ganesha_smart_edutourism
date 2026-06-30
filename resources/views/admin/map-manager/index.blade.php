@@ -61,6 +61,8 @@
     </div>
 @endsection
 
+<x-map-style-modal />
+
 @push('scripts')
     @include('admin.map-manager.partials.scripts')
     <x-tiptap-editor-script />

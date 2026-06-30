@@ -1,6 +1,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="https://unpkg.com/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
+@include('components.map-style-script')
 <script>
     const PENGLIPURAN_LAT = {{ config('services.penglipuran.latitude') }};
     const PENGLIPURAN_LNG = {{ config('services.penglipuran.longitude') }};
@@ -54,6 +55,8 @@
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19
                 }).addTo(this.formMap);
+
+                initMapStyleSwitcher(this.formMap);
 
                 this.formMap.on('click', (e) => {
                     this.setFormMarker(e.latlng.lat, e.latlng.lng);
