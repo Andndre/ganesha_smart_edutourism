@@ -42,8 +42,9 @@
                 ->with('tourPackage')
                 ->latest()
                 ->first();
-            
-            $hasUnreviewedCompleted = auth()->user()
+
+            $hasUnreviewedCompleted = auth()
+                ->user()
                 ->reservations()
                 ->where('status', 'completed')
                 ->whereDoesntHave('feedbacks')
@@ -75,18 +76,22 @@
 
                         <div class="grid grid-cols-2 gap-x-2 gap-y-4">
                             <div>
-                                <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{{ __('Tanggal') }}</div>
+                                <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                    {{ __('Tanggal') }}</div>
                                 <div class="text-charcoal text-sm font-bold">
                                     {{ \Carbon\Carbon::parse($latestActiveBooking->scheduled_date)->translatedFormat('d M Y') }}
                                 </div>
                             </div>
                             <div>
-                                <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{{ __('Peserta') }}</div>
-                                <div class="text-charcoal text-sm font-bold">{{ $latestActiveBooking->party_size }} {{ __('Orang') }}
+                                <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                    {{ __('Peserta') }}</div>
+                                <div class="text-charcoal text-sm font-bold">{{ $latestActiveBooking->party_size }}
+                                    {{ __('Orang') }}
                                 </div>
                             </div>
                             <div class="col-span-2">
-                                <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{{ __('Status') }}</div>
+                                <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                    {{ __('Status') }}</div>
                                 <div class="text-sm font-bold text-green-600">{{ __('Aktif & Lunas') }}</div>
                             </div>
                         </div>
@@ -127,7 +132,8 @@
                     </svg>
                 </div>
                 <h4 class="text-charcoal mb-1 text-sm font-bold">{{ __('Belum Ada Tiket Aktif') }}</h4>
-                <p class="mb-4 text-xs text-gray-500">{{ __('Pesan tiket atau paket wisata menarik untuk memulai perjalanan edukasi Anda.') }}</p>
+                <p class="mb-4 text-xs text-gray-500">
+                    {{ __('Pesan tiket atau paket wisata menarik untuk memulai perjalanan edukasi Anda.') }}</p>
                 <a href="{{ route('tour-packages') }}"
                     class="bg-primary/10 text-primary active:bg-primary/20 inline-block rounded-xl px-4 py-2 text-xs font-bold transition-all">
                     {{ __('Beli Tiket Sekarang') }}
@@ -181,13 +187,14 @@
                 <div class="flex items-center gap-3">
                     <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-50 text-green-600">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                     </div>
                     <span class="text-charcoal text-sm font-medium">{{ __('Riwayat Kunjungan') }}
-                        @if($visitCount > 0)
-                            <span class="ml-1 text-[10px] text-green-600 font-bold">({{ $visitCount }})</span>
+                        @if ($visitCount > 0)
+                            <span class="ml-1 text-[10px] font-bold text-green-600">({{ $visitCount }})</span>
                         @endif
                     </span>
                 </div>
@@ -233,12 +240,14 @@
                 <div class="flex items-center gap-3">
                     <div class="flex h-8 w-8 items-center justify-center rounded-full bg-sky-50 text-sky-600">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
                         </svg>
                     </div>
                     <span class="text-charcoal text-sm font-medium">{{ __('Bantuan') }}</span>
                 </div>
-                <svg class="h-4 w-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg class="h-4 w-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
             </a>
@@ -263,20 +272,24 @@
 @endsection
 
 @push('modals')
+    {{-- TODO: ini tidak langsung muncul setelah discan, paling tidak 2 jam --}}
     @if ($hasUnreviewedCompleted)
         <!-- Feedback Prompt Modal -->
-        <div id="feedback-modal" class="bg-charcoal/60 fixed inset-0 z-50 flex items-end sm:items-center justify-center p-6 backdrop-blur-sm transition-opacity duration-300">
-            <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl">
+        <div id="feedback-modal"
+            class="bg-charcoal/60 fixed inset-0 z-50 flex items-end justify-center p-6 backdrop-blur-sm transition-opacity duration-300 sm:items-center">
+            <div class="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
                 <div class="text-center">
                     <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-50">
                         <svg class="h-8 w-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                         </svg>
                     </div>
                     <h3 class="text-charcoal mb-2 text-xl font-bold">{{ __('Bagaimana Pengalaman Kunjungan Anda?') }}</h3>
-                    <p class="mb-6 text-sm text-gray-500">{{ __('Beri penilaian dan ulasan untuk membantu kami meningkatkan kualitas pelayanan.') }}</p>
-                    
-            <a href="{{ route('feedback.index') }}"
+                    <p class="mb-6 text-sm text-gray-500">
+                        {{ __('Beri penilaian dan ulasan untuk membantu kami meningkatkan kualitas pelayanan.') }}</p>
+
+                    <a href="{{ route('feedback.index') }}"
                         class="bg-primary mb-3 flex h-12 w-full items-center justify-center rounded-2xl font-bold text-white shadow-lg transition-all active:scale-[0.98]">
                         {{ __('Beri Penilaian') }}
                     </a>
