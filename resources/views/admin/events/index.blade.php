@@ -136,6 +136,8 @@
         @include('admin.events.partials.detail-modal')
         @include('admin.events.partials.form-modal')
 
+        <x-map-style-modal zIndex="z-110" />
+
     </div>
 
 @endsection

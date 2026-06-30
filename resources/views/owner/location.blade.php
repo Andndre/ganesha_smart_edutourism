@@ -57,7 +57,9 @@
                     <span class="text-xs font-medium text-primary">Klik di mana saja pada peta atau geser pin untuk memperbarui
                         lokasi</span>
                 </div>
-                <div id="location-map" class="border border-gray-100 shadow-inner"></div>
+                <div id="location-map" class="border border-gray-100 shadow-inner relative">
+                    <x-map-style-fab size="sm" class="absolute bottom-3 right-3 z-1000" />
+                </div>
             </div>
 
             {{-- Form Controls Card --}}
@@ -134,10 +136,13 @@
 
 @endsection
 
+<x-map-style-modal />
+
 @push('scripts')
     @if ($profile)
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        @include('components.map-style-script')
         <script>
             const PENGLIPURAN_LAT = {{ config('services.penglipuran.latitude') }};
             const PENGLIPURAN_LNG = {{ config('services.penglipuran.longitude') }};
@@ -164,6 +169,8 @@
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19
                 }).addTo(map);
+
+                initMapStyleSwitcher(map);
 
                 // Marker color violet for UMKM
                 const color = '#8B5CF6';
