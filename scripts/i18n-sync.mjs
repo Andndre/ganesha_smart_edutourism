@@ -33,7 +33,7 @@ const CLEANUP_ORPHANS = process.argv.includes('--cleanup-orphans');
 
 // ── 1. Extract all __() keys from source files ──────────────────────────────
 
-const KEY_RE = /__\(['"]([^'"]+)['"]\)/g;
+const KEY_RE = /__\(\s*['"]([^'"]+)['"]/g;
 
 function* walkFiles(dir, exts) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -62,15 +62,24 @@ function loadJson(path) {
 
 // ── 3. Translate via LibreTranslate (direct HTTP to container IP) ─────────
 
+// Laravel placeholders (:count, :owner, ...) must survive translation untouched.
+// Swap them for tokens LibreTranslate won't translate/re-case, then swap back.
+const PLACEHOLDER_RE = /:[a-zA-Z_]+/g;
+
 async function translate(text, source, target) {
+  const placeholders = text.match(PLACEHOLDER_RE) || [];
+  let i = 0;
+  const protectedText = text.replace(PLACEHOLDER_RE, () => `xph${i++}x`);
+
   const res = await fetch(`${LT_URL}/translate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ q: text, source, target, format: 'text' }),
+    body: JSON.stringify({ q: protectedText, source, target, format: 'text' }),
   });
   const data = await res.json();
   if (!data.translatedText) throw new Error(`LibreTranslate error: ${JSON.stringify(data)}`);
-  return data.translatedText;
+
+  return data.translatedText.replace(/xph(\d+)x/gi, (_, i) => placeholders[Number(i)]);
 }
 
 // ── 4. Write sorted JSON ─────────────────────────────────────────────────────
