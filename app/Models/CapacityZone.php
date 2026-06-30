@@ -37,67 +37,6 @@ class CapacityZone extends Model
     }
 
     /**
-     * Scope a query to only include active zones.
-     *
-     * @param  Builder<CapacityZone>  $query
-     * @return Builder<CapacityZone>
-     */
-    public function scopeActive(Builder $query): Builder
-    {
-        return $query->where('is_active', true);
-    }
-
-    /**
-     * Scope a query to include zones at warning threshold.
-     *
-     * @param  Builder<CapacityZone>  $query
-     * @return Builder<CapacityZone>
-     */
-    public function scopeAtWarning(Builder $query)
-    {
-        return $query->whereRaw('(current_count::float / max_capacity) * 100 >= warning_threshold');
-    }
-
-    /**
-     * Scope a query to include zones at critical threshold.
-     *
-     * @param  Builder<CapacityZone>  $query
-     * @return Builder<CapacityZone>
-     */
-    public function scopeAtCritical(Builder $query): Builder
-    {
-        return $query->whereRaw('(current_count::float / max_capacity) * 100 >= critical_threshold');
-    }
-
-    /**
-     * Get the occupancy percentage.
-     */
-    public function getOccupancyPercentageAttribute(): int
-    {
-        if ($this->max_capacity === 0) {
-            return 0;
-        }
-
-        return (int) round(($this->current_count / $this->max_capacity) * 100);
-    }
-
-    /**
-     * Check if the zone is at warning threshold.
-     */
-    public function isAtWarning(): bool
-    {
-        return $this->occupancy_percentage >= $this->warning_threshold;
-    }
-
-    /**
-     * Check if the zone is at critical threshold.
-     */
-    public function isAtCritical(): bool
-    {
-        return $this->occupancy_percentage >= $this->critical_threshold;
-    }
-
-    /**
      * Check if a given latitude and longitude is inside the zone's polygon.
      * Uses the Ray-Casting algorithm.
      */

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -50,36 +49,4 @@ class MapLocation extends Model
         return $this->hasOne(ArModel::class, 'map_location_id');
     }
 
-    /**
-     * Scope a query to only include accessible locations.
-     *
-     * @param  Builder<MapLocation>  $query
-     * @return Builder<MapLocation>
-     */
-    public function scopeAccessible(Builder $query)
-    {
-        return $query->where('is_accessible', true);
-    }
-
-    /**
-     * Scope a query to filter by category.
-     *
-     * @param  Builder<MapLocation>  $query
-     * @return Builder<MapLocation>
-     */
-    public function scopeCategory(Builder $query, string $category)
-    {
-        return $query->where('category', $category);
-    }
-
-    /**
-     * Scope a query to filter by locationable type.
-     *
-     * @param  Builder<MapLocation>  $query
-     * @return Builder<MapLocation>
-     */
-    public function scopeOfType(Builder $query, string $type)
-    {
-        return $query->where('locationable_type', $type);
-    }
 }

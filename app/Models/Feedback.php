@@ -53,47 +53,4 @@ class Feedback extends Model
         return $this->belongsTo(Reservation::class);
     }
 
-    /**
-     * Scope a query to only include public feedback.
-     *
-     * @param  Builder<Feedback>  $query
-     * @return Builder<Feedback>
-     */
-    public function scopePublic(Builder $query)
-    {
-        return $query->where('is_public', true)->orderBy('created_at', 'desc');
-    }
-
-    /**
-     * Scope a query to filter by feedback type.
-     *
-     * @param  Builder<Feedback>  $query
-     * @return Builder<Feedback>
-     */
-    public function scopeOfType(Builder $query, string $type)
-    {
-        return $query->where('feedback_type', $type);
-    }
-
-    /**
-     * Scope a query to filter by minimum rating.
-     *
-     * @param  Builder<Feedback>  $query
-     * @return Builder<Feedback>
-     */
-    public function scopeMinRating(Builder $query, int $rating)
-    {
-        return $query->where('rating', '>=', $rating);
-    }
-
-    /**
-     * Scope a query to include only reviewed feedback (with admin response).
-     *
-     * @param  Builder<Feedback>  $query
-     * @return Builder<Feedback>
-     */
-    public function scopeReviewed(Builder $query)
-    {
-        return $query->whereNotNull('admin_response');
-    }
 }
