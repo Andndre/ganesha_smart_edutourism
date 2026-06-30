@@ -1,11 +1,11 @@
 {{-- Zone Cards --}}
 <div class="flex justify-between items-center mb-4">
     <h3 class="text-charcoal font-semibold">Daftar Zona Kapasitas</h3>
-    <button type="button" onclick="openCreateZoneModal()" class="bg-primary shadow-primary/20 hover:bg-primary-600 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md">
+    <button id="tour-add-btn" type="button" onclick="openCreateZoneModal()" class="bg-primary shadow-primary/20 hover:bg-primary-600 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md">
         + Buat Zona Baru
     </button>
 </div>
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+<div id="tour-zones-list" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
     @foreach ($zones as $zone)
         @if($zone['zone_identifier'] === 'desa_penglipuran')
             @continue

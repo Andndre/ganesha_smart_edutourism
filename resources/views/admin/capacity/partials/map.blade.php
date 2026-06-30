@@ -1,5 +1,5 @@
 {{-- Real-time Map --}}
-<div class="relative mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+<div id="tour-map" class="relative mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
     <div class="flex justify-between items-center mb-4">
         <h3 class="text-charcoal font-semibold">Pemantauan Lokasi Real-time & Geofence</h3>
         <p class="text-xs text-gray-500">Anda dapat menggambar poligon zona pada map ini melalui form Edit/Buat Zona.</p>
@@ -29,7 +29,7 @@
 </div>
 
 {{-- Historical 24h chart --}}
-<div class="mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+<div id="tour-chart" class="mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
     <h3 class="text-charcoal mb-4 font-semibold">Tren Kunjungan 24 Jam Terakhir</h3>
     <canvas id="capacityChart" class="w-full" height="160"></canvas>
 </div>

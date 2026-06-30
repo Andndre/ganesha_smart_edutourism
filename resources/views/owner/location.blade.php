@@ -40,10 +40,22 @@
 @endpush
 
 @section('content')
-    <div class="mb-8">
-        <h1 class="font-display text-3xl font-extrabold text-charcoal tracking-tight">Kustomisasi Lokasi Peta</h1>
-        <p class="mt-1 text-sm text-gray-500">Tentukan letak geografis toko Anda di peta desa wisata Penglipuran agar
-            wisatawan dapat mencari dan bernavigasi ke toko Anda secara real-time.</p>
+    <div class="mb-8 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div id="tour-header">
+            <h1 class="font-display text-3xl font-extrabold text-charcoal tracking-tight">Kustomisasi Lokasi Peta</h1>
+            <p class="mt-1 text-sm text-gray-500">Tentukan letak geografis toko Anda di peta desa wisata Penglipuran agar
+                wisatawan dapat mencari dan bernavigasi ke toko Anda secara real-time.</p>
+        </div>
+        @if ($profile)
+            <button id="tour-trigger-btn" onclick="startTutorial()"
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition-all hover:bg-gray-100 active:scale-[0.98]"
+                title="Panduan Interaktif">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+        @endif
     </div>
 
     @if (!$profile)
@@ -51,7 +63,7 @@
     @else
         <div class="grid gap-8 lg:grid-cols-3 max-w-6xl">
             {{-- Map Container Card --}}
-            <div class="lg:col-span-2 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+            <div id="tour-map-wrapper" class="lg:col-span-2 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
                 <div class="mb-3 flex items-center justify-between px-2">
                     <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Peta Desa Wisata</span>
                     <span class="text-xs font-medium text-primary">Klik di mana saja pada peta atau geser pin untuk memperbarui
@@ -75,7 +87,7 @@
                         <x-locale-toggle />
 
                         {{-- Latitude --}}
-                        <div>
+                        <div id="tour-coords">
                             <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">Latitude</label>
                             <input type="text" name="latitude" id="field-lat" readonly required
                                 value="{{ old('latitude', $location->latitude ?? '') }}"
@@ -121,7 +133,7 @@
                     </div>
 
                     <div class="mt-6 border-t border-gray-100 pt-4">
-                        <button type="submit"
+                        <button id="tour-save-btn" type="submit"
                             class="w-full inline-flex justify-center items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-600 active:scale-[0.98]">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -218,6 +230,84 @@
                 document.getElementById('field-lat').value = parseFloat(lat).toFixed(8);
                 document.getElementById('field-lng').value = parseFloat(lng).toFixed(8);
             }
+        </script>
+
+        <script>
+            function startTutorial() {
+                const driver = window.driver.js.driver;
+                const steps = [];
+
+                // Langkah 1: Pengantar
+                steps.push({
+                    element: '#tour-header',
+                    popover: {
+                        title: '👋 Selamat Datang!',
+                        description: 'Panduan ini akan menunjukkan cara mengatur titik lokasi toko Anda di peta agar mudah ditemukan wisatawan.',
+                        side: 'bottom',
+                        align: 'start'
+                    }
+                });
+
+                // Langkah 2: Peta interaktif
+                if (document.getElementById('tour-map-wrapper') !== null) {
+                    steps.push({
+                        element: '#tour-map-wrapper',
+                        popover: {
+                            title: '🗺️ Peta Desa Wisata',
+                            description: 'Klik di titik mana saja pada peta, atau geser pin ungu, untuk menandai lokasi toko Anda secara akurat.',
+                            side: 'top',
+                            align: 'start'
+                        }
+                    });
+                }
+
+                // Langkah 3: Koordinat otomatis
+                if (document.getElementById('tour-coords') !== null) {
+                    steps.push({
+                        element: '#tour-coords',
+                        popover: {
+                            title: '📍 Koordinat Otomatis',
+                            description: 'Latitude dan longitude akan terisi otomatis setiap kali Anda mengklik peta atau menggeser pin. Anda tidak perlu mengisinya secara manual.',
+                            side: 'right',
+                            align: 'start'
+                        }
+                    });
+                }
+
+                // Langkah 4: Tombol Simpan
+                if (document.getElementById('tour-save-btn') !== null) {
+                    steps.push({
+                        element: '#tour-save-btn',
+                        popover: {
+                            title: '💾 Simpan Lokasi',
+                            description: 'Setelah pin berada di posisi yang tepat, klik tombol ini untuk menyimpan lokasi toko Anda.',
+                            side: 'top',
+                            align: 'start'
+                        }
+                    });
+                }
+
+                const driverObj = driver({
+                    showProgress: true,
+                    allowClose: true,
+                    steps: steps,
+                    popoverClass: 'driverjs-theme'
+                });
+
+                driverObj.drive();
+            }
+
+            // Auto-run for first-time visitors
+            document.addEventListener('DOMContentLoaded', () => {
+                const tourCompleted = localStorage.getItem('owner_location_tour_completed');
+                if (!tourCompleted) {
+                    // Delay slightly to allow the Leaflet map to finish initializing
+                    setTimeout(() => {
+                        startTutorial();
+                        localStorage.setItem('owner_location_tour_completed', 'true');
+                    }, 1000);
+                }
+            });
         </script>
     @endif
 @endpush

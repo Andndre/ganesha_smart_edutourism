@@ -18,19 +18,29 @@
 @section('content')
     <div x-data='ticketingApp({ reservationsList: @json($reservationsList) })' class="max-w-6xl pb-24 sm:pb-0">
         <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-                <h1 class="font-display text-charcoal text-2xl font-bold">Ticketing Point of Sale</h1>
-                <p class="mt-0.5 text-sm text-gray-500">Layanan pembelian tiket walk-in dan verifikasi pengunjung.</p>
+            <div id="tour-header" class="flex items-center gap-2">
+                <div>
+                    <h1 class="font-display text-charcoal text-2xl font-bold">Ticketing Point of Sale</h1>
+                    <p class="mt-0.5 text-sm text-gray-500">Layanan pembelian tiket walk-in dan verifikasi pengunjung.</p>
+                </div>
+                <button id="tour-trigger-btn" onclick="startTutorial()"
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition-all hover:bg-gray-100 active:scale-[0.98]"
+                    title="Panduan Interaktif">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
             </div>
             <div class="hidden flex-wrap justify-start gap-2.5 sm:flex lg:justify-end">
-                <button type="button" @click="$dispatch('open-walkin-modal')"
+                <button id="tour-walkin-btn" type="button" @click="$dispatch('open-walkin-modal')"
                     class="bg-primary shadow-primary/20 hover:bg-primary-600 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all active:scale-[0.98]">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                     </svg>
                     Beli Tiket Walk-in
                 </button>
-                <a href="{{ route('staff.ticketing.scan') }}"
+                <a id="tour-scanner-link" href="{{ route('staff.ticketing.scan') }}"
                     class="inline-flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-200 active:scale-[0.98]">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -39,7 +49,7 @@
                     </svg>
                     Buka Scanner QR
                 </a>
-                <a href="{{ route('staff.ticketing.stats') }}"
+                <a id="tour-stats-link" href="{{ route('staff.ticketing.stats') }}"
                     class="inline-flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-200 active:scale-[0.98]">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -52,12 +62,12 @@
         </div>
 
         <!-- Tabel Transaksi Hari Ini -->
-        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <div id="tour-transactions-list" class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
             <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <h3 class="font-display text-charcoal text-lg font-bold">Tiket Terjual Hari Ini</h3>
 
                 <!-- Filters & Sorting (ui-ux-pro-max) -->
-                <div class="no-scrollbar flex w-full gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:justify-end sm:pb-0">
+                <div id="tour-filters" class="no-scrollbar flex w-full gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:justify-end sm:pb-0">
                     <select x-model="filterStatus"
                         class="focus:border-primary min-w-32.5 shrink-0 rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 shadow-sm transition-all focus:bg-white focus:outline-none sm:w-auto">
                         <option value="all">Semua Status</option>
@@ -129,4 +139,99 @@
 
 @push('scripts')
     @include('staff.ticketing.partials.scripts')
+@endpush
+
+@push('scripts')
+    <script>
+        function startTutorial() {
+            const driver = window.driver.js.driver;
+            const steps = [];
+
+            // Langkah 1: Pengantar
+            steps.push({
+                element: '#tour-header',
+                popover: {
+                    title: '👋 Selamat Datang di Loket Tiket!',
+                    description: 'Panduan ini akan menunjukkan cara menjual tiket walk-in, memindai QR tiket, dan memantau transaksi hari ini.',
+                    side: 'bottom',
+                    align: 'start'
+                }
+            });
+
+            // Langkah 2: Tombol Beli Tiket Walk-in
+            steps.push({
+                element: '#tour-walkin-btn',
+                popover: {
+                    title: '🎫 Jual Tiket Walk-in',
+                    description: 'Gunakan tombol ini untuk membuat tiket bagi pengunjung yang datang langsung tanpa pemesanan online. Isi data pengunjung, pilih paket, lalu proses pembayarannya.',
+                    side: 'bottom',
+                    align: 'start'
+                }
+            });
+
+            // Langkah 3: Scanner QR
+            steps.push({
+                element: '#tour-scanner-link',
+                popover: {
+                    title: '📷 Pindai QR Tiket',
+                    description: 'Klik di sini untuk membuka kamera pemindai QR dan memverifikasi tiket pengunjung saat mereka check-in di lokasi.',
+                    side: 'bottom',
+                    align: 'start'
+                }
+            });
+
+            // Langkah 4: Statistik Tiket
+            steps.push({
+                element: '#tour-stats-link',
+                popover: {
+                    title: '📊 Statistik Tiket',
+                    description: 'Lihat ringkasan jumlah tiket terjual, pendapatan, dan data kunjungan lainnya di halaman statistik.',
+                    side: 'bottom',
+                    align: 'end'
+                }
+            });
+
+            // Langkah 5: Filter & Sortir
+            steps.push({
+                element: '#tour-filters',
+                popover: {
+                    title: '🔍 Filter & Urutkan',
+                    description: 'Gunakan filter ini untuk menyaring transaksi berdasarkan status atau metode pembayaran, dan mengurutkannya sesuai kebutuhan.',
+                    side: 'top',
+                    align: 'end'
+                }
+            });
+
+            // Langkah 6: Daftar Transaksi & Check-in
+            steps.push({
+                element: '#tour-transactions-list',
+                popover: {
+                    title: '✅ Daftar Transaksi & Check-in',
+                    description: 'Semua tiket yang terjual hari ini muncul di sini. Gunakan tombol "Check In" untuk pengunjung yang sudah tiba, atau "Bayar"/"Batal" untuk transaksi yang masih pending.',
+                    side: 'top',
+                    align: 'start'
+                }
+            });
+
+            const driverObj = driver({
+                showProgress: true,
+                allowClose: true,
+                steps: steps,
+                popoverClass: 'driverjs-theme'
+            });
+
+            driverObj.drive();
+        }
+
+        // Auto-run for first-time visitors
+        document.addEventListener('DOMContentLoaded', () => {
+            const tourCompleted = localStorage.getItem('staff_ticketing_tour_completed');
+            if (!tourCompleted) {
+                setTimeout(() => {
+                    startTutorial();
+                    localStorage.setItem('staff_ticketing_tour_completed', 'true');
+                }, 1000);
+            }
+        });
+    </script>
 @endpush

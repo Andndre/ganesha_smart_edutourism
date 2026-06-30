@@ -33,11 +33,11 @@
 
             {{-- Row 1: Nama Event & Kategori --}}
             <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div class="md:col-span-2">
+                <div id="tour-form-name" class="md:col-span-2">
                     <div x-show="locale === 'en'">
                         <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Name
                             (EN) <span class="text-red-500">*</span></label>
-                        <input id="tour-form-name" type="text" name="name[en]" x-model="formFields['name[en]']"
+                        <input type="text" name="name[en]" x-model="formFields['name[en]']"
                             placeholder="e.g. Penglipuran Bamboo Festival 2026"
                             class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
                             required>

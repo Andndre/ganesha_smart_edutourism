@@ -5,11 +5,19 @@
 @section('content')
 
     <div class="mb-8 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div id="tour-header">
             <h1 class="font-display text-charcoal text-2xl font-bold">Sistem Peringatan Kapasitas</h1>
             <p class="mt-0.5 text-sm text-gray-500">Pemantauan kepadatan wisatawan secara real-time per zona.</p>
         </div>
         <div class="flex items-center gap-2">
+            <button id="tour-trigger-btn" onclick="startTutorial()"
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition-all hover:bg-gray-100 active:scale-[0.98]"
+                title="Panduan Interaktif">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
             <span
                 class="bg-primary/10 text-primary flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold">
                 <span class="relative flex h-2 w-2">
@@ -490,5 +498,101 @@
         }
 
         setupEchoListener();
+    </script>
+
+    <script>
+        function startTutorial() {
+            const driver = window.driver.js.driver;
+            const hasZones = document.querySelectorAll('#tour-zones-list > div').length > 0;
+            const steps = [];
+
+            // Langkah 1: Pengantar
+            steps.push({
+                element: '#tour-header',
+                popover: {
+                    title: '👋 Selamat Datang!',
+                    description: 'Panduan ini akan menunjukkan cara memantau dan mengatur kepadatan wisatawan secara real-time per zona di desa wisata.',
+                    side: 'bottom',
+                    align: 'start'
+                }
+            });
+
+            // Langkah 2: Statistik Kapasitas Keseluruhan
+            steps.push({
+                element: '#tour-stats',
+                popover: {
+                    title: '📊 Kapasitas Keseluruhan Desa',
+                    description: 'Kartu ini menampilkan total wisatawan saat ini dibandingkan kapasitas maksimal seluruh Desa Penglipuran, beserta status kepadatannya.',
+                    side: 'bottom',
+                    align: 'start'
+                }
+            });
+
+            // Langkah 3: Tombol Buat Zona Baru
+            steps.push({
+                element: '#tour-add-btn',
+                popover: {
+                    title: '➕ Buat Zona Baru',
+                    description: 'Gunakan tombol ini untuk membuat zona kapasitas baru beserta batas peringatan (warning) dan kritis (critical) dan area poligonnya di map.',
+                    side: 'bottom',
+                    align: 'end'
+                }
+            });
+
+            if (hasZones) {
+                // Langkah 4: Daftar Zona
+                steps.push({
+                    element: '#tour-zones-list',
+                    popover: {
+                        title: '🗂️ Daftar Zona Kapasitas',
+                        description: 'Setiap zona menampilkan jumlah pengunjung saat ini, persentase keterisian, dan status (Aman/Sedang/Kritis). Gunakan ikon di kanan atas kartu untuk mengedit atau menghapus zona.',
+                        side: 'top',
+                        align: 'start'
+                    }
+                });
+            }
+
+            // Langkah 5: Peta Real-time
+            steps.push({
+                element: '#tour-map',
+                popover: {
+                    title: '🗺️ Pemantauan Lokasi Real-time',
+                    description: 'Peta ini menampilkan area geofence tiap zona dan posisi wisatawan secara live. Klik kanan pada zona untuk mengedit cepat, atau gunakan tombol heatmap untuk melihat kepadatan visual.',
+                    side: 'top',
+                    align: 'start'
+                }
+            });
+
+            // Langkah 6: Grafik Tren 24 Jam
+            steps.push({
+                element: '#tour-chart',
+                popover: {
+                    title: '📈 Tren Kunjungan 24 Jam',
+                    description: 'Grafik ini membantu Anda melihat pola kepadatan wisatawan sepanjang hari untuk perencanaan kapasitas yang lebih baik.',
+                    side: 'top',
+                    align: 'start'
+                }
+            });
+
+            const driverObj = driver({
+                showProgress: true,
+                allowClose: true,
+                steps: steps,
+                popoverClass: 'driverjs-theme'
+            });
+
+            driverObj.drive();
+        }
+
+        // Auto-run for first-time visitors
+        document.addEventListener('DOMContentLoaded', () => {
+            const tourCompleted = localStorage.getItem('admin_capacity_tour_completed');
+            if (!tourCompleted) {
+                setTimeout(() => {
+                    startTutorial();
+                    localStorage.setItem('admin_capacity_tour_completed', 'true');
+                }, 1000);
+            }
+        });
     </script>
 @endpush
