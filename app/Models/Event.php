@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\HasMapLocation;
 use App\Models\Concerns\HasSlug;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -69,5 +70,16 @@ class Event extends Model
         ];
 
         return $map[$this->category] ?? $this->category;
+    }
+
+    /**
+     * Scope a query to filter by category.
+     *
+     * @param  Builder<Event>  $query
+     * @return Builder<Event>
+     */
+    public function scopeCategory(Builder $query, string $category)
+    {
+        return $query->where('category', $category);
     }
 }
