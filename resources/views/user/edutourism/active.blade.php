@@ -224,7 +224,7 @@
                                         infoText.innerHTML = `{{ __('Lokasi Ditemukan!') }} ({{ __('Jarak') }}: ${dist}m)`;
                                         arriveBtn.disabled = false;
                                         arriveBtn.classList.remove('opacity-50');
-                                        arriveBtn.textContent = "{{ __('Jawab Pertanyaan & Lanjut') }}";
+                                        arriveBtn.textContent = @js(__('Jawab Pertanyaan & Lanjut'));
                                     } else {
                                         infoText.textContent = `{{ __('Jarak') }}: ${dist} {{ __('meter') }}`;
                                         arriveBtn.disabled = true;
@@ -313,7 +313,7 @@
                                         window.dispatchEvent(new CustomEvent('open-quiz-modal'));
                                         document.getElementById('btn-arrive').disabled = false;
                                         document.getElementById('btn-arrive').textContent =
-                                            "{{ __('Jawab Pertanyaan & Lanjut') }}";
+                                            @js(__('Jawab Pertanyaan & Lanjut'));
                                     } else {
                                         if (data.session_status === 'completed') {
                                             window.location.reload();
@@ -337,7 +337,7 @@
                                     console.error("Error occurred in triggerArrive:", err);
                                     document.getElementById('btn-arrive').disabled = false;
                                     document.getElementById('btn-arrive').textContent =
-                                        "{{ __('Jawab Pertanyaan & Lanjut') }}";
+                                        @js(__('Jawab Pertanyaan & Lanjut'));
                                     Swal.fire({
                                         title: "{{ __('Oops!') }}",
                                         text: "{{ __('Gagal memuat kuis.') }}",

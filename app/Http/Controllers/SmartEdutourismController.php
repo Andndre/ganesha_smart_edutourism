@@ -167,13 +167,22 @@ class SmartEdutourismController extends Controller
             ? $point->locationable->quizzes
             : collect();
 
+        $quizzesData = $quizzes->map(fn ($q) => [
+            'id' => $q->id,
+            'question' => $q->question,
+            'option_a' => $q->option_a,
+            'option_b' => $q->option_b,
+            'option_c' => $q->option_c,
+            'option_d' => $q->option_d,
+        ])->values();
+
         $sessionStatus = 'active';
 
         if ($quizzes->isNotEmpty()) {
             return response()->json([
                 'success' => true,
                 'point' => $point,
-                'quizzes' => $quizzes,
+                'quizzes' => $quizzesData,
                 'session_status' => $sessionStatus,
             ]);
         }
@@ -191,7 +200,7 @@ class SmartEdutourismController extends Controller
             return response()->json([
                 'success' => true,
                 'point' => $point,
-                'quizzes' => $quizzes,
+                'quizzes' => $quizzesData,
                 'session_status' => $sessionStatus,
             ]);
         }
@@ -217,7 +226,7 @@ class SmartEdutourismController extends Controller
         return response()->json([
             'success' => true,
             'point' => $point,
-            'quizzes' => $quizzes,
+            'quizzes' => $quizzesData,
             'session_status' => $sessionStatus,
         ]);
     }
