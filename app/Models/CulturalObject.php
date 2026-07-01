@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\HasLocalizedAudioNarration;
 use App\Models\Concerns\HasMapLocation;
 use App\Models\Concerns\HasSlug;
+use App\Models\Concerns\HasTranslatableArrayOutput;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,6 +22,7 @@ class CulturalObject extends Model
     use HasLocalizedAudioNarration;
     use HasMapLocation;
     use HasSlug;
+    use HasTranslatableArrayOutput;
     use HasTranslations;
 
     public array $translatable = ['name', 'short_description', 'description'];
@@ -36,26 +38,6 @@ class CulturalObject extends Model
             'historical_images' => 'array',
             'audio_narration_paths' => 'array',
         ];
-    }
-
-    /**
-     * Override attributesToArray to handle Spatie translatable attributes.
-     * Spatie's getAttributeValue() override is not called by Laravel's default
-     * attributesToArray(), so translatable fields would be serialized as raw JSON
-     * strings in toArray() output. We use getTranslations() to return all locales
-     * as ['en' => ..., 'id' => ...] instead of a single-locale string.
-     */
-    public function attributesToArray(): array
-    {
-        $attributes = parent::attributesToArray();
-
-        foreach ($this->getTranslatableAttributes() as $key) {
-            if (array_key_exists($key, $attributes)) {
-                $attributes[$key] = $this->getTranslations($key);
-            }
-        }
-
-        return $attributes;
     }
 
     /**
