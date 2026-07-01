@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Event;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 
 class EventFactory extends Factory
 {
@@ -12,21 +11,22 @@ class EventFactory extends Factory
 
     public function definition(): array
     {
+        $nameEn = $this->faker->words(3, true);
+        $start = $this->faker->dateTimeBetween('now', '+2 months');
+
         return [
-            'updated_at' => Carbon::now(),
-            'created_at' => Carbon::now(),
             'registration_url' => $this->faker->url(),
-            'current_participants' => $this->faker->randomNumber(),
-            'max_participants' => $this->faker->randomNumber(),
-            'price' => $this->faker->randomFloat(),
-            'is_free' => $this->faker->boolean(),
-            'location_name' => $this->faker->name(),
-            'end_datetime' => Carbon::now(),
-            'start_datetime' => Carbon::now(),
-            'category' => $this->faker->word(),
-            'description' => $this->faker->text(),
-            'slug' => $this->faker->slug(),
-            'name' => $this->faker->name(),
+            'current_participants' => 0,
+            'max_participants' => $this->faker->numberBetween(20, 200),
+            'price' => $this->faker->randomFloat(2, 0, 150000),
+            'is_free' => $this->faker->boolean(30),
+            'location_name' => ['en' => $this->faker->words(2, true), 'id' => $this->faker->words(2, true)],
+            'start_datetime' => $start,
+            'end_datetime' => (clone $start)->modify('+3 hours'),
+            'category' => $this->faker->randomElement(['cultural', 'culinary', 'workshop', 'ceremony']),
+            'description' => ['en' => $this->faker->paragraph(), 'id' => $this->faker->paragraph()],
+            'slug' => $this->faker->unique()->slug(),
+            'name' => ['en' => ucfirst($nameEn), 'id' => 'Acara '.ucfirst($nameEn)],
         ];
     }
 }

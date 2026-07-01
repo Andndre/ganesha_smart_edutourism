@@ -28,7 +28,7 @@ return new class extends Migration
             $flatten = function ($val) {
                 $decoded = json_decode($val, true);
 
-                return is_array($decoded) ? ($decoded['en'] ?? '') : $val;
+                return \is_array($decoded) ? ($decoded['en'] ?? '') : $val;
             };
             DB::table('cultural_object_quizzes')->where('id', $row->id)->update([
                 'option_a' => $flatten($row->option_a),

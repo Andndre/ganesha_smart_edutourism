@@ -30,6 +30,8 @@ class UmkmProductCategoryFactory extends Factory
                 'en' => fake()->sentence(),
                 'id' => 'Deskripsi untuk kategori '.$nameId,
             ],
+            'price' => fake()->randomFloat(2, 10000, 200000),
+            'unit' => fake()->randomElement(['pcs', 'box', 'pack', 'bottle']),
             'image_path' => null,
             'model_3d_path' => null,
             'model_3d_usdz_path' => null,

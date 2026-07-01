@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\CulturalObject;
 use App\Models\MapLocation;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 
 class MapLocationFactory extends Factory
 {
@@ -13,16 +13,14 @@ class MapLocationFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name(),
-            'category' => $this->faker->word(),
-            'locationable_type' => $this->faker->word(),
-            'locationable_id' => $this->faker->randomNumber(),
-            'latitude' => $this->faker->latitude(),
-            'longitude' => $this->faker->longitude(),
+            'name' => $this->faker->words(2, true),
+            'category' => $this->faker->randomElement(['cultural', 'umkm', 'facility', 'emergency', 'accessibility']),
+            'locationable_type' => CulturalObject::class,
+            'locationable_id' => CulturalObject::factory(),
+            'latitude' => $this->faker->latitude(-8.5, -8.4),
+            'longitude' => $this->faker->longitude(115.3, 115.4),
             'is_accessible' => $this->faker->boolean(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-            'accessibility_notes' => $this->faker->words(),
+            'accessibility_notes' => ['en' => $this->faker->sentence(), 'id' => $this->faker->sentence()],
         ];
     }
 }

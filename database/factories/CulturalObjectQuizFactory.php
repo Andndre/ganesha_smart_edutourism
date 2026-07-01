@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Models\CulturalObject;
 use App\Models\CulturalObjectQuiz;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 
 class CulturalObjectQuizFactory extends Factory
 {
@@ -13,15 +12,15 @@ class CulturalObjectQuizFactory extends Factory
 
     public function definition(): array
     {
+        $bilingual = fn () => ['en' => $this->faker->words(3, true), 'id' => $this->faker->words(3, true)];
+
         return [
-            'correct_option' => $this->faker->word(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-            'question' => $this->faker->word(),
-            'option_a' => $this->faker->word(),
-            'option_b' => $this->faker->word(),
-            'option_c' => $this->faker->word(),
-            'option_d' => $this->faker->word(),
+            'correct_option' => $this->faker->randomElement(['a', 'b', 'c', 'd']),
+            'question' => ['en' => $this->faker->sentence().'?', 'id' => $this->faker->sentence().'?'],
+            'option_a' => $bilingual(),
+            'option_b' => $bilingual(),
+            'option_c' => $bilingual(),
+            'option_d' => $bilingual(),
 
             'cultural_object_id' => CulturalObject::factory(),
         ];

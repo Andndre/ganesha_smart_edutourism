@@ -6,7 +6,6 @@ use App\Models\Feedback;
 use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 
 class FeedbackFactory extends Factory
 {
@@ -15,14 +14,12 @@ class FeedbackFactory extends Factory
     public function definition(): array
     {
         return [
-            'feedback_type' => $this->faker->word(),
-            'rating' => $this->faker->randomNumber(),
-            'comment' => $this->faker->word(),
-            'photos' => $this->faker->words(),
-            'is_public' => $this->faker->boolean(),
-            'admin_response' => $this->faker->word(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'feedback_type' => $this->faker->randomElement(['general', 'cultural', 'service', 'facility', 'umkm']),
+            'rating' => $this->faker->numberBetween(1, 5),
+            'comment' => $this->faker->sentence(),
+            'photos' => null,
+            'is_public' => $this->faker->boolean(80),
+            'admin_response' => null,
 
             'user_id' => User::factory(),
             'reservation_id' => Reservation::factory(),

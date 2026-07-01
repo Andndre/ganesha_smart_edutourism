@@ -100,6 +100,6 @@ class UmkmProduct extends Model
         }
         $images = $this->getAttribute('images');
 
-        return is_array($images) && ! empty($images) ? $images[0] : null;
+        return \is_array($images) && ! empty($images) ? $images[0] : null;
     }
 }

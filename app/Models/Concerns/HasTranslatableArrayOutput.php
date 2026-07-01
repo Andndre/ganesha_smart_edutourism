@@ -15,7 +15,7 @@ trait HasTranslatableArrayOutput
         $attributes = parent::attributesToArray();
 
         foreach ($this->getTranslatableAttributes() as $key) {
-            if (array_key_exists($key, $attributes)) {
+            if (\array_key_exists($key, $attributes)) {
                 $attributes[$key] = $this->getTranslations($key);
             }
         }
