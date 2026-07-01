@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Concerns\HandlesArFileUploads;
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CulturalObjectRequest;
@@ -21,6 +22,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class CulturalObjectController extends Controller
 {
+    use HandlesArFileUploads;
     use NormalizesMultilingualInput;
 
     /**
@@ -138,6 +140,7 @@ class CulturalObjectController extends Controller
                 }
             }
 
+            $defaultLocale = config('app.fallback_locale', 'en');
             $modelData = [
                 'name' => $submittedName ?: [$defaultLocale => ($object->name[$defaultLocale] ?? 'Model').' Model'],
                 'description' => $request->input('new_model_description') ?: ($object->short_description ?? null),
@@ -152,12 +155,7 @@ class CulturalObjectController extends Controller
                 $modelData['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')
                     ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
             }
-            $arAudioPaths = [];
-            foreach (['en', 'id'] as $locale) {
-                if ($request->hasFile("audio_narration_file.$locale")) {
-                    $arAudioPaths[$locale] = $request->file("audio_narration_file.$locale")->store('audio', 'public');
-                }
-            }
+            $arAudioPaths = $this->replaceLocalizedAudio($request, 'audio_narration_file', []);
             if ($arAudioPaths) {
                 $modelData['audio_narration_paths'] = $arAudioPaths;
             }
@@ -189,31 +187,16 @@ class CulturalObjectController extends Controller
 
                 // Handle file replacement: upload new, THEN delete old
                 if ($request->hasFile('model_3d_file')) {
-                    $newPath = $request->file('model_3d_file')->store('models', 'public');
-                    if ($arModel->model_3d_path) {
-                        Storage::disk('public')->delete($arModel->model_3d_path);
-                    }
-                    $modelData['model_3d_path'] = $newPath;
+                    $modelData['model_3d_path'] = $this->replaceStoredFile($request->file('model_3d_file'), 'models', $arModel->model_3d_path);
                 }
 
                 if ($request->hasFile('model_3d_usdz_file')) {
-                    $newPath = $request->file('model_3d_usdz_file')
-                        ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
-                    if ($arModel->model_3d_usdz_path) {
-                        Storage::disk('public')->delete($arModel->model_3d_usdz_path);
-                    }
-                    $modelData['model_3d_usdz_path'] = $newPath;
+                    $modelData['model_3d_usdz_path'] = $this->replaceStoredFile(
+                        $request->file('model_3d_usdz_file'), 'models_usdz', $arModel->model_3d_usdz_path, Str::random(40).'.usdz'
+                    );
                 }
 
-                $existingAudioPaths = $arModel->audio_narration_paths ?? [];
-                foreach (['en', 'id'] as $locale) {
-                    if ($request->hasFile("audio_narration_file.$locale")) {
-                        if (!empty($existingAudioPaths[$locale])) {
-                            Storage::disk('public')->delete($existingAudioPaths[$locale]);
-                        }
-                        $existingAudioPaths[$locale] = $request->file("audio_narration_file.$locale")->store('audio', 'public');
-                    }
-                }
+                $existingAudioPaths = $this->replaceLocalizedAudio($request, 'audio_narration_file', $arModel->audio_narration_paths ?? []);
                 $modelData['audio_narration_paths'] = $existingAudioPaths ?: null;
 
                 $arModel->update($modelData);
@@ -280,20 +263,9 @@ class CulturalObjectController extends Controller
         );
 
         // Handle locale-specific audio narration uploads (merge, replace old files)
-        $existingAudioPaths = $object->audio_narration_paths ?? [];
-        $audioChanged = false;
-        foreach (['en', 'id'] as $locale) {
-            $fileKey = "cultural_audio_file.{$locale}";
-            if ($request->hasFile($fileKey)) {
-                $newPath = $request->file($fileKey)->store('audio', 'public');
-                if (!empty($existingAudioPaths[$locale])) {
-                    Storage::disk('public')->delete($existingAudioPaths[$locale]);
-                }
-                $existingAudioPaths[$locale] = $newPath;
-                $audioChanged = true;
-            }
-        }
-        if ($audioChanged) {
+        $originalAudioPaths = $object->audio_narration_paths ?? [];
+        $existingAudioPaths = $this->replaceLocalizedAudio($request, 'cultural_audio_file', $originalAudioPaths);
+        if ($existingAudioPaths !== $originalAudioPaths) {
             $validated['audio_narration_paths'] = $existingAudioPaths;
         }
 
@@ -350,6 +322,7 @@ class CulturalObjectController extends Controller
                 }
             }
 
+            $defaultLocale = config('app.fallback_locale', 'en');
             $modelData = [
                 'name' => $submittedName ?: [$defaultLocale => ($object->name[$defaultLocale] ?? 'Model').' Model'],
                 'description' => $request->input('new_model_description') ?: ($object->short_description ?? null),
@@ -364,12 +337,7 @@ class CulturalObjectController extends Controller
                 $modelData['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')
                     ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
             }
-            $arAudioPaths = [];
-            foreach (['en', 'id'] as $locale) {
-                if ($request->hasFile("audio_narration_file.$locale")) {
-                    $arAudioPaths[$locale] = $request->file("audio_narration_file.$locale")->store('audio', 'public');
-                }
-            }
+            $arAudioPaths = $this->replaceLocalizedAudio($request, 'audio_narration_file', []);
             if ($arAudioPaths) {
                 $modelData['audio_narration_paths'] = $arAudioPaths;
             }
@@ -401,32 +369,16 @@ class CulturalObjectController extends Controller
 
                 // Handle file replacement: upload new, THEN delete old
                 if ($request->hasFile('model_3d_file')) {
-                    $newPath = $request->file('model_3d_file')->store('models', 'public');
-                    if ($arModel->model_3d_path) {
-                        Storage::disk('public')->delete($arModel->model_3d_path);
-                    }
-                    $modelData['model_3d_path'] = $newPath;
+                    $modelData['model_3d_path'] = $this->replaceStoredFile($request->file('model_3d_file'), 'models', $arModel->model_3d_path);
                 }
 
                 if ($request->hasFile('model_3d_usdz_file')) {
-                    $newPath = $request->file('model_3d_usdz_file')
-                        ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
-                    if ($arModel->model_3d_usdz_path) {
-                        Storage::disk('public')->delete($arModel->model_3d_usdz_path);
-                    }
-                    $modelData['model_3d_usdz_path'] = $newPath;
+                    $modelData['model_3d_usdz_path'] = $this->replaceStoredFile(
+                        $request->file('model_3d_usdz_file'), 'models_usdz', $arModel->model_3d_usdz_path, Str::random(40).'.usdz'
+                    );
                 }
 
-                $existingAudioPaths = $arModel->audio_narration_paths ?? [];
-                foreach (['en', 'id'] as $locale) {
-                    if ($request->hasFile("audio_narration_file.$locale")) {
-                        if (!empty($existingAudioPaths[$locale])) {
-                            Storage::disk('public')->delete($existingAudioPaths[$locale]);
-                        }
-                        $existingAudioPaths[$locale] = $request->file("audio_narration_file.$locale")->store('audio', 'public');
-                    }
-                }
-                $modelData['audio_narration_paths'] = $existingAudioPaths ?: null;
+                $modelData['audio_narration_paths'] = $this->replaceLocalizedAudio($request, 'audio_narration_file', $arModel->audio_narration_paths ?? []) ?: null;
 
                 $arModel->update($modelData);
             }
