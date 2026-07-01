@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -115,9 +116,11 @@ class ProfileController extends Controller
     /**
      * Show the user's visited places page.
      */
-    public function visited(): View
+    public function visited(): Response
     {
-        return view('user.profile.visited');
+        return response()
+            ->view('user.profile.visited')
+            ->header('Cache-Control', 'no-store, must-revalidate');
     }
 
     /**

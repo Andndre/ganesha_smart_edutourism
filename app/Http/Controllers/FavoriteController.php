@@ -4,15 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Illuminate\Http\Response;
 
 class FavoriteController extends Controller
 {
-    public function index(): View
+    public function index(): Response
     {
         $items = auth()->user()->favoriteItems();
 
-        return view('user.profile.favorites', compact('items'));
+        return response()
+            ->view('user.profile.favorites', compact('items'))
+            ->header('Cache-Control', 'no-store, must-revalidate');
     }
 
     public function toggle(Request $request): JsonResponse
