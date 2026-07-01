@@ -25,7 +25,7 @@
                     {{ $item->category }}
                 </span>
             </div>
-            <button onclick="toggleFavorite('{{ get_class($item) }}', {{ $item->id }}, this)"
+            <button onclick="toggleFavorite(@js(get_class($item)), {{ $item->id }}, this)"
                 class="tap-target flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-50 transition-colors active:bg-gray-100"
                 aria-label="{{ $favorited ? __('Hapus dari favorit') : __('Tambah ke favorit') }}">
                 <svg class="h-5 w-5 {{ $favorited ? 'text-yellow-400 fill-current' : 'text-gray-300' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
