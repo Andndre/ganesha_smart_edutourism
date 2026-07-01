@@ -20,7 +20,7 @@ use NotificationChannels\WebPush\HasPushSubscriptions;
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasPushSubscriptions;
+    use HasApiTokens, HasFactory, HasPushSubscriptions, Notifiable;
 
     /**
      * The attributes that should be cast.
@@ -115,7 +115,10 @@ class User extends Authenticatable
      */
     public function visitedItems(): Collection
     {
-        return $this->visits()->with('visitable')->get()->pluck('visitable');
+        return $this->visits()->with('visitable')->get()
+            ->pluck('visitable')
+            ->filter()
+            ->values();
     }
 
     /**
