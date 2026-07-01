@@ -103,61 +103,43 @@ class ReportController extends Controller
         $visitorCount = VisitorLog::whereBetween('logged_at', [$startDate, $endDate])
             ->where('event_type', 'page_view')
             ->count();
-        if ($visitorCount === 0) {
-            $visitorCount = 14230;
-        }
+        $visitorCount = valueOrMock($visitorCount, 14230);
 
         $prevVisitorCount = VisitorLog::whereBetween('logged_at', [$prevStartDate, $prevEndDate])
             ->where('event_type', 'page_view')
             ->count();
-        if ($prevVisitorCount === 0) {
-            $prevVisitorCount = 12060;
-        }
+        $prevVisitorCount = valueOrMock($prevVisitorCount, 12060);
         $visitorDelta = $prevVisitorCount > 0 ? round((($visitorCount - $prevVisitorCount) / $prevVisitorCount) * 100) : 0;
 
         // Revenue
         $revenue = Reservation::whereIn('status', ['confirmed', 'completed'])
             ->whereBetween('created_at', [$startDate, $endDate])
             ->sum('total_amount');
-        if ($revenue == 0) {
-            $revenue = 98000000;
-        }
+        $revenue = valueOrMock($revenue, 98000000);
 
         $prevRevenue = Reservation::whereIn('status', ['confirmed', 'completed'])
             ->whereBetween('created_at', [$prevStartDate, $prevEndDate])
             ->sum('total_amount');
-        if ($prevRevenue == 0) {
-            $prevRevenue = 80000000;
-        }
+        $prevRevenue = valueOrMock($prevRevenue, 80000000);
         $revenueDelta = $prevRevenue > 0 ? round((($revenue - $prevRevenue) / $prevRevenue) * 100) : 0;
 
         // Tickets Sold
         $ticketsSold = Reservation::where('status', 'confirmed')
             ->whereBetween('scheduled_date', [$startDate, $endDate])
             ->count();
-        if ($ticketsSold === 0) {
-            $ticketsSold = 1847;
-        }
+        $ticketsSold = valueOrMock($ticketsSold, 1847);
 
         $prevTicketsSold = Reservation::where('status', 'confirmed')
             ->whereBetween('scheduled_date', [$prevStartDate, $prevEndDate])
             ->count();
-        if ($prevTicketsSold === 0) {
-            $prevTicketsSold = 1606;
-        }
+        $prevTicketsSold = valueOrMock($prevTicketsSold, 1606);
         $ticketsDelta = $prevTicketsSold > 0 ? round((($ticketsSold - $prevTicketsSold) / $prevTicketsSold) * 100) : 0;
 
         // Rating
-        $rating = Feedback::whereBetween('created_at', [$startDate, $endDate])->avg('rating');
-        if (! $rating) {
-            $rating = 4.7;
-        }
+        $rating = valueOrMock(Feedback::whereBetween('created_at', [$startDate, $endDate])->avg('rating'), 4.7);
         $rating = round($rating, 1);
 
-        $prevRating = Feedback::whereBetween('created_at', [$prevStartDate, $prevEndDate])->avg('rating');
-        if (! $prevRating) {
-            $prevRating = 4.4;
-        }
+        $prevRating = valueOrMock(Feedback::whereBetween('created_at', [$prevStartDate, $prevEndDate])->avg('rating'), 4.4);
         $ratingDelta = round($rating - $prevRating, 1);
 
         // Chart Data (21 days)
@@ -167,12 +149,8 @@ class ReportController extends Controller
             $count = VisitorLog::whereDate('logged_at', $date)
                 ->where('event_type', 'page_view')
                 ->count();
-            if ($count === 0) {
-                $mockData = [280, 320, 290, 450, 610, 730, 617, 310, 340, 380, 420, 500, 560, 620, 710, 680, 590, 540, 480, 430, 617];
-                $chartData[] = $mockData[$day - 1];
-            } else {
-                $chartData[] = $count;
-            }
+            $mockData = [280, 320, 290, 450, 610, 730, 617, 310, 340, 380, 420, 500, 560, 620, 710, 680, 590, 540, 480, 430, 617];
+            $chartData[] = valueOrMock($count, $mockData[$day - 1]);
         }
 
         // Package Revenue breakdown
