@@ -11,6 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Essential Commands
 
 ### Setup & Development
+
 ```bash
 composer setup              # Full setup: install deps, .env, key, migrate, build
 composer dev                # Start all services (server, queue, logs, vite)
@@ -21,6 +22,7 @@ npm run build               # Production build
 ```
 
 ### Code Quality
+
 ```bash
 vendor/bin/pint --dirty --format agent  # Format changed files (run before commits)
 php artisan pail                        # Tail application logs
@@ -28,6 +30,7 @@ php artisan queue:listen --tries=1      # Run queue worker
 ```
 
 ### Key Artisan Commands
+
 ```bash
 php artisan app:update-weather          # Fetch weather data (runs every 10min via share)
 php artisan app:send-event-reminders    # Send event reminder emails
@@ -37,6 +40,7 @@ php artisan app:cleanup-tus             # Clean up stale TUS upload temp files (
 ## Architecture & Domain Model
 
 ### Multi-Role System
+
 The application has **5 distinct user roles** with separate route prefixes and middleware:
 
 1. **Guest** - Public access to explore, UMKM catalog, cultural objects, AR scan
@@ -50,6 +54,7 @@ The application has **5 distinct user roles** with separate route prefixes and m
 ### Core Domain Models
 
 **Cultural & Tourism:**
+
 - `CulturalObject` - Heritage sites with AR markers, quizzes, stories (TipTap rich text). Has custom `attributesToArray()` override — see Multilingual section.
 - `CulturalStory` - Narrative content (`story_type`: `history` | `philosophy` | `value`) per cultural object
 - `TourRoute` / `TourRoutePoint` - Predefined walking routes with waypoints and `storytelling_content`
@@ -59,16 +64,19 @@ The application has **5 distinct user roles** with separate route prefixes and m
 - `Facility` - Service locations (toilets, parking, info centers)
 
 **UMKM (Local Business):**
+
 - `UmkmProfile` - Business profiles with geolocation
 - `UmkmProduct` - Products with categories
 - `UmkmProductCategory` - Product categorization
 - **Fair Distribution System:** `UmkmRecommendationService` ensures equitable UMKM exposure via `last_recommended_at` and `recommendation_count`
 
 **AR & 3D:**
+
 - `ArModel` - 3D models (GLB/GLTF/USDZ) with AR markers (PATT files), linked to `MapLocation`
 - USDZ files served via special route for iOS AR Quick Look
 
 **User Activity:**
+
 - `Reservation` - Tour package bookings with Midtrans payment integration
 - `VisitorLog` - Track visitor entry/exit
 - `RouteSession` - Tracks user progress through edutourism tour routes
@@ -77,21 +85,25 @@ The application has **5 distinct user roles** with separate route prefixes and m
 - `CapacityZone` - Geofenced zones with crowd thresholds (triggers WebSocket alerts)
 
 **System:**
+
 - `WeatherReport` - Cached weather data (updated every 10min during share)
 - `Feedback` - User feedback with admin replies
 
 ### Model Concerns (Traits)
+
 All in `app/Models/Concerns/`:
 
 - **`HasMapLocation`** — provides `syncMapLocation(array $attrs, bool $isUpdate)` which calls `updateOrCreate` on `mapLocation()`. Used by CulturalObject, Facility, UmkmProfile.
 - **`HasSlug`** — slug generation from translatable fields. Methods: `generateSlug()`, `generateUniqueSlug()` (random suffix), `generateCollisionFreeSlug()` (collision-checked increment).
 
 ### Service Layer
+
 - `UmkmRecommendationService` - Fair rotation algorithm based on geolocation and visit history
 - `MidtransService` - Wraps Midtrans API status checks; returns parsed `transaction_status` and `payment_type`
 - `TusService` - Resolves TUS chunked upload temp files and moves them to final storage
 
 ### Events & Notifications
+
 - `CrowdAlertSent` - Broadcast when capacity zone threshold exceeded
 - `VisitorLocationUpdated` / `VisitorLocationRemoved` - Real-time visitor tracking
 - `EventReminderSent` - Sent 1 day before event
@@ -102,23 +114,28 @@ All in `app/Models/Concerns/`:
 This is a **dual-layer** i18n system:
 
 ### Layer 1: UI Strings (`__()` helper)
+
 - `lang/en.json` and `lang/id.json` — flat key-value pairs for UI text
 - `lang/en/` and `lang/id/` — PHP files for Laravel's built-in validation/auth messages
 - Use `__('key')` in Blade and PHP
 
 ### Layer 2: Content Fields (Spatie HasTranslations)
+
 Most content models use `spatie/laravel-translatable`. Translatable fields are stored as JSON in the DB: `{"en": "...", "id": "..."}`.
 
 **Models with `HasTranslations`:** CulturalObject (`name`, `short_description`, `description`), CulturalStory (`title`, `content`), Event (`name`, `description`, `location_name`), Facility (`name`, `description`), TourRoute (`name`, `description`), TourRoutePoint (`storytelling_content`), TourPackage (`name`, `description`), UmkmProfile (`business_name`, `description`), UmkmProduct (`name`, `description`), UmkmProductCategory (`name`, `description`), ArModel (`name`, `description`), MapLocation (`accessibility_notes`).
 
 **Admin form input pattern** — use locale-keyed inputs, one tab per locale:
+
 ```html
-<input type="text" name="name[en]" value="...">
-<input type="text" name="name[id]" value="...">
+<input type="text" name="name[en]" value="..." />
+<input type="text" name="name[id]" value="..." />
 ```
+
 Validated as `'name' => ['required', 'array'], 'name.en' => ['required', 'string']`.
 
 **`NormalizesMultilingualInput` trait** (`app/Http/Concerns/`) — used in controllers to convert a plain string input to `{en, id}` array when a field may arrive as either format:
+
 ```php
 $this->normalizeLocaleField($request, 'accessibility_notes');
 $this->normalizeLocaleFields($request, ['name', 'description']);
@@ -126,17 +143,20 @@ $this->normalizeLocaleArrayField($request, 'quiz_question'); // for arrays of tr
 ```
 
 **`translateValue()` helper** (`app/helpers.php`) — safe extraction from a translatable value (array, JSON string, or plain string):
+
 ```php
 translateValue($model->name)          // uses current locale with fallback
 translateValue($model->name, 'en')    // explicit locale
 ```
 
-**`CulturalObject::attributesToArray()` override** — Spatie's `getAttributeValue()` is not called by Laravel's default `attributesToArray()`, so translatable fields would serialize as raw JSON strings in `toArray()` output. `CulturalObject` overrides this to call `getTranslations($key)` instead, returning `['en' => ..., 'id' => ...]` for each field. Consumers like `CulturalController::resolveTrans()` check `is_array()` before resolving to a single locale. **If you add a new model that is serialized to JSON (e.g., for `@json()` in Blade), check whether it needs this same override.** (`ArModel` has the same override for this reason.)
+**`CulturalObject::attributesToArray()` override** — Spatie's `getAttributeValue()` is not called by Laravel's default `attributesToArray()`, so translatable fields would serialize as raw JSON strings in `toArray()` output. `CulturalObject` overrides this to call `getTranslations($key)` instead, returning `['en' => ..., 'id' => ...]` for each field. Consumers like `CulturalController::resolveTrans()` check `\is_array()` before resolving to a single locale. **If you add a new model that is serialized to JSON (e.g., for `@json()` in Blade), check whether it needs this same override.** (`ArModel` has the same override for this reason.)
 
 **⚠️ Programmatic writes (seeders, factories, imports, tinker) MUST pass a locale-keyed array** — `['id' => '...', 'en' => '...']`, never a bare string. Assigning a plain string to a translatable field makes Spatie file it under the **current app locale** (which is `en` during `db:seed`/CLI), silently leaving the other locale empty and putting the value in the wrong slot. This is exactly what corrupted the cultural-object EN/ID tabs: Indonesian text ended up stored as `{"en":"<indonesian>"}` with no `id` key, so the admin form's English tab showed Indonesian. The admin **forms** are safe because they already submit `name[en]`/`name[id]` arrays — the bug only enters through code that writes bare strings. When in doubt, store the locale you actually have (e.g. `['id' => $indonesianText]`) rather than letting the locale default decide.
 
 ### Dashboard Translation Policy (Layer 1 Constraint)
+
 **Do not use UI translation (`__()` helper) in dashboard views** (`resources/views/admin/*`, `resources/views/owner/*`, `resources/views/staff/*`). Dashboard is internal-only and must use hardcoded English strings to avoid:
+
 - Incomplete translations fragmenting the UI (e.g., some buttons in ID, labels in EN)
 - Maintenance burden of syncing N dashboard strings across locales
 - Stale translations post-refactor (orphaned keys clutter lang files)
@@ -144,12 +164,15 @@ translateValue($model->name, 'en')    // explicit locale
 **Translation script (`i18n-sync`) scans only `resources/`, `app/`, `routes/` — it skips dashboard folders.** If you need to add a new dashboard string, write it bare (no `__()`). For user-facing public content (`/` routes), use `__()` and let i18n-sync manage it.
 
 To clean up orphaned keys from lang files post-refactor:
+
 ```bash
 npm run i18n:cleanup-orphans    # removes keys not found in source code
 ```
 
 ### Locale Switching
+
 `SetUserLocale` middleware (applied globally) sets app locale in this priority order:
+
 1. `?locale=en` query param → stores in session and `user.preferred_language`
 2. `auth()->user()->preferred_language`
 3. `session('locale')`
@@ -162,6 +185,7 @@ Named route `lang.switch`: `GET /lang/{locale}` (via `PageController::switchLang
 ## Key Technical Patterns
 
 ### Caching
+
 - **Redis + Tags** (`CACHE_STORE=redis`). All public-facing data uses cache tags.
 - **Pattern:** `Cache::tags(['tag'])->flexible('key', [$freshSec, $staleSec], fn)` — Stale-While-Revalidate to prevent cache stampede.
 - **Auto-invalidation:** `CacheInvalidationObserver` (`app/Observers/`) is registered in `AppServiceProvider` for all content models. It calls `Cache::tags([...])->flush()` on `saved` and `deleted` events. No manual cache clearing needed in controllers.
@@ -169,6 +193,7 @@ Named route `lang.switch`: `GET /lang/{locale}` (via `PageController::switchLang
 - **View consumption:** Cached arrays use `$item['key']` not `$item->key`.
 
 ### File Uploads
+
 - **Large files** (AR models GLB/USDZ): Chunked upload via **TUS protocol** (`/api/tus/upload`). Handled by `TusController` → `TusService`. Temp files in `storage/app/tus/`. Use `TusService::moveToFinal()` after upload completes.
 - **Small files** (images): Standard Laravel multipart via `$request->file()`.
 - AR models (GLB/GLTF/USDZ): `storage/app/public/ar_models/`
@@ -177,6 +202,7 @@ Named route `lang.switch`: `GET /lang/{locale}` (via `PageController::switchLang
 - Audio guides: served via `/audio-stream/{path}` for range request support (Chrome seeking)
 
 ### AR Integration
+
 - AR camera overlay uses **glassmorphism HUD** (backdrop-blur-md)
 - AR markers are PATT files (AR.js/A-Frame ecosystem)
 - 3D models: GLB (Android) and USDZ (iOS AR Quick Look)
@@ -184,28 +210,34 @@ Named route `lang.switch`: `GET /lang/{locale}` (via `PageController::switchLang
 - USDZ served via `/usdz-file/{path}` (not direct storage URL) for correct iOS headers
 
 ### Authentication
+
 - Standard email/password via `AuthController`
 - **Google OAuth** via Laravel Socialite — `/auth/google` → `/auth/google/callback`. Auto-links to existing account by email; sets `google_id` and optionally imports avatar.
 
 ### Smart Edutourism (Guided Tour Routes)
+
 Routes at `/edutourism/*`. Users follow `TourRoute` → `TourRoutePoint` sequences tracked in `RouteSession`. Points have `storytelling_content` (translatable) and optional quizzes via `CulturalObjectQuiz`. Progress is gate-fenced: must arrive at current point before unlocking the next.
 
 ### Real-Time Features
+
 - **Laravel Reverb** (WebSockets) — crowd alerts, visitor tracking heatmap
 - `TrackingController` receives GPS pings, stores in Redis `active_visitors` cache, broadcasts `VisitorLocationUpdated`
 - Channels in `routes/channels.php`; Echo configured in `resources/js/echo.js`
 
 ### Payment Integration
+
 - **Midtrans** for payment processing via `MidtransService`
 - Webhook: `/api/midtrans/webhook` handles payment status updates
 - E-tickets emailed after successful payment via `ETicketMail`
 
 ### Routing & Maps
+
 - **OpenRouteService** (self-hosted) via `Api\RoutingController` for turn-by-turn directions
 - Leaflet maps throughout (not Google Maps)
 - Geofencing for `CapacityZone` uses polygon coordinates in `geofence` JSON column
 
 ### Rich Text Editing
+
 - **TipTap** (WYSIWYG) for cultural object descriptions — loaded via ES Modules from `esm.sh` (no NPM dependency)
 - Image uploads via `/admin/cultural-objects/upload-image`
 
@@ -214,6 +246,7 @@ Routes at `/edutourism/*`. Users follow `TourRoute` → `TourRoutePoint` sequenc
 **CRITICAL:** UI must remain **outdoor-readable** and **mobile-first**. See `DESIGN.md` for full specs.
 
 ### Color Palette
+
 - **Penglipuran Green** (`#1E5128`) - Primary CTA, active states, progress bars
 - **Bali Gold** (`#D4AF37`) - Accent, premium labels, ratings
 - **Clean Off-White** (`#FAF9F6`) - Body background
@@ -222,10 +255,12 @@ Routes at `/edutourism/*`. Users follow `TourRoute` → `TourRoutePoint` sequenc
 - **Alert Amber** (`#E65100`) - Crowd warnings, emergency routes
 
 ### Typography
+
 - **UI Text:** Plus Jakarta Sans or Inter
 - **Cultural Content ONLY:** Playfair Display (headlines, storytelling sections) — never use for buttons/labels
 
 ### UI Patterns
+
 - **Bottom Navigation:** 5 tabs, center AR button elevated
 - **Bottom Sheet:** For details (like Google Maps) instead of full-page modals
 - **Bento Grid:** Homepage 4×2 or 3×2 utility icons
@@ -234,6 +269,7 @@ Routes at `/edutourism/*`. Users follow `TourRoute` → `TourRoutePoint` sequenc
 - **Haptic Feedback:** `navigator.vibrate(50)` on core actions
 
 ## Route Organization
+
 - Public: No prefix, `redirect.admin` middleware
 - Authenticated: `auth` middleware
 - Admin: `/admin/*` — `auth` + `admin`
@@ -256,13 +292,13 @@ php artisan test --testsuite=Unit       # Unit only
 
 ## External Services
 
-| Service | Config | Notes |
-|---|---|---|
-| Cloudflare Tunnel | `ganesha-tunnel` | `composer share` — required for mobile testing |
-| OpenRouteService | `OPENROUTE_SERVICE_URL` | Self-hosted in `openrouteservice/`, `./start-ors.sh` (Docker) |
-| Midtrans | `.env` sandbox/prod keys | Webhook: `/api/midtrans/webhook` |
-| Weather API | `WEATHER_API_KEY` | Updated every 10min via share script |
-| Google OAuth | `GOOGLE_CLIENT_ID/SECRET` | Socialite driver |
+| Service           | Config                    | Notes                                                         |
+| ----------------- | ------------------------- | ------------------------------------------------------------- |
+| Cloudflare Tunnel | `ganesha-tunnel`          | `composer share` — required for mobile testing                |
+| OpenRouteService  | `OPENROUTE_SERVICE_URL`   | Self-hosted in `openrouteservice/`, `./start-ors.sh` (Docker) |
+| Midtrans          | `.env` sandbox/prod keys  | Webhook: `/api/midtrans/webhook`                              |
+| Weather API       | `WEATHER_API_KEY`         | Updated every 10min via share script                          |
+| Google OAuth      | `GOOGLE_CLIENT_ID/SECRET` | Socialite driver                                              |
 
 ## Deployment
 

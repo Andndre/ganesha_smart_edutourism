@@ -21,7 +21,7 @@ class CulturalController extends Controller
                 ->append(['ar_marker_id', 'model_3d_path', 'audio_narration_path']);
 
             return $models->map(function ($model) {
-                list($data,) = $this->resolveTrans($model);
+                [$data] = $this->resolveTrans($model);
 
                 return $data;
             })->values()->toArray();
@@ -42,10 +42,10 @@ class CulturalController extends Controller
                 ->firstOrFail()
                 ->append(['ar_marker_id', 'model_3d_path', 'audio_narration_path', 'model_3d_usdz_path', 'ar_marker_patt_path']);
 
-            list($data, $locale) = $this->resolveTrans($model);
+            [$data, $locale] = $this->resolveTrans($model);
 
             // Override audio_narration_path dengan versi locale-spesifik jika tersedia
-            if (!empty($data['audio_narration_paths']) && is_array($data['audio_narration_paths'])) {
+            if (! empty($data['audio_narration_paths']) && \is_array($data['audio_narration_paths'])) {
                 $localePath = $data['audio_narration_paths'][$locale]
                     ?? $data['audio_narration_paths'][config('app.fallback_locale', 'en')]
                     ?? null;
@@ -60,10 +60,6 @@ class CulturalController extends Controller
         return view('user.cultural.show', compact('object'));
     }
 
-    /**
-     * @param mixed $model
-     * @return array
-     */
     private function resolveTrans(mixed $model): array
     {
         $data = $model->toArray();
@@ -75,6 +71,7 @@ class CulturalController extends Controller
                 $data[$field] = $data[$field][$locale] ?? $data[$field][config('app.fallback_locale')] ?? reset($data[$field]) ?? '';
             }
         }
-        return array($data, $locale);
+
+        return [$data, $locale];
     }
 }

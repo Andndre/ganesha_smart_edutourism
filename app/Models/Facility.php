@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasMapLocation;
+use App\Models\Concerns\HasTranslatableArrayOutput;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -12,6 +13,7 @@ use Spatie\Translatable\HasTranslations;
 class Facility extends Model
 {
     use HasMapLocation;
+    use HasTranslatableArrayOutput;
     use HasTranslations;
 
     public array $translatable = ['name', 'description'];
