@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasLocalizedAudioNarration;
 use App\Models\Concerns\HasMapLocation;
 use App\Models\Concerns\HasSlug;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -17,6 +18,7 @@ use Spatie\Translatable\HasTranslations;
 class CulturalObject extends Model
 {
     use HasFactory;
+    use HasLocalizedAudioNarration;
     use HasMapLocation;
     use HasSlug;
     use HasTranslations;
@@ -127,13 +129,6 @@ class CulturalObject extends Model
     public function getModel3dUsdzPathAttribute(): ?string
     {
         return $this->mapLocation?->arModel?->model_3d_usdz_path;
-    }
-
-    public function getAudioNarrationPathAttribute(): ?string
-    {
-        $locale = app()->getLocale();
-        $paths = $this->audio_narration_paths ?? [];
-        return $paths[$locale] ?? $paths[config('app.fallback_locale', 'en')] ?? null;
     }
 
     /**
