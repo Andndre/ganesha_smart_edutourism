@@ -25,14 +25,4 @@ class Facility extends Model
     {
         return $this->morphOne(MapLocation::class, 'locationable');
     }
-
-    /**
-     * The "booted" method of the model.
-     */
-    protected static function booted(): void
-    {
-        static::deleted(function (Facility $facility) {
-            $facility->mapLocation()->delete();
-        });
-    }
 }

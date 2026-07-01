@@ -57,16 +57,6 @@ class CulturalObject extends Model
     }
 
     /**
-     * The "booted" method of the model.
-     */
-    protected static function booted(): void
-    {
-        static::deleted(function (CulturalObject $culturalObject) {
-            $culturalObject->mapLocation()->delete();
-        });
-    }
-
-    /**
      * Get the map location for this cultural object.
      *
      * @return MorphOne<MapLocation>

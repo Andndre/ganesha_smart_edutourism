@@ -7,6 +7,16 @@ use App\Models\MapLocation;
 trait HasMapLocation
 {
     /**
+     * Cascade-delete the map location when the owning model is deleted.
+     */
+    protected static function bootHasMapLocation(): void
+    {
+        static::deleted(function (self $model) {
+            $model->mapLocation()->delete();
+        });
+    }
+
+    /**
      * Override in model to specify which field holds the map display name.
      */
     protected function mapLocationNameField(): string
