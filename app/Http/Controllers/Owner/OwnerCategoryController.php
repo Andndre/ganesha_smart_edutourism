@@ -24,9 +24,7 @@ class OwnerCategoryController extends BaseOwnerController
 
         $validated = $request->validate($this->categoryRules());
 
-        $defaultLocale = config('app.fallback_locale', 'en');
-        $slugSource = $validated['name'][$defaultLocale] ?? reset($validated['name']);
-        $validated['slug'] = (new UmkmProductCategory)->generateSlug($slugSource);
+        $validated['slug'] = (new UmkmProductCategory)->generateSlug(slugFromTranslatable($validated['name']));
 
         if ($request->hasFile('image')) {
             $validated['image_path'] = $request->file('image')->store('categories', 'public');
@@ -59,9 +57,7 @@ class OwnerCategoryController extends BaseOwnerController
 
         $validated = $request->validate($this->categoryRules());
 
-        $defaultLocale = config('app.fallback_locale', 'en');
-        $slugSource = $validated['name'][$defaultLocale] ?? reset($validated['name']);
-        $validated['slug'] = $category->generateSlug($slugSource);
+        $validated['slug'] = $category->generateSlug(slugFromTranslatable($validated['name']));
 
         if ($request->hasFile('image')) {
             if ($category->image_path) {
