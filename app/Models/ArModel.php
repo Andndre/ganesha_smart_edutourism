@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasLocalizedAudioNarration;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ use Spatie\Translatable\HasTranslations;
 class ArModel extends Model
 {
     use HasFactory;
+    use HasLocalizedAudioNarration;
     use HasTranslations;
 
     public array $translatable = ['name', 'description'];
@@ -30,13 +32,6 @@ class ArModel extends Model
             }
         }
         return $attributes;
-    }
-
-    public function getAudioNarrationPathAttribute(): ?string
-    {
-        $locale = app()->getLocale();
-        $paths = $this->audio_narration_paths ?? [];
-        return $paths[$locale] ?? $paths[config('app.fallback_locale', 'en')] ?? null;
     }
 
     public function mapLocation(): BelongsTo
