@@ -214,12 +214,12 @@
                                         infoText.innerHTML = `{{ __('Lokasi Ditemukan!') }} ({{ __('Jarak') }}: ${dist}m)`;
                                         arriveBtn.disabled = false;
                                         arriveBtn.classList.remove('opacity-50');
-                                        arriveBtn.textContent = '{{ __('Jawab Pertanyaan & Lanjut') }}';
+                                        arriveBtn.textContent = "{{ __('Jawab Pertanyaan & Lanjut') }}";
                                     } else {
                                         infoText.textContent = `{{ __('Jarak') }}: ${dist} {{ __('meter') }}`;
                                         arriveBtn.disabled = true;
                                         arriveBtn.classList.add('opacity-50');
-                                        arriveBtn.textContent = '{{ __('Mendekati Lokasi...') }}';
+                                        arriveBtn.textContent = "{{ __('Mendekati Lokasi...') }}";
                                     }
                                 }
                             }
@@ -275,7 +275,7 @@
                             const btnArrive = document.getElementById('btn-arrive');
                             if (btnArrive) {
                                 btnArrive.disabled = true;
-                                btnArrive.textContent = '{{ __('Memuat Kuis...') }}';
+                                btnArrive.textContent = "{{ __('Memuat Kuis...') }}";
                             }
 
                             const url = `/edutourism/arrive/${pointId}`;
@@ -303,7 +303,7 @@
                                         window.dispatchEvent(new CustomEvent('open-quiz-modal'));
                                         document.getElementById('btn-arrive').disabled = false;
                                         document.getElementById('btn-arrive').textContent =
-                                            '{{ __('Jawab Pertanyaan & Lanjut') }}';
+                                            "{{ __('Jawab Pertanyaan & Lanjut') }}";
                                     } else {
                                         if (data.session_status === 'completed') {
                                             window.location.reload();
@@ -312,11 +312,11 @@
                                                 "No quizzes found for this point. Showing SweetAlert info..."
                                             );
                                             Swal.fire({
-                                                title: '{{ __('Info') }}',
-                                                text: '{{ __('Tidak ada kuis untuk titik ini. Rute berlanjut...') }}',
+                                                title: "{{ __('Info') }}",
+                                                text: "{{ __('Tidak ada kuis untuk titik ini. Rute berlanjut...') }}",
                                                 icon: 'info',
                                                 confirmButtonColor: '#1E5128',
-                                                confirmButtonText: '{{ __('Lanjut') }}'
+                                                confirmButtonText: "{{ __('Lanjut') }}"
                                             }).then(() => {
                                                 window.location.reload();
                                             });
@@ -327,10 +327,10 @@
                                     console.error("Error occurred in triggerArrive:", err);
                                     document.getElementById('btn-arrive').disabled = false;
                                     document.getElementById('btn-arrive').textContent =
-                                        '{{ __('Jawab Pertanyaan & Lanjut') }}';
+                                        "{{ __('Jawab Pertanyaan & Lanjut') }}";
                                     Swal.fire({
-                                        title: '{{ __('Oops!') }}',
-                                        text: '{{ __('Gagal memuat kuis.') }}',
+                                        title: "{{ __('Oops!') }}",
+                                        text: "{{ __('Gagal memuat kuis.') }}",
                                         icon: 'error',
                                         confirmButtonColor: '#1E5128'
                                     });
@@ -361,12 +361,12 @@
                                     if (data.is_correct) {
                                         if (isLast) {
                                             document.getElementById('quiz-question').innerHTML =
-                                                '<span class="text-green-600 text-2xl">🎉 {{ __('Semua Terjawab!') }}</span><br><span class="text-sm">{{ __('Rute dilanjutkan...') }}</span>';
+                                                `<span class="text-green-600 text-2xl">🎉 {{ __('Semua Terjawab!') }}</span><br><span class="text-sm">{{ __('Rute dilanjutkan...') }}</span>`;
                                             document.getElementById('quiz-options').innerHTML = '';
                                             setTimeout(() => window.location.reload(), 1500);
                                         } else {
                                             document.getElementById('quiz-question').innerHTML =
-                                                '<span class="text-green-600 text-2xl">✅ {{ __('Benar!') }}</span><br><span class="text-sm">{{ __('Lanjut ke soal berikutnya...') }}</span>';
+                                                `<span class="text-green-600 text-2xl">✅ {{ __('Benar!') }}</span><br><span class="text-sm">{{ __('Lanjut ke soal berikutnya...') }}</span>`;
                                             document.getElementById('quiz-options').innerHTML = '';
                                             setTimeout(() => {
                                                 currentQuizIndex++;
@@ -375,8 +375,8 @@
                                         }
                                     } else {
                                         Swal.fire({
-                                            title: '{{ __('Salah!') }}',
-                                            text: '{{ __('Jawaban Salah! Coba lagi.') }}',
+                                            title: "{{ __('Salah!') }}",
+                                            text: "{{ __('Jawaban Salah! Coba lagi.') }}",
                                             icon: 'error',
                                             confirmButtonColor: '#1E5128'
                                         });
@@ -385,8 +385,8 @@
                                 })
                                 .catch(err => {
                                     Swal.fire({
-                                        title: '{{ __('Oops!') }}',
-                                        text: '{{ __('Gagal mengirim jawaban.') }}',
+                                        title: "{{ __('Oops!') }}",
+                                        text: "{{ __('Gagal mengirim jawaban.') }}",
                                         icon: 'error',
                                         confirmButtonColor: '#1E5128'
                                     });
@@ -394,25 +394,25 @@
                                 });
                         }
                     }
+                };
 
-                    // Run immediately
-                    initActiveEdutourism();
+                // Run immediately
+                initActiveEdutourism();
 
-                    // Clean up GPS watch position and map instance when navigating away via Livewire
-                    document.addEventListener('livewire:navigating', function cleanup(e) {
-                        if (watchId !== null) {
-                            navigator.geolocation.clearWatch(watchId);
-                            watchId = null;
-                        }
-                        if (mapInstance) {
-                            mapInstance.remove();
-                            mapInstance = null;
-                        }
-                        delete window.triggerArrive;
-                        delete window.submitQuiz;
-                        document.removeEventListener('livewire:navigating', cleanup);
-                    });
-                }
+                // Clean up GPS watch position and map instance when navigating away via Livewire
+                document.addEventListener('livewire:navigating', function cleanup(e) {
+                    if (watchId !== null) {
+                        navigator.geolocation.clearWatch(watchId);
+                        watchId = null;
+                    }
+                    if (mapInstance) {
+                        mapInstance.remove();
+                        mapInstance = null;
+                    }
+                    delete window.triggerArrive;
+                    delete window.submitQuiz;
+                    document.removeEventListener('livewire:navigating', cleanup);
+                });
         })();
     </script>
 @endsection
