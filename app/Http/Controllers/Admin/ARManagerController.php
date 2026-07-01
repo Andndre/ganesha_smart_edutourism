@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Concerns\HandlesArFileUploads;
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ARModelRequest;
@@ -16,6 +17,7 @@ use Illuminate\View\View;
 
 class ARManagerController extends Controller
 {
+    use HandlesArFileUploads;
     use NormalizesMultilingualInput;
 
     public function index(): View
@@ -48,12 +50,7 @@ class ARManagerController extends Controller
             $modelData['model_3d_usdz_path'] = $file->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
         }
 
-        $audioPaths = [];
-        foreach (['en', 'id'] as $locale) {
-            if ($request->hasFile("audio_narration_file.$locale")) {
-                $audioPaths[$locale] = $request->file("audio_narration_file.$locale")->store('audio', 'public');
-            }
-        }
+        $audioPaths = $this->replaceLocalizedAudio($request, 'audio_narration_file', []);
         if ($audioPaths) {
             $modelData['audio_narration_paths'] = $audioPaths;
         }
@@ -109,10 +106,7 @@ class ARManagerController extends Controller
             }
             $model->model_3d_path = TusService::moveFromTemp($tmpUuid, 'models');
         } elseif ($request->hasFile('model_3d_file')) {
-            if ($model->model_3d_path) {
-                Storage::disk('public')->delete($model->model_3d_path);
-            }
-            $model->model_3d_path = $request->file('model_3d_file')->store('models', 'public');
+            $model->model_3d_path = $this->replaceStoredFile($request->file('model_3d_file'), 'models', $model->model_3d_path);
         }
 
         if ($tmpUuid = $request->input('tmp_model_3d_usdz_path')) {
@@ -121,22 +115,12 @@ class ARManagerController extends Controller
             }
             $model->model_3d_usdz_path = TusService::moveFromTemp($tmpUuid, 'models_usdz', Str::random(40).'.usdz');
         } elseif ($request->hasFile('model_3d_usdz_file')) {
-            if ($model->model_3d_usdz_path) {
-                Storage::disk('public')->delete($model->model_3d_usdz_path);
-            }
-            $model->model_3d_usdz_path = $request->file('model_3d_usdz_file')
-                ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
+            $model->model_3d_usdz_path = $this->replaceStoredFile(
+                $request->file('model_3d_usdz_file'), 'models_usdz', $model->model_3d_usdz_path, Str::random(40).'.usdz'
+            );
         }
 
-        $audioPaths = $model->audio_narration_paths ?? [];
-        foreach (['en', 'id'] as $locale) {
-            if ($request->hasFile("audio_narration_file.$locale")) {
-                if (!empty($audioPaths[$locale])) {
-                    Storage::disk('public')->delete($audioPaths[$locale]);
-                }
-                $audioPaths[$locale] = $request->file("audio_narration_file.$locale")->store('audio', 'public');
-            }
-        }
+        $audioPaths = $this->replaceLocalizedAudio($request, 'audio_narration_file', $model->audio_narration_paths ?? []);
         $model->audio_narration_paths = $audioPaths ?: null;
 
         if ($request->filled('ar_marker_patt_content') && ! empty($validated['ar_marker_id'])) {
