@@ -38,16 +38,6 @@ class Event extends Model
     }
 
     /**
-     * The "booted" method of the model.
-     */
-    protected static function booted(): void
-    {
-        static::deleted(function (Event $event) {
-            $event->mapLocation()->delete();
-        });
-    }
-
-    /**
      * Get the map location for this event.
      *
      * @return MorphOne<MapLocation>

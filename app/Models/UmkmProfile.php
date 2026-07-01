@@ -47,16 +47,6 @@ class UmkmProfile extends Model
     }
 
     /**
-     * The booted method of the model.
-     */
-    protected static function booted(): void
-    {
-        static::deleted(function (UmkmProfile $umkmProfile) {
-            $umkmProfile->mapLocation()->delete();
-        });
-    }
-
-    /**
      * Get the user that owns the UMKM profile.
      *
      * @return BelongsTo<User, UmkmProfile>
