@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Concerns\ExtractsGeoFields;
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\FacilityRequest;
@@ -10,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 
 class FacilityController extends Controller
 {
+    use ExtractsGeoFields;
     use NormalizesMultilingualInput;
 
     /**
@@ -19,25 +21,14 @@ class FacilityController extends Controller
     {
         $validated = $request->validated();
 
-        $latitude = $validated['latitude'];
-        $longitude = $validated['longitude'];
-        $is_accessible = $request->has('is_accessible');
-        $accessibility_notes = $validated['accessibility_notes'] ?? null;
-
-        unset($validated['latitude'], $validated['longitude'], $validated['is_accessible'], $validated['accessibility_notes']);
+        $geo = $this->extractGeoFields($request, $validated);
 
         $validated['is_active'] = $request->has('is_active');
 
         $facility = Facility::create($validated);
 
         // TODO: map_locations.name hanya dipakai di admin AR manager — pertimbangkan untuk drop column
-        $facility->syncMapLocation([
-            'category' => 'facility',
-            'latitude' => $latitude,
-            'longitude' => $longitude,
-            'is_accessible' => $is_accessible,
-            'accessibility_notes' => $accessibility_notes,
-        ]);
+        $facility->syncMapLocation(['category' => 'facility', ...$geo]);
 
         return redirect()->route('admin.map-manager')->with('success', __('Fasilitas berhasil ditambahkan.'));
     }
@@ -49,24 +40,13 @@ class FacilityController extends Controller
     {
         $validated = $request->validated();
 
-        $latitude = $validated['latitude'];
-        $longitude = $validated['longitude'];
-        $is_accessible = $request->has('is_accessible');
-        $accessibility_notes = $validated['accessibility_notes'] ?? null;
-
-        unset($validated['latitude'], $validated['longitude'], $validated['is_accessible'], $validated['accessibility_notes']);
+        $geo = $this->extractGeoFields($request, $validated);
 
         $validated['is_active'] = $request->has('is_active');
 
         $facility->update($validated);
 
-        $facility->syncMapLocation([
-            'category' => 'facility',
-            'latitude' => $latitude,
-            'longitude' => $longitude,
-            'is_accessible' => $is_accessible,
-            'accessibility_notes' => $accessibility_notes,
-        ], isUpdate: true);
+        $facility->syncMapLocation(['category' => 'facility', ...$geo], isUpdate: true);
 
         return redirect()->route('admin.map-manager')->with('success', __('Fasilitas berhasil diperbarui.'));
     }
