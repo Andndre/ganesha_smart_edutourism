@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Midtrans\Config;
 use Midtrans\Snap;
-use Midtrans\Transaction;
 
 class BookingController extends Controller
 {
@@ -28,22 +27,20 @@ class BookingController extends Controller
             ->get();
 
         if ($pendingReservations->count() > 0) {
-            Config::$serverKey = config('midtrans.server_key');
-            Config::$isProduction = config('midtrans.is_production');
+            $midtrans = new MidtransService;
 
             foreach ($pendingReservations as $reservation) {
                 try {
-                    $statusResponse = Transaction::status($reservation->payment_reference);
+                    $status = $midtrans->getTransactionStatus($reservation->payment_reference);
+                    $transactionStatus = $status['transaction_status'];
+                    $paymentType = $status['payment_type'];
 
-                    $transactionStatus = \is_array($statusResponse) ? ($statusResponse['transaction_status'] ?? null) : ($statusResponse->transaction_status ?? null);
-                    $paymentType = \is_array($statusResponse) ? ($statusResponse['payment_type'] ?? 'unknown') : ($statusResponse->payment_type ?? 'unknown');
-
-                    if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
+                    if (MidtransService::isPaidStatus($transactionStatus)) {
                         $reservation->payment_status = 'paid';
                         $reservation->status = Str::startsWith($reservation->payment_reference, 'WALKIN-') ? 'completed' : 'confirmed';
                         $reservation->payment_method = $paymentType;
                         $reservation->save();
-                    } elseif ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
+                    } elseif (MidtransService::isCancelledStatus($transactionStatus)) {
                         $reservation->payment_status = 'unpaid';
                         $reservation->status = 'cancelled';
                         $reservation->save();
@@ -212,7 +209,7 @@ class BookingController extends Controller
                 return response()->json(['message' => 'Reservation not found'], 404);
             }
 
-            if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
+            if (MidtransService::isPaidStatus($transactionStatus)) {
                 if ($reservation->payment_status != 'paid') {
                     $reservation->payment_status = 'paid';
                     $reservation->status = Str::startsWith($reservation->payment_reference, 'WALKIN-') ? 'completed' : 'confirmed';
@@ -226,7 +223,7 @@ class BookingController extends Controller
                         Log::error('Failed to send E-Ticket email: '.$e->getMessage());
                     }
                 }
-            } elseif ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
+            } elseif (MidtransService::isCancelledStatus($transactionStatus)) {
                 $reservation->payment_status = 'unpaid';
                 $reservation->status = 'cancelled';
                 $reservation->save();

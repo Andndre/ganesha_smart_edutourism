@@ -35,12 +35,12 @@ class TicketingController extends Controller
                     $transactionStatus = $status['transaction_status'];
                     $paymentType = $status['payment_type'];
 
-                    if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
+                    if (MidtransService::isPaidStatus($transactionStatus)) {
                         $reservation->payment_status = 'paid';
                         $reservation->status = 'completed';
                         $reservation->payment_method = $paymentType;
                         $reservation->save();
-                    } elseif ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
+                    } elseif (MidtransService::isCancelledStatus($transactionStatus)) {
                         $reservation->payment_status = 'unpaid';
                         $reservation->status = 'cancelled';
                         $reservation->save();
@@ -289,12 +289,12 @@ class TicketingController extends Controller
             $transactionStatus = $status['transaction_status'];
             $paymentType = $status['payment_type'];
 
-            if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
+            if (MidtransService::isPaidStatus($transactionStatus)) {
                 $reservation->payment_status = 'paid';
                 $reservation->status = 'completed';
                 $reservation->payment_method = $paymentType;
                 $reservation->save();
-            } elseif ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
+            } elseif (MidtransService::isCancelledStatus($transactionStatus)) {
                 $reservation->payment_status = 'unpaid';
                 $reservation->status = 'cancelled';
                 $reservation->save();
