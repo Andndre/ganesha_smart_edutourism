@@ -27,10 +27,11 @@
             if (style === 'standard') {
                 if (initialLayer) map.addLayer(initialLayer);
             } else {
-                var opts = { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' };
+                var opts = { maxZoom: 22, maxNativeZoom: 19, attribution: '&copy; OpenStreetMap contributors' };
                 if (style === 'satellite') {
                     opts.subdomains = ['mt0', 'mt1', 'mt2', 'mt3'];
                     opts.attribution = '';
+                    opts.maxNativeZoom = 21;
                 }
                 styleLayer = L.tileLayer(MAP_STYLE_TILE_URLS[style], opts).addTo(map);
             }
