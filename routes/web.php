@@ -102,6 +102,7 @@ Route::middleware('redirect.admin')->group(function () {
     Route::get('/edutourism/active', [SmartEdutourismController::class, 'active'])->name('edutourism.active');
     Route::get('/edutourism/arrive/{pointId}', [SmartEdutourismController::class, 'arrive'])->name('edutourism.arrive');
     Route::post('/edutourism/quiz/{quizId}/submit', [SmartEdutourismController::class, 'submitQuiz'])->name('edutourism.quiz.submit');
+    Route::post('/edutourism/stop', [SmartEdutourismController::class, 'stop'])->name('edutourism.stop');
 
     // Tour Packages
     Route::get('/tour-packages', [TourPackageController::class, 'index'])->name('tour-packages');

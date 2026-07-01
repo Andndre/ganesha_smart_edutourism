@@ -8,6 +8,7 @@ use App\Models\RouteSession;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
 use App\Models\UserVisit;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -72,6 +73,7 @@ class SmartEdutourismController extends Controller
             if (\is_array($name)) {
                 $name = $name[$locale] ?? $name[config('app.fallback_locale')] ?? reset($name) ?? '';
             }
+
             return [
                 'id' => $point->id,
                 'name' => $name,
@@ -160,7 +162,7 @@ class SmartEdutourismController extends Controller
     public function arrive(Request $request, $pointId)
     {
         $point = TourRoutePoint::with('locationable')->findOrFail($pointId);
-        /** @var \Illuminate\Database\Eloquent\Collection $quizzes */
+        /** @var Collection $quizzes */
         $quizzes = $point->locationable instanceof CulturalObject
             ? $point->locationable->quizzes
             : collect();
@@ -220,11 +222,6 @@ class SmartEdutourismController extends Controller
         ]);
     }
 
-    /**
-     * @param  int|null  $userId
-     * @param  string|null  $guestToken
-     * @return RouteSession|null
-     */
     private function findActiveSession(?int $userId, ?string $guestToken): ?RouteSession
     {
         if ($userId) {
@@ -326,6 +323,23 @@ class SmartEdutourismController extends Controller
             'success' => true,
             'is_correct' => $isCorrect,
             'session' => $session,
+        ]);
+    }
+
+    public function stop(Request $request)
+    {
+        $userId = auth()->id();
+        $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
+
+        $session = $this->findActiveSession($userId, $guestToken);
+
+        if ($session) {
+            $session->update(['status' => 'abandoned']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'redirect' => route('edutourism.index'),
         ]);
     }
 }

@@ -262,4 +262,78 @@ class EdutourismTest extends TestCase
         $this->assertEquals(0, $session->points_completed);
         $this->assertEquals('active', $session->status);
     }
+
+    /**
+     * Test authenticated user can stop their active route session.
+     */
+    public function test_authenticated_user_can_stop_active_session(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $session = RouteSession::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'active',
+        ]);
+
+        // Act
+        $response = $this->actingAs($user)
+            ->postJson(route('edutourism.stop'));
+
+        // Assert
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'redirect' => route('edutourism.index'),
+        ]);
+
+        $session->refresh();
+        $this->assertEquals('abandoned', $session->status);
+    }
+
+    /**
+     * Test guest can stop their active route session via guest_token.
+     */
+    public function test_guest_can_stop_active_session(): void
+    {
+        // Arrange
+        $session = RouteSession::factory()->create([
+            'user_id' => null,
+            'guest_token' => 'guest_stop_test_token',
+            'status' => 'active',
+        ]);
+
+        // Act
+        $response = $this->withSession(['guest_token' => 'guest_stop_test_token'])
+            ->postJson(route('edutourism.stop'));
+
+        // Assert
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'redirect' => route('edutourism.index'),
+        ]);
+
+        $session->refresh();
+        $this->assertEquals('abandoned', $session->status);
+    }
+
+    /**
+     * Test stopping with no active session is a harmless no-op.
+     */
+    public function test_stop_with_no_active_session_is_idempotent(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        // Act
+        $response = $this->actingAs($user)
+            ->postJson(route('edutourism.stop'));
+
+        // Assert
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'redirect' => route('edutourism.index'),
+        ]);
+    }
 }
