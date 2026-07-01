@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['temperature', 'condition', 'weather_code', 'humidity', 'wind_speed'])]
+#[Fillable(['temperature', 'condition', 'weather_code', 'humidity', 'wind_speed', 'id'])]
 class WeatherReport extends Model
 {
     /**
