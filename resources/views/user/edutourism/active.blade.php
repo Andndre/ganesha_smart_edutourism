@@ -433,7 +433,11 @@
                                     .then(res => res.json())
                                     .then(data => {
                                         if (data.success) {
-                                            window.location.href = data.redirect;
+                                            if (window.history.length > 1) {
+                                                window.history.back();
+                                            } else {
+                                                window.location.href = data.redirect;
+                                            }
                                         }
                                     })
                                     .catch(() => {
