@@ -36,6 +36,18 @@ class CapacityZone extends Model
     }
 
     /**
+     * Get the occupancy percentage.
+     */
+    public function getOccupancyPercentageAttribute(): int
+    {
+        if ($this->max_capacity === 0) {
+            return 0;
+        }
+
+        return (int) round(($this->current_count / $this->max_capacity) * 100);
+    }
+
+    /**
      * Check if a given latitude and longitude is inside the zone's polygon.
      * Uses the Ray-Casting algorithm.
      */

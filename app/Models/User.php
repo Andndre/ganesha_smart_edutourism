@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -126,6 +127,17 @@ class User extends Authenticatable
             ->where('favoritable_type', $favoritable->getMorphClass())
             ->where('favoritable_id', $favoritable->id)
             ->exists();
+    }
+
+    /**
+     * Scope a query to only include admin users.
+     *
+     * @param  Builder<User>  $query
+     * @return Builder<User>
+     */
+    public function scopeAdmins(Builder $query)
+    {
+        return $query->where('role', 'admin');
     }
 
     /**

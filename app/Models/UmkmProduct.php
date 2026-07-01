@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasSlug;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -48,5 +49,57 @@ class UmkmProduct extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(UmkmProductCategory::class, 'umkm_product_category_id');
+    }
+
+    /**
+     * @param  Builder<UmkmProduct>  $query
+     * @return Builder<UmkmProduct>
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * @param  Builder<UmkmProduct>  $query
+     * @return Builder<UmkmProduct>
+     */
+    public function scopeInStock(Builder $query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('stock')->orWhere('stock', '>', 0);
+        });
+    }
+
+    // Display proxies — product info now lives on the category.
+
+    public function getDisplayNameAttribute(): ?string
+    {
+        return translateValue($this->category?->name) ?: translateValue($this->getAttribute('name'));
+    }
+
+    public function getDisplayDescriptionAttribute(): ?string
+    {
+        return translateValue($this->category?->description) ?: translateValue($this->getAttribute('description'));
+    }
+
+    public function getDisplayPriceAttribute(): ?string
+    {
+        return $this->category?->price ?? $this->getAttribute('price');
+    }
+
+    public function getDisplayUnitAttribute(): ?string
+    {
+        return $this->category?->unit ?: ($this->getAttribute('unit') ?: 'pcs');
+    }
+
+    public function getDisplayImageAttribute(): ?string
+    {
+        if ($this->category?->image_path) {
+            return $this->category->image_path;
+        }
+        $images = $this->getAttribute('images');
+
+        return is_array($images) && ! empty($images) ? $images[0] : null;
     }
 }
