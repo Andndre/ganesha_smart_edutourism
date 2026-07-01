@@ -255,21 +255,18 @@ class SmartEdutourismController extends Controller
         }
 
         $locationable = $point->locationable;
-        $alreadyVisited = UserVisit::where('user_id', $userId)
-            ->where('visitable_type', $locationable->getMorphClass())
-            ->where('visitable_id', $locationable->id)
-            ->where('route_session_id', $session->id)
-            ->exists();
 
-        if (! $alreadyVisited) {
-            UserVisit::create([
+        UserVisit::updateOrCreate(
+            [
                 'user_id' => $userId,
                 'visitable_type' => $locationable->getMorphClass(),
                 'visitable_id' => $locationable->id,
+            ],
+            [
                 'route_session_id' => $session->id,
                 'visited_at' => now(),
-            ]);
-        }
+            ]
+        );
     }
 
     public function submitQuiz(Request $request, $quizId)
@@ -309,6 +306,11 @@ class SmartEdutourismController extends Controller
 
             if ($request->boolean('is_last_quiz', true)) {
                 $session->points_completed += 1;
+
+                $currentPoint = TourRoutePoint::with('locationable')->find($session->current_point_id);
+                if ($currentPoint) {
+                    $this->recordVisit($userId, $currentPoint, $session);
+                }
 
                 // Move to next point
                 $route = TourRoute::with('routePoints')->find($session->tour_route_id);
