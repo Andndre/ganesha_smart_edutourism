@@ -24,18 +24,14 @@ class DashboardController extends Controller
                 ->where('event_type', 'page_view')
                 ->count();
         });
-        if ($todayVisitorCount === 0) {
-            $todayVisitorCount = 617;
-        }
+        $todayVisitorCount = valueOrMock($todayVisitorCount, 617);
 
         $yesterdayVisitorCount = Cache::tags(['dashboard'])->flexible('dashboard_yesterday_visitor_count', [3600, 7200], function () {
             return VisitorLog::whereDate('logged_at', Carbon::yesterday())
                 ->where('event_type', 'page_view')
                 ->count();
         });
-        if ($yesterdayVisitorCount === 0) {
-            $yesterdayVisitorCount = 550;
-        }
+        $yesterdayVisitorCount = valueOrMock($yesterdayVisitorCount, 550);
         $visitorDelta = $yesterdayVisitorCount > 0
             ? round((($todayVisitorCount - $yesterdayVisitorCount) / $yesterdayVisitorCount) * 100)
             : 0;
@@ -46,18 +42,14 @@ class DashboardController extends Controller
                 ->whereDate('created_at', Carbon::today())
                 ->sum('total_amount');
         });
-        if ($todayRevenue == 0) {
-            $todayRevenue = 4200000;
-        }
+        $todayRevenue = valueOrMock($todayRevenue, 4200000);
 
         $yesterdayRevenue = Cache::tags(['dashboard'])->flexible('dashboard_yesterday_revenue', [3600, 7200], function () {
             return Reservation::whereIn('status', ['confirmed', 'completed'])
                 ->whereDate('created_at', Carbon::yesterday())
                 ->sum('total_amount');
         });
-        if ($yesterdayRevenue == 0) {
-            $yesterdayRevenue = 3880000;
-        }
+        $yesterdayRevenue = valueOrMock($yesterdayRevenue, 3880000);
         $revenueDelta = $yesterdayRevenue > 0
             ? round((($todayRevenue - $yesterdayRevenue) / $yesterdayRevenue) * 100)
             : 0;
@@ -66,30 +58,20 @@ class DashboardController extends Controller
         $activeTicketsCount = Reservation::where('status', 'confirmed')
             ->whereDate('scheduled_date', Carbon::today())
             ->count();
-        if ($activeTicketsCount === 0) {
-            $activeTicketsCount = 89;
-        }
+        $activeTicketsCount = valueOrMock($activeTicketsCount, 89);
 
         $yesterdayActiveTickets = Reservation::where('status', 'confirmed')
             ->whereDate('scheduled_date', Carbon::yesterday())
             ->count();
-        if ($yesterdayActiveTickets === 0) {
-            $yesterdayActiveTickets = 92;
-        }
+        $yesterdayActiveTickets = valueOrMock($yesterdayActiveTickets, 92);
         $ticketsDelta = $yesterdayActiveTickets > 0
             ? round((($activeTicketsCount - $yesterdayActiveTickets) / $yesterdayActiveTickets) * 100)
             : 0;
 
         // 4. Avg satisfaction rating
-        $avgRating = Feedback::avg('rating');
-        if (! $avgRating) {
-            $avgRating = 4.7;
-        }
+        $avgRating = valueOrMock(Feedback::avg('rating'), 4.7);
 
-        $prevAvgRating = Feedback::whereDate('created_at', '<', Carbon::today())->avg('rating');
-        if (! $prevAvgRating) {
-            $prevAvgRating = 4.5;
-        }
+        $prevAvgRating = valueOrMock(Feedback::whereDate('created_at', '<', Carbon::today())->avg('rating'), 4.5);
         $ratingDelta = round($avgRating - $prevAvgRating, 1);
 
         // 5. Capacity Zones
@@ -114,12 +96,8 @@ class DashboardController extends Controller
             $count = VisitorLog::whereDate('logged_at', $date)
                 ->where('event_type', 'page_view')
                 ->count();
-            if ($count === 0) {
-                $mockData = [412, 380, 520, 490, 610, 730, 617];
-                $chartValues[] = $mockData[6 - $i];
-            } else {
-                $chartValues[] = $count;
-            }
+            $mockData = [412, 380, 520, 490, 610, 730, 617];
+            $chartValues[] = valueOrMock($count, $mockData[6 - $i]);
         }
 
         return view('admin.dashboard', compact(

@@ -18,24 +18,15 @@ class FeedbackController extends Controller
     {
         $feedbacks = Feedback::with('user')->orderBy('created_at', 'desc')->paginate(10);
 
-        $avgRating = Feedback::avg('rating');
-        if (! $avgRating) {
-            $avgRating = 4.7;
-        }
-        $avgRating = round($avgRating, 1);
+        $avgRating = round(valueOrMock(Feedback::avg('rating'), 4.7), 1);
 
-        $totalReviews = Feedback::count();
-        if ($totalReviews === 0) {
-            $totalReviews = 148;
-        }
+        $totalReviews = valueOrMock(Feedback::count(), 148);
 
         $now = Carbon::now();
         $thisMonthReviews = Feedback::whereMonth('created_at', $now->month)
             ->whereYear('created_at', $now->year)
             ->count();
-        if ($thisMonthReviews === 0) {
-            $thisMonthReviews = 38;
-        }
+        $thisMonthReviews = valueOrMock($thisMonthReviews, 38);
 
         // Star distribution
         $starsDistribution = [];
