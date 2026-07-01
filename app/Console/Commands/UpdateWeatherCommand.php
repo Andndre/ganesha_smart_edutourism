@@ -6,6 +6,7 @@ use App\Models\WeatherReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\Console\Command\Command as CommandAlias;
 
 class UpdateWeatherCommand extends Command
 {
@@ -26,7 +27,7 @@ class UpdateWeatherCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $latitude = config('services.penglipuran.latitude', -8.422303596762355);
         $longitude = config('services.penglipuran.longitude', 115.35948833933173);
@@ -50,7 +51,7 @@ class UpdateWeatherCommand extends Command
                 if (! $current) {
                     $this->error('Failed to parse weather data. "current" block missing.');
 
-                    return Command::FAILURE;
+                    return CommandAlias::FAILURE;
                 }
 
                 $temp = $current['temperature_2m'];
@@ -60,7 +61,7 @@ class UpdateWeatherCommand extends Command
                 $condition = WeatherReport::mapCodeToCondition($code);
 
                 // Cache in the database as a single global record
-                $report = WeatherReport::updateOrCreate(
+                WeatherReport::updateOrCreate(
                     ['id' => 1], // Always reuse ID 1
                     [
                         'temperature' => $temp,
@@ -74,18 +75,18 @@ class UpdateWeatherCommand extends Command
                 $this->info('Weather cache updated successfully!');
                 $this->info("Temperature: {$temp}°C, Condition: {$condition} (Code: {$code}), Humidity: {$humidity}%, Wind: {$windSpeed} km/h");
 
-                return Command::SUCCESS;
+                return CommandAlias::SUCCESS;
             }
 
             $this->error('Failed to fetch weather from API. Status: '.$response->status());
             Log::error('Weather API Error: '.$response->body());
 
-            return Command::FAILURE;
+            return CommandAlias::FAILURE;
         } catch (\Exception $e) {
             $this->error('Weather API Exception: '.$e->getMessage());
             Log::error('Weather API Exception: '.$e->getMessage()."\n".$e->getTraceAsString());
 
-            return Command::FAILURE;
+            return CommandAlias::FAILURE;
         }
     }
 }

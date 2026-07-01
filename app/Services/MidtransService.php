@@ -21,6 +21,7 @@ class MidtransService
      * Get parsed transaction status from Midtrans.
      *
      * @return array{transaction_status: string|null, payment_type: string}
+     * @throws \Exception
      */
     public function getTransactionStatus(string $paymentReference): array
     {

@@ -11,7 +11,7 @@ class ArViewerController extends Controller
      */
     public function __invoke(string $arMarkerId)
     {
-        $model = ArModel::where('ar_marker_id', $arMarkerId)->firstOrFail();
+        ArModel::where('ar_marker_id', $arMarkerId)->firstOrFail();
 
         return redirect()->route('ar-scan', ['marker' => $arMarkerId]);
     }

@@ -3,9 +3,13 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Container\EntryNotFoundException;
+use Illuminate\Contracts\Container\CircularDependencyException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class SetUserLocale
@@ -13,7 +17,9 @@ class SetUserLocale
     /**
      * Handle an incoming request.
      *
-     * @param  Closure(Request): (Response)  $next
+     * @param Request $request
+     * @param Closure(Request): (Response) $next
+     * @return Response
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -30,7 +36,11 @@ class SetUserLocale
         if (Auth::check()) {
             App::setLocale(Auth::user()->preferred_language ?? 'id');
         } elseif (session()->has('locale')) {
-            App::setLocale(session()->get('locale'));
+            try {
+                App::setLocale(session()->get('locale'));
+            } catch (EntryNotFoundException|CircularDependencyException|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
+
+            }
         } else {
             App::setLocale(config('app.locale'));
         }

@@ -12,9 +12,12 @@ class AdminTourRouteTest extends DuskTestCase
 {
     use DatabaseTruncation;
 
+    /**
+     * @throws \Throwable
+     */
     public function test_toggle_route_active_status(): void
     {
-        $route = TourRoute::factory()->create([
+        TourRoute::factory()->create([
             'name' => 'Rute Dusk Test',
             'is_active' => true,
         ]);

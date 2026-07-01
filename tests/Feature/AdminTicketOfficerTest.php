@@ -42,7 +42,7 @@ class AdminTicketOfficerTest extends TestCase
             'role' => 'admin',
         ]);
 
-        $officer = User::factory()->create([
+        User::factory()->create([
             'role' => 'ticket_officer',
             'name' => 'Officer One',
         ]);
