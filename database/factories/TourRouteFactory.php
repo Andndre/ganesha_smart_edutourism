@@ -15,8 +15,8 @@ class TourRouteFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->word(),
-            'description' => fake()->sentence(),
+            'name' => ['en' => fake()->words(3, true), 'id' => 'Rute '.fake()->words(2, true)],
+            'description' => ['en' => fake()->sentence(), 'id' => fake()->sentence()],
             'difficulty' => fake()->randomElement(['easy', 'moderate', 'challenging']),
             'is_active' => true,
 
