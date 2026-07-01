@@ -87,9 +87,7 @@ class UmkmController extends Controller
             $validated['images'] = $imagePaths;
         }
 
-        $defaultLocale = config('app.fallback_locale', 'en');
-        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $validated['slug'] = (new UmkmProduct)->generateUniqueSlug($slugValue);
+        $validated['slug'] = (new UmkmProduct)->generateUniqueSlug(slugFromTranslatable($validated['name']));
         $validated['is_active'] = true;
 
         if (! isset($validated['unit'])) {
@@ -120,9 +118,7 @@ class UmkmController extends Controller
             $validated['images'] = $product->images;
         }
 
-        $defaultLocale = config('app.fallback_locale', 'en');
-        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $validated['slug'] = $product->generateUniqueSlug($slugValue);
+        $validated['slug'] = $product->generateUniqueSlug(slugFromTranslatable($validated['name']));
         $validated['is_active'] = $request->has('is_active') ? true : false;
 
         $product->update($validated);
@@ -154,9 +150,7 @@ class UmkmController extends Controller
             $validated['ar_marker_id'] = 'UMKM_'.strtoupper(Str::random(8));
         }
 
-        $defaultLocale = config('app.fallback_locale', 'en');
-        $slugValue = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? reset($validated['business_name']);
-        $validated['slug'] = (new UmkmProfile)->generateCollisionFreeSlug($slugValue);
+        $validated['slug'] = (new UmkmProfile)->generateCollisionFreeSlug(slugFromTranslatable($validated['business_name']));
 
         $latitude = $validated['latitude'];
         $longitude = $validated['longitude'];
@@ -207,8 +201,7 @@ class UmkmController extends Controller
         $currentName = \is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[$defaultLocale] ?? '');
         $newName = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? '';
         if ($currentName !== $newName) {
-            $slugValue = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? reset($validated['business_name']);
-            $validated['slug'] = $profile->generateCollisionFreeSlug($slugValue, $profile->id);
+            $validated['slug'] = $profile->generateCollisionFreeSlug(slugFromTranslatable($validated['business_name']), $profile->id);
         }
 
         $latitude = $validated['latitude'];
