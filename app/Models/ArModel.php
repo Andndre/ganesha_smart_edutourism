@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasLocalizedAudioNarration;
+use App\Models\Concerns\HasTranslatableArrayOutput;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ class ArModel extends Model
 {
     use HasFactory;
     use HasLocalizedAudioNarration;
+    use HasTranslatableArrayOutput;
     use HasTranslations;
 
     public array $translatable = ['name', 'description'];
@@ -21,17 +23,6 @@ class ArModel extends Model
     protected function casts(): array
     {
         return ['audio_narration_paths' => 'array'];
-    }
-
-    public function attributesToArray(): array
-    {
-        $attributes = parent::attributesToArray();
-        foreach ($this->getTranslatableAttributes() as $key) {
-            if (array_key_exists($key, $attributes)) {
-                $attributes[$key] = $this->getTranslations($key);
-            }
-        }
-        return $attributes;
     }
 
     public function mapLocation(): BelongsTo
