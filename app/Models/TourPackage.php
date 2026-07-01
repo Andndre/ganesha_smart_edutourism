@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasSlug;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -17,6 +18,82 @@ class TourPackage extends Model
     use HasTranslations;
 
     public array $translatable = ['name', 'description'];
+
+    /**
+     * Get inclusions for current locale.
+     * Supports old format (flat list) and new format (per-locale).
+     */
+    public function getInclusionsAttribute($value): array
+    {
+        $decoded = $value ? json_decode($value, true) : [];
+
+        if (! \is_array($decoded)) {
+            return [];
+        }
+
+        // Old format: flat list
+        if (array_is_list($decoded)) {
+            return $decoded;
+        }
+
+        // New format: per-locale
+        $locale = app()->getLocale();
+
+        return $decoded[$locale] ?? $decoded[config('app.fallback_locale')] ?? [];
+    }
+
+    /**
+     * Set inclusions, converting flat list to per-locale format.
+     */
+    public function setInclusionsAttribute($value): void
+    {
+        if (\is_array($value) && array_is_list($value)) {
+            $locale = app()->getLocale();
+            $value = [$locale => $value];
+        }
+
+        $this->attributes['inclusions'] = \is_string($value)
+            ? $value
+            : json_encode($value, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Get exclusions for current locale.
+     * Supports old format (flat list) and new format (per-locale).
+     */
+    public function getExclusionsAttribute($value): array
+    {
+        $decoded = $value ? json_decode($value, true) : [];
+
+        if (! \is_array($decoded)) {
+            return [];
+        }
+
+        // Old format: flat list
+        if (array_is_list($decoded)) {
+            return $decoded;
+        }
+
+        // New format: per-locale
+        $locale = app()->getLocale();
+
+        return $decoded[$locale] ?? $decoded[config('app.fallback_locale')] ?? [];
+    }
+
+    /**
+     * Set exclusions, converting flat list to per-locale format.
+     */
+    public function setExclusionsAttribute($value): void
+    {
+        if (\is_array($value) && array_is_list($value)) {
+            $locale = app()->getLocale();
+            $value = [$locale => $value];
+        }
+
+        $this->attributes['exclusions'] = \is_string($value)
+            ? $value
+            : json_encode($value, JSON_UNESCAPED_UNICODE);
+    }
 
     /**
      * Get raw inclusions for a specific locale (admin forms).
@@ -90,5 +167,16 @@ class TourPackage extends Model
     public function reservations(): HasMany
     {
         return $this->hasMany(Reservation::class);
+    }
+
+    /**
+     * Scope a query to only include active packages.
+     *
+     * @param  Builder<TourPackage>  $query
+     * @return Builder<TourPackage>
+     */
+    public function scopeActive(Builder $query)
+    {
+        return $query->where('is_active', true);
     }
 }
