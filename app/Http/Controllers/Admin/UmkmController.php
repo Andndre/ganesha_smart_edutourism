@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Concerns\ExtractsGeoFields;
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUmkmOwnerJsonRequest;
@@ -22,6 +23,7 @@ use Illuminate\View\View;
 
 class UmkmController extends Controller
 {
+    use ExtractsGeoFields;
     use NormalizesMultilingualInput;
 
     /**
@@ -152,22 +154,12 @@ class UmkmController extends Controller
 
         $validated['slug'] = (new UmkmProfile)->generateCollisionFreeSlug(slugFromTranslatable($validated['business_name']));
 
-        $latitude = $validated['latitude'];
-        $longitude = $validated['longitude'];
-        $is_accessible = $request->has('is_accessible');
-        $accessibility_notes = $validated['accessibility_notes'] ?? null;
-
-        unset($validated['latitude'], $validated['longitude'], $validated['is_accessible'], $validated['accessibility_notes'], $validated['ar_marker_id']);
+        $geo = $this->extractGeoFields($request, $validated);
+        unset($validated['ar_marker_id']);
 
         $profile = UmkmProfile::create($validated);
 
-        $mapLocation = $profile->syncMapLocation([
-            'category' => 'umkm',
-            'latitude' => $latitude,
-            'longitude' => $longitude,
-            'is_accessible' => $is_accessible,
-            'accessibility_notes' => $accessibility_notes,
-        ]);
+        $mapLocation = $profile->syncMapLocation(['category' => 'umkm', ...$geo]);
 
         // AR marker via ArModel (marker-only, no 3D model)
         $arMarkerId = $request->input('ar_marker_id');
@@ -204,22 +196,12 @@ class UmkmController extends Controller
             $validated['slug'] = $profile->generateCollisionFreeSlug(slugFromTranslatable($validated['business_name']), $profile->id);
         }
 
-        $latitude = $validated['latitude'];
-        $longitude = $validated['longitude'];
-        $is_accessible = $request->has('is_accessible');
-        $accessibility_notes = $validated['accessibility_notes'] ?? null;
-
-        unset($validated['latitude'], $validated['longitude'], $validated['is_accessible'], $validated['accessibility_notes'], $validated['ar_marker_id']);
+        $geo = $this->extractGeoFields($request, $validated);
+        unset($validated['ar_marker_id']);
 
         $profile->update($validated);
 
-        $mapLocation = $profile->syncMapLocation([
-            'category' => 'umkm',
-            'latitude' => $latitude,
-            'longitude' => $longitude,
-            'is_accessible' => $is_accessible,
-            'accessibility_notes' => $accessibility_notes,
-        ], isUpdate: true);
+        $mapLocation = $profile->syncMapLocation(['category' => 'umkm', ...$geo], isUpdate: true);
 
         // AR marker via ArModel
         $arMarkerId = $request->input('ar_marker_id');
