@@ -62,9 +62,7 @@ class FeedbackController extends Controller
 
     public function update(Request $request, Feedback $feedback): JsonResponse|RedirectResponse
     {
-        if ($feedback->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorizeOwner($feedback);
 
         $validated = $request->validate([
             'rating' => 'required|integer|min:1|max:5',
@@ -92,27 +90,21 @@ class FeedbackController extends Controller
 
     public function show(Feedback $feedback): View
     {
-        if ($feedback->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorizeOwner($feedback);
 
         return view('user.feedback.show', compact('feedback'));
     }
 
     public function edit(Feedback $feedback): View
     {
-        if ($feedback->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorizeOwner($feedback);
 
         return view('user.feedback.edit', compact('feedback'));
     }
 
     public function thankYou(Feedback $feedback): View
     {
-        if ($feedback->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorizeOwner($feedback);
 
         return view('user.feedback.thank-you', compact('feedback'));
     }
@@ -125,5 +117,10 @@ class FeedbackController extends Controller
             ->get();
 
         return view('user.feedback.index', compact('feedbacks'));
+    }
+
+    private function authorizeOwner(Feedback $feedback): void
+    {
+        abort_if($feedback->user_id !== auth()->id(), 403);
     }
 }
