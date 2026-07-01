@@ -34,9 +34,19 @@
                         <p class="text-xs text-gray-500">{{ __('Misi: :completed / :total Selesai', ['completed' => $activeSession->points_completed, 'total' => $activeSession->tourRoute->routePoints->count()]) }}</p>
                     </div>
                 </div>
-                <div class="text-right">
-                    <span class="text-primary text-xl font-black leading-none">{{ $activeSession->total_score }}</span>
-                    <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">{{ __('Poin') }}</p>
+                <div class="flex items-center gap-2">
+                    <div class="text-right">
+                        <span class="text-primary text-xl font-black leading-none">{{ $activeSession->total_score }}</span>
+                        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">{{ __('Poin') }}</p>
+                    </div>
+                    <button type="button" id="btn-stop-route" onclick="stopRoute()"
+                        aria-label="{{ __('Berhenti dari Rute?') }}"
+                        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-300 transition-colors hover:bg-gray-100 hover:text-gray-500">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12 6a2 2 0 100-4 2 2 0 000 4zM12 14a2 2 0 100-4 2 2 0 000 4zM12 22a2 2 0 100-4 2 2 0 000 4z" />
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -393,6 +403,52 @@
                                     buttons.forEach(btn => btn.disabled = false);
                                 });
                         }
+
+                        window.stopRoute = function() {
+                            const btn = document.getElementById('btn-stop-route');
+                            Swal.fire({
+                                title: "{{ __('Berhenti dari Rute?') }}",
+                                text: "{{ __('Progres Anda akan hilang jika berhenti sekarang.') }}",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonText: "{{ __('Ya, Berhenti') }}",
+                                cancelButtonText: "{{ __('Batal') }}",
+                                confirmButtonColor: '#E65100'
+                            }).then(result => {
+                                if (!result.isConfirmed) {
+                                    return;
+                                }
+
+                                if (btn) {
+                                    btn.disabled = true;
+                                }
+
+                                fetch('/edutourism/stop', {
+                                        method: 'POST',
+                                        headers: {
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                            'Accept': 'application/json'
+                                        }
+                                    })
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            window.location.href = data.redirect;
+                                        }
+                                    })
+                                    .catch(() => {
+                                        if (btn) {
+                                            btn.disabled = false;
+                                        }
+                                        Swal.fire({
+                                            title: "{{ __('Oops!') }}",
+                                            text: "{{ __('Gagal menghentikan rute.') }}",
+                                            icon: 'error',
+                                            confirmButtonColor: '#1E5128'
+                                        });
+                                    });
+                            });
+                        }
                     }
                 };
 
@@ -411,6 +467,7 @@
                     }
                     delete window.triggerArrive;
                     delete window.submitQuiz;
+                    delete window.stopRoute;
                     document.removeEventListener('livewire:navigating', cleanup);
                 });
         })();
