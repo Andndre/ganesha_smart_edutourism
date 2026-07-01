@@ -38,16 +38,14 @@ class CulturalObjectController extends Controller
             $validated['historical_images'] = $images;
         }
 
-        $defaultLocale = config('app.fallback_locale', 'en');
-        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+        $slugValue = slugFromTranslatable($validated['name']);
         $validated['slug'] = (new CulturalObject)->generateSlug($slugValue);
 
         // Null safety for database constraints
         if (empty($validated['description']['en']) && empty($validated['description']['id'])) {
-            $nameValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
             $validated['description'] = [
-                'en' => 'Description for '.$nameValue,
-                'id' => 'Deskripsi untuk '.$nameValue,
+                'en' => 'Description for '.$slugValue,
+                'id' => 'Deskripsi untuk '.$slugValue,
             ];
         }
 
@@ -244,16 +242,14 @@ class CulturalObjectController extends Controller
             $validated['historical_images'] = $object->historical_images;
         }
 
-        $defaultLocale = config('app.fallback_locale', 'en');
-        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
+        $slugValue = slugFromTranslatable($validated['name']);
         $validated['slug'] = $object->generateSlug($slugValue);
 
         // Null safety for database constraints
         if (empty($validated['description']['en']) && empty($validated['description']['id'])) {
-            $nameValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
             $validated['description'] = [
-                'en' => 'Description for '.$nameValue,
-                'id' => 'Deskripsi untuk '.$nameValue,
+                'en' => 'Description for '.$slugValue,
+                'id' => 'Deskripsi untuk '.$slugValue,
             ];
         }
 

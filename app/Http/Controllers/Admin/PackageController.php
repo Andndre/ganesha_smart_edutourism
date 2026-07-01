@@ -39,9 +39,7 @@ class PackageController extends Controller
 
         $package = new TourPackage;
         $package->name = $validated['name'];
-        $defaultLocale = config('app.fallback_locale', 'en');
-        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $package->slug = $package->generateUniqueSlug($slugValue);
+        $package->slug = $package->generateUniqueSlug(slugFromTranslatable($validated['name']));
         $package->description = $validated['description'];
         $package->price = $validated['price'];
         $package->duration_hours = $validated['duration_hours'] ?? null;
@@ -85,9 +83,7 @@ class PackageController extends Controller
         $validated = $request->validated();
 
         $package->name = $validated['name'];
-        $defaultLocale = config('app.fallback_locale', 'en');
-        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $package->slug = $package->generateUniqueSlug($slugValue);
+        $package->slug = $package->generateUniqueSlug(slugFromTranslatable($validated['name']));
         $package->description = $validated['description'];
         $package->price = $validated['price'];
         $package->duration_hours = $validated['duration_hours'] ?? null;

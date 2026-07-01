@@ -87,9 +87,7 @@ class EventController extends Controller
 
         $event = new Event;
         $event->name = $validated['name'];
-        $defaultLocale = config('app.fallback_locale', 'en');
-        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $event->slug = $event->generateUniqueSlug($slugValue);
+        $event->slug = $event->generateUniqueSlug(slugFromTranslatable($validated['name']));
         $event->description = $validated['description'] ?? null;
         $event->category = $this->categoryMap()[$validated['category']] ?? 'cultural';
         $event->start_datetime = $startDatetime;
@@ -161,9 +159,7 @@ class EventController extends Controller
         $isFree = $request->has('is_free') || $request->input('is_free') == '1';
 
         $event->name = $validated['name'];
-        $defaultLocale = config('app.fallback_locale', 'en');
-        $slugValue = $validated['name'][$defaultLocale] ?? $validated['name']['en'] ?? reset($validated['name']);
-        $event->slug = $event->generateUniqueSlug($slugValue);
+        $event->slug = $event->generateUniqueSlug(slugFromTranslatable($validated['name']));
         $event->description = $validated['description'] ?? null;
         $event->category = $this->categoryMap()[$validated['category']] ?? 'cultural';
         $event->start_datetime = $startDatetime;
