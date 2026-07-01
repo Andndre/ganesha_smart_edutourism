@@ -33,6 +33,22 @@ class MidtransService
     }
 
     /**
+     * Whether a Midtrans transaction_status means the payment succeeded.
+     */
+    public static function isPaidStatus(?string $status): bool
+    {
+        return in_array($status, ['capture', 'settlement'], true);
+    }
+
+    /**
+     * Whether a Midtrans transaction_status means the payment was cancelled/failed.
+     */
+    public static function isCancelledStatus(?string $status): bool
+    {
+        return in_array($status, ['cancel', 'deny', 'expire'], true);
+    }
+
+    /**
      * Build Snap payment parameters for a reservation.
      */
     public function buildSnapParams(Reservation $reservation, string $orderId): array
