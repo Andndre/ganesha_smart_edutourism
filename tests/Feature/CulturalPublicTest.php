@@ -105,4 +105,36 @@ class CulturalPublicTest extends TestCase
         // Assert
         $response->assertStatus(404);
     }
+
+    /**
+     * Test the audio narration path served on the detail page follows the
+     * user's active site-wide locale (no separate audio-language toggle).
+     */
+    public function test_public_cultural_object_detail_page_serves_audio_for_active_locale(): void
+    {
+        // Arrange
+        $object = CulturalObject::create([
+            'name' => ['en' => 'Bamboo Forest', 'id' => 'Hutan Bambu'],
+            'slug' => 'bamboo-forest-audio-test',
+            'description' => ['en' => 'Forest.', 'id' => 'Hutan.'],
+            'category' => 'tradition',
+            'audio_narration_paths' => ['en' => 'audio/en-forest.mp3', 'id' => 'audio/id-forest.mp3'],
+        ]);
+
+        // Act — request in English
+        $enResponse = $this->get(route('cultural-object', ['slug' => $object->slug, 'locale' => 'en']));
+
+        // Assert
+        $enResponse->assertStatus(200);
+        $enResponse->assertSee('audio/en-forest.mp3', false);
+        $enResponse->assertDontSee('audio/id-forest.mp3', false);
+
+        // Act — switch to Indonesian (new session locale, same slug)
+        $idResponse = $this->get(route('cultural-object', ['slug' => $object->slug, 'locale' => 'id']));
+
+        // Assert
+        $idResponse->assertStatus(200);
+        $idResponse->assertSee('audio/id-forest.mp3', false);
+        $idResponse->assertDontSee('audio/en-forest.mp3', false);
+    }
 }
