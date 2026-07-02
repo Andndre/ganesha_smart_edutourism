@@ -203,17 +203,23 @@
                             mockGpsBtn.classList.add('bg-primary', 'text-white');
                             mockGpsBtn.classList.remove('bg-white', 'text-gray-600');
                             Swal.fire({
-                                toast: true, position: 'top-end', icon: 'info',
-                                title: 'Mode Simulator GPS Aktif! Klik sembarang di peta untuk memindah lokasi Anda.',
-                                showConfirmButton: false, timer: 3000
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'info',
+                                title: @js(__('Mode Simulator GPS Aktif! Klik sembarang di peta untuk memindah lokasi Anda.')),
+                                showConfirmButton: false,
+                                timer: 3000
                             });
                         } else {
                             mockGpsBtn.classList.remove('bg-primary', 'text-white');
                             mockGpsBtn.classList.add('bg-white', 'text-gray-600');
                             Swal.fire({
-                                toast: true, position: 'top-end', icon: 'info',
-                                title: 'Mode Simulator dinonaktifkan.',
-                                showConfirmButton: false, timer: 2000
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'info',
+                                title: @js(__('Mode Simulator dinonaktifkan.')),
+                                showConfirmButton: false,
+                                timer: 2000
                             });
                         }
                     });
@@ -224,7 +230,7 @@
                             if (typeof window.setMockLocation === 'function') {
                                 window.setMockLocation(e.latlng.lat, e.latlng.lng);
                             }
-                            
+
                             // Immediately move local user marker for feedback
                             if (typeof locationMarker !== 'undefined' && locationMarker) {
                                 locationMarker.setLatLng(e.latlng);
@@ -234,12 +240,16 @@
                                 locationPulse.setLatLng(e.latlng);
                                 if (!map.hasLayer(locationPulse)) locationPulse.addTo(map);
                             }
-                            
+
                             // Visual feedback toast
                             Swal.fire({
-                                toast: true, position: 'top-end', icon: 'success',
-                                title: `Ping dikirim dari: ${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`,
-                                showConfirmButton: false, timer: 1500
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: @js(__('Ping dikirim dari: :lat, :lon')).replace(':lat', e.latlng.lat
+                                    .toFixed(6)).replace(':lon', e.latlng.lng.toFixed(6)),
+                                showConfirmButton: false,
+                                timer: 1500
                             });
                         }
                     });
@@ -269,8 +279,8 @@
                         shouldCenterOnNextLocation = true;
                         if (isGpsLoading) {
                             Swal.fire({
-                                title: 'Mencari Lokasi...',
-                                text: 'Sedang mengambil koordinat GPS Anda. Mohon tunggu sebentar.',
+                                title: @js(__('Mencari Lokasi...')),
+                                text: @js(__('Sedang mengambil koordinat GPS Anda. Mohon tunggu sebentar.')),
                                 icon: 'info',
                                 showConfirmButton: false,
                                 timer: 2000
@@ -279,8 +289,8 @@
                             startLocationTracking(false);
                         } else {
                             Swal.fire({
-                                title: 'Mencari Lokasi...',
-                                text: 'Sedang mengambil koordinat GPS Anda. Mohon tunggu sebentar.',
+                                title: @js(__('Mencari Lokasi...')),
+                                text: @js(__('Sedang mengambil koordinat GPS Anda. Mohon tunggu sebentar.')),
                                 icon: 'info',
                                 showConfirmButton: false,
                                 timer: 2000
@@ -387,8 +397,8 @@
 
                             // Show SweetAlert GPS loading spinner
                             Swal.fire({
-                                title: 'Mendeteksi Lokasi...',
-                                text: 'Mohon tunggu, sedang memuat rute navigasi belanja...',
+                                title: @js(__('Mendeteksi Lokasi...')),
+                                text: @js(__('Mohon tunggu, sedang memuat rute navigasi belanja...')),
                                 allowOutsideClick: false,
                                 showConfirmButton: false,
                                 didOpen: () => {
@@ -434,14 +444,14 @@
                     map.removeLayer(realHeatmapLayer);
                     realHeatmapLayer = null;
                 }
-                
+
                 if (!realHeatmapVisible) return;
 
                 const points = [];
                 heatmapData.forEach(point => {
                     let isFilterActive = point.category ? activeFilters[point.category] : true;
                     if (point.is_live_user) isFilterActive = true;
-                    
+
                     if (isFilterActive) {
                         points.push([point.lat, point.lng, point.intensity || 0.5]);
                     }
@@ -452,7 +462,13 @@
                     blur: 15,
                     maxZoom: 18,
                     max: 3.0, // Butuh sekitar 3 orang bertumpuk agar titik jadi merah
-                    gradient: {0.4: 'blue', 0.6: 'cyan', 0.7: 'lime', 0.8: 'yellow', 1: 'red'}
+                    gradient: {
+                        0.4: 'blue',
+                        0.6: 'cyan',
+                        0.7: 'lime',
+                        0.8: 'yellow',
+                        1: 'red'
+                    }
                 }).addTo(map);
             }
 
@@ -460,7 +476,7 @@
             function toggleRealHeatmap() {
                 realHeatmapVisible = !realHeatmapVisible;
                 const btn = document.getElementById('btn-real-heatmap');
-                
+
                 if (realHeatmapVisible) {
                     btn.classList.add('fab-btn-active');
                     renderRealHeatmap();
@@ -495,7 +511,9 @@
                             iconAnchor: [8, 8]
                         });
 
-                        const marker = L.marker([point.lat, point.lng], { icon: liveIcon })
+                        const marker = L.marker([point.lat, point.lng], {
+                                icon: liveIcon
+                            })
                             .bindPopup(displayName)
                             .addTo(map);
 
@@ -740,11 +758,11 @@
                 updateRouteButtonUI();
                 if (!silent) {
                     Swal.fire({
-                        title: 'Akses Lokasi Gagal',
-                        text: 'Tidak dapat mendapatkan lokasi Anda. Pastikan GPS aktif dan izin lokasi telah diberikan.',
+                        title: @js(__('Akses Lokasi Gagal')),
+                        text: @js(__('Tidak dapat mendapatkan lokasi Anda. Pastikan GPS aktif dan izin lokasi telah diberikan.')),
                         icon: 'warning',
                         confirmButtonColor: '#1E5128',
-                        confirmButtonText: 'Baik, Saya Mengerti'
+                        confirmButtonText: @js(__('Baik, Saya Mengerti'))
                     });
                 }
             }
@@ -825,14 +843,14 @@
 
             function showGpsFallbackAlert(href) {
                 Swal.fire({
-                    title: 'GPS Belum Aktif',
-                    text: 'Lokasi Anda belum terdeteksi di peta ini. Apakah Anda ingin membuka Google Maps untuk petunjuk arah luar?',
+                    title: @js(__('GPS Belum Aktif')),
+                    text: @js(__('Lokasi Anda belum terdeteksi di peta ini. Apakah Anda ingin membuka Google Maps untuk petunjuk arah luar?')),
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#1E5128',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Ya, Buka Google Maps',
-                    cancelButtonText: 'Batal'
+                    confirmButtonText: @js(__('Ya, Buka Google Maps')),
+                    cancelButtonText: @js(__('Batal'))
                 }).then((result) => {
                     if (result.isConfirmed) {
                         window.open(href, '_blank');
@@ -859,13 +877,13 @@
 
                 // Kategori mapping for display
                 const categoryLabels = {
-                    cultural: 'Objek Budaya',
-                    umkm: 'UMKM',
-                    facilities: 'Fasilitas',
-                    toilets: 'Toilet',
-                    accessibility: 'Aksesibilitas'
+                    cultural: @js(__('Objek Budaya')),
+                    umkm: @js(__('UMKM')),
+                    facilities: @js(__('Fasilitas')),
+                    toilets: @js(__('Toilet')),
+                    accessibility: @js(__('Aksesibilitas'))
                 };
-                const label = categoryLabels[loc.cat] || 'Lokasi';
+                const label = categoryLabels[loc.cat] || @js(__('Lokasi'));
                 const color = categoryColors[loc.cat] || '#1E5128';
 
                 // Style category badge dynamically
@@ -928,8 +946,8 @@
                         } else if (isGpsLoading) {
                             // Show premium loading SweetAlert and wait for location to load
                             Swal.fire({
-                                title: 'Mendeteksi Lokasi...',
-                                text: 'Mohon tunggu, sedang menghubungkan ke satelit GPS...',
+                                title: @js(__('Mendeteksi Lokasi...')),
+                                text: @js(__('Mohon tunggu, sedang menghubungkan ke satelit GPS...')),
                                 allowOutsideClick: false,
                                 showConfirmButton: false,
                                 didOpen: () => {
