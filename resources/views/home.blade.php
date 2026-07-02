@@ -96,19 +96,22 @@
             <div class="bg-white rounded-4xl p-5 shadow-sm border border-slate-100 w-full">
                 <div class="grid grid-cols-4 sm:grid-cols-6 lg:flex lg:flex-wrap lg:justify-start gap-x-2 gap-y-6 lg:gap-8">
                     <a href="{{ route('explore') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-16">
-                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-105">
-                        <svg class="h-7 w-7 lg:h-8 lg:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-teal-50 text-teal-600 transition-transform duration-300 group-hover:scale-105">
+                        <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
+                            <path d="M4 5.5 9 4l6 2 5-1.5v13L15 19l-6-2-5 1.5V5.5Z" fill="currentColor" opacity="0.55" />
+                            <path d="M12 8a2.6 2.6 0 0 0-2.6 2.6c0 1.9 2.6 5 2.6 5s2.6-3.1 2.6-5A2.6 2.6 0 0 0 12 8Z" fill="currentColor" />
                         </svg>
                     </div>
                     <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Peta') }}</span>
                 </a>
                 
                 <a href="{{ route('edutourism.index') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-[#1E5128]/10 text-[#1E5128] transition-transform duration-300 group-hover:scale-105">
-                        <svg class="h-7 w-7 lg:h-8 lg:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479L12 21l-6.825-3.943a12.083 12.083 0 01.665-6.479L12 14z" />
+                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 transition-transform duration-300 group-hover:scale-105">
+                        <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 4.2 21 8.6 12 13 3 8.6 12 4.2Z" fill="currentColor" />
+                            <path d="M6.5 10.1v3.1a5.5 5.5 0 0 0 11 0v-3.1L12 13.4l-5.5-3.3Z" fill="currentColor" opacity="0.55" />
+                            <path d="M19 9.3v4" stroke="#D4AF37" stroke-width="1.6" stroke-linecap="round" />
+                            <circle cx="19" cy="14.1" r="1.15" fill="#D4AF37" />
                         </svg>
                     </div>
                     <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Edutourism') }}</span>
@@ -116,8 +119,10 @@
 
                 <a href="{{ route('umkm') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
                     <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition-transform duration-300 group-hover:scale-105">
-                        <svg class="h-7 w-7 lg:h-8 lg:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 9h14l1 12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1L5 9Z" fill="currentColor" opacity="0.55" />
+                            <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                            <circle cx="15.5" cy="13.2" r="1.05" fill="currentColor" />
                         </svg>
                     </div>
                     <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('UMKM') }}</span>
@@ -125,8 +130,12 @@
 
                 <a href="{{ route('cultural-objects') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
                     <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 transition-transform duration-300 group-hover:scale-105">
-                        <svg class="h-7 w-7 lg:h-8 lg:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
+                            <rect x="3.5" y="17" width="17" height="3.5" rx="1" fill="currentColor" />
+                            <rect x="5.5" y="13" width="13" height="3.5" rx="1" fill="currentColor" opacity="0.65" />
+                            <rect x="7.5" y="9" width="9" height="3.5" rx="1" fill="currentColor" />
+                            <rect x="9.5" y="5.5" width="5" height="3" rx="1" fill="currentColor" opacity="0.65" />
+                            <path d="M12 2.2v2.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
                         </svg>
                     </div>
                     <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Budaya') }}</span>
@@ -134,8 +143,9 @@
 
                 <a href="{{ route('tour-packages') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
                     <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 transition-transform duration-300 group-hover:scale-105">
-                        <svg class="h-7 w-7 lg:h-8 lg:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                        <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 1 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 1 0 0-4V7Z" fill="currentColor" opacity="0.55" />
+                            <path d="M15 5v2m0 3v2m0 3v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
                         </svg>
                     </div>
                     <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Tiket') }}</span>
@@ -143,8 +153,11 @@
 
                 <a href="{{ route('events') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
                     <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 transition-transform duration-300 group-hover:scale-105">
-                        <svg class="h-7 w-7 lg:h-8 lg:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5Z" fill="currentColor" opacity="0.55" />
+                            <path d="M3 10h18v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2Z" fill="currentColor" />
+                            <path d="M8 3v3M16 3v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                            <circle cx="12" cy="15" r="1.3" fill="currentColor" />
                         </svg>
                     </div>
                     <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Event') }}</span>
@@ -153,8 +166,11 @@
                 @if (Auth::check() && Auth::user()->isUmkmOwner())
                     <a href="{{ route('owner.dashboard') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
                         <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-purple-50 text-purple-600 transition-transform duration-300 group-hover:scale-105">
-                            <svg class="h-7 w-7 lg:h-8 lg:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
+                            <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
+                                <rect x="4" y="4" width="7" height="7" rx="2" fill="currentColor" />
+                                <rect x="13" y="4" width="7" height="7" rx="2" fill="currentColor" opacity="0.55" />
+                                <rect x="4" y="13" width="7" height="7" rx="2" fill="currentColor" opacity="0.55" />
+                                <rect x="13" y="13" width="7" height="7" rx="2" fill="currentColor" opacity="0.55" />
                             </svg>
                         </div>
                         <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Panel') }}</span>
