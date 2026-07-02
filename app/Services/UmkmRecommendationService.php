@@ -78,7 +78,7 @@ class UmkmRecommendationService
             $bestScore = -1; // Higher is better
 
             foreach ($allUmkms as $umkm) {
-                if (in_array($umkm->id, array_column($route, 'umkm_id'))) {
+                if (\in_array($umkm->id, array_column($route, 'umkm_id'))) {
                     continue; // Skip already visited UMKMs
                 }
 
@@ -153,8 +153,8 @@ class UmkmRecommendationService
         $dLon = deg2rad($lon2 - $lon1);
 
         $a = sin($dLat / 2) * sin($dLat / 2) +
-             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-             sin($dLon / 2) * sin($dLon / 2);
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLon / 2) * sin($dLon / 2);
 
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
