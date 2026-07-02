@@ -133,6 +133,9 @@
                         </svg>
                     </button>
                     <div class="flex-1">
+                        <div class="mb-0.5 inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
+                            {{ app()->getLocale() === 'id' ? '🇮🇩 '.__('Audio Bahasa Indonesia') : '🇬🇧 '.__('Audio Bahasa Inggris') }}
+                        </div>
                         <div class="text-charcoal text-sm font-bold"
                             x-text="playing ? '{{ __('Memutar Kisah Sejarah...') }}' : '{{ __('Dengarkan Kisah Ini') }}'">{{ __('Dengarkan Kisah Ini') }}</div>
                         <!-- Playback Seekbar & Timers -->
