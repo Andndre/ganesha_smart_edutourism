@@ -191,7 +191,7 @@
         @if (!empty($object['ar_marker_id']) || !empty($object['model_3d_path']))
             <div
                 class="{{ isset($activeEdutourismSession) && !Route::is('edutourism.active') ? 'bottom-22 pb-4' : 'bottom-0 pb-[calc(1rem+env(safe-area-inset-bottom))]' }} fixed inset-x-0 z-30 border-t border-gray-100 bg-white p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
-                <a href="{{ route('ar-scan') }}"
+                <a href="{{ route('ar-scan', empty($object['ar_marker_id']) ? [] : ['marker' => $object['ar_marker_id']]) }}"
                     class="bg-primary flex w-full items-center justify-center gap-2 rounded-xl py-4 font-bold text-white shadow-[0_4px_14px_rgba(30,81,40,0.3)] transition-all active:scale-[0.98]">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
