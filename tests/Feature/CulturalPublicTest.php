@@ -137,4 +137,27 @@ class CulturalPublicTest extends TestCase
         $idResponse->assertSee('audio/id-forest.mp3', false);
         $idResponse->assertDontSee('audio/en-forest.mp3', false);
     }
+
+    /**
+     * Test the passive audio-language badge reflects the active locale.
+     */
+    public function test_public_cultural_object_detail_page_shows_audio_language_badge(): void
+    {
+        // Arrange
+        $object = CulturalObject::create([
+            'name' => ['en' => 'Bamboo Forest', 'id' => 'Hutan Bambu'],
+            'slug' => 'bamboo-forest-badge-test',
+            'description' => ['en' => 'Forest.', 'id' => 'Hutan.'],
+            'category' => 'tradition',
+            'audio_narration_paths' => ['en' => 'audio/en-forest.mp3', 'id' => 'audio/id-forest.mp3'],
+        ]);
+
+        // Act & Assert — Indonesian locale shows the ID badge
+        $idResponse = $this->get(route('cultural-object', ['slug' => $object->slug, 'locale' => 'id']));
+        $idResponse->assertSee('Audio Bahasa Indonesia');
+
+        // Act & Assert — English locale shows the EN badge
+        $enResponse = $this->get(route('cultural-object', ['slug' => $object->slug, 'locale' => 'en']));
+        $enResponse->assertSee(__('Audio Bahasa Inggris', [], 'en'));
+    }
 }
