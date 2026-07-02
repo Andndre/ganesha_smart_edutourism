@@ -5,19 +5,22 @@
 @section('content')
     <div x-data class="relative w-full">
         <!-- Curved Green Header Background (Full width to top) -->
-        <div class="absolute top-0 left-0 right-0 h-62 sm:h-64 lg:h-72 bg-[#1E5128] rounded-b-[2.5rem] lg:rounded-b-[3rem] -z-10 shadow-sm"></div>
+        <div
+            class="h-62 absolute left-0 right-0 top-0 -z-10 rounded-b-[2.5rem] bg-[#1E5128] shadow-sm sm:h-64 lg:h-72 lg:rounded-b-[3rem]">
+        </div>
 
-        <section class="relative px-4 md:px-8 pt-[calc(env(safe-area-inset-top)+7.5rem)] lg:pt-28 pb-4">
+        <section class="relative px-4 pb-4 pt-[calc(env(safe-area-inset-top)+7.5rem)] md:px-8 lg:pt-28">
 
             <div class="flex items-start justify-between">
                 <div class="pr-4">
                     @auth
-                        <h2 class="font-display text-2xl lg:text-3xl font-bold tracking-tight text-white">
+                        <h2 class="font-display text-2xl font-bold tracking-tight text-white lg:text-3xl">
                             {{ __('Rahajeng Rauh, :name!', ['name' => str(Auth::user()->name)->before(' ')]) }}</h2>
                     @else
-                        <h2 class="font-display text-2xl lg:text-3xl font-bold tracking-tight text-white">{{ __('Rahajeng Rauh!') }}</h2>
+                        <h2 class="font-display text-2xl font-bold tracking-tight text-white lg:text-3xl">
+                            {{ __('Rahajeng Rauh!') }}</h2>
                     @endauth
-                    <p class="mt-1.5 text-sm font-medium text-green-100 leading-snug">
+                    <p class="mt-1.5 text-sm font-medium leading-snug text-green-100">
                         {{ __('Siap menjelajahi budaya & tradisi Penglipuran hari ini?') }}
                     </p>
                 </div>
@@ -27,7 +30,8 @@
                         aria-label="{{ __('Buka Profil') }}">
                         <div class="h-12 w-12 overflow-hidden rounded-full border-2 border-slate-200 bg-white p-0.5 shadow-sm">
                             <img src="{{ Auth::user()->avatarUrl() }}"
-                                alt="{{ __('Profil :name', ['name' => Auth::user()->name]) }}" class="h-full w-full rounded-full object-cover">
+                                alt="{{ __('Profil :name', ['name' => Auth::user()->name]) }}"
+                                class="h-full w-full rounded-full object-cover">
                         </div>
                     </a>
                 @else
@@ -50,132 +54,181 @@
                 $densitySub = $densityParts[1] ?? '';
             @endphp
 
-            <div class="grid grid-cols-2 gap-3 mt-8 w-full">
+            <div class="mt-8 grid w-full grid-cols-2 gap-3">
                 <!-- Weather Widget -->
                 <div @click="$dispatch('open-weather-modal')"
-                    class="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center gap-3 cursor-pointer transition-transform active:scale-95 hover:shadow-md"
+                    class="flex cursor-pointer items-center gap-3 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm transition-transform hover:shadow-md active:scale-95 sm:p-5"
                     title="{{ __('Lihat detail cuaca') }}">
                     @if (isset($weather) && $weather)
-                        <div class="flex shrink-0 items-center justify-center rounded-2xl bg-sky-50 text-sky-500 p-2.5">
+                        <div class="flex shrink-0 items-center justify-center rounded-2xl bg-sky-50 p-2.5 text-sky-500">
                             {!! $weather->getIconHtml() !!}
                         </div>
                         <div class="flex min-w-0 flex-col">
-                            <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Cuaca') }}</span>
-                            <span class="mt-1 text-xl font-black leading-none text-gray-800">{{ round($weather->temperature) }}°</span>
-                            <span class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ __($weather->condition) }}</span>
+                            <span
+                                class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Cuaca') }}</span>
+                            <span
+                                class="mt-1 text-xl font-black leading-none text-gray-800">{{ round($weather->temperature) }}°</span>
+                            <span
+                                class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ __($weather->condition) }}</span>
                         </div>
                     @else
-                        <div class="flex shrink-0 items-center justify-center rounded-2xl bg-gray-50 text-gray-400 p-2.5">
+                        <div class="flex shrink-0 items-center justify-center rounded-2xl bg-gray-50 p-2.5 text-gray-400">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
                             </svg>
                         </div>
                         <div class="flex min-w-0 flex-col">
-                            <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Cuaca') }}</span>
+                            <span
+                                class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Cuaca') }}</span>
                             <span class="mt-1 text-xl font-black leading-none text-gray-400">--°</span>
-                            <span class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ __('Belum Ada') }}</span>
+                            <span
+                                class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ __('Belum Ada') }}</span>
                         </div>
                     @endif
                 </div>
 
                 <!-- Density Widget -->
-                <div class="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center gap-3 transition-transform active:scale-95">
-                    <div class="{{ $densityClass }} {{ $densityBg }} flex shrink-0 items-center justify-center rounded-2xl p-2.5">
+                <div
+                    class="flex items-center gap-3 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm transition-transform active:scale-95 sm:p-5">
+                    <div
+                        class="{{ $densityClass }} {{ $densityBg }} flex shrink-0 items-center justify-center rounded-2xl p-2.5">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
                     </div>
                     <div class="flex min-w-0 flex-col">
-                        <span class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Kepadatan') }}</span>
+                        <span
+                            class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Kepadatan') }}</span>
                         <span class="{{ $densityClass }} mt-1 text-xl font-black leading-none">{{ $densityMain }}</span>
-                        <span class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ $densitySub }}</span>
+                        <span
+                            class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ $densitySub }}</span>
                     </div>
                 </div>
             </div>
-        </section>        <section class="mb-6 mt-4 lg:mt-6 px-4 md:px-8">
-            <div class="bg-white rounded-4xl p-5 shadow-sm border border-slate-100 w-full">
-                <div class="grid grid-cols-4 sm:grid-cols-6 lg:flex lg:flex-wrap lg:justify-start gap-x-2 gap-y-6 lg:gap-8">
-                    <a href="{{ route('explore') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-16">
-                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-teal-50 text-teal-600 transition-transform duration-300 group-hover:scale-105">
-                        <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
-                            <path d="M4 5.5 9 4l6 2 5-1.5v13L15 19l-6-2-5 1.5V5.5Z" fill="currentColor" opacity="0.55" />
-                            <path d="M12 8a2.6 2.6 0 0 0-2.6 2.6c0 1.9 2.6 5 2.6 5s2.6-3.1 2.6-5A2.6 2.6 0 0 0 12 8Z" fill="currentColor" />
-                        </svg>
-                    </div>
-                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Peta') }}</span>
-                </a>
-                
-                <a href="{{ route('edutourism.index') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 transition-transform duration-300 group-hover:scale-105">
-                        <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 4.2 21 8.6 12 13 3 8.6 12 4.2Z" fill="currentColor" />
-                            <path d="M6.5 10.1v3.1a5.5 5.5 0 0 0 11 0v-3.1L12 13.4l-5.5-3.3Z" fill="currentColor" opacity="0.55" />
-                            <path d="M19 9.3v4" stroke="#D4AF37" stroke-width="1.6" stroke-linecap="round" />
-                            <circle cx="19" cy="14.1" r="1.15" fill="#D4AF37" />
-                        </svg>
-                    </div>
-                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Edutourism') }}</span>
-                </a>
-
-                <a href="{{ route('umkm') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition-transform duration-300 group-hover:scale-105">
-                        <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
-                            <path d="M5 9h14l1 12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1L5 9Z" fill="currentColor" opacity="0.55" />
-                            <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                            <circle cx="15.5" cy="13.2" r="1.05" fill="currentColor" />
-                        </svg>
-                    </div>
-                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('UMKM') }}</span>
-                </a>
-
-                <a href="{{ route('cultural-objects') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 transition-transform duration-300 group-hover:scale-105">
-                        <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
-                            <rect x="3.5" y="17" width="17" height="3.5" rx="1" fill="currentColor" />
-                            <rect x="5.5" y="13" width="13" height="3.5" rx="1" fill="currentColor" opacity="0.65" />
-                            <rect x="7.5" y="9" width="9" height="3.5" rx="1" fill="currentColor" />
-                            <rect x="9.5" y="5.5" width="5" height="3" rx="1" fill="currentColor" opacity="0.65" />
-                            <path d="M12 2.2v2.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                        </svg>
-                    </div>
-                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Budaya') }}</span>
-                </a>
-
-                <a href="{{ route('tour-packages') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 transition-transform duration-300 group-hover:scale-105">
-                        <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
-                            <path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 1 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 1 0 0-4V7Z" fill="currentColor" opacity="0.55" />
-                            <path d="M15 5v2m0 3v2m0 3v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
-                        </svg>
-                    </div>
-                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Tiket') }}</span>
-                </a>
-
-                <a href="{{ route('events') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                    <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 transition-transform duration-300 group-hover:scale-105">
-                        <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
-                            <path d="M5 6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5Z" fill="currentColor" opacity="0.55" />
-                            <path d="M3 10h18v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2Z" fill="currentColor" />
-                            <path d="M8 3v3M16 3v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                            <circle cx="12" cy="15" r="1.3" fill="currentColor" />
-                        </svg>
-                    </div>
-                    <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Event') }}</span>
-                </a>
-
-                @if (Auth::check() && Auth::user()->isUmkmOwner())
-                    <a href="{{ route('owner.dashboard') }}" class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                        <div class="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-purple-50 text-purple-600 transition-transform duration-300 group-hover:scale-105">
+        </section>
+        <section class="mb-6 mt-4 px-4 md:px-8 lg:mt-6">
+            <div class="rounded-4xl w-full border border-slate-100 bg-white p-5 shadow-sm">
+                <div class="grid grid-cols-4 gap-x-2 gap-y-6 sm:grid-cols-6 lg:flex lg:flex-wrap lg:justify-start lg:gap-8">
+                    <a href="{{ route('explore') }}"
+                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-16">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50 text-teal-600 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
                             <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
-                                <rect x="4" y="4" width="7" height="7" rx="2" fill="currentColor" />
-                                <rect x="13" y="4" width="7" height="7" rx="2" fill="currentColor" opacity="0.55" />
-                                <rect x="4" y="13" width="7" height="7" rx="2" fill="currentColor" opacity="0.55" />
-                                <rect x="13" y="13" width="7" height="7" rx="2" fill="currentColor" opacity="0.55" />
+                                <path d="M4 5.5 9 4l6 2 5-1.5v13L15 19l-6-2-5 1.5V5.5Z" fill="currentColor"
+                                    opacity="0.55" />
+                                <path d="M12 8a2.6 2.6 0 0 0-2.6 2.6c0 1.9 2.6 5 2.6 5s2.6-3.1 2.6-5A2.6 2.6 0 0 0 12 8Z"
+                                    fill="currentColor" />
                             </svg>
                         </div>
-                        <span class="text-center text-[11px] lg:text-xs font-bold text-gray-800 leading-tight">{{ __('Panel') }}</span>
+                        <span
+                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Peta') }}</span>
                     </a>
-                @endif
+
+                    <a href="{{ route('edutourism.index') }}"
+                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                            <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 4.2 21 8.6 12 13 3 8.6 12 4.2Z" fill="currentColor" />
+                                <path d="M6.5 10.1v3.1a5.5 5.5 0 0 0 11 0v-3.1L12 13.4l-5.5-3.3Z" fill="currentColor"
+                                    opacity="0.55" />
+                                <path d="M19 9.3v4" stroke="#D4AF37" stroke-width="1.6" stroke-linecap="round" />
+                                <circle cx="19" cy="14.1" r="1.15" fill="#D4AF37" />
+                            </svg>
+                        </div>
+                        <span
+                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Edutourism') }}</span>
+                    </a>
+
+                    <a href="{{ route('umkm') }}"
+                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                            <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 9h14l1 12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1L5 9Z" fill="currentColor"
+                                    opacity="0.55" />
+                                <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="1.8"
+                                    stroke-linecap="round" />
+                                <circle cx="15.5" cy="13.2" r="1.05" fill="currentColor" />
+                            </svg>
+                        </div>
+                        <span
+                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('UMKM') }}</span>
+                    </a>
+
+                    <a href="{{ route('cultural-objects') }}"
+                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                            <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
+                                <rect x="3.5" y="17" width="17" height="3.5" rx="1" fill="currentColor" />
+                                <rect x="5.5" y="13" width="13" height="3.5" rx="1" fill="currentColor"
+                                    opacity="0.65" />
+                                <rect x="7.5" y="9" width="9" height="3.5" rx="1" fill="currentColor" />
+                                <rect x="9.5" y="5.5" width="5" height="3" rx="1" fill="currentColor"
+                                    opacity="0.65" />
+                                <path d="M12 2.2v2.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <span
+                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Budaya') }}</span>
+                    </a>
+
+                    <a href="{{ route('tour-packages') }}"
+                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                            <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 1 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 1 0 0-4V7Z"
+                                    fill="currentColor" opacity="0.55" />
+                                <path d="M15 5v2m0 3v2m0 3v2" stroke="currentColor" stroke-width="1.7"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <span
+                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Tiket') }}</span>
+                    </a>
+
+                    <a href="{{ route('events') }}"
+                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                            <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5Z"
+                                    fill="currentColor" opacity="0.55" />
+                                <path d="M3 10h18v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2Z" fill="currentColor" />
+                                <path d="M8 3v3M16 3v3" stroke="currentColor" stroke-width="1.8"
+                                    stroke-linecap="round" />
+                                <circle cx="12" cy="15" r="1.3" fill="currentColor" />
+                            </svg>
+                        </div>
+                        <span
+                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Event') }}</span>
+                    </a>
+
+                    @if (Auth::check() && Auth::user()->isUmkmOwner())
+                        <a href="{{ route('owner.dashboard') }}"
+                            class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
+                            <div
+                                class="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-50 text-purple-600 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                                <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
+                                    <rect x="4" y="4" width="7" height="7" rx="2"
+                                        fill="currentColor" />
+                                    <rect x="13" y="4" width="7" height="7" rx="2" fill="currentColor"
+                                        opacity="0.55" />
+                                    <rect x="4" y="13" width="7" height="7" rx="2" fill="currentColor"
+                                        opacity="0.55" />
+                                    <rect x="13" y="13" width="7" height="7" rx="2" fill="currentColor"
+                                        opacity="0.55" />
+                                </svg>
+                            </div>
+                            <span
+                                class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Panel') }}</span>
+                        </a>
+                    @endif
                 </div>
             </div>
         </section>
@@ -197,7 +250,8 @@
                     </button>
                 </div>
 
-                <h3 class="font-display text-charcoal text-xl font-black leading-snug tracking-tight">{{ __('Detail Cuaca Desa') }}</h3>
+                <h3 class="font-display text-charcoal text-xl font-black leading-snug tracking-tight">
+                    {{ __('Detail Cuaca Desa') }}</h3>
 
                 @if (isset($weather) && $weather)
                     <!-- Main Status Grid -->
@@ -224,7 +278,8 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Kelembapan') }}
+                                <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">
+                                    {{ __('Kelembapan') }}
                                 </p>
                                 <p class="mt-1 text-xs font-black text-gray-700">{{ $weather->humidity }}%</p>
                             </div>
@@ -239,7 +294,8 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Angin') }}</p>
+                                <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">
+                                    {{ __('Angin') }}</p>
                                 <p class="mt-1 text-xs font-black text-gray-700">{{ $weather->wind_speed }} km/h</p>
                             </div>
                         </div>
@@ -247,14 +303,15 @@
 
                     <!-- Recommendation Box based on Weather Code -->
                     <div class="border-t border-gray-50 pt-3">
-                        <h4 class="mb-1.5 text-[10px] font-black uppercase tracking-wider text-gray-400">{{ __('Rekomendasi Aktivitas') }}
+                        <h4 class="mb-1.5 text-[10px] font-black uppercase tracking-wider text-gray-400">
+                            {{ __('Rekomendasi Aktivitas') }}
                         </h4>
                         <p class="text-xs leading-relaxed text-gray-500">
-                            @if (in_array($weather->weather_code, [0, 1, 2]))
+                            @if (\in_array($weather->weather_code, [0, 1, 2]))
                                 {{ __('Cuaca sangat bersahabat untuk berjalan-jalan menjelajahi desa. Jangan lupa menggunakan tabir surya dan membawa air minum!') }}
-                            @elseif(in_array($weather->weather_code, [3, 45, 48]))
+                            @elseif(\in_array($weather->weather_code, [3, 45, 48]))
                                 {{ __('Cuaca sejuk dan berawan, sangat ideal untuk berkeliling santai tanpa sengatan matahari.') }}
-                            @elseif(in_array($weather->weather_code, [51, 53, 55, 61, 63]))
+                            @elseif(\in_array($weather->weather_code, [51, 53, 55, 61, 63]))
                                 {{ __('Gerimis atau hujan ringan. Disarankan membawa payung atau jas hujan saat menjelajahi pekarangan desa.') }}
                             @else
                                 {{ __('Hujan deras atau badai terdeteksi. Sebaiknya bersantai di cafe lokal, mengunjungi rumah adat (bale), atau menikmati kuliner lokal di area tertutup.') }}
@@ -265,7 +322,8 @@
                     <!-- Footer Info / Updated Time -->
                     <div class="border-t border-gray-50 pt-3 text-center">
                         <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">
-                            {{ __('Pembaruan Terakhir:') }} {{ $weather->updated_at->timezone('Asia/Makassar')->format('d M Y H:i') }} WITA
+                            {{ __('Pembaruan Terakhir:') }}
+                            {{ $weather->updated_at->timezone('Asia/Makassar')->format('d M Y H:i') }} WITA
                         </p>
                     </div>
                 @else
@@ -279,7 +337,8 @@
                         </div>
                         <div class="space-y-1">
                             <h4 class="text-sm font-bold text-gray-700">{{ __('Data Cuaca Belum Tersedia') }}</h4>
-                            <p class="mx-auto max-w-60 text-xs leading-relaxed text-gray-500">{{ __('Silakan jalankan update cuaca dari sistem untuk memuat laporan cuaca terkini.') }}</p>
+                            <p class="mx-auto max-w-60 text-xs leading-relaxed text-gray-500">
+                                {{ __('Silakan jalankan update cuaca dari sistem untuk memuat laporan cuaca terkini.') }}</p>
                         </div>
                     </div>
                 @endif

@@ -19,7 +19,7 @@ class PageController extends Controller
 
     public function switchLang(string $locale): RedirectResponse
     {
-        if (in_array($locale, ['en', 'id'])) {
+        if (\in_array($locale, ['en', 'id'])) {
             session()->put('locale', $locale);
 
             if (auth()->check()) {

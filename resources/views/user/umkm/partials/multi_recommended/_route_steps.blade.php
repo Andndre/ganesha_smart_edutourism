@@ -68,7 +68,7 @@
                                 ->toArray();
                         @endphp
                         @foreach ($umkm->activeProducts as $product)
-                            @if (in_array($product->umkm_product_category_id, $stopCategoryIds))
+                            @if (\in_array($product->umkm_product_category_id, $stopCategoryIds))
                                 <div class="flex items-center justify-between text-sm">
                                     <span class="text-charcoal">{{ $product->display_name }}</span>
                                     <span class="text-primary font-bold">
