@@ -189,4 +189,31 @@ class AdminCulturalObjectImportTest extends TestCase
 
         $response->assertSessionHasErrors(['file']);
     }
+
+    /**
+     * Test admin can save a quiz explanation when creating a cultural object.
+     */
+    public function test_admin_can_save_quiz_explanation_on_create(): void
+    {
+        // Act
+        $response = $this->actingAs($this->adminUser)->post(route('admin.cultural-objects.store'), [
+            'name' => ['en' => 'Explained Temple', 'id' => 'Candi Berpenjelasan'],
+            'category' => 'temple',
+            'has_quiz' => '1',
+            'quiz_question' => [['en' => 'Is this a temple?', 'id' => 'Apakah ini candi?']],
+            'quiz_option_a' => [['en' => 'Yes', 'id' => 'Ya']],
+            'quiz_option_b' => [['en' => 'No', 'id' => 'Tidak']],
+            'quiz_option_c' => [['en' => 'Maybe', 'id' => 'Mungkin']],
+            'quiz_option_d' => [['en' => 'No', 'id' => 'Bukan']],
+            'quiz_correct_option' => ['A'],
+            'quiz_explanation' => [['en' => 'It has a shrine.', 'id' => 'Ada pura di dalamnya.']],
+        ]);
+
+        // Assert
+        $response->assertSessionDoesntHaveErrors();
+        $object = CulturalObject::where('slug', 'explained-temple')->firstOrFail();
+        $quiz = $object->quizzes()->firstOrFail();
+        $this->assertEquals('It has a shrine.', $quiz->getTranslation('explanation', 'en'));
+        $this->assertEquals('Ada pura di dalamnya.', $quiz->getTranslation('explanation', 'id'));
+    }
 }
