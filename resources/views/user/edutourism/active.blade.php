@@ -64,6 +64,58 @@
         .quiz-option-highlight span {
             color: #fff !important;
         }
+
+        .quiz-option-correct,
+        .quiz-option-correct:hover,
+        .quiz-option-correct:active {
+            background-color: #16a34a !important;
+            border-color: #16a34a !important;
+        }
+
+        .quiz-option-incorrect,
+        .quiz-option-incorrect:hover,
+        .quiz-option-incorrect:active {
+            background-color: #dc2626 !important;
+            border-color: #dc2626 !important;
+        }
+
+        @keyframes quiz-success-pop {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+
+            60% {
+                opacity: 1;
+                transform: scale(1.15);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .quiz-success-icon {
+            animation: quiz-success-pop 0.45s cubic-bezier(.34, 1.56, .64, 1) both;
+        }
+
+        @keyframes quiz-success-draw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .quiz-success-check {
+            stroke-dasharray: 30;
+            stroke-dashoffset: 30;
+            animation: quiz-success-draw 0.4s ease-out 0.25s forwards;
+        }
+
+        .quiz-success-check-pin {
+            stroke-dasharray: 60;
+            stroke-dashoffset: 60;
+            animation: quiz-success-draw 0.5s ease-out 0.25s forwards;
+        }
     </style>
 @endpush
 
@@ -135,24 +187,122 @@
                 </div>
             </div>
         @else
-            <div class="absolute inset-0 z-50 flex items-center justify-center bg-white/90 p-4 backdrop-blur-md">
-                <div class="w-full max-w-sm rounded-3xl border border-emerald-200 bg-emerald-50 p-8 text-center shadow-2xl">
+            @php
+                $totalAnswers = $activeSession->quizAnswers->count();
+                $correctAnswers = $activeSession->quizAnswers->where('is_correct', true)->count();
+                $correctRatio = $totalAnswers > 0 ? $correctAnswers / $totalAnswers : null;
+
+                if ($correctRatio === null) {
+                    $tier = 'neutral';
+                } elseif ($correctRatio >= 1.0) {
+                    $tier = 'perfect';
+                } elseif ($correctRatio >= 0.5) {
+                    $tier = 'good';
+                } else {
+                    $tier = 'basic';
+                }
+
+                $tierContent = [
+                    'perfect' => [
+                        'title' => __('Skor Sempurna!'),
+                        'message' => __('Luar biasa! Anda menjawab semua pertanyaan dengan benar. Skor akhir Anda:'),
+                        'accent' => 'amber',
+                        'icon' => 'star',
+                    ],
+                    'good' => [
+                        'title' => __('Misi Selesai!'),
+                        'message' => __('Selamat! Anda telah menyelesaikan seluruh rute ini dengan baik. Skor akhir Anda:'),
+                        'accent' => 'emerald',
+                        'icon' => 'check',
+                    ],
+                    'basic' => [
+                        'title' => __('Rute Selesai!'),
+                        'message' => __('Anda telah menyelesaikan rute ini. Masih ada beberapa hal menarik untuk dipelajari ulang. Skor akhir Anda:'),
+                        'accent' => 'blue',
+                        'icon' => 'flag',
+                    ],
+                    'neutral' => [
+                        'title' => __('Rute Selesai!'),
+                        'message' => __('Selamat! Anda telah menjelajahi seluruh rute ini.'),
+                        'accent' => 'emerald',
+                        'icon' => 'pin',
+                    ],
+                ][$tier];
+
+                $accentClasses = [
+                    'amber' => [
+                        'icon_bg' => 'bg-amber-100',
+                        'icon_text' => 'text-amber-600',
+                        'title' => 'text-amber-900',
+                        'score_bg' => 'bg-amber-50',
+                        'score_border' => 'border-amber-100',
+                        'score_text' => 'text-amber-600',
+                        'score_label' => 'text-amber-400',
+                        'button_bg' => 'bg-amber-600',
+                        'button_hover' => 'hover:bg-amber-700',
+                    ],
+                    'emerald' => [
+                        'icon_bg' => 'bg-emerald-100',
+                        'icon_text' => 'text-emerald-600',
+                        'title' => 'text-emerald-900',
+                        'score_bg' => 'bg-emerald-50',
+                        'score_border' => 'border-emerald-100',
+                        'score_text' => 'text-emerald-600',
+                        'score_label' => 'text-emerald-400',
+                        'button_bg' => 'bg-emerald-600',
+                        'button_hover' => 'hover:bg-emerald-700',
+                    ],
+                    'blue' => [
+                        'icon_bg' => 'bg-blue-100',
+                        'icon_text' => 'text-blue-600',
+                        'title' => 'text-blue-900',
+                        'score_bg' => 'bg-blue-50',
+                        'score_border' => 'border-blue-100',
+                        'score_text' => 'text-blue-600',
+                        'score_label' => 'text-blue-400',
+                        'button_bg' => 'bg-blue-600',
+                        'button_hover' => 'hover:bg-blue-700',
+                    ],
+                ][$tierContent['accent']];
+            @endphp
+
+            <div class="absolute inset-0 z-50 overflow-y-auto bg-white">
+                <div class="mx-auto max-w-md px-6 py-10 pb-28 text-center md:max-w-lg lg:max-w-xl">
                     <div
-                        class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 shadow-inner">
-                        <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        class="quiz-success-icon mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full {{ $accentClasses['icon_bg'] }} {{ $accentClasses['icon_text'] }} shadow-inner md:h-24 md:w-24 lg:h-28 lg:w-28">
+                        @if ($tierContent['icon'] === 'star')
+                            <svg class="h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2l2.9 6.26L21.5 9.27l-4.75 4.63 1.12 6.55L12 17.27l-5.87 3.18 1.12-6.55L2.5 9.27l6.6-1.01L12 2z" />
+                            </svg>
+                        @elseif ($tierContent['icon'] === 'flag')
+                            <svg class="h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M5 3a1 1 0 00-1 1v17h2v-6h11.382a1 1 0 00.894-1.447L16 9l2.276-4.553A1 1 0 0017.382 3H6V3a1 1 0 00-1-1z" />
+                            </svg>
+                        @elseif ($tierContent['icon'] === 'pin')
+                            <svg class="quiz-success-check-pin h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        @else
+                            <svg class="quiz-success-check h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        @endif
                     </div>
-                    <h2 class="mt-2 text-3xl font-black text-emerald-900">{{ __('Misi Selesai!') }}</h2>
-                    <p class="mt-4 text-base leading-relaxed text-emerald-700">{{ __('Selamat! Anda telah menyelesaikan seluruh rute ini dengan luar biasa. Skor akhir Anda:') }}</p>
-                    <div class="my-6 rounded-2xl bg-white py-4 shadow-sm">
-                        <span class="block text-4xl font-black text-emerald-600">{{ $activeSession->total_score }}</span>
-                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">{{ __('Total Poin') }}</span>
+                    <h2 class="mt-2 text-3xl font-black {{ $accentClasses['title'] }} md:text-4xl">{{ $tierContent['title'] }}</h2>
+                    <p class="mt-4 text-base leading-relaxed text-gray-600 lg:text-lg">{{ $tierContent['message'] }}</p>
+                    <div class="my-6 rounded-2xl border {{ $accentClasses['score_bg'] }} {{ $accentClasses['score_border'] }} py-4 shadow-sm">
+                        <span class="block text-4xl font-black {{ $accentClasses['score_text'] }} lg:text-5xl">{{ $activeSession->total_score }}</span>
+                        <span class="text-xs font-bold uppercase tracking-wider {{ $accentClasses['score_label'] }}">{{ __('Total Poin') }}</span>
                     </div>
                     @if ($activeSession->quizAnswers->isNotEmpty())
-                        <div class="mb-6 max-h-64 space-y-3 overflow-y-auto text-left">
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('Ringkasan Kuis') }}</h3>
+                        <div class="mb-6 space-y-3 text-left">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">{{ __('Ringkasan Kuis') }}</h3>
                             @foreach ($activeSession->quizAnswers as $answer)
                                 @php($quiz = $answer->quiz)
                                 @continue(! $quiz)
@@ -168,9 +318,11 @@
                             @endforeach
                         </div>
                     @endif
+                </div>
 
+                <div class="fixed inset-x-0 bottom-0 z-50 border-t border-gray-100 bg-white/95 p-4 backdrop-blur-sm">
                     <a href="{{ route('home') }}"
-                        class="block w-full rounded-xl bg-emerald-600 py-4 text-center text-base font-bold text-white shadow-md transition-transform hover:bg-emerald-700 active:scale-95">{{ __('Kembali ke Beranda') }}</a>
+                        class="mx-auto block max-w-md rounded-xl {{ $accentClasses['button_bg'] }} py-4 text-center text-base font-bold text-white shadow-md transition-transform {{ $accentClasses['button_hover'] }} active:scale-95 md:max-w-lg lg:max-w-xl">{{ __('Kembali ke Beranda') }}</a>
                 </div>
             </div>
         @endif
@@ -445,8 +597,8 @@
 
                                     if (data.is_correct) {
                                         if (selectedBtn) {
-                                            selectedBtn.classList.add('quiz-option-highlight', 'bg-green-600',
-                                                'border-green-600');
+                                            selectedBtn.classList.add('quiz-option-highlight',
+                                                'quiz-option-correct');
                                         }
                                         confetti({
                                             particleCount: 80,
@@ -463,22 +615,26 @@
                                         setTimeout(() => badge.remove(), 1500);
                                     } else {
                                         if (selectedBtn) {
-                                            selectedBtn.classList.add('quiz-option-highlight', 'bg-red-600',
-                                                'border-red-600', 'quiz-shake');
+                                            selectedBtn.classList.add('quiz-option-highlight',
+                                                'quiz-option-incorrect', 'quiz-shake');
                                         }
                                         const correctBtn = document.querySelector(
                                             `#quiz-options button[data-option="${data.correct_option}"]`);
                                         if (correctBtn) {
-                                            correctBtn.classList.add('quiz-option-highlight', 'bg-green-600',
-                                                'border-green-600', 'animate-pulse');
+                                            correctBtn.classList.add('quiz-option-highlight',
+                                                'quiz-option-correct', 'animate-pulse');
                                         }
                                     }
 
                                     setTimeout(() => {
                                         if (isLast) {
                                             document.getElementById('quiz-question').innerHTML =
-                                                `<div class="flex flex-col items-center gap-1 py-2 text-center">
-                                                    <span class="text-4xl">🎉</span>
+                                                `<div class="flex flex-col items-center gap-2 py-2 text-center">
+                                                    <div class="quiz-success-icon flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                                                        <svg class="quiz-success-check h-9 w-9" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </div>
                                                     <span class="font-display text-lg font-black text-emerald-600">{{ __('Semua Terjawab!') }}</span>
                                                     <span class="text-sm text-gray-400">{{ __('Rute dilanjutkan...') }}</span>
                                                 </div>`;
