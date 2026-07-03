@@ -11,6 +11,54 @@
         .leaflet-container:focus {
             outline: none;
         }
+
+        @keyframes quiz-shake {
+
+            10%,
+            90% {
+                transform: translateX(-2px);
+            }
+
+            20%,
+            80% {
+                transform: translateX(4px);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translateX(-8px);
+            }
+
+            40%,
+            60% {
+                transform: translateX(8px);
+            }
+        }
+
+        .quiz-shake {
+            animation: quiz-shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+        }
+
+        @keyframes quiz-float-up {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, 0);
+            }
+
+            20% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -40px);
+            }
+        }
+
+        .quiz-score-badge {
+            animation: quiz-float-up 1.4s ease-out forwards;
+        }
     </style>
 @endpush
 
@@ -97,6 +145,25 @@
                         <span class="block text-4xl font-black text-emerald-600">{{ $activeSession->total_score }}</span>
                         <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">{{ __('Total Poin') }}</span>
                     </div>
+                    @if ($activeSession->quizAnswers->isNotEmpty())
+                        <div class="mb-6 max-h-64 space-y-3 overflow-y-auto text-left">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('Ringkasan Kuis') }}</h3>
+                            @foreach ($activeSession->quizAnswers as $answer)
+                                @php($quiz = $answer->quiz)
+                                @continue(! $quiz)
+                                <div class="rounded-xl border {{ $answer->is_correct ? 'border-emerald-100 bg-emerald-50' : 'border-amber-100 bg-amber-50' }} p-3">
+                                    <p class="text-sm font-bold text-gray-800">{{ $quiz->question }}</p>
+                                    <p class="mt-1 text-xs {{ $answer->is_correct ? 'text-emerald-700' : 'text-amber-700' }}">
+                                        {{ $answer->is_correct ? __('Benar') : __('Salah, jawaban yang benar: ') . $quiz->{'option_' . strtolower($quiz->correct_option)} }}
+                                    </p>
+                                    @if ($quiz->explanation)
+                                        <p class="mt-1 text-xs text-gray-600">{{ $quiz->explanation }}</p>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+
                     <a href="{{ route('home') }}"
                         class="block w-full rounded-xl bg-emerald-600 py-4 text-center text-base font-bold text-white shadow-md transition-transform hover:bg-emerald-700 active:scale-95">{{ __('Kembali ke Beranda') }}</a>
                 </div>
@@ -272,10 +339,10 @@
                             const opts = document.getElementById('quiz-options');
                             if (opts) {
                                 opts.innerHTML = `
-                        <button onclick="submitQuiz(${quiz.id}, 'A')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">A.</span> <span class="font-medium text-gray-700">${quiz.option_a}</span></button>
-                        <button onclick="submitQuiz(${quiz.id}, 'B')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">B.</span> <span class="font-medium text-gray-700">${quiz.option_b}</span></button>
-                        <button onclick="submitQuiz(${quiz.id}, 'C')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">C.</span> <span class="font-medium text-gray-700">${quiz.option_c}</span></button>
-                        <button onclick="submitQuiz(${quiz.id}, 'D')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">D.</span> <span class="font-medium text-gray-700">${quiz.option_d}</span></button>
+                        <button data-option="A" onclick="submitQuiz(${quiz.id}, 'A')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">A.</span> <span class="font-medium text-gray-700">${quiz.option_a}</span></button>
+                        <button data-option="B" onclick="submitQuiz(${quiz.id}, 'B')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">B.</span> <span class="font-medium text-gray-700">${quiz.option_b}</span></button>
+                        <button data-option="C" onclick="submitQuiz(${quiz.id}, 'C')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">C.</span> <span class="font-medium text-gray-700">${quiz.option_c}</span></button>
+                        <button data-option="D" onclick="submitQuiz(${quiz.id}, 'D')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">D.</span> <span class="font-medium text-gray-700">${quiz.option_d}</span></button>
                     `;
                             }
                         }
@@ -353,6 +420,7 @@
                             buttons.forEach(btn => btn.disabled = true);
 
                             const isLast = (currentQuizIndex === currentQuizzes.length - 1);
+                            const selectedBtn = document.querySelector(`#quiz-options button[data-option="${answer}"]`);
 
                             fetch(`/edutourism/quiz/${quizId}/submit`, {
                                     method: 'POST',
@@ -368,30 +436,49 @@
                                 })
                                 .then(res => res.json())
                                 .then(data => {
+                                    const advanceDelay = data.is_correct ? 1500 : 2800;
+
                                     if (data.is_correct) {
+                                        if (selectedBtn) {
+                                            selectedBtn.classList.add('bg-green-600', 'text-white', 'border-green-600');
+                                        }
+                                        confetti({
+                                            particleCount: 80,
+                                            spread: 70,
+                                            origin: {
+                                                y: 0.6
+                                            }
+                                        });
+                                        const badge = document.createElement('div');
+                                        badge.className =
+                                            'quiz-score-badge fixed left-1/2 top-1/3 z-[60] text-3xl font-black text-green-600';
+                                        badge.textContent = '+100';
+                                        document.body.appendChild(badge);
+                                        setTimeout(() => badge.remove(), 1500);
+                                    } else {
+                                        if (selectedBtn) {
+                                            selectedBtn.classList.add('bg-red-600', 'text-white', 'border-red-600',
+                                                'quiz-shake');
+                                        }
+                                        const correctBtn = document.querySelector(
+                                            `#quiz-options button[data-option="${data.correct_option}"]`);
+                                        if (correctBtn) {
+                                            correctBtn.classList.add('bg-green-600', 'text-white',
+                                                'border-green-600', 'animate-pulse');
+                                        }
+                                    }
+
+                                    setTimeout(() => {
                                         if (isLast) {
                                             document.getElementById('quiz-question').innerHTML =
                                                 `<span class="text-green-600 text-2xl">🎉 {{ __('Semua Terjawab!') }}</span><br><span class="text-sm">{{ __('Rute dilanjutkan...') }}</span>`;
                                             document.getElementById('quiz-options').innerHTML = '';
-                                            setTimeout(() => window.location.reload(), 1500);
+                                            setTimeout(() => window.location.reload(), 1200);
                                         } else {
-                                            document.getElementById('quiz-question').innerHTML =
-                                                `<span class="text-green-600 text-2xl">✅ {{ __('Benar!') }}</span><br><span class="text-sm">{{ __('Lanjut ke soal berikutnya...') }}</span>`;
-                                            document.getElementById('quiz-options').innerHTML = '';
-                                            setTimeout(() => {
-                                                currentQuizIndex++;
-                                                showQuiz();
-                                            }, 1200);
+                                            currentQuizIndex++;
+                                            showQuiz();
                                         }
-                                    } else {
-                                        Swal.fire({
-                                            title: "{{ __('Salah!') }}",
-                                            text: "{{ __('Jawaban Salah! Coba lagi.') }}",
-                                            icon: 'error',
-                                            confirmButtonColor: '#1E5128'
-                                        });
-                                        buttons.forEach(btn => btn.disabled = false);
-                                    }
+                                    }, advanceDelay);
                                 })
                                 .catch(err => {
                                     Swal.fire({
