@@ -138,7 +138,7 @@ class SmartEdutourismController extends Controller
             session(['guest_token' => $guestToken, 'guest_name' => __('Wisatawan')]);
         }
 
-        $sessionQuery = RouteSession::with(['tourRoute', 'currentPoint.locationable.mapLocation', 'tourRoute.routePoints.locationable.mapLocation'])
+        $sessionQuery = RouteSession::with(['tourRoute', 'currentPoint.locationable.mapLocation', 'tourRoute.routePoints.locationable.mapLocation', 'quizAnswers.quiz'])
             ->whereIn('status', ['active', 'completed'])
             ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
             ->orderBy('updated_at', 'desc');
