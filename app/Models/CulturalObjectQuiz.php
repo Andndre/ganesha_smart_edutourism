@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslatableArrayOutput;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,9 +11,10 @@ use Spatie\Translatable\HasTranslations;
 class CulturalObjectQuiz extends Model
 {
     use HasFactory;
+    use HasTranslatableArrayOutput;
     use HasTranslations;
 
-    public array $translatable = ['question', 'option_a', 'option_b', 'option_c', 'option_d'];
+    public array $translatable = ['question', 'option_a', 'option_b', 'option_c', 'option_d', 'explanation'];
 
     protected $fillable = [
         'cultural_object_id',
@@ -22,6 +24,7 @@ class CulturalObjectQuiz extends Model
         'option_c',
         'option_d',
         'correct_option',
+        'explanation',
     ];
 
     /**
