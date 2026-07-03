@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CulturalObject;
 use App\Models\CulturalObjectQuiz;
+use App\Models\QuizAnswer;
 use App\Models\RouteSession;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
@@ -277,9 +278,9 @@ class SmartEdutourismController extends Controller
         ]);
 
         $quiz = CulturalObjectQuiz::findOrFail($quizId);
-        $isCorrect = strtoupper($request->answer) === strtoupper($quiz->correct_option);
+        $answer = strtoupper($request->answer);
+        $isCorrect = $answer === strtoupper($quiz->correct_option);
 
-        // Update session
         $userId = auth()->id();
         $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
 
@@ -301,38 +302,49 @@ class SmartEdutourismController extends Controller
             return response()->json(['success' => false, 'message' => __('Sesi tidak ditemukan')], 404);
         }
 
-        if ($isCorrect) {
+        $alreadyAnsweredCorrectly = QuizAnswer::where('route_session_id', $session->id)
+            ->where('cultural_object_quiz_id', $quiz->id)
+            ->where('is_correct', true)
+            ->exists();
+
+        QuizAnswer::updateOrCreate(
+            ['route_session_id' => $session->id, 'cultural_object_quiz_id' => $quiz->id],
+            ['selected_option' => $answer, 'is_correct' => $isCorrect]
+        );
+
+        if ($isCorrect && ! $alreadyAnsweredCorrectly) {
             $session->total_score += 100;
+        }
 
-            if ($request->boolean('is_last_quiz', true)) {
-                $session->points_completed += 1;
+        if ($request->boolean('is_last_quiz', true)) {
+            $session->points_completed += 1;
 
-                $currentPoint = TourRoutePoint::with('locationable')->find($session->current_point_id);
-                if ($currentPoint) {
-                    $this->recordVisit($userId, $currentPoint, $session);
-                }
-
-                // Move to next point
-                $route = TourRoute::with('routePoints')->find($session->tour_route_id);
-                $points = $route->routePoints;
-                $currentIndex = $points->search(function ($p) use ($session) {
-                    return $p->id === $session->current_point_id;
-                });
-
-                if ($currentIndex !== false && isset($points[$currentIndex + 1])) {
-                    $session->current_point_id = $points[$currentIndex + 1]->id;
-                } else {
-                    $session->status = 'completed';
-                    $session->current_point_id = null;
-                }
+            $currentPoint = TourRoutePoint::with('locationable')->find($session->current_point_id);
+            if ($currentPoint) {
+                $this->recordVisit($userId, $currentPoint, $session);
             }
 
-            $session->save();
+            // Move to next point regardless of whether the answer was correct
+            $route = TourRoute::with('routePoints')->find($session->tour_route_id);
+            $points = $route->routePoints;
+            $currentIndex = $points->search(function ($p) use ($session) {
+                return $p->id === $session->current_point_id;
+            });
+
+            if ($currentIndex !== false && isset($points[$currentIndex + 1])) {
+                $session->current_point_id = $points[$currentIndex + 1]->id;
+            } else {
+                $session->status = 'completed';
+                $session->current_point_id = null;
+            }
         }
+
+        $session->save();
 
         return response()->json([
             'success' => true,
             'is_correct' => $isCorrect,
+            'correct_option' => strtoupper($quiz->correct_option),
             'session' => $session,
         ]);
     }
