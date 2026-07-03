@@ -20,7 +20,7 @@
     // Alpine's reactivity.
     $attemptCloseBody = $onCloseAttempt
         ? "window['{$onCloseAttempt}'](() => window.dispatchEvent(new CustomEvent('close-{$name}')))"
-        : 'isOpen = false';
+        : 'this.isOpen = false';
 @endphp
 
 
