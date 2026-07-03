@@ -84,5 +84,6 @@ function addQuizField(quiz = null) {
         </div>
     `;
     list.insertAdjacentHTML('beforeend', html);
+    window.injectTranslateButtons?.();
 }
 </script>
