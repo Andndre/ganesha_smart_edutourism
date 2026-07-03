@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasSlug;
+use App\Models\Concerns\HasTranslatableArrayOutput;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,6 +19,7 @@ class UmkmProduct extends Model
 {
     use HasFactory;
     use HasSlug;
+    use HasTranslatableArrayOutput;
 
     // ponytail: kept for legacy admin views that still read product-level name/description;
     // owner form no longer writes these — display_* accessors prefer the category.
