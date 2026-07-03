@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslatableArrayOutput;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,7 @@ use Spatie\Translatable\HasTranslations;
 class TourRoutePoint extends Model
 {
     use HasFactory;
+    use HasTranslatableArrayOutput;
     use HasTranslations;
 
     public array $translatable = ['storytelling_content'];
