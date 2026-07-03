@@ -12,11 +12,14 @@ class CulturalObjectQuizFactory extends Factory
 
     public function definition(): array
     {
-        $bilingual = fn () => ['en' => $this->faker->words(3, true), 'id' => $this->faker->words(3, true)];
+        // ponytail: Faker's Lorem provider has no id_ID text generator, so "id" would
+        // read identically to "en" (both Latin lorem-ipsum). Prefix "id" to make the
+        // two locales visibly distinct in seeded/demo data.
+        $bilingual = fn () => ['en' => $this->faker->words(3, true), 'id' => '[ID] '.$this->faker->words(3, true)];
 
         return [
             'correct_option' => $this->faker->randomElement(['a', 'b', 'c', 'd']),
-            'question' => ['en' => $this->faker->sentence().'?', 'id' => $this->faker->sentence().'?'],
+            'question' => ['en' => $this->faker->sentence().'?', 'id' => '[ID] '.$this->faker->sentence().'?'],
             'option_a' => $bilingual(),
             'option_b' => $bilingual(),
             'option_c' => $bilingual(),

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasMapLocation;
 use App\Models\Concerns\HasSlug;
+use App\Models\Concerns\HasTranslatableArrayOutput;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,6 +20,7 @@ class UmkmProfile extends Model
     use HasFactory;
     use HasMapLocation;
     use HasSlug;
+    use HasTranslatableArrayOutput;
     use HasTranslations;
 
     public array $translatable = ['business_name', 'description'];
