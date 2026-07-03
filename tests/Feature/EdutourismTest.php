@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\CulturalObject;
 use App\Models\CulturalObjectQuiz;
+use App\Models\QuizAnswer;
 use App\Models\RouteSession;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
@@ -335,5 +336,150 @@ class EdutourismTest extends TestCase
             'success' => true,
             'redirect' => route('edutourism.index'),
         ]);
+    }
+
+    /**
+     * Test submitting an incorrect answer still advances the session and awards no points.
+     */
+    public function test_submit_incorrect_quiz_answer_still_advances_session(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $route = TourRoute::create([
+            'name' => ['en' => 'Quiz Route', 'id' => 'Rute Berkuiz'],
+            'description' => ['en' => 'Has quiz.', 'id' => 'Ada kuisnya.'],
+            'difficulty' => 'easy',
+            'estimated_duration_minutes' => 30,
+            'distance_meters' => 350,
+            'is_active' => true,
+        ]);
+
+        $culturalObject = CulturalObject::create([
+            'name' => ['en' => 'Quiz Temple', 'id' => 'Candi Berkuiz'],
+            'slug' => 'candi-berkuiz-incorrect',
+            'description' => ['en' => 'Cultural description', 'id' => 'Deskripsi objek budaya'],
+            'category' => 'temple',
+            'ar_marker_id' => 'marker_candi_berkuiz_incorrect',
+        ]);
+
+        $quiz = CulturalObjectQuiz::create([
+            'cultural_object_id' => $culturalObject->id,
+            'question' => ['en' => 'Is this a temple?', 'id' => 'Apakah ini candi?'],
+            'option_a' => 'Ya',
+            'option_b' => 'Tidak',
+            'option_c' => 'Mungkin',
+            'option_d' => 'Bukan',
+            'correct_option' => 'A',
+            'explanation' => ['en' => 'Yes, it is a temple.', 'id' => 'Ya, ini adalah candi.'],
+        ]);
+
+        $point = TourRoutePoint::create([
+            'tour_route_id' => $route->id,
+            'locationable_type' => CulturalObject::class,
+            'locationable_id' => $culturalObject->id,
+            'order' => 1,
+        ]);
+
+        $session = RouteSession::create([
+            'user_id' => $user->id,
+            'tour_route_id' => $route->id,
+            'current_point_id' => $point->id,
+            'status' => 'active',
+        ]);
+
+        // Act — answer with the wrong option, as the last (only) quiz for this point
+        $response = $this->actingAs($user)
+            ->postJson(route('edutourism.quiz.submit', ['quizId' => $quiz->id]), [
+                'answer' => 'B',
+                'is_last_quiz' => true,
+            ]);
+
+        // Assert
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'is_correct' => false,
+            'correct_option' => 'A',
+        ]);
+
+        $session->refresh();
+        $this->assertEquals(0, $session->total_score);
+        $this->assertEquals(1, $session->points_completed);
+        $this->assertEquals('completed', $session->status);
+        $this->assertNull($session->current_point_id);
+
+        $this->assertDatabaseHas('quiz_answers', [
+            'route_session_id' => $session->id,
+            'cultural_object_quiz_id' => $quiz->id,
+            'selected_option' => 'B',
+            'is_correct' => false,
+        ]);
+    }
+
+    /**
+     * Test re-submitting a quiz already answered correctly does not award points twice.
+     */
+    public function test_resubmitting_correct_quiz_answer_does_not_double_score(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $route = TourRoute::create([
+            'name' => ['en' => 'Quiz Route', 'id' => 'Rute Berkuiz'],
+            'description' => ['en' => 'Has quiz.', 'id' => 'Ada kuisnya.'],
+            'difficulty' => 'easy',
+            'estimated_duration_minutes' => 30,
+            'distance_meters' => 350,
+            'is_active' => true,
+        ]);
+
+        $culturalObject = CulturalObject::create([
+            'name' => ['en' => 'Quiz Temple', 'id' => 'Candi Berkuiz'],
+            'slug' => 'candi-berkuiz-double-score',
+            'description' => ['en' => 'Cultural description', 'id' => 'Deskripsi objek budaya'],
+            'category' => 'temple',
+            'ar_marker_id' => 'marker_candi_berkuiz_double_score',
+        ]);
+
+        $quiz = CulturalObjectQuiz::create([
+            'cultural_object_id' => $culturalObject->id,
+            'question' => ['en' => 'Is this a temple?', 'id' => 'Apakah ini candi?'],
+            'option_a' => 'Ya',
+            'option_b' => 'Tidak',
+            'option_c' => 'Mungkin',
+            'option_d' => 'Bukan',
+            'correct_option' => 'A',
+        ]);
+
+        $point = TourRoutePoint::create([
+            'tour_route_id' => $route->id,
+            'locationable_type' => CulturalObject::class,
+            'locationable_id' => $culturalObject->id,
+            'order' => 1,
+        ]);
+
+        $session = RouteSession::create([
+            'user_id' => $user->id,
+            'tour_route_id' => $route->id,
+            'current_point_id' => $point->id,
+            'status' => 'active',
+        ]);
+
+        // Act — answer correctly twice (simulating revisiting the point)
+        $this->actingAs($user)->postJson(route('edutourism.quiz.submit', ['quizId' => $quiz->id]), [
+            'answer' => 'A',
+            'is_last_quiz' => true,
+        ]);
+        $session->refresh();
+        $session->update(['status' => 'active', 'current_point_id' => $point->id]);
+
+        $this->actingAs($user)->postJson(route('edutourism.quiz.submit', ['quizId' => $quiz->id]), [
+            'answer' => 'A',
+            'is_last_quiz' => true,
+        ]);
+
+        // Assert
+        $session->refresh();
+        $this->assertEquals(100, $session->total_score);
+        $this->assertEquals(1, QuizAnswer::where('route_session_id', $session->id)->count());
     }
 }
