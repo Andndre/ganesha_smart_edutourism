@@ -16,7 +16,7 @@
         Kelola Soal Kuis
     </button>
 
-    <x-modal name="quizzes-modal" maxWidth="2xl" desktopLayout="drawer">
+    <x-modal name="quizzes-modal" maxWidth="2xl" desktopLayout="drawer" onCloseAttempt="quizzesModalCloseAttempt">
         <div class="mb-4">
             <h3 class="font-display text-charcoal text-lg font-bold">Kelola Kuis Edutourism</h3>
             <p class="mt-1 text-xs text-gray-500">Soal-soal ini akan muncul saat turis tiba di lokasi ini.</p>
@@ -26,18 +26,20 @@
             <!-- Quizzes will be appended here -->
         </div>
 
-        <div class="mt-6 space-y-3 border-t border-gray-100 pt-4">
-            <button type="button" onclick="addQuizField()"
-                class="hover:border-primary hover:text-primary flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-3 text-sm font-semibold text-gray-500 transition-colors hover:bg-green-50">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
-                    </path>
-                </svg>
-                Tambah Soal Kuis
-            </button>
-            <button type="button" onclick="closeQuizModal()"
-                class="bg-primary hover:bg-primary-600 shadow-primary/20 w-full rounded-xl py-3 text-sm font-semibold text-white shadow-lg transition-all">Selesai
-                & Tutup</button>
-        </div>
+        <x-slot:footer>
+            <div class="space-y-3">
+                <button type="button" onclick="addQuizField()"
+                    class="hover:border-primary hover:text-primary flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-3 text-sm font-semibold text-gray-500 transition-colors hover:bg-green-50">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
+                        </path>
+                    </svg>
+                    Tambah Soal Kuis
+                </button>
+                <button type="button" onclick="closeQuizModal()"
+                    class="bg-primary hover:bg-primary-600 shadow-primary/20 w-full rounded-xl py-3 text-sm font-semibold text-white shadow-lg transition-all">Selesai
+                    & Tutup</button>
+            </div>
+        </x-slot:footer>
     </x-modal>
 </div>

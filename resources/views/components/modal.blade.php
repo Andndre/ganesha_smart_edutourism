@@ -7,7 +7,22 @@
     'drawerFromSide' => 'right',
     'zIndex' => 'z-100',
     'closeOnOutsideClick' => true,
+    // Name of a global JS function `(proceed) => void` to call instead of closing
+    // directly when the user clicks outside or the X button. It decides whether/when
+    // to call `proceed()` — e.g. to confirm discarding unsaved changes first.
+    'onCloseAttempt' => null,
 ])
+
+@php
+    // Dispatch the same `close-{name}` event the component already listens for
+    // (used by e.g. closeQuizModal()) rather than assigning `isOpen` from a closure
+    // called outside Alpine's own evaluation — that path isn't guaranteed to trigger
+    // Alpine's reactivity.
+    $attemptCloseBody = $onCloseAttempt
+        ? "window['{$onCloseAttempt}'](() => window.dispatchEvent(new CustomEvent('close-{$name}')))"
+        : 'isOpen = false';
+@endphp
+
 
 @php
     $maxWidthClass = match ($maxWidth) {
@@ -47,7 +62,7 @@
 @endphp
 
 <!-- Responsive Drawer / Modal -->
-<div x-data="{ isOpen: {{ $defaultOpen ? 'true' : 'false' }} }" x-show="isOpen" @open-{{ $name }}.window="isOpen = true"
+<div x-data="{ isOpen: {{ $defaultOpen ? 'true' : 'false' }}, attemptClose() { {{ $attemptCloseBody }} } }" x-show="isOpen" @open-{{ $name }}.window="isOpen = true"
     @close-{{ $name }}.window="isOpen = false"
     class="{{ $hasBackdrop ? 'bg-charcoal/60 backdrop-blur-sm' : 'bg-transparent pointer-events-none' }} {{ $zIndex }} {{ $desktopAlignmentClass }} fixed inset-0 flex items-end justify-center px-0"
     style="display: none;" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
@@ -56,7 +71,7 @@
 
     <div class="{{ $desktopContainerClass }} {{ $maxWidthClass }} pointer-events-auto relative flex w-full flex-col rounded-t-[2.5rem] bg-white p-6 pb-10 shadow-2xl md:pb-6"
         style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));"
-        @click.outside="! {{ $closeOnOutsideClick ? 'true' : 'false' }} || (!document.querySelector('.swal2-container') && (isOpen = false))"
+        @click.outside="! {{ $closeOnOutsideClick ? 'true' : 'false' }} || (!document.querySelector('.swal2-container') && attemptClose())"
         x-show="isOpen" x-transition:enter="transition ease-out duration-300 transform"
         x-transition:enter-start="translate-y-full {{ $desktopTransitionStart }}"
         x-transition:enter-end="translate-y-0 {{ $desktopTransitionEnd }}"
@@ -68,7 +83,7 @@
         <div class="mx-auto -mt-2 mb-5 h-1.5 w-12 rounded-full bg-gray-200 md:hidden"></div>
 
         <!-- Close Button on Desktop -->
-        <button type="button" @click="isOpen = false"
+        <button type="button" @click="attemptClose()"
             class="absolute right-4 top-4 z-50 hidden h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-colors hover:text-gray-600 md:flex"
             title="Tutup">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -80,5 +95,14 @@
         <div class="-mr-1 flex min-h-0 w-full flex-1 flex-col overflow-y-auto pr-1">
             {{ $slot }}
         </div>
+
+        {{-- Optional footer: stays pinned below the scrollable body (e.g. action buttons
+             that must remain reachable without scrolling, in both center and drawer/mobile
+             sheet layouts). Usage: <x-slot:footer>...</x-slot:footer> --}}
+        @isset($footer)
+            <div class="mt-4 shrink-0 border-t border-gray-100 pt-4">
+                {{ $footer }}
+            </div>
+        @endisset
     </div>
 </div>
