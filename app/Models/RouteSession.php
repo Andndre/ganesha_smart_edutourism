@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RouteSession extends Model
 {
@@ -33,5 +34,10 @@ class RouteSession extends Model
     public function currentPoint(): BelongsTo
     {
         return $this->belongsTo(TourRoutePoint::class, 'current_point_id');
+    }
+
+    public function quizAnswers(): HasMany
+    {
+        return $this->hasMany(QuizAnswer::class);
     }
 }
