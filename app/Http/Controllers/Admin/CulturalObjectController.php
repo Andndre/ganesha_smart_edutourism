@@ -65,6 +65,7 @@ class CulturalObjectController extends Controller
             $validated['quiz_option_c'],
             $validated['quiz_option_d'],
             $validated['quiz_correct_option'],
+            $validated['quiz_explanation'],
             // Decoupled AR fields
             $validated['ar_marker_id'],
             $validated['ar_marker_patt_content'],
@@ -85,7 +86,7 @@ class CulturalObjectController extends Controller
                 $audioPaths[$locale] = $request->file($fileKey)->store('audio', 'public');
             }
         }
-        if (!empty($audioPaths)) {
+        if (! empty($audioPaths)) {
             $validated['audio_narration_paths'] = $audioPaths;
         }
 
@@ -98,6 +99,7 @@ class CulturalObjectController extends Controller
             $optionC = $request->input('quiz_option_c');
             $optionD = $request->input('quiz_option_d');
             $correctOptions = $request->input('quiz_correct_option');
+            $explanations = $request->input('quiz_explanation', []);
 
             foreach ($questions as $index => $question) {
                 if (! empty($question['en']) || ! empty($question['id'])) {
@@ -108,6 +110,7 @@ class CulturalObjectController extends Controller
                         'option_c' => $optionC[$index] ?? ['en' => '', 'id' => ''],
                         'option_d' => $optionD[$index] ?? ['en' => '', 'id' => ''],
                         'correct_option' => $correctOptions[$index] ?? 'A',
+                        'explanation' => $explanations[$index] ?? null,
                     ]);
                 }
             }
@@ -125,7 +128,7 @@ class CulturalObjectController extends Controller
         $arModelId = $request->input('ar_model_id');
         $arMarkerId = $request->input('ar_marker_id');
 
-        $hasArAudio = collect(['en', 'id'])->contains(fn($l) => $request->hasFile("audio_narration_file.$l"));
+        $hasArAudio = collect(['en', 'id'])->contains(fn ($l) => $request->hasFile("audio_narration_file.$l"));
 
         $shouldCreateNewModel = $arModelId === 'new' ||
             (empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file') || $hasArAudio));
@@ -250,6 +253,7 @@ class CulturalObjectController extends Controller
             $validated['quiz_option_c'],
             $validated['quiz_option_d'],
             $validated['quiz_correct_option'],
+            $validated['quiz_explanation'],
             // Decoupled AR fields
             $validated['ar_marker_id'],
             $validated['ar_marker_patt_content'],
@@ -280,6 +284,7 @@ class CulturalObjectController extends Controller
             $optionC = $request->input('quiz_option_c');
             $optionD = $request->input('quiz_option_d');
             $correctOptions = $request->input('quiz_correct_option');
+            $explanations = $request->input('quiz_explanation', []);
 
             foreach ($questions as $index => $question) {
                 if (! empty($question['en']) || ! empty($question['id'])) {
@@ -290,6 +295,7 @@ class CulturalObjectController extends Controller
                         'option_c' => $optionC[$index] ?? ['en' => '', 'id' => ''],
                         'option_d' => $optionD[$index] ?? ['en' => '', 'id' => ''],
                         'correct_option' => $correctOptions[$index] ?? 'A',
+                        'explanation' => $explanations[$index] ?? null,
                     ]);
                 }
             }
@@ -307,7 +313,7 @@ class CulturalObjectController extends Controller
         $arModelId = $request->input('ar_model_id');
         $arMarkerId = $request->input('ar_marker_id');
 
-        $hasArAudio = collect(['en', 'id'])->contains(fn($l) => $request->hasFile("audio_narration_file.$l"));
+        $hasArAudio = collect(['en', 'id'])->contains(fn ($l) => $request->hasFile("audio_narration_file.$l"));
 
         $shouldCreateNewModel = $arModelId === 'new' ||
             ($arModelId !== 'none' && empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file') || $hasArAudio));

@@ -71,12 +71,17 @@ class CulturalObjectRequest extends FormRequest
             'quiz_option_d.*.id' => ['required_if:has_quiz,1', 'string'],
             'quiz_correct_option' => ['required_if:has_quiz,1', 'nullable', 'array'],
             'quiz_correct_option.*' => ['required_if:has_quiz,1', 'string', 'in:A,B,C,D'],
+            'quiz_explanation' => ['nullable', 'array'],
+            'quiz_explanation.*' => ['nullable', 'array'],
+            'quiz_explanation.*.en' => ['nullable', 'string'],
+            'quiz_explanation.*.id' => ['nullable', 'string'],
         ];
     }
 
     protected function prepareForValidation(): void
     {
         $this->normalizeLocaleArrayField('quiz_question');
+        $this->normalizeLocaleArrayField('quiz_explanation');
         $this->normalizeLocaleField('accessibility_notes');
     }
 }

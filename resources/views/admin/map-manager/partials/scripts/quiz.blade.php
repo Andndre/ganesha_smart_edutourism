@@ -161,6 +161,15 @@ function addQuizField(quiz = null) {
                     <option value="D" ${quiz && quiz.correct_option === 'D' ? 'selected' : ''}>Opsi D</option>
                 </select>
             </div>
+            <div class="mt-3">
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Penjelasan (opsional)</label>
+                <div x-show="locale === 'en'">
+                    <textarea name="quiz_explanation[${index}][en]" rows="2" placeholder="Why this answer is correct (EN)" class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:border-primary focus:outline-none">${quiz ? (typeof quiz.explanation === 'object' ? (quiz.explanation?.en || '') : (quiz.explanation || '')) : ''}</textarea>
+                </div>
+                <div x-show="locale === 'id'">
+                    <textarea name="quiz_explanation[${index}][id]" rows="2" placeholder="Kenapa jawaban ini benar (ID)" class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:border-primary focus:outline-none">${quiz ? (typeof quiz.explanation === 'object' ? (quiz.explanation?.id || '') : (quiz.explanation || '')) : ''}</textarea>
+                </div>
+            </div>
         </div>
     `;
     list.insertAdjacentHTML('beforeend', html);
