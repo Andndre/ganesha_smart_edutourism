@@ -59,6 +59,11 @@
         .quiz-score-badge {
             animation: quiz-float-up 1.4s ease-out forwards;
         }
+
+        .quiz-option-highlight,
+        .quiz-option-highlight span {
+            color: #fff !important;
+        }
     </style>
 @endpush
 
@@ -440,7 +445,8 @@
 
                                     if (data.is_correct) {
                                         if (selectedBtn) {
-                                            selectedBtn.classList.add('bg-green-600', 'text-white', 'border-green-600');
+                                            selectedBtn.classList.add('quiz-option-highlight', 'bg-green-600',
+                                                'border-green-600');
                                         }
                                         confetti({
                                             particleCount: 80,
@@ -457,13 +463,13 @@
                                         setTimeout(() => badge.remove(), 1500);
                                     } else {
                                         if (selectedBtn) {
-                                            selectedBtn.classList.add('bg-red-600', 'text-white', 'border-red-600',
-                                                'quiz-shake');
+                                            selectedBtn.classList.add('quiz-option-highlight', 'bg-red-600',
+                                                'border-red-600', 'quiz-shake');
                                         }
                                         const correctBtn = document.querySelector(
                                             `#quiz-options button[data-option="${data.correct_option}"]`);
                                         if (correctBtn) {
-                                            correctBtn.classList.add('bg-green-600', 'text-white',
+                                            correctBtn.classList.add('quiz-option-highlight', 'bg-green-600',
                                                 'border-green-600', 'animate-pulse');
                                         }
                                     }
@@ -471,7 +477,11 @@
                                     setTimeout(() => {
                                         if (isLast) {
                                             document.getElementById('quiz-question').innerHTML =
-                                                `<span class="text-green-600 text-2xl">🎉 {{ __('Semua Terjawab!') }}</span><br><span class="text-sm">{{ __('Rute dilanjutkan...') }}</span>`;
+                                                `<div class="flex flex-col items-center gap-1 py-2 text-center">
+                                                    <span class="text-4xl">🎉</span>
+                                                    <span class="font-display text-lg font-black text-emerald-600">{{ __('Semua Terjawab!') }}</span>
+                                                    <span class="text-sm text-gray-400">{{ __('Rute dilanjutkan...') }}</span>
+                                                </div>`;
                                             document.getElementById('quiz-options').innerHTML = '';
                                             setTimeout(() => window.location.reload(), 1200);
                                         } else {
