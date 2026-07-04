@@ -10,8 +10,14 @@
         function eduGameRiddle(cfg, missionId, maxPoints) {
             return {
                 cfg, missionId, maxPoints,
-                guess: '', attempts: 0, wrong: false, solved: false, answerShown: '',
+                guess: '', attempts: 0, wrong: false, solved: false, answerShown: '', rootEl: null,
 
+                init() {
+                    // $el inside submit() resolves to whichever element hosts the calling
+                    // directive (the answer button), which x-if unmounts once solved=true.
+                    // Cache the real component root here instead, where $el is still correct.
+                    this.rootEl = this.$el;
+                },
                 normalize(s) {
                     return s.toLowerCase().replace(/[^a-z0-9\s]/gi, '').replace(/\s+/g, ' ').trim();
                 },
@@ -34,7 +40,7 @@
                         navigator.vibrate?.([50, 30, 50]);
                         confetti?.({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
                         const earned = Math.max(Math.round(this.maxPoints * 0.2), this.maxPoints - 20 * this.attempts);
-                        setTimeout(() => this.$dispatch('mission-complete', { id: this.missionId, earned }), 1400);
+                        setTimeout(() => this.rootEl.dispatchEvent(new CustomEvent('mission-complete', { bubbles: true, detail: { id: this.missionId, earned } })), 1400);
                     } else {
                         this.attempts++;
                         this.wrong = true;
@@ -63,17 +69,18 @@
     @endif
 
     <template x-if="!solved">
-        <form @submit.prevent="submit()" class="space-y-3">
-            <input type="text" x-model="guess" :class="wrong ? 'quiz-shake border-red-300' : 'border-gray-200'"
+        <div class="space-y-3">
+            <input type="text" x-model="guess" @keydown.enter="submit()"
+                :class="wrong ? 'quiz-shake border-red-300' : 'border-gray-200'"
                 class="focus:border-primary w-full rounded-xl border-2 p-3 text-sm font-medium text-gray-800 outline-none transition"
                 placeholder="{{ __('Ketik jawabanmu...') }}" autocomplete="off" />
             <p x-show="attempts > 0" class="text-xs font-semibold text-red-500" x-cloak>
                 {{ __('Belum tepat, coba lagi!') }}</p>
-            <button type="submit"
+            <button type="button" @click="submit()"
                 class="bg-primary w-full rounded-xl py-3 text-sm font-bold text-white shadow-sm transition-transform active:scale-95">
                 {{ __('Jawab Teka-Teki') }}
             </button>
-        </form>
+        </div>
     </template>
 
     <template x-if="solved">
