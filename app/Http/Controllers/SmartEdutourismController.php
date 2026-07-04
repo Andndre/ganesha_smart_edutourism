@@ -465,7 +465,6 @@ class SmartEdutourismController extends Controller
     {
         $request->validate([
             'answer' => 'required|string|size:1',
-            'is_last_quiz' => 'nullable|boolean',
         ]);
 
         $quiz = CulturalObjectQuiz::findOrFail($quizId);
@@ -507,13 +506,19 @@ class SmartEdutourismController extends Controller
             $session->total_score += 100;
         }
 
-        if ($request->boolean('is_last_quiz', true)) {
+        $currentPointForQuizzes = TourRoutePoint::with('locationable')->find($session->current_point_id);
+        $totalQuizzes = $currentPointForQuizzes?->locationable?->quizzes?->count() ?? 0;
+        $answeredQuizzes = QuizAnswer::where('route_session_id', $session->id)
+            ->whereIn('cultural_object_quiz_id', $currentPointForQuizzes?->locationable?->quizzes->pluck('id') ?? [])
+            ->count();
+        $isLastQuiz = $totalQuizzes > 0 && $answeredQuizzes >= $totalQuizzes;
+
+        if ($isLastQuiz) {
             $session->points_completed += 1;
 
-            $currentPoint = TourRoutePoint::with('locationable')->find($session->current_point_id);
-            if ($currentPoint) {
-                $this->recordVisit($userId, $currentPoint, $session);
-                $this->maybeAwardFirstPointCollectible($session, $currentPoint);
+            if ($currentPointForQuizzes) {
+                $this->recordVisit($userId, $currentPointForQuizzes, $session);
+                $this->maybeAwardFirstPointCollectible($session, $currentPointForQuizzes);
             }
 
             // Move to next point regardless of whether the answer was correct
