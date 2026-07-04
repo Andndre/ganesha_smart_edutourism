@@ -336,8 +336,6 @@ class Route1HeritageQuestSeeder extends Seeder
      */
     private function rebuildMissions(array $points): void
     {
-        RouteMission::whereIn('tour_route_point_id', collect($points)->pluck('id'))->delete();
-
         // Titik 2 — Mission 2 "Heritage Explorer": scavenger hunt + matching.
         // MVP: "memotret objek" diganti memilih objek asli dari grid (foto lapangan belum tersedia,
         // kartu memakai ikon + label — ganti dengan foto asli begitu tersedia dari tim lapangan).
@@ -457,13 +455,11 @@ class Route1HeritageQuestSeeder extends Seeder
 
     private function mission(TourRoutePoint $point, int $order, string $type, array $title, array $config): void
     {
-        RouteMission::create([
-            'tour_route_point_id' => $point->id,
-            'type' => $type,
-            'title' => $title,
-            'config' => $config,
-            'points' => 100,
-            'order' => $order,
-        ]);
+        // updateOrCreate on (point, order) keeps mission IDs stable across reseeds —
+        // completeMission() and RouteSession.missions_completed reference these IDs.
+        RouteMission::updateOrCreate(
+            ['tour_route_point_id' => $point->id, 'order' => $order],
+            ['type' => $type, 'title' => $title, 'config' => $config, 'points' => 100],
+        );
     }
 }

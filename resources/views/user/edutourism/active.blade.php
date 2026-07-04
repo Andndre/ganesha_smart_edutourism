@@ -478,7 +478,9 @@
                 if (!qrScanner) return;
                 const scanner = qrScanner;
                 qrScanner = null;
-                scanner.stop().catch(() => {}).finally(() => scanner.clear());
+                scanner.stop().catch(() => {}).finally(() => {
+                    try { scanner.clear(); } catch (e) { /* already cleared/still running */ }
+                });
             }
 
             window.openQrScanner = function() {
