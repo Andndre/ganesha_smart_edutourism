@@ -18,8 +18,33 @@ class RouteSession extends Model
         'current_point_id',
         'points_completed',
         'total_score',
+        'missions_completed',
+        'collectibles_earned',
+        'badge_awarded',
+        'selected_avatar',
         'status',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'missions_completed' => 'array',
+            'collectibles_earned' => 'array',
+        ];
+    }
+
+    /**
+     * Append a collectible slug once (e.g. digital_passport, heritage_key_1). Does not save.
+     */
+    public function awardCollectible(string $slug): void
+    {
+        $collectibles = $this->collectibles_earned ?? [];
+
+        if (! \in_array($slug, $collectibles)) {
+            $collectibles[] = $slug;
+            $this->collectibles_earned = $collectibles;
+        }
+    }
 
     public function user(): BelongsTo
     {
