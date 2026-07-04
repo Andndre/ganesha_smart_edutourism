@@ -51,6 +51,9 @@ class DatabaseSeeder extends Seeder
         if (app()->environment('local')) {
             $this->seedDummyData();
         }
+
+        // Real curated content — needed in production for the Rector demo
+        $this->call(Route1HeritageQuestSeeder::class);
     }
 
     /**

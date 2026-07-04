@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Spatie\Translatable\HasTranslations;
 
-#[Fillable(['tour_route_id', 'locationable_type', 'locationable_id', 'order', 'estimated_visit_minutes', 'storytelling_content'])]
+#[Fillable(['tour_route_id', 'locationable_type', 'locationable_id', 'order', 'estimated_visit_minutes', 'storytelling_content', 'qr_code_token'])]
 class TourRoutePoint extends Model
 {
     use HasFactory;
@@ -48,5 +49,15 @@ class TourRoutePoint extends Model
     public function locationable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Gamified missions attached to this point, in play order.
+     *
+     * @return HasMany<RouteMission, TourRoutePoint>
+     */
+    public function missions(): HasMany
+    {
+        return $this->hasMany(RouteMission::class)->orderBy('order');
     }
 }

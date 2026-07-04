@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CulturalObject;
 use App\Models\CulturalObjectQuiz;
 use App\Models\QuizAnswer;
+use App\Models\RouteMission;
 use App\Models\RouteSession;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
@@ -138,7 +139,7 @@ class SmartEdutourismController extends Controller
             session(['guest_token' => $guestToken, 'guest_name' => __('Wisatawan')]);
         }
 
-        $sessionQuery = RouteSession::with(['tourRoute', 'currentPoint.locationable.mapLocation', 'tourRoute.routePoints.locationable.mapLocation', 'quizAnswers.quiz'])
+        $sessionQuery = RouteSession::with(['tourRoute', 'currentPoint.locationable.mapLocation', 'currentPoint.missions', 'tourRoute.routePoints.locationable.mapLocation', 'quizAnswers.quiz'])
             ->whereIn('status', ['active', 'completed'])
             ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
             ->orderBy('updated_at', 'desc');
@@ -162,7 +163,7 @@ class SmartEdutourismController extends Controller
 
     public function arrive(Request $request, $pointId)
     {
-        $point = TourRoutePoint::with('locationable')->findOrFail($pointId);
+        $point = TourRoutePoint::with(['locationable', 'missions'])->findOrFail($pointId);
         /** @var Collection $quizzes */
         $quizzes = $point->locationable instanceof CulturalObject
             ? $point->locationable->quizzes
@@ -178,6 +179,17 @@ class SmartEdutourismController extends Controller
         ])->values();
 
         $sessionStatus = 'active';
+
+        // Points with missions: unlock only — advancement happens in completeMission().
+        if ($point->missions->isNotEmpty()) {
+            return response()->json([
+                'success' => true,
+                'point' => $point,
+                'quizzes' => collect(),
+                'has_missions' => true,
+                'session_status' => $sessionStatus,
+            ]);
+        }
 
         if ($quizzes->isNotEmpty()) {
             return response()->json([
@@ -207,17 +219,7 @@ class SmartEdutourismController extends Controller
         }
 
         $session->points_completed += 1;
-
-        $route = TourRoute::with('routePoints')->find($session->tour_route_id);
-        $points = $route->routePoints;
-        $currentIndex = $points->search(fn ($p) => $p->id == $session->current_point_id);
-
-        if ($currentIndex !== false && isset($points[$currentIndex + 1])) {
-            $session->current_point_id = $points[$currentIndex + 1]->id;
-        } else {
-            $session->status = 'completed';
-            $session->current_point_id = null;
-        }
+        $this->advanceToNextPoint($session);
 
         $session->save();
         $sessionStatus = $session->status;
@@ -247,6 +249,195 @@ class SmartEdutourismController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * Advance the session to the next route point, or mark it completed
+     * when the current point is the last one. Does not save.
+     */
+    private function advanceToNextPoint(RouteSession $session): void
+    {
+        $route = TourRoute::with('routePoints')->find($session->tour_route_id);
+        $points = $route->routePoints;
+        $currentIndex = $points->search(fn ($p) => $p->id == $session->current_point_id);
+
+        if ($currentIndex !== false && isset($points[$currentIndex + 1])) {
+            $session->current_point_id = $points[$currentIndex + 1]->id;
+        } else {
+            $session->status = 'completed';
+            $session->current_point_id = null;
+            $this->finalizeSession($session, $route);
+        }
+    }
+
+    /**
+     * Award the final badge when a session completes. Only 3 fixed routes exist,
+     * so this is a simple per-route match — no rules engine until a 4th route appears.
+     * Route 2/3 predicates are added in Phase 2 (Day 4).
+     */
+    private function finalizeSession(RouteSession $session, TourRoute $route): void
+    {
+        $routeName = translateValue($route->name, 'en');
+
+        if (str_contains($routeName, 'Penglipuran Heritage Quest')) {
+            // Final team decision: relative rule — badge goes to the highest
+            // completed score recorded so far for this route (ties win).
+            $bestSoFar = RouteSession::where('tour_route_id', $session->tour_route_id)
+                ->where('status', 'completed')
+                ->where('id', '!=', $session->id)
+                ->max('total_score') ?? 0;
+
+            if ($session->total_score >= $bestSoFar) {
+                $session->badge_awarded = 'Penglipuran Heritage Explorer';
+            }
+        }
+    }
+
+    /**
+     * "Digital Passport" collectible (Route 1 Mission 1): awarded when >= 80% of the
+     * first point's quizzes are answered correctly. Does not block progression
+     * (existing behavior advances regardless of correctness).
+     */
+    private function maybeAwardFirstPointCollectible(RouteSession $session, TourRoutePoint $point): void
+    {
+        $firstPoint = TourRoutePoint::where('tour_route_id', $session->tour_route_id)
+            ->orderBy('order')
+            ->first();
+
+        if (! $firstPoint || $firstPoint->id !== $point->id || ! $point->locationable instanceof CulturalObject) {
+            return;
+        }
+
+        $quizIds = $point->locationable->quizzes->pluck('id');
+
+        if ($quizIds->isEmpty()) {
+            return;
+        }
+
+        $correct = QuizAnswer::where('route_session_id', $session->id)
+            ->whereIn('cultural_object_quiz_id', $quizIds)
+            ->where('is_correct', true)
+            ->count();
+
+        if ($correct >= (int) ceil(0.8 * $quizIds->count())) {
+            $session->awardCollectible('digital_passport');
+        }
+    }
+
+    public function completeMission(Request $request, $missionId)
+    {
+        $request->validate([
+            'earned' => 'required|integer|min:0',
+        ]);
+
+        $mission = RouteMission::findOrFail($missionId);
+
+        $userId = auth()->id();
+        $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
+
+        if (! $userId && $guestToken && ! session()->has('guest_token')) {
+            session(['guest_token' => $guestToken, 'guest_name' => __('Wisatawan')]);
+        }
+
+        $session = $this->findActiveSession($userId, $guestToken);
+
+        if (! $session) {
+            return response()->json(['success' => false, 'message' => __('Sesi tidak ditemukan')], 404);
+        }
+
+        if ($session->current_point_id != $mission->tour_route_point_id) {
+            return response()->json(['success' => false, 'message' => __('Misi ini bukan bagian dari titik saat ini.')], 422);
+        }
+
+        $completed = $session->missions_completed ?? [];
+        $alreadyCompleted = \in_array($mission->id, $completed);
+
+        if (! $alreadyCompleted) {
+            // Score is client-reported (same trust level as GPS proximity), clamped to the mission cap.
+            $session->total_score += min((int) $request->integer('earned'), $mission->points);
+            $completed[] = $mission->id;
+            $session->missions_completed = $completed;
+        }
+
+        $point = TourRoutePoint::with(['locationable', 'missions'])->find($mission->tour_route_point_id);
+        $isLastMission = $point->missions->last()?->id === $mission->id;
+
+        if ($isLastMission) {
+            $session->points_completed += 1;
+            $this->recordVisit($userId, $point, $session);
+            $this->advanceToNextPoint($session);
+        }
+
+        $session->save();
+
+        return response()->json([
+            'success' => true,
+            'is_last_mission' => $isLastMission,
+            'session' => $session,
+            'session_status' => $session->status,
+        ]);
+    }
+
+    /**
+     * Resolve a scanned QR payload to the active session's current point.
+     * Accepts raw tokens (EDU-...), AR marker ids (MARKER_...), or full URLs
+     * (/ar/scan/{id}, ?marker=, — same formats ar-scanner.js understands),
+     * so one physical QR sticker serves both AR scan and route unlock.
+     */
+    public function resolveQr(Request $request)
+    {
+        $request->validate(['code' => 'required|string|max:2048']);
+
+        $userId = auth()->id();
+        $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
+        $session = $this->findActiveSession($userId, $guestToken);
+
+        if (! $session || ! $session->current_point_id) {
+            return response()->json(['success' => false, 'message' => __('Tidak ada rute aktif.')], 404);
+        }
+
+        $code = $this->extractQrIdentifier($request->string('code')->toString());
+
+        $points = TourRoutePoint::with('locationable.mapLocation.arModel')
+            ->where('tour_route_id', $session->tour_route_id)
+            ->orderBy('order')
+            ->get();
+
+        $matched = $points->first(function ($point) use ($code) {
+            $markerFromAr = $point->locationable?->mapLocation?->arModel?->ar_marker_id;
+
+            return ($point->qr_code_token && strcasecmp($point->qr_code_token, $code) === 0)
+                || ($markerFromAr && strcasecmp($markerFromAr, $code) === 0);
+        });
+
+        if (! $matched) {
+            return response()->json(['success' => false, 'message' => __('QR ini tidak dikenali sebagai titik rute.')], 422);
+        }
+
+        if ($matched->id !== $session->current_point_id) {
+            return response()->json(['success' => false, 'message' => __('QR valid, tapi bukan titik tujuanmu saat ini. Selesaikan titik saat ini dulu.')], 422);
+        }
+
+        return response()->json(['success' => true, 'point_id' => $matched->id]);
+    }
+
+    private function extractQrIdentifier(string $raw): string
+    {
+        $raw = trim($raw);
+
+        if (preg_match('/[?&]marker=([^&#]+)/', $raw, $m)) {
+            return urldecode($m[1]);
+        }
+
+        if (preg_match('~/ar/scan/([^/?#]+)~', $raw, $m)) {
+            return urldecode($m[1]);
+        }
+
+        if (preg_match('~/edutourism/qr/([^/?#]+)~', $raw, $m)) {
+            return urldecode($m[1]);
+        }
+
+        return $raw;
     }
 
     private function recordVisit(?int $userId, TourRoutePoint $point, RouteSession $session): void
@@ -322,21 +513,11 @@ class SmartEdutourismController extends Controller
             $currentPoint = TourRoutePoint::with('locationable')->find($session->current_point_id);
             if ($currentPoint) {
                 $this->recordVisit($userId, $currentPoint, $session);
+                $this->maybeAwardFirstPointCollectible($session, $currentPoint);
             }
 
             // Move to next point regardless of whether the answer was correct
-            $route = TourRoute::with('routePoints')->find($session->tour_route_id);
-            $points = $route->routePoints;
-            $currentIndex = $points->search(function ($p) use ($session) {
-                return $p->id === $session->current_point_id;
-            });
-
-            if ($currentIndex !== false && isset($points[$currentIndex + 1])) {
-                $session->current_point_id = $points[$currentIndex + 1]->id;
-            } else {
-                $session->status = 'completed';
-                $session->current_point_id = null;
-            }
+            $this->advanceToNextPoint($session);
         }
 
         $session->save();

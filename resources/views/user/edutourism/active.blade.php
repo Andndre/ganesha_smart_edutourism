@@ -184,6 +184,17 @@
                         class="bg-primary mt-4 w-full rounded-xl py-3 text-center text-sm font-bold text-white opacity-50 shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed">
                         {{ __('Mendekati Lokasi...') }}
                     </button>
+
+                    <button type="button" onclick="openQrScanner()"
+                        class="text-primary border-primary/30 mt-2 flex w-full items-center justify-center gap-2 rounded-xl border-2 bg-white py-3 text-center text-sm font-bold transition-transform active:scale-95">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M13.5 13.5h2.25v2.25H13.5v-2.25zM18.75 13.5H21v2.25h-2.25V13.5zM13.5 18.75h2.25V21H13.5v-2.25zM18.75 18.75H21V21h-2.25v-2.25z" />
+                        </svg>
+                        {{ __('Scan QR di Lokasi') }}
+                    </button>
                 </div>
             </div>
         @else
@@ -300,6 +311,31 @@
                         <span class="block text-4xl font-black {{ $accentClasses['score_text'] }} lg:text-5xl">{{ $activeSession->total_score }}</span>
                         <span class="text-xs font-bold uppercase tracking-wider {{ $accentClasses['score_label'] }}">{{ __('Total Poin') }}</span>
                     </div>
+
+                    @if ($activeSession->badge_awarded)
+                        <div class="quiz-success-icon mb-6 rounded-2xl border border-[#D4AF37]/40 bg-gradient-to-b from-amber-50 to-white p-5 shadow-sm">
+                            <div class="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-[#D4AF37]/15 text-[#B8962E]">
+                                <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M5 3h14v2h2v4a4 4 0 01-3.42 3.96A6.01 6.01 0 0113 16.92V19h3v2H8v-2h3v-2.08a6.01 6.01 0 01-4.58-3.96A4 4 0 013 9V5h2V3zm0 4v2a2 2 0 001.18 1.82A8.2 8.2 0 016 9V7H5zm14 0h-1v2c0 .61-.06 1.22-.18 1.82A2 2 0 0019 9V7z" />
+                                </svg>
+                            </div>
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-[#B8962E]">{{ __('Predikat Diraih') }}</p>
+                            <p class="font-display text-charcoal mt-1 text-xl font-black">{{ $activeSession->badge_awarded }}</p>
+                        </div>
+                    @endif
+
+                    @if (!empty($activeSession->collectibles_earned))
+                        <div class="mb-6 text-left">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">{{ __('Koleksi Didapat') }}</h3>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                @foreach ($activeSession->collectibles_earned as $collectible)
+                                    <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
+                                        🎖️ {{ $collectible === 'digital_passport' ? __('Digital Passport') : \Illuminate\Support\Str::of($collectible)->replace('_', ' ')->title() }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                     @if ($activeSession->quizAnswers->isNotEmpty())
                         <div class="mb-6 space-y-3 text-left">
                             <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">{{ __('Ringkasan Kuis') }}</h3>
@@ -328,6 +364,84 @@
         @endif
     </div>
 
+    @php($pointMissions = $activeSession->currentPoint?->missions ?? collect())
+    @php($completedMissionIds = $activeSession->missions_completed ?? [])
+
+    <!-- Mission Runner Overlay (gamified missions per route point) -->
+    @if ($pointMissions->isNotEmpty())
+        <div x-data="missionRunner(@js($pointMissions->map(fn($m) => ['id' => $m->id])->values()), @js($completedMissionIds))" x-show="open" x-cloak
+            @open-mission-runner.window="openRunner()" @mission-complete="onMissionComplete($event.detail)"
+            class="fixed inset-0 z-[60] flex flex-col bg-[#FAF9F6]">
+            <div class="flex items-center gap-3 border-b border-gray-100 bg-white p-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
+                <button type="button" @click="open = false"
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <div class="min-w-0 flex-1">
+                    <h2 class="text-charcoal truncate font-bold leading-tight">
+                        {{ $activeSession->currentPoint->locationable->name ?? __('Titik Perhentian') }}</h2>
+                    <p class="text-xs text-gray-500" x-show="stage === 'mission'">
+                        {{ __('Misi') }} <span x-text="index + 1"></span>/<span x-text="missions.length"></span>
+                    </p>
+                </div>
+                <div class="h-1.5 w-16 overflow-hidden rounded-full bg-gray-100">
+                    <div class="bg-primary h-full rounded-full transition-all"
+                        :style="`width: ${stage === 'intro' ? 0 : Math.round(index / missions.length * 100)}%`"></div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-5 pb-10">
+                <template x-if="stage === 'intro'">
+                    <div class="mx-auto max-w-md space-y-5">
+                        @if ($activeSession->currentPoint->storytelling_content)
+                            <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">
+                                    {{ __('Tentang Titik Ini') }}</h3>
+                                <p class="font-display text-charcoal mt-2 text-base leading-relaxed">
+                                    {{ $activeSession->currentPoint->storytelling_content }}</p>
+                            </div>
+                        @endif
+                        <button type="button" @click="stage = 'mission'"
+                            class="bg-primary w-full rounded-xl py-4 text-center text-base font-bold text-white shadow-md transition-transform active:scale-95">
+                            🎯 {{ __('Mulai Misi') }} (<span x-text="missions.length"></span>)
+                        </button>
+                    </div>
+                </template>
+
+                <div x-show="stage === 'mission'" class="mx-auto max-w-md">
+                    @foreach ($pointMissions as $i => $mission)
+                        <div x-show="index === {{ $i }}" class="space-y-4" x-cloak>
+                            <div class="flex items-center justify-between">
+                                <span
+                                    class="rounded-lg border border-amber-100 bg-amber-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-amber-600">{{ __('Misi') }}
+                                    {{ $i + 1 }}</span>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">+
+                                    {{ $mission->points }} {{ __('poin maks.') }}</span>
+                            </div>
+                            <h3 class="font-display text-charcoal text-xl font-black">{{ $mission->title }}</h3>
+                            @include('user.edutourism.games.' . str_replace('_', '-', $mission->type), ['mission' => $mission])
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Modal QR Scanner (route point unlock — separate from the AR scanner, ar-scanner.js untouched) -->
+    <x-modal name="qr-scanner-modal" :onCloseAttempt="'qrScannerCloseAttempt'">
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <span
+                    class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-600">{{ __('Scan QR Titik Rute') }}</span>
+            </div>
+            <div id="qr-reader" class="overflow-hidden rounded-2xl bg-black/90 [&_video]:w-full!"></div>
+            <p id="qr-scan-status" class="min-h-5 text-center text-xs font-semibold text-gray-500">
+                {{ __('Arahkan kamera ke QR yang tertempel di lokasi.') }}</p>
+        </div>
+    </x-modal>
+
     <!-- Modal Quiz -->
     <x-modal name="quiz-modal">
         <div class="space-y-4">
@@ -345,7 +459,154 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
+        // QR route-point unlock scanner (separate from the AR scanner; ar-scanner.js untouched).
+        (function() {
+            let qrScanner = null;
+
+            function setQrStatus(text, isError = false) {
+                const el = document.getElementById('qr-scan-status');
+                if (el) {
+                    el.textContent = text;
+                    el.classList.toggle('text-red-500', isError);
+                    el.classList.toggle('text-gray-500', !isError);
+                }
+            }
+
+            function stopQrScanner() {
+                if (!qrScanner) return;
+                const scanner = qrScanner;
+                qrScanner = null;
+                scanner.stop().catch(() => {}).finally(() => scanner.clear());
+            }
+
+            window.openQrScanner = function() {
+                window.dispatchEvent(new CustomEvent('open-qr-scanner-modal'));
+                setQrStatus(@js(__('Arahkan kamera ke QR yang tertempel di lokasi.')));
+
+                setTimeout(() => {
+                    if (qrScanner || typeof Html5Qrcode === 'undefined') return;
+                    qrScanner = new Html5Qrcode('qr-reader');
+                    qrScanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 220, height: 220 } },
+                        onQrScan, () => {})
+                        .catch(() => {
+                            setQrStatus(@js(__('Tidak bisa mengakses kamera. Izinkan akses kamera lalu coba lagi.')), true);
+                            qrScanner = null;
+                        });
+                }, 350);
+            };
+
+            window.qrScannerCloseAttempt = function(proceed) {
+                stopQrScanner();
+                proceed();
+            };
+
+            function onQrScan(decodedText) {
+                if (!qrScanner) return;
+                stopQrScanner();
+                setQrStatus(@js(__('Memeriksa QR...')));
+                navigator.vibrate?.(50);
+
+                fetch('/edutourism/qr/resolve', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ code: decodedText })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.dispatchEvent(new CustomEvent('close-qr-scanner-modal'));
+                            window.triggerArrive?.(data.point_id);
+                        } else {
+                            setQrStatus(data.message || @js(__('QR tidak dikenali.')), true);
+                            setTimeout(() => window.openQrScanner(), 1800);
+                        }
+                    })
+                    .catch(() => {
+                        setQrStatus(@js(__('Gagal memeriksa QR. Coba lagi.')), true);
+                        setTimeout(() => window.openQrScanner(), 1800);
+                    });
+            }
+
+            document.addEventListener('livewire:navigating', function cleanupQr() {
+                stopQrScanner();
+                delete window.openQrScanner;
+                delete window.qrScannerCloseAttempt;
+                document.removeEventListener('livewire:navigating', cleanupQr);
+            });
+        })();
+    </script>
+    <script>
+        function missionRunner(missions, completedIds) {
+            return {
+                missions,
+                open: false,
+                stage: 'intro',
+                index: 0,
+                submitting: false,
+
+                init() {
+                    const firstIncomplete = this.missions.findIndex(m => !completedIds.includes(m.id));
+                    this.index = firstIncomplete === -1 ? 0 : firstIncomplete;
+                },
+                openRunner() {
+                    this.open = true;
+                },
+                onMissionComplete(detail) {
+                    if (this.submitting) return;
+                    this.submitting = true;
+
+                    fetch(`/edutourism/mission/${detail.id}/complete`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                earned: detail.earned
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (!data.success) throw new Error(data.message || 'failed');
+
+                            if (detail.earned > 0) {
+                                const badge = document.createElement('div');
+                                badge.className =
+                                    'quiz-score-badge fixed left-1/2 top-1/3 z-[70] text-3xl font-black text-green-600';
+                                badge.textContent = `+${detail.earned}`;
+                                document.body.appendChild(badge);
+                                setTimeout(() => badge.remove(), 1500);
+                            }
+
+                            if (data.is_last_mission) {
+                                setTimeout(() => window.location.reload(), 1200);
+                            } else {
+                                setTimeout(() => {
+                                    this.index++;
+                                    this.submitting = false;
+                                }, 800);
+                            }
+                        })
+                        .catch(() => {
+                            this.submitting = false;
+                            Swal.fire({
+                                title: "{{ __('Oops!') }}",
+                                text: "{{ __('Gagal menyimpan progres misi.') }}",
+                                icon: 'error',
+                                confirmButtonColor: '#1E5128'
+                            });
+                        });
+                },
+            };
+        }
+
         (function() {
                 let mapInstance = null;
                 let watchId = null;
@@ -530,7 +791,12 @@
                                 })
                                 .then(data => {
                                     console.log("Data received successfully:", data);
-                                    if (data.success && data.quizzes && data.quizzes.length > 0) {
+                                    if (data.success && data.has_missions) {
+                                        window.dispatchEvent(new CustomEvent('open-mission-runner'));
+                                        document.getElementById('btn-arrive').disabled = false;
+                                        document.getElementById('btn-arrive').textContent =
+                                            @js(__('Mulai Misi'));
+                                    } else if (data.success && data.quizzes && data.quizzes.length > 0) {
                                         currentQuizzes = data.quizzes;
                                         currentQuizIndex = 0;
                                         showQuiz();
