@@ -4,7 +4,7 @@
         <p class="mt-1 text-xs text-gray-500">Misi ini muncul saat turis tiba di titik ini. Titik yang punya misi tidak menampilkan alur kuis.</p>
     </div>
 
-    <div class="max-h-[55vh] space-y-6 overflow-y-auto p-1" id="missions-list"></div>
+    <div class="flex-1 min-h-[50vh] md:min-h-0 space-y-6 overflow-y-auto p-1" id="missions-list"></div>
 
     <x-slot:footer>
         <div class="space-y-3">
