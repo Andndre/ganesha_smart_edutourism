@@ -352,6 +352,9 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
               ${bilingualInput('mc-right', data.right || {en:'',id:''}, 'Kanan (jawaban)')}
               <div class="flex items-center gap-2 mt-1">
                 <input type="text" class="mc-icon w-16 rounded border border-gray-200 px-2 py-1 text-sm" placeholder="🚪" value="${data.icon || ''}" oninput="markMissionDirty()">
+                <input type="hidden" class="mc-image" value="${data.image || ''}">
+                ${data.image ? `<img src="${data.image}" alt="" class="mc-image-preview h-8 w-8 rounded object-cover border border-gray-200">` : ''}
+                <input type="file" accept="image/*" class="text-xs" onchange="uploadMissionAsset(this, '.mc-image')">
                 <button type="button" onclick="this.closest('.mc-row').remove(); markMissionDirty()" class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors ml-auto flex items-center justify-center">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>
@@ -382,6 +385,7 @@ window.MISSION_CONFIG_READERS['matching'] = function (c) {
         out.pairs = rows.map(r => {
             const pair = { left: readBilingual(r, 'mc-left'), right: readBilingual(r, 'mc-right') };
             const icon = r.querySelector('.mc-icon').value; if (icon) pair.icon = icon;
+            const image = r.querySelector('.mc-image').value; if (image) pair.image = image;
             return pair;
         });
     }
