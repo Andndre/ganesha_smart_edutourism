@@ -11,12 +11,13 @@
     const PENGLIPURAN_ZOOM = {{ config('services.penglipuran.zoom') }};
 
     const locations = @json($locations);
-    let selectedPoints = []; // items: { id, name, category, latitude, longitude, locationable_type, locationable_id, estimated_visit_minutes, storytelling_content }
+    let selectedPoints = []; // items: { id (MapLocation id), point_id (TourRoutePoint DB id, nullable), name, category, latitude, longitude, locationable_type, locationable_id, estimated_visit_minutes, storytelling_content }
     
     @if(isset($isEdit) && $isEdit)
         // Initial points serialized from route points relation
         const initialPointsData = {!! json_encode($route->routePoints->sortBy('order')->map(function ($point) {
             return [
+                'id' => $point->id,
                 'locationable_type' => $point->locationable_type,
                 'locationable_id' => $point->locationable_id,
                 'estimated_visit_minutes' => $point->estimated_visit_minutes,
@@ -25,12 +26,16 @@
         })->values()) !!};
 
         // Populate selectedPoints based on initial points from DB matched against local locations
+        // Note: `id` on selectedPoints entries is the MapLocation id (used throughout this
+        // file for marker matching); the TourRoutePoint DB id is carried separately as
+        // `point_id` so it can be round-tripped on save without colliding with that.
         function initSelectedPoints() {
             initialPointsData.forEach(p => {
                 const loc = locations.find(l => l.locationable_type === p.locationable_type && l.locationable_id === p.locationable_id);
                 if (loc) {
                     selectedPoints.push({
                         id: loc.id,
+                        point_id: p.id,
                         name: loc.name,
                         category: loc.category,
                         latitude: loc.latitude,
@@ -184,6 +189,7 @@
         // Add to selected list
         selectedPoints.push({
             id: loc.id,
+            point_id: null,
             name: loc.name,
             category: loc.category,
             latitude: loc.latitude,
@@ -349,6 +355,7 @@
                         </div>
                     </div>
                     
+                    <input type="hidden" name="points[${index}][id]" value="${point.point_id || ''}">
                     <input type="hidden" name="points[${index}][locationable_type]" value="${point.locationable_type}">
                     <input type="hidden" name="points[${index}][locationable_id]" value="${point.locationable_id}">
                     <input type="hidden" name="points[${index}][estimated_visit_minutes]" value="${point.estimated_visit_minutes}">
