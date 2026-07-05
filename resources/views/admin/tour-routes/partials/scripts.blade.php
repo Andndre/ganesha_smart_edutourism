@@ -308,6 +308,16 @@
             // point's missions. `point.missions` is the source of truth; missions.blade.php's
             // closeMissionModal() writes edits back into it and calls updateBuilder() again.
             window.missionState[index] = point.missions || [];
+            // Seed the hidden missions input from the point's own data on every redraw,
+            // so a fresh render is never blank — it always reflects whatever
+            // point.missions currently holds (closeMissionModal() in missions.blade.php
+            // writes into point.missions before calling updateBuilder(), so this never
+            // stomps a just-saved edit with an empty value).
+            const missionsJson = JSON.stringify(point.missions || [])
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
             let storytellingEn = '';
             let storytellingId = '';
             if (point.storytelling_content) {
@@ -378,7 +388,7 @@
                     <input type="hidden" id="hidden-story-en-${index}" name="points[${index}][storytelling_content][en]" value="${storytellingEn}">
                     <input type="hidden" id="hidden-story-id-${index}" name="points[${index}][storytelling_content][id]" value="${storytellingId}">
 
-                    <input type="hidden" id="missions-input-${index}" name="points[${index}][missions]" value="">
+                    <input type="hidden" id="missions-input-${index}" name="points[${index}][missions]" value="${missionsJson}">
                     <button type="button" onclick="openMissionModal(${index})"
                         class="border-primary text-primary hover:bg-primary/5 mt-2 w-full rounded-xl border-2 py-2 text-xs font-semibold">
                         Kelola Misi (<span>${(point.missions || []).length}</span>)
