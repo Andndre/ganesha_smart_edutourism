@@ -602,4 +602,110 @@ class RouteMissionAuthoringTest extends TestCase
         Storage::disk('public')
             ->assertExists(str_replace('/storage/', '', $res['url']));
     }
+
+    public function test_decision_mission_config_round_trips_with_images_and_explanations(): void
+    {
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $json = json_encode([[
+            'type' => 'decision',
+            'title' => ['en' => 'Make a Choice', 'id' => 'Buat Pilihan'],
+            'points' => 120,
+            'config' => [
+                'scenarios' => [[
+                    'text' => ['en' => 'What to do?', 'id' => 'Apa yang dilakukan?'],
+                    'image' => '/storage/mission_assets/before.jpg',
+                    'image_after' => '/storage/mission_assets/after.jpg',
+                    'options' => [
+                        [
+                            'text' => ['en' => 'Option A', 'id' => 'Pilihan A'],
+                            'correct' => true,
+                            'explanation' => ['en' => 'Exp A', 'id' => 'Penjelasan A'],
+                        ],
+                        [
+                            'text' => ['en' => 'Option B', 'id' => 'Pilihan B'],
+                            'correct' => false,
+                        ],
+                    ],
+                ]],
+            ],
+        ]]);
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [['id' => $point->id, 'locationable_type' => $obj->getMorphClass(), 'locationable_id' => $obj->id, 'missions' => $json]],
+        ])->assertRedirect();
+
+        $mission = RouteMission::where('tour_route_point_id', $point->id)->firstOrFail();
+        $this->assertEquals('decision', $mission->type);
+        $this->assertEquals('What to do?', $mission->config['scenarios'][0]['text']['en']);
+        $this->assertEquals('/storage/mission_assets/before.jpg', $mission->config['scenarios'][0]['image']);
+        $this->assertEquals('/storage/mission_assets/after.jpg', $mission->config['scenarios'][0]['image_after']);
+        $this->assertTrue($mission->config['scenarios'][0]['options'][0]['correct']);
+        $this->assertEquals('Exp A', $mission->config['scenarios'][0]['options'][0]['explanation']['en']);
+        $this->assertFalse($mission->config['scenarios'][0]['options'][1]['correct']);
+        $this->assertArrayNotHasKey('explanation', $mission->config['scenarios'][0]['options'][1]);
+    }
+
+    public function test_decision_mission_reader_does_not_add_optional_keys_when_originally_absent(): void
+    {
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $originalConfig = [
+            'scenarios' => [[
+                'text' => ['en' => 'No image scenario', 'id' => 'Skenario tanpa gambar'],
+                'options' => [
+                    [
+                        'text' => ['en' => 'Opt 1', 'id' => 'Opsi 1'],
+                        'correct' => true,
+                    ],
+                ],
+            ]],
+        ];
+
+        $existing = RouteMission::create([
+            'tour_route_point_id' => $point->id,
+            'type' => 'decision',
+            'title' => ['en' => 'No Optionals Decision', 'id' => 'Keputusan Tanpa Opsional'],
+            'points' => 50,
+            'config' => $originalConfig,
+            'order' => 1,
+        ]);
+
+        $this->assertArrayNotHasKey('image', $existing->config['scenarios'][0]);
+        $this->assertArrayNotHasKey('image_after', $existing->config['scenarios'][0]);
+        $this->assertArrayNotHasKey('explanation', $existing->config['scenarios'][0]['options'][0]);
+
+        $reconstructed = [
+            'scenarios' => [[
+                'text' => ['en' => 'No image scenario', 'id' => 'Skenario tanpa gambar'],
+                'options' => [
+                    [
+                        'text' => ['en' => 'Opt 1', 'id' => 'Opsi 1'],
+                        'correct' => true,
+                    ],
+                ],
+            ]],
+        ];
+
+        $missionsJson = json_encode([[
+            'id' => $existing->id,
+            'type' => 'decision',
+            'title' => ['en' => 'No Optionals Decision', 'id' => 'Keputusan Tanpa Opsional'],
+            'points' => 50,
+            'config' => $reconstructed,
+        ]]);
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [['id' => $point->id, 'locationable_type' => $obj->getMorphClass(), 'locationable_id' => $obj->id, 'missions' => $missionsJson]],
+        ])->assertRedirect();
+
+        $reloaded = RouteMission::find($existing->id);
+        $this->assertArrayNotHasKey('image', $reloaded->config['scenarios'][0]);
+        $this->assertArrayNotHasKey('image_after', $reloaded->config['scenarios'][0]);
+        $this->assertArrayNotHasKey('explanation', $reloaded->config['scenarios'][0]['options'][0]);
+    }
 }
