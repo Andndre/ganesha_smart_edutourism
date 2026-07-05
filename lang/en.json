@@ -517,6 +517,7 @@
     "Rute wisata berhasil dihapus.": "Tour route deleted successfully.",
     "Rute wisata berhasil diperbarui.": "Tour route updated successfully.",
     "Rute wisata berhasil ditambahkan.": "Tour route added successfully.",
+    "Rute yang sudah memiliki titik tidak dapat disimpan tanpa titik sama sekali.": "The route that already has a node cannot be saved without a point at all.",
     "SAB": "SAT",
     "SEL": "TUE",
     "SEN": "MON",
