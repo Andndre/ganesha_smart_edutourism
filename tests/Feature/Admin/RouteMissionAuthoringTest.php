@@ -204,6 +204,58 @@ class RouteMissionAuthoringTest extends TestCase
         $this->assertEquals(2, $reloadedC->order);
     }
 
+    public function test_existing_mission_keeps_id_while_new_sibling_mission_gets_fresh_id(): void
+    {
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $existing = RouteMission::create([
+            'tour_route_point_id' => $point->id,
+            'type' => 'riddle',
+            'title' => ['en' => 'Existing', 'id' => 'Yang Ada'],
+            'points' => 10,
+            'config' => ['riddle' => ['en' => 'Q?', 'id' => 'Q?'], 'answers' => ['x']],
+            'order' => 1,
+        ]);
+
+        $missionsJson = json_encode([
+            [
+                'id' => $existing->id,
+                'type' => 'riddle',
+                'title' => ['en' => 'Existing', 'id' => 'Yang Ada'],
+                'points' => 10,
+                'config' => ['riddle' => ['en' => 'Q?', 'id' => 'Q?'], 'answers' => ['x']],
+            ],
+            [
+                'type' => 'sequence',
+                'title' => ['en' => 'New', 'id' => 'Baru'],
+                'points' => 20,
+                'config' => ['items' => ['a', 'b']],
+            ],
+        ]);
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'],
+            'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy',
+            'estimated_duration_minutes' => 60,
+            'distance_meters' => 500,
+            'is_active' => '1',
+            'points' => [[
+                'id' => $point->id,
+                'locationable_type' => $obj->getMorphClass(),
+                'locationable_id' => $obj->id,
+                'missions' => $missionsJson,
+            ]],
+        ])->assertRedirect();
+
+        $missions = RouteMission::where('tour_route_point_id', $point->id)->orderBy('order')->get();
+        $this->assertCount(2, $missions);
+        $this->assertTrue($missions->contains('id', $existing->id));
+        $newMission = $missions->firstWhere('id', '!=', $existing->id);
+        $this->assertNotNull($newMission);
+        $this->assertEquals('sequence', $newMission->type);
+    }
+
     public function test_mission_asset_upload_returns_public_url(): void
     {
         Storage::fake('public');
