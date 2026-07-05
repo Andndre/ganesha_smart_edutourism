@@ -15,7 +15,7 @@
     
     @if(isset($isEdit) && $isEdit)
         // Initial points serialized from route points relation
-        const initialPointsData = {!! json_encode($route->routePoints->sortBy('order')->map(function ($point) {
+        const initialPointsData = {{ Illuminate\Support\Js::from($route->routePoints->sortBy('order')->map(function ($point) {
             return [
                 'id' => $point->id,
                 'locationable_type' => $point->locationable_type,
@@ -31,7 +31,7 @@
                     'config' => $m->config,
                 ])->values(),
             ];
-        })->values()) !!};
+        })->values()) }};
 
         // Populate selectedPoints based on initial points from DB matched against local locations
         // Note: `id` on selectedPoints entries is the MapLocation id (used throughout this

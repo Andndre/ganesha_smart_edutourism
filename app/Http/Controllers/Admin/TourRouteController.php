@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\TourRouteRequest;
 use App\Models\MapLocation;
 use App\Models\TourRoute;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class TourRouteController extends Controller
@@ -113,9 +114,17 @@ class TourRouteController extends Controller
         ];
         $validated['difficulty'] = $difficultyMap[$validated['difficulty']] ?? 'easy';
 
+        $points = $request->input('points', []);
+
+        if ($route->routePoints()->exists() && empty($points)) {
+            return back()->withErrors([
+                'points' => __('Rute yang sudah memiliki titik tidak dapat disimpan tanpa titik sama sekali.'),
+            ]);
+        }
+
         $route->update($validated);
 
-        $this->syncPointsAndMissions($route, $request->input('points', []));
+        $this->syncPointsAndMissions($route, $points);
 
         return redirect()->route('admin.tour-routes')->with('success', __('Rute wisata berhasil diperbarui.'));
     }
@@ -153,40 +162,42 @@ class TourRouteController extends Controller
      */
     private function syncPointsAndMissions(TourRoute $route, array $points): void
     {
-        $keptPointIds = [];
+        DB::transaction(function () use ($route, $points) {
+            $keptPointIds = [];
 
-        foreach (array_values($points) as $index => $point) {
-            $model = $route->routePoints()->updateOrCreate(
-                ['id' => $point['id'] ?? null],
-                [
-                    'locationable_type' => $point['locationable_type'],
-                    'locationable_id' => $point['locationable_id'],
-                    'order' => $index + 1,
-                    'estimated_visit_minutes' => $point['estimated_visit_minutes'] ?? 15,
-                    'storytelling_content' => $point['storytelling_content'] ?? null,
-                ]
-            );
-            $keptPointIds[] = $model->id;
-
-            $keptMissionIds = [];
-            foreach (array_values($point['missions'] ?? []) as $mIndex => $mission) {
-                $order = $mIndex + 1;
-                $missionModel = $model->missions()->updateOrCreate(
-                    ['id' => $mission['id'] ?? null],
+            foreach (array_values($points) as $index => $point) {
+                $model = $route->routePoints()->updateOrCreate(
+                    ['id' => $point['id'] ?? null],
                     [
-                        'type' => $mission['type'],
-                        'title' => $mission['title'] ?? ['en' => '', 'id' => ''],
-                        'points' => $mission['points'] ?? 100,
-                        'time_limit_seconds' => $mission['time_limit_seconds'] ?? null,
-                        'config' => $mission['config'] ?? [],
-                        'order' => $order,
+                        'locationable_type' => $point['locationable_type'],
+                        'locationable_id' => $point['locationable_id'],
+                        'order' => $index + 1,
+                        'estimated_visit_minutes' => $point['estimated_visit_minutes'] ?? 15,
+                        'storytelling_content' => $point['storytelling_content'] ?? null,
                     ]
                 );
-                $keptMissionIds[] = $missionModel->id;
-            }
-            $model->missions()->whereNotIn('id', $keptMissionIds)->delete();
-        }
+                $keptPointIds[] = $model->id;
 
-        $route->routePoints()->whereNotIn('id', $keptPointIds)->delete();
+                $keptMissionIds = [];
+                foreach (array_values($point['missions'] ?? []) as $mIndex => $mission) {
+                    $order = $mIndex + 1;
+                    $missionModel = $model->missions()->updateOrCreate(
+                        ['id' => $mission['id'] ?? null],
+                        [
+                            'type' => $mission['type'],
+                            'title' => $mission['title'] ?? ['en' => '', 'id' => ''],
+                            'points' => $mission['points'] ?? 100,
+                            'time_limit_seconds' => $mission['time_limit_seconds'] ?? null,
+                            'config' => $mission['config'] ?? [],
+                            'order' => $order,
+                        ]
+                    );
+                    $keptMissionIds[] = $missionModel->id;
+                }
+                $model->missions()->whereNotIn('id', $keptMissionIds)->delete();
+            }
+
+            $route->routePoints()->whereNotIn('id', $keptPointIds)->delete();
+        });
     }
 }

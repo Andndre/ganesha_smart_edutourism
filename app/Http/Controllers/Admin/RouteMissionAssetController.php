@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class RouteMissionAssetController extends Controller
 {
@@ -16,6 +17,6 @@ class RouteMissionAssetController extends Controller
 
         $path = $request->file('file')->store('mission_assets', 'public');
 
-        return response()->json(['url' => '/storage/'.$path]);
+        return response()->json(['url' => Storage::disk('public')->url($path)]);
     }
 }
