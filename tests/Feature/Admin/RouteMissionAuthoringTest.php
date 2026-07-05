@@ -7,6 +7,8 @@ use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Testing\File;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class RouteMissionAuthoringTest extends TestCase
@@ -57,5 +59,21 @@ class RouteMissionAuthoringTest extends TestCase
 
         $this->assertDatabaseHas('tour_route_points', ['id' => $point->id, 'tour_route_id' => $route->id]);
         $this->assertEquals(1, TourRoutePoint::where('tour_route_id', $route->id)->count());
+    }
+
+    public function test_mission_asset_upload_returns_public_url(): void
+    {
+        Storage::fake('public');
+
+        $file = File::image('card.jpg', 200, 200);
+
+        $res = $this->actingAs($this->admin())
+            ->post('/admin/route-missions/upload-asset', ['file' => $file])
+            ->assertOk()
+            ->json();
+
+        $this->assertStringStartsWith('/storage/mission_assets/', $res['url']);
+        Storage::disk('public')
+            ->assertExists(str_replace('/storage/', '', $res['url']));
     }
 }
