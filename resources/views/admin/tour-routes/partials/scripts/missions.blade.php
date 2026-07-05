@@ -75,6 +75,14 @@ function addMissionField(mission = null) {
     const row = document.createElement('div');
     row.className = 'mission-item bg-white p-4 rounded-xl border border-gray-100 shadow-sm';
     row.dataset.missionId = m.id || '';
+    // Preserve the ORIGINAL config + type for existing missions so an unregistered
+    // reader (no game-type editor wired up yet) doesn't wipe real content to {}
+    // on close. Only set for missions seeded from window.missionState (mission !== null);
+    // brand-new missions (added via the "+" button) have nothing to preserve.
+    if (mission) {
+        row.dataset.originalType = mission.type || '';
+        row.dataset.originalConfig = JSON.stringify(mission.config || {});
+    }
     row.setAttribute('x-data', "{ locale: 'id' }");
     row.innerHTML = `
         <div class="flex items-center justify-between mb-3">
@@ -140,13 +148,26 @@ function collectMissions() {
     rows.forEach(row => {
         const type = row.querySelector('.m-type').value;
         const reader = window.MISSION_CONFIG_READERS[type];
+        // No reader registered for this type yet: fall back to whatever config this
+        // row was seeded with (if any), rather than {}, so untouched missions survive
+        // a close-and-save cycle unchanged. Only valid when the type wasn't changed
+        // in this session — if the admin switched types, the old config no longer
+        // applies to the new type, so there's nothing sane to preserve.
+        let config;
+        if (reader) {
+            config = reader(row.querySelector('.m-config'));
+        } else if (row.dataset.originalConfig && row.dataset.originalType === type) {
+            config = JSON.parse(row.dataset.originalConfig);
+        } else {
+            config = {};
+        }
         missions.push({
             id: row.dataset.missionId ? Number(row.dataset.missionId) : undefined,
             type,
             title: { id: row.querySelector('.m-title-id').value, en: row.querySelector('.m-title-en').value },
             points: Number(row.querySelector('.m-points').value) || 0,
             time_limit_seconds: row.querySelector('.m-timelimit').value ? Number(row.querySelector('.m-timelimit').value) : null,
-            config: reader ? reader(row.querySelector('.m-config')) : {},
+            config,
         });
     });
     window.missionState[currentMissionPoint] = missions;
