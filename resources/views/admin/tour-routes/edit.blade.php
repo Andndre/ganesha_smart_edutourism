@@ -70,7 +70,9 @@
 @endsection
 
 <x-map-style-modal />
+@include('admin.tour-routes.partials.mission-modal')
 
 @push('scripts')
     @include('admin.tour-routes.partials.scripts', ['isEdit' => true])
+    @include('admin.tour-routes.partials.scripts.missions')
 @endpush

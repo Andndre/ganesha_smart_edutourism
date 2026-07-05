@@ -22,6 +22,14 @@
                 'locationable_id' => $point->locationable_id,
                 'estimated_visit_minutes' => $point->estimated_visit_minutes,
                 'storytelling_content' => $point->getTranslations('storytelling_content'),
+                'missions' => $point->missions->map(fn ($m) => [
+                    'id' => $m->id,
+                    'type' => $m->type,
+                    'title' => $m->getTranslations('title'),
+                    'points' => $m->points,
+                    'time_limit_seconds' => $m->time_limit_seconds,
+                    'config' => $m->config,
+                ])->values(),
             ];
         })->values()) !!};
 
@@ -43,7 +51,8 @@
                         locationable_type: loc.locationable_type,
                         locationable_id: loc.locationable_id,
                         estimated_visit_minutes: p.estimated_visit_minutes || 15,
-                        storytelling_content: p.storytelling_content || { en: '', id: '' }
+                        storytelling_content: p.storytelling_content || { en: '', id: '' },
+                        missions: p.missions || []
                     });
                 }
             });
@@ -197,7 +206,8 @@
             locationable_type: loc.locationable_type,
             locationable_id: loc.locationable_id,
             estimated_visit_minutes: 15,
-            storytelling_content: { en: '', id: '' }
+            storytelling_content: { en: '', id: '' },
+            missions: []
         });
 
         // Close popup, rebuild markers & update layout
@@ -289,9 +299,15 @@
         }
 
         emptyState.style.display = 'none';
-        
+
         let html = '';
         selectedPoints.forEach((point, index) => {
+            // Resync missionState from the point's own data on every redraw (not just once)
+            // so that reordering/removing points — which shuffle which point sits at which
+            // array index — never leaves window.missionState[index] pointing at a different
+            // point's missions. `point.missions` is the source of truth; missions.blade.php's
+            // closeMissionModal() writes edits back into it and calls updateBuilder() again.
+            window.missionState[index] = point.missions || [];
             let storytellingEn = '';
             let storytellingId = '';
             if (point.storytelling_content) {
@@ -361,6 +377,12 @@
                     <input type="hidden" name="points[${index}][estimated_visit_minutes]" value="${point.estimated_visit_minutes}">
                     <input type="hidden" id="hidden-story-en-${index}" name="points[${index}][storytelling_content][en]" value="${storytellingEn}">
                     <input type="hidden" id="hidden-story-id-${index}" name="points[${index}][storytelling_content][id]" value="${storytellingId}">
+
+                    <input type="hidden" id="missions-input-${index}" name="points[${index}][missions]" value="">
+                    <button type="button" onclick="openMissionModal(${index})"
+                        class="border-primary text-primary hover:bg-primary/5 mt-2 w-full rounded-xl border-2 py-2 text-xs font-semibold">
+                        Kelola Misi (<span>${(point.missions || []).length}</span>)
+                    </button>
                 </div>
             `;
         });
@@ -509,4 +531,14 @@
             drawStraightLine();
         }
     }
+
+    // Ensure every point's missions hidden input is populated before submit, even for
+    // points whose "Kelola Misi" modal was never opened this session (window.missionState
+    // is already seeded per-point in updateBuilder(), so this just serializes it out).
+    document.getElementById('route-form')?.addEventListener('submit', () => {
+        selectedPoints.forEach((point, idx) => {
+            if (!window.missionState[idx]) window.missionState[idx] = point.missions || [];
+            if (typeof serializeMissions === 'function') serializeMissions(idx);
+        });
+    });
 </script>
