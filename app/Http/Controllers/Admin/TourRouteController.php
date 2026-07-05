@@ -49,7 +49,7 @@ class TourRouteController extends Controller
      */
     public function edit(int $id): View
     {
-        $route = TourRoute::with('routePoints.locationable')->findOrFail($id);
+        $route = TourRoute::with(['routePoints.locationable', 'routePoints.missions'])->findOrFail($id);
 
         $locations = MapLocation::all()->map(function ($loc) {
             return [
