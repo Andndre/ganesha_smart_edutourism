@@ -290,4 +290,45 @@ function uploadMissionAsset(fileInput, hiddenSelector) {
         })
         .catch(() => Swal.fire({ icon: 'error', title: 'Upload gagal', confirmButtonColor: '#1E5128' }));
 }
+
+// --- Task 6: sequence config editor -------------------------------------------------
+// Config shape: { prompt?:{en,id}, reveal_first?:bool, items:[{text:{en,id}}] }
+// Field audit: `prompt` is OPTIONAL — guarded below exactly like matching's `prompt`,
+// so opening/closing an existing sequence mission without edits doesn't inject an
+// empty prompt object into its config. `reveal_first` is a checkbox-backed boolean:
+// it always has a concrete value once rendered (true/false), so it's always emitted —
+// there's no meaningful "absent" state to guard away. `items[].text` is REQUIRED for
+// every item, so it's always emitted with no presence guard.
+
+window.MISSION_CONFIG_BUILDERS['sequence'] = function (c, cfg) {
+    c.innerHTML = `
+      <div class="sq-prompt mb-2">${bilingualInput('sq-prompt', cfg.prompt || {en:'',id:''}, 'Instruksi (prompt)')}</div>
+      <label class="flex items-center gap-2 text-xs mb-2"><input type="checkbox" class="sq-reveal" ${cfg.reveal_first?'checked':''} onchange="markMissionDirty()"> Sembunyikan dulu (reveal first)</label>
+      <p class="text-[10px] text-gray-400 mb-1">Urutkan item dari atas ke bawah sesuai kronologi yang BENAR.</p>
+      <div class="sq-rows space-y-2"></div>
+      <button type="button" class="sq-add mt-2 text-xs text-primary font-semibold">+ Tambah Langkah</button>`;
+    const rows = c.querySelector('.sq-rows');
+    const addRow = (data = {}) => {
+        const el = document.createElement('div');
+        el.className = 'sq-row flex items-start gap-2';
+        el.innerHTML = `<div class="flex-1">${bilingualInput('sq-text', data.text || {en:'',id:''}, 'Teks')}</div>
+          <button type="button" class="text-red-400 text-xs mt-2" onclick="this.closest('.sq-row').remove(); markMissionDirty()">hapus</button>`;
+        rows.appendChild(el); window.Alpine?.initTree(el);
+    };
+    (cfg.items || []).forEach(addRow);
+    c.querySelector('.sq-add').onclick = () => { addRow(); markMissionDirty(); };
+};
+
+window.MISSION_CONFIG_READERS['sequence'] = function (c) {
+    const out = {};
+    // Optional: only include `prompt` when it actually has content, mirroring
+    // matching's guard — otherwise a no-op open/close/save would add an empty
+    // prompt object to missions that never had one.
+    const prompt = readBilingual(c.querySelector('.sq-prompt'), 'sq-prompt'); if (prompt.id || prompt.en) out.prompt = prompt;
+    // Always present: a checkbox always has a concrete boolean value.
+    out.reveal_first = c.querySelector('.sq-reveal').checked;
+    // Always present: every item requires text.
+    out.items = [...c.querySelectorAll('.sq-row')].map(r => ({ text: readBilingual(r, 'sq-text') }));
+    return out;
+};
 </script>
