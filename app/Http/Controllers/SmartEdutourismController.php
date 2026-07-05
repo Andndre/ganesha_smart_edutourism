@@ -87,13 +87,48 @@ class SmartEdutourismController extends Controller
         return response()->json([
             'route' => $routeData,
             'points' => $points,
+            'avatar_options' => $this->avatarOptionsForRoute($route),
         ]);
+    }
+
+    /**
+     * Avatar picker shown in the route preview modal before starting (replaces the PDF's
+     * "Spin the Wheel" with a tap-picker — a RouteMission on point 1 would disable the
+     * quiz flow there, see arrive()). Purely cosmetic: score/badges never depend on it.
+     */
+    private function avatarOptionsForRoute(TourRoute $route): array
+    {
+        $routeName = translateValue($route->name, 'en');
+
+        if (str_contains($routeName, 'Cultural Adventure')) {
+            return [
+                ['key' => 'explorer', 'label' => __('Penjelajah'), 'icon' => '🧭'],
+                ['key' => 'archaeologist', 'label' => __('Arkeolog'), 'icon' => '🏺'],
+                ['key' => 'elder', 'label' => __('Tetua Desa'), 'icon' => '🧓'],
+                ['key' => 'forest_keeper', 'label' => __('Penjaga Hutan'), 'icon' => '🌲'],
+            ];
+        }
+
+        if (str_contains($routeName, 'Eco Quest')) {
+            return [
+                ['key' => 'eco_ranger', 'label' => __('Eco Ranger'), 'icon' => '🌿'],
+                ['key' => 'forest_guardian', 'label' => __('Forest Guardian'), 'icon' => '🌳'],
+                ['key' => 'bamboo_scientist', 'label' => __('Bamboo Scientist'), 'icon' => '🔬'],
+                ['key' => 'village_explorer', 'label' => __('Village Explorer'), 'icon' => '🧭'],
+            ];
+        }
+
+        return [];
     }
 
     public function start(Request $request, $id)
     {
         $route = TourRoute::with('routePoints')->findOrFail($id);
         $firstPoint = $route->routePoints->first();
+
+        $request->validate(['avatar' => 'nullable|string|max:32']);
+        $avatarKeys = collect($this->avatarOptionsForRoute($route))->pluck('key');
+        $avatar = $avatarKeys->contains($request->string('avatar')) ? $request->string('avatar')->toString() : null;
 
         $userId = auth()->id();
         $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
@@ -109,6 +144,7 @@ class SmartEdutourismController extends Controller
                 'user_id' => $userId,
                 'tour_route_id' => $route->id,
                 'current_point_id' => $firstPoint ? $firstPoint->id : null,
+                'selected_avatar' => $avatar,
                 'status' => 'active',
             ]);
         } else {
@@ -117,6 +153,7 @@ class SmartEdutourismController extends Controller
                 'guest_token' => $guestToken,
                 'tour_route_id' => $route->id,
                 'current_point_id' => $firstPoint ? $firstPoint->id : null,
+                'selected_avatar' => $avatar,
                 'status' => 'active',
             ]);
         }
@@ -273,7 +310,6 @@ class SmartEdutourismController extends Controller
     /**
      * Award the final badge when a session completes. Only 3 fixed routes exist,
      * so this is a simple per-route match — no rules engine until a 4th route appears.
-     * Route 2/3 predicates are added in Phase 2 (Day 4).
      */
     private function finalizeSession(RouteSession $session, TourRoute $route): void
     {
@@ -290,7 +326,52 @@ class SmartEdutourismController extends Controller
             if ($session->total_score >= $bestSoFar) {
                 $session->badge_awarded = 'Penglipuran Heritage Explorer';
             }
+
+            return;
         }
+
+        if (str_contains($routeName, 'Cultural Adventure')) {
+            // PDF lists 3 tiers ("Cultural Guardian" / "Tradition Master" / "Heritage
+            // Champion") without a rule to distinguish them — assumption: % of the
+            // route's max possible score (quiz + all mission points).
+            $max = $this->maxPossibleScore($route);
+            $ratio = $max > 0 ? $session->total_score / $max : 0;
+
+            $session->badge_awarded = match (true) {
+                $ratio >= 0.9 => 'Heritage Champion',
+                $ratio >= 0.7 => 'Tradition Master',
+                default => 'Cultural Guardian',
+            };
+
+            return;
+        }
+
+        if (str_contains($routeName, 'Eco Quest')) {
+            // Single predicate: PDF requires collecting "all" Eco Crystals. We seed 5
+            // real points (PDF says "enam" but only lists 5 — treated as a PDF typo).
+            $collected = $session->collectibles_earned ?? [];
+            $hasAllCrystals = collect(range(1, 5))->every(fn ($n) => \in_array("eco_crystal_{$n}", $collected));
+
+            if ($hasAllCrystals) {
+                $session->badge_awarded = 'Eco Guardian of Penglipuran';
+            }
+        }
+    }
+
+    /**
+     * Sum of every point the route to unlock everything: first point's quiz score
+     * (100 per correct answer) plus every RouteMission's point cap.
+     */
+    private function maxPossibleScore(TourRoute $route): int
+    {
+        $route->loadMissing(['routePoints.locationable', 'routePoints.missions']);
+
+        $firstPoint = $route->routePoints->first();
+        $quizCount = $firstPoint?->locationable instanceof CulturalObject
+            ? $firstPoint->locationable->quizzes->count()
+            : 0;
+
+        return $quizCount * 100 + $route->routePoints->flatMap->missions->sum('points');
     }
 
     /**
@@ -322,6 +403,53 @@ class SmartEdutourismController extends Controller
         if ($correct >= (int) ceil(0.8 * $quizIds->count())) {
             $session->awardCollectible('digital_passport');
         }
+    }
+
+    /**
+     * Route 2/3 per-point collectible ("heritage_key_N" / "eco_crystal_N"), awarded when
+     * a point completes. No-op for Route 1 (prefix stays null). Point 1 (quiz-based)
+     * keeps the same 80%-correct gate as "digital_passport"; mission-based points 2-5
+     * award unconditionally on completion, matching existing progression behavior.
+     */
+    private function awardSequentialCollectible(RouteSession $session, TourRoutePoint $point): void
+    {
+        $route = TourRoute::with('routePoints')->find($session->tour_route_id);
+        $routeName = translateValue($route->name, 'en');
+
+        $prefix = match (true) {
+            str_contains($routeName, 'Cultural Adventure') => 'heritage_key',
+            str_contains($routeName, 'Eco Quest') => 'eco_crystal',
+            default => null,
+        };
+
+        if (! $prefix) {
+            return;
+        }
+
+        $order = $route->routePoints->search(fn ($p) => $p->id === $point->id);
+
+        if ($order === false) {
+            return;
+        }
+
+        $order++;
+
+        if ($order === 1 && $point->locationable instanceof CulturalObject) {
+            $quizIds = $point->locationable->quizzes->pluck('id');
+
+            if ($quizIds->isNotEmpty()) {
+                $correct = QuizAnswer::where('route_session_id', $session->id)
+                    ->whereIn('cultural_object_quiz_id', $quizIds)
+                    ->where('is_correct', true)
+                    ->count();
+
+                if ($correct < (int) ceil(0.8 * $quizIds->count())) {
+                    return;
+                }
+            }
+        }
+
+        $session->awardCollectible("{$prefix}_{$order}");
     }
 
     public function completeMission(Request $request, $missionId)
@@ -365,6 +493,7 @@ class SmartEdutourismController extends Controller
         if ($isLastMission) {
             $session->points_completed += 1;
             $this->recordVisit($userId, $point, $session);
+            $this->awardSequentialCollectible($session, $point);
             $this->advanceToNextPoint($session);
         }
 
@@ -519,6 +648,7 @@ class SmartEdutourismController extends Controller
             if ($currentPointForQuizzes) {
                 $this->recordVisit($userId, $currentPointForQuizzes, $session);
                 $this->maybeAwardFirstPointCollectible($session, $currentPointForQuizzes);
+                $this->awardSequentialCollectible($session, $currentPointForQuizzes);
             }
 
             // Move to next point regardless of whether the answer was correct

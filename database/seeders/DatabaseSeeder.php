@@ -54,6 +54,8 @@ class DatabaseSeeder extends Seeder
 
         // Real curated content — needed in production for the Rector demo
         $this->call(Route1HeritageQuestSeeder::class);
+        $this->call(Route2CulturalAdventureSeeder::class);
+        $this->call(Route3EcoQuestSeeder::class);
     }
 
     /**
