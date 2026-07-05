@@ -188,4 +188,105 @@ function bilingualInput(cls, value = { en: '', id: '' }, label = '') {
 function readBilingual(scope, cls) {
     return { id: scope.querySelector(`.${cls}-id`)?.value || '', en: scope.querySelector(`.${cls}-en`)?.value || '' };
 }
+
+// --- Task 5: matching config editor -------------------------------------------------
+
+window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
+    const mode = cfg.mode || 'pick';
+    c.innerHTML = `
+      <label class="text-xs font-semibold text-gray-600">Mode</label>
+      <select class="mc-mode w-full rounded-lg border border-gray-200 px-2 py-1 text-sm mb-2" onchange="markMissionDirty(); window.MISSION_CONFIG_BUILDERS['matching'](this.closest('.m-config'), window.MISSION_CONFIG_READERS['matching'](this.closest('.m-config')))">
+        <option value="pick" ${mode==='pick'?'selected':''}>Pilih yang benar (pick)</option>
+        <option value="match" ${mode==='match'?'selected':''}>Pasangkan (match)</option>
+      </select>
+      <div class="mc-prompt mb-2">${bilingualInput('mc-prompt', cfg.prompt || {en:'',id:''}, 'Instruksi (prompt)')}</div>
+      <div class="flex items-center gap-3 mb-2">
+        ${mode === 'pick' ? `<label class="text-xs text-gray-600">Jumlah benar (pick_count)
+          <input type="number" min="1" class="mc-pick-count w-16 rounded border border-gray-200 px-2 py-1 text-sm ml-1" value="${cfg.pick_count ?? ''}" oninput="markMissionDirty()"></label>` : ''}
+        <label class="text-xs text-gray-600">Penalti (opsional)
+          <input type="number" min="0" class="mc-penalty w-16 rounded border border-gray-200 px-2 py-1 text-sm ml-1" value="${cfg.penalty ?? ''}" oninput="markMissionDirty()"></label>
+      </div>
+      <div class="mc-rows space-y-2"></div>
+      <button type="button" class="mc-add mt-2 text-xs text-primary font-semibold">+ Tambah ${mode==='pick'?'Kartu':'Pasangan'}</button>`;
+    const rows = c.querySelector('.mc-rows');
+    const addRow = (data = {}) => {
+        const el = document.createElement('div');
+        el.className = 'mc-row rounded-lg border border-gray-100 p-2';
+        if (mode === 'pick') {
+            el.innerHTML = `
+              ${bilingualInput('mc-label', data.label || {en:'',id:''}, 'Label')}
+              <div class="flex items-center gap-2 mt-1">
+                <input type="text" class="mc-icon w-16 rounded border border-gray-200 px-2 py-1 text-sm" placeholder="🌿" value="${data.icon || ''}" oninput="markMissionDirty()">
+                <input type="hidden" class="mc-image" value="${data.image || ''}">
+                ${data.image ? `<img src="${data.image}" alt="" class="mc-image-preview h-8 w-8 rounded object-cover border border-gray-200">` : ''}
+                <input type="file" accept="image/*" class="text-xs" onchange="uploadMissionAsset(this, '.mc-image')">
+                <label class="flex items-center gap-1 text-xs"><input type="checkbox" class="mc-correct" ${data.correct?'checked':''} onchange="markMissionDirty()"> benar</label>
+                <button type="button" class="text-red-400 text-xs" onclick="this.closest('.mc-row').remove(); markMissionDirty()">hapus</button>
+              </div>`;
+        } else {
+            el.innerHTML = `
+              ${bilingualInput('mc-left', data.left || {en:'',id:''}, 'Kiri')}
+              ${bilingualInput('mc-right', data.right || {en:'',id:''}, 'Kanan (jawaban)')}
+              <div class="flex items-center gap-2 mt-1">
+                <input type="text" class="mc-icon w-16 rounded border border-gray-200 px-2 py-1 text-sm" placeholder="🚪" value="${data.icon || ''}" oninput="markMissionDirty()">
+                <button type="button" class="text-red-400 text-xs" onclick="this.closest('.mc-row').remove(); markMissionDirty()">hapus</button>
+              </div>`;
+        }
+        rows.appendChild(el);
+        window.Alpine?.initTree(el);
+    };
+    (mode === 'pick' ? (cfg.items || []) : (cfg.pairs || [])).forEach(addRow);
+    c.querySelector('.mc-add').onclick = () => { addRow(); markMissionDirty(); };
+};
+
+window.MISSION_CONFIG_READERS['matching'] = function (c) {
+    const mode = c.querySelector('.mc-mode')?.value || 'pick';
+    const out = { mode, prompt: readBilingual(c.querySelector('.mc-prompt'), 'mc-prompt') };
+    const penalty = c.querySelector('.mc-penalty')?.value; if (penalty !== '' && penalty != null) out.penalty = Number(penalty);
+    const rows = [...c.querySelectorAll('.mc-row')];
+    if (mode === 'pick') {
+        const pickCount = c.querySelector('.mc-pick-count')?.value; if (pickCount !== '' && pickCount != null) out.pick_count = Number(pickCount);
+        out.items = rows.map(r => {
+            const item = { label: readBilingual(r, 'mc-label'), correct: r.querySelector('.mc-correct').checked };
+            const icon = r.querySelector('.mc-icon').value; if (icon) item.icon = icon;
+            const image = r.querySelector('.mc-image').value; if (image) item.image = image;
+            return item;
+        });
+    } else {
+        out.pairs = rows.map(r => {
+            const pair = { left: readBilingual(r, 'mc-left'), right: readBilingual(r, 'mc-right') };
+            const icon = r.querySelector('.mc-icon').value; if (icon) pair.icon = icon;
+            return pair;
+        });
+    }
+    return out;
+};
+
+// Shared asset uploader: uploads the picked file, stores returned URL into the sibling hidden input.
+// Scoped to the nearest `.mc-row` or `.ds-scenario` ancestor so both Task 5 (matching) and
+// Task 8 (decision scenarios) can reuse this same helper without rewriting it.
+function uploadMissionAsset(fileInput, hiddenSelector) {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('input[name="_token"]')?.value);
+    fetch('{{ route('admin.route-missions.upload-asset') }}', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(d => {
+            if (d.url) {
+                const scope = fileInput.closest('.mc-row, .ds-scenario');
+                scope.querySelector(hiddenSelector).value = d.url;
+                let preview = scope.querySelector('.mc-image-preview');
+                if (!preview) {
+                    preview = document.createElement('img');
+                    preview.className = 'mc-image-preview h-8 w-8 rounded object-cover border border-gray-200';
+                    fileInput.insertAdjacentElement('afterend', preview);
+                }
+                preview.src = d.url;
+                markMissionDirty();
+            }
+        })
+        .catch(() => Swal.fire({ icon: 'error', title: 'Upload gagal', confirmButtonColor: '#1E5128' }));
+}
 </script>
