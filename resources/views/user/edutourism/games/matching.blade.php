@@ -1,7 +1,7 @@
 {{--
     Matching game — 2 modes via config.mode:
     - "match": pair left items with right targets (tap item, then tap target).
-      config: { prompt?, pairs: [{left, right, icon?, audio?}], penalty? }
+      config: { prompt?, pairs: [{left, right, image?, audio?}], penalty? }
     - "pick": scavenger hunt with decoys — pick N correct cards out of M.
       config: { prompt?, items: [{label, icon?, image?, correct}], pick_count, penalty? }
     Scoring: match → points - penalty*mistakes (min 20% of points);
@@ -105,7 +105,7 @@
                             (selectedLeft === item.i ? 'border-primary bg-primary text-white' : 'border-gray-200 bg-white text-gray-700')"
                         :disabled="matched.includes(item.i)">
                         <template x-if="item.image">
-                            <img :src="item.image" alt="" class="mx-auto block h-12 w-12 rounded object-cover mb-1">
+                            <img :src="item.image" alt="" class="mx-auto block h-12 w-12 rounded object-cover mb-1" x-on:error="$event.target.style.display='none'">
                         </template>
                         <span x-text="item.left" :class="item.image ? 'block text-center text-xs' : ''"></span>
                     </button>
@@ -139,7 +139,7 @@
                         'border-amber-300 bg-amber-50 text-amber-700': pickState(idx) === 'missed',
                     }">
                     <template x-if="item.image">
-                        <img :src="item.image" alt="" class="mx-auto block h-12 w-12 rounded object-cover mb-1">
+                        <img :src="item.image" alt="" class="mx-auto block h-12 w-12 rounded object-cover mb-1" x-on:error="$event.target.style.display='none'">
                     </template>
                     <span x-text="item.label" :class="item.image ? 'block text-center text-xs' : ''"></span>
                 </button>

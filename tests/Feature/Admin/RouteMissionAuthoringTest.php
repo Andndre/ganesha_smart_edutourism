@@ -62,6 +62,28 @@ class RouteMissionAuthoringTest extends TestCase
         $this->assertEquals(1, TourRoutePoint::where('tour_route_id', $route->id)->count());
     }
 
+    public function test_update_with_empty_points_is_rejected_when_route_has_existing_points(): void
+    {
+        // Guards against Major #1 (CodeRabbit PR #20): a request that arrives with `points`
+        // missing/empty must not silently wipe every existing point (and cascade-delete their
+        // missions) via syncPointsAndMissions()'s whereNotIn('id', [])->delete().
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $response = $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'],
+            'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy',
+            'estimated_duration_minutes' => 60,
+            'distance_meters' => 500,
+            'is_active' => '1',
+            // 'points' intentionally omitted.
+        ]);
+
+        $response->assertSessionHasErrors('points');
+        $this->assertDatabaseHas('tour_route_points', ['id' => $point->id, 'tour_route_id' => $route->id]);
+        $this->assertEquals(1, TourRoutePoint::where('tour_route_id', $route->id)->count());
+    }
+
     public function test_missions_are_created_and_kept_stable_across_updates(): void
     {
         [$route, $point, $obj] = $this->routeWithPoint();

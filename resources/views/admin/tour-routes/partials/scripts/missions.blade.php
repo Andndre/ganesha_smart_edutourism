@@ -20,6 +20,19 @@ window.MISSION_CONFIG_READERS = window.MISSION_CONFIG_READERS || {};
 
 function markMissionDirty() { missionDirty = true; }
 
+// Escapes a config-derived string for safe interpolation into an HTML attribute
+// value (or any other markup position built via innerHTML/template literals).
+// Order matters: `&` must be escaped first, otherwise the entities inserted by
+// the later replacements would themselves get re-escaped.
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 window.openMissionModal = function (pointIdx) {
     currentMissionPoint = pointIdx;
     const list = document.getElementById('missions-list');
@@ -118,11 +131,11 @@ function addMissionField(mission = null) {
             <div>
                 <div x-show="locale==='id'">
                     <label class="mb-1 block text-xs font-semibold text-gray-600">Judul (ID)</label>
-                    <input type="text" class="m-title-id w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${(m.title?.id) || ''}" oninput="markMissionDirty()">
+                    <input type="text" class="m-title-id w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${escapeHtml(m.title?.id)}" oninput="markMissionDirty()">
                 </div>
                 <div x-show="locale==='en'">
                     <label class="mb-1 block text-xs font-semibold text-gray-600">Judul (EN)</label>
-                    <input type="text" class="m-title-en w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${(m.title?.en) || ''}" oninput="markMissionDirty()">
+                    <input type="text" class="m-title-en w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${escapeHtml(m.title?.en)}" oninput="markMissionDirty()">
                 </div>
             </div>
             <div>
@@ -198,8 +211,8 @@ function bilingualInput(cls, value = { en: '', id: '' }, label = '') {
               <span>Terjemahkan</span>
             </button>
           </span></div>` : ''}
-        <input type="text" x-show="l==='id'" class="${cls}-id w-full rounded border border-gray-200 px-2 py-1 text-sm mt-1" value="${(value?.id || '').replace(/"/g, '&quot;')}" oninput="markMissionDirty()">
-        <input type="text" x-show="l==='en'" class="${cls}-en w-full rounded border border-gray-200 px-2 py-1 text-sm mt-1" value="${(value?.en || '').replace(/"/g, '&quot;')}" oninput="markMissionDirty()">
+        <input type="text" x-show="l==='id'" class="${cls}-id w-full rounded border border-gray-200 px-2 py-1 text-sm mt-1" value="${escapeHtml(value?.id)}" oninput="markMissionDirty()">
+        <input type="text" x-show="l==='en'" class="${cls}-en w-full rounded border border-gray-200 px-2 py-1 text-sm mt-1" value="${escapeHtml(value?.en)}" oninput="markMissionDirty()">
       </div>`;
 }
 function readBilingual(scope, cls) {
@@ -338,11 +351,11 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
               <!-- Left side: Image Upload Container -->
               <div class="img-container relative w-16 h-16 shrink-0 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 hover:bg-gray-100/50 hover:border-primary/50 transition-all flex items-center justify-center overflow-hidden cursor-pointer" 
                    onclick="this.querySelector('input[type=file]').click()">
-                <input type="hidden" class="mc-image" value="${data.image || ''}">
+                <input type="hidden" class="mc-image" value="${escapeHtml(data.image)}">
                 <input type="file" accept="image/*" class="hidden" onchange="uploadMissionAsset(this, '.mc-image')">
                 <div class="img-preview-wrap w-full h-full flex items-center justify-center">
                   ${data.image ? `
-                    <img src="${data.image}" alt="" class="mc-image-preview w-full h-full object-cover">
+                    <img src="${escapeHtml(data.image)}" alt="" class="mc-image-preview w-full h-full object-cover">
                     <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] text-white font-semibold">Ganti</div>
                   ` : `
                     <div class="text-gray-400 flex flex-col items-center gap-0.5 placeholder-wrap">
@@ -373,11 +386,11 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
               <!-- Left side: Image Upload Container -->
               <div class="img-container relative w-16 h-16 shrink-0 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 hover:bg-gray-100/50 hover:border-primary/50 transition-all flex items-center justify-center overflow-hidden cursor-pointer" 
                    onclick="this.querySelector('input[type=file]').click()">
-                <input type="hidden" class="mc-image" value="${data.image || ''}">
+                <input type="hidden" class="mc-image" value="${escapeHtml(data.image)}">
                 <input type="file" accept="image/*" class="hidden" onchange="uploadMissionAsset(this, '.mc-image')">
                 <div class="img-preview-wrap w-full h-full flex items-center justify-center">
                   ${data.image ? `
-                    <img src="${data.image}" alt="" class="mc-image-preview w-full h-full object-cover">
+                    <img src="${escapeHtml(data.image)}" alt="" class="mc-image-preview w-full h-full object-cover">
                     <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] text-white font-semibold">Ganti</div>
                   ` : `
                     <div class="text-gray-400 flex flex-col items-center gap-0.5 placeholder-wrap">
@@ -444,7 +457,10 @@ function uploadMissionAsset(fileInput, hiddenSelector) {
     fileInput.disabled = true;
     
     fetch('{{ route('admin.route-missions.upload-asset') }}', { method: 'POST', body: fd })
-        .then(r => r.json())
+        .then(r => {
+            if (!r.ok) throw new Error('Upload failed');
+            return r.json();
+        })
         .then(d => {
             if (d.url) {
                 const scope = fileInput.closest('.mc-row, .ds-scenario');
@@ -456,7 +472,7 @@ function uploadMissionAsset(fileInput, hiddenSelector) {
                     const previewWrap = container.querySelector('.img-preview-wrap');
                     if (previewWrap) {
                         previewWrap.innerHTML = `
-                          <img src="${d.url}" alt="" class="mc-image-preview w-full h-full object-cover">
+                          <img src="${escapeHtml(d.url)}" alt="" class="mc-image-preview w-full h-full object-cover">
                           <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] text-white font-semibold">Ganti</div>
                         `;
                     }
@@ -561,15 +577,15 @@ window.MISSION_CONFIG_BUILDERS['decision'] = function (c, cfg) {
           <div class="flex items-center gap-4 mt-2 text-xs">
             <div class="flex items-center gap-1">
               <span class="font-semibold text-gray-500">Gambar:</span>
-              <input type="hidden" class="ds-image" value="${s.image || ''}">
+              <input type="hidden" class="ds-image" value="${escapeHtml(s.image)}">
               <input type="file" accept="image/*" class="text-xs" onchange="uploadMissionAsset(this, '.ds-image')">
-              ${s.image ? `<img class="mc-image-preview h-8 w-8 rounded object-cover border border-gray-200" src="${s.image}">` : ''}
+              ${s.image ? `<img class="mc-image-preview h-8 w-8 rounded object-cover border border-gray-200" src="${escapeHtml(s.image)}">` : ''}
             </div>
             <div class="flex items-center gap-1">
               <span class="font-semibold text-gray-500">Setelah benar:</span>
-              <input type="hidden" class="ds-image-after" value="${s.image_after || ''}">
+              <input type="hidden" class="ds-image-after" value="${escapeHtml(s.image_after)}">
               <input type="file" accept="image/*" class="text-xs" onchange="uploadMissionAsset(this, '.ds-image-after')">
-              ${s.image_after ? `<img class="mc-image-preview h-8 w-8 rounded object-cover border border-gray-200" src="${s.image_after}">` : ''}
+              ${s.image_after ? `<img class="mc-image-preview h-8 w-8 rounded object-cover border border-gray-200" src="${escapeHtml(s.image_after)}">` : ''}
             </div>
           </div>
           <div class="ds-options space-y-2 mt-3 pl-4 border-l-2 border-gray-200"></div>
