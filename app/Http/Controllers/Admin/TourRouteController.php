@@ -87,17 +87,7 @@ class TourRouteController extends Controller
 
         $route = TourRoute::create($validated);
 
-        if ($request->has('points') && \is_array($request->points)) {
-            foreach ($request->points as $index => $point) {
-                $route->routePoints()->create([
-                    'locationable_type' => $point['locationable_type'],
-                    'locationable_id' => $point['locationable_id'],
-                    'order' => $index + 1,
-                    'estimated_visit_minutes' => $point['estimated_visit_minutes'] ?? 15,
-                    'storytelling_content' => $point['storytelling_content'] ?? null,
-                ]);
-            }
-        }
+        $this->syncPointsAndMissions($route, $request->input('points', []));
 
         return redirect()->route('admin.tour-routes')->with('success', __('Rute wisata berhasil ditambahkan.'));
     }
@@ -125,19 +115,7 @@ class TourRouteController extends Controller
 
         $route->update($validated);
 
-        // Re-sync points
-        $route->routePoints()->delete();
-        if ($request->has('points') && \is_array($request->points)) {
-            foreach ($request->points as $index => $point) {
-                $route->routePoints()->create([
-                    'locationable_type' => $point['locationable_type'],
-                    'locationable_id' => $point['locationable_id'],
-                    'order' => $index + 1,
-                    'estimated_visit_minutes' => $point['estimated_visit_minutes'] ?? 15,
-                    'storytelling_content' => $point['storytelling_content'] ?? null,
-                ]);
-            }
-        }
+        $this->syncPointsAndMissions($route, $request->input('points', []));
 
         return redirect()->route('admin.tour-routes')->with('success', __('Rute wisata berhasil diperbarui.'));
     }
@@ -166,5 +144,31 @@ class TourRouteController extends Controller
         $route->delete();
 
         return redirect()->route('admin.tour-routes')->with('success', __('Rute wisata berhasil dihapus.'));
+    }
+
+    /**
+     * Sync a route's points (and, from Task 3, their missions) without delete-recreate,
+     * so point and mission IDs stay stable — route_sessions.missions_completed references
+     * mission IDs by value.
+     */
+    private function syncPointsAndMissions(TourRoute $route, array $points): void
+    {
+        $keptPointIds = [];
+
+        foreach (array_values($points) as $index => $point) {
+            $model = $route->routePoints()->updateOrCreate(
+                ['id' => $point['id'] ?? null],
+                [
+                    'locationable_type' => $point['locationable_type'],
+                    'locationable_id' => $point['locationable_id'],
+                    'order' => $index + 1,
+                    'estimated_visit_minutes' => $point['estimated_visit_minutes'] ?? 15,
+                    'storytelling_content' => $point['storytelling_content'] ?? null,
+                ]
+            );
+            $keptPointIds[] = $model->id;
+        }
+
+        $route->routePoints()->whereNotIn('id', $keptPointIds)->delete();
     }
 }

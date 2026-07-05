@@ -31,6 +31,7 @@ class TourRouteRequest extends FormRequest
             'distance_meters' => ['required', 'integer', 'min:1'],
             'is_active' => ['nullable', 'boolean'],
             'points' => ['nullable', 'array'],
+            'points.*.id' => ['nullable', 'integer'],
             'points.*.locationable_type' => ['required', 'string'],
             'points.*.locationable_id' => ['required', 'integer'],
             'points.*.estimated_visit_minutes' => ['nullable', 'integer', 'min:1'],
