@@ -22,7 +22,7 @@
             <p class="mt-1 text-xs text-gray-500">Soal-soal ini akan muncul saat turis tiba di lokasi ini.</p>
         </div>
 
-        <div class="max-h-[50vh] space-y-6 overflow-y-auto p-1" id="quizzes-list">
+        <div class="flex-1 min-h-[50vh] md:min-h-0 space-y-6 overflow-y-auto p-1" id="quizzes-list">
             <!-- Quizzes will be appended here -->
         </div>
 
