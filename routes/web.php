@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\MapManagerController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\RouteMissionAssetController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TicketingController;
 use App\Http\Controllers\Admin\TicketOfficerController;
@@ -188,6 +189,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::put('/cultural-objects/{id}', [CulturalObjectController::class, 'update'])->name('admin.cultural-objects.update');
     Route::delete('/cultural-objects/{id}', [CulturalObjectController::class, 'destroy'])->name('admin.cultural-objects.destroy');
     Route::post('/cultural-objects/upload-image', [CulturalObjectController::class, 'uploadEditorImage'])->name('admin.cultural-objects.upload-image');
+    Route::post('/route-missions/upload-asset', [RouteMissionAssetController::class, 'upload'])->name('admin.route-missions.upload-asset');
     Route::get('/cultural-objects/import-template', [CulturalObjectController::class, 'downloadImportTemplate'])->name('admin.cultural-objects.import-template');
     Route::post('/cultural-objects/import', [CulturalObjectController::class, 'importXlsx'])->name('admin.cultural-objects.import-xlsx');
 
