@@ -107,7 +107,6 @@
                         <template x-if="item.image">
                             <img :src="item.image" alt="" class="mx-auto block h-12 w-12 rounded object-cover mb-1">
                         </template>
-                        <span x-show="!item.image && item.icon" x-text="item.icon" class="mr-1"></span>
                         <span x-text="item.left" :class="item.image ? 'block text-center text-xs' : ''"></span>
                     </button>
                 </template>
@@ -140,10 +139,9 @@
                         'border-amber-300 bg-amber-50 text-amber-700': pickState(idx) === 'missed',
                     }">
                     <template x-if="item.image">
-                        <img :src="item.image" alt="" class="mx-auto block h-12 w-12 rounded object-cover">
+                        <img :src="item.image" alt="" class="mx-auto block h-12 w-12 rounded object-cover mb-1">
                     </template>
-                    <span x-show="!item.image && item.icon" x-text="item.icon" class="block text-2xl"></span>
-                    <span x-text="item.label"></span>
+                    <span x-text="item.label" :class="item.image ? 'block text-center text-xs' : ''"></span>
                 </button>
             </template>
         </div>
