@@ -404,6 +404,105 @@ class RouteMissionAuthoringTest extends TestCase
         $this->assertArrayNotHasKey('prompt', $reloaded->config, 'A no-op save must not add a prompt key that was never there.');
     }
 
+    public function test_sequence_mission_config_round_trips_with_prompt_and_reveal_first(): void
+    {
+        // Task 6: register + persist a `sequence` mission via the same PUT flow, with
+        // a prompt present and reveal_first explicitly set, and confirm every field
+        // survives creation intact.
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $json = json_encode([[
+            'type' => 'sequence',
+            'title' => ['en' => 'Order the Steps', 'id' => 'Urutkan Langkah'],
+            'points' => 100,
+            'config' => [
+                'prompt' => ['en' => 'Put these in order', 'id' => 'Urutkan ini'],
+                'reveal_first' => true,
+                'items' => [
+                    ['text' => ['en' => 'First', 'id' => 'Pertama']],
+                    ['text' => ['en' => 'Second', 'id' => 'Kedua']],
+                    ['text' => ['en' => 'Third', 'id' => 'Ketiga']],
+                ],
+            ],
+        ]]);
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [['id' => $point->id, 'locationable_type' => $obj->getMorphClass(), 'locationable_id' => $obj->id, 'missions' => $json]],
+        ])->assertRedirect();
+
+        $mission = RouteMission::where('tour_route_point_id', $point->id)->firstOrFail();
+        $this->assertEquals('sequence', $mission->type);
+        $this->assertEquals('Put these in order', $mission->config['prompt']['en']);
+        $this->assertTrue($mission->config['reveal_first']);
+        $this->assertCount(3, $mission->config['items']);
+        $this->assertEquals('First', $mission->config['items'][0]['text']['en']);
+        $this->assertEquals('Third', $mission->config['items'][2]['text']['en']);
+    }
+
+    public function test_sequence_mission_reader_does_not_add_prompt_when_originally_absent(): void
+    {
+        // Field-by-field audit for MISSION_CONFIG_READERS['sequence']: `prompt` is the
+        // only OPTIONAL field in `{ prompt?:{en,id}, reveal_first?:bool, items:[{text}] }`
+        // and must be guarded exactly like matching's `prompt` (see the sibling regression
+        // test above) so an open->close-without-editing->save on an existing sequence
+        // mission with no prompt does not silently inject `prompt: {en:'',id:''}`.
+        // `reveal_first` is a checkbox-backed boolean, always emitted with a concrete
+        // value; `items[].text` is required per item, also always emitted.
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $originalConfig = [
+            'reveal_first' => false,
+            'items' => [
+                ['text' => ['en' => 'Arrive', 'id' => 'Tiba']],
+                ['text' => ['en' => 'Enter', 'id' => 'Masuk']],
+            ],
+        ];
+
+        $existing = RouteMission::create([
+            'tour_route_point_id' => $point->id,
+            'type' => 'sequence',
+            'title' => ['en' => 'No Prompt Sequence', 'id' => 'Urutan Tanpa Prompt'],
+            'points' => 50,
+            'config' => $originalConfig,
+            'order' => 1,
+        ]);
+
+        $this->assertArrayNotHasKey('prompt', $existing->config, 'Fixture must start without a prompt key.');
+
+        // Re-submit exactly what MISSION_CONFIG_READERS['sequence'] should produce for
+        // this config after a no-op open/close: no `prompt` key, since the DOM field
+        // was empty; reveal_first and items preserved verbatim.
+        $reconstructed = [
+            'reveal_first' => false,
+            'items' => [
+                ['text' => ['en' => 'Arrive', 'id' => 'Tiba']],
+                ['text' => ['en' => 'Enter', 'id' => 'Masuk']],
+            ],
+        ];
+
+        $missionsJson = json_encode([[
+            'id' => $existing->id,
+            'type' => 'sequence',
+            'title' => ['en' => 'No Prompt Sequence', 'id' => 'Urutan Tanpa Prompt'],
+            'points' => 50,
+            'config' => $reconstructed,
+        ]]);
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [['id' => $point->id, 'locationable_type' => $obj->getMorphClass(), 'locationable_id' => $obj->id, 'missions' => $missionsJson]],
+        ])->assertRedirect();
+
+        $reloaded = RouteMission::find($existing->id);
+        $this->assertEquals($existing->id, $reloaded->id, 'Mission id must be stable across the no-op edit.');
+        $this->assertArrayNotHasKey('prompt', $reloaded->config, 'A no-op save must not add a prompt key that was never there.');
+        $this->assertFalse($reloaded->config['reveal_first']);
+        $this->assertCount(2, $reloaded->config['items']);
+    }
+
     public function test_mission_asset_upload_returns_public_url(): void
     {
         Storage::fake('public');
