@@ -47,7 +47,7 @@
             @include('admin.tour-routes.partials.selected-points')
 
             {{-- Actions --}}
-            <div class="sticky bottom-0 bg-white/95 backdrop-blur-md py-4 border-t border-gray-100 flex gap-3 z-20">
+            <div class="sticky bottom-2 bg-white/95 backdrop-blur-md px-6 py-4 border border-gray-150 rounded-2xl shadow-md flex gap-3 z-20 mt-4 mb-2">
                 <button type="submit"
                     class="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-600 active:scale-[0.98]">
                     Simpan Rute Wisata
