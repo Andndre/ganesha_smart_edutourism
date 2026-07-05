@@ -104,7 +104,7 @@ function addMissionField(mission = null) {
                 </button>
             </div>
         </div>
-        <div class="grid grid-cols-2 gap-3 mb-3">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
             <div>
                 <label class="mb-1 block text-xs font-semibold text-gray-600">Tipe Misi</label>
                 <select class="m-type w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" onchange="onMissionTypeChange(this)">
@@ -115,15 +115,15 @@ function addMissionField(mission = null) {
                 <label class="mb-1 block text-xs font-semibold text-gray-600">Poin</label>
                 <input type="number" class="m-points w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${m.points ?? 100}" oninput="markMissionDirty()">
             </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3 mb-3">
-            <div x-show="locale==='id'">
-                <label class="mb-1 block text-xs font-semibold text-gray-600">Judul (ID)</label>
-                <input type="text" class="m-title-id w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${(m.title?.id) || ''}" oninput="markMissionDirty()">
-            </div>
-            <div x-show="locale==='en'">
-                <label class="mb-1 block text-xs font-semibold text-gray-600">Judul (EN)</label>
-                <input type="text" class="m-title-en w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${(m.title?.en) || ''}" oninput="markMissionDirty()">
+            <div>
+                <div x-show="locale==='id'">
+                    <label class="mb-1 block text-xs font-semibold text-gray-600">Judul (ID)</label>
+                    <input type="text" class="m-title-id w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${(m.title?.id) || ''}" oninput="markMissionDirty()">
+                </div>
+                <div x-show="locale==='en'">
+                    <label class="mb-1 block text-xs font-semibold text-gray-600">Judul (EN)</label>
+                    <input type="text" class="m-title-en w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${(m.title?.en) || ''}" oninput="markMissionDirty()">
+                </div>
             </div>
             <div>
                 <label class="mb-1 block text-xs font-semibold text-gray-600">Batas Waktu (detik, opsional)</label>
@@ -390,8 +390,10 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
               
               <!-- Right side: Inputs -->
               <div class="flex-1 min-w-0 space-y-2">
-                ${bilingualInput('mc-left', data.left || {en:'',id:''}, 'Kiri')}
-                ${bilingualInput('mc-right', data.right || {en:'',id:''}, 'Kanan (jawaban)')}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  ${bilingualInput('mc-left', data.left || {en:'',id:''}, 'Kiri')}
+                  ${bilingualInput('mc-right', data.right || {en:'',id:''}, 'Kanan (jawaban)')}
+                </div>
                 <div class="flex justify-end">
                   <button type="button" onclick="this.closest('.mc-row').remove(); markMissionDirty()" class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center" title="Hapus">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -583,17 +585,25 @@ window.MISSION_CONFIG_BUILDERS['decision'] = function (c, cfg) {
             const oe = document.createElement('div');
             oe.className = 'ds-option rounded border border-gray-100 p-2 bg-white';
             oe.innerHTML = `
-              ${bilingualInput('ds-opt', o.text || {en:'',id:''}, 'Opsi')}
-              <div class="flex items-center justify-between mt-1.5">
-                <label class="flex items-center gap-1 text-xs font-semibold text-gray-600">
-                  <input type="checkbox" class="ds-correct" ${o.correct?'checked':''} onchange="markMissionDirty()"> Benar (correct)
-                </label>
-                <button type="button" onclick="this.closest('.ds-option').remove(); markMissionDirty()" class="inline-flex items-center gap-1 text-red-400 hover:text-red-600 text-xs font-semibold transition-colors">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                  <span>Hapus Opsi</span>
-                </button>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  ${bilingualInput('ds-opt', o.text || {en:'',id:''}, 'Opsi')}
+                  <div class="flex items-center justify-between mt-1.5">
+                    <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-600 cursor-pointer">
+                      <input type="checkbox" class="ds-correct rounded text-primary focus:ring-primary border-gray-300 w-4 h-4" ${o.correct?'checked':''} onchange="markMissionDirty()">
+                      <span>Benar (correct)</span>
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  ${bilingualInput('ds-exp', o.explanation || {en:'',id:''}, 'Penjelasan (opsional)')}
+                </div>
               </div>
-              ${bilingualInput('ds-exp', o.explanation || {en:'',id:''}, 'Penjelasan (opsional)')}`;
+              <div class="flex justify-end mt-1">
+                <button type="button" onclick="this.closest('.ds-option').remove(); markMissionDirty()" class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center" title="Hapus Opsi">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+              </div>`;
             opts.appendChild(oe); window.Alpine?.initTree(oe);
         };
         (s.options || []).forEach(addOpt);

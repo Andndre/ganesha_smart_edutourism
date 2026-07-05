@@ -1,4 +1,4 @@
-<x-modal name="missions-modal" maxWidth="2xl" desktopLayout="drawer" onCloseAttempt="missionsModalCloseAttempt">
+<x-modal name="missions-modal" maxWidth="4xl" desktopLayout="drawer" onCloseAttempt="missionsModalCloseAttempt">
     <div class="mb-4">
         <h3 class="font-display text-charcoal text-lg font-bold">Kelola Misi Gamifikasi</h3>
         <p class="mt-1 text-xs text-gray-500">Misi ini muncul saat turis tiba di titik ini. Titik yang punya misi tidak menampilkan alur kuis.</p>
