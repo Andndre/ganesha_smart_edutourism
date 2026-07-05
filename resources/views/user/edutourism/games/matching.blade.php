@@ -135,7 +135,10 @@
                         'quiz-shake border-red-400 bg-red-50 text-red-700': pickState(idx) === 'wrong',
                         'border-amber-300 bg-amber-50 text-amber-700': pickState(idx) === 'missed',
                     }">
-                    <span x-show="item.icon" x-text="item.icon" class="block text-2xl"></span>
+                    <template x-if="item.image">
+                        <img :src="item.image" alt="" class="mx-auto block h-12 w-12 rounded object-cover">
+                    </template>
+                    <span x-show="!item.image && item.icon" x-text="item.icon" class="block text-2xl"></span>
                     <span x-text="item.label"></span>
                 </button>
             </template>

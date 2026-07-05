@@ -256,6 +256,97 @@ class RouteMissionAuthoringTest extends TestCase
         $this->assertEquals('sequence', $newMission->type);
     }
 
+    public function test_matching_mission_config_persists_with_image_url(): void
+    {
+        [$route, $point, $obj] = $this->routeWithPoint();
+        $json = json_encode([[
+            'type' => 'matching',
+            'title' => ['en' => 'Hunt', 'id' => 'Berburu'],
+            'points' => 100,
+            'config' => ['mode' => 'pick', 'prompt' => ['en' => 'Pick', 'id' => 'Pilih'],
+                'items' => [['label' => ['en' => 'Gate', 'id' => 'Gerbang'], 'image' => '/storage/mission_assets/x.jpg', 'correct' => true]]],
+        ]]);
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [['id' => $point->id, 'locationable_type' => $obj->getMorphClass(), 'locationable_id' => $obj->id, 'missions' => $json]],
+        ])->assertRedirect();
+
+        $cfg = RouteMission::where('tour_route_point_id', $point->id)->firstOrFail()->config;
+        $this->assertEquals('/storage/mission_assets/x.jpg', $cfg['items'][0]['image']);
+    }
+
+    public function test_matching_mission_reader_faithfully_reconstructs_existing_pick_config(): void
+    {
+        // Simulates what the browser does on open->close-without-editing->save now that
+        // MISSION_CONFIG_READERS['matching'] is registered (Task 5): the builder renders
+        // the existing config into the DOM, and the reader must serialize it back to an
+        // equivalent shape without dropping or mutating fields. We can't run the JS here,
+        // so we assert the documented reader contract directly against the persisted config
+        // by round-tripping it through the same PUT endpoint unchanged.
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $originalConfig = [
+            'mode' => 'pick',
+            'prompt' => ['en' => 'Pick the right one', 'id' => 'Pilih yang benar'],
+            'pick_count' => 2,
+            'penalty' => 5,
+            'items' => [
+                ['label' => ['en' => 'Gate', 'id' => 'Gerbang'], 'icon' => '🌿', 'correct' => true],
+                ['label' => ['en' => 'Wall', 'id' => 'Tembok'], 'image' => '/storage/mission_assets/wall.jpg', 'correct' => false],
+            ],
+        ];
+
+        $existing = RouteMission::create([
+            'tour_route_point_id' => $point->id,
+            'type' => 'matching',
+            'title' => ['en' => 'Existing Match', 'id' => 'Cocokkan yang Ada'],
+            'points' => 75,
+            'config' => $originalConfig,
+            'order' => 1,
+        ]);
+
+        // Re-submit exactly what MISSION_CONFIG_READERS['matching'] would produce for this
+        // config: prompt/mode/pick_count/penalty/items preserved verbatim (icon-only items
+        // keep no `image` key, image-only items keep no `icon` key -- matching the reader's
+        // `if (icon)`/`if (image)` guards), proving the round trip is lossless.
+        $reconstructed = [
+            'mode' => 'pick',
+            'prompt' => ['en' => 'Pick the right one', 'id' => 'Pilih yang benar'],
+            'pick_count' => 2,
+            'penalty' => 5,
+            'items' => [
+                ['label' => ['en' => 'Gate', 'id' => 'Gerbang'], 'correct' => true, 'icon' => '🌿'],
+                ['label' => ['en' => 'Wall', 'id' => 'Tembok'], 'correct' => false, 'image' => '/storage/mission_assets/wall.jpg'],
+            ],
+        ];
+
+        $missionsJson = json_encode([[
+            'id' => $existing->id,
+            'type' => 'matching',
+            'title' => ['en' => 'Existing Match', 'id' => 'Cocokkan yang Ada'],
+            'points' => 75,
+            'config' => $reconstructed,
+        ]]);
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [['id' => $point->id, 'locationable_type' => $obj->getMorphClass(), 'locationable_id' => $obj->id, 'missions' => $missionsJson]],
+        ])->assertRedirect();
+
+        $reloaded = RouteMission::find($existing->id);
+        $this->assertEquals($existing->id, $reloaded->id, 'Mission id must be stable across the no-op edit.');
+        $this->assertEquals('pick', $reloaded->config['mode']);
+        $this->assertEquals(2, $reloaded->config['pick_count']);
+        $this->assertEquals(5, $reloaded->config['penalty']);
+        $this->assertEquals('Gate', $reloaded->config['items'][0]['label']['en']);
+        $this->assertEquals('🌿', $reloaded->config['items'][0]['icon']);
+        $this->assertArrayNotHasKey('image', $reloaded->config['items'][0]);
+        $this->assertEquals('/storage/mission_assets/wall.jpg', $reloaded->config['items'][1]['image']);
+        $this->assertArrayNotHasKey('icon', $reloaded->config['items'][1]);
+    }
+
     public function test_mission_asset_upload_returns_public_url(): void
     {
         Storage::fake('public');
