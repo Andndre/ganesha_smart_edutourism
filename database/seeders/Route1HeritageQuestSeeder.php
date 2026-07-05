@@ -173,6 +173,7 @@ class Route1HeritageQuestSeeder extends Seeder
                 'en' => 'Exploring the Cultural Heritage of Penglipuran Village — a 90-minute Digital Guided Tour with QR Code Exploration, AR Learning, and Gamification across 7 stops.',
             ],
             'difficulty' => 'easy',
+            'gamification_key' => 'heritage_quest',
             'estimated_duration_minutes' => 90,
             'distance_meters' => 1200,
             'is_active' => true,
