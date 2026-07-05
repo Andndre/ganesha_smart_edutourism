@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\CulturalObject;
+use App\Models\RouteMission;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
 use App\Models\User;
@@ -59,6 +60,51 @@ class RouteMissionAuthoringTest extends TestCase
 
         $this->assertDatabaseHas('tour_route_points', ['id' => $point->id, 'tour_route_id' => $route->id]);
         $this->assertEquals(1, TourRoutePoint::where('tour_route_id', $route->id)->count());
+    }
+
+    public function test_missions_are_created_and_kept_stable_across_updates(): void
+    {
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $missionsJson = json_encode([[
+            'type' => 'riddle',
+            'title' => ['en' => 'Riddle', 'id' => 'Teka-teki'],
+            'points' => 50,
+            'config' => ['riddle' => ['en' => 'What?', 'id' => 'Apa?'], 'answers' => ['bamboo']],
+        ]]);
+
+        $payload = function (string $json) use ($obj, $point) {
+            return [
+                'name' => ['en' => 'R', 'id' => 'R'],
+                'description' => ['en' => 'd', 'id' => 'd'],
+                'difficulty' => 'easy',
+                'estimated_duration_minutes' => 60,
+                'distance_meters' => 500,
+                'is_active' => '1',
+                'points' => [[
+                    'id' => $point->id,
+                    'locationable_type' => $obj->getMorphClass(),
+                    'locationable_id' => $obj->id,
+                    'missions' => $json,
+                ]],
+            ];
+        };
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", $payload($missionsJson))->assertRedirect();
+
+        $mission = RouteMission::where('tour_route_point_id', $point->id)->firstOrFail();
+        $this->assertEquals('riddle', $mission->type);
+        $this->assertEquals(50, $mission->points);
+        $this->assertEquals(['bamboo'], $mission->config['answers']);
+        $firstId = $mission->id;
+
+        // Re-save unchanged -> same mission id (stable).
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", $payload($missionsJson))->assertRedirect();
+        $this->assertEquals($firstId, RouteMission::where('tour_route_point_id', $point->id)->firstOrFail()->id);
+
+        // Save with empty missions -> mission removed.
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", $payload('[]'))->assertRedirect();
+        $this->assertEquals(0, RouteMission::where('tour_route_point_id', $point->id)->count());
     }
 
     public function test_mission_asset_upload_returns_public_url(): void
