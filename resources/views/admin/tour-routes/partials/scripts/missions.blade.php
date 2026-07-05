@@ -241,7 +241,8 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
 
 window.MISSION_CONFIG_READERS['matching'] = function (c) {
     const mode = c.querySelector('.mc-mode')?.value || 'pick';
-    const out = { mode, prompt: readBilingual(c.querySelector('.mc-prompt'), 'mc-prompt') };
+    const out = { mode };
+    const prompt = readBilingual(c.querySelector('.mc-prompt'), 'mc-prompt'); if (prompt.id || prompt.en) out.prompt = prompt;
     const penalty = c.querySelector('.mc-penalty')?.value; if (penalty !== '' && penalty != null) out.penalty = Number(penalty);
     const rows = [...c.querySelectorAll('.mc-row')];
     if (mode === 'pick') {

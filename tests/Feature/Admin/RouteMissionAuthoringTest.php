@@ -347,6 +347,63 @@ class RouteMissionAuthoringTest extends TestCase
         $this->assertArrayNotHasKey('icon', $reloaded->config['items'][1]);
     }
 
+    public function test_matching_mission_reader_does_not_add_prompt_when_originally_absent(): void
+    {
+        // Regression test for the bug where MISSION_CONFIG_READERS['matching'] used to do
+        // `out.prompt = readBilingual(...)` unconditionally, unlike the `if (x)`-guarded
+        // penalty/pick_count/icon/image fields in the same reader. That meant any existing
+        // matching mission saved with NO `prompt` key at all would silently gain
+        // `prompt: {en:'',id:''}` on the very first no-op save. Unlike the sibling test above
+        // (which happens to include `prompt` in both fixtures and so never exercised this),
+        // this fixture deliberately omits `prompt` entirely to prove the fix.
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $originalConfig = [
+            'mode' => 'match',
+            'pairs' => [
+                ['left' => ['en' => 'Door', 'id' => 'Pintu'], 'right' => ['en' => 'Enter', 'id' => 'Masuk']],
+            ],
+        ];
+
+        $existing = RouteMission::create([
+            'tour_route_point_id' => $point->id,
+            'type' => 'matching',
+            'title' => ['en' => 'No Prompt Match', 'id' => 'Cocokkan Tanpa Prompt'],
+            'points' => 50,
+            'config' => $originalConfig,
+            'order' => 1,
+        ]);
+
+        $this->assertArrayNotHasKey('prompt', $existing->config, 'Fixture must start without a prompt key.');
+
+        // Re-submit exactly what MISSION_CONFIG_READERS['matching'] should produce for this
+        // config after the fix: no `prompt` key, since the DOM field was empty.
+        $reconstructed = [
+            'mode' => 'match',
+            'pairs' => [
+                ['left' => ['en' => 'Door', 'id' => 'Pintu'], 'right' => ['en' => 'Enter', 'id' => 'Masuk']],
+            ],
+        ];
+
+        $missionsJson = json_encode([[
+            'id' => $existing->id,
+            'type' => 'matching',
+            'title' => ['en' => 'No Prompt Match', 'id' => 'Cocokkan Tanpa Prompt'],
+            'points' => 50,
+            'config' => $reconstructed,
+        ]]);
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [['id' => $point->id, 'locationable_type' => $obj->getMorphClass(), 'locationable_id' => $obj->id, 'missions' => $missionsJson]],
+        ])->assertRedirect();
+
+        $reloaded = RouteMission::find($existing->id);
+        $this->assertEquals($existing->id, $reloaded->id, 'Mission id must be stable across the no-op edit.');
+        $this->assertArrayNotHasKey('prompt', $reloaded->config, 'A no-op save must not add a prompt key that was never there.');
+    }
+
     public function test_mission_asset_upload_returns_public_url(): void
     {
         Storage::fake('public');
