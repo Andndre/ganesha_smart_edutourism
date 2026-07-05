@@ -33,9 +33,14 @@ window.openMissionModal = function (pointIdx) {
 window.missionsModalCloseAttempt = function (proceed) {
     if (!missionDirty) { proceed(); return; }
     Swal.fire({
-        icon: 'warning', title: 'Buang perubahan?', text: 'Perubahan misi belum disimpan ke daftar.',
-        showCancelButton: true, confirmButtonColor: '#dc2626', cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Buang', cancelButtonText: 'Batal',
+        icon: 'warning',
+        title: 'Buang perubahan?',
+        text: 'Yakin ingin membuang perubahan pada misi ini?',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Buang Perubahan',
+        cancelButtonText: 'Batal',
     }).then(r => {
         if (!r.isConfirmed) return;
         window.missionState[currentMissionPoint] = JSON.parse(missionSnapshot);
@@ -87,10 +92,16 @@ function addMissionField(mission = null) {
     row.innerHTML = `
         <div class="flex items-center justify-between mb-3">
             <span class="text-sm font-bold text-gray-700">Misi ${idx + 1}</span>
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-1.5">
                 <button @click="locale='id'" :class="locale==='id'?'bg-primary text-white':'bg-gray-100 text-gray-500'" class="px-2 py-0.5 rounded text-[10px] font-semibold" type="button">ID</button>
                 <button @click="locale='en'" :class="locale==='en'?'bg-primary text-white':'bg-gray-100 text-gray-500'" class="px-2 py-0.5 rounded text-[10px] font-semibold" type="button">EN</button>
-                <button type="button" onclick="this.closest('.mission-item').remove(); markMissionDirty();" class="p-1 text-gray-400 hover:text-red-500">✕</button>
+                <button type="button" onclick="translateMissionTitle(this)" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-secondary/20 hover:bg-secondary/30 text-charcoal flex items-center gap-0.5 transition-all">
+                    <svg class="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.05 9.5A18 18 0 016.4 9m6.1 9h7M11 21l5-10 5 10M12.75 5C11.78 10.77 8.07 15.61 3 18.13"/></svg>
+                    <span>Terjemahkan</span>
+                </button>
+                <button type="button" onclick="this.closest('.mission-item').remove(); markMissionDirty();" class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
             </div>
         </div>
         <div class="grid grid-cols-2 gap-3 mb-3">
@@ -179,8 +190,14 @@ function bilingualInput(cls, value = { en: '', id: '' }, label = '') {
     return `
       <div x-data="{ l:'id' }" class="rounded-lg border border-gray-100 p-2">
         ${label ? `<div class="flex items-center justify-between"><span class="text-[10px] font-semibold text-gray-500">${label}</span>
-          <span class="flex gap-1"><button type="button" @click="l='id'" :class="l==='id'?'bg-primary text-white':'bg-gray-100'" class="px-1.5 rounded text-[10px]">ID</button>
-          <button type="button" @click="l='en'" :class="l==='en'?'bg-primary text-white':'bg-gray-100'" class="px-1.5 rounded text-[10px]">EN</button></span></div>` : ''}
+          <span class="flex gap-1 items-center">
+            <button type="button" @click="l='id'" :class="l==='id'?'bg-primary text-white':'bg-gray-100'" class="px-1.5 py-0.5 rounded text-[10px] font-semibold">ID</button>
+            <button type="button" @click="l='en'" :class="l==='en'?'bg-primary text-white':'bg-gray-100'" class="px-1.5 py-0.5 rounded text-[10px] font-semibold">EN</button>
+            <button type="button" onclick="translateBilingualField(this, '${cls}')" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-secondary/20 hover:bg-secondary/30 text-charcoal flex items-center gap-0.5 transition-all">
+              <svg class="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.05 9.5A18 18 0 016.4 9m6.1 9h7M11 21l5-10 5 10M12.75 5C11.78 10.77 8.07 15.61 3 18.13"/></svg>
+              <span>Terjemahkan</span>
+            </button>
+          </span></div>` : ''}
         <input type="text" x-show="l==='id'" class="${cls}-id w-full rounded border border-gray-200 px-2 py-1 text-sm mt-1" value="${(value?.id || '').replace(/"/g, '&quot;')}" oninput="markMissionDirty()">
         <input type="text" x-show="l==='en'" class="${cls}-en w-full rounded border border-gray-200 px-2 py-1 text-sm mt-1" value="${(value?.en || '').replace(/"/g, '&quot;')}" oninput="markMissionDirty()">
       </div>`;
@@ -188,6 +205,110 @@ function bilingualInput(cls, value = { en: '', id: '' }, label = '') {
 function readBilingual(scope, cls) {
     return { id: scope.querySelector(`.${cls}-id`)?.value || '', en: scope.querySelector(`.${cls}-en`)?.value || '' };
 }
+
+async function translateBilingualField(btn, cls) {
+    const container = btn.closest('[x-data]');
+    if (!container) return;
+    const active = window.Alpine ? window.Alpine.$data(container).l : 'id';
+    const sourceLocale = active;
+    const targetLocale = sourceLocale === 'en' ? 'id' : 'en';
+
+    const sourceInput = container.querySelector(`.${cls}-${sourceLocale}`);
+    const targetInput = container.querySelector(`.${cls}-${targetLocale}`);
+    if (!sourceInput || !targetInput) return;
+
+    const sourceVal = sourceInput.value.trim();
+    if (!sourceVal) {
+        if (window.Swal) {
+            window.Swal.fire({
+                icon: 'info',
+                title: 'Tidak ada teks',
+                text: 'Isi dulu tab ' + sourceLocale.toUpperCase() + ' sebelum menerjemahkan.',
+                confirmButtonColor: '#1E5128'
+            });
+        }
+        return;
+    }
+
+    const labelSpan = btn.querySelector('span');
+    const originalText = labelSpan ? labelSpan.textContent : 'Terjemahkan';
+    if (labelSpan) labelSpan.textContent = 'Menerjemahkan…';
+    btn.disabled = true;
+
+    try {
+        if (window.translateText) {
+            const out = await window.translateText(sourceVal, sourceLocale, targetLocale, 'text');
+            targetInput.value = out;
+            targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+            markMissionDirty();
+        }
+    } catch (e) {
+        if (window.Swal) {
+            window.Swal.fire({
+                icon: 'error',
+                title: 'Gagal menerjemahkan',
+                text: 'Layanan terjemahan tidak merespons. Coba lagi.',
+                confirmButtonColor: '#1E5128'
+            });
+        }
+    } finally {
+        btn.disabled = false;
+        if (labelSpan) labelSpan.textContent = originalText;
+    }
+}
+
+async function translateMissionTitle(btn) {
+    const item = btn.closest('.mission-item');
+    if (!item) return;
+    const active = window.Alpine ? window.Alpine.$data(item).locale : 'id';
+    const sourceLocale = active;
+    const targetLocale = sourceLocale === 'en' ? 'id' : 'en';
+
+    const sourceInput = item.querySelector(`.m-title-${sourceLocale}`);
+    const targetInput = item.querySelector(`.m-title-${targetLocale}`);
+    if (!sourceInput || !targetInput) return;
+
+    const sourceVal = sourceInput.value.trim();
+    if (!sourceVal) {
+        if (window.Swal) {
+            window.Swal.fire({
+                icon: 'info',
+                title: 'Tidak ada teks',
+                text: 'Isi dulu tab ' + sourceLocale.toUpperCase() + ' sebelum menerjemahkan.',
+                confirmButtonColor: '#1E5128'
+            });
+        }
+        return;
+    }
+
+    const labelSpan = btn.querySelector('span');
+    const originalText = labelSpan ? labelSpan.textContent : 'Terjemahkan';
+    if (labelSpan) labelSpan.textContent = 'Menerjemahkan…';
+    btn.disabled = true;
+
+    try {
+        if (window.translateText) {
+            const out = await window.translateText(sourceVal, sourceLocale, targetLocale, 'text');
+            targetInput.value = out;
+            targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+            markMissionDirty();
+        }
+    } catch (e) {
+        if (window.Swal) {
+            window.Swal.fire({
+                icon: 'error',
+                title: 'Gagal menerjemahkan',
+                text: 'Layanan terjemahan tidak merespons. Coba lagi.',
+                confirmButtonColor: '#1E5128'
+            });
+        }
+    } finally {
+        btn.disabled = false;
+        if (labelSpan) labelSpan.textContent = originalText;
+    }
+}
+window.translateBilingualField = translateBilingualField;
+window.translateMissionTitle = translateMissionTitle;
 
 // --- Task 5: matching config editor -------------------------------------------------
 
@@ -221,7 +342,9 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
                 ${data.image ? `<img src="${data.image}" alt="" class="mc-image-preview h-8 w-8 rounded object-cover border border-gray-200">` : ''}
                 <input type="file" accept="image/*" class="text-xs" onchange="uploadMissionAsset(this, '.mc-image')">
                 <label class="flex items-center gap-1 text-xs"><input type="checkbox" class="mc-correct" ${data.correct?'checked':''} onchange="markMissionDirty()"> benar</label>
-                <button type="button" class="text-red-400 text-xs" onclick="this.closest('.mc-row').remove(); markMissionDirty()">hapus</button>
+                <button type="button" onclick="this.closest('.mc-row').remove(); markMissionDirty()" class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors ml-auto flex items-center justify-center">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
               </div>`;
         } else {
             el.innerHTML = `
@@ -229,7 +352,9 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
               ${bilingualInput('mc-right', data.right || {en:'',id:''}, 'Kanan (jawaban)')}
               <div class="flex items-center gap-2 mt-1">
                 <input type="text" class="mc-icon w-16 rounded border border-gray-200 px-2 py-1 text-sm" placeholder="🚪" value="${data.icon || ''}" oninput="markMissionDirty()">
-                <button type="button" class="text-red-400 text-xs" onclick="this.closest('.mc-row').remove(); markMissionDirty()">hapus</button>
+                <button type="button" onclick="this.closest('.mc-row').remove(); markMissionDirty()" class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors ml-auto flex items-center justify-center">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
               </div>`;
         }
         rows.appendChild(el);
@@ -386,9 +511,12 @@ window.MISSION_CONFIG_BUILDERS['decision'] = function (c, cfg) {
             </div>
           </div>
           <div class="ds-options space-y-2 mt-3 pl-4 border-l-2 border-gray-200"></div>
-          <div class="mt-2 pl-4">
+          <div class="mt-2 pl-4 flex items-center justify-between">
             <button type="button" class="ds-add-opt text-xs text-primary font-semibold">+ Opsi</button>
-            <button type="button" class="text-red-400 text-xs ml-4" onclick="this.closest('.ds-scenario').remove(); markMissionDirty()">hapus skenario</button>
+            <button type="button" onclick="this.closest('.ds-scenario').remove(); markMissionDirty()" class="inline-flex items-center gap-1 text-red-400 hover:text-red-600 text-xs font-semibold transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              <span>Hapus Skenario</span>
+            </button>
           </div>`;
         const opts = el.querySelector('.ds-options');
         const addOpt = (o = {}) => {
@@ -396,11 +524,16 @@ window.MISSION_CONFIG_BUILDERS['decision'] = function (c, cfg) {
             oe.className = 'ds-option rounded border border-gray-100 p-2 bg-white';
             oe.innerHTML = `
               ${bilingualInput('ds-opt', o.text || {en:'',id:''}, 'Opsi')}
-              <label class="flex items-center gap-1 text-xs mt-1 font-semibold text-gray-600">
-                <input type="checkbox" class="ds-correct" ${o.correct?'checked':''} onchange="markMissionDirty()"> Benar (correct)
-              </label>
-              ${bilingualInput('ds-exp', o.explanation || {en:'',id:''}, 'Penjelasan (opsional)')}
-              <button type="button" class="text-red-400 text-xs mt-1 block" onclick="this.closest('.ds-option').remove(); markMissionDirty()">hapus opsi</button>`;
+              <div class="flex items-center justify-between mt-1.5">
+                <label class="flex items-center gap-1 text-xs font-semibold text-gray-600">
+                  <input type="checkbox" class="ds-correct" ${o.correct?'checked':''} onchange="markMissionDirty()"> Benar (correct)
+                </label>
+                <button type="button" onclick="this.closest('.ds-option').remove(); markMissionDirty()" class="inline-flex items-center gap-1 text-red-400 hover:text-red-600 text-xs font-semibold transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  <span>Hapus Opsi</span>
+                </button>
+              </div>
+              ${bilingualInput('ds-exp', o.explanation || {en:'',id:''}, 'Penjelasan (opsional)')}`;
             opts.appendChild(oe); window.Alpine?.initTree(oe);
         };
         (s.options || []).forEach(addOpt);
