@@ -708,4 +708,91 @@ class RouteMissionAuthoringTest extends TestCase
         $this->assertArrayNotHasKey('image_after', $reloaded->config['scenarios'][0]);
         $this->assertArrayNotHasKey('explanation', $reloaded->config['scenarios'][0]['options'][0]);
     }
+
+    public function test_riddle_mission_config_round_trips_with_optional_fields(): void
+    {
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $json = json_encode([[
+            'type' => 'riddle',
+            'title' => ['en' => 'Solve It', 'id' => 'Pecahkan'],
+            'points' => 80,
+            'config' => [
+                'riddle' => ['en' => 'What has keys but no locks?', 'id' => 'Apa yang punya kunci tapi tidak punya gembok?'],
+                'hint' => ['en' => 'Piano', 'id' => 'Piano'],
+                'success_text' => ['en' => 'Correct!', 'id' => 'Benar!'],
+                'answers' => ['piano', 'keyboard'],
+            ],
+        ]]);
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [['id' => $point->id, 'locationable_type' => $obj->getMorphClass(), 'locationable_id' => $obj->id, 'missions' => $json]],
+        ])->assertRedirect();
+
+        $mission = RouteMission::where('tour_route_point_id', $point->id)->firstOrFail();
+        $this->assertEquals('riddle', $mission->type);
+        $this->assertEquals('Piano', $mission->config['hint']['en']);
+        $this->assertEquals('Correct!', $mission->config['success_text']['en']);
+        $this->assertEquals(['piano', 'keyboard'], $mission->config['answers']);
+    }
+
+    public function test_riddle_mission_reader_does_not_add_optional_keys_when_originally_absent(): void
+    {
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $originalConfig = [
+            'riddle' => ['en' => 'Basic riddle', 'id' => 'Teka-teki dasar'],
+            'answers' => ['bamboo'],
+        ];
+
+        $existing = RouteMission::create([
+            'tour_route_point_id' => $point->id,
+            'type' => 'riddle',
+            'title' => ['en' => 'Basic Riddle', 'id' => 'Teka-teki Dasar'],
+            'points' => 50,
+            'config' => $originalConfig,
+            'order' => 1,
+        ]);
+
+        $this->assertArrayNotHasKey('hint', $existing->config);
+        $this->assertArrayNotHasKey('success_text', $existing->config);
+
+        $reconstructed = [
+            'riddle' => ['en' => 'Basic riddle', 'id' => 'Teka-teki dasar'],
+            'answers' => ['bamboo'],
+        ];
+
+        $missionsJson = json_encode([[
+            'id' => $existing->id,
+            'type' => 'riddle',
+            'title' => ['en' => 'Basic Riddle', 'id' => 'Teka-teki Dasar'],
+            'points' => 50,
+            'config' => $reconstructed,
+        ]]);
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [['id' => $point->id, 'locationable_type' => $obj->getMorphClass(), 'locationable_id' => $obj->id, 'missions' => $missionsJson]],
+        ])->assertRedirect();
+
+        $reloaded = RouteMission::find($existing->id);
+        $this->assertArrayNotHasKey('hint', $reloaded->config);
+        $this->assertArrayNotHasKey('success_text', $reloaded->config);
+    }
+
+    public function test_storytelling_content_persists_per_point(): void
+    {
+        [$route, $point, $obj] = $this->routeWithPoint();
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [['id' => $point->id, 'locationable_type' => $obj->getMorphClass(), 'locationable_id' => $obj->id,
+                'storytelling_content' => ['en' => 'Hello', 'id' => 'Halo']]],
+        ])->assertRedirect();
+
+        $this->assertEquals('Halo', $point->fresh()->getTranslation('storytelling_content', 'id'));
+    }
 }
