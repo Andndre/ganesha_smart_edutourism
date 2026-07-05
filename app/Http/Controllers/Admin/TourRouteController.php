@@ -168,22 +168,23 @@ class TourRouteController extends Controller
             );
             $keptPointIds[] = $model->id;
 
-            $keptMissionOrders = [];
+            $keptMissionIds = [];
             foreach (array_values($point['missions'] ?? []) as $mIndex => $mission) {
                 $order = $mIndex + 1;
-                $model->missions()->updateOrCreate(
-                    ['order' => $order],
+                $missionModel = $model->missions()->updateOrCreate(
+                    ['id' => $mission['id'] ?? null],
                     [
                         'type' => $mission['type'],
                         'title' => $mission['title'] ?? ['en' => '', 'id' => ''],
                         'points' => $mission['points'] ?? 100,
                         'time_limit_seconds' => $mission['time_limit_seconds'] ?? null,
                         'config' => $mission['config'] ?? [],
+                        'order' => $order,
                     ]
                 );
-                $keptMissionOrders[] = $order;
+                $keptMissionIds[] = $missionModel->id;
             }
-            $model->missions()->whereNotIn('order', $keptMissionOrders)->delete();
+            $model->missions()->whereNotIn('id', $keptMissionIds)->delete();
         }
 
         $route->routePoints()->whereNotIn('id', $keptPointIds)->delete();

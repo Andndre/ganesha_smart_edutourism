@@ -98,13 +98,110 @@ class RouteMissionAuthoringTest extends TestCase
         $this->assertEquals(['bamboo'], $mission->config['answers']);
         $firstId = $mission->id;
 
-        // Re-save unchanged -> same mission id (stable).
-        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", $payload($missionsJson))->assertRedirect();
+        // Re-save unchanged -> same mission id (stable). Missions are now keyed by
+        // `id`, not position, so the resend must echo the real id back -- exactly
+        // what the frontend's collectMissions() does via row.dataset.missionId.
+        $missionsJsonWithId = json_encode([[
+            'id' => $firstId,
+            'type' => 'riddle',
+            'title' => ['en' => 'Riddle', 'id' => 'Teka-teki'],
+            'points' => 50,
+            'config' => ['riddle' => ['en' => 'What?', 'id' => 'Apa?'], 'answers' => ['bamboo']],
+        ]]);
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", $payload($missionsJsonWithId))->assertRedirect();
         $this->assertEquals($firstId, RouteMission::where('tour_route_point_id', $point->id)->firstOrFail()->id);
+        $this->assertEquals(1, RouteMission::where('tour_route_point_id', $point->id)->count());
 
         // Save with empty missions -> mission removed.
         $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", $payload('[]'))->assertRedirect();
         $this->assertEquals(0, RouteMission::where('tour_route_point_id', $point->id)->count());
+    }
+
+    public function test_removing_a_middle_mission_does_not_reassign_surviving_mission_ids(): void
+    {
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $missionsJson = json_encode([
+            [
+                'type' => 'riddle',
+                'title' => ['en' => 'Riddle A', 'id' => 'Teka-teki A'],
+                'points' => 10,
+                'config' => ['riddle' => ['en' => 'A?', 'id' => 'A?'], 'answers' => ['a']],
+            ],
+            [
+                'type' => 'matching',
+                'title' => ['en' => 'Matching B', 'id' => 'Mencocokkan B'],
+                'points' => 20,
+                'config' => ['pairs' => [['left' => 'b1', 'right' => 'b2']]],
+            ],
+            [
+                'type' => 'sequence',
+                'title' => ['en' => 'Sequence C', 'id' => 'Urutan C'],
+                'points' => 30,
+                'config' => ['items' => ['c1', 'c2', 'c3']],
+            ],
+        ]);
+
+        $payload = fn (string $json) => [
+            'name' => ['en' => 'R', 'id' => 'R'],
+            'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy',
+            'estimated_duration_minutes' => 60,
+            'distance_meters' => 500,
+            'is_active' => '1',
+            'points' => [[
+                'id' => $point->id,
+                'locationable_type' => $obj->getMorphClass(),
+                'locationable_id' => $obj->id,
+                'missions' => $json,
+            ]],
+        ];
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", $payload($missionsJson))->assertRedirect();
+
+        $missions = RouteMission::where('tour_route_point_id', $point->id)->orderBy('order')->get();
+        $this->assertCount(3, $missions);
+        [$missionA, $missionB, $missionC] = $missions;
+
+        // Remove the MIDDLE mission (B), sending only A and C back with their real ids.
+        $secondSaveJson = json_encode([
+            [
+                'id' => $missionA->id,
+                'type' => 'riddle',
+                'title' => ['en' => 'Riddle A', 'id' => 'Teka-teki A'],
+                'points' => 10,
+                'config' => ['riddle' => ['en' => 'A?', 'id' => 'A?'], 'answers' => ['a']],
+            ],
+            [
+                'id' => $missionC->id,
+                'type' => 'sequence',
+                'title' => ['en' => 'Sequence C', 'id' => 'Urutan C'],
+                'points' => 30,
+                'config' => ['items' => ['c1', 'c2', 'c3']],
+            ],
+        ]);
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", $payload($secondSaveJson))->assertRedirect();
+
+        // Mission B's row is actually gone.
+        $this->assertDatabaseMissing('route_missions', ['id' => $missionB->id]);
+        $this->assertEquals(2, RouteMission::where('tour_route_point_id', $point->id)->count());
+
+        // Survivors kept their exact same DB ids and original content -- not
+        // reassigned to each other's content because their positions shifted.
+        $reloadedA = RouteMission::find($missionA->id);
+        $reloadedC = RouteMission::find($missionC->id);
+
+        $this->assertNotNull($reloadedA);
+        $this->assertNotNull($reloadedC);
+        $this->assertEquals('riddle', $reloadedA->type);
+        $this->assertEquals(['a'], $reloadedA->config['answers']);
+        $this->assertEquals('sequence', $reloadedC->type);
+        $this->assertEquals(['c1', 'c2', 'c3'], $reloadedC->config['items']);
+
+        // Order values renumbered to 1, 2 despite unchanged ids.
+        $this->assertEquals(1, $reloadedA->order);
+        $this->assertEquals(2, $reloadedC->order);
     }
 
     public function test_mission_asset_upload_returns_public_url(): void
