@@ -16,7 +16,7 @@
         Kelola Soal Kuis
     </button>
 
-    <x-modal name="quizzes-modal" maxWidth="2xl" desktopLayout="drawer" onCloseAttempt="quizzesModalCloseAttempt">
+    <x-modal name="quizzes-modal" maxWidth="4xl" desktopLayout="drawer" onCloseAttempt="quizzesModalCloseAttempt">
         <div class="mb-4">
             <h3 class="font-display text-charcoal text-lg font-bold">Kelola Kuis Edutourism</h3>
             <p class="mt-1 text-xs text-gray-500">Soal-soal ini akan muncul saat turis tiba di lokasi ini.</p>
