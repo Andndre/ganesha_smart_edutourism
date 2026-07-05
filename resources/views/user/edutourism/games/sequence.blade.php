@@ -2,7 +2,8 @@
     Sequence / timeline puzzle.
     config: { prompt?, reveal_first?: bool, items: [{text}] } — items listed in CORRECT order, shuffled on load.
     reveal_first: items start face-down ("find the hidden facts"); tap each to reveal, then order them.
-    time_limit_seconds prop is accepted on the mission but countdown UI is deferred to Day 4 (Route 2/3).
+    time_limit_seconds: optional countdown for the order phase (e.g. Route 2 "Escape the Timeline");
+    starts when the order phase begins, auto-submits once it hits 0.
     Scoring: points - 20*(extra attempts), min 20% of points.
     Emits: mission-complete {id, earned}
 --}}
@@ -17,12 +18,41 @@
                 attempts: 0,
                 wrongIdx: [],
                 done: false,
+                timedOut: false,
+                timeLeft: null,
+                timerInterval: null,
 
                 init() {
                     this.items = this.cfg.items.map((it, i) => ({ ...it, i }));
                     do {
                         this.items.sort(() => Math.random() - 0.5);
                     } while (this.items.length > 1 && this.items.every((it, pos) => it.i === pos));
+
+                    if (this.phase === 'order') this.startTimer();
+                },
+                startTimer() {
+                    if (!this.cfg.time_limit_seconds || this.timerInterval) return;
+                    this.timeLeft = this.cfg.time_limit_seconds;
+                    this.timerInterval = setInterval(() => {
+                        this.timeLeft--;
+                        if (this.timeLeft <= 0) {
+                            clearInterval(this.timerInterval);
+                            if (!this.done) this.timeUp();
+                        }
+                    }, 1000);
+                },
+                timeUp() {
+                    if (this.done) return;
+                    this.done = true;
+                    this.timedOut = true;
+                    navigator.vibrate?.([60, 40, 60]);
+                    const earned = Math.round(this.maxPoints * 0.2);
+                    setTimeout(() => this.$dispatch('mission-complete', { id: this.missionId, earned }), 900);
+                },
+                get timeLabel() {
+                    const m = Math.floor(this.timeLeft / 60);
+                    const s = this.timeLeft % 60;
+                    return `${m}:${String(s).padStart(2, '0')}`;
                 },
                 reveal(i) {
                     if (!this.revealed.includes(i)) {
@@ -45,6 +75,7 @@
                     this.wrongIdx = this.items.map((it, pos) => it.i !== pos ? pos : null).filter(v => v !== null);
                     if (this.wrongIdx.length === 0) {
                         this.done = true;
+                        if (this.timerInterval) clearInterval(this.timerInterval);
                         confetti?.({ particleCount: 70, spread: 65, origin: { y: 0.7 } });
                         const earned = Math.max(Math.round(this.maxPoints * 0.2), this.maxPoints - 20 * (this.attempts - 1));
                         setTimeout(() => this.$dispatch('mission-complete', { id: this.missionId, earned }), 900);
@@ -78,7 +109,7 @@
                     </button>
                 </template>
             </div>
-            <button type="button" @click="phase = 'order'" :disabled="revealed.length < cfg.items.length"
+            <button type="button" @click="phase = 'order'; startTimer()" :disabled="revealed.length < cfg.items.length"
                 class="bg-primary w-full rounded-xl py-3 text-sm font-bold text-white shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-50">
                 {{ __('Semua Ditemukan — Susun Kronologi') }} (<span x-text="revealed.length"></span>/<span
                     x-text="cfg.items.length"></span>)
@@ -89,6 +120,11 @@
     {{-- Phase 2: order the items --}}
     <template x-if="phase === 'order'">
         <div class="space-y-3">
+            <template x-if="timeLeft !== null">
+                <p class="text-center text-sm font-bold" :class="timeLeft <= 30 ? 'text-red-500' : 'text-gray-500'">
+                    ⏱ <span x-text="timeLabel"></span>
+                </p>
+            </template>
             <div class="space-y-2">
                 <template x-for="(item, pos) in items" :key="item.i">
                     <div class="flex items-center gap-2 rounded-xl border-2 bg-white p-2"
@@ -110,7 +146,8 @@
             <button type="button" @click="check()" :disabled="done"
                 class="bg-primary w-full rounded-xl py-3 text-sm font-bold text-white shadow-sm transition-transform active:scale-95 disabled:opacity-50">
                 <span x-show="!done">{{ __('Periksa Urutan') }}</span>
-                <span x-show="done">✓ {{ __('Urutan Benar!') }}</span>
+                <span x-show="done && !timedOut">✓ {{ __('Urutan Benar!') }}</span>
+                <span x-show="done && timedOut">⏱ {{ __('Waktu Habis!') }}</span>
             </button>
         </div>
     </template>

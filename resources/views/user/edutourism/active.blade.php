@@ -412,17 +412,23 @@
 
                 <div x-show="stage === 'mission'" class="mx-auto max-w-md">
                     @foreach ($pointMissions as $i => $mission)
-                        <div x-show="index === {{ $i }}" class="space-y-4" x-cloak>
-                            <div class="flex items-center justify-between">
-                                <span
-                                    class="rounded-lg border border-amber-100 bg-amber-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-amber-600">{{ __('Misi') }}
-                                    {{ $i + 1 }}</span>
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">+
-                                    {{ $mission->points }} {{ __('poin maks.') }}</span>
+                        {{-- x-if (not x-show): defers mounting each game's x-data until it's the
+                        active mission — otherwise every mission on the point mounts up front and
+                        e.g. sequence.blade.php's countdown timer starts immediately, before the
+                        player even taps "Mulai Misi". --}}
+                        <template x-if="index === {{ $i }}">
+                            <div class="space-y-4" x-cloak>
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="rounded-lg border border-amber-100 bg-amber-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-amber-600">{{ __('Misi') }}
+                                        {{ $i + 1 }}</span>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">+
+                                        {{ $mission->points }} {{ __('poin maks.') }}</span>
+                                </div>
+                                <h3 class="font-display text-charcoal text-xl font-black">{{ $mission->title }}</h3>
+                                @include('user.edutourism.games.' . str_replace('_', '-', $mission->type), ['mission' => $mission])
                             </div>
-                            <h3 class="font-display text-charcoal text-xl font-black">{{ $mission->title }}</h3>
-                            @include('user.edutourism.games.' . str_replace('_', '-', $mission->type), ['mission' => $mission])
-                        </div>
+                        </template>
                     @endforeach
                 </div>
             </div>

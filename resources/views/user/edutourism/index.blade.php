@@ -117,6 +117,11 @@
                     </ul>
                 </div>
 
+                <div id="preview-avatar-picker" class="mt-4 hidden">
+                    <h4 class="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">{{ __('Pilih Avatarmu') }}</h4>
+                    <div id="preview-avatar-options" class="grid grid-cols-2 gap-2"></div>
+                </div>
+
                 <form id="start-route-form" method="POST" action="">
                     @csrf
                     <button type="button" onclick="startRoute()" id="btn-start-route" disabled
@@ -158,12 +163,26 @@
 
     @push('scripts')
         <script>
+            window.selectedAvatar = null;
+
+            function selectAvatar(key) {
+                window.selectedAvatar = key;
+                document.querySelectorAll('#preview-avatar-options button').forEach(btn => {
+                    btn.classList.toggle('border-primary', btn.dataset.avatar === key);
+                    btn.classList.toggle('bg-green-50', btn.dataset.avatar === key);
+                    btn.classList.toggle('border-gray-200', btn.dataset.avatar !== key);
+                });
+            }
+
             function fetchRoutePreview(id) {
                 document.getElementById('preview-title').textContent = '{{ __('Memuat...') }}';
                 document.getElementById('preview-desc').textContent = '';
                 document.getElementById('preview-points').innerHTML = '<li class="text-sm text-gray-500">{{ __('Memuat rute...') }}</li>';
                 document.getElementById('btn-start-route').disabled = true;
                 document.getElementById('start-route-form').action = `/edutourism/routes/${id}/start`;
+                window.selectedAvatar = null;
+                document.getElementById('preview-avatar-picker').classList.add('hidden');
+                document.getElementById('preview-avatar-options').innerHTML = '';
 
                 fetch(`/edutourism/routes/${id}/preview`)
                     .then(res => res.json())
@@ -188,6 +207,20 @@
                             ul.innerHTML = '<li class="text-sm text-gray-500">{{ __('Tidak ada titik perhentian.') }}</li>';
                         }
 
+                        if (data.avatar_options && data.avatar_options.length > 0) {
+                            const wrap = document.getElementById('preview-avatar-options');
+                            data.avatar_options.forEach(av => {
+                                const btn = document.createElement('button');
+                                btn.type = 'button';
+                                btn.dataset.avatar = av.key;
+                                btn.className = 'rounded-xl border-2 border-gray-200 bg-white p-3 text-center text-xs font-semibold text-gray-700 transition active:scale-95';
+                                btn.innerHTML = `<span class="block text-2xl">${av.icon}</span>${av.label}`;
+                                btn.onclick = () => selectAvatar(av.key);
+                                wrap.appendChild(btn);
+                            });
+                            document.getElementById('preview-avatar-picker').classList.remove('hidden');
+                        }
+
                         document.getElementById('btn-start-route').disabled = false;
                     })
                     .catch(err => {
@@ -205,8 +238,10 @@
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        }
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ avatar: window.selectedAvatar })
                     })
                     .then(res => res.json())
                     .then(data => {
