@@ -38,6 +38,13 @@ class TourRouteRequest extends FormRequest
             'points.*.storytelling_content' => ['nullable', 'array'],
             'points.*.storytelling_content.en' => ['nullable', 'string'],
             'points.*.storytelling_content.id' => ['nullable', 'string'],
+            'points.*.missions' => ['nullable', 'array'],
+            'points.*.missions.*.id' => ['nullable', 'integer'],
+            'points.*.missions.*.type' => ['required_with:points.*.missions', 'string', 'in:matching,sequence,word_search,decision,riddle'],
+            'points.*.missions.*.title' => ['nullable', 'array'],
+            'points.*.missions.*.points' => ['nullable', 'integer', 'min:0'],
+            'points.*.missions.*.time_limit_seconds' => ['nullable', 'integer', 'min:0'],
+            'points.*.missions.*.config' => ['nullable', 'array'],
         ];
     }
 
@@ -59,6 +66,19 @@ class TourRouteRequest extends FormRequest
                         'en' => $point['storytelling_content'],
                         'id' => $point['storytelling_content'],
                     ];
+                }
+            }
+            $this->merge(['points' => $points]);
+        }
+
+        // Decode points[].missions from a JSON string (built by the mission editor JS)
+        // into an array so it can be validated and consumed by the controller.
+        if ($this->has('points') && \is_array($this->input('points'))) {
+            $points = $this->input('points');
+            foreach ($points as $i => $point) {
+                if (isset($point['missions']) && \is_string($point['missions'])) {
+                    $decoded = json_decode($point['missions'], true);
+                    $points[$i]['missions'] = \is_array($decoded) ? $decoded : [];
                 }
             }
             $this->merge(['points' => $points]);
