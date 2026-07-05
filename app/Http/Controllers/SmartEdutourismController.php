@@ -92,33 +92,38 @@ class SmartEdutourismController extends Controller
     }
 
     /**
+     * Single source of truth for route-type detection, reused by the avatar picker,
+     * badge finalization, and per-point collectible logic. Reads the stable
+     * gamification_key column (set by seeder / admin form), NOT the editable name —
+     * so renaming a route in admin can't silently break its rewards.
+     */
+    private function routeTypeKey(TourRoute $route): ?string
+    {
+        return $route->gamification_key;
+    }
+
+    /**
      * Avatar picker shown in the route preview modal before starting (replaces the PDF's
      * "Spin the Wheel" with a tap-picker — a RouteMission on point 1 would disable the
      * quiz flow there, see arrive()). Purely cosmetic: score/badges never depend on it.
      */
     private function avatarOptionsForRoute(TourRoute $route): array
     {
-        $routeName = translateValue($route->name, 'en');
-
-        if (str_contains($routeName, 'Cultural Adventure')) {
-            return [
+        return match ($this->routeTypeKey($route)) {
+            'cultural_adventure' => [
                 ['key' => 'explorer', 'label' => __('Penjelajah'), 'icon' => '🧭'],
                 ['key' => 'archaeologist', 'label' => __('Arkeolog'), 'icon' => '🏺'],
                 ['key' => 'elder', 'label' => __('Tetua Desa'), 'icon' => '🧓'],
                 ['key' => 'forest_keeper', 'label' => __('Penjaga Hutan'), 'icon' => '🌲'],
-            ];
-        }
-
-        if (str_contains($routeName, 'Eco Quest')) {
-            return [
+            ],
+            'eco_quest' => [
                 ['key' => 'eco_ranger', 'label' => __('Eco Ranger'), 'icon' => '🌿'],
                 ['key' => 'forest_guardian', 'label' => __('Forest Guardian'), 'icon' => '🌳'],
                 ['key' => 'bamboo_scientist', 'label' => __('Bamboo Scientist'), 'icon' => '🔬'],
                 ['key' => 'village_explorer', 'label' => __('Village Explorer'), 'icon' => '🧭'],
-            ];
-        }
-
-        return [];
+            ],
+            default => [],
+        };
     }
 
     public function start(Request $request, $id)
@@ -313,9 +318,9 @@ class SmartEdutourismController extends Controller
      */
     private function finalizeSession(RouteSession $session, TourRoute $route): void
     {
-        $routeName = translateValue($route->name, 'en');
+        $routeType = $this->routeTypeKey($route);
 
-        if (str_contains($routeName, 'Penglipuran Heritage Quest')) {
+        if ($routeType === 'heritage_quest') {
             // Final team decision: relative rule — badge goes to the highest
             // completed score recorded so far for this route (ties win).
             $bestSoFar = RouteSession::where('tour_route_id', $session->tour_route_id)
@@ -330,7 +335,7 @@ class SmartEdutourismController extends Controller
             return;
         }
 
-        if (str_contains($routeName, 'Cultural Adventure')) {
+        if ($routeType === 'cultural_adventure') {
             // PDF lists 3 tiers ("Cultural Guardian" / "Tradition Master" / "Heritage
             // Champion") without a rule to distinguish them — assumption: % of the
             // route's max possible score (quiz + all mission points).
@@ -346,7 +351,7 @@ class SmartEdutourismController extends Controller
             return;
         }
 
-        if (str_contains($routeName, 'Eco Quest')) {
+        if ($routeType === 'eco_quest') {
             // Single predicate: PDF requires collecting "all" Eco Crystals. We seed 5
             // real points (PDF says "enam" but only lists 5 — treated as a PDF typo).
             $collected = $session->collectibles_earned ?? [];
@@ -364,7 +369,7 @@ class SmartEdutourismController extends Controller
      */
     private function maxPossibleScore(TourRoute $route): int
     {
-        $route->loadMissing(['routePoints.locationable', 'routePoints.missions']);
+        $route->loadMissing(['routePoints.locationable.quizzes', 'routePoints.missions']);
 
         $firstPoint = $route->routePoints->first();
         $quizCount = $firstPoint?->locationable instanceof CulturalObject
@@ -375,24 +380,20 @@ class SmartEdutourismController extends Controller
     }
 
     /**
-     * "Digital Passport" collectible (Route 1 Mission 1): awarded when >= 80% of the
-     * first point's quizzes are answered correctly. Does not block progression
-     * (existing behavior advances regardless of correctness).
+     * Shared gate for both "digital_passport" and the sequential Route 2/3 point-1
+     * collectibles: true when there are no quizzes to grade, or >= $ratio of them
+     * were answered correctly. Does not block progression on its own.
      */
-    private function maybeAwardFirstPointCollectible(RouteSession $session, TourRoutePoint $point): void
+    private function firstPointQuizThresholdMet(RouteSession $session, TourRoutePoint $point, float $ratio = 0.8): bool
     {
-        $firstPoint = TourRoutePoint::where('tour_route_id', $session->tour_route_id)
-            ->orderBy('order')
-            ->first();
-
-        if (! $firstPoint || $firstPoint->id !== $point->id || ! $point->locationable instanceof CulturalObject) {
-            return;
+        if (! $point->locationable instanceof CulturalObject) {
+            return false;
         }
 
         $quizIds = $point->locationable->quizzes->pluck('id');
 
         if ($quizIds->isEmpty()) {
-            return;
+            return false;
         }
 
         $correct = QuizAnswer::where('route_session_id', $session->id)
@@ -400,25 +401,49 @@ class SmartEdutourismController extends Controller
             ->where('is_correct', true)
             ->count();
 
-        if ($correct >= (int) ceil(0.8 * $quizIds->count())) {
+        return $correct >= (int) ceil($ratio * $quizIds->count());
+    }
+
+    /**
+     * "Digital Passport" collectible (Route 1 Mission 1): awarded when >= 80% of the
+     * first point's quizzes are answered correctly. Does not block progression
+     * (existing behavior advances regardless of correctness). Route 1 only — Route
+     * 2/3 get their own point-1 collectible from awardSequentialCollectible().
+     */
+    private function maybeAwardFirstPointCollectible(RouteSession $session, TourRoutePoint $point): void
+    {
+        $route = TourRoute::find($session->tour_route_id);
+
+        if (! $route || $this->routeTypeKey($route) !== 'heritage_quest') {
+            return;
+        }
+
+        $firstPoint = TourRoutePoint::where('tour_route_id', $session->tour_route_id)
+            ->orderBy('order')
+            ->first();
+
+        if (! $firstPoint || $firstPoint->id !== $point->id) {
+            return;
+        }
+
+        if ($this->firstPointQuizThresholdMet($session, $point)) {
             $session->awardCollectible('digital_passport');
         }
     }
 
     /**
      * Route 2/3 per-point collectible ("heritage_key_N" / "eco_crystal_N"), awarded when
-     * a point completes. No-op for Route 1 (prefix stays null). Point 1 (quiz-based)
-     * keeps the same 80%-correct gate as "digital_passport"; mission-based points 2-5
-     * award unconditionally on completion, matching existing progression behavior.
+     * a point completes. No-op for Route 1. Point 1 (quiz-based) keeps the same
+     * 80%-correct gate as "digital_passport"; mission-based points 2-5 award
+     * unconditionally on completion, matching existing progression behavior.
      */
     private function awardSequentialCollectible(RouteSession $session, TourRoutePoint $point): void
     {
         $route = TourRoute::with('routePoints')->find($session->tour_route_id);
-        $routeName = translateValue($route->name, 'en');
 
-        $prefix = match (true) {
-            str_contains($routeName, 'Cultural Adventure') => 'heritage_key',
-            str_contains($routeName, 'Eco Quest') => 'eco_crystal',
+        $prefix = match ($this->routeTypeKey($route)) {
+            'cultural_adventure' => 'heritage_key',
+            'eco_quest' => 'eco_crystal',
             default => null,
         };
 
@@ -434,19 +459,10 @@ class SmartEdutourismController extends Controller
 
         $order++;
 
-        if ($order === 1 && $point->locationable instanceof CulturalObject) {
-            $quizIds = $point->locationable->quizzes->pluck('id');
+        $hasQuizzes = $point->locationable instanceof CulturalObject && $point->locationable->quizzes->isNotEmpty();
 
-            if ($quizIds->isNotEmpty()) {
-                $correct = QuizAnswer::where('route_session_id', $session->id)
-                    ->whereIn('cultural_object_quiz_id', $quizIds)
-                    ->where('is_correct', true)
-                    ->count();
-
-                if ($correct < (int) ceil(0.8 * $quizIds->count())) {
-                    return;
-                }
-            }
+        if ($order === 1 && $hasQuizzes && ! $this->firstPointQuizThresholdMet($session, $point)) {
+            return;
         }
 
         $session->awardCollectible("{$prefix}_{$order}");
