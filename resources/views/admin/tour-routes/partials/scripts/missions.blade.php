@@ -278,7 +278,7 @@ function uploadMissionAsset(fileInput, hiddenSelector) {
             if (d.url) {
                 const scope = fileInput.closest('.mc-row, .ds-scenario');
                 scope.querySelector(hiddenSelector).value = d.url;
-                let preview = scope.querySelector('.mc-image-preview');
+                let preview = fileInput.parentNode.querySelector('.mc-image-preview');
                 if (!preview) {
                     preview = document.createElement('img');
                     preview.className = 'mc-image-preview h-8 w-8 rounded object-cover border border-gray-200';
@@ -353,5 +353,83 @@ window.MISSION_CONFIG_READERS['word_search'] = function (c) {
     out.words = c.querySelector('.ws-words').value.split('\n').map(w => w.trim()).filter(Boolean);
     const g = c.querySelector('.ws-grid').value; if (g) out.grid_size = Number(g);
     return out;
+};
+
+// --- Task 8: decision config editor -------------------------------------------------
+// Config shape: { scenarios:[{ text:{en,id}, image?, image_after?, options:[{text:{en,id}, correct:bool, explanation?:{en,id}}] }] }
+// Field audit: scenario `image`, `image_after`, and option `explanation` are OPTIONAL and must
+// be guarded so a no-op open/close/save preserves them precisely if they were originally absent.
+// Scenario `text` and option `text`/`correct` are REQUIRED and always emitted.
+
+window.MISSION_CONFIG_BUILDERS['decision'] = function (c, cfg) {
+    c.innerHTML = `
+      <div class="ds-scenarios space-y-4"></div>
+      <button type="button" class="ds-add mt-2 text-xs text-primary font-semibold">+ Tambah Skenario</button>`;
+    const wrap = c.querySelector('.ds-scenarios');
+    const addScenario = (s = {}) => {
+        const el = document.createElement('div');
+        el.className = 'ds-scenario rounded-lg border border-gray-100 p-3 bg-gray-50/50';
+        el.innerHTML = `
+          ${bilingualInput('ds-text', s.text || {en:'',id:''}, 'Pertanyaan skenario')}
+          <div class="flex items-center gap-4 mt-2 text-xs">
+            <div class="flex items-center gap-1">
+              <span class="font-semibold text-gray-500">Gambar:</span>
+              <input type="hidden" class="ds-image" value="${s.image || ''}">
+              <input type="file" accept="image/*" class="text-xs" onchange="uploadMissionAsset(this, '.ds-image')">
+              ${s.image ? `<img class="mc-image-preview h-8 w-8 rounded object-cover border border-gray-200" src="${s.image}">` : ''}
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="font-semibold text-gray-500">Setelah benar:</span>
+              <input type="hidden" class="ds-image-after" value="${s.image_after || ''}">
+              <input type="file" accept="image/*" class="text-xs" onchange="uploadMissionAsset(this, '.ds-image-after')">
+              ${s.image_after ? `<img class="mc-image-preview h-8 w-8 rounded object-cover border border-gray-200" src="${s.image_after}">` : ''}
+            </div>
+          </div>
+          <div class="ds-options space-y-2 mt-3 pl-4 border-l-2 border-gray-200"></div>
+          <div class="mt-2 pl-4">
+            <button type="button" class="ds-add-opt text-xs text-primary font-semibold">+ Opsi</button>
+            <button type="button" class="text-red-400 text-xs ml-4" onclick="this.closest('.ds-scenario').remove(); markMissionDirty()">hapus skenario</button>
+          </div>`;
+        const opts = el.querySelector('.ds-options');
+        const addOpt = (o = {}) => {
+            const oe = document.createElement('div');
+            oe.className = 'ds-option rounded border border-gray-100 p-2 bg-white';
+            oe.innerHTML = `
+              ${bilingualInput('ds-opt', o.text || {en:'',id:''}, 'Opsi')}
+              <label class="flex items-center gap-1 text-xs mt-1 font-semibold text-gray-600">
+                <input type="checkbox" class="ds-correct" ${o.correct?'checked':''} onchange="markMissionDirty()"> Benar (correct)
+              </label>
+              ${bilingualInput('ds-exp', o.explanation || {en:'',id:''}, 'Penjelasan (opsional)')}
+              <button type="button" class="text-red-400 text-xs mt-1 block" onclick="this.closest('.ds-option').remove(); markMissionDirty()">hapus opsi</button>`;
+            opts.appendChild(oe); window.Alpine?.initTree(oe);
+        };
+        (s.options || []).forEach(addOpt);
+        el.querySelector('.ds-add-opt').onclick = () => { addOpt(); markMissionDirty(); };
+        wrap.appendChild(el); window.Alpine?.initTree(el);
+    };
+    (cfg.scenarios || []).forEach(addScenario);
+    c.querySelector('.ds-add').onclick = () => { addScenario(); markMissionDirty(); };
+};
+
+window.MISSION_CONFIG_READERS['decision'] = function (c) {
+    return {
+        scenarios: [...c.querySelectorAll('.ds-scenario')].map(s => {
+            const out = {
+                text: readBilingual(s, 'ds-text'),
+                options: [...s.querySelectorAll('.ds-option')].map(o => {
+                    const opt = {
+                        text: readBilingual(o, 'ds-opt'),
+                        correct: o.querySelector('.ds-correct').checked
+                    };
+                    const exp = readBilingual(o, 'ds-exp');
+                    if (exp.id || exp.en) opt.explanation = exp;
+                    return opt;
+                })
+            };
+            const img = s.querySelector('.ds-image').value; if (img) out.image = img;
+            const imgA = s.querySelector('.ds-image-after').value; if (imgA) out.image_after = imgA;
+            return out;
+        }),
+    };
 };
 </script>
