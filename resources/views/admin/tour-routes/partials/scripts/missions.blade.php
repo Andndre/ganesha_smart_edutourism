@@ -327,37 +327,76 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
         <label class="text-xs text-gray-600">Penalti (opsional)
           <input type="number" min="0" class="mc-penalty w-16 rounded border border-gray-200 px-2 py-1 text-sm ml-1" value="${cfg.penalty ?? ''}" oninput="markMissionDirty()"></label>
       </div>
-      <div class="mc-rows space-y-2"></div>
-      <button type="button" class="mc-add mt-2 text-xs text-primary font-semibold">+ Tambah ${mode==='pick'?'Kartu':'Pasangan'}</button>`;
+      <div class="mc-rows space-y-3"></div>
+      <button type="button" class="mc-add mt-3 text-xs text-primary font-semibold hover:underline">+ Tambah ${mode==='pick'?'Kartu':'Pasangan'}</button>`;
     const rows = c.querySelector('.mc-rows');
     const addRow = (data = {}) => {
         const el = document.createElement('div');
-        el.className = 'mc-row rounded-lg border border-gray-100 p-2';
         if (mode === 'pick') {
+            el.className = 'mc-row rounded-xl border border-gray-100 p-3 bg-gray-50/30 flex gap-4 items-start relative group';
             el.innerHTML = `
-              ${bilingualInput('mc-label', data.label || {en:'',id:''}, 'Label')}
-              <div class="flex items-center gap-2 mt-1">
-                <input type="text" class="mc-icon w-16 rounded border border-gray-200 px-2 py-1 text-sm" placeholder="🌿" value="${data.icon || ''}" oninput="markMissionDirty()">
+              <!-- Left side: Image Upload Container -->
+              <div class="img-container relative w-16 h-16 shrink-0 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 hover:bg-gray-100/50 hover:border-primary/50 transition-all flex items-center justify-center overflow-hidden cursor-pointer" 
+                   onclick="this.querySelector('input[type=file]').click()">
                 <input type="hidden" class="mc-image" value="${data.image || ''}">
-                ${data.image ? `<img src="${data.image}" alt="" class="mc-image-preview h-8 w-8 rounded object-cover border border-gray-200">` : ''}
-                <input type="file" accept="image/*" class="text-xs" onchange="uploadMissionAsset(this, '.mc-image')">
-                <label class="flex items-center gap-1 text-xs"><input type="checkbox" class="mc-correct" ${data.correct?'checked':''} onchange="markMissionDirty()"> benar</label>
-                <button type="button" onclick="this.closest('.mc-row').remove(); markMissionDirty()" class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors ml-auto flex items-center justify-center">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                </button>
+                <input type="file" accept="image/*" class="hidden" onchange="uploadMissionAsset(this, '.mc-image')">
+                <div class="img-preview-wrap w-full h-full flex items-center justify-center">
+                  ${data.image ? `
+                    <img src="${data.image}" alt="" class="mc-image-preview w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] text-white font-semibold">Ganti</div>
+                  ` : `
+                    <div class="text-gray-400 flex flex-col items-center gap-0.5 placeholder-wrap">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                      <span class="text-[8px] font-medium">Gambar</span>
+                    </div>
+                  `}
+                </div>
+              </div>
+              
+              <!-- Right side: Inputs -->
+              <div class="flex-1 min-w-0 space-y-2">
+                ${bilingualInput('mc-label', data.label || {en:'',id:''}, 'Label')}
+                <div class="flex items-center justify-between">
+                  <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-600 cursor-pointer">
+                    <input type="checkbox" class="mc-correct rounded text-primary focus:ring-primary border-gray-300 w-4 h-4" ${data.correct?'checked':''} onchange="markMissionDirty()">
+                    <span>Pilihan Benar</span>
+                  </label>
+                  
+                  <button type="button" onclick="this.closest('.mc-row').remove(); markMissionDirty()" class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center" title="Hapus">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                </div>
               </div>`;
         } else {
+            el.className = 'mc-row rounded-xl border border-gray-100 p-3 bg-gray-50/30 flex gap-4 items-start relative group';
             el.innerHTML = `
-              ${bilingualInput('mc-left', data.left || {en:'',id:''}, 'Kiri')}
-              ${bilingualInput('mc-right', data.right || {en:'',id:''}, 'Kanan (jawaban)')}
-              <div class="flex items-center gap-2 mt-1">
-                <input type="text" class="mc-icon w-16 rounded border border-gray-200 px-2 py-1 text-sm" placeholder="🚪" value="${data.icon || ''}" oninput="markMissionDirty()">
+              <!-- Left side: Image Upload Container -->
+              <div class="img-container relative w-16 h-16 shrink-0 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 hover:bg-gray-100/50 hover:border-primary/50 transition-all flex items-center justify-center overflow-hidden cursor-pointer" 
+                   onclick="this.querySelector('input[type=file]').click()">
                 <input type="hidden" class="mc-image" value="${data.image || ''}">
-                ${data.image ? `<img src="${data.image}" alt="" class="mc-image-preview h-8 w-8 rounded object-cover border border-gray-200">` : ''}
-                <input type="file" accept="image/*" class="text-xs" onchange="uploadMissionAsset(this, '.mc-image')">
-                <button type="button" onclick="this.closest('.mc-row').remove(); markMissionDirty()" class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors ml-auto flex items-center justify-center">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                </button>
+                <input type="file" accept="image/*" class="hidden" onchange="uploadMissionAsset(this, '.mc-image')">
+                <div class="img-preview-wrap w-full h-full flex items-center justify-center">
+                  ${data.image ? `
+                    <img src="${data.image}" alt="" class="mc-image-preview w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] text-white font-semibold">Ganti</div>
+                  ` : `
+                    <div class="text-gray-400 flex flex-col items-center gap-0.5 placeholder-wrap">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                      <span class="text-[8px] font-medium">Gambar</span>
+                    </div>
+                  `}
+                </div>
+              </div>
+              
+              <!-- Right side: Inputs -->
+              <div class="flex-1 min-w-0 space-y-2">
+                ${bilingualInput('mc-left', data.left || {en:'',id:''}, 'Kiri')}
+                ${bilingualInput('mc-right', data.right || {en:'',id:''}, 'Kanan (jawaban)')}
+                <div class="flex justify-end">
+                  <button type="button" onclick="this.closest('.mc-row').remove(); markMissionDirty()" class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center" title="Hapus">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                </div>
               </div>`;
         }
         rows.appendChild(el);
@@ -377,14 +416,12 @@ window.MISSION_CONFIG_READERS['matching'] = function (c) {
         const pickCount = c.querySelector('.mc-pick-count')?.value; if (pickCount !== '' && pickCount != null) out.pick_count = Number(pickCount);
         out.items = rows.map(r => {
             const item = { label: readBilingual(r, 'mc-label'), correct: r.querySelector('.mc-correct').checked };
-            const icon = r.querySelector('.mc-icon').value; if (icon) item.icon = icon;
             const image = r.querySelector('.mc-image').value; if (image) item.image = image;
             return item;
         });
     } else {
         out.pairs = rows.map(r => {
             const pair = { left: readBilingual(r, 'mc-left'), right: readBilingual(r, 'mc-right') };
-            const icon = r.querySelector('.mc-icon').value; if (icon) pair.icon = icon;
             const image = r.querySelector('.mc-image').value; if (image) pair.image = image;
             return pair;
         });
@@ -401,23 +438,42 @@ function uploadMissionAsset(fileInput, hiddenSelector) {
     const fd = new FormData();
     fd.append('file', file);
     fd.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('input[name="_token"]')?.value);
+    
+    fileInput.disabled = true;
+    
     fetch('{{ route('admin.route-missions.upload-asset') }}', { method: 'POST', body: fd })
         .then(r => r.json())
         .then(d => {
             if (d.url) {
                 const scope = fileInput.closest('.mc-row, .ds-scenario');
                 scope.querySelector(hiddenSelector).value = d.url;
-                let preview = fileInput.parentNode.querySelector('.mc-image-preview');
-                if (!preview) {
-                    preview = document.createElement('img');
-                    preview.className = 'mc-image-preview h-8 w-8 rounded object-cover border border-gray-200';
-                    fileInput.insertAdjacentElement('afterend', preview);
+                
+                // Update preview container
+                const container = fileInput.closest('.img-container');
+                if (container) {
+                    const previewWrap = container.querySelector('.img-preview-wrap');
+                    if (previewWrap) {
+                        previewWrap.innerHTML = `
+                          <img src="${d.url}" alt="" class="mc-image-preview w-full h-full object-cover">
+                          <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] text-white font-semibold">Ganti</div>
+                        `;
+                    }
+                } else {
+                    let preview = fileInput.parentNode.querySelector('.mc-image-preview');
+                    if (!preview) {
+                        preview = document.createElement('img');
+                        preview.className = 'mc-image-preview h-8 w-8 rounded object-cover border border-gray-200';
+                        fileInput.insertAdjacentElement('afterend', preview);
+                    }
+                    preview.src = d.url;
                 }
-                preview.src = d.url;
                 markMissionDirty();
             }
         })
-        .catch(() => Swal.fire({ icon: 'error', title: 'Upload gagal', confirmButtonColor: '#1E5128' }));
+        .catch(() => Swal.fire({ icon: 'error', title: 'Upload gagal', confirmButtonColor: '#1E5128' }))
+        .finally(() => {
+            fileInput.disabled = false;
+        });
 }
 
 // --- Task 6: sequence config editor -------------------------------------------------
