@@ -161,6 +161,7 @@ class Route2CulturalAdventureSeeder extends Seeder
                 'en' => 'Exploring the Social Life, Traditions, and Cultural Values of Penglipuran Village in 90 minutes across 6 stops.',
             ],
             'difficulty' => 'moderate',
+            'gamification_key' => 'cultural_adventure',
             'estimated_duration_minutes' => 90,
             'distance_meters' => 1400,
             'is_active' => true,

@@ -159,6 +159,7 @@ class Route3EcoQuestSeeder extends Seeder
                 'en' => 'Exploring Local Wisdom and Environmental Conservation in Penglipuran Village in 90 minutes across 6 stops.',
             ],
             'difficulty' => 'moderate',
+            'gamification_key' => 'eco_quest',
             'estimated_duration_minutes' => 90,
             'distance_meters' => 1300,
             'is_active' => true,

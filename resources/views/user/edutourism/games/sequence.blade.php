@@ -41,6 +41,12 @@
                         }
                     }, 1000);
                 },
+                stopTimer() {
+                    if (this.timerInterval) {
+                        clearInterval(this.timerInterval);
+                        this.timerInterval = null;
+                    }
+                },
                 timeUp() {
                     if (this.done) return;
                     this.done = true;
@@ -89,7 +95,8 @@
 @endonce
 
 @php($cfg = $mission->localizedConfig())
-<div x-data="eduGameSequence(@js($cfg), @js($mission->id), @js($mission->points))" class="space-y-4">
+<div x-data="eduGameSequence(@js($cfg), @js($mission->id), @js($mission->points))"
+    @close-mission-runner.window="stopTimer()" class="space-y-4">
     @if (!empty($cfg['prompt']))
         <p class="text-sm leading-relaxed text-gray-600">{{ $cfg['prompt'] }}</p>
     @endif

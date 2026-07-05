@@ -37,6 +37,7 @@ class RouteMissionTest extends TestCase
             'name' => ['en' => 'Penglipuran Heritage Quest', 'id' => 'Penglipuran Heritage Quest'],
             'description' => ['en' => 'Test route.', 'id' => 'Rute uji.'],
             'difficulty' => 'easy',
+            'gamification_key' => 'heritage_quest',
             'estimated_duration_minutes' => 90,
             'distance_meters' => 1200,
             'is_active' => true,

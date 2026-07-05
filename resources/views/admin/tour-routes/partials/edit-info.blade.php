@@ -27,8 +27,21 @@
                 class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
         </div>
 
+        <input type="hidden" name="difficulty" value="{{ old('difficulty', $route->difficulty) }}">
+
         <div class="grid grid-cols-2 gap-4">
-            <input type="hidden" name="difficulty" value="{{ old('difficulty', $route->difficulty) }}">
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Profil Gamifikasi</label>
+                @php($selectedGk = old('gamification_key', $route->gamification_key))
+                <select name="gamification_key"
+                    class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
+                    <option value="">Tidak ada (rute biasa)</option>
+                    <option value="heritage_quest" {{ $selectedGk === 'heritage_quest' ? 'selected' : '' }}>Heritage Quest</option>
+                    <option value="cultural_adventure" {{ $selectedGk === 'cultural_adventure' ? 'selected' : '' }}>Cultural Adventure</option>
+                    <option value="eco_quest" {{ $selectedGk === 'eco_quest' ? 'selected' : '' }}>Eco Quest</option>
+                </select>
+                <p class="mt-1 text-xs text-gray-400">Menentukan badge, collectible &amp; avatar. Aman diubah tanpa mengganggu nama rute.</p>
+            </div>
             <div class="flex flex-col gap-2 justify-end pb-1.5">
                 <label class="relative flex items-center gap-2 cursor-pointer select-none">
                     <input type="checkbox" name="is_active" value="1" {{ old('is_active', $route->is_active) ? 'checked' : '' }} class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4">

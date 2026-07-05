@@ -3,7 +3,9 @@
 namespace App\Http\Requests\Admin;
 
 use App\Http\Concerns\NormalizesMultilingualInput;
+use App\Models\TourRoute;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class TourRouteRequest extends FormRequest
 {
@@ -24,6 +26,7 @@ class TourRouteRequest extends FormRequest
             'description.en' => ['nullable', 'string'],
             'description.id' => ['nullable', 'string'],
             'difficulty' => ['required', 'string', 'in:Mudah,Sedang,Sulit,Edukasi,Alam,Belanja,Difabel,easy,moderate,challenging'],
+            'gamification_key' => ['nullable', 'string', Rule::in(TourRoute::GAMIFICATION_KEYS)],
             'estimated_duration_minutes' => ['required', 'integer', 'min:1'],
             'distance_meters' => ['required', 'integer', 'min:1'],
             'is_active' => ['nullable', 'boolean'],
@@ -40,6 +43,11 @@ class TourRouteRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->normalizeLocaleFields(['name', 'description']);
+
+        // Empty "Tidak ada" option -> null, so the column stays clean.
+        if ($this->input('gamification_key') === '') {
+            $this->merge(['gamification_key' => null]);
+        }
 
         // Normalize points[].storytelling_content from string to locale array
         if ($this->has('points') && \is_array($this->input('points'))) {

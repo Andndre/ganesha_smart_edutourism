@@ -373,7 +373,8 @@
             @open-mission-runner.window="openRunner()" @mission-complete="onMissionComplete($event.detail)"
             class="fixed inset-0 z-[60] flex flex-col bg-[#FAF9F6]">
             <div class="flex items-center gap-3 border-b border-gray-100 bg-white p-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
-                <button type="button" @click="open = false"
+                <button type="button"
+                    @click="open = false; $dispatch('close-mission-runner')"
                     class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />

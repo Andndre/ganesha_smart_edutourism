@@ -29,12 +29,22 @@ class RouteGamificationPhase2Test extends TestCase
         $this->user = User::factory()->create();
     }
 
-    private function makeRoute(string $name): TourRoute
+    private function makeRoute(string $name, ?string $gamificationKey = null): TourRoute
     {
+        // Derive the key from the name so existing tests keep their intent, but the
+        // column — not the name — is what the controller now reads.
+        $gamificationKey ??= match (true) {
+            str_contains($name, 'Cultural Adventure') => 'cultural_adventure',
+            str_contains($name, 'Eco Quest') => 'eco_quest',
+            str_contains($name, 'Heritage Quest') => 'heritage_quest',
+            default => null,
+        };
+
         return TourRoute::create([
             'name' => ['en' => $name, 'id' => $name],
             'description' => ['en' => 'Test route.', 'id' => 'Rute uji.'],
             'difficulty' => 'easy',
+            'gamification_key' => $gamificationKey,
             'estimated_duration_minutes' => 90,
             'distance_meters' => 1200,
             'is_active' => true,
@@ -202,6 +212,50 @@ class RouteGamificationPhase2Test extends TestCase
             ->assertJson(['session_status' => 'completed']);
 
         $this->assertEquals('Eco Guardian of Penglipuran', $session->fresh()->badge_awarded);
+    }
+
+    public function test_gamification_keys_off_column_not_editable_name(): void
+    {
+        // Route renamed to something with no "Eco Quest" in the name, but the stable
+        // gamification_key is still 'eco_quest' — rewards must survive the rename.
+        $route = $this->makeRoute('Rute Bebas Namanya Diganti Admin', 'eco_quest');
+
+        $point = TourRoutePoint::create([
+            'tour_route_id' => $route->id,
+            'locationable_type' => CulturalObject::factory()->create()->getMorphClass(),
+            'locationable_id' => CulturalObject::factory()->create()->id,
+            'order' => 1,
+        ]);
+
+        $mission = RouteMission::create([
+            'tour_route_point_id' => $point->id,
+            'type' => 'decision',
+            'title' => ['en' => 'Eco Rescue', 'id' => 'Eco Rescue'],
+            'config' => ['scenarios' => []],
+            'points' => 100,
+            'order' => 1,
+        ]);
+
+        $session = RouteSession::create([
+            'user_id' => $this->user->id,
+            'tour_route_id' => $route->id,
+            'current_point_id' => $point->id,
+            'collectibles_earned' => ['eco_crystal_2', 'eco_crystal_3', 'eco_crystal_4', 'eco_crystal_5'],
+            'status' => 'active',
+        ]);
+
+        // Completing point-1 mission awards eco_crystal_1 -> all 5 present -> badge.
+        $this->actingAs($this->user)
+            ->postJson("/edutourism/mission/{$mission->id}/complete", ['earned' => 100])
+            ->assertOk();
+
+        $fresh = $session->fresh();
+        $this->assertContains('eco_crystal_1', $fresh->collectibles_earned);
+        $this->assertEquals('Eco Guardian of Penglipuran', $fresh->badge_awarded);
+
+        // And the avatar picker still resolves off the column, not the name.
+        $this->actingAs($this->user)->getJson("/edutourism/routes/{$route->id}/preview")
+            ->assertOk()->assertJsonCount(4, 'avatar_options');
     }
 
     public function test_cultural_adventure_badge_tiers_by_score_percentage(): void

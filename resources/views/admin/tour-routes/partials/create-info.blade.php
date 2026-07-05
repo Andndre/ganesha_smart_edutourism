@@ -27,8 +27,19 @@
                 class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-            <input type="hidden" name="difficulty" value="easy">
+        <input type="hidden" name="difficulty" value="easy">
+
+        <div>
+            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Profil Gamifikasi</label>
+            @php($selectedGk = old('gamification_key'))
+            <select name="gamification_key"
+                class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30">
+                <option value="">Tidak ada (rute biasa)</option>
+                <option value="heritage_quest" {{ $selectedGk === 'heritage_quest' ? 'selected' : '' }}>Heritage Quest</option>
+                <option value="cultural_adventure" {{ $selectedGk === 'cultural_adventure' ? 'selected' : '' }}>Cultural Adventure</option>
+                <option value="eco_quest" {{ $selectedGk === 'eco_quest' ? 'selected' : '' }}>Eco Quest</option>
+            </select>
+            <p class="mt-1 text-xs text-gray-400">Menentukan badge, collectible &amp; avatar. Aman diubah tanpa mengganggu nama rute.</p>
         </div>
 
         <div x-show="locale === 'en'">
