@@ -503,6 +503,90 @@ class RouteMissionAuthoringTest extends TestCase
         $this->assertCount(2, $reloaded->config['items']);
     }
 
+    public function test_word_search_mission_config_round_trips_with_prompt_and_grid_size(): void
+    {
+        // Task 7: register + persist a `word_search` mission via the same PUT flow, with
+        // a prompt present and grid_size explicitly set, and confirm every field survives
+        // creation intact. `words` is a flat string array (not translatable).
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $json = json_encode([[
+            'type' => 'word_search',
+            'title' => ['en' => 'Find the Words', 'id' => 'Cari Kata'],
+            'points' => 100,
+            'config' => [
+                'prompt' => ['en' => 'Find these words', 'id' => 'Cari kata-kata ini'],
+                'words' => ['BAMBU', 'ADAT', 'DESA'],
+                'grid_size' => 12,
+            ],
+        ]]);
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [['id' => $point->id, 'locationable_type' => $obj->getMorphClass(), 'locationable_id' => $obj->id, 'missions' => $json]],
+        ])->assertRedirect();
+
+        $mission = RouteMission::where('tour_route_point_id', $point->id)->firstOrFail();
+        $this->assertEquals('word_search', $mission->type);
+        $this->assertEquals('Find these words', $mission->config['prompt']['en']);
+        $this->assertEquals(['BAMBU', 'ADAT', 'DESA'], $mission->config['words']);
+        $this->assertEquals(12, $mission->config['grid_size']);
+    }
+
+    public function test_word_search_mission_reader_does_not_add_prompt_or_grid_size_when_originally_absent(): void
+    {
+        // Field-by-field audit for MISSION_CONFIG_READERS['word_search']: `prompt` and
+        // `grid_size` are the OPTIONAL fields in `{ prompt?:{en,id}, words:[...], grid_size?:int }`
+        // and must be guarded (like matching/sequence's `prompt`) so an open->close-without-editing
+        // ->save on an existing word_search mission with neither field does not silently inject
+        // `prompt: {en:'',id:''}` or `grid_size: 0`. `words` is required, always emitted.
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $originalConfig = [
+            'words' => ['ADAT', 'PURA'],
+        ];
+
+        $existing = RouteMission::create([
+            'tour_route_point_id' => $point->id,
+            'type' => 'word_search',
+            'title' => ['en' => 'No Prompt Word Search', 'id' => 'Cari Kata Tanpa Prompt'],
+            'points' => 50,
+            'config' => $originalConfig,
+            'order' => 1,
+        ]);
+
+        $this->assertArrayNotHasKey('prompt', $existing->config, 'Fixture must start without a prompt key.');
+        $this->assertArrayNotHasKey('grid_size', $existing->config, 'Fixture must start without a grid_size key.');
+
+        // Re-submit exactly what MISSION_CONFIG_READERS['word_search'] should produce for
+        // this config after a no-op open/close: no `prompt` or `grid_size` keys, since
+        // those DOM fields were empty; words preserved verbatim.
+        $reconstructed = [
+            'words' => ['ADAT', 'PURA'],
+        ];
+
+        $missionsJson = json_encode([[
+            'id' => $existing->id,
+            'type' => 'word_search',
+            'title' => ['en' => 'No Prompt Word Search', 'id' => 'Cari Kata Tanpa Prompt'],
+            'points' => 50,
+            'config' => $reconstructed,
+        ]]);
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [['id' => $point->id, 'locationable_type' => $obj->getMorphClass(), 'locationable_id' => $obj->id, 'missions' => $missionsJson]],
+        ])->assertRedirect();
+
+        $reloaded = RouteMission::find($existing->id);
+        $this->assertEquals($existing->id, $reloaded->id, 'Mission id must be stable across the no-op edit.');
+        $this->assertArrayNotHasKey('prompt', $reloaded->config, 'A no-op save must not add a prompt key that was never there.');
+        $this->assertArrayNotHasKey('grid_size', $reloaded->config, 'A no-op save must not add a grid_size key that was never there.');
+        $this->assertEquals(['ADAT', 'PURA'], $reloaded->config['words']);
+    }
+
     public function test_mission_asset_upload_returns_public_url(): void
     {
         Storage::fake('public');
