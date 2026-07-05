@@ -331,4 +331,27 @@ window.MISSION_CONFIG_READERS['sequence'] = function (c) {
     out.items = [...c.querySelectorAll('.sq-row')].map(r => ({ text: readBilingual(r, 'sq-text') }));
     return out;
 };
+
+// --- Task 7: word_search config editor ----------------------------------------------
+// Config shape: { prompt?:{en,id}, words:["BAMBU", ...], grid_size?:int }
+// Field audit: `prompt` and `grid_size` are OPTIONAL — both guarded below (prompt via the
+// same id/en presence check as matching/sequence; grid_size via non-empty input check) so a
+// no-op open/close/save doesn't inject empty values into missions that never had them.
+// `words` is REQUIRED (flat string array, not translatable) and always emitted.
+
+window.MISSION_CONFIG_BUILDERS['word_search'] = function (c, cfg) {
+    c.innerHTML = `
+      <div class="ws-prompt mb-2">${bilingualInput('ws-prompt', cfg.prompt || {en:'',id:''}, 'Instruksi (prompt)')}</div>
+      <label class="text-xs font-semibold text-gray-600">Ukuran grid (opsional)</label>
+      <input type="number" class="ws-grid w-24 rounded border border-gray-200 px-2 py-1 text-sm mb-2 block" value="${cfg.grid_size || ''}" oninput="markMissionDirty()">
+      <label class="text-xs font-semibold text-gray-600">Kata (satu per baris, huruf saja)</label>
+      <textarea class="ws-words w-full rounded border border-gray-200 px-2 py-1 text-sm" rows="4" oninput="markMissionDirty()">${(cfg.words || []).join('\n')}</textarea>`;
+};
+window.MISSION_CONFIG_READERS['word_search'] = function (c) {
+    const out = {};
+    const prompt = readBilingual(c.querySelector('.ws-prompt'), 'ws-prompt'); if (prompt.id || prompt.en) out.prompt = prompt;
+    out.words = c.querySelector('.ws-words').value.split('\n').map(w => w.trim()).filter(Boolean);
+    const g = c.querySelector('.ws-grid').value; if (g) out.grid_size = Number(g);
+    return out;
+};
 </script>
