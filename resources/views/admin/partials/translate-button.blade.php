@@ -180,5 +180,6 @@
     // Exposed so dynamically-inserted rows (e.g. quiz modal's addQuizField())
     // can re-run injection after DOMContentLoaded has already fired.
     window.injectTranslateButtons = inject;
+    window.translateText = translate;
 })();
 </script>
