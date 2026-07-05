@@ -104,7 +104,11 @@
                         :class="matched.includes(item.i) ? 'border-emerald-300 bg-emerald-50 text-emerald-700' :
                             (selectedLeft === item.i ? 'border-primary bg-primary text-white' : 'border-gray-200 bg-white text-gray-700')"
                         :disabled="matched.includes(item.i)">
-                        <span x-show="item.icon" x-text="item.icon" class="mr-1"></span><span x-text="item.left"></span>
+                        <template x-if="item.image">
+                            <img :src="item.image" alt="" class="mx-auto block h-12 w-12 rounded object-cover mb-1">
+                        </template>
+                        <span x-show="!item.image && item.icon" x-text="item.icon" class="mr-1"></span>
+                        <span x-text="item.left" :class="item.image ? 'block text-center text-xs' : ''"></span>
                     </button>
                 </template>
             </div>
