@@ -13,7 +13,7 @@
                 + Tambah Misi
             </button>
             <button type="button" onclick="closeMissionModal()"
-                class="bg-primary hover:bg-primary-600 w-full rounded-xl py-3 text-sm font-semibold text-white shadow-lg transition-all">Selesai &amp; Tutup</button>
+                class="bg-primary hover:bg-primary-600 w-full rounded-xl py-3 text-sm font-semibold text-white shadow-lg transition-all">Simpan &amp; Tutup</button>
         </div>
     </x-slot:footer>
 </x-modal>
