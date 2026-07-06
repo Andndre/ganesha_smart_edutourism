@@ -58,14 +58,6 @@ class CulturalObjectController extends Controller
         unset(
             $validated['latitude'],
             $validated['longitude'],
-            $validated['has_quiz'],
-            $validated['quiz_question'],
-            $validated['quiz_option_a'],
-            $validated['quiz_option_b'],
-            $validated['quiz_option_c'],
-            $validated['quiz_option_d'],
-            $validated['quiz_correct_option'],
-            $validated['quiz_explanation'],
             // Decoupled AR fields
             $validated['ar_marker_id'],
             $validated['ar_marker_patt_content'],
@@ -91,30 +83,6 @@ class CulturalObjectController extends Controller
         }
 
         $object = CulturalObject::create($validated);
-
-        if ($request->has('has_quiz') && $request->has('quiz_question')) {
-            $questions = $request->input('quiz_question');
-            $optionA = $request->input('quiz_option_a');
-            $optionB = $request->input('quiz_option_b');
-            $optionC = $request->input('quiz_option_c');
-            $optionD = $request->input('quiz_option_d');
-            $correctOptions = $request->input('quiz_correct_option');
-            $explanations = $request->input('quiz_explanation', []);
-
-            foreach ($questions as $index => $question) {
-                if (! empty($question['en']) || ! empty($question['id'])) {
-                    $object->quizzes()->create([
-                        'question' => $question,
-                        'option_a' => $optionA[$index] ?? ['en' => '', 'id' => ''],
-                        'option_b' => $optionB[$index] ?? ['en' => '', 'id' => ''],
-                        'option_c' => $optionC[$index] ?? ['en' => '', 'id' => ''],
-                        'option_d' => $optionD[$index] ?? ['en' => '', 'id' => ''],
-                        'correct_option' => $correctOptions[$index] ?? 'A',
-                        'explanation' => $explanations[$index] ?? null,
-                    ]);
-                }
-            }
-        }
 
         $mapLocation = $object->syncMapLocation([
             'category' => 'cultural',
@@ -246,14 +214,6 @@ class CulturalObjectController extends Controller
         unset(
             $validated['latitude'],
             $validated['longitude'],
-            $validated['has_quiz'],
-            $validated['quiz_question'],
-            $validated['quiz_option_a'],
-            $validated['quiz_option_b'],
-            $validated['quiz_option_c'],
-            $validated['quiz_option_d'],
-            $validated['quiz_correct_option'],
-            $validated['quiz_explanation'],
             // Decoupled AR fields
             $validated['ar_marker_id'],
             $validated['ar_marker_patt_content'],
@@ -274,32 +234,6 @@ class CulturalObjectController extends Controller
         }
 
         $object->update($validated);
-
-        $object->quizzes()->delete();
-
-        if ($request->has('has_quiz') && $request->has('quiz_question')) {
-            $questions = $request->input('quiz_question');
-            $optionA = $request->input('quiz_option_a');
-            $optionB = $request->input('quiz_option_b');
-            $optionC = $request->input('quiz_option_c');
-            $optionD = $request->input('quiz_option_d');
-            $correctOptions = $request->input('quiz_correct_option');
-            $explanations = $request->input('quiz_explanation', []);
-
-            foreach ($questions as $index => $question) {
-                if (! empty($question['en']) || ! empty($question['id'])) {
-                    $object->quizzes()->create([
-                        'question' => $question,
-                        'option_a' => $optionA[$index] ?? ['en' => '', 'id' => ''],
-                        'option_b' => $optionB[$index] ?? ['en' => '', 'id' => ''],
-                        'option_c' => $optionC[$index] ?? ['en' => '', 'id' => ''],
-                        'option_d' => $optionD[$index] ?? ['en' => '', 'id' => ''],
-                        'correct_option' => $correctOptions[$index] ?? 'A',
-                        'explanation' => $explanations[$index] ?? null,
-                    ]);
-                }
-            }
-        }
 
         $mapLocation = $object->syncMapLocation([
             'category' => 'cultural',

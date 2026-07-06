@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\Translatable\HasTranslations;
@@ -48,16 +47,6 @@ class CulturalObject extends Model
     public function mapLocation(): MorphOne
     {
         return $this->morphOne(MapLocation::class, 'locationable');
-    }
-
-    /**
-     * Get the quizzes associated with this cultural object.
-     *
-     * @return HasMany<CulturalObjectQuiz>
-     */
-    public function quizzes(): HasMany
-    {
-        return $this->hasMany(CulturalObjectQuiz::class);
     }
 
     /**

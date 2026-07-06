@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\ArModel;
 use App\Models\CapacityZone;
 use App\Models\CulturalObject;
-use App\Models\CulturalObjectQuiz;
 use App\Models\Event;
 use App\Models\Feedback;
 use App\Models\MapLocation;
@@ -76,7 +75,6 @@ class DatabaseSeeder extends Seeder
             MapLocation::factory()->for($object, 'locationable')->create([
                 'category' => 'cultural',
             ]);
-            CulturalObjectQuiz::factory()->count(2)->create(['cultural_object_id' => $object->id]);
         });
 
         ArModel::factory()->count(3)->create();

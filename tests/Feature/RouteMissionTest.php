@@ -251,28 +251,25 @@ class RouteMissionTest extends TestCase
 
     public function test_first_point_quiz_success_awards_digital_passport(): void
     {
-        $gerbang = $this->pointOne->locationable;
-        $quizzes = collect(range(1, 5))->map(fn ($i) => $gerbang->quizzes()->create([
-            'question' => ['en' => "Q{$i}", 'id' => "S{$i}"],
-            'option_a' => ['en' => 'A', 'id' => 'A'],
-            'option_b' => ['en' => 'B', 'id' => 'B'],
-            'option_c' => ['en' => 'C', 'id' => 'C'],
-            'option_d' => ['en' => 'D', 'id' => 'D'],
-            'correct_option' => 'a',
-        ]));
+        // Point 1's quiz is now a RouteMission (500-point cap, 5 questions) — replace
+        // the generic missionA/missionB from setUp() with a single quiz mission.
+        RouteMission::where('tour_route_point_id', $this->pointOne->id)->delete();
+        $quizMission = RouteMission::create([
+            'tour_route_point_id' => $this->pointOne->id,
+            'type' => 'quiz',
+            'title' => ['en' => 'Unlock the Village', 'id' => 'Buka Gerbang Desa'],
+            'config' => ['questions' => []],
+            'points' => 500,
+            'order' => 1,
+        ]);
 
         $session = $this->startSession();
 
-        // 4 correct, then the last one wrong (still >= 80%).
-        foreach ($quizzes->take(4) as $quiz) {
-            $this->actingAs($this->user)
-                ->postJson("/edutourism/quiz/{$quiz->id}/submit", ['answer' => 'A', 'is_last_quiz' => false])
-                ->assertOk();
-        }
-
+        // 4/5 correct (80%) meets the threshold.
         $this->actingAs($this->user)
-            ->postJson("/edutourism/quiz/{$quizzes->last()->id}/submit", ['answer' => 'B', 'is_last_quiz' => true])
-            ->assertOk();
+            ->postJson("/edutourism/mission/{$quizMission->id}/complete", ['earned' => 400])
+            ->assertOk()
+            ->assertJson(['is_last_mission' => true]);
 
         $fresh = $session->fresh();
         $this->assertContains('digital_passport', $fresh->collectibles_earned ?? []);
@@ -281,22 +278,45 @@ class RouteMissionTest extends TestCase
 
     public function test_low_quiz_score_gets_no_passport(): void
     {
-        $gerbang = $this->pointOne->locationable;
-        $quiz = $gerbang->quizzes()->create([
-            'question' => ['en' => 'Q1', 'id' => 'S1'],
-            'option_a' => ['en' => 'A', 'id' => 'A'],
-            'option_b' => ['en' => 'B', 'id' => 'B'],
-            'option_c' => ['en' => 'C', 'id' => 'C'],
-            'option_d' => ['en' => 'D', 'id' => 'D'],
-            'correct_option' => 'a',
+        RouteMission::where('tour_route_point_id', $this->pointOne->id)->delete();
+        $quizMission = RouteMission::create([
+            'tour_route_point_id' => $this->pointOne->id,
+            'type' => 'quiz',
+            'title' => ['en' => 'Unlock the Village', 'id' => 'Buka Gerbang Desa'],
+            'config' => ['questions' => []],
+            'points' => 500,
+            'order' => 1,
         ]);
 
         $session = $this->startSession();
 
+        // 1/5 correct (20%) misses the 80% threshold.
         $this->actingAs($this->user)
-            ->postJson("/edutourism/quiz/{$quiz->id}/submit", ['answer' => 'B', 'is_last_quiz' => true])
+            ->postJson("/edutourism/mission/{$quizMission->id}/complete", ['earned' => 100])
             ->assertOk();
 
         $this->assertEmpty($session->fresh()->collectibles_earned ?? []);
+    }
+
+    public function test_active_page_renders_locale_specific_intro_media(): void
+    {
+        $this->pointOne->update([
+            'intro_video_paths' => ['id' => 'route_point_media/vid-id.mp4', 'en' => 'route_point_media/vid-en.mp4'],
+            'intro_audio_paths' => ['id' => 'route_point_media/aud-id.mp3', 'en' => 'route_point_media/aud-en.mp3'],
+        ]);
+        $this->startSession();
+
+        // APP_LOCALE=id in phpunit.xml — default locale renders the Indonesian paths.
+        $this->actingAs($this->user)->get('/edutourism/active')
+            ->assertOk()
+            ->assertSee('/audio-stream/route_point_media/vid-id.mp4', false)
+            ->assertSee('/audio-stream/route_point_media/aud-id.mp3', false)
+            ->assertDontSee('vid-en.mp4', false);
+
+        // SetUserLocale middleware switches on ?locale= — English paths render instead.
+        $this->actingAs($this->user)->get('/edutourism/active?locale=en')
+            ->assertOk()
+            ->assertSee('/audio-stream/route_point_media/vid-en.mp4', false)
+            ->assertSee('/audio-stream/route_point_media/aud-en.mp3', false);
     }
 }

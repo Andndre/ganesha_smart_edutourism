@@ -84,6 +84,10 @@
                     confetti?.({ particleCount: 70, spread: 65, origin: { y: 0.7 } });
                     setTimeout(() => this.$dispatch('mission-complete', { id: this.missionId, earned }), 900);
                 },
+
+                playAudio(path) {
+                    new Audio('/audio-stream/' + path).play();
+                },
             };
         }
     </script>
@@ -107,7 +111,17 @@
                         <template x-if="item.image">
                             <img :src="item.image" alt="" class="mx-auto block h-12 w-12 rounded object-cover mb-1" x-on:error="$event.target.style.display='none'">
                         </template>
-                        <span x-text="item.left" :class="item.image ? 'block text-center text-xs' : ''"></span>
+                        <span class="inline-flex items-center gap-1.5">
+                            <span x-text="item.left" :class="item.image ? 'block text-center text-xs' : ''"></span>
+                            <template x-if="item.audio">
+                                <button type="button" @click.stop="playAudio(item.audio)"
+                                    class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                    <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M8 5v14l11-7z" />
+                                    </svg>
+                                </button>
+                            </template>
+                        </span>
                     </button>
                 </template>
             </div>

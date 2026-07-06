@@ -276,27 +276,6 @@ function handleMarkerClick(marker) {
             form.querySelector('textarea[name="accessibility_notes[id]"]').value = culturalAccId;
             updateAccessibilityNotesVisibility(form);
 
-            // Populate Quizzes
-            const quizzesList = document.getElementById('quizzes-list');
-            if (quizzesList) quizzesList.innerHTML = '';
-            
-            if (details.quizzes && details.quizzes.length > 0) {
-                form.querySelector('input[name="has_quiz"]').checked = true;
-                const manageBtn = document.getElementById('btn-manage-quizzes');
-                if (manageBtn) {
-                    manageBtn.classList.remove('hidden');
-                    manageBtn.classList.add('flex');
-                }
-                details.quizzes.forEach(q => addQuizField(q));
-            } else {
-                form.querySelector('input[name="has_quiz"]').checked = false;
-                const manageBtn = document.getElementById('btn-manage-quizzes');
-                if (manageBtn) {
-                    manageBtn.classList.add('hidden');
-                    manageBtn.classList.remove('flex');
-                }
-            }
-
             // Setup Delete Action
             document.getElementById('form-delete').action = `/admin/cultural-objects/${details.id}`;
 
@@ -407,16 +386,6 @@ function resetForms() {
 
         document.getElementById('current-images').innerHTML = '';
         ['current-audio-en', 'current-audio-id'].forEach(window.resetMiniAudio);
-        if(culturalForm.querySelector('input[name="has_quiz"]')) {
-            culturalForm.querySelector('input[name="has_quiz"]').checked = false;
-            const manageBtn = document.getElementById('btn-manage-quizzes');
-            if (manageBtn) {
-                manageBtn.classList.add('hidden');
-                manageBtn.classList.remove('flex');
-            }
-            const quizzesList = document.getElementById('quizzes-list');
-            if (quizzesList) quizzesList.innerHTML = '';
-        }
 
         updateAccessibilityNotesVisibility(culturalForm);
     }

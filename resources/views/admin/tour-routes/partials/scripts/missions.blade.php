@@ -10,6 +10,7 @@ const MISSION_TYPES = [
     { value: 'word_search', label: 'Cari Kata (Word Search)' },
     { value: 'decision', label: 'Skenario Keputusan (Decision)' },
     { value: 'riddle', label: 'Teka-teki (Riddle)' },
+    { value: 'quiz', label: 'Kuis Pilihan Ganda (Quiz)' },
 ];
 
 // Per-type config editors are registered by Tasks 5-8 into MISSION_CONFIG_BUILDERS[type].
@@ -103,9 +104,15 @@ function addMissionField(mission = null) {
     }
     row.setAttribute('x-data', "{ locale: 'id' }");
     row.innerHTML = `
-        <div class="flex items-center justify-between mb-3">
-            <span class="text-sm font-bold text-gray-700">Misi ${idx + 1}</span>
-            <div class="flex items-center gap-1.5">
+        <div class="flex items-center justify-between">
+            <button type="button" onclick="toggleMissionBody(this)" class="mission-toggle-btn flex min-w-0 flex-1 items-center gap-2 py-1 text-left">
+                <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                <div class="min-w-0">
+                    <span class="text-sm font-bold text-gray-700">Misi ${idx + 1}</span>
+                    <p class="mission-summary truncate text-[10px] text-gray-400">${escapeHtml(missionTypeLabel(m.type))} · ${escapeHtml(m.title?.id || m.title?.en || '(tanpa judul)')}</p>
+                </div>
+            </button>
+            <div class="flex shrink-0 items-center gap-1.5">
                 <button @click="locale='id'" :class="locale==='id'?'bg-primary text-white':'bg-gray-100 text-gray-500'" class="px-2 py-0.5 rounded text-[10px] font-semibold" type="button">ID</button>
                 <button @click="locale='en'" :class="locale==='en'?'bg-primary text-white':'bg-gray-100 text-gray-500'" class="px-2 py-0.5 rounded text-[10px] font-semibold" type="button">EN</button>
                 <button type="button" onclick="translateMissionTitle(this)" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-secondary/20 hover:bg-secondary/30 text-charcoal flex items-center gap-0.5 transition-all">
@@ -117,33 +124,35 @@ function addMissionField(mission = null) {
                 </button>
             </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
-            <div>
-                <label class="mb-1 block text-xs font-semibold text-gray-600">Tipe Misi</label>
-                <select class="m-type w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" onchange="onMissionTypeChange(this)">
-                    ${MISSION_TYPES.map(t => `<option value="${t.value}" ${m.type === t.value ? 'selected' : ''}>${t.label}</option>`).join('')}
-                </select>
-            </div>
-            <div>
-                <label class="mb-1 block text-xs font-semibold text-gray-600">Poin</label>
-                <input type="number" class="m-points w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${m.points ?? 100}" oninput="markMissionDirty()">
-            </div>
-            <div>
-                <div x-show="locale==='id'">
-                    <label class="mb-1 block text-xs font-semibold text-gray-600">Judul (ID)</label>
-                    <input type="text" class="m-title-id w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${escapeHtml(m.title?.id)}" oninput="markMissionDirty()">
+        <div class="mission-body hidden mt-3">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+                <div>
+                    <label class="mb-1 block text-xs font-semibold text-gray-600">Tipe Misi</label>
+                    <select class="m-type w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" onchange="onMissionTypeChange(this)">
+                        ${MISSION_TYPES.map(t => `<option value="${t.value}" ${m.type === t.value ? 'selected' : ''}>${t.label}</option>`).join('')}
+                    </select>
                 </div>
-                <div x-show="locale==='en'">
-                    <label class="mb-1 block text-xs font-semibold text-gray-600">Judul (EN)</label>
-                    <input type="text" class="m-title-en w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${escapeHtml(m.title?.en)}" oninput="markMissionDirty()">
+                <div>
+                    <label class="mb-1 block text-xs font-semibold text-gray-600">Poin</label>
+                    <input type="number" class="m-points w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${m.points ?? 100}" oninput="markMissionDirty()">
+                </div>
+                <div>
+                    <div x-show="locale==='id'">
+                        <label class="mb-1 block text-xs font-semibold text-gray-600">Judul (ID)</label>
+                        <input type="text" class="m-title-id w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${escapeHtml(m.title?.id)}" oninput="markMissionDirty(); updateMissionSummary(this)">
+                    </div>
+                    <div x-show="locale==='en'">
+                        <label class="mb-1 block text-xs font-semibold text-gray-600">Judul (EN)</label>
+                        <input type="text" class="m-title-en w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${escapeHtml(m.title?.en)}" oninput="markMissionDirty(); updateMissionSummary(this)">
+                    </div>
+                </div>
+                <div>
+                    <label class="mb-1 block text-xs font-semibold text-gray-600">Batas Waktu (detik, opsional)</label>
+                    <input type="number" class="m-timelimit w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${m.time_limit_seconds ?? ''}" oninput="markMissionDirty()">
                 </div>
             </div>
-            <div>
-                <label class="mb-1 block text-xs font-semibold text-gray-600">Batas Waktu (detik, opsional)</label>
-                <input type="number" class="m-timelimit w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${m.time_limit_seconds ?? ''}" oninput="markMissionDirty()">
-            </div>
+            <div class="m-config border-t border-gray-100 pt-3"></div>
         </div>
-        <div class="m-config border-t border-gray-100 pt-3"></div>
     `;
     list.appendChild(row);
     window.Alpine?.initTree(row);
@@ -151,7 +160,28 @@ function addMissionField(mission = null) {
     markMissionDirty();
 }
 
+// Collapsed by default (per-mission accordion): the body stays in the DOM (just
+// hidden via a CSS class), so toggling never loses input values.
+function toggleMissionBody(btn) {
+    const row = btn.closest('.mission-item');
+    row.querySelector('.mission-body').classList.toggle('hidden');
+    btn.querySelector('svg').classList.toggle('rotate-90');
+}
+
+function missionTypeLabel(type) {
+    return MISSION_TYPES.find(t => t.value === type)?.label || type;
+}
+
+// Keeps the collapsed-state summary line in sync with the title/type inputs.
+function updateMissionSummary(el) {
+    const row = el.closest('.mission-item');
+    const type = row.querySelector('.m-type').value;
+    const title = row.querySelector('.m-title-id').value || row.querySelector('.m-title-en').value || '(tanpa judul)';
+    row.querySelector('.mission-summary').textContent = `${missionTypeLabel(type)} · ${title}`;
+}
+
 function onMissionTypeChange(select) {
+    updateMissionSummary(select);
     const row = select.closest('.mission-item');
     renderMissionConfig(row, select.value, {});   // reset config UI on type change
     markMissionDirty();
@@ -407,6 +437,12 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
                   ${bilingualInput('mc-left', data.left || {en:'',id:''}, 'Kiri')}
                   ${bilingualInput('mc-right', data.right || {en:'',id:''}, 'Kanan (jawaban)')}
                 </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-semibold text-gray-500">Audio (opsional):</span>
+                  <input type="hidden" class="mc-audio" value="${escapeHtml(data.audio)}">
+                  <input type="file" accept=".mp3,.ogg,.wav,.m4a" class="text-[10px]" onchange="uploadMissionAudio(this, '.mc-audio')">
+                </div>
+                <div class="mc-audio-preview">${data.audio ? `<audio src="/audio-stream/${escapeHtml(data.audio)}" controls class="mt-1 h-6 w-full"></audio>` : ''}</div>
                 <div class="flex justify-end">
                   <button type="button" onclick="this.closest('.mc-row').remove(); markMissionDirty()" class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center" title="Hapus">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -438,11 +474,44 @@ window.MISSION_CONFIG_READERS['matching'] = function (c) {
         out.pairs = rows.map(r => {
             const pair = { left: readBilingual(r, 'mc-left'), right: readBilingual(r, 'mc-right') };
             const image = r.querySelector('.mc-image').value; if (image) pair.image = image;
+            const audio = r.querySelector('.mc-audio')?.value; if (audio) pair.audio = audio;
             return pair;
         });
     }
     return out;
 };
+
+// Audio-specific sibling to uploadMissionAsset: stores the returned relative storage
+// `path` (not the public `url`) since audio playback goes through the ranged
+// `audio.stream` route, mirroring the cultural-object/AR-model audio pattern.
+function uploadMissionAudio(fileInput, hiddenSelector) {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('input[name="_token"]')?.value);
+
+    fileInput.disabled = true;
+
+    fetch('{{ route('admin.route-missions.upload-asset') }}', { method: 'POST', body: fd })
+        .then(r => {
+            if (!r.ok) throw new Error('Upload failed');
+            return r.json();
+        })
+        .then(d => {
+            if (d.path) {
+                const scope = fileInput.closest('.mc-row');
+                scope.querySelector(hiddenSelector).value = d.path;
+                const preview = scope.querySelector('.mc-audio-preview');
+                if (preview) preview.innerHTML = `<audio src="/audio-stream/${d.path}" controls class="mt-1 h-6 w-full"></audio>`;
+                markMissionDirty();
+            }
+        })
+        .catch(() => Swal.fire({ icon: 'error', title: 'Upload audio gagal', confirmButtonColor: '#1E5128' }))
+        .finally(() => {
+            fileInput.disabled = false;
+        });
+}
 
 // Shared asset uploader: uploads the picked file, stores returned URL into the sibling hidden input.
 // Scoped to the nearest `.mc-row` or `.ds-scenario` ancestor so both Task 5 (matching) and
@@ -673,5 +742,63 @@ window.MISSION_CONFIG_READERS['riddle'] = function (c) {
     const hint = readBilingual(c.querySelector('.rd-hint'), 'rd-hint'); if (hint.id || hint.en) out.hint = hint;
     const st = readBilingual(c.querySelector('.rd-success'), 'rd-success'); if (st.id || st.en) out.success_text = st;
     return out;
+};
+
+// --- Task 10: quiz config editor -----------------------------------------------------
+// Config shape: { questions:[{ prompt:{en,id}, option_a:{en,id}, option_b, option_c, option_d,
+//   correct_option:'A'|'B'|'C'|'D', explanation?:{en,id} }] }
+// Field audit: `explanation` is OPTIONAL — guarded in the reader like decision's option
+// explanation. `prompt`/`option_*`/`correct_option` are REQUIRED and always emitted.
+
+window.MISSION_CONFIG_BUILDERS['quiz'] = function (c, cfg) {
+    c.innerHTML = `
+      <div class="qz-questions space-y-4"></div>
+      <button type="button" class="qz-add mt-2 text-xs text-primary font-semibold">+ Tambah Soal</button>`;
+    const wrap = c.querySelector('.qz-questions');
+    const addQuestion = (q = {}) => {
+        const el = document.createElement('div');
+        el.className = 'qz-question rounded-lg border border-gray-100 p-3 bg-gray-50/50';
+        el.innerHTML = `
+          ${bilingualInput('qz-prompt', q.prompt || {en:'',id:''}, 'Pertanyaan')}
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+            ${bilingualInput('qz-option-a', q.option_a || {en:'',id:''}, 'Opsi A')}
+            ${bilingualInput('qz-option-b', q.option_b || {en:'',id:''}, 'Opsi B')}
+            ${bilingualInput('qz-option-c', q.option_c || {en:'',id:''}, 'Opsi C')}
+            ${bilingualInput('qz-option-d', q.option_d || {en:'',id:''}, 'Opsi D')}
+          </div>
+          <div class="mt-2">
+            <label class="text-xs font-semibold text-gray-600">Jawaban benar</label>
+            <select class="qz-correct w-24 rounded-lg border border-gray-200 px-2 py-1 text-sm block" onchange="markMissionDirty()">
+              ${['A','B','C','D'].map(o => `<option value="${o}" ${(q.correct_option || 'A').toUpperCase() === o ? 'selected' : ''}>${o}</option>`).join('')}
+            </select>
+          </div>
+          <div class="qz-explanation mt-2">${bilingualInput('qz-explanation', q.explanation || {en:'',id:''}, 'Penjelasan (opsional)')}</div>
+          <div class="mt-2 flex justify-end">
+            <button type="button" onclick="this.closest('.qz-question').remove(); markMissionDirty()" class="inline-flex items-center gap-1 text-red-400 hover:text-red-600 text-xs font-semibold transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              <span>Hapus Soal</span>
+            </button>
+          </div>`;
+        wrap.appendChild(el); window.Alpine?.initTree(el);
+    };
+    (cfg.questions || []).forEach(addQuestion);
+    c.querySelector('.qz-add').onclick = () => { addQuestion(); markMissionDirty(); };
+};
+
+window.MISSION_CONFIG_READERS['quiz'] = function (c) {
+    return {
+        questions: [...c.querySelectorAll('.qz-question')].map(q => {
+            const out = {
+                prompt: readBilingual(q, 'qz-prompt'),
+                option_a: readBilingual(q, 'qz-option-a'),
+                option_b: readBilingual(q, 'qz-option-b'),
+                option_c: readBilingual(q, 'qz-option-c'),
+                option_d: readBilingual(q, 'qz-option-d'),
+                correct_option: q.querySelector('.qz-correct').value,
+            };
+            const exp = readBilingual(q, 'qz-explanation'); if (exp.id || exp.en) out.explanation = exp;
+            return out;
+        }),
+    };
 };
 </script>

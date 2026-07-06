@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\TourRouteRequest;
 use App\Models\MapLocation;
 use App\Models\TourRoute;
+use App\Services\TusService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -166,6 +167,18 @@ class TourRouteController extends Controller
             $keptPointIds = [];
 
             foreach (array_values($points) as $index => $point) {
+                // Video arrives as a TUS temp key per locale (uploaded separately, moved to
+                // final storage here); audio arrives already-final from the asset upload
+                // endpoint. Untouched locales keep whatever path was already submitted.
+                $introVideoPaths = $point['intro_video_paths'] ?? [];
+                foreach (['en', 'id'] as $locale) {
+                    $tmpKey = $point['intro_video_tmp'][$locale] ?? null;
+                    if ($tmpKey) {
+                        $introVideoPaths[$locale] = TusService::moveFromTemp($tmpKey, 'route_point_media');
+                    }
+                }
+                $introAudioPaths = $point['intro_audio_paths'] ?? [];
+
                 $model = $route->routePoints()->updateOrCreate(
                     ['id' => $point['id'] ?? null],
                     [
@@ -174,6 +187,8 @@ class TourRouteController extends Controller
                         'order' => $index + 1,
                         'estimated_visit_minutes' => $point['estimated_visit_minutes'] ?? 15,
                         'storytelling_content' => $point['storytelling_content'] ?? null,
+                        'intro_video_paths' => $introVideoPaths ?: null,
+                        'intro_audio_paths' => $introAudioPaths ?: null,
                     ]
                 );
                 $keptPointIds[] = $model->id;

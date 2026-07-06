@@ -106,8 +106,6 @@ class Route1HeritageQuestSeeder extends Seeder
 
         $points = $this->ensurePoints($route, $objects);
 
-        $this->ensurePointOneQuizzes($objects['gerbang']);
-
         $this->rebuildMissions($points);
 
         $this->command?->info('Rute 1 "Penglipuran Heritage Quest" seeded: '.count($points).' points.');
@@ -249,94 +247,71 @@ class Route1HeritageQuestSeeder extends Seeder
     }
 
     /**
-     * Mission 1 "Unlock the Village": 5 MCQs on the existing CulturalObjectQuiz system.
-     * Only seeded when the object has no quizzes yet (admin edits are preserved on re-run).
+     * Mission 1 "Unlock the Village": 5 MCQs, as a RouteMission type 'quiz'.
+     *
+     * @return array<string, mixed>
      */
-    private function ensurePointOneQuizzes(CulturalObject $gerbang): void
+    private function pointOneQuizConfig(): array
     {
-        if ($gerbang->quizzes()->count() > 0) {
-            return;
-        }
-
-        $quizzes = [
+        return ['questions' => [
             [
-                'question' => ['id' => 'Desa Penglipuran terletak di kabupaten apa?', 'en' => 'In which regency is Penglipuran Village located?'],
-                'options' => [
-                    'a' => ['id' => 'Bangli', 'en' => 'Bangli'],
-                    'b' => ['id' => 'Badung', 'en' => 'Badung'],
-                    'c' => ['id' => 'Gianyar', 'en' => 'Gianyar'],
-                    'd' => ['id' => 'Tabanan', 'en' => 'Tabanan'],
-                ],
-                'correct' => 'a',
+                'prompt' => ['id' => 'Desa Penglipuran terletak di kabupaten apa?', 'en' => 'In which regency is Penglipuran Village located?'],
+                'option_a' => ['id' => 'Bangli', 'en' => 'Bangli'],
+                'option_b' => ['id' => 'Badung', 'en' => 'Badung'],
+                'option_c' => ['id' => 'Gianyar', 'en' => 'Gianyar'],
+                'option_d' => ['id' => 'Tabanan', 'en' => 'Tabanan'],
+                'correct_option' => 'A',
                 'explanation' => ['id' => 'Desa Penglipuran berada di Kelurahan Kubu, Kabupaten Bangli, Bali.', 'en' => 'Penglipuran Village is located in Kubu, Bangli Regency, Bali.'],
             ],
             [
-                'question' => ['id' => 'Konsep tata ruang tradisional yang membagi Desa Penglipuran menjadi tiga zona disebut?', 'en' => 'What is the traditional spatial concept dividing Penglipuran into three zones called?'],
-                'options' => [
-                    'a' => ['id' => 'Tri Datu', 'en' => 'Tri Datu'],
-                    'b' => ['id' => 'Tri Mandala', 'en' => 'Tri Mandala'],
-                    'c' => ['id' => 'Tri Kaya Parisudha', 'en' => 'Tri Kaya Parisudha'],
-                    'd' => ['id' => 'Tri Sakti', 'en' => 'Tri Sakti'],
-                ],
-                'correct' => 'b',
+                'prompt' => ['id' => 'Konsep tata ruang tradisional yang membagi Desa Penglipuran menjadi tiga zona disebut?', 'en' => 'What is the traditional spatial concept dividing Penglipuran into three zones called?'],
+                'option_a' => ['id' => 'Tri Datu', 'en' => 'Tri Datu'],
+                'option_b' => ['id' => 'Tri Mandala', 'en' => 'Tri Mandala'],
+                'option_c' => ['id' => 'Tri Kaya Parisudha', 'en' => 'Tri Kaya Parisudha'],
+                'option_d' => ['id' => 'Tri Sakti', 'en' => 'Tri Sakti'],
+                'correct_option' => 'B',
                 'explanation' => ['id' => 'Tri Mandala membagi desa menjadi Utama, Madya, dan Nista Mandala dari hulu ke hilir.', 'en' => 'Tri Mandala divides the village into Utama, Madya, and Nista Mandala from upstream to downstream.'],
             ],
             [
-                'question' => ['id' => 'Gerbang khas di depan setiap rumah tradisional Penglipuran disebut?', 'en' => 'What is the distinctive gate in front of every traditional Penglipuran house called?'],
-                'options' => [
-                    'a' => ['id' => 'Candi Bentar', 'en' => 'Candi Bentar'],
-                    'b' => ['id' => 'Kori Agung', 'en' => 'Kori Agung'],
-                    'c' => ['id' => 'Angkul-angkul', 'en' => 'Angkul-angkul'],
-                    'd' => ['id' => 'Aling-aling', 'en' => 'Aling-aling'],
-                ],
-                'correct' => 'c',
+                'prompt' => ['id' => 'Gerbang khas di depan setiap rumah tradisional Penglipuran disebut?', 'en' => 'What is the distinctive gate in front of every traditional Penglipuran house called?'],
+                'option_a' => ['id' => 'Candi Bentar', 'en' => 'Candi Bentar'],
+                'option_b' => ['id' => 'Kori Agung', 'en' => 'Kori Agung'],
+                'option_c' => ['id' => 'Angkul-angkul', 'en' => 'Angkul-angkul'],
+                'option_d' => ['id' => 'Aling-aling', 'en' => 'Aling-aling'],
+                'correct_option' => 'C',
                 'explanation' => ['id' => 'Angkul-angkul yang seragam di sepanjang koridor adalah ikon arsitektur Penglipuran.', 'en' => 'The uniform angkul-angkul along the corridor are Penglipuran\'s architectural icon.'],
             ],
             [
-                'question' => ['id' => 'Desa Penglipuran dikenal dunia sebagai salah satu desa paling ... di dunia.', 'en' => 'Penglipuran is known worldwide as one of the most ... villages in the world.'],
-                'options' => [
-                    'a' => ['id' => 'Ramai', 'en' => 'Crowded'],
-                    'b' => ['id' => 'Bersih', 'en' => 'Clean'],
-                    'c' => ['id' => 'Luas', 'en' => 'Vast'],
-                    'd' => ['id' => 'Tua', 'en' => 'Old'],
-                ],
-                'correct' => 'b',
+                'prompt' => ['id' => 'Desa Penglipuran dikenal dunia sebagai salah satu desa paling ... di dunia.', 'en' => 'Penglipuran is known worldwide as one of the most ... villages in the world.'],
+                'option_a' => ['id' => 'Ramai', 'en' => 'Crowded'],
+                'option_b' => ['id' => 'Bersih', 'en' => 'Clean'],
+                'option_c' => ['id' => 'Luas', 'en' => 'Vast'],
+                'option_d' => ['id' => 'Tua', 'en' => 'Old'],
+                'correct_option' => 'B',
                 'explanation' => ['id' => 'Penglipuran berulang kali masuk daftar desa terbersih di dunia berkat kedisiplinan adat menjaga lingkungan.', 'en' => 'Penglipuran repeatedly ranks among the world\'s cleanest villages thanks to customary discipline in caring for the environment.'],
             ],
             [
-                'question' => ['id' => 'Bahan bangunan tradisional yang paling banyak dimanfaatkan warga Penglipuran adalah?', 'en' => 'Which traditional building material is most used by Penglipuran residents?'],
-                'options' => [
-                    'a' => ['id' => 'Batu bata merah', 'en' => 'Red brick'],
-                    'b' => ['id' => 'Kayu jati', 'en' => 'Teak wood'],
-                    'c' => ['id' => 'Bambu', 'en' => 'Bamboo'],
-                    'd' => ['id' => 'Batu paras', 'en' => 'Paras stone'],
-                ],
-                'correct' => 'c',
+                'prompt' => ['id' => 'Bahan bangunan tradisional yang paling banyak dimanfaatkan warga Penglipuran adalah?', 'en' => 'Which traditional building material is most used by Penglipuran residents?'],
+                'option_a' => ['id' => 'Batu bata merah', 'en' => 'Red brick'],
+                'option_b' => ['id' => 'Kayu jati', 'en' => 'Teak wood'],
+                'option_c' => ['id' => 'Bambu', 'en' => 'Bamboo'],
+                'option_d' => ['id' => 'Batu paras', 'en' => 'Paras stone'],
+                'correct_option' => 'C',
                 'explanation' => ['id' => 'Bambu dari hutan adat dipakai untuk atap, dinding, hingga kerajinan — pemanfaatannya diatur secara adat.', 'en' => 'Bamboo from the customary forest is used for roofs, walls, and crafts — its use is regulated by adat.'],
             ],
-        ];
-
-        foreach ($quizzes as $quiz) {
-            $gerbang->quizzes()->create([
-                'question' => $quiz['question'],
-                'option_a' => $quiz['options']['a'],
-                'option_b' => $quiz['options']['b'],
-                'option_c' => $quiz['options']['c'],
-                'option_d' => $quiz['options']['d'],
-                'correct_option' => $quiz['correct'],
-                'explanation' => $quiz['explanation'],
-            ]);
-        }
+        ]];
     }
 
     /**
-     * Missions per point (points 2-6; point 1 uses the MCQ quiz system).
-     * Rebuilt deterministically on every run.
+     * Missions per point. Rebuilt deterministically on every run.
      *
      * @param  array<int, TourRoutePoint>  $points
      */
     private function rebuildMissions(array $points): void
     {
+        // Titik 1 — Mission 1 "Unlock the Village": 5 MCQs.
+        $this->mission($points[1], 1, 'quiz', ['id' => 'Buka Gerbang Desa', 'en' => 'Unlock the Village'], $this->pointOneQuizConfig(), 500);
+
         // Titik 2 — Mission 2 "Heritage Explorer": scavenger hunt + matching.
         // MVP: "memotret objek" diganti memilih objek asli dari grid (foto lapangan belum tersedia,
         // kartu memakai ikon + label — ganti dengan foto asli begitu tersedia dari tim lapangan).
@@ -454,13 +429,13 @@ class Route1HeritageQuestSeeder extends Seeder
         ]);
     }
 
-    private function mission(TourRoutePoint $point, int $order, string $type, array $title, array $config): void
+    private function mission(TourRoutePoint $point, int $order, string $type, array $title, array $config, int $points = 100): void
     {
         // updateOrCreate on (point, order) keeps mission IDs stable across reseeds —
         // completeMission() and RouteSession.missions_completed reference these IDs.
         RouteMission::updateOrCreate(
             ['tour_route_point_id' => $point->id, 'order' => $order],
-            ['type' => $type, 'title' => $title, 'config' => $config, 'points' => 100],
+            ['type' => $type, 'title' => $title, 'config' => $config, 'points' => $points],
         );
     }
 }

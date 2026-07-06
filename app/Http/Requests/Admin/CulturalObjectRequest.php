@@ -48,40 +48,11 @@ class CulturalObjectRequest extends FormRequest
             'cultural_audio_file.id' => ['nullable', 'file', 'mimes:mp3,ogg,wav,m4a', 'max:10240'],
             'historical_images' => ['nullable', 'array'],
             'historical_images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
-            'has_quiz' => ['nullable', 'boolean'],
-            'quiz_question' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_question.*' => ['required_if:has_quiz,1', 'array'],
-            'quiz_question.*.en' => ['required_if:has_quiz,1', 'string'],
-            'quiz_question.*.id' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_a' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_option_a.*' => ['required_if:has_quiz,1', 'array'],
-            'quiz_option_a.*.en' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_a.*.id' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_b' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_option_b.*' => ['required_if:has_quiz,1', 'array'],
-            'quiz_option_b.*.en' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_b.*.id' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_c' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_option_c.*' => ['required_if:has_quiz,1', 'array'],
-            'quiz_option_c.*.en' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_c.*.id' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_d' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_option_d.*' => ['required_if:has_quiz,1', 'array'],
-            'quiz_option_d.*.en' => ['required_if:has_quiz,1', 'string'],
-            'quiz_option_d.*.id' => ['required_if:has_quiz,1', 'string'],
-            'quiz_correct_option' => ['required_if:has_quiz,1', 'nullable', 'array'],
-            'quiz_correct_option.*' => ['required_if:has_quiz,1', 'string', 'in:A,B,C,D'],
-            'quiz_explanation' => ['nullable', 'array'],
-            'quiz_explanation.*' => ['nullable', 'array'],
-            'quiz_explanation.*.en' => ['nullable', 'string'],
-            'quiz_explanation.*.id' => ['nullable', 'string'],
         ];
     }
 
     protected function prepareForValidation(): void
     {
-        $this->normalizeLocaleArrayField('quiz_question');
-        $this->normalizeLocaleArrayField('quiz_explanation');
         $this->normalizeLocaleField('accessibility_notes');
     }
 }
