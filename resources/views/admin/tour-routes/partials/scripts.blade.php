@@ -477,6 +477,14 @@
     function uploadIntroAudio(fileInput, index, locale) {
         const file = fileInput.files[0];
         if (!file) return;
+
+        const maxSize = 10 * 1024 * 1024; // 10 MB, matches RouteMissionAssetController
+        if (file.size > maxSize) {
+            Swal.fire({ icon: 'error', title: 'Ukuran file maksimal 10MB.', confirmButtonColor: '#1E5128' });
+            fileInput.value = '';
+            return;
+        }
+
         const fd = new FormData();
         fd.append('file', file);
         fd.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('input[name="_token"]')?.value);
@@ -484,8 +492,11 @@
         fileInput.disabled = true;
 
         fetch('{{ route('admin.route-missions.upload-asset') }}', { method: 'POST', body: fd })
-            .then(r => {
-                if (!r.ok) throw new Error('Upload failed');
+            .then(async r => {
+                if (!r.ok) {
+                    const body = await r.json().catch(() => null);
+                    throw new Error(body?.message || Object.values(body?.errors ?? {})[0]?.[0] || 'Upload failed');
+                }
                 return r.json();
             })
             .then(d => {
@@ -497,7 +508,7 @@
                     }
                 }
             })
-            .catch(() => Swal.fire({ icon: 'error', title: 'Upload audio gagal', confirmButtonColor: '#1E5128' }))
+            .catch(err => Swal.fire({ icon: 'error', title: 'Upload audio gagal', text: err.message, confirmButtonColor: '#1E5128' }))
             .finally(() => {
                 fileInput.disabled = false;
             });

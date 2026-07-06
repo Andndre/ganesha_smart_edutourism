@@ -86,7 +86,7 @@
                 },
 
                 playAudio(path) {
-                    new Audio('/audio-stream/' + path).play();
+                    new Audio('/audio-stream/' + encodeURI(path)).play().catch(() => {});
                 },
             };
         }
