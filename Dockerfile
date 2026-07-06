@@ -54,8 +54,8 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction \
 
 # Configure Nginx & PHP upload limits
 COPY nginx/default.conf /etc/nginx/http.d/default.conf
-RUN echo "upload_max_filesize = 64M" > /usr/local/etc/php/conf.d/uploads.ini \
-    && echo "post_max_size = 64M" >> /usr/local/etc/php/conf.d/uploads.ini
+RUN echo "upload_max_filesize = 200M" > /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size = 200M" >> /usr/local/etc/php/conf.d/uploads.ini
 
 # Setup directory permissions and configure Nginx to run as www-data
 RUN sed -i 's/user nginx;/user www-data;/g' /etc/nginx/nginx.conf \
