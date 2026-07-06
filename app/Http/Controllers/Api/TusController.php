@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use TusPhp\Tus\Server;
 use TusPhp\Cache\FileStore;
+use TusPhp\Tus\Server;
 
 class TusController extends Controller
 {
@@ -24,11 +24,11 @@ class TusController extends Controller
         $server->setUploadDir($tempDir);
 
         // Trailing slash required — FileStore joins dir + filename without separator
-        $cache = new FileStore($cacheDir . '/');
+        $cache = new FileStore($cacheDir.'/');
         $cache->setTtl(86400);
         $server->setCache($cache);
 
-        $server->setMaxUploadSize(52428800);
+        $server->setMaxUploadSize(209715200); // 200 MB — covers intro videos, not just AR models
 
         $response = $server->serve();
 

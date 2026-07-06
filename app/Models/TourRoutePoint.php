@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Spatie\Translatable\HasTranslations;
 
-#[Fillable(['tour_route_id', 'locationable_type', 'locationable_id', 'order', 'estimated_visit_minutes', 'storytelling_content', 'qr_code_token'])]
+#[Fillable(['tour_route_id', 'locationable_type', 'locationable_id', 'order', 'estimated_visit_minutes', 'storytelling_content', 'qr_code_token', 'intro_video_paths', 'intro_audio_paths'])]
 class TourRoutePoint extends Model
 {
     use HasFactory;
@@ -30,7 +30,33 @@ class TourRoutePoint extends Model
         return [
             'order' => 'integer',
             'estimated_visit_minutes' => 'integer',
+            'intro_video_paths' => 'array',
+            'intro_audio_paths' => 'array',
         ];
+    }
+
+    /**
+     * Resolve the intro video path for the current locale, falling back to the
+     * app's fallback locale. Optional — most points have no intro video.
+     */
+    public function getIntroVideoPathAttribute(): ?string
+    {
+        $locale = app()->getLocale();
+        $paths = $this->intro_video_paths ?? [];
+
+        return $paths[$locale] ?? $paths[config('app.fallback_locale', 'en')] ?? null;
+    }
+
+    /**
+     * Resolve the intro audio path for the current locale, falling back to the
+     * app's fallback locale. Optional — most points have no intro audio.
+     */
+    public function getIntroAudioPathAttribute(): ?string
+    {
+        $locale = app()->getLocale();
+        $paths = $this->intro_audio_paths ?? [];
+
+        return $paths[$locale] ?? $paths[config('app.fallback_locale', 'en')] ?? null;
     }
 
     /**

@@ -7,6 +7,5 @@
 @include('admin.map-manager.partials.scripts.previews')
 @include('admin.map-manager.partials.scripts.map')
 @include('admin.map-manager.partials.scripts.editor')
-@include('admin.map-manager.partials.scripts.quiz')
 @include('admin.map-manager.partials.scripts.ar')
 @include('admin.map-manager.partials.scripts.ar-model-modal')

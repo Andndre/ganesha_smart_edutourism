@@ -12,9 +12,8 @@ use Illuminate\Support\Str;
 /**
  * Rute 2 "Penglipuran Cultural Adventure: Mystery of the Living Tradition" — 5 titik
  * bermain + layar rekap. Titik 1 & 2 (Gerbang Desa, Koridor Desa) reuse CulturalObject
- * yang sama dengan Rute 1 (lokasi fisik sama) — quiz Titik 1 juga otomatis ter-reuse
- * (melekat ke CulturalObject, bukan ke TourRoutePoint), sehingga tidak perlu RouteMission
- * di Titik 1 (RouteMission di titik manapun mematikan jalur quiz — lihat arrive()).
+ * yang sama dengan Rute 1 (lokasi fisik sama), tapi Titik 1's quiz mission adalah
+ * RouteMission independen milik rute ini (satu misi = satu titik = satu rute).
  *
  * Konten Bahasa Indonesia mengikuti PDF "Rute Eduwisata" (ClickUp Doc `2kzkxyn8-738`);
  * detail yang tidak dirinci PDF (resep Loloh Cemcem, skenario Karang Memadu, riddle akhir,
@@ -228,12 +227,72 @@ class Route2CulturalAdventureSeeder extends Seeder
     }
 
     /**
-     * Missions per point (points 2-5; point 1 uses the shared MCQ quiz system).
+     * Mission 1 quiz config — independent copy of Route 1's 5 MCQs (same starting
+     * content per team decision; each route's questions can be customized later).
+     *
+     * @return array<string, mixed>
+     */
+    private function pointOneQuizConfig(): array
+    {
+        return ['questions' => [
+            [
+                'prompt' => ['id' => 'Desa Penglipuran terletak di kabupaten apa?', 'en' => 'In which regency is Penglipuran Village located?'],
+                'option_a' => ['id' => 'Bangli', 'en' => 'Bangli'],
+                'option_b' => ['id' => 'Badung', 'en' => 'Badung'],
+                'option_c' => ['id' => 'Gianyar', 'en' => 'Gianyar'],
+                'option_d' => ['id' => 'Tabanan', 'en' => 'Tabanan'],
+                'correct_option' => 'A',
+                'explanation' => ['id' => 'Desa Penglipuran berada di Kelurahan Kubu, Kabupaten Bangli, Bali.', 'en' => 'Penglipuran Village is located in Kubu, Bangli Regency, Bali.'],
+            ],
+            [
+                'prompt' => ['id' => 'Konsep tata ruang tradisional yang membagi Desa Penglipuran menjadi tiga zona disebut?', 'en' => 'What is the traditional spatial concept dividing Penglipuran into three zones called?'],
+                'option_a' => ['id' => 'Tri Datu', 'en' => 'Tri Datu'],
+                'option_b' => ['id' => 'Tri Mandala', 'en' => 'Tri Mandala'],
+                'option_c' => ['id' => 'Tri Kaya Parisudha', 'en' => 'Tri Kaya Parisudha'],
+                'option_d' => ['id' => 'Tri Sakti', 'en' => 'Tri Sakti'],
+                'correct_option' => 'B',
+                'explanation' => ['id' => 'Tri Mandala membagi desa menjadi Utama, Madya, dan Nista Mandala dari hulu ke hilir.', 'en' => 'Tri Mandala divides the village into Utama, Madya, and Nista Mandala from upstream to downstream.'],
+            ],
+            [
+                'prompt' => ['id' => 'Gerbang khas di depan setiap rumah tradisional Penglipuran disebut?', 'en' => 'What is the distinctive gate in front of every traditional Penglipuran house called?'],
+                'option_a' => ['id' => 'Candi Bentar', 'en' => 'Candi Bentar'],
+                'option_b' => ['id' => 'Kori Agung', 'en' => 'Kori Agung'],
+                'option_c' => ['id' => 'Angkul-angkul', 'en' => 'Angkul-angkul'],
+                'option_d' => ['id' => 'Aling-aling', 'en' => 'Aling-aling'],
+                'correct_option' => 'C',
+                'explanation' => ['id' => 'Angkul-angkul yang seragam di sepanjang koridor adalah ikon arsitektur Penglipuran.', 'en' => 'The uniform angkul-angkul along the corridor are Penglipuran\'s architectural icon.'],
+            ],
+            [
+                'prompt' => ['id' => 'Desa Penglipuran dikenal dunia sebagai salah satu desa paling ... di dunia.', 'en' => 'Penglipuran is known worldwide as one of the most ... villages in the world.'],
+                'option_a' => ['id' => 'Ramai', 'en' => 'Crowded'],
+                'option_b' => ['id' => 'Bersih', 'en' => 'Clean'],
+                'option_c' => ['id' => 'Luas', 'en' => 'Vast'],
+                'option_d' => ['id' => 'Tua', 'en' => 'Old'],
+                'correct_option' => 'B',
+                'explanation' => ['id' => 'Penglipuran berulang kali masuk daftar desa terbersih di dunia berkat kedisiplinan adat menjaga lingkungan.', 'en' => 'Penglipuran repeatedly ranks among the world\'s cleanest villages thanks to customary discipline in caring for the environment.'],
+            ],
+            [
+                'prompt' => ['id' => 'Bahan bangunan tradisional yang paling banyak dimanfaatkan warga Penglipuran adalah?', 'en' => 'Which traditional building material is most used by Penglipuran residents?'],
+                'option_a' => ['id' => 'Batu bata merah', 'en' => 'Red brick'],
+                'option_b' => ['id' => 'Kayu jati', 'en' => 'Teak wood'],
+                'option_c' => ['id' => 'Bambu', 'en' => 'Bamboo'],
+                'option_d' => ['id' => 'Batu paras', 'en' => 'Paras stone'],
+                'correct_option' => 'C',
+                'explanation' => ['id' => 'Bambu dari hutan adat dipakai untuk atap, dinding, hingga kerajinan — pemanfaatannya diatur secara adat.', 'en' => 'Bamboo from the customary forest is used for roofs, walls, and crafts — its use is regulated by adat.'],
+            ],
+        ]];
+    }
+
+    /**
+     * Missions per point.
      *
      * @param  array<int, TourRoutePoint>  $points
      */
     private function rebuildMissions(array $points): void
     {
+        // Titik 1 — Mission 1: 5 MCQs to earn the first Heritage Key.
+        $this->mission($points[1], 1, 'quiz', ['id' => 'Buka Gerbang Desa', 'en' => 'Unlock the Village'], $this->pointOneQuizConfig(), 500);
+
         // Titik 2 — Mission 2 "Cultural Scavenger Hunt": 8 kartu, 5 benar.
         $this->mission($points[2], 1, 'matching', ['id' => 'Cultural Scavenger Hunt', 'en' => 'Cultural Scavenger Hunt'], [
             'mode' => 'pick',
@@ -324,11 +383,11 @@ class Route2CulturalAdventureSeeder extends Seeder
         ]);
     }
 
-    private function mission(TourRoutePoint $point, int $order, string $type, array $title, array $config): void
+    private function mission(TourRoutePoint $point, int $order, string $type, array $title, array $config, int $points = 100): void
     {
         RouteMission::updateOrCreate(
             ['tour_route_point_id' => $point->id, 'order' => $order],
-            ['type' => $type, 'title' => $title, 'config' => $config, 'points' => 100],
+            ['type' => $type, 'title' => $title, 'config' => $config, 'points' => $points],
         );
     }
 }

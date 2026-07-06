@@ -9,7 +9,9 @@ use App\Models\TourRoutePoint;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Testing\File;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class RouteMissionAuthoringTest extends TestCase
@@ -625,6 +627,55 @@ class RouteMissionAuthoringTest extends TestCase
             ->assertExists(str_replace('/storage/', '', $res['url']));
     }
 
+    public function test_mission_asset_upload_accepts_audio_and_returns_relative_path(): void
+    {
+        Storage::fake('public');
+
+        $file = UploadedFile::fake()->create('kulkul.mp3', 200, 'audio/mpeg');
+
+        $res = $this->actingAs($this->admin())
+            ->post('/admin/route-missions/upload-asset', ['file' => $file])
+            ->assertOk()
+            ->json();
+
+        $this->assertStringStartsWith('mission_assets/', $res['path']);
+        Storage::disk('public')->assertExists($res['path']);
+    }
+
+    public function test_route_point_intro_media_persists_per_locale(): void
+    {
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        Storage::fake('public');
+
+        // Simulate a completed TUS upload: when no tus-php cache file exists yet,
+        // TusService::resolveTempPath() falls back to storage/app/tus/temp/<uuid>.
+        $uuid = (string) Str::uuid();
+        $tempDir = storage_path('app/tus/temp');
+        if (! is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+        file_put_contents($tempDir.'/'.$uuid, 'fake-video-bytes');
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [[
+                'id' => $point->id,
+                'locationable_type' => $obj->getMorphClass(),
+                'locationable_id' => $obj->id,
+                'intro_video_tmp' => ['id' => $uuid.'.mp4'],
+                'intro_audio_paths' => ['en' => 'mission_assets/audio-en.mp3', 'id' => 'mission_assets/audio-id.mp3'],
+            ]],
+        ])->assertRedirect();
+
+        $reloaded = $point->fresh();
+        $this->assertNotEmpty($reloaded->intro_video_paths['id']);
+        Storage::disk('public')->assertExists($reloaded->intro_video_paths['id']);
+        $this->assertEquals('mission_assets/audio-en.mp3', $reloaded->intro_audio_paths['en']);
+        $this->assertEquals('mission_assets/audio-id.mp3', $reloaded->intro_audio_paths['id']);
+    }
+
     public function test_decision_mission_config_round_trips_with_images_and_explanations(): void
     {
         [$route, $point, $obj] = $this->routeWithPoint();
@@ -803,6 +854,98 @@ class RouteMissionAuthoringTest extends TestCase
         $reloaded = RouteMission::find($existing->id);
         $this->assertArrayNotHasKey('hint', $reloaded->config);
         $this->assertArrayNotHasKey('success_text', $reloaded->config);
+    }
+
+    public function test_quiz_mission_config_round_trips_with_optional_explanation(): void
+    {
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $json = json_encode([[
+            'type' => 'quiz',
+            'title' => ['en' => 'Unlock the Village', 'id' => 'Buka Gerbang Desa'],
+            'points' => 200,
+            'config' => [
+                'questions' => [
+                    [
+                        'prompt' => ['en' => 'What regency?', 'id' => 'Kabupaten apa?'],
+                        'option_a' => ['en' => 'Bangli', 'id' => 'Bangli'],
+                        'option_b' => ['en' => 'Badung', 'id' => 'Badung'],
+                        'option_c' => ['en' => 'Gianyar', 'id' => 'Gianyar'],
+                        'option_d' => ['en' => 'Tabanan', 'id' => 'Tabanan'],
+                        'correct_option' => 'A',
+                        'explanation' => ['en' => 'It is in Bangli.', 'id' => 'Berada di Bangli.'],
+                    ],
+                    [
+                        'prompt' => ['en' => 'Main material?', 'id' => 'Bahan utama?'],
+                        'option_a' => ['en' => 'Brick', 'id' => 'Bata'],
+                        'option_b' => ['en' => 'Teak', 'id' => 'Jati'],
+                        'option_c' => ['en' => 'Bamboo', 'id' => 'Bambu'],
+                        'option_d' => ['en' => 'Stone', 'id' => 'Batu'],
+                        'correct_option' => 'C',
+                    ],
+                ],
+            ],
+        ]]);
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [['id' => $point->id, 'locationable_type' => $obj->getMorphClass(), 'locationable_id' => $obj->id, 'missions' => $json]],
+        ])->assertRedirect();
+
+        $mission = RouteMission::where('tour_route_point_id', $point->id)->firstOrFail();
+        $this->assertEquals('quiz', $mission->type);
+        $this->assertCount(2, $mission->config['questions']);
+        $this->assertEquals('Bangli', $mission->config['questions'][0]['option_a']['en']);
+        $this->assertEquals('A', $mission->config['questions'][0]['correct_option']);
+        $this->assertEquals('It is in Bangli.', $mission->config['questions'][0]['explanation']['en']);
+        $this->assertEquals('C', $mission->config['questions'][1]['correct_option']);
+        $this->assertArrayNotHasKey('explanation', $mission->config['questions'][1]);
+    }
+
+    public function test_quiz_mission_reader_does_not_add_explanation_when_originally_absent(): void
+    {
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $originalConfig = [
+            'questions' => [[
+                'prompt' => ['en' => 'Q?', 'id' => 'P?'],
+                'option_a' => ['en' => 'A', 'id' => 'A'],
+                'option_b' => ['en' => 'B', 'id' => 'B'],
+                'option_c' => ['en' => 'C', 'id' => 'C'],
+                'option_d' => ['en' => 'D', 'id' => 'D'],
+                'correct_option' => 'B',
+            ]],
+        ];
+
+        $existing = RouteMission::create([
+            'tour_route_point_id' => $point->id,
+            'type' => 'quiz',
+            'title' => ['en' => 'No Explanation Quiz', 'id' => 'Kuis Tanpa Penjelasan'],
+            'points' => 100,
+            'config' => $originalConfig,
+            'order' => 1,
+        ]);
+
+        $this->assertArrayNotHasKey('explanation', $existing->config['questions'][0]);
+
+        $missionsJson = json_encode([[
+            'id' => $existing->id,
+            'type' => 'quiz',
+            'title' => ['en' => 'No Explanation Quiz', 'id' => 'Kuis Tanpa Penjelasan'],
+            'points' => 100,
+            'config' => $originalConfig,
+        ]]);
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [['id' => $point->id, 'locationable_type' => $obj->getMorphClass(), 'locationable_id' => $obj->id, 'missions' => $missionsJson]],
+        ])->assertRedirect();
+
+        $reloaded = RouteMission::find($existing->id);
+        $this->assertEquals($existing->id, $reloaded->id, 'Mission id must be stable across the no-op edit.');
+        $this->assertArrayNotHasKey('explanation', $reloaded->config['questions'][0], 'A no-op save must not add an explanation key that was never there.');
     }
 
     public function test_storytelling_content_persists_per_point(): void

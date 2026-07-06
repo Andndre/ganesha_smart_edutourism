@@ -68,9 +68,6 @@
 
     @include('admin.map-manager.partials.form-cultural.ar-model-section')
 
-    @include('admin.map-manager.partials.form-cultural.quiz-section')
-
-
     {{-- Audio Narasi --}}
     <div>
         <label class="mb-1 block text-sm font-semibold text-gray-700">Audio Narasi (ID) / (EN)</label>
