@@ -10,6 +10,7 @@ use App\Models\TourRoute;
 use App\Services\TusService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class TourRouteController extends Controller
@@ -163,20 +164,33 @@ class TourRouteController extends Controller
      */
     private function syncPointsAndMissions(TourRoute $route, array $points): void
     {
-        DB::transaction(function () use ($route, $points) {
+        // Resolve any pending TUS video uploads BEFORE opening the DB transaction: moving a
+        // file is a filesystem operation (not rolled back by DB::transaction), and
+        // TusService::moveFromTemp() throws on a stale/missing temp key. Doing this first
+        // turns a bad temp key into a normal validation error instead of a mid-transaction
+        // 500 with an already-moved file orphaned by the rollback.
+        $introVideoPathsByIndex = [];
+        foreach (array_values($points) as $index => $point) {
+            $introVideoPaths = $point['intro_video_paths'] ?? [];
+            foreach (['en', 'id'] as $locale) {
+                $tmpKey = $point['intro_video_tmp'][$locale] ?? null;
+                if ($tmpKey) {
+                    try {
+                        $introVideoPaths[$locale] = TusService::moveFromTemp($tmpKey, 'route_point_media');
+                    } catch (\RuntimeException) {
+                        throw ValidationException::withMessages([
+                            "points.{$index}.intro_video_tmp.{$locale}" => __('Video pengantar gagal diunggah, silakan unggah ulang.'),
+                        ]);
+                    }
+                }
+            }
+            $introVideoPathsByIndex[$index] = $introVideoPaths;
+        }
+
+        DB::transaction(function () use ($route, $points, $introVideoPathsByIndex) {
             $keptPointIds = [];
 
             foreach (array_values($points) as $index => $point) {
-                // Video arrives as a TUS temp key per locale (uploaded separately, moved to
-                // final storage here); audio arrives already-final from the asset upload
-                // endpoint. Untouched locales keep whatever path was already submitted.
-                $introVideoPaths = $point['intro_video_paths'] ?? [];
-                foreach (['en', 'id'] as $locale) {
-                    $tmpKey = $point['intro_video_tmp'][$locale] ?? null;
-                    if ($tmpKey) {
-                        $introVideoPaths[$locale] = TusService::moveFromTemp($tmpKey, 'route_point_media');
-                    }
-                }
                 $introAudioPaths = $point['intro_audio_paths'] ?? [];
 
                 $model = $route->routePoints()->updateOrCreate(
@@ -187,7 +201,7 @@ class TourRouteController extends Controller
                         'order' => $index + 1,
                         'estimated_visit_minutes' => $point['estimated_visit_minutes'] ?? 15,
                         'storytelling_content' => $point['storytelling_content'] ?? null,
-                        'intro_video_paths' => $introVideoPaths ?: null,
+                        'intro_video_paths' => $introVideoPathsByIndex[$index] ?: null,
                         'intro_audio_paths' => $introAudioPaths ?: null,
                     ]
                 );
