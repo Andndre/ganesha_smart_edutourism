@@ -2,15 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CulturalObject;
-use App\Models\CulturalObjectQuiz;
-use App\Models\QuizAnswer;
 use App\Models\RouteMission;
 use App\Models\RouteSession;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
 use App\Models\UserVisit;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -181,7 +177,7 @@ class SmartEdutourismController extends Controller
             session(['guest_token' => $guestToken, 'guest_name' => __('Wisatawan')]);
         }
 
-        $sessionQuery = RouteSession::with(['tourRoute', 'currentPoint.locationable.mapLocation', 'currentPoint.missions', 'tourRoute.routePoints.locationable.mapLocation', 'quizAnswers.quiz'])
+        $sessionQuery = RouteSession::with(['tourRoute', 'currentPoint.locationable.mapLocation', 'currentPoint.missions', 'tourRoute.routePoints.locationable.mapLocation', 'tourRoute.routePoints.missions'])
             ->whereIn('status', ['active', 'completed'])
             ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
             ->orderBy('updated_at', 'desc');
@@ -206,19 +202,6 @@ class SmartEdutourismController extends Controller
     public function arrive(Request $request, $pointId)
     {
         $point = TourRoutePoint::with(['locationable', 'missions'])->findOrFail($pointId);
-        /** @var Collection $quizzes */
-        $quizzes = $point->locationable instanceof CulturalObject
-            ? $point->locationable->quizzes
-            : collect();
-
-        $quizzesData = $quizzes->map(fn ($q) => [
-            'id' => $q->id,
-            'question' => $q->question,
-            'option_a' => $q->option_a,
-            'option_b' => $q->option_b,
-            'option_c' => $q->option_c,
-            'option_d' => $q->option_d,
-        ])->values();
 
         $sessionStatus = 'active';
 
@@ -227,17 +210,7 @@ class SmartEdutourismController extends Controller
             return response()->json([
                 'success' => true,
                 'point' => $point,
-                'quizzes' => collect(),
                 'has_missions' => true,
-                'session_status' => $sessionStatus,
-            ]);
-        }
-
-        if ($quizzes->isNotEmpty()) {
-            return response()->json([
-                'success' => true,
-                'point' => $point,
-                'quizzes' => $quizzesData,
                 'session_status' => $sessionStatus,
             ]);
         }
@@ -255,7 +228,6 @@ class SmartEdutourismController extends Controller
             return response()->json([
                 'success' => true,
                 'point' => $point,
-                'quizzes' => $quizzesData,
                 'session_status' => $sessionStatus,
             ]);
         }
@@ -271,7 +243,6 @@ class SmartEdutourismController extends Controller
         return response()->json([
             'success' => true,
             'point' => $point,
-            'quizzes' => $quizzesData,
             'session_status' => $sessionStatus,
         ]);
     }
@@ -364,44 +335,42 @@ class SmartEdutourismController extends Controller
     }
 
     /**
-     * Sum of every point the route to unlock everything: first point's quiz score
-     * (100 per correct answer) plus every RouteMission's point cap.
+     * Sum of every point's RouteMission point cap (the quiz at point 1 is now just
+     * another RouteMission, so its 500-point cap is already included here).
      */
     private function maxPossibleScore(TourRoute $route): int
     {
-        $route->loadMissing(['routePoints.locationable.quizzes', 'routePoints.missions']);
+        $route->loadMissing(['routePoints.missions']);
 
-        $firstPoint = $route->routePoints->first();
-        $quizCount = $firstPoint?->locationable instanceof CulturalObject
-            ? $firstPoint->locationable->quizzes->count()
-            : 0;
+        return $route->routePoints->flatMap->missions->sum('points');
+    }
 
-        return $quizCount * 100 + $route->routePoints->flatMap->missions->sum('points');
+    /**
+     * The point's quiz mission, if any — used to gate the point-1 collectibles.
+     */
+    private function quizMission(TourRoutePoint $point): ?RouteMission
+    {
+        return $point->missions->firstWhere('type', 'quiz');
     }
 
     /**
      * Shared gate for both "digital_passport" and the sequential Route 2/3 point-1
-     * collectibles: true when there are no quizzes to grade, or >= $ratio of them
-     * were answered correctly. Does not block progression on its own.
+     * collectibles: true when there's no quiz mission to grade, or the session's score
+     * on it reaches >= $ratio of its point cap. Does not block progression on its own.
+     *
+     * ponytail: relies on the quiz mission being scored before this is called (only
+     * invoked from completeMission()'s last-mission branch), so total_score already
+     * reflects it — no separate per-answer tally needed like the old quiz_answers table.
      */
     private function firstPointQuizThresholdMet(RouteSession $session, TourRoutePoint $point, float $ratio = 0.8): bool
     {
-        if (! $point->locationable instanceof CulturalObject) {
+        $quizMission = $this->quizMission($point);
+
+        if (! $quizMission) {
             return false;
         }
 
-        $quizIds = $point->locationable->quizzes->pluck('id');
-
-        if ($quizIds->isEmpty()) {
-            return false;
-        }
-
-        $correct = QuizAnswer::where('route_session_id', $session->id)
-            ->whereIn('cultural_object_quiz_id', $quizIds)
-            ->where('is_correct', true)
-            ->count();
-
-        return $correct >= (int) ceil($ratio * $quizIds->count());
+        return $session->total_score >= (int) ceil($ratio * $quizMission->points);
     }
 
     /**
@@ -433,7 +402,7 @@ class SmartEdutourismController extends Controller
 
     /**
      * Route 2/3 per-point collectible ("heritage_key_N" / "eco_crystal_N"), awarded when
-     * a point completes. No-op for Route 1. Point 1 (quiz-based) keeps the same
+     * a point completes. No-op for Route 1. Point 1's quiz mission keeps the same
      * 80%-correct gate as "digital_passport"; mission-based points 2-5 award
      * unconditionally on completion, matching existing progression behavior.
      */
@@ -459,9 +428,7 @@ class SmartEdutourismController extends Controller
 
         $order++;
 
-        $hasQuizzes = $point->locationable instanceof CulturalObject && $point->locationable->quizzes->isNotEmpty();
-
-        if ($order === 1 && $hasQuizzes && ! $this->firstPointQuizThresholdMet($session, $point)) {
+        if ($order === 1 && $this->quizMission($point) && ! $this->firstPointQuizThresholdMet($session, $point)) {
             return;
         }
 
@@ -509,6 +476,7 @@ class SmartEdutourismController extends Controller
         if ($isLastMission) {
             $session->points_completed += 1;
             $this->recordVisit($userId, $point, $session);
+            $this->maybeAwardFirstPointCollectible($session, $point);
             $this->awardSequentialCollectible($session, $point);
             $this->advanceToNextPoint($session);
         }
@@ -604,81 +572,6 @@ class SmartEdutourismController extends Controller
                 'visited_at' => now(),
             ]
         );
-    }
-
-    public function submitQuiz(Request $request, $quizId)
-    {
-        $request->validate([
-            'answer' => 'required|string|size:1',
-        ]);
-
-        $quiz = CulturalObjectQuiz::findOrFail($quizId);
-        $answer = strtoupper($request->answer);
-        $isCorrect = $answer === strtoupper($quiz->correct_option);
-
-        $userId = auth()->id();
-        $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
-
-        if (! $userId && $guestToken && ! session()->has('guest_token')) {
-            session(['guest_token' => $guestToken, 'guest_name' => __('Wisatawan')]);
-        }
-
-        $sessionQuery = RouteSession::where('status', 'active');
-        if ($userId) {
-            $sessionQuery->where('user_id', $userId);
-        } elseif ($guestToken) {
-            $sessionQuery->where('guest_token', $guestToken);
-        } else {
-            return response()->json(['success' => false, 'message' => __('Sesi tidak valid')], 403);
-        }
-
-        $session = $sessionQuery->first();
-        if (! $session) {
-            return response()->json(['success' => false, 'message' => __('Sesi tidak ditemukan')], 404);
-        }
-
-        $alreadyAnsweredCorrectly = QuizAnswer::where('route_session_id', $session->id)
-            ->where('cultural_object_quiz_id', $quiz->id)
-            ->where('is_correct', true)
-            ->exists();
-
-        QuizAnswer::updateOrCreate(
-            ['route_session_id' => $session->id, 'cultural_object_quiz_id' => $quiz->id],
-            ['selected_option' => $answer, 'is_correct' => $isCorrect]
-        );
-
-        if ($isCorrect && ! $alreadyAnsweredCorrectly) {
-            $session->total_score += 100;
-        }
-
-        $currentPointForQuizzes = TourRoutePoint::with('locationable')->find($session->current_point_id);
-        $totalQuizzes = $currentPointForQuizzes?->locationable?->quizzes?->count() ?? 0;
-        $answeredQuizzes = QuizAnswer::where('route_session_id', $session->id)
-            ->whereIn('cultural_object_quiz_id', $currentPointForQuizzes?->locationable?->quizzes->pluck('id') ?? [])
-            ->count();
-        $isLastQuiz = $totalQuizzes > 0 && $answeredQuizzes >= $totalQuizzes;
-
-        if ($isLastQuiz) {
-            $session->points_completed += 1;
-
-            if ($currentPointForQuizzes) {
-                $this->recordVisit($userId, $currentPointForQuizzes, $session);
-                $this->maybeAwardFirstPointCollectible($session, $currentPointForQuizzes);
-                $this->awardSequentialCollectible($session, $currentPointForQuizzes);
-            }
-
-            // Move to next point regardless of whether the answer was correct
-            $this->advanceToNextPoint($session);
-        }
-
-        $session->save();
-
-        return response()->json([
-            'success' => true,
-            'is_correct' => $isCorrect,
-            'correct_option' => strtoupper($quiz->correct_option),
-            'session' => $session,
-        ]);
     }
 
     public function stop(Request $request)

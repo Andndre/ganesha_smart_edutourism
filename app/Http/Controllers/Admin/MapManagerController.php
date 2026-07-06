@@ -9,7 +9,6 @@ use App\Models\Facility;
 use App\Models\MapLocation;
 use App\Models\UmkmProfile;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 
@@ -23,14 +22,7 @@ class MapManagerController extends Controller
      */
     public function index(): View
     {
-        $locations = MapLocation::with([
-            'locationable' => function (MorphTo $morphTo) {
-                $morphTo->morphWith([
-                    CulturalObject::class => ['quizzes'],
-                ]);
-            },
-            'arModel',
-        ])
+        $locations = MapLocation::with(['locationable', 'arModel'])
             ->whereIn('locationable_type', [CulturalObject::class, UmkmProfile::class, Facility::class])
             ->get();
 

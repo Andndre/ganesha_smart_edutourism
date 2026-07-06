@@ -12,11 +12,11 @@ class RouteMissionAssetController extends Controller
     public function upload(Request $request): JsonResponse
     {
         $request->validate([
-            'file' => ['required', 'image', 'max:5120'], // 5 MB
+            'file' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,gif,mp3,ogg,wav,m4a', 'max:10240'], // 10 MB
         ]);
 
         $path = $request->file('file')->store('mission_assets', 'public');
 
-        return response()->json(['url' => Storage::disk('public')->url($path)]);
+        return response()->json(['url' => Storage::disk('public')->url($path), 'path' => $path]);
     }
 }

@@ -60,25 +60,6 @@
             animation: quiz-float-up 1.4s ease-out forwards;
         }
 
-        .quiz-option-highlight,
-        .quiz-option-highlight span {
-            color: #fff !important;
-        }
-
-        .quiz-option-correct,
-        .quiz-option-correct:hover,
-        .quiz-option-correct:active {
-            background-color: #16a34a !important;
-            border-color: #16a34a !important;
-        }
-
-        .quiz-option-incorrect,
-        .quiz-option-incorrect:hover,
-        .quiz-option-incorrect:active {
-            background-color: #dc2626 !important;
-            border-color: #dc2626 !important;
-        }
-
         @keyframes quiz-success-pop {
             0% {
                 opacity: 0;
@@ -199,15 +180,14 @@
             </div>
         @else
             @php
-                $totalAnswers = $activeSession->quizAnswers->count();
-                $correctAnswers = $activeSession->quizAnswers->where('is_correct', true)->count();
-                $correctRatio = $totalAnswers > 0 ? $correctAnswers / $totalAnswers : null;
+                $maxRouteScore = $activeSession->tourRoute->routePoints->flatMap->missions->sum('points');
+                $scoreRatio = $maxRouteScore > 0 ? $activeSession->total_score / $maxRouteScore : null;
 
-                if ($correctRatio === null) {
+                if ($scoreRatio === null) {
                     $tier = 'neutral';
-                } elseif ($correctRatio >= 1.0) {
+                } elseif ($scoreRatio >= 1.0) {
                     $tier = 'perfect';
-                } elseif ($correctRatio >= 0.5) {
+                } elseif ($scoreRatio >= 0.5) {
                     $tier = 'good';
                 } else {
                     $tier = 'basic';
@@ -336,24 +316,6 @@
                             </div>
                         </div>
                     @endif
-                    @if ($activeSession->quizAnswers->isNotEmpty())
-                        <div class="mb-6 space-y-3 text-left">
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">{{ __('Ringkasan Kuis') }}</h3>
-                            @foreach ($activeSession->quizAnswers as $answer)
-                                @php($quiz = $answer->quiz)
-                                @continue(! $quiz)
-                                <div class="rounded-xl border {{ $answer->is_correct ? 'border-emerald-100 bg-emerald-50' : 'border-amber-100 bg-amber-50' }} p-3">
-                                    <p class="text-sm font-bold text-gray-800">{{ $quiz->question }}</p>
-                                    <p class="mt-1 text-xs {{ $answer->is_correct ? 'text-emerald-700' : 'text-amber-700' }}">
-                                        {{ $answer->is_correct ? __('Benar') : __('Salah, jawaban yang benar: ') . $quiz->{'option_' . strtolower($quiz->correct_option)} }}
-                                    </p>
-                                    @if ($quiz->explanation)
-                                        <p class="mt-1 text-xs text-gray-600">{{ $quiz->explanation }}</p>
-                                    @endif
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
                 </div>
 
                 <div class="fixed inset-x-0 bottom-0 z-50 border-t border-gray-100 bg-white/95 p-4 backdrop-blur-sm">
@@ -396,6 +358,18 @@
             <div class="flex-1 overflow-y-auto p-5 pb-10">
                 <template x-if="stage === 'intro'">
                     <div class="mx-auto max-w-md space-y-5">
+                        @if ($activeSession->currentPoint->intro_video_path)
+                            <video src="{{ route('audio.stream', $activeSession->currentPoint->intro_video_path) }}" controls
+                                playsinline class="w-full rounded-2xl border border-gray-100 shadow-sm"></video>
+                        @endif
+                        @if ($activeSession->currentPoint->intro_audio_path)
+                            <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                                <h3 class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">
+                                    {{ __('Audio Pengantar') }}</h3>
+                                <audio src="{{ route('audio.stream', $activeSession->currentPoint->intro_audio_path) }}"
+                                    controls class="w-full"></audio>
+                            </div>
+                        @endif
                         @if ($activeSession->currentPoint->storytelling_content)
                             <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
                                 <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">
@@ -448,22 +422,6 @@
                 {{ __('Arahkan kamera ke QR yang tertempel di lokasi.') }}</p>
         </div>
     </x-modal>
-
-    <!-- Modal Quiz -->
-    <x-modal name="quiz-modal">
-        <div class="space-y-4">
-            <div class="flex items-center justify-between">
-                <span
-                    class="rounded-lg border border-amber-100 bg-amber-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-amber-600">{{ __('Tantangan Kuis') }}</span>
-            </div>
-            <h3 id="quiz-question" class="font-display text-charcoal text-lg font-bold leading-snug tracking-tight"></h3>
-
-            <div id="quiz-options" class="mt-6 space-y-3">
-                <!-- Options injected via JS -->
-            </div>
-        </div>
-    </x-modal>
-
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -753,33 +711,12 @@
                             return Math.floor(R * c);
                         }
 
-                        let currentQuizzes = [];
-                        let currentQuizIndex = 0;
-
-                        function showQuiz() {
-                            const quiz = currentQuizzes[currentQuizIndex];
-                            const quizQuestionEl = document.getElementById('quiz-question');
-                            if (quizQuestionEl) {
-                                quizQuestionEl.textContent =
-                                    `{{ __('Soal') }} ${currentQuizIndex + 1} {{ __('dari') }} ${currentQuizzes.length}: ` + quiz.question;
-                            }
-                            const opts = document.getElementById('quiz-options');
-                            if (opts) {
-                                opts.innerHTML = `
-                        <button data-option="A" onclick="submitQuiz(${quiz.id}, 'A')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">A.</span> <span class="font-medium text-gray-700">${quiz.option_a}</span></button>
-                        <button data-option="B" onclick="submitQuiz(${quiz.id}, 'B')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">B.</span> <span class="font-medium text-gray-700">${quiz.option_b}</span></button>
-                        <button data-option="C" onclick="submitQuiz(${quiz.id}, 'C')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">C.</span> <span class="font-medium text-gray-700">${quiz.option_c}</span></button>
-                        <button data-option="D" onclick="submitQuiz(${quiz.id}, 'D')" class="w-full text-left rounded-xl border-2 border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 active:bg-emerald-100"><span class="mr-2 font-bold text-emerald-600">D.</span> <span class="font-medium text-gray-700">${quiz.option_d}</span></button>
-                    `;
-                            }
-                        }
-
                         window.triggerArrive = function(pointId) {
                             console.log("triggerArrive called for point ID:", pointId);
                             const btnArrive = document.getElementById('btn-arrive');
                             if (btnArrive) {
                                 btnArrive.disabled = true;
-                                btnArrive.textContent = "{{ __('Memuat Kuis...') }}";
+                                btnArrive.textContent = "{{ __('Memuat...') }}";
                             }
 
                             const url = `/edutourism/arrive/${pointId}`;
@@ -805,130 +742,31 @@
                                         document.getElementById('btn-arrive').disabled = false;
                                         document.getElementById('btn-arrive').textContent =
                                             @js(__('Mulai Misi'));
-                                    } else if (data.success && data.quizzes && data.quizzes.length > 0) {
-                                        currentQuizzes = data.quizzes;
-                                        currentQuizIndex = 0;
-                                        showQuiz();
-                                        window.dispatchEvent(new CustomEvent('open-quiz-modal'));
-                                        document.getElementById('btn-arrive').disabled = false;
-                                        document.getElementById('btn-arrive').textContent =
-                                            @js(__('Jawab Pertanyaan & Lanjut'));
+                                    } else if (data.success && data.session_status === 'completed') {
+                                        window.location.reload();
                                     } else {
-                                        if (data.session_status === 'completed') {
+                                        Swal.fire({
+                                            title: "{{ __('Info') }}",
+                                            text: "{{ __('Rute berlanjut...') }}",
+                                            icon: 'info',
+                                            confirmButtonColor: '#1E5128',
+                                            confirmButtonText: "{{ __('Lanjut') }}"
+                                        }).then(() => {
                                             window.location.reload();
-                                        } else {
-                                            console.log(
-                                                "No quizzes found for this point. Showing SweetAlert info..."
-                                            );
-                                            Swal.fire({
-                                                title: "{{ __('Info') }}",
-                                                text: "{{ __('Tidak ada kuis untuk titik ini. Rute berlanjut...') }}",
-                                                icon: 'info',
-                                                confirmButtonColor: '#1E5128',
-                                                confirmButtonText: "{{ __('Lanjut') }}"
-                                            }).then(() => {
-                                                window.location.reload();
-                                            });
-                                        }
+                                        });
                                     }
                                 })
                                 .catch(err => {
                                     console.error("Error occurred in triggerArrive:", err);
                                     document.getElementById('btn-arrive').disabled = false;
                                     document.getElementById('btn-arrive').textContent =
-                                        @js(__('Jawab Pertanyaan & Lanjut'));
+                                        @js(__('Lanjut'));
                                     Swal.fire({
                                         title: "{{ __('Oops!') }}",
-                                        text: "{{ __('Gagal memuat kuis.') }}",
+                                        text: "{{ __('Gagal memuat titik.') }}",
                                         icon: 'error',
                                         confirmButtonColor: '#1E5128'
                                     });
-                                });
-                        }
-
-                        window.submitQuiz = function(quizId, answer) {
-                            // Disable all buttons to prevent double submit
-                            const buttons = document.querySelectorAll('#quiz-options button');
-                            buttons.forEach(btn => btn.disabled = true);
-
-                            const isLast = (currentQuizIndex === currentQuizzes.length - 1);
-                            const selectedBtn = document.querySelector(`#quiz-options button[data-option="${answer}"]`);
-
-                            fetch(`/edutourism/quiz/${quizId}/submit`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                        'Content-Type': 'application/json',
-                                        'Accept': 'application/json'
-                                    },
-                                    body: JSON.stringify({
-                                        answer: answer,
-                                        is_last_quiz: isLast
-                                    })
-                                })
-                                .then(res => res.json())
-                                .then(data => {
-                                    const advanceDelay = data.is_correct ? 1500 : 2800;
-
-                                    if (data.is_correct) {
-                                        if (selectedBtn) {
-                                            selectedBtn.classList.add('quiz-option-highlight',
-                                                'quiz-option-correct');
-                                        }
-                                        confetti({
-                                            particleCount: 80,
-                                            spread: 70,
-                                            origin: {
-                                                y: 0.6
-                                            }
-                                        });
-                                        const badge = document.createElement('div');
-                                        badge.className =
-                                            'quiz-score-badge fixed left-1/2 top-1/3 z-[60] text-3xl font-black text-green-600';
-                                        badge.textContent = '+100';
-                                        document.body.appendChild(badge);
-                                        setTimeout(() => badge.remove(), 1500);
-                                    } else {
-                                        if (selectedBtn) {
-                                            selectedBtn.classList.add('quiz-option-highlight',
-                                                'quiz-option-incorrect', 'quiz-shake');
-                                        }
-                                        const correctBtn = document.querySelector(
-                                            `#quiz-options button[data-option="${data.correct_option}"]`);
-                                        if (correctBtn) {
-                                            correctBtn.classList.add('quiz-option-highlight',
-                                                'quiz-option-correct', 'animate-pulse');
-                                        }
-                                    }
-
-                                    setTimeout(() => {
-                                        if (isLast) {
-                                            document.getElementById('quiz-question').innerHTML =
-                                                `<div class="flex flex-col items-center gap-2 py-2 text-center">
-                                                    <div class="quiz-success-icon flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                                                        <svg class="quiz-success-check h-9 w-9" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                                        </svg>
-                                                    </div>
-                                                    <span class="font-display text-lg font-black text-emerald-600">{{ __('Semua Terjawab!') }}</span>
-                                                    <span class="text-sm text-gray-400">{{ __('Rute dilanjutkan...') }}</span>
-                                                </div>`;
-                                            document.getElementById('quiz-options').innerHTML = '';
-                                            setTimeout(() => window.location.reload(), 1200);
-                                        } else {
-                                            currentQuizIndex++;
-                                            showQuiz();
-                                        }
-                                    }, advanceDelay);
-                                })
-                                .catch(err => {
-                                    Swal.fire({
-                                        title: "{{ __('Oops!') }}",
-                                        text: "{{ __('Gagal mengirim jawaban.') }}",
-                                        icon: 'error',
-                                        confirmButtonColor: '#1E5128'
-                                    });
-                                    buttons.forEach(btn => btn.disabled = false);
                                 });
                         }
 
@@ -998,7 +836,6 @@
                         mapInstance = null;
                     }
                     delete window.triggerArrive;
-                    delete window.submitQuiz;
                     delete window.stopRoute;
                     document.removeEventListener('livewire:navigating', cleanup);
                 });

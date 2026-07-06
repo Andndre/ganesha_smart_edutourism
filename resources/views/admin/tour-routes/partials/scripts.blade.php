@@ -11,8 +11,8 @@
     const PENGLIPURAN_ZOOM = {{ config('services.penglipuran.zoom') }};
 
     const locations = @json($locations);
-    let selectedPoints = []; // items: { id (MapLocation id), point_id (TourRoutePoint DB id, nullable), name, category, latitude, longitude, locationable_type, locationable_id, estimated_visit_minutes, storytelling_content }
-    
+    let selectedPoints = []; // items: { id (MapLocation id), point_id (TourRoutePoint DB id, nullable), name, category, latitude, longitude, locationable_type, locationable_id, estimated_visit_minutes, storytelling_content, intro_video_paths, intro_audio_paths }
+
     @if(isset($isEdit) && $isEdit)
         // Initial points serialized from route points relation
         const initialPointsData = {{ Illuminate\Support\Js::from($route->routePoints->sortBy('order')->map(function ($point) {
@@ -22,6 +22,8 @@
                 'locationable_id' => $point->locationable_id,
                 'estimated_visit_minutes' => $point->estimated_visit_minutes,
                 'storytelling_content' => $point->getTranslations('storytelling_content'),
+                'intro_video_paths' => $point->intro_video_paths ?? [],
+                'intro_audio_paths' => $point->intro_audio_paths ?? [],
                 'missions' => $point->missions->map(fn ($m) => [
                     'id' => $m->id,
                     'type' => $m->type,
@@ -52,6 +54,8 @@
                         locationable_id: loc.locationable_id,
                         estimated_visit_minutes: p.estimated_visit_minutes || 15,
                         storytelling_content: p.storytelling_content || { en: '', id: '' },
+                        intro_video_paths: p.intro_video_paths || {},
+                        intro_audio_paths: p.intro_audio_paths || {},
                         missions: p.missions || []
                     });
                 }
@@ -207,6 +211,8 @@
             locationable_id: loc.locationable_id,
             estimated_visit_minutes: 15,
             storytelling_content: { en: '', id: '' },
+            intro_video_paths: {},
+            intro_audio_paths: {},
             missions: []
         });
 
@@ -381,6 +387,8 @@
                         </div>
                     </div>
                     
+                    ${renderIntroMediaSection(point, index)}
+
                     <input type="hidden" name="points[${index}][id]" value="${point.point_id || ''}">
                     <input type="hidden" name="points[${index}][locationable_type]" value="${point.locationable_type}">
                     <input type="hidden" name="points[${index}][locationable_id]" value="${point.locationable_id}">
@@ -399,6 +407,100 @@
 
         container.innerHTML = html;
         updateRouting();
+        initIntroMediaUploaders();
+    }
+
+    // ==========================================
+    // INTRO MEDIA (VIDEO/AUDIO) — Task 4
+    // ==========================================
+    // Renders the bilingual video (TUS chunked upload) + audio (immediate upload)
+    // section for a point. Both are optional per locale — a point with no media
+    // stays valid.
+    function renderIntroMediaSection(point, index) {
+        const videoPaths = point.intro_video_paths || {};
+        const audioPaths = point.intro_audio_paths || {};
+        const locales = [['en', 'EN'], ['id', 'ID']];
+
+        const columns = locales.map(([locale, label]) => `
+            <div class="rounded-lg border border-gray-100 p-2 space-y-2">
+                <span class="text-[10px] font-bold text-gray-400">${label}</span>
+                <div>
+                    <label class="block text-[9px] font-semibold text-gray-500">Video Pengantar</label>
+                    <input type="file" accept=".mp4,.webm" id="intro-video-file-${index}-${locale}" class="mt-0.5 w-full text-[10px]">
+                    <input type="hidden" id="intro-video-tmp-${index}-${locale}" name="points[${index}][intro_video_tmp][${locale}]">
+                    <input type="hidden" id="intro-video-path-${index}-${locale}" name="points[${index}][intro_video_paths][${locale}]" value="${escapeHtml(videoPaths[locale])}">
+                    <div id="intro-video-progress-${index}-${locale}" class="tus-progress-container hidden mt-1">
+                        <div class="flex items-center gap-1 text-[9px] text-gray-500">
+                            <span class="tus-status-icon"></span>
+                            <span class="tus-progress-text flex-1"></span>
+                        </div>
+                        <div class="mt-0.5 h-1 overflow-hidden rounded bg-gray-100"><div class="tus-progress-bar h-full bg-primary" style="width:0%"></div></div>
+                    </div>
+                    <div class="intro-video-preview">
+                        ${videoPaths[locale] ? `<video src="/storage/${escapeHtml(videoPaths[locale])}" controls class="mt-1 max-h-24 w-full rounded"></video>` : ''}
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-semibold text-gray-500">Audio Narasi</label>
+                    <input type="file" accept=".mp3,.ogg,.wav,.m4a" class="mt-0.5 w-full text-[10px]" onchange="uploadIntroAudio(this, ${index}, '${locale}')">
+                    <input type="hidden" id="intro-audio-path-${index}-${locale}" name="points[${index}][intro_audio_paths][${locale}]" value="${escapeHtml(audioPaths[locale])}">
+                    <div id="intro-audio-preview-${index}-${locale}" class="intro-audio-preview">
+                        ${audioPaths[locale] ? `<audio src="/audio-stream/${escapeHtml(audioPaths[locale])}" controls class="mt-1 h-8 w-full"></audio>` : ''}
+                    </div>
+                </div>
+            </div>`).join('');
+
+        return `
+            <div class="mt-1 border-t border-gray-100 pt-3">
+                <label class="mb-2 block text-[10px] font-bold uppercase text-gray-500">Media Pengantar (Opsional)</label>
+                <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">${columns}</div>
+            </div>`;
+    }
+
+    function initIntroMediaUploaders() {
+        selectedPoints.forEach((point, index) => {
+            ['en', 'id'].forEach(locale => {
+                const input = document.getElementById(`intro-video-file-${index}-${locale}`);
+                if (!input) return;
+                new ChunkedUploader({
+                    input,
+                    hiddenInput: document.getElementById(`intro-video-tmp-${index}-${locale}`),
+                    progressContainer: document.getElementById(`intro-video-progress-${index}-${locale}`),
+                    maxSize: 200 * 1024 * 1024,
+                    allowedExtensions: ['.mp4', '.webm'],
+                    endpoint: '/admin/api/tus/upload',
+                });
+            });
+        });
+    }
+
+    function uploadIntroAudio(fileInput, index, locale) {
+        const file = fileInput.files[0];
+        if (!file) return;
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('input[name="_token"]')?.value);
+
+        fileInput.disabled = true;
+
+        fetch('{{ route('admin.route-missions.upload-asset') }}', { method: 'POST', body: fd })
+            .then(r => {
+                if (!r.ok) throw new Error('Upload failed');
+                return r.json();
+            })
+            .then(d => {
+                if (d.path) {
+                    document.getElementById(`intro-audio-path-${index}-${locale}`).value = d.path;
+                    const preview = document.getElementById(`intro-audio-preview-${index}-${locale}`);
+                    if (preview) {
+                        preview.innerHTML = `<audio src="/audio-stream/${d.path}" controls class="mt-1 h-8 w-full"></audio>`;
+                    }
+                }
+            })
+            .catch(() => Swal.fire({ icon: 'error', title: 'Upload audio gagal', confirmButtonColor: '#1E5128' }))
+            .finally(() => {
+                fileInput.disabled = false;
+            });
     }
 
     function drawStraightLine() {
