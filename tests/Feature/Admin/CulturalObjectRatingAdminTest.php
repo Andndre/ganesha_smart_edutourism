@@ -139,4 +139,20 @@ class CulturalObjectRatingAdminTest extends TestCase
         $response->assertSee('High Rated');
         $response->assertDontSee('Low Rated');
     }
+
+    public function test_admin_sees_summary_stats(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $object = CulturalObject::factory()->create();
+        CulturalObjectRating::factory()->create(['cultural_object_id' => $object->id, 'rating' => 4]);
+        CulturalObjectRating::factory()->create(['cultural_object_id' => $object->id, 'rating' => 2]);
+
+        $response = $this->actingAs($admin)->get(route('admin.cultural-object-ratings'));
+
+        $response->assertOk();
+        $response->assertSee('Total Objek Dinilai');
+        $response->assertSee('Total Ulasan Masuk');
+        $response->assertSee('Rata-rata Rating Global');
+        $response->assertSee('3.0'); // global average of 4 and 2
+    }
 }
