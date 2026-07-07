@@ -11,6 +11,7 @@
 /.cursor/
 /.claude/
 /.idea
+/.gemini/
 /.nova
 /.phpunit.cache
 /.vscode/*
