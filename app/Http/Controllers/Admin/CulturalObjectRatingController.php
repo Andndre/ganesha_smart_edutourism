@@ -47,7 +47,13 @@ class CulturalObjectRatingController extends Controller
 
         $objects = $query->orderByDesc('id')->paginate(10)->withQueryString();
 
-        return view('admin.cultural-object-ratings.index', compact('objects'));
+        $stats = [
+            'total_objects_rated' => CulturalObject::whereHas('ratings')->count(),
+            'total_ratings_count' => CulturalObjectRating::count(),
+            'global_avg_rating' => round(CulturalObjectRating::avg('rating') ?? 0.0, 1),
+        ];
+
+        return view('admin.cultural-object-ratings.index', compact('objects', 'stats'));
     }
 
     public function destroy(CulturalObjectRating $rating): RedirectResponse
