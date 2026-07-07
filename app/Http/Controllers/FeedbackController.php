@@ -61,7 +61,6 @@ class FeedbackController extends Controller
             'rating' => $validated['rating'],
             'comment' => $validated['comment'] ?? null,
             'photos' => $validated['photos'] ?? [],
-            'is_public' => $feedbackType !== 'umkm', // Complaints about UMKM are kept private/hidden from public by default
         ]);
 
         // Dynamically update the cached/static rating on UmkmProfile if it exists

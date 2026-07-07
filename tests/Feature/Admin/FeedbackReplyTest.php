@@ -32,7 +32,6 @@ class FeedbackReplyTest extends TestCase
             'rating' => 5,
             'comment' => 'Great experience!',
             'feedback_type' => 'general',
-            'is_public' => true,
         ]);
     }
 
@@ -82,27 +81,6 @@ class FeedbackReplyTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('admin_response');
-    }
-
-    public function test_admin_can_toggle_feedback_visibility(): void
-    {
-        $this->actingAs($this->admin);
-
-        $response = $this->patch(route('admin.feedback.toggle', $this->feedback->id));
-
-        $response->assertRedirect(route('admin.feedback'));
-        $response->assertSessionHas('success');
-
-        $this->assertFalse($this->feedback->fresh()->is_public);
-    }
-
-    public function test_toggle_public_requires_admin(): void
-    {
-        $this->actingAs($this->user);
-
-        $response = $this->patch(route('admin.feedback.toggle', $this->feedback->id));
-
-        $response->assertStatus(403);
     }
 
     public function test_admin_can_destroy_feedback(): void

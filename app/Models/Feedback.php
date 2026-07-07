@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'reservation_id', 'umkm_profile_id', 'feedback_type', 'rating', 'comment', 'photos', 'is_public', 'admin_response'])]
+#[Fillable(['user_id', 'reservation_id', 'umkm_profile_id', 'feedback_type', 'rating', 'comment', 'photos', 'admin_response'])]
 class Feedback extends Model
 {
     use HasFactory;
@@ -28,7 +28,6 @@ class Feedback extends Model
     {
         return [
             'photos' => 'array',
-            'is_public' => 'boolean',
         ];
     }
 

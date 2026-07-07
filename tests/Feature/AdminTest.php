@@ -244,7 +244,6 @@ class AdminTest extends TestCase
         $this->assertCount(1, $object->historical_images);
         Storage::disk('public')->assertExists($object->historical_images[0]);
 
-
         // Assert MapLocation was updated and synchronized
         $this->assertNotNull($object->mapLocation);
         $this->assertEquals('Pura Luhur Updated', $object->mapLocation->name);
@@ -822,16 +821,15 @@ class AdminTest extends TestCase
     }
 
     /**
-     * Test Feedback / Review admin replies and public visibility.
+     * Test Feedback / Review admin replies and deletion.
      */
-    public function test_feedback_index_reply_and_toggle_public(): void
+    public function test_feedback_index_reply_and_delete(): void
     {
         $feedback = Feedback::create([
             'user_id' => $this->adminUser->id,
             'feedback_type' => 'general',
             'rating' => 5,
             'comment' => 'Kunjungan yang sangat luar biasa indah.',
-            'is_public' => false,
         ]);
 
         $response = $this->actingAs($this->adminUser)
@@ -846,13 +844,6 @@ class AdminTest extends TestCase
             ]);
         $responseReply->assertRedirect();
         $this->assertEquals('Terima kasih atas ulasannya!', $feedback->fresh()->admin_response);
-
-        // Toggle public status
-        $this->assertFalse($feedback->fresh()->is_public);
-        $responseToggle = $this->actingAs($this->adminUser)
-            ->patch(route('admin.feedback.toggle', $feedback->id));
-        $responseToggle->assertRedirect();
-        $this->assertTrue($feedback->fresh()->is_public);
 
         // Delete feedback
         $responseDelete = $this->actingAs($this->adminUser)
