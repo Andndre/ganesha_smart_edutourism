@@ -7,10 +7,6 @@
                 "/home/andndre/Code/ganesha_smart_edutourism/artisan",
                 "boost:mcp"
             ]
-        },
-        "the-i18n-mcp": {
-            "command": "npx",
-            "args": ["-y", "the-i18n-mcp@latest"]
         }
     }
 }

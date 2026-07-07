@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Ganesha Smart Edutourism** is a Laravel 13 mobile-first web application for Desa Wisata Penglipuran. The app adopts a "Super App" design philosophy (inspired by Grab/Gojek) with a modular, outdoor-optimized interface for tourists to explore cultural sites, browse UMKM products, book tour packages, and use AR features.
 
-**Tech Stack:** Laravel 13, PHP 8.3, MySQL (dev & prod), SQLite (testing only), Vite, TailwindCSS v4, Alpine.js, Livewire 4 (navigation only, no components), Laravel Reverb (WebSockets)
+**Tech Stack:** Laravel 13, PHP 8.4, MySQL (dev & prod), SQLite (testing only), Vite, TailwindCSS v4, Alpine.js, Livewire 4 (navigation only, no components), Laravel Reverb (WebSockets)
 
 ## Essential Commands
 
