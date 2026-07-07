@@ -69,7 +69,7 @@
                                     @endfor
                                 </div>
                                 <form action="{{ route('admin.cultural-object-ratings.destroy', $rating) }}" method="POST"
-                                    onsubmit="return confirm('Hapus rating ini secara permanen?');">
+                                    data-confirm="Hapus rating ini secara permanen?">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-800">Hapus</button>
