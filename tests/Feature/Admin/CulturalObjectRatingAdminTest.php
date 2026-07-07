@@ -64,4 +64,19 @@ class CulturalObjectRatingAdminTest extends TestCase
 
         $this->assertDatabaseHas('cultural_object_ratings', ['id' => $rating->id]);
     }
+
+    public function test_admin_sees_when_a_rating_was_submitted(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $object = CulturalObject::factory()->create();
+        $rating = CulturalObjectRating::factory()->create([
+            'cultural_object_id' => $object->id,
+            'created_at' => now()->subDays(2),
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.cultural-object-ratings'));
+
+        $response->assertOk();
+        $response->assertSee($rating->created_at->diffForHumans());
+    }
 }
