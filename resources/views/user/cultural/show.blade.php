@@ -189,6 +189,36 @@
             @endif
         </div>
 
+        @auth
+            @if ($canRate)
+                <div id="cultural-object-rating-form" class="px-6 pb-6">
+                    <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                        <h3 class="font-playfair text-charcoal mb-3 text-lg font-bold">{{ __('Beri Rating Objek Ini') }}</h3>
+                        @if (session('status'))
+                            <p class="mb-3 text-sm text-green-700">{{ session('status') }}</p>
+                        @endif
+                        <form method="POST" action="{{ route('cultural-object.rating.store', $object['slug']) }}" x-data="{ rating: {{ $existingRating->rating ?? 0 }} }">
+                            @csrf
+                            <div class="mb-3 flex gap-1">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <button type="button" @click="rating = {{ $i }}"
+                                        class="text-2xl"
+                                        :class="rating >= {{ $i }} ? 'text-[#D4AF37]' : 'text-gray-300'">★</button>
+                                @endfor
+                            </div>
+                            <input type="hidden" name="rating" x-model="rating">
+                            <textarea name="comment" rows="2" maxlength="1000"
+                                class="w-full rounded-xl border border-gray-200 p-3 text-sm"
+                                placeholder="{{ __('Komentar (opsional)') }}">{{ $existingRating->comment ?? '' }}</textarea>
+                            <button type="submit"
+                                class="bg-primary mt-3 w-full rounded-xl py-3 font-bold text-white">
+                                {{ $existingRating ? __('Perbarui Rating') : __('Kirim Rating') }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @endif
+        @endauth
 
         <!-- AR Button -->
         @if (!empty($object['ar_marker_id']) || !empty($object['model_3d_path']))

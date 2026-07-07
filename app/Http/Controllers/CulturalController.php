@@ -57,7 +57,16 @@ class CulturalController extends Controller
             return $data;
         });
 
-        return view('user.cultural.show', compact('object'));
+        // Rating eligibility is per-user, so it's computed outside the shared cache blob above.
+        $canRate = false;
+        $existingRating = null;
+        if ($user = auth()->user()) {
+            $culturalObject = CulturalObject::where('slug', $slug)->firstOrFail();
+            $canRate = $culturalObject->isVisitedBy($user);
+            $existingRating = $culturalObject->ratingBy($user);
+        }
+
+        return view('user.cultural.show', compact('object', 'canRate', 'existingRating'));
     }
 
     private function resolveTrans(mixed $model): array
