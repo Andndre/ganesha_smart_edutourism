@@ -99,4 +99,19 @@ class OwnerDashboardController extends BaseOwnerController
 
         return redirect()->route('owner.location')->with('success', __('Lokasi toko Anda berhasil diperbarui.'));
     }
+
+    /**
+     * Display the UMKM Owner complaints/feedbacks page.
+     */
+    public function complaints(): View
+    {
+        $profile = $this->requireProfile();
+
+        $complaints = $profile->complaints()
+            ->with('user')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('owner.complaints', ['profile' => $this->profile] + compact('complaints'));
+    }
 }

@@ -64,7 +64,7 @@
     <div class="space-y-3">
         <template x-for="opt in options" :key="idx + '-' + opt.letter">
             <button type="button" @click="choose(opt.letter)"
-                class="w-full min-h-[44px] rounded-xl border-2 p-4 text-left text-sm font-medium transition"
+                class="w-full min-h-11 rounded-xl border-2 p-4 text-left text-sm font-medium transition"
                 :class="optionClass(opt.letter)" :disabled="chosen !== null">
                 <span class="mr-2 font-bold" x-text="opt.letter + '.'"></span>
                 <span x-text="opt.text"></span>

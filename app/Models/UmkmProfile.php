@@ -79,6 +79,16 @@ class UmkmProfile extends Model
     }
 
     /**
+     * Get the feedbacks/complaints for this UMKM profile.
+     *
+     * @return HasMany<Feedback>
+     */
+    public function complaints(): HasMany
+    {
+        return $this->hasMany(Feedback::class)->where('feedback_type', 'umkm');
+    }
+
+    /**
      * Returns ['min' => float, 'max' => float] from active products' effective prices,
      * or null when no product has a price set. Requires activeProducts.category eager-loaded.
      *

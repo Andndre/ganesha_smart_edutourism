@@ -127,6 +127,12 @@ function switchForm(type) {
     if (formUmkm) formUmkm.classList.add('hidden');
     if (formFacility) formFacility.classList.add('hidden');
 
+    // Hide UMKM admin manage container by default
+    const manageContainer = document.getElementById('umkm-admin-manage-container');
+    if (manageContainer) {
+        manageContainer.classList.add('hidden');
+    }
+
     // Show active form
     const formId = `form-${type}`;
     const targetForm = document.getElementById(formId);
@@ -303,6 +309,14 @@ function handleMarkerClick(marker) {
 
             // Setup Delete Action
             document.getElementById('form-delete').action = `/admin/umkm/profiles/${details.id}`;
+
+            // Setup Manage Action
+            const manageContainer = document.getElementById('umkm-admin-manage-container');
+            const manageBtn = document.getElementById('btn-umkm-admin-manage');
+            if (manageContainer && manageBtn) {
+                manageBtn.href = `/owner/dashboard?umkm_profile_id=${details.id}`;
+                manageContainer.classList.remove('hidden');
+            }
 
         } else if (loc.category === 'facility') {
             switchForm('facility');

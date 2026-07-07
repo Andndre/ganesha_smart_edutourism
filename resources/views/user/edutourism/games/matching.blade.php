@@ -104,7 +104,7 @@
             <div class="space-y-2">
                 <template x-for="item in lefts" :key="'l' + item.i">
                     <button type="button" @click="pickLeft(item.i)"
-                        class="w-full min-h-[44px] rounded-xl border-2 p-3 text-left text-sm font-semibold transition"
+                        class="w-full min-h-11 rounded-xl border-2 p-3 text-left text-sm font-semibold transition"
                         :class="matched.includes(item.i) ? 'border-emerald-300 bg-emerald-50 text-emerald-700' :
                             (selectedLeft === item.i ? 'border-primary bg-primary text-white' : 'border-gray-200 bg-white text-gray-700')"
                         :disabled="matched.includes(item.i)">
@@ -128,7 +128,7 @@
             <div class="space-y-2">
                 <template x-for="item in rights" :key="'r' + item.i">
                     <button type="button" @click="pickRight(item.i)"
-                        class="w-full min-h-[44px] rounded-xl border-2 p-3 text-left text-sm font-medium transition"
+                        class="w-full min-h-11 rounded-xl border-2 p-3 text-left text-sm font-medium transition"
                         :class="matched.includes(item.i) ? 'border-emerald-300 bg-emerald-50 text-emerald-700' :
                             (wrongPair === item.i ? 'quiz-shake border-red-300 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-700')"
                         :disabled="matched.includes(item.i)">
@@ -144,7 +144,7 @@
         <div class="grid grid-cols-2 gap-3">
             <template x-for="(item, idx) in cfg.items" :key="idx">
                 <button type="button" @click="togglePick(idx)"
-                    class="min-h-[64px] rounded-xl border-2 p-3 text-sm font-semibold transition"
+                    class="min-h-16 rounded-xl border-2 p-3 text-sm font-semibold transition"
                     :class="{
                         'border-gray-200 bg-white text-gray-700': pickState(idx) === 'idle',
                         'border-primary bg-green-50 text-primary': pickState(idx) === 'selected',

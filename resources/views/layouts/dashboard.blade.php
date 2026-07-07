@@ -172,7 +172,7 @@
             <div>
                 <p class="font-display text-sm font-bold leading-tight tracking-wide text-white">Penglipuran</p>
                 <p class="text-[10px] font-medium uppercase tracking-widest text-white/40">
-                    {{ auth()->user()->isAdmin() ? 'Admin Panel' : (auth()->user()->isTicketOfficer() ? 'Staff Panel' : 'Owner Panel') }}
+                    {{ (auth()->user()->isAdmin() && session()->has('admin_view_umkm_profile_id') && request()->is('owner/*')) ? 'Owner Panel (Preview)' : (auth()->user()->isAdmin() ? 'Admin Panel' : (auth()->user()->isTicketOfficer() ? 'Staff Panel' : 'Owner Panel')) }}
                 </p>
             </div>
         </div>
@@ -183,7 +183,50 @@
             @php
                 $navItems = [];
 
-                if (auth()->user()->isAdmin()) {
+                // Check if admin is currently previewing/managing a specific UMKM profile.
+                // Gated on the current path (not just the session flag) so that background
+                // requests to /admin/* from another tab can't clobber this tab's sidebar —
+                // the flag alone is shared session state and gets touched by unrelated requests.
+                $isAdminPreview = auth()->user()->isAdmin() && session()->has('admin_view_umkm_profile_id') && request()->is('owner/*');
+
+                if ($isAdminPreview) {
+                    $navItems = [
+                        [
+                            'url' => route('owner.dashboard'),
+                            'route' => 'owner.dashboard',
+                            'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
+                            'label' => 'Dashboard Ringkasan'
+                        ],
+                        [
+                            'type' => 'header',
+                            'label' => 'Toko Saya'
+                        ],
+                        [
+                            'url' => route('owner.profile'),
+                            'route' => 'owner.profile',
+                            'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+                            'label' => 'Informasi Toko'
+                        ],
+                        [
+                            'url' => route('owner.location'),
+                            'route' => 'owner.location',
+                            'icon' => 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z',
+                            'label' => 'Kustomisasi Lokasi'
+                        ],
+                        [
+                            'url' => route('owner.products'),
+                            'route' => 'owner.products',
+                            'icon' => 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z',
+                            'label' => 'Daftar Produk'
+                        ],
+                        [
+                            'url' => route('owner.complaints'),
+                            'route' => 'owner.complaints',
+                            'icon' => 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+                            'label' => 'Keluhan & Saran'
+                        ],
+                    ];
+                } elseif (auth()->user()->isAdmin()) {
                     $navItems = [
                         [
                             'url' => route('admin.dashboard'),
@@ -329,6 +372,12 @@
                             'icon' => 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z',
                             'label' => 'Daftar Produk'
                         ],
+                        [
+                            'url' => route('owner.complaints'),
+                            'route' => 'owner.complaints',
+                            'icon' => 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+                            'label' => 'Keluhan & Saran'
+                        ],
                     ];
                 } elseif (auth()->user()->isTicketOfficer()) {
                     $navItems = [
@@ -444,6 +493,24 @@
     MAIN CONTENT
     ============================================================ --}}
     <main id="admin-main" class="min-h-screen overflow-y-auto bg-surface p-6 lg:p-8">
+        {{-- Admin Preview Banner --}}
+        @if (auth()->check() && auth()->user()->isAdmin() && session()->has('admin_view_umkm_profile_id') && request()->is('owner/*'))
+            <div class="mb-6 flex items-center justify-between rounded-xl bg-blue-50 border border-blue-200 p-4 text-sm text-blue-800">
+                <div class="flex items-center gap-3">
+                    <svg class="h-5 w-5 shrink-0 text-blue-600 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span>
+                        <strong>Admin Mode:</strong> You are managing this shop as an Administrator.
+                    </span>
+                </div>
+                <a href="{{ route('admin.map-manager') }}" class="font-semibold text-blue-600 hover:text-blue-800 hover:underline">
+                    Back to Map Manager &rarr;
+                </a>
+            </div>
+        @endif
+
         {{-- Success/Error Alerts --}}
         @if (session('success'))
             <div
