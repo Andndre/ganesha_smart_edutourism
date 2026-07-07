@@ -202,7 +202,7 @@
                             <div class="mb-3 flex gap-1">
                                 @for ($i = 1; $i <= 5; $i++)
                                     <button type="button" @click="rating = {{ $i }}"
-                                        class="text-2xl"
+                                        class="flex h-11 w-11 items-center justify-center text-2xl"
                                         :class="rating >= {{ $i }} ? 'text-[#D4AF37]' : 'text-gray-300'">★</button>
                                 @endfor
                             </div>
