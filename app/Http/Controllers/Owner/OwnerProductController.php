@@ -15,6 +15,7 @@ class OwnerProductController extends BaseOwnerController
     {
         if (! $this->profile) {
             return view('owner.products', [
+                'profile' => null,
                 'products' => collect(),
                 'categories' => collect(),
                 'noProfile' => true,
@@ -41,7 +42,10 @@ class OwnerProductController extends BaseOwnerController
         $products = $query->paginate(10)->withQueryString();
         $categories = UmkmProductCategory::orderBy('name->'.app()->getLocale())->get();
 
-        return view('owner.products', compact('products', 'categories') + ['noProfile' => false]);
+        return view('owner.products', compact('products', 'categories') + [
+            'profile' => $this->profile,
+            'noProfile' => false,
+        ]);
     }
 
     public function store(OwnerProductRequest $request): RedirectResponse

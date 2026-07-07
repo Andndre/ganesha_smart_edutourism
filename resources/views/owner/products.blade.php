@@ -4,7 +4,7 @@
 
 @php
     use Illuminate\Support\Facades\Storage;
-    $ownerProfileId = auth()->user()?->umkmProfile?->id;
+    $ownerProfileId = $profile?->id;
     $categoryPayload = $categories->map(fn($c) => [
         'id' => $c->id,
         'name' => translateValue($c->name),
@@ -15,7 +15,7 @@
         'image_path' => $c->image_path,
         'model_3d_path' => $c->model_3d_path,
         'model_3d_usdz_path' => $c->model_3d_usdz_path,
-        'editable_by_me' => $ownerProfileId ? $c->editableByOwner(auth()->user()->umkmProfile) : false,
+        'editable_by_me' => $profile ? $c->editableByOwner($profile) : false,
     ]);
 @endphp
 
@@ -183,7 +183,7 @@
                 <p class="mt-1 text-sm text-gray-500">{{ 'Ubah langsung jika seluruh produk pada kategori ini milik Anda. Jika tidak, ajukan permintaan edit ke admin.' }}</p>
                 <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($categories->whereIn('id', $myCategoryIds) as $cat)
-                        @php($editable = $cat->editableByOwner(auth()->user()->umkmProfile))
+                        @php($editable = $profile ? $cat->editableByOwner($profile) : false)
                         <div class="flex items-center justify-between gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
                             <div class="min-w-0">
                                 <p class="truncate font-semibold text-charcoal">{{ translateValue($cat->name) }}</p>

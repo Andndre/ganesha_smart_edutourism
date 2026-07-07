@@ -15,7 +15,7 @@ class UmkmOwnerMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user()?->isUmkmOwner()) {
+        if ($request->user()?->isUmkmOwner() || $request->user()?->isAdmin()) {
             return $next($request);
         }
 

@@ -130,7 +130,6 @@ class UmkmCatalogController extends Controller
                     'id' => $umkm->id,
                     'business_name' => $businessName,
                     'slug' => $umkm->slug,
-                    'rating' => $umkm->rating,
                     'image_path' => $umkm->mapLocation?->arModel?->ar_marker_id,
                 ];
             });

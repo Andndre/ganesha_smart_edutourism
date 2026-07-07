@@ -65,7 +65,7 @@
     <div class="space-y-3">
         <template x-for="(opt, oIdx) in scenario.options" :key="idx + '-' + oIdx">
             <button type="button" @click="choose(oIdx)"
-                class="w-full min-h-[44px] rounded-xl border-2 p-4 text-left text-sm font-medium transition"
+                class="w-full min-h-11 rounded-xl border-2 p-4 text-left text-sm font-medium transition"
                 :class="optionClass(oIdx)" :disabled="chosen !== null">
                 <span x-text="opt.text"></span>
             </button>

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'reservation_id', 'feedback_type', 'rating', 'comment', 'photos', 'is_public', 'admin_response'])]
+#[Fillable(['user_id', 'reservation_id', 'umkm_profile_id', 'feedback_type', 'rating', 'comment', 'photos', 'is_public', 'admin_response'])]
 class Feedback extends Model
 {
     use HasFactory;
@@ -52,4 +52,13 @@ class Feedback extends Model
         return $this->belongsTo(Reservation::class);
     }
 
+    /**
+     * Get the UMKM profile associated with this feedback.
+     *
+     * @return BelongsTo<UmkmProfile, Feedback>
+     */
+    public function umkmProfile(): BelongsTo
+    {
+        return $this->belongsTo(UmkmProfile::class);
+    }
 }

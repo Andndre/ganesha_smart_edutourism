@@ -107,7 +107,7 @@
             <template x-for="(row, r) in grid" :key="r">
                 <template x-for="(letter, c) in row" :key="r + '-' + c">
                     <button type="button" @click="tap(r, c)"
-                        class="flex aspect-square min-w-[32px] items-center justify-center rounded-md text-sm font-bold shadow-sm transition"
+                        class="flex aspect-square min-w-8 items-center justify-center rounded-md text-sm font-bold shadow-sm transition"
                         :class="cellClass(r, c)" x-text="letter"></button>
                 </template>
             </template>

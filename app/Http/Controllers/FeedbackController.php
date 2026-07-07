@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Feedback;
 use App\Models\Reservation;
+use App\Models\UmkmProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,9 +12,14 @@ use Illuminate\View\View;
 
 class FeedbackController extends Controller
 {
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('user.feedback.create');
+        $umkm = null;
+        if ($request->has('umkm_profile_id')) {
+            $umkm = UmkmProfile::find($request->umkm_profile_id);
+        }
+
+        return view('user.feedback.create', compact('umkm'));
     }
 
     public function store(Request $request): JsonResponse|RedirectResponse
@@ -23,31 +29,53 @@ class FeedbackController extends Controller
             'comment' => 'nullable|string|max:1000',
             'photos' => 'nullable|array|max:5',
             'photos.*' => 'nullable|string',
+            'umkm_profile_id' => 'nullable|exists:umkm_profiles,id',
+            'feedback_type' => 'nullable|string|in:general,cultural,service,facility,umkm',
         ]);
 
-        // Find latest completed reservation without existing feedback
-        $latestCompleted = Reservation::where('user_id', auth()->id())
-            ->where('status', 'completed')
-            ->whereDoesntHave('feedbacks')
-            ->latest('scheduled_date')
-            ->first();
+        $feedbackType = $validated['feedback_type'] ?? 'general';
+        $umkmProfileId = $validated['umkm_profile_id'] ?? null;
 
-        // Check if already has feedback for this reservation
-        if ($latestCompleted && $latestCompleted->feedbacks()->exists()) {
-            $existingFeedback = $latestCompleted->feedbacks()->first();
+        $latestCompleted = null;
+        if ($feedbackType === 'general') {
+            // Find latest completed reservation without existing feedback
+            $latestCompleted = Reservation::where('user_id', auth()->id())
+                ->where('status', 'completed')
+                ->whereDoesntHave('feedbacks')
+                ->latest('scheduled_date')
+                ->first();
 
-            return redirect()->route('feedback.edit', $existingFeedback);
+            // Check if already has feedback for this reservation
+            if ($latestCompleted && $latestCompleted->feedbacks()->exists()) {
+                $existingFeedback = $latestCompleted->feedbacks()->first();
+
+                return redirect()->route('feedback.edit', $existingFeedback);
+            }
         }
 
         $feedback = Feedback::create([
             'user_id' => auth()->id(),
             'reservation_id' => $latestCompleted?->id,
-            'feedback_type' => 'general',
+            'umkm_profile_id' => $umkmProfileId,
+            'feedback_type' => $feedbackType,
             'rating' => $validated['rating'],
             'comment' => $validated['comment'] ?? null,
             'photos' => $validated['photos'] ?? [],
-            'is_public' => true,
+            'is_public' => $feedbackType !== 'umkm', // Complaints about UMKM are kept private/hidden from public by default
         ]);
+
+        // Dynamically update the cached/static rating on UmkmProfile if it exists
+        if ($feedbackType === 'umkm' && $umkmProfileId) {
+            $umkm = UmkmProfile::find($umkmProfileId);
+            if ($umkm) {
+                $avgRating = Feedback::where('umkm_profile_id', $umkmProfileId)
+                    ->where('feedback_type', 'umkm')
+                    ->avg('rating');
+                if ($avgRating) {
+                    $umkm->update(['rating' => round($avgRating, 1)]);
+                }
+            }
+        }
 
         if ($request->wantsJson()) {
             return response()->json([

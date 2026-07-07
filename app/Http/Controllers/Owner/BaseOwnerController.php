@@ -42,7 +42,18 @@ abstract class BaseOwnerController extends Controller
     private function resolveProfile(): ?UmkmProfile
     {
         if (! $this->profileResolved) {
-            $this->profileCache = Auth::user()?->umkmProfile;
+            $user = Auth::user();
+            if ($user && $user->isAdmin()) {
+                $profileId = request()->query('umkm_profile_id') ?? session('admin_view_umkm_profile_id');
+                if ($profileId) {
+                    $this->profileCache = UmkmProfile::find($profileId);
+                    if ($this->profileCache) {
+                        session(['admin_view_umkm_profile_id' => $this->profileCache->id]);
+                    }
+                }
+            } else {
+                $this->profileCache = $user?->umkmProfile;
+            }
             $this->profileResolved = true;
         }
 

@@ -107,7 +107,7 @@
             <div class="grid grid-cols-1 gap-2">
                 <template x-for="(item, idx) in cfg.items" :key="idx">
                     <button type="button" @click="reveal(idx)"
-                        class="min-h-[56px] rounded-xl border-2 p-3 text-left text-sm transition"
+                        class="min-h-14 rounded-xl border-2 p-3 text-left text-sm transition"
                         :class="revealed.includes(idx) ? 'border-emerald-200 bg-emerald-50 text-gray-700' :
                             'border-dashed border-gray-300 bg-gray-50 text-gray-400'">
                         <span x-show="!revealed.includes(idx)" class="font-semibold">🔍
