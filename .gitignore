@@ -7,6 +7,9 @@
 /database/dusk.sqlite
 .phpactor.json
 .phpunit.result.cache
+/.codex
+/.cursor/
+/.claude/
 /.idea
 /.nova
 /.phpunit.cache
@@ -28,9 +31,13 @@ _ide_helper*.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+.agents/
+# *.md
+!README.md
 /.sisyphus/
 /openrouteservice/files/
 /openrouteservice/graphs/
 /openrouteservice/logs/
 /openrouteservice/config/example-ors-config.env
 /openrouteservice/config/example-ors-config.yml
+docs/superpowers/
