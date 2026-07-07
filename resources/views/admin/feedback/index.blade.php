@@ -66,7 +66,30 @@
                             {{ strtoupper(substr($f->user ? $f->user->name : 'W', 0, 1)) }}
                         </div>
                         <div>
-                            <p class="font-semibold text-charcoal">{{ $f->user ? $f->user->name : 'Wisatawan' }}</p>
+                            <div class="flex items-center gap-2">
+                                <p class="font-semibold text-charcoal">{{ $f->user ? $f->user->name : 'Wisatawan' }}</p>
+                                @if ($f->feedback_type === 'umkm')
+                                    <span class="inline-flex items-center rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 border border-amber-200">
+                                        UMKM: {{ $f->umkmProfile ? $f->umkmProfile->business_name : 'Toko' }}
+                                    </span>
+                                @elseif ($f->feedback_type === 'cultural')
+                                    <span class="inline-flex items-center rounded-full bg-purple-50 px-1.5 py-0.5 text-[10px] font-bold text-purple-700 border border-purple-200">
+                                        Objek Budaya
+                                    </span>
+                                @elseif ($f->feedback_type === 'service')
+                                    <span class="inline-flex items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 border border-blue-200">
+                                        Pelayanan
+                                    </span>
+                                @elseif ($f->feedback_type === 'facility')
+                                    <span class="inline-flex items-center rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+                                        Fasilitas
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-[10px] font-bold text-gray-700 border border-gray-200">
+                                        Umum
+                                    </span>
+                                @endif
+                            </div>
                             <p class="text-xs text-gray-400">{{ $f->created_at ? $f->created_at->format('d M Y') : '-' }}</p>
                         </div>
                     </div>
