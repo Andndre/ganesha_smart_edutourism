@@ -137,4 +137,19 @@ class CulturalObject extends Model
     {
         return $this->visits()->where('user_id', $user->id)->exists();
     }
+
+    public function ratings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CulturalObjectRating::class);
+    }
+
+    public function isRatedBy(User $user): bool
+    {
+        return $this->ratings()->where('user_id', $user->id)->exists();
+    }
+
+    public function ratingBy(User $user): ?CulturalObjectRating
+    {
+        return $this->ratings()->where('user_id', $user->id)->first();
+    }
 }
