@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\Translatable\HasTranslations;
@@ -138,16 +139,27 @@ class CulturalObject extends Model
         return $this->visits()->where('user_id', $user->id)->exists();
     }
 
-    public function ratings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    /**
+     * Get the ratings for this cultural object.
+     *
+     * @return HasMany<CulturalObjectRating>
+     */
+    public function ratings(): HasMany
     {
         return $this->hasMany(CulturalObjectRating::class);
     }
 
+    /**
+     * Check if this cultural object is rated by the given user.
+     */
     public function isRatedBy(User $user): bool
     {
         return $this->ratings()->where('user_id', $user->id)->exists();
     }
 
+    /**
+     * Get the rating left by the given user, if any.
+     */
     public function ratingBy(User $user): ?CulturalObjectRating
     {
         return $this->ratings()->where('user_id', $user->id)->first();
