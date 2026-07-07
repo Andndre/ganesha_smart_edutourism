@@ -6,9 +6,11 @@
     <div class="mx-auto max-w-2xl px-5 py-6">
         <div class="mb-6 text-center">
             <h2 class="text-charcoal mb-2 text-2xl font-bold" style="font-family: 'Playfair Display', serif;">
-                {{ isset($feedback) ? __('Edit Ulasan Anda') : __('Bagaimana Pengalaman Anda?') }}
+                {{ isset($feedback) ? __('Edit Ulasan Anda') : (isset($umkm) && $umkm ? __('Kirim Keluhan & Masukan') : __('Bagaimana Pengalaman Anda?')) }}
             </h2>
-            <p class="text-sm text-gray-500">{{ __('Masukan Anda sangat berharga untuk pengembangan Desa Wisata Penglipuran di masa depan.') }}</p>
+            <p class="text-sm text-gray-500">
+                {{ isset($umkm) && $umkm ? __('Masukan atau keluhan Anda untuk ' . $umkm->business_name . ' akan dikirim langsung ke pemilik dan pengelola secara tertutup.') : __('Masukan Anda sangat berharga untuk pengembangan Desa Wisata Penglipuran di masa depan.') }}
+            </p>
         </div>
 
         @if(isset($feedback) && $feedback->admin_response)
@@ -234,6 +236,11 @@
             formData.append('rating', rating);
             formData.append('comment', comment);
             selectedFiles.forEach(file => formData.append('photos[]', file));
+
+            @if(request()->has('umkm_profile_id') || (isset($umkm) && $umkm))
+                formData.append('umkm_profile_id', '{{ $umkm?->id ?? request('umkm_profile_id') }}');
+                formData.append('feedback_type', 'umkm');
+            @endif
 
             const url = isEditMode ? `/feedback/${feedbackId}` : '/feedback';
             const method = isEditMode ? 'POST' : 'POST';

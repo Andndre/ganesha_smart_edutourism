@@ -12,12 +12,12 @@
             <span class="text-sm font-medium">{{ __('Notifikasi') }}</span>
         @endif
         <span x-show="unread > 0" x-cloak x-text="unread > 9 ? '9+' : unread"
-            class="{{ $onDarkBg ? 'ml-auto' : 'absolute -top-0.5 -right-0.5' }} min-w-[18px] rounded-full bg-warning px-1 text-[10px] font-bold leading-[18px] text-white text-center"></span>
+            class="{{ $onDarkBg ? 'ml-auto' : 'absolute -top-0.5 -right-0.5' }} min-w-4.5 rounded-full bg-warning px-1 text-[10px] font-bold leading-[18px] text-white text-center"></span>
     </button>
 
     <div x-show="open" x-cloak @click.outside="open = false" @keydown.escape.window="open = false"
         x-transition.origin.bottom.left
-        class="{{ $onDarkBg ? 'fixed bottom-3 left-[268px]' : 'absolute right-0' }} mt-2 w-96 max-h-[70vh] overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-xl z-50">
+        class="{{ $onDarkBg ? 'fixed bottom-3 left-67' : 'absolute right-0' }} mt-2 w-96 max-h-[70vh] overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-xl z-50">
         <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3">
             <p class="font-semibold text-charcoal">{{ __('Notifikasi') }}</p>
             <button type="button" @click="markAllRead()" x-show="unread > 0"

@@ -302,6 +302,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 // Owner Routes
 Route::prefix('owner')->middleware(['auth', 'umkm_owner'])->group(function () {
     Route::get('/dashboard', [OwnerDashboardController::class, 'index'])->name('owner.dashboard');
+    Route::get('/complaints', [OwnerDashboardController::class, 'complaints'])->name('owner.complaints');
     Route::get('/profile', [OwnerDashboardController::class, 'editProfile'])->name('owner.profile');
     Route::put('/profile', [OwnerDashboardController::class, 'updateProfile'])->name('owner.profile.update');
     Route::get('/location', [OwnerDashboardController::class, 'editLocation'])->name('owner.location');

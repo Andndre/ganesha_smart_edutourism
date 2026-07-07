@@ -16,14 +16,6 @@
                             </svg>
                         </div>
                     @endif
-
-                    {{-- Rating Badge --}}
-                    @if ($umkm->rating)
-                        <div
-                            class="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-xs font-bold text-amber-600 shadow-sm backdrop-blur-sm">
-                            ★ {{ number_format($umkm->rating, 1) }}
-                        </div>
-                    @endif
                 </div>
 
                 <div class="flex-1 p-3">
