@@ -155,4 +155,17 @@ class CulturalObjectRatingAdminTest extends TestCase
         $response->assertSee('Rata-rata Rating Global');
         $response->assertSee('3.0'); // global average of 4 and 2
     }
+
+    public function test_admin_ratings_page_uses_bali_gold_svg_stars(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $object = CulturalObject::factory()->create();
+        CulturalObjectRating::factory()->create(['cultural_object_id' => $object->id, 'rating' => 3]);
+
+        $response = $this->actingAs($admin)->get(route('admin.cultural-object-ratings'));
+
+        $response->assertOk();
+        $response->assertSee('text-[#D4AF37]', false);
+        $response->assertDontSee('★');
+    }
 }
