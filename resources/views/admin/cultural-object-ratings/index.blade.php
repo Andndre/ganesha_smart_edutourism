@@ -25,7 +25,10 @@
                 @foreach ($object->ratings as $rating)
                     <div class="border-t border-gray-100 pt-3">
                         <div class="flex items-center justify-between text-sm">
-                            <span class="font-medium">{{ $rating->user->name ?? 'Pengguna dihapus' }}</span>
+                            <span class="font-medium">
+                                {{ $rating->user->name ?? 'Pengguna dihapus' }}
+                                <span class="font-normal text-gray-400">&middot; {{ $rating->created_at->diffForHumans() }}</span>
+                            </span>
                             <div class="flex items-center gap-3">
                                 <span>{{ str_repeat('★', $rating->rating) . str_repeat('☆', 5 - $rating->rating) }}</span>
                                 <form action="{{ route('admin.cultural-object-ratings.destroy', $rating) }}" method="POST"
