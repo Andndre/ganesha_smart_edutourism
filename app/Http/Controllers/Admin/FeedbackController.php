@@ -16,7 +16,7 @@ class FeedbackController extends Controller
      */
     public function index(): View
     {
-        $feedbacks = Feedback::with('user')->orderBy('created_at', 'desc')->paginate(10);
+        $feedbacks = Feedback::with(['user', 'umkmProfile'])->orderBy('created_at', 'desc')->paginate(10);
 
         $avgRating = round(valueOrMock(Feedback::avg('rating'), 4.7), 1);
 
