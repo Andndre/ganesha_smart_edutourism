@@ -109,4 +109,19 @@ class CulturalObjectRatingAdminTest extends TestCase
         $content = $response->getContent();
         $this->assertLessThan(strpos($content, 'High Rated'), strpos($content, 'Low Rated'));
     }
+
+    public function test_admin_can_filter_by_low_average_rating(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'preferred_language' => 'en']);
+        $lowRated = CulturalObject::factory()->create(['name' => ['en' => 'Low Rated', 'id' => 'Rating Rendah']]);
+        $highRated = CulturalObject::factory()->create(['name' => ['en' => 'High Rated', 'id' => 'Rating Tinggi']]);
+        CulturalObjectRating::factory()->create(['cultural_object_id' => $lowRated->id, 'rating' => 1]);
+        CulturalObjectRating::factory()->create(['cultural_object_id' => $highRated->id, 'rating' => 5]);
+
+        $response = $this->actingAs($admin)->get(route('admin.cultural-object-ratings', ['rating_filter' => 'low']));
+
+        $response->assertOk();
+        $response->assertSee('Low Rated');
+        $response->assertDontSee('High Rated');
+    }
 }
