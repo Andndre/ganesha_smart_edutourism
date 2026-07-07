@@ -195,6 +195,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('/route-missions/upload-asset', [RouteMissionAssetController::class, 'upload'])->name('admin.route-missions.upload-asset');
     Route::get('/cultural-objects/import-template', [CulturalObjectController::class, 'downloadImportTemplate'])->name('admin.cultural-objects.import-template');
     Route::post('/cultural-objects/import', [CulturalObjectController::class, 'importXlsx'])->name('admin.cultural-objects.import-xlsx');
+    Route::get('/cultural-object-ratings', [App\Http\Controllers\Admin\CulturalObjectRatingController::class, 'index'])->name('admin.cultural-object-ratings');
 
     // Facility Routes
     Route::post('/facilities', [FacilityController::class, 'store'])->name('admin.facilities.store');
