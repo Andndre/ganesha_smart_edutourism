@@ -197,11 +197,18 @@
                         @if (session('status'))
                             <p class="mb-3 text-sm text-green-700">{{ session('status') }}</p>
                         @endif
+                        @error('rating')
+                            <p class="mb-3 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        @error('comment')
+                            <p class="mb-3 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                         <form method="POST" action="{{ route('cultural-object.rating.store', $object['slug']) }}" x-data="{ rating: {{ $existingRating->rating ?? 0 }} }">
                             @csrf
                             <div class="mb-3 flex gap-1">
                                 @for ($i = 1; $i <= 5; $i++)
                                     <button type="button" @click="rating = {{ $i }}"
+                                        aria-label="{{ __('Beri :n bintang', ['n' => $i]) }}"
                                         class="flex h-11 w-11 items-center justify-center text-2xl"
                                         :class="rating >= {{ $i }} ? 'text-[#D4AF37]' : 'text-gray-300'">★</button>
                                 @endfor

@@ -13,7 +13,7 @@ class CulturalObjectRatingController extends Controller
         $objects = CulturalObject::withCount('ratings')
             ->withAvg('ratings', 'rating')
             ->whereHas('ratings')
-            ->with(['ratings' => fn ($q) => $q->with('user')->latest()])
+            ->with(['ratings' => fn ($q) => $q->with('user')->latest()->limit(50)])
             ->orderByDesc('ratings_count')
             ->orderByDesc('id')
             ->paginate(10);

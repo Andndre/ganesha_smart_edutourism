@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ARManagerController;
 use App\Http\Controllers\Admin\CapacityController;
 use App\Http\Controllers\Admin\CulturalObjectController;
+use App\Http\Controllers\Admin\CulturalObjectRatingController as AdminCulturalObjectRatingController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\FacilityController;
@@ -195,7 +196,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('/route-missions/upload-asset', [RouteMissionAssetController::class, 'upload'])->name('admin.route-missions.upload-asset');
     Route::get('/cultural-objects/import-template', [CulturalObjectController::class, 'downloadImportTemplate'])->name('admin.cultural-objects.import-template');
     Route::post('/cultural-objects/import', [CulturalObjectController::class, 'importXlsx'])->name('admin.cultural-objects.import-xlsx');
-    Route::get('/cultural-object-ratings', [App\Http\Controllers\Admin\CulturalObjectRatingController::class, 'index'])->name('admin.cultural-object-ratings');
+    Route::get('/cultural-object-ratings', [AdminCulturalObjectRatingController::class, 'index'])->name('admin.cultural-object-ratings');
 
     // Facility Routes
     Route::post('/facilities', [FacilityController::class, 'store'])->name('admin.facilities.store');
