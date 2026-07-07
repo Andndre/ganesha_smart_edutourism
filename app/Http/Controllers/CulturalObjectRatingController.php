@@ -14,7 +14,7 @@ class CulturalObjectRatingController extends Controller
         $object = CulturalObject::where('slug', $slug)->firstOrFail();
         $user = $request->user();
 
-        abort_if(! $object->isVisitedBy($user), 403, 'Anda harus mengunjungi objek ini terlebih dahulu sebelum memberi rating.');
+        abort_if(! $object->isVisitedBy($user), 403, __('Anda harus mengunjungi objek ini terlebih dahulu sebelum memberi rating.'));
 
         $validated = $request->validate([
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
@@ -30,6 +30,6 @@ class CulturalObjectRatingController extends Controller
             return response()->json(['ok' => true, 'rating' => $rating]);
         }
 
-        return back()->with('status', 'Terima kasih atas rating Anda!');
+        return back()->with('status', __('Terima kasih atas rating Anda!'));
     }
 }

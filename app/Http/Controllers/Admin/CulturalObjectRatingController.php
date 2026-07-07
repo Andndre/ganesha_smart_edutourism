@@ -15,6 +15,7 @@ class CulturalObjectRatingController extends Controller
             ->whereHas('ratings')
             ->with(['ratings' => fn ($q) => $q->with('user')->latest()])
             ->orderByDesc('ratings_count')
+            ->orderByDesc('id')
             ->paginate(10);
 
         return view('admin.cultural-object-ratings.index', compact('objects'));
