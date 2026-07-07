@@ -27,6 +27,7 @@ use App\Http\Controllers\AudioController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CulturalController;
+use App\Http\Controllers\CulturalObjectRatingController;
 use App\Http\Controllers\EventController as PublicEventController;
 use App\Http\Controllers\ExploreController;
 use App\Http\Controllers\FavoriteController;
@@ -131,6 +132,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/feedback/{feedback}/edit', [FeedbackController::class, 'edit'])->name('feedback.edit');
         Route::put('/feedback/{feedback}', [FeedbackController::class, 'update'])->name('feedback.update');
         Route::get('/feedback/thank-you/{feedback}', [FeedbackController::class, 'thankYou'])->name('feedback.thank-you');
+
+        // Cultural Object Rating
+        Route::post('/cultural/{slug}/rating', [CulturalObjectRatingController::class, 'store'])->name('cultural-object.rating.store');
 
         // Tour Package Booking
         Route::get('/tour-package/{id}/book', [BookingController::class, 'checkout'])->name('tour-package.book');
