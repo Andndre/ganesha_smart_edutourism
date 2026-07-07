@@ -10,7 +10,7 @@
     @forelse ($objects as $object)
         <div class="mb-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <div class="mb-3 flex items-center justify-between">
-                <h2 class="text-lg font-bold text-charcoal">{{ $object->getTranslation('name', 'en') }}</h2>
+                <h2 class="text-lg font-bold text-charcoal">{{ $object->name }}</h2>
                 <span class="text-sm font-semibold text-gray-600">
                     {{ number_format($object->ratings_avg_rating, 1) }} / 5 ({{ $object->ratings_count }})
                 </span>

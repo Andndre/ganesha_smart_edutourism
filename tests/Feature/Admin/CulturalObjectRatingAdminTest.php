@@ -22,7 +22,7 @@ class CulturalObjectRatingAdminTest extends TestCase
 
     public function test_admin_sees_average_and_count_per_object(): void
     {
-        $admin = User::factory()->create(['role' => 'admin']);
+        $admin = User::factory()->create(['role' => 'admin', 'preferred_language' => 'en']);
         $object = CulturalObject::factory()->create(['name' => ['en' => 'Old House', 'id' => 'Rumah Lama']]);
         CulturalObjectRating::factory()->create(['cultural_object_id' => $object->id, 'rating' => 4]);
         CulturalObjectRating::factory()->create(['cultural_object_id' => $object->id, 'rating' => 2]);
