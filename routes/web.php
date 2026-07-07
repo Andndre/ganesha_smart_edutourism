@@ -197,6 +197,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/cultural-objects/import-template', [CulturalObjectController::class, 'downloadImportTemplate'])->name('admin.cultural-objects.import-template');
     Route::post('/cultural-objects/import', [CulturalObjectController::class, 'importXlsx'])->name('admin.cultural-objects.import-xlsx');
     Route::get('/cultural-object-ratings', [AdminCulturalObjectRatingController::class, 'index'])->name('admin.cultural-object-ratings');
+    Route::delete('/cultural-object-ratings/{rating}', [AdminCulturalObjectRatingController::class, 'destroy'])->name('admin.cultural-object-ratings.destroy');
 
     // Facility Routes
     Route::post('/facilities', [FacilityController::class, 'store'])->name('admin.facilities.store');
