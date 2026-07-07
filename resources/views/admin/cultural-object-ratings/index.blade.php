@@ -13,6 +13,17 @@
         </div>
     @endif
 
+    <form method="GET" class="mb-6 flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama objek budaya..."
+            class="w-full flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm">
+        <select name="sort" class="rounded-xl border border-gray-200 px-3 py-2.5 text-sm">
+            <option value="most_rated" {{ request('sort', 'most_rated') === 'most_rated' ? 'selected' : '' }}>Paling Banyak Diulas</option>
+            <option value="highest" {{ request('sort') === 'highest' ? 'selected' : '' }}>Rating Tertinggi</option>
+            <option value="lowest" {{ request('sort') === 'lowest' ? 'selected' : '' }}>Rating Terendah</option>
+        </select>
+        <button type="submit" class="bg-primary rounded-xl px-5 py-2.5 text-sm font-bold text-white">Terapkan</button>
+    </form>
+
     @forelse ($objects as $object)
         <div class="mb-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <div class="mb-3 flex items-center justify-between">

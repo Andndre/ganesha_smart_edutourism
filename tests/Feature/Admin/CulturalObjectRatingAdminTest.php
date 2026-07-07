@@ -79,4 +79,34 @@ class CulturalObjectRatingAdminTest extends TestCase
         $response->assertOk();
         $response->assertSee($rating->created_at->diffForHumans());
     }
+
+    public function test_admin_can_search_objects_by_name(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'preferred_language' => 'en']);
+        $match = CulturalObject::factory()->create(['name' => ['en' => 'Old House', 'id' => 'Rumah Lama']]);
+        $other = CulturalObject::factory()->create(['name' => ['en' => 'Statue', 'id' => 'Patung']]);
+        CulturalObjectRating::factory()->create(['cultural_object_id' => $match->id]);
+        CulturalObjectRating::factory()->create(['cultural_object_id' => $other->id]);
+
+        $response = $this->actingAs($admin)->get(route('admin.cultural-object-ratings', ['search' => 'Old House']));
+
+        $response->assertOk();
+        $response->assertSee('Old House');
+        $response->assertDontSee('Statue');
+    }
+
+    public function test_admin_can_sort_by_lowest_average_rating(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'preferred_language' => 'en']);
+        $highRated = CulturalObject::factory()->create(['name' => ['en' => 'High Rated', 'id' => 'Rating Tinggi']]);
+        $lowRated = CulturalObject::factory()->create(['name' => ['en' => 'Low Rated', 'id' => 'Rating Rendah']]);
+        CulturalObjectRating::factory()->create(['cultural_object_id' => $highRated->id, 'rating' => 5]);
+        CulturalObjectRating::factory()->create(['cultural_object_id' => $lowRated->id, 'rating' => 1]);
+
+        $response = $this->actingAs($admin)->get(route('admin.cultural-object-ratings', ['sort' => 'lowest']));
+
+        $response->assertOk();
+        $content = $response->getContent();
+        $this->assertLessThan(strpos($content, 'High Rated'), strpos($content, 'Low Rated'));
+    }
 }
