@@ -7,6 +7,12 @@
     <h1 class="mb-6 text-2xl font-bold text-charcoal">Rating Objek Budaya (Internal)</h1>
     <p class="mb-6 text-sm text-gray-500">Rating ini hanya terlihat oleh admin/pengelola, tidak ditampilkan ke publik.</p>
 
+    @if (session('status'))
+        <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+            {{ session('status') }}
+        </div>
+    @endif
+
     @forelse ($objects as $object)
         <div class="mb-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <div class="mb-3 flex items-center justify-between">
@@ -20,7 +26,15 @@
                     <div class="border-t border-gray-100 pt-3">
                         <div class="flex items-center justify-between text-sm">
                             <span class="font-medium">{{ $rating->user->name ?? 'Pengguna dihapus' }}</span>
-                            <span>{{ str_repeat('★', $rating->rating) . str_repeat('☆', 5 - $rating->rating) }}</span>
+                            <div class="flex items-center gap-3">
+                                <span>{{ str_repeat('★', $rating->rating) . str_repeat('☆', 5 - $rating->rating) }}</span>
+                                <form action="{{ route('admin.cultural-object-ratings.destroy', $rating) }}" method="POST"
+                                    onsubmit="return confirm('Hapus rating ini secara permanen?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-800">Hapus</button>
+                                </form>
+                            </div>
                         </div>
                         @if ($rating->comment)
                             <p class="mt-1 text-sm text-gray-600">{{ $rating->comment }}</p>
