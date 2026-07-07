@@ -63,20 +63,6 @@ class FeedbackController extends Controller
     }
 
     /**
-     * Toggle the visibility (is_public) of the feedback.
-     */
-    public function togglePublic(int $id): RedirectResponse
-    {
-        $feedback = Feedback::findOrFail($id);
-        $feedback->is_public = ! $feedback->is_public;
-        $feedback->save();
-
-        $statusLabel = $feedback->is_public ? __('ditampilkan ke publik') : __('disembunyikan dari publik');
-
-        return redirect()->route('admin.feedback')->with('success', __('Status ulasan berhasil diperbarui: :status', ['status' => $statusLabel]));
-    }
-
-    /**
      * Remove the specified feedback from storage.
      */
     public function destroy(int $id): RedirectResponse

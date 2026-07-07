@@ -123,14 +123,7 @@
                         </button>
                     @endif
 
-                    <form action="{{ route('admin.feedback.toggle', $f->id) }}" method="POST" class="inline">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit"
-                            class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-500 hover:bg-gray-50 transition-colors">
-                            {{ $f->is_public ? 'Sembunyikan Publik' : 'Tampilkan Publik' }}
-                        </button>
-                    </form>
+
 
                     <form action="{{ route('admin.feedback.destroy', $f->id) }}" method="POST" class="delete-form inline"
                         data-confirm="{{ 'Apakah Anda yakin ingin menghapus ulasan ini?' }}">

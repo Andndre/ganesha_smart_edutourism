@@ -49,7 +49,6 @@ class FeedbackHistoryTest extends TestCase
             'rating' => 5,
             'comment' => 'Test feedback',
             'feedback_type' => 'general',
-            'is_public' => true,
         ]);
 
         $response = $this->get(route('feedback.index'));
@@ -69,7 +68,6 @@ class FeedbackHistoryTest extends TestCase
             'rating' => 4,
             'comment' => 'Feedback dari user lain',
             'feedback_type' => 'general',
-            'is_public' => true,
         ]);
 
         $this->actingAs($user1);

@@ -59,7 +59,6 @@ class UmkmComplaintTest extends TestCase
             'feedback_type' => 'umkm',
             'rating' => 3,
             'comment' => 'Slow service and cold food.',
-            'is_public' => false,
         ]);
 
         // Rating on profile should be updated to average
@@ -77,7 +76,6 @@ class UmkmComplaintTest extends TestCase
             'feedback_type' => 'umkm',
             'rating' => 2,
             'comment' => 'Terrible experience.',
-            'is_public' => false,
         ]);
 
         $response = $this->actingAs($this->owner)

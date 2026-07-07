@@ -418,7 +418,6 @@ Table feedbacks {
   rating int [not null]
   comment text
   photos json
-  is_public tinyint(1) [default: 1]
   admin_response text
   created_at timestamp
   updated_at timestamp
