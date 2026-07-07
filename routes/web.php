@@ -274,7 +274,6 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Feedback Routes
     Route::get('/feedback', [AdminFeedbackController::class, 'index'])->name('admin.feedback');
     Route::post('/feedback/{id}/reply', [AdminFeedbackController::class, 'reply'])->name('admin.feedback.reply');
-    Route::patch('/feedback/{id}/toggle-public', [AdminFeedbackController::class, 'togglePublic'])->name('admin.feedback.toggle');
     Route::delete('/feedback/{id}', [AdminFeedbackController::class, 'destroy'])->name('admin.feedback.destroy');
 
     // Report Routes

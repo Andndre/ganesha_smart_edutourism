@@ -18,7 +18,6 @@ class FeedbackFactory extends Factory
             'rating' => $this->faker->numberBetween(1, 5),
             'comment' => $this->faker->sentence(),
             'photos' => null,
-            'is_public' => $this->faker->boolean(80),
             'admin_response' => null,
 
             'user_id' => User::factory(),
