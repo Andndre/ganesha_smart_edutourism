@@ -821,6 +821,48 @@ class AdminTest extends TestCase
     }
 
     /**
+     * Test admin can manage entrance-ticket products via the same package CRUD.
+     */
+    public function test_admin_can_manage_entrance_ticket_products(): void
+    {
+        // Create with type ticket
+        $responseCreate = $this->actingAs($this->adminUser)
+            ->post(route('admin.packages.store'), [
+                'name' => ['en' => 'Domestic Entry Ticket', 'id' => 'Tiket Masuk Domestik'],
+                'description' => ['en' => 'Entry only.', 'id' => 'Hanya tiket masuk.'],
+                'type' => 'ticket',
+                'price' => 25000,
+                'duration_hours' => 1.0,
+                'max_capacity' => 100,
+                'is_active' => true,
+            ]);
+        $responseCreate->assertRedirect();
+
+        $ticket = TourPackage::where('name->en', 'Domestic Entry Ticket')->firstOrFail();
+        $this->assertSame('ticket', $ticket->type);
+
+        // Ticket badge shows on admin index
+        $this->actingAs($this->adminUser)
+            ->get(route('admin.packages'))
+            ->assertStatus(200)
+            ->assertSee('Entrance Ticket');
+
+        // Update can switch type back to package
+        $responseUpdate = $this->actingAs($this->adminUser)
+            ->put(route('admin.packages.update', $ticket->id), [
+                'name' => ['en' => 'Domestic Entry Ticket', 'id' => 'Tiket Masuk Domestik'],
+                'description' => ['en' => 'Entry only.', 'id' => 'Hanya tiket masuk.'],
+                'type' => 'package',
+                'price' => 25000,
+                'duration_hours' => 1.0,
+                'max_capacity' => 100,
+                'is_active' => true,
+            ]);
+        $responseUpdate->assertRedirect();
+        $this->assertSame('package', $ticket->refresh()->type);
+    }
+
+    /**
      * Test Feedback / Review admin replies and deletion.
      */
     public function test_feedback_index_reply_and_delete(): void
