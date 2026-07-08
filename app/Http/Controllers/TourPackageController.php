@@ -23,7 +23,11 @@ class TourPackageController extends Controller
             })->values()->toArray();
         });
 
-        return view('user.packages.index', compact('packages'));
+        // 'type' may be missing from caches written before the ticket/package split
+        $tickets = array_values(array_filter($packages, fn ($p) => ($p['type'] ?? 'package') === 'ticket'));
+        $tourPackages = array_values(array_filter($packages, fn ($p) => ($p['type'] ?? 'package') !== 'ticket'));
+
+        return view('user.packages.index', compact('tickets', 'tourPackages'));
     }
 
     public function show($id)

@@ -266,6 +266,7 @@ Table tour_packages {
   id bigint [primary key, not null, increment]
   name varchar(255) [not null, note: 'JSON translatable: {en, id}']
   slug varchar(255) [not null, unique]
+  type varchar(20) [not null, default: 'package', note: 'package | ticket (entrance ticket)']
   description text [note: 'JSON translatable: {en, id}']
   inclusions json [note: 'JSON translatable per-item: [{en, id}]']
   exclusions json [note: 'JSON translatable per-item: [{en, id}]']
@@ -285,7 +286,7 @@ Table reservations {
   guest_name varchar(255) [not null]
   guest_email varchar(255)
   tour_package_id bigint [ref: > tour_packages.id]
-  reservation_type enum [not null, note: 'package | custom_tour | event']
+  reservation_type enum [not null, note: 'package | custom_tour | event | ticket']
   scheduled_date date [not null]
   party_size int [not null]
   total_amount decimal(12,2) [not null]

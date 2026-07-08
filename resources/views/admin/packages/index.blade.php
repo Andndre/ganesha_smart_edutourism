@@ -33,7 +33,13 @@
             <div @if ($loop->first) id="tour-first-card" @endif
                 class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:shadow-md">
                 <div class="mb-3 flex items-start justify-between">
-                    <h3 class="text-charcoal font-semibold">{{ $pkg->name }}</h3>
+                    <div>
+                        <h3 class="text-charcoal font-semibold">{{ $pkg->name }}</h3>
+                        <span
+                            class="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold {{ $pkg->isTicket() ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600' }}">
+                            {{ $pkg->isTicket() ? 'Entrance Ticket' : 'Tour Package' }}
+                        </span>
+                    </div>
                     @if ($pkg->is_active)
                         <span
                             class="bg-primary/10 text-primary shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold">Aktif</span>

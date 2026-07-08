@@ -8,6 +8,7 @@ use App\Models\TourPackage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class TourPackageBookingTest extends TestCase
@@ -479,6 +480,190 @@ class TourPackageBookingTest extends TestCase
     }
 
     /**
+     * Test landing splits entrance tickets and tour packages into separate tabs.
+     */
+    public function test_landing_shows_tickets_and_packages_in_separate_tabs(): void
+    {
+        TourPackage::create([
+            'name' => 'Tiket Masuk Reguler',
+            'slug' => 'tiket-masuk-reguler',
+            'type' => 'ticket',
+            'price' => 25000.00,
+            'duration_hours' => 1.0,
+            'max_capacity' => 100,
+            'min_capacity' => 1,
+            'is_active' => true,
+        ]);
+
+        TourPackage::create([
+            'name' => 'Paket Wisata Lengkap',
+            'slug' => 'paket-wisata-lengkap',
+            'type' => 'package',
+            'price' => 150000.00,
+            'duration_hours' => 4.0,
+            'max_capacity' => 10,
+            'min_capacity' => 2,
+            'is_active' => true,
+        ]);
+
+        $response = $this->get(route('tour-packages'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Tiket Masuk Reguler');
+        $response->assertSee('Paket Wisata Lengkap');
+        // Both tab switcher buttons rendered
+        $response->assertSee("tab = 'ticket'", false);
+        $response->assertSee("tab = 'package'", false);
+    }
+
+    /**
+     * Test the ticket booking flow records reservation_type ticket.
+     */
+    public function test_ticket_booking_creates_reservation_with_ticket_type(): void
+    {
+        $user = User::factory()->create(['role' => 'tourist']);
+
+        $ticket = TourPackage::create([
+            'name' => 'Tiket Masuk Reguler',
+            'slug' => 'tiket-masuk-reguler',
+            'type' => 'ticket',
+            'price' => 25000.00,
+            'duration_hours' => 1.0,
+            'max_capacity' => 100,
+            'min_capacity' => 1,
+            'is_active' => true,
+        ]);
+
+        config(['midtrans.server_key' => 'test-server-key']);
+
+        $checkout = $this->actingAs($user)->get(route('ticket.book', $ticket->id));
+        $checkout->assertStatus(200);
+        $checkout->assertSee('Tiket Masuk Reguler');
+
+        $response = $this->actingAs($user)->postJson(route('ticket.process', $ticket->id), [
+            'scheduled_date' => today()->addDay()->format('Y-m-d'),
+            'party_size' => 2,
+            'guest_name' => 'Wayan Ticket',
+            'guest_email' => 'wayan-ticket@test.com',
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('reservations', [
+            'tour_package_id' => $ticket->id,
+            'reservation_type' => 'ticket',
+            'guest_email' => 'wayan-ticket@test.com',
+        ]);
+    }
+
+    /**
+     * Test the package booking flow still records reservation_type package.
+     */
+    public function test_package_booking_still_creates_package_reservation_type(): void
+    {
+        $user = User::factory()->create(['role' => 'tourist']);
+
+        $package = TourPackage::create([
+            'name' => 'Paket Wisata Lengkap',
+            'slug' => 'paket-wisata-lengkap',
+            'type' => 'package',
+            'price' => 150000.00,
+            'duration_hours' => 4.0,
+            'max_capacity' => 10,
+            'min_capacity' => 1,
+            'is_active' => true,
+        ]);
+
+        config(['midtrans.server_key' => 'test-server-key']);
+
+        $response = $this->actingAs($user)->postJson(route('tour-package.process', $package->id), [
+            'scheduled_date' => today()->addDay()->format('Y-m-d'),
+            'party_size' => 2,
+            'guest_name' => 'Made Package',
+            'guest_email' => 'made-package@test.com',
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('reservations', [
+            'tour_package_id' => $package->id,
+            'reservation_type' => 'package',
+            'guest_email' => 'made-package@test.com',
+        ]);
+    }
+
+    /**
+     * Test booking routes reject mismatched product types.
+     */
+    public function test_booking_routes_reject_mismatched_product_type(): void
+    {
+        $user = User::factory()->create(['role' => 'tourist']);
+
+        $ticket = TourPackage::create([
+            'name' => 'Tiket Masuk Reguler',
+            'slug' => 'tiket-masuk-reguler',
+            'type' => 'ticket',
+            'price' => 25000.00,
+            'duration_hours' => 1.0,
+            'max_capacity' => 100,
+            'min_capacity' => 1,
+            'is_active' => true,
+        ]);
+
+        $package = TourPackage::create([
+            'name' => 'Paket Wisata Lengkap',
+            'slug' => 'paket-wisata-lengkap',
+            'type' => 'package',
+            'price' => 150000.00,
+            'duration_hours' => 4.0,
+            'max_capacity' => 10,
+            'min_capacity' => 1,
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($user)->get(route('ticket.book', $package->id))->assertStatus(404);
+        $this->actingAs($user)->get(route('tour-package.book', $ticket->id))->assertStatus(404);
+    }
+
+    /**
+     * Test tour guide WhatsApp button shows only for packages that include a guide.
+     */
+    public function test_tour_guide_whatsapp_button_visibility(): void
+    {
+        config(['services.tour_guide.whatsapp' => '6281234567890']);
+
+        $withGuide = TourPackage::create([
+            'name' => 'Paket Dengan Pemandu',
+            'slug' => 'paket-dengan-pemandu',
+            'type' => 'package',
+            'inclusions' => ['Tiket Masuk', 'Tour Guide'],
+            'price' => 200000.00,
+            'duration_hours' => 4.0,
+            'max_capacity' => 10,
+            'min_capacity' => 1,
+            'is_active' => true,
+        ]);
+
+        $withoutGuide = TourPackage::create([
+            'name' => 'Paket Tanpa Pemandu',
+            'slug' => 'paket-tanpa-pemandu',
+            'type' => 'package',
+            'inclusions' => ['Tiket Masuk', 'Snack'],
+            'price' => 100000.00,
+            'duration_hours' => 2.0,
+            'max_capacity' => 10,
+            'min_capacity' => 1,
+            'is_active' => true,
+        ]);
+
+        $this->get(route('tour-package', $withGuide->id))
+            ->assertStatus(200)
+            ->assertSee('wa.me/6281234567890');
+
+        $this->get(route('tour-package', $withoutGuide->id))
+            ->assertStatus(200)
+            ->assertDontSee('wa.me/6281234567890');
+    }
+
+    /**
      * Test booking does not require scheduled_time.
      */
     public function test_booking_does_not_require_scheduled_time(): void
@@ -499,9 +684,9 @@ class TourPackageBookingTest extends TestCase
 
         $response = $this->actingAs($user)->postJson(route('tour-package.process', $package->id), [
             'scheduled_date' => now()->addDay()->format('Y-m-d'),
-            'party_size'     => 2,
-            'guest_name'     => 'Test User',
-            'guest_email'    => 'test@example.com',
+            'party_size' => 2,
+            'guest_name' => 'Test User',
+            'guest_email' => 'test@example.com',
         ]);
 
         // Should NOT fail with "scheduled_time is required"
@@ -514,7 +699,7 @@ class TourPackageBookingTest extends TestCase
     public function test_reservation_has_no_scheduled_time_column(): void
     {
         $this->assertFalse(
-            \Illuminate\Support\Facades\Schema::hasColumn('reservations', 'scheduled_time'),
+            Schema::hasColumn('reservations', 'scheduled_time'),
             'scheduled_time column should have been dropped'
         );
     }

@@ -85,6 +85,20 @@
                             @enderror
                         </div>
                     </div>
+                    <div class="mb-4">
+                        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Product Type <span
+                                class="text-warning">*</span></label>
+                        <select name="type"
+                            class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-1"
+                            required>
+                            <option value="package" @selected(old('type', $package->type ?? 'package') === 'package')>Tour Package</option>
+                            <option value="ticket" @selected(old('type', $package->type ?? 'package') === 'ticket')>Entrance Ticket</option>
+                        </select>
+                        <p class="mt-1 text-xs text-gray-400">Entrance tickets appear under the "Tiket Masuk" tab and skip package extras.</p>
+                        @error('type')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="mb-1.5 block text-sm font-semibold text-gray-700">Harga per Orang <span

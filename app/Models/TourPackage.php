@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Translatable\HasTranslations;
 
-#[Fillable(['name', 'slug', 'description', 'inclusions', 'exclusions', 'price', 'duration_hours', 'max_capacity', 'min_capacity', 'images', 'is_active'])]
+#[Fillable(['name', 'slug', 'type', 'description', 'inclusions', 'exclusions', 'price', 'duration_hours', 'max_capacity', 'min_capacity', 'images', 'is_active'])]
 class TourPackage extends Model
 {
     use HasFactory;
@@ -178,5 +178,25 @@ class TourPackage extends Model
     public function scopeActive(Builder $query)
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * Whether this is an entrance-ticket product (vs a tour package).
+     */
+    public function isTicket(): bool
+    {
+        return $this->type === 'ticket';
+    }
+
+    /**
+     * Whether this package includes a tour guide in its inclusions.
+     */
+    public function includesTourGuide(): bool
+    {
+        // ponytail: keyword heuristic on raw inclusions JSON (both locales);
+        // add an explicit boolean column if admins ever need manual control.
+        $raw = $this->getRawOriginal('inclusions');
+
+        return \is_string($raw) && preg_match('/guide|pemandu/i', $raw) === 1;
     }
 }

@@ -1,6 +1,7 @@
 @extends('layouts.app')
-@section('title', __('Checkout Paket - Penglipuran'))
-@section('header_title', __('Checkout Paket'))
+@php($isTicket = ($bookingType ?? 'package') === 'ticket')
+@section('title', $isTicket ? __('Checkout Tiket - Penglipuran') : __('Checkout Paket - Penglipuran'))
+@section('header_title', $isTicket ? __('Checkout Tiket') : __('Checkout Paket'))
 
 @push('styles')
     <script src="https://{{ config('midtrans.is_production') ? 'app.midtrans.com' : 'app.sandbox.midtrans.com' }}/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
@@ -167,7 +168,7 @@
 
                     try {
                         const response = await fetch(
-                            "{{ route('tour-package.process', $package->id) }}", {
+                            "{{ route($isTicket ? 'ticket.process' : 'tour-package.process', $package->id) }}", {
                                 method: 'POST',
                                 headers: {
                                     'X-Requested-With': 'XMLHttpRequest',

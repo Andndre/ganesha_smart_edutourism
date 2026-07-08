@@ -50,6 +50,11 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI', env('APP_URL').'/auth/google/callback'),
     ],
 
+    'tour_guide' => [
+        // WhatsApp number for manual tour guide coordination (international format without "+", e.g. 6281234567890)
+        'whatsapp' => env('TOUR_GUIDE_WHATSAPP_NUMBER'),
+    ],
+
     'penglipuran' => [
         'latitude' => env('PENGLIPURAN_LAT', -8.422303596762355),
         'longitude' => env('PENGLIPURAN_LON', 115.35948833933173),
