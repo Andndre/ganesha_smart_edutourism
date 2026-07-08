@@ -40,6 +40,7 @@ class PackageController extends Controller
         $package = new TourPackage;
         $package->name = $validated['name'];
         $package->slug = $package->generateUniqueSlug(slugFromTranslatable($validated['name']));
+        $package->type = $validated['type'] ?? 'package';
         $package->description = $validated['description'];
         $package->price = $validated['price'];
         $package->duration_hours = $validated['duration_hours'] ?? null;
@@ -84,6 +85,7 @@ class PackageController extends Controller
 
         $package->name = $validated['name'];
         $package->slug = $package->generateUniqueSlug(slugFromTranslatable($validated['name']));
+        $package->type = $validated['type'] ?? $package->type;
         $package->description = $validated['description'];
         $package->price = $validated['price'];
         $package->duration_hours = $validated['duration_hours'] ?? null;

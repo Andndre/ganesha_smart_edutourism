@@ -141,6 +141,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/tour-package/{id}/book', [BookingController::class, 'checkout'])->name('tour-package.book');
         Route::post('/tour-package/{id}/process', [BookingController::class, 'process'])->name('tour-package.process');
 
+        // Entrance Ticket Booking (same controller, reservation_type: ticket)
+        Route::get('/tiket/{id}/book', [BookingController::class, 'checkout'])->name('ticket.book')->defaults('bookingType', 'ticket');
+        Route::post('/tiket/{id}/process', [BookingController::class, 'process'])->name('ticket.process')->defaults('bookingType', 'ticket');
+
         // Profile & E-Ticket
         Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');

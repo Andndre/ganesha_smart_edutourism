@@ -705,5 +705,15 @@
     "sedang": "is currently",
     "serta": "and",
     "ulasan": "reviews",
-    "yang diperlukan untuk menjalankan layanan ini.": "necessary to run this service."
+    "yang diperlukan untuk menjalankan layanan ini.": "necessary to run this service.",
+    "Tiket & Paket Wisata - Penglipuran": "Tickets & Tour Packages - Penglipuran",
+    "Tiket & Paket Wisata": "Tickets & Tour Packages",
+    "Pilih tiket masuk untuk berkeliling mandiri, atau paket wisata untuk pengalaman lengkap.": "Choose an entry ticket to explore on your own, or a tour package for the full experience.",
+    "Belum ada tiket masuk yang tersedia.": "No entry tickets available yet.",
+    "Per orang": "Per person",
+    "Checkout Tiket - Penglipuran": "Ticket Checkout - Penglipuran",
+    "Checkout Tiket": "Ticket Checkout",
+    "Paket ini menyertakan pemandu wisata. Silakan koordinasikan tanggal dan ketersediaan pemandu terlebih dahulu sebelum melakukan pembayaran.": "This package includes a tour guide. Please coordinate the date and guide availability first before making payment.",
+    "Halo, saya ingin memesan pemandu untuk \":package\". Apakah pemandu tersedia? Rencana tanggal kunjungan saya:": "Hello, I would like to book a guide for \":package\". Is a guide available? My planned visit date:",
+    "Pesan Pemandu via WhatsApp": "Book a Guide via WhatsApp"
 }

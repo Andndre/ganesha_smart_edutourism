@@ -20,6 +20,7 @@ class PackageRequest extends FormRequest
             'description' => ['nullable', 'array'],
             'description.en' => ['nullable', 'string'],
             'description.id' => ['nullable', 'string'],
+            'type' => ['nullable', 'in:package,ticket'],
             'price' => ['required', 'numeric', 'min:0'],
             'duration_hours' => ['nullable', 'numeric', 'min:0'],
             'max_capacity' => ['nullable', 'integer', 'min:1'],
