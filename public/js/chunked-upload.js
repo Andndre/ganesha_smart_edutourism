@@ -88,7 +88,10 @@ class ChunkedUploader {
             chunkSize: 5 * 1024 * 1024, // 5MB chunks
             retryDelays: [0, 3000, 10000],
             metadata: {
-                filename: file.name,
+                // Unique temp name per upload: tus-php stores the temp file under this
+                // name, so two uploads of the same file (e.g. one video for both EN & ID
+                // slots) would otherwise share one temp file and append-corrupt it.
+                filename: crypto.randomUUID() + '.' + file.name.split('.').pop(),
                 filetype: file.type,
             },
             onProgress: (bytesSent, bytesTotal) => {
