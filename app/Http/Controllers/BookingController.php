@@ -62,19 +62,21 @@ class BookingController extends Controller
     }
 
     /**
-     * Show the checkout page for a tour package.
+     * Show the checkout page for a tour package or entrance ticket.
      */
-    public function checkout(Request $request, int $id)
+    public function checkout(Request $request, int $id, string $bookingType = 'package')
     {
         $package = TourPackage::findOrFail($id);
 
-        return view('user.packages.checkout', compact('package'));
+        abort_if($package->type !== $bookingType, 404);
+
+        return view('user.packages.checkout', compact('package', 'bookingType'));
     }
 
     /**
      * Process the booking and generate Midtrans Snap Token.
      */
-    public function process(Request $request, $id)
+    public function process(Request $request, $id, string $bookingType = 'package')
     {
         $request->validate([
             'scheduled_date' => 'required|date|after_or_equal:today',
@@ -84,6 +86,8 @@ class BookingController extends Controller
         ]);
 
         $package = TourPackage::findOrFail($id);
+
+        abort_if($package->type !== $bookingType, 404);
 
         if ($request->party_size < $package->min_capacity || $request->party_size > $package->max_capacity) {
             return response()->json([
@@ -102,7 +106,7 @@ class BookingController extends Controller
         $reservation->guest_name = $request->guest_name;
         $reservation->guest_email = $request->guest_email;
         $reservation->tour_package_id = $package->id;
-        $reservation->reservation_type = 'package';
+        $reservation->reservation_type = $bookingType;
         $reservation->scheduled_date = $request->scheduled_date;
         $reservation->party_size = $request->party_size;
         $reservation->total_amount = $totalAmount;
