@@ -89,8 +89,9 @@
                 </div>
 
                 <!-- Density Widget -->
-                <div
-                    class="flex items-center gap-3 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm transition-transform active:scale-95 sm:p-5">
+                <div @click="$dispatch('open-density-modal')"
+                    class="flex cursor-pointer items-center gap-3 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm transition-transform hover:shadow-md active:scale-95 sm:p-5"
+                    title="{{ __('Lihat detail kepadatan') }}">
                     <div
                         class="{{ $densityClass }} {{ $densityBg }} flex shrink-0 items-center justify-center rounded-2xl p-2.5">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -342,6 +343,67 @@
                         </div>
                     </div>
                 @endif
+            </div>
+        </x-modal>
+
+        <!-- Premium Detail Density Modal (Mobile Bottom-Sheet / Desktop Modal) -->
+        <x-modal name="density-modal">
+            <div class="space-y-5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <span
+                        class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-600">{{ __('Desa Penglipuran') }}</span>
+                    <button type="button" @click="isOpen = false"
+                        class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:text-gray-600 active:scale-95 md:hidden"
+                        title="{{ __('Tutup') }}">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <h3 class="font-display text-charcoal text-xl font-black leading-snug tracking-tight">
+                    {{ __('Kepadatan Pengunjung') }}</h3>
+
+                <!-- Total Wisatawan Saat Ini -->
+                <div class="rounded-2xl border border-gray-100 bg-gray-50/70 p-3.5">
+                    <p class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">
+                        {{ __('Total Wisatawan Saat Ini') }}</p>
+                    <div class="mt-1.5 flex items-baseline gap-1.5">
+                        <span class="text-3xl font-black leading-none text-gray-800">{{ $totalCurrent }}</span>
+                        <span class="text-sm font-semibold text-gray-400">/ {{ $totalMax }}
+                            {{ __('kapasitas total') }}</span>
+                    </div>
+                    @php($modalDensityPercent = $totalMax > 0 ? round(($totalCurrent / $totalMax) * 100) : 0)
+                    <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-gray-100">
+                        <div class="{{ $densityStatus['barColor'] }} h-full transition-all"
+                            style="width: {{ min(100, $modalDensityPercent) }}%">
+                        </div>
+                    </div>
+                    <p class="mt-1.5 text-xs text-gray-500">
+                        {{ $modalDensityPercent }}% —
+                        <span class="{{ $densityStatus['color'] }} font-semibold">{{ $densityStatus['label'] }}</span>
+                    </p>
+                </div>
+
+                <!-- Legend -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="rounded-xl bg-primary/10 p-3 text-center">
+                        <p class="text-xs font-bold text-primary">{{ __('Aman') }}</p>
+                        <p class="text-[11px] text-primary opacity-70">&lt; {{ $warningThreshold }}%</p>
+                    </div>
+                    <div class="rounded-xl bg-secondary/15 p-3 text-center">
+                        <p class="text-xs font-bold text-secondary">{{ __('Sedang') }}</p>
+                        <p class="text-[11px] text-secondary opacity-70">{{ $warningThreshold }}-{{ $criticalThreshold }}%</p>
+                    </div>
+                    <div class="rounded-xl bg-warning/10 p-3 text-center">
+                        <p class="text-xs font-bold text-warning">{{ __('Penuh') }}</p>
+                        <p class="text-[11px] text-warning opacity-70">&gt; {{ $criticalThreshold }}%</p>
+                    </div>
+                </div>
+
+                <p class="border-t border-gray-50 pt-3 text-center text-[9px] font-bold uppercase tracking-wider text-gray-400">
+                    {{ __('Data diperbarui setiap kali halaman dimuat ulang') }}
+                </p>
             </div>
         </x-modal>
     @endpush
