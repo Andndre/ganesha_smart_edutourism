@@ -35,7 +35,7 @@ class TranslationTest extends TestCase
             'slug' => 'beautiful-temple',
             'short_description' => ['en' => 'A beautiful temple', 'id' => 'Pura yang indah'],
             'description' => ['en' => 'Full description in English', 'id' => 'Deskripsi lengkap dalam Bahasa Indonesia'],
-            'category' => 'temple',
+            'category' => 'parahyangan',
         ]);
 
         $this->assertDatabaseHas('cultural_objects', [
@@ -86,7 +86,7 @@ class TranslationTest extends TestCase
             'slug' => 'original-en',
             'short_description' => ['en' => 'Short EN', 'id' => 'Short ID'],
             'description' => ['en' => 'Desc EN', 'id' => 'Desc ID'],
-            'category' => 'temple',
+            'category' => 'parahyangan',
         ]);
 
         app()->setLocale('en');
@@ -110,7 +110,7 @@ class TranslationTest extends TestCase
             'slug' => 'only-english-name',
             'short_description' => ['en' => 'Only English short'],
             'description' => ['en' => 'Only English description'],
-            'category' => 'temple',
+            'category' => 'parahyangan',
         ]);
 
         app()->setLocale('id');
@@ -127,7 +127,7 @@ class TranslationTest extends TestCase
             'slug' => 'penglipuran-temple',
             'short_description' => ['en' => 'Main temple', 'id' => 'Pura utama'],
             'description' => ['en' => 'A beautiful temple', 'id' => 'Pura yang indah'],
-            'category' => 'temple',
+            'category' => 'parahyangan',
         ]);
 
         CulturalObject::create([
@@ -135,7 +135,7 @@ class TranslationTest extends TestCase
             'slug' => 'bamboo-forest',
             'short_description' => ['en' => 'Cool bamboo forest', 'id' => 'Hutan bambu yang sejuk'],
             'description' => ['en' => 'Walk through bamboo.', 'id' => 'Jalan melewati bambu.'],
-            'category' => 'craft',
+            'category' => 'pawongan',
         ]);
 
         $results = CulturalObject::where('name', 'LIKE', '%Penglipuran%')->get();
@@ -167,7 +167,7 @@ class TranslationTest extends TestCase
             'slug' => 'temple-view',
             'short_description' => ['en' => 'Great view', 'id' => 'Pemandangan bagus'],
             'description' => ['en' => 'Scenic temple description', 'id' => 'Deskripsi pura yang indah'],
-            'category' => 'temple',
+            'category' => 'parahyangan',
         ]);
 
         app()->setLocale('en');
@@ -189,7 +189,7 @@ class TranslationTest extends TestCase
             'slug' => 'legacy-plain-name',
             'short_description' => 'Legacy short description',
             'description' => 'Legacy full description',
-            'category' => 'temple',
+            'category' => 'parahyangan',
         ]);
 
         app()->setLocale('en');
@@ -221,7 +221,7 @@ class TranslationTest extends TestCase
             'slug' => 'locale-test-object',
             'short_description' => ['en' => 'English short', 'id' => 'Singkat Indonesia'],
             'description' => ['en' => 'English full', 'id' => 'Panjang Indonesia'],
-            'category' => 'temple',
+            'category' => 'parahyangan',
         ]);
 
         // Verify model resolves locale correctly

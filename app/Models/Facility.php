@@ -6,6 +6,7 @@ use App\Models\Concerns\HasMapLocation;
 use App\Models\Concerns\HasTranslatableArrayOutput;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\Translatable\HasTranslations;
 
@@ -26,5 +27,15 @@ class Facility extends Model
     public function mapLocation(): MorphOne
     {
         return $this->morphOne(MapLocation::class, 'locationable');
+    }
+
+    /**
+     * Get every map point for this facility (e.g. multiple entrances, parking areas).
+     *
+     * @return MorphMany<MapLocation>
+     */
+    public function mapLocations(): MorphMany
+    {
+        return $this->morphMany(MapLocation::class, 'locationable');
     }
 }

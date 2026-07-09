@@ -17,6 +17,7 @@ class ARController extends Controller
     {
         $routePointId = $request->query('route_point_id');
         $edutourismReturn = $request->query('edutourism_return');
+
         return view('user.ar.index', compact('routePointId', 'edutourismReturn'));
     }
 
@@ -33,21 +34,21 @@ class ARController extends Controller
         $model = null;
 
         if ($request->filled('id')) {
-            $model = ArModel::with('mapLocation.locationable')
+            $model = ArModel::with('culturalObject')
                 ->find($request->id);
         }
 
         if (! $model && $request->filled('marker')) {
-            $model = ArModel::with('mapLocation.locationable')
+            $model = ArModel::with('culturalObject')
                 ->where('ar_marker_id', $request->marker)
                 ->first();
         }
 
         if (! $model && $request->filled('slug')) {
             $object = CulturalObject::where('slug', $request->slug)->first();
-            if ($object && $object->mapLocation) {
-                $model = ArModel::with('mapLocation.locationable')
-                    ->where('map_location_id', $object->mapLocation->id)
+            if ($object) {
+                $model = ArModel::with('culturalObject')
+                    ->where('cultural_object_id', $object->id)
                     ->first();
             }
         }
@@ -56,7 +57,7 @@ class ARController extends Controller
             return response()->json(['error' => __('Model 3D tidak tersedia untuk objek ini')], 404);
         }
 
-        $locationable = $model->mapLocation?->locationable;
+        $locationable = $model->culturalObject;
         $name = $locationable?->name ?? $model->name;
         $description = $locationable?->description ?? $model->description;
         $shortDescription = $locationable?->short_description ?? $model->name;

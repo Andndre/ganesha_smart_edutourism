@@ -51,6 +51,17 @@
             </a>
         </div>
 
+        {{-- ADD POINT BUTTON (Only shown when editing an existing cultural object/facility) --}}
+        <div id="add-point-container" class="hidden">
+            <button type="button" onclick="startAddPointMode()"
+                class="w-full rounded-xl border border-primary/30 py-2.5 text-sm font-semibold text-primary hover:bg-primary/5 transition-all flex items-center justify-center gap-2">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Tambah Titik untuk Lokasi Ini
+            </button>
+        </div>
+
         {{-- DELETE BUTTON FORM (Hidden on Create) --}}
         <div id="delete-container" class="hidden">
             <form id="form-delete" action="" method="POST" class="delete-form"

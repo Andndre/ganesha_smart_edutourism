@@ -29,7 +29,7 @@ class ARScannerTest extends TestCase
             'slug' => 'test-cultural-object',
             'description' => 'A test description',
             'short_description' => 'Short desc',
-            'category' => 'temple',
+            'category' => 'parahyangan',
         ]);
 
         $mapLocation = $object->mapLocation()->create([
@@ -45,6 +45,7 @@ class ARScannerTest extends TestCase
             'model_3d_usdz_path' => 'models_usdz/test-model.usdz',
             'ar_marker_id' => 'marker-1',
             'map_location_id' => $mapLocation->id,
+            'cultural_object_id' => $object->id,
         ]);
 
         $response = $this->getJson('/api/ar/model?slug=test-cultural-object');
@@ -75,7 +76,7 @@ class ARScannerTest extends TestCase
             'slug' => 'no-model-object',
             'description' => 'A test description',
             'short_description' => 'Short desc',
-            'category' => 'temple',
+            'category' => 'parahyangan',
         ]);
 
         $object->mapLocation()->create([
@@ -164,7 +165,7 @@ class ARScannerTest extends TestCase
             'slug' => 'test-temple',
             'description' => ['en' => 'A test', 'id' => 'Test'],
             'short_description' => ['en' => 'Short', 'id' => 'Pendek'],
-            'category' => 'temple',
+            'category' => 'parahyangan',
         ]);
 
         $mapLocation = $object->mapLocation()->create([
@@ -179,6 +180,7 @@ class ARScannerTest extends TestCase
             'model_3d_path' => 'models/test.glb',
             'ar_marker_id' => 'MARKER_TEMPLE_01',
             'map_location_id' => $mapLocation->id,
+            'cultural_object_id' => $object->id,
         ]);
 
         $response = $this->get('/ar/scan/MARKER_TEMPLE_01');

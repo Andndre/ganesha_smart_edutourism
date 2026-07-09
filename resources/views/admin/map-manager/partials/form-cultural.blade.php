@@ -49,10 +49,9 @@
                 class="text-warning">*</span></label>
         <select name="category" required
             class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-            <option value="temple">Pura / Tempat Suci</option>
-            <option value="house">Pekarangan Adat / Rumah</option>
-            <option value="craft">Kerajinan Seni</option>
-            <option value="tradition">Tradisi Adat / Upacara</option>
+            <option value="parahyangan">Parahyangan (Hubungan dengan Tuhan)</option>
+            <option value="pawongan">Pawongan (Hubungan antar Manusia)</option>
+            <option value="palemahan">Palemahan (Hubungan dengan Alam)</option>
         </select>
     </div>
 

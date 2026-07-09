@@ -88,6 +88,56 @@
         });
     }
 
+    // Icon for markers that share an owner with the clicked/selected marker
+    function getSiblingMarkerIcon(category, type = null) {
+        let color = categoryColors[category] || '#1E5128';
+        if (category === 'facility' && type === 'toilet') {
+            color = categoryColors.toilet;
+        }
+
+        return L.divIcon({
+            className: 'custom-pin-sibling',
+            html: `
+                <div class="flex items-center justify-center rounded-full border-2 shadow-md"
+                     style="background-color: white; border-color: ${color}; width: 24px; height: 24px;">
+                    <div class="rounded-full" style="background-color: ${color}; width: 12px; height: 12px;"></div>
+                </div>
+            `,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+        });
+    }
+
+    // Other markers belonging to the same owner (locationable_type + locationable_id)
+    function getSiblingMarkers(marker) {
+        const loc = marker.locationData;
+        if (!loc.locationable_type || !loc.locationable_id) return [];
+
+        return markers.filter(m => m !== marker
+            && m.locationData.locationable_type === loc.locationable_type
+            && m.locationData.locationable_id === loc.locationable_id);
+    }
+
+    function highlightSiblingGroup(marker) {
+        const siblings = getSiblingMarkers(marker);
+        siblingMarkers = siblings;
+        siblings.forEach(m => {
+            const loc = m.locationData;
+            const details = loc.locationable;
+            m.setIcon(getSiblingMarkerIcon(loc.category, details ? details.type : null));
+        });
+        return siblings;
+    }
+
+    function clearSiblingHighlight() {
+        siblingMarkers.forEach(m => {
+            const loc = m.locationData;
+            const details = loc.locationable;
+            m.setIcon(getMarkerIcon(loc.category, details ? details.type : null));
+        });
+        siblingMarkers = [];
+    }
+
     function renderMarkers() {
         if (!map) return;
         
@@ -105,10 +155,14 @@
             // Store custom info
             marker.locationData = loc;
 
-            // Marker Click handler: edit mode
+            // Marker Click handler: edit mode (or point-choice popup when the owner has multiple points)
             marker.on('click', function (e) {
                 L.DomEvent.stopPropagation(e); // Stop from triggering map click
-                handleMarkerClick(marker);
+                if (getSiblingMarkers(marker).length > 0) {
+                    showPointChoicePopup(marker);
+                } else {
+                    handleMarkerClick(marker);
+                }
             });
 
             // Attach marker to the map and array
