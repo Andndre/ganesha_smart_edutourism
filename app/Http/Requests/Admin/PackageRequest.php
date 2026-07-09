@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PackageRequest extends FormRequest
@@ -9,6 +10,18 @@ class PackageRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $min = $this->input('min_capacity');
+            $max = $this->input('max_capacity');
+
+            if ($min !== null && $max !== null && (int) $min > (int) $max) {
+                $validator->errors()->add('min_capacity', 'Min. peserta tidak boleh lebih besar dari maks. peserta.');
+            }
+        });
     }
 
     public function rules(): array
