@@ -9,7 +9,6 @@ use App\Services\UmkmRecommendationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
 
 class UmkmCatalogController extends Controller
@@ -54,10 +53,6 @@ class UmkmCatalogController extends Controller
 
         $umkmList = $umkmListQuery->paginate(12)->withQueryString();
 
-        if (session()->has('multi_stop_recommendations')) {
-            session()->keep(['multi_stop_recommendations', 'missing_categories']);
-        }
-
         return view('user.umkm.index', compact('categories', 'umkmList', 'activeTab', 'q'));
     }
 
@@ -67,6 +62,9 @@ class UmkmCatalogController extends Controller
             'category_ids' => 'required|array|min:1',
             'category_ids.*' => 'exists:umkm_product_categories,id',
         ]);
+
+        // Clear any previous multi-stop result so a new search never shows stale data.
+        session()->forget(['multi_stop_recommendations', 'missing_categories']);
 
         $recommendedUmkm = $recommendationService->recommendForCategories($request->category_ids);
 
@@ -79,15 +77,18 @@ class UmkmCatalogController extends Controller
         $multiStopData = $recommendationService->recommendMultipleForCategories($request->category_ids);
 
         if ($multiStopData && ! empty($multiStopData['route'])) {
-            $redirect = back()->with('multi_stop_recommendations', $multiStopData['route']);
+            // ponytail: plain session (not flash) — flash data ages out after any
+            // unrelated page view, which broke "Lihat Rute Belanja" for users who
+            // browsed elsewhere before clicking it. Cleared explicitly on next search.
+            session()->put('multi_stop_recommendations', $multiStopData['route']);
 
             if (! empty($multiStopData['missing'])) {
                 // Fetch category names for the missing categories to display in UI
                 $missingNames = UmkmProductCategory::whereIn('id', $multiStopData['missing'])->pluck('name')->toArray();
-                $redirect->with('missing_categories', $missingNames);
+                session()->put('missing_categories', $missingNames);
             }
 
-            return $redirect;
+            return back();
         }
 
         return back()->with('error', __('Maaf, tidak ada UMKM yang saat ini memiliki stok untuk barang pilihan Anda.'));
@@ -107,9 +108,6 @@ class UmkmCatalogController extends Controller
         if (! $route) {
             return redirect()->route('umkm');
         }
-
-        // Keep session for refresh
-        Session::reflash();
 
         return view('user.umkm.multi_recommended', compact('route'));
     }
