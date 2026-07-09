@@ -20,7 +20,7 @@ class CulturalObjectRequest extends FormRequest
             'name' => ['required', 'array'],
             'name.en' => ['required', 'string', 'max:255'],
             'name.id' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'string', 'in:temple,house,craft,tradition'],
+            'category' => ['required', 'string', 'in:parahyangan,pawongan,palemahan'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'short_description' => ['nullable', 'array'],

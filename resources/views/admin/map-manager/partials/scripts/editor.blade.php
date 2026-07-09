@@ -54,6 +54,29 @@ if (!window.resetMiniAudio) {
 // CREATE / ADD NEW LOCATION LOGIC
 // ==========================================
 function handleMapClick(lat, lng) {
+    if (currentMode === 'add-point') {
+        const owner = addPointOwner;
+        currentMode = 'edit';
+        addPointOwner = null;
+        if (!owner) return;
+
+        fetch('{{ route('admin.map-manager.points.store') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken(),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ owner_type: owner.type, owner_id: owner.id, latitude: lat, longitude: lng })
+        }).then(r => r.json()).then(data => {
+            if (data.success) {
+                // Reload so the new point (and its full owner details) render consistently.
+                window.location.reload();
+            }
+        });
+        return;
+    }
+
     if (currentMode === 'edit') {
         // In edit mode, clicking the map moves the selected marker's position
         if (activeMarker) {
@@ -170,6 +193,96 @@ if (facilityTypeSelect) {
 }
 
 // ==========================================
+// MULTI-POINT: sibling popup, point delete, add-point mode
+// ==========================================
+function showPointChoicePopup(marker) {
+    highlightSiblingGroup(marker);
+
+    const loc = marker.locationData;
+    const details = loc.locationable;
+    const locale = "{{ app()->getLocale() }}";
+    const ownerName = details
+        ? (typeof details.name === 'object' ? (details.name[locale] || details.name.en || details.name.id || '') : details.name)
+        : loc.name;
+
+    window.__pointPopupEdit = function () {
+        marker.closePopup();
+        handleMarkerClick(marker);
+    };
+    window.__pointPopupDelete = function () {
+        marker.closePopup();
+        deletePointOnly(marker);
+    };
+
+    marker.bindPopup(`
+        <div class="text-sm">
+            <p class="font-bold mb-1">${ownerName}</p>
+            <p class="text-xs text-gray-500 mb-2">Salah satu dari beberapa titik lokasi ini</p>
+            <div class="flex gap-1">
+                <button type="button" onclick="window.__pointPopupEdit()" class="rounded-lg bg-primary text-white text-xs px-2 py-1 font-semibold">Ubah Lokasi</button>
+                <button type="button" onclick="window.__pointPopupDelete()" class="rounded-lg border border-red-200 text-red-600 text-xs px-2 py-1 font-semibold">Hapus</button>
+            </div>
+        </div>
+    `).openPopup();
+}
+
+function deletePointOnly(marker) {
+    const loc = marker.locationData;
+
+    Swal.fire({
+        title: 'Hapus Titik Ini?',
+        text: 'Titik lain milik lokasi ini akan tetap ada.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        fetch(`/admin/map-manager/points/${loc.id}`, {
+            method: 'DELETE',
+            headers: { 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' }
+        }).then(r => r.json()).then(data => {
+            if (!data.success) return;
+
+            map.removeLayer(marker);
+            markers = markers.filter(m => m !== marker);
+            const idx = locations.findIndex(l => l.id === loc.id);
+            if (idx !== -1) locations.splice(idx, 1);
+            clearSiblingHighlight();
+            if (activeMarker === marker) {
+                activeMarker = null;
+                cancelEditor();
+            }
+        });
+    });
+}
+
+function startAddPointMode() {
+    if (!activeMarker) return;
+    const loc = activeMarker.locationData;
+    if (!loc.locationable || !loc.locationable.id) return;
+
+    addPointOwner = {
+        type: loc.category === 'cultural' ? 'cultural_object' : 'facility',
+        id: loc.locationable.id
+    };
+    currentMode = 'add-point';
+
+    Swal.fire({
+        toast: true,
+        position: 'top',
+        icon: 'info',
+        title: 'Klik peta untuk menaruh titik baru',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+    });
+}
+
+// ==========================================
 // EDIT LOCATION LOGIC
 // ==========================================
 function handleMarkerClick(marker) {
@@ -185,6 +298,7 @@ function handleMarkerClick(marker) {
 
         currentMode = 'edit';
         activeMarker = marker;
+        highlightSiblingGroup(marker);
 
         const loc = marker.locationData;
         const details = loc.locationable;
@@ -233,11 +347,11 @@ function handleMarkerClick(marker) {
             setTiptapContent(form.querySelector('textarea[name="description[id]"]'), details.description?.id || details.description || '');
             // Select active model via custom event to Alpine component
             window.dispatchEvent(new CustomEvent('ar-model-select', {
-                detail: { modelId: loc.ar_model ? String(loc.ar_model.id) : '' }
+                detail: { modelId: details.ar_model ? String(details.ar_model.id) : '' }
             }));
 
             // Populate AR model name/description fields (for inline editing)
-            const arModelData = loc.ar_model || null;
+            const arModelData = details.ar_model || null;
             if (arModelData) {
                 const nameEn = typeof arModelData.name === 'object' ? (arModelData.name.en || '') : arModelData.name || '';
                 const nameId = typeof arModelData.name === 'object' ? (arModelData.name.id || '') : arModelData.name || '';
@@ -253,7 +367,7 @@ function handleMarkerClick(marker) {
                 if (descIdInput) setTiptapContent(descIdInput, descId);
             }
 
-            const arModel = loc.ar_model || null;
+            const arModel = details.ar_model || null;
             const imgContainer = document.getElementById('current-images');
             imgContainer.innerHTML = '';
             if (details.historical_images && details.historical_images.length > 0) {
@@ -341,9 +455,16 @@ function handleMarkerClick(marker) {
             document.getElementById('form-delete').action = `/admin/facilities/${details.id}`;
         }
 
+        // "Tambah Titik" is only meaningful for existing cultural objects/facilities (not UMKM, not create-mode)
+        const addPointContainer = document.getElementById('add-point-container');
+        if (addPointContainer) {
+            const canAddPoint = details && details.id && (loc.category === 'cultural' || loc.category === 'facility');
+            addPointContainer.classList.toggle('hidden', !canAddPoint);
+        }
+
         // Center map to marker
         map.panTo(marker.getLatLng());
-        
+
         setTimeout(attachChangeListeners, 100);
     });
 }
@@ -383,6 +504,11 @@ function resetSelectedMarkerVisuals() {
 
         activeMarker = null;
     }
+
+    clearSiblingHighlight();
+    addPointOwner = null;
+    const addPointContainer = document.getElementById('add-point-container');
+    if (addPointContainer) addPointContainer.classList.add('hidden');
 }
 
 function resetForms() {

@@ -14,8 +14,14 @@
     let markers = []; // List of L.marker instances
     let activeMarker = null; // Currently selected/edited marker
     let tempMarker = null; // Temp marker when creating new location
-    let currentMode = 'idle'; // 'idle', 'create', 'edit'
+    let currentMode = 'idle'; // 'idle', 'create', 'edit', 'add-point'
     let hasUnsavedChanges = false;
+    let siblingMarkers = []; // Other points belonging to the currently highlighted owner
+    let addPointOwner = null; // { type: 'cultural_object'|'facility', id } while armed in 'add-point' mode
+
+    function csrfToken() {
+        return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    }
 
     function markUnsaved() {
         hasUnsavedChanges = true;

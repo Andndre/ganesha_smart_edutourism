@@ -16,7 +16,7 @@ class ArScanController extends Controller
      */
     public function __invoke(string $arMarkerId)
     {
-        $arModel = ArModel::with('mapLocation.locationable')
+        $arModel = ArModel::with('culturalObject')
             ->where('ar_marker_id', $arMarkerId)
             ->first();
 
@@ -24,10 +24,8 @@ class ArScanController extends Controller
             abort(404);
         }
 
-        $locationable = $arModel->mapLocation?->locationable;
-
-        if ($locationable instanceof CulturalObject) {
-            return redirect()->route('cultural-object', ['slug' => $locationable->slug]);
+        if ($arModel->culturalObject instanceof CulturalObject) {
+            return redirect()->route('cultural-object', ['slug' => $arModel->culturalObject->slug]);
         }
 
         return redirect()->route('ar-viewer', ['arMarkerId' => $arModel->ar_marker_id]);

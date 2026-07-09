@@ -193,6 +193,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::delete('/capacity/{id}', [CapacityController::class, 'destroy'])->name('admin.capacity.destroy');
 
     // Cultural Object Routes
+    Route::get('/cultural-objects', [CulturalObjectController::class, 'index'])->name('admin.cultural-objects');
+    Route::get('/cultural-objects/create', [CulturalObjectController::class, 'create'])->name('admin.cultural-objects.create');
+    Route::get('/cultural-objects/{id}/edit', [CulturalObjectController::class, 'edit'])->name('admin.cultural-objects.edit');
     Route::post('/cultural-objects', [CulturalObjectController::class, 'store'])->name('admin.cultural-objects.store');
     Route::put('/cultural-objects/{id}', [CulturalObjectController::class, 'update'])->name('admin.cultural-objects.update');
     Route::delete('/cultural-objects/{id}', [CulturalObjectController::class, 'destroy'])->name('admin.cultural-objects.destroy');
@@ -204,6 +207,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::delete('/cultural-object-ratings/{rating}', [AdminCulturalObjectRatingController::class, 'destroy'])->name('admin.cultural-object-ratings.destroy');
 
     // Facility Routes
+    Route::get('/facilities', [FacilityController::class, 'index'])->name('admin.facilities');
+    Route::get('/facilities/create', [FacilityController::class, 'create'])->name('admin.facilities.create');
+    Route::get('/facilities/{facility}/edit', [FacilityController::class, 'edit'])->name('admin.facilities.edit');
     Route::post('/facilities', [FacilityController::class, 'store'])->name('admin.facilities.store');
     Route::put('/facilities/{facility}', [FacilityController::class, 'update'])->name('admin.facilities.update');
     Route::delete('/facilities/{facility}', [FacilityController::class, 'destroy'])->name('admin.facilities.destroy');
@@ -240,6 +246,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Map Manager Routes
     Route::get('/map-manager', [MapManagerController::class, 'index'])->name('admin.map-manager');
     Route::get('/map-manager/models-json', [MapManagerController::class, 'modelsJson'])->name('admin.map-manager.models-json');
+    Route::post('/map-manager/points', [MapManagerController::class, 'storePoint'])->name('admin.map-manager.points.store');
+    Route::put('/map-manager/points/{point}', [MapManagerController::class, 'updatePoint'])->name('admin.map-manager.points.update');
+    Route::delete('/map-manager/points/{point}', [MapManagerController::class, 'destroyPoint'])->name('admin.map-manager.points.destroy');
 
     // AR Manager Routes
     Route::get('/ar-manager', [ARManagerController::class, 'index'])->name('admin.ar-manager');

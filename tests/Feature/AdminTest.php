@@ -153,7 +153,7 @@ class AdminTest extends TestCase
         $responseCreateSuccess = $this->actingAs($this->adminUser)
             ->post(route('admin.cultural-objects.store'), [
                 'name' => ['en' => 'Pura Luhur', 'id' => 'Pura Luhur'],
-                'category' => 'temple',
+                'category' => 'parahyangan',
                 'short_description' => ['en' => 'Spiritual heart of Pura Luhur', 'id' => 'Jantung spiritual Pura Luhur'],
                 'description' => ['en' => 'A sacred temple.', 'id' => 'Tempat pemujaan suci.'],
                 'latitude' => -8.234,
@@ -194,7 +194,7 @@ class AdminTest extends TestCase
         $responseInlineEdit = $this->actingAs($this->adminUser)
             ->post(route('admin.cultural-objects.store'), [
                 'name' => ['en' => 'Pura Inline Edit', 'id' => 'Pura Inline Edit'],
-                'category' => 'temple',
+                'category' => 'parahyangan',
                 'short_description' => ['en' => 'Inline edit test', 'id' => 'Tes edit inline'],
                 'description' => ['en' => 'Testing inline edit.', 'id' => 'Menguji edit inline.'],
                 'latitude' => -8.4,
@@ -214,7 +214,7 @@ class AdminTest extends TestCase
         $this->assertNotNull($existingModel->model_3d_path);
         $this->assertNotEquals('models/original.glb', $existingModel->model_3d_path);
         Storage::disk('public')->assertMissing('models/original.glb');
-        $this->assertNotNull($existingModel->map_location_id);
+        $this->assertNotNull($existingModel->cultural_object_id);
 
         // 3. Update object
         $newModelFile = UploadedFile::fake()->create('new_object.glb', 600);
@@ -224,7 +224,7 @@ class AdminTest extends TestCase
         $responseUpdate = $this->actingAs($this->adminUser)
             ->put(route('admin.cultural-objects.update', $object->id), [
                 'name' => ['en' => 'Pura Luhur Updated', 'id' => 'Pura Luhur Updated'],
-                'category' => 'house',
+                'category' => 'pawongan',
                 'short_description' => ['en' => 'Spiritual heart Updated', 'id' => 'Jantung spiritual Pura Luhur Updated'],
                 'description' => ['en' => 'Sacred temple updated.', 'id' => 'Tempat pemujaan suci terupdate.'],
                 'latitude' => -8.555,
@@ -260,7 +260,7 @@ class AdminTest extends TestCase
         $responseNameOnly = $this->actingAs($this->adminUser)
             ->post(route('admin.cultural-objects.store'), [
                 'name' => ['en' => 'Name Only Test', 'id' => 'Tes Nama Saja'],
-                'category' => 'temple',
+                'category' => 'parahyangan',
                 'short_description' => ['en' => 'Name only', 'id' => 'Nama saja'],
                 'description' => ['en' => 'Testing name only.', 'id' => 'Menguji nama saja.'],
                 'latitude' => -8.5,
@@ -291,7 +291,7 @@ class AdminTest extends TestCase
         $responseAudioEdit = $this->actingAs($this->adminUser)
             ->post(route('admin.cultural-objects.store'), [
                 'name' => ['en' => 'Audio Replace Test', 'id' => 'Tes Ganti Audio'],
-                'category' => 'temple',
+                'category' => 'parahyangan',
                 'short_description' => ['en' => 'Audio replace', 'id' => 'Ganti audio'],
                 'description' => ['en' => 'Testing audio replacement.', 'id' => 'Menguji penggantian audio.'],
                 'latitude' => -8.6,
@@ -660,7 +660,7 @@ class AdminTest extends TestCase
         $cultural = CulturalObject::create([
             'name' => ['en' => 'Pura Luhur Test', 'id' => 'Pura Luhur Test'],
             'slug' => 'pura-luhur-test',
-            'category' => 'temple',
+            'category' => 'parahyangan',
             'description' => ['en' => 'A place of worship.', 'id' => 'Tempat pemujaan.'],
             'ar_marker_id' => 'MARKER_PURA_TEST',
         ]);

@@ -22,7 +22,7 @@ class ARManagerController extends Controller
 
     public function index(): View
     {
-        $models = ArModel::with('mapLocation.locationable')->orderBy('name')->get();
+        $models = ArModel::with('culturalObject')->orderBy('name')->get();
 
         return view('admin.ar-manager.index', compact('models'));
     }
@@ -154,7 +154,9 @@ class ARManagerController extends Controller
             }
         }
         foreach ($model->audio_narration_paths ?? [] as $path) {
-            if ($path) Storage::disk('public')->delete($path);
+            if ($path) {
+                Storage::disk('public')->delete($path);
+            }
         }
 
         $model->delete();

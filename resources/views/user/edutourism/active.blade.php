@@ -177,7 +177,7 @@
                         </a>
                     @endif
 
-                    @if ($activeSession->currentPoint->locationable instanceof \App\Models\CulturalObject && $activeSession->currentPoint->locationable->mapLocation?->arModel)
+                    @if ($activeSession->currentPoint->locationable instanceof \App\Models\CulturalObject && $activeSession->currentPoint->locationable->arModel)
                         <a id="btn-scan-qr" href="{{ route('ar-scan', ['route_point_id' => $activeSession->currentPoint->id, 'edutourism_return' => 1]) }}"
                             class="text-primary border-primary/30 mt-2 flex w-full items-center justify-center gap-2 rounded-xl border-2 bg-white py-3 text-center text-sm font-bold transition-transform active:scale-95 hidden">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -494,8 +494,9 @@
                 let mapInstance = null;
                 let watchId = null;
                 const hasCurrentPoint = @json((bool) $activeSession->currentPoint);
-                const targetLat = {{ $activeSession->currentPoint?->locationable->mapLocation->latitude ?? 0 }};
-                const targetLng = {{ $activeSession->currentPoint?->locationable->mapLocation->longitude ?? 0 }};
+                // A locationable may have several map points (e.g. multiple entrances) —
+                // arriving at any one of them completes the mission.
+                const targetPoints = @json($targetPoints);
 
                 const initActiveEdutourism = function() {
                     const mapEl = document.getElementById('map');
@@ -548,8 +549,8 @@
                             maxZoom: 19
                         }).addTo(map);
 
-                        if (targetLat !== 0 && targetLng !== 0) {
-                            L.marker([targetLat, targetLng], {
+                        targetPoints.forEach(function(point) {
+                            L.marker([point.lat, point.lng], {
                                 icon: L.divIcon({
                                     className: 'target-pin',
                                     html: `<div style="background-color: #1E5128; width: 32px; height: 32px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;"><svg style="width: 16px; height: 16px; color: white;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div>`,
@@ -557,7 +558,7 @@
                                     iconAnchor: [16, 16]
                                 })
                             }).addTo(map);
-                        }
+                        });
 
                         let userMarker = null;
 
@@ -582,8 +583,11 @@
                                 userMarker.setLatLng([lat, lng]);
                             }
 
-                            if (targetLat !== 0) {
-                                const dist = calculateDistance(lat, lng, targetLat, targetLng);
+                            if (targetPoints.length > 0) {
+                                // Arriving at any one of the target's points completes the mission.
+                                const dist = Math.min(...targetPoints.map(function(point) {
+                                    return calculateDistance(lat, lng, point.lat, point.lng);
+                                }));
                                 const infoText = document.getElementById('distance-info');
                                 const arriveBtn = document.getElementById('btn-arrive');
 
@@ -612,7 +616,7 @@
                             }
                         }
 
-                        if (navigator.geolocation && targetLat !== 0) {
+                        if (navigator.geolocation && targetPoints.length > 0) {
                             watchId = navigator.geolocation.watchPosition(pos => {
                                 updateUserPosition(pos.coords.latitude, pos.coords.longitude);
                             }, err => {

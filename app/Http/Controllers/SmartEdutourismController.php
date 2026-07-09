@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CulturalObject;
+use App\Models\Facility;
 use App\Models\RouteMission;
 use App\Models\RouteSession;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
+use App\Models\UmkmProfile;
 use App\Models\User;
 use App\Models\UserVisit;
 use Illuminate\Http\Request;
@@ -186,7 +189,19 @@ class SmartEdutourismController extends Controller
             session(['guest_token' => $guestToken, 'guest_name' => __('Wisatawan')]);
         }
 
-        $sessionQuery = RouteSession::with(['tourRoute', 'currentPoint.locationable.mapLocation.arModel', 'currentPoint.missions', 'tourRoute.routePoints.locationable.mapLocation', 'tourRoute.routePoints.missions'])
+        $sessionQuery = RouteSession::with([
+            'tourRoute',
+            'currentPoint.locationable' => function ($morphTo) {
+                $morphTo->morphWith([
+                    CulturalObject::class => ['mapLocations', 'arModel'],
+                    Facility::class => ['mapLocations'],
+                    UmkmProfile::class => ['mapLocation'],
+                ]);
+            },
+            'currentPoint.missions',
+            'tourRoute.routePoints.locationable.mapLocation',
+            'tourRoute.routePoints.missions',
+        ])
             ->whereIn('status', ['active', 'completed'])
             ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
             ->orderBy('updated_at', 'desc');
@@ -205,7 +220,30 @@ class SmartEdutourismController extends Controller
             return redirect()->route('home')->with('info', __('Anda tidak memiliki rute aktif saat ini.'));
         }
 
-        return view('user.edutourism.active', compact('activeSession'));
+        $targetPoints = $this->currentPointTargets($activeSession);
+
+        return view('user.edutourism.active', compact('activeSession', 'targetPoints'));
+    }
+
+    /**
+     * Every map point for the current route point's locationable — arriving at any one of
+     * them completes the mission (e.g. a facility with multiple entrances).
+     *
+     * @return array<int, array{lat: float, lng: float}>
+     */
+    private function currentPointTargets(RouteSession $activeSession): array
+    {
+        $locationable = $activeSession->currentPoint?->locationable;
+
+        if (! $locationable) {
+            return [];
+        }
+
+        $points = $locationable instanceof UmkmProfile
+            ? collect([$locationable->mapLocation])->filter()
+            : $locationable->mapLocations;
+
+        return $points->map(fn ($p) => ['lat' => (float) $p->latitude, 'lng' => (float) $p->longitude])->values()->all();
     }
 
     public function arrive(Request $request, $pointId)
@@ -520,13 +558,15 @@ class SmartEdutourismController extends Controller
 
         $code = $this->extractQrIdentifier($request->string('code')->toString());
 
-        $points = TourRoutePoint::with('locationable.mapLocation.arModel')
+        $points = TourRoutePoint::with(['locationable' => function ($morphTo) {
+            $morphTo->morphWith([CulturalObject::class => ['arModel']]);
+        }])
             ->where('tour_route_id', $session->tour_route_id)
             ->orderBy('order')
             ->get();
 
         $matched = $points->first(function ($point) use ($code) {
-            $markerFromAr = $point->locationable?->mapLocation?->arModel?->ar_marker_id;
+            $markerFromAr = $point->locationable?->ar_marker_id;
 
             return ($point->qr_code_token && strcasecmp($point->qr_code_token, $code) === 0)
                 || ($markerFromAr && strcasecmp($markerFromAr, $code) === 0);

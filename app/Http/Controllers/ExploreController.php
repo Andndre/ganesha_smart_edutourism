@@ -19,7 +19,9 @@ class ExploreController extends Controller
     {
         $locale = app()->getLocale();
         $locations = Cache::tags(['explore'])->flexible("explore_map_locations_array_{$locale}", [86400, 172800], function () {
-            return MapLocation::with(['locationable', 'arModel'])->get()->map(function ($loc) {
+            return MapLocation::with(['locationable' => function ($morphTo) {
+                $morphTo->morphWith([CulturalObject::class => ['arModel']]);
+            }])->get()->map(function ($loc) {
                 // Map category to match JavaScript filters
                 $category = $loc->category;
                 if ($loc->locationable_type === Facility::class && $loc->locationable && $loc->locationable->type === 'toilet') {
@@ -41,7 +43,7 @@ class ExploreController extends Controller
                     $description = $loc->locationable->description ?? '';
                     if ($loc->locationable_type === CulturalObject::class) {
                         $detailUrl = route('cultural-object', ['slug' => $loc->locationable->slug]);
-                        $hasAr = $loc->arModel !== null && $loc->arModel->model_3d_path !== null;
+                        $hasAr = $loc->locationable->arModel !== null && $loc->locationable->arModel->model_3d_path !== null;
                         if ($loc->locationable->historical_images && \is_array($loc->locationable->historical_images)) {
                             foreach ($loc->locationable->historical_images as $img) {
                                 $images[] = asset('storage/'.$img);

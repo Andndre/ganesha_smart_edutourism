@@ -15,7 +15,7 @@ class CulturalController extends Controller
     {
         $locale = app()->getLocale();
         $objects = Cache::tags(['cultural'])->flexible("cultural_objects_all_array_$locale", [3600, 7200], function () {
-            $models = CulturalObject::with('mapLocation.arModel')
+            $models = CulturalObject::with('arModel')
                 ->orderBy('name->'.app()->getLocale())
                 ->get()
                 ->append(['ar_marker_id', 'model_3d_path', 'audio_narration_path']);
@@ -37,7 +37,7 @@ class CulturalController extends Controller
     {
         $locale = app()->getLocale();
         $object = Cache::tags(['cultural'])->flexible("cultural_object_array_{$slug}_$locale", [3600, 7200], function () use ($slug, $locale) {
-            $model = CulturalObject::with('mapLocation.arModel')
+            $model = CulturalObject::with('arModel')
                 ->where('slug', $slug)
                 ->firstOrFail()
                 ->append(['ar_marker_id', 'model_3d_path', 'audio_narration_path', 'model_3d_usdz_path', 'ar_marker_patt_path']);

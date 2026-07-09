@@ -19,7 +19,7 @@ class CulturalObjectFactory extends Factory
             'slug' => fake()->unique()->slug(),
             'short_description' => ['en' => fake()->sentence(), 'id' => 'Deskripsi '.fake()->sentence()],
             'description' => ['en' => fake()->paragraph(), 'id' => fake()->paragraph()],
-            'category' => fake()->randomElement(['temple', 'house', 'craft', 'tradition']),
+            'category' => fake()->randomElement(['parahyangan', 'pawongan', 'palemahan']),
         ];
     }
 }

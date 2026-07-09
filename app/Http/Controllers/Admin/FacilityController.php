@@ -8,11 +8,49 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\FacilityRequest;
 use App\Models\Facility;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class FacilityController extends Controller
 {
     use ExtractsGeoFields;
     use NormalizesMultilingualInput;
+
+    /**
+     * Display a listing of facilities (dedicated management page, separate from map-manager).
+     */
+    public function index(Request $request): View
+    {
+        $query = Facility::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(fn ($q) => $q->where('name->en', 'like', '%'.$search.'%')
+                ->orWhere('name->id', 'like', '%'.$search.'%'));
+        }
+
+        $facilities = $query->with('mapLocation')->orderBy('name->'.app()->getLocale())->paginate(15)->withQueryString();
+
+        return view('admin.facilities.index', compact('facilities'));
+    }
+
+    /**
+     * Show the form for creating a new facility.
+     */
+    public function create(): View
+    {
+        return view('admin.facilities.create');
+    }
+
+    /**
+     * Show the form for editing an existing facility.
+     */
+    public function edit(Facility $facility): View
+    {
+        $facility->load('mapLocation');
+
+        return view('admin.facilities.edit', compact('facility'));
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -30,7 +68,7 @@ class FacilityController extends Controller
         // TODO: map_locations.name hanya dipakai di admin AR manager — pertimbangkan untuk drop column
         $facility->syncMapLocation(['category' => 'facility', ...$geo]);
 
-        return redirect()->route('admin.map-manager')->with('success', __('Fasilitas berhasil ditambahkan.'));
+        return $this->redirectAfterSave($request, __('Fasilitas berhasil ditambahkan.'));
     }
 
     /**
@@ -48,16 +86,27 @@ class FacilityController extends Controller
 
         $facility->syncMapLocation(['category' => 'facility', ...$geo], isUpdate: true);
 
-        return redirect()->route('admin.map-manager')->with('success', __('Fasilitas berhasil diperbarui.'));
+        return $this->redirectAfterSave($request, __('Fasilitas berhasil diperbarui.'));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Facility $facility): RedirectResponse
+    public function destroy(Request $request, Facility $facility): RedirectResponse
     {
         $facility->delete();
 
-        return redirect()->route('admin.map-manager')->with('success', __('Fasilitas berhasil dihapus.'));
+        return $this->redirectAfterSave($request, __('Fasilitas berhasil dihapus.'));
+    }
+
+    /**
+     * Redirect to the dedicated management page when the request came from there
+     * (via a `redirect_to=facilities` hidden field), otherwise back to map-manager.
+     */
+    private function redirectAfterSave(Request $request, string $message): RedirectResponse
+    {
+        $route = $request->input('redirect_to') === 'facilities' ? 'admin.facilities' : 'admin.map-manager';
+
+        return redirect()->route($route)->with('success', $message);
     }
 }

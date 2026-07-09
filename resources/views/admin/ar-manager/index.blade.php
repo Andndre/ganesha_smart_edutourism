@@ -99,8 +99,8 @@
                     </div>
                 @endif
 
-                @if ($m->mapLocation)
-                    <span class="mt-1 truncate text-[10px] font-medium text-gray-500">📍 {{ $m->mapLocation->name }}</span>
+                @if ($m->culturalObject)
+                    <span class="mt-1 truncate text-[10px] font-medium text-gray-500">📍 {{ translateValue($m->culturalObject->name) }}</span>
                 @endif
 
                 <div @if ($loop->first) id="tour-actions" @endif
@@ -114,14 +114,12 @@
                             'model_3d_path' => $m->model_3d_path,
                             'model_3d_usdz_path' => $m->model_3d_usdz_path,
                             'audio_narration_paths' => $m->audio_narration_paths ?? [],
-                            'map_location' => $m->mapLocation
+                            'map_location' => $m->culturalObject
                                 ? [
-                                    'name' => $m->mapLocation->name,
-                                    'locationable' => $m->mapLocation->locationable
-                                        ? [
-                                            'slug' => $m->mapLocation->locationable->slug,
-                                        ]
-                                        : null,
+                                    'name' => $m->culturalObject->name,
+                                    'locationable' => [
+                                        'slug' => $m->culturalObject->slug,
+                                    ],
                                 ]
                                 : null,
                         ]) }})"

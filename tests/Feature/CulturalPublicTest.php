@@ -36,6 +36,7 @@ class CulturalPublicTest extends TestCase
             'model_3d_path' => 'models/test.glb',
             'ar_marker_id' => $markerId,
             'map_location_id' => $location->id,
+            'cultural_object_id' => $object->id,
         ]);
 
         return $object;
@@ -52,14 +53,14 @@ class CulturalPublicTest extends TestCase
             'slug' => 'pura-penataran-agung',
             'short_description' => ['en' => 'Spiritual Heart of Penglipuran Village', 'id' => 'Jantung Spiritual Desa Penglipuran'],
             'description' => ['en' => 'Main temple of Penglipuran.', 'id' => 'Pura utama di desa Penglipuran.'],
-            'category' => 'temple',
+            'category' => 'parahyangan',
         ], 'marker_pura_penataran');
 
         $this->createCulturalObjectWithAr([
             'name' => ['en' => 'Pura Dadia Penarukan', 'id' => 'Pura Dadia Penarukan'],
             'slug' => 'pura-dadia-penarukan',
             'description' => ['en' => 'Ancestral temple of Penarukan.', 'id' => 'Pura keluarga leluhur Penarukan.'],
-            'category' => 'temple',
+            'category' => 'parahyangan',
         ], 'marker_dadia_penarukan');
 
         // Act
@@ -82,7 +83,7 @@ class CulturalPublicTest extends TestCase
             'name' => ['en' => 'Penglipuran Bamboo Forest', 'id' => 'Hutan Bambu Penglipuran'],
             'slug' => 'hutan-bambu-penglipuran',
             'description' => ['en' => 'Protective bamboo forest.', 'id' => 'Hutan bambu pelindung desa.'],
-            'category' => 'tradition',
+            'category' => 'pawongan',
         ]);
 
         // Act
@@ -117,7 +118,7 @@ class CulturalPublicTest extends TestCase
             'name' => ['en' => 'Bamboo Forest', 'id' => 'Hutan Bambu'],
             'slug' => 'bamboo-forest-audio-test',
             'description' => ['en' => 'Forest.', 'id' => 'Hutan.'],
-            'category' => 'tradition',
+            'category' => 'pawongan',
             'audio_narration_paths' => ['en' => 'audio/en-forest.mp3', 'id' => 'audio/id-forest.mp3'],
         ]);
 
@@ -148,7 +149,7 @@ class CulturalPublicTest extends TestCase
             'name' => ['en' => 'Bamboo Forest', 'id' => 'Hutan Bambu'],
             'slug' => 'bamboo-forest-badge-test',
             'description' => ['en' => 'Forest.', 'id' => 'Hutan.'],
-            'category' => 'tradition',
+            'category' => 'pawongan',
             'audio_narration_paths' => ['en' => 'audio/en-forest.mp3', 'id' => 'audio/id-forest.mp3'],
         ]);
 

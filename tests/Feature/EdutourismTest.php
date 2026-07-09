@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\CulturalObject;
+use App\Models\Facility;
 use App\Models\RouteSession;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
@@ -161,14 +162,14 @@ class EdutourismTest extends TestCase
         $point1 = TourRoutePoint::create([
             'tour_route_id' => $route->id,
             'locationable_type' => CulturalObject::class,
-            'locationable_id' => CulturalObject::create(['name' => ['en' => 'Point 1', 'id' => 'Point 1'], 'slug' => 'point-1', 'description' => ['en' => 'Cultural description', 'id' => 'Deskripsi objek budaya'], 'category' => 'temple', 'ar_marker_id' => 'marker_point_1'])->id,
+            'locationable_id' => CulturalObject::create(['name' => ['en' => 'Point 1', 'id' => 'Point 1'], 'slug' => 'point-1', 'description' => ['en' => 'Cultural description', 'id' => 'Deskripsi objek budaya'], 'category' => 'parahyangan', 'ar_marker_id' => 'marker_point_1'])->id,
             'order' => 1,
         ]);
 
         $point2 = TourRoutePoint::create([
             'tour_route_id' => $route->id,
             'locationable_type' => CulturalObject::class,
-            'locationable_id' => CulturalObject::create(['name' => ['en' => 'Point 2', 'id' => 'Point 2'], 'slug' => 'point-2', 'description' => ['en' => 'Cultural description', 'id' => 'Deskripsi objek budaya'], 'category' => 'temple', 'ar_marker_id' => 'marker_point_2'])->id,
+            'locationable_id' => CulturalObject::create(['name' => ['en' => 'Point 2', 'id' => 'Point 2'], 'slug' => 'point-2', 'description' => ['en' => 'Cultural description', 'id' => 'Deskripsi objek budaya'], 'category' => 'parahyangan', 'ar_marker_id' => 'marker_point_2'])->id,
             'order' => 2,
         ]);
 
@@ -214,7 +215,7 @@ class EdutourismTest extends TestCase
         $point = TourRoutePoint::create([
             'tour_route_id' => $route->id,
             'locationable_type' => CulturalObject::class,
-            'locationable_id' => CulturalObject::create(['name' => ['en' => 'Last Point', 'id' => 'Last Point'], 'slug' => 'last-point', 'description' => ['en' => 'Cultural description', 'id' => 'Deskripsi objek budaya'], 'category' => 'temple', 'ar_marker_id' => 'marker_last_point'])->id,
+            'locationable_id' => CulturalObject::create(['name' => ['en' => 'Last Point', 'id' => 'Last Point'], 'slug' => 'last-point', 'description' => ['en' => 'Cultural description', 'id' => 'Deskripsi objek budaya'], 'category' => 'parahyangan', 'ar_marker_id' => 'marker_last_point'])->id,
             'order' => 1,
         ]);
 
@@ -310,5 +311,52 @@ class EdutourismTest extends TestCase
             'success' => true,
             'redirect' => route('edutourism.index'),
         ]);
+    }
+
+    /**
+     * Test the active page includes every map point of the current target, not just one —
+     * arriving at any one of them (e.g. either entrance of a facility) should complete the mission.
+     */
+    public function test_active_page_includes_all_points_of_a_multi_point_target(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $route = TourRoute::create([
+            'name' => ['en' => 'Gate Route', 'id' => 'Rute Gerbang'],
+            'description' => ['en' => 'Reach any entrance.', 'id' => 'Menuju pintu masuk manapun.'],
+            'difficulty' => 'easy',
+            'estimated_duration_minutes' => 15,
+            'distance_meters' => 100,
+            'is_active' => true,
+        ]);
+
+        $facility = Facility::create(['name' => ['en' => 'Main Entrance', 'id' => 'Pintu Masuk Utama'], 'type' => 'information', 'is_active' => true]);
+        $facility->mapLocations()->create(['name' => 'Gate A', 'category' => 'facility', 'latitude' => -8.111, 'longitude' => 115.111]);
+        $facility->mapLocations()->create(['name' => 'Gate B', 'category' => 'facility', 'latitude' => -8.222, 'longitude' => 115.222]);
+
+        $point = TourRoutePoint::create([
+            'tour_route_id' => $route->id,
+            'locationable_type' => Facility::class,
+            'locationable_id' => $facility->id,
+            'order' => 1,
+        ]);
+
+        RouteSession::create([
+            'user_id' => $user->id,
+            'tour_route_id' => $route->id,
+            'current_point_id' => $point->id,
+            'status' => 'active',
+        ]);
+
+        // Act
+        $response = $this->actingAs($user)->get(route('edutourism.active'));
+
+        // Assert
+        $response->assertStatus(200);
+        $response->assertViewHas('targetPoints', function ($targetPoints) {
+            return count($targetPoints) === 2
+                && $targetPoints[0]['lat'] === -8.111
+                && $targetPoints[1]['lat'] === -8.222;
+        });
     }
 }

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Translatable\HasTranslations;
 
-#[Fillable(['name', 'description', 'model_3d_path', 'model_3d_usdz_path', 'audio_narration_paths', 'ar_marker_id', 'ar_marker_patt_path', 'map_location_id', 'thumbnail_path'])]
+#[Fillable(['name', 'description', 'model_3d_path', 'model_3d_usdz_path', 'audio_narration_paths', 'ar_marker_id', 'ar_marker_patt_path', 'map_location_id', 'cultural_object_id', 'thumbnail_path'])]
 class ArModel extends Model
 {
     use HasFactory;
@@ -28,5 +28,10 @@ class ArModel extends Model
     public function mapLocation(): BelongsTo
     {
         return $this->belongsTo(MapLocation::class);
+    }
+
+    public function culturalObject(): BelongsTo
+    {
+        return $this->belongsTo(CulturalObject::class);
     }
 }

@@ -39,7 +39,7 @@ class Route2CulturalAdventureSeeder extends Seeder
                     'id' => 'Gerbang Desa Penglipuran menyambut wisatawan menuju kawasan desa adat dengan tata ruang Tri Mandala yang tertata rapi.',
                     'en' => 'The Penglipuran Village Gate welcomes visitors into the traditional village with its neatly arranged Tri Mandala layout.',
                 ],
-                'category' => 'tradition',
+                'category' => 'pawongan',
             ], -8.42340, 115.35920),
 
             'koridor' => $this->ensureObject(['koridor desa', 'village corridor'], [
@@ -52,7 +52,7 @@ class Route2CulturalAdventureSeeder extends Seeder
                     'id' => 'Koridor utama Desa Penglipuran memperlihatkan pola tata ruang desa yang khas: deretan rumah dengan angkul-angkul seragam, bale banjar, wantilan, dan pura penataran.',
                     'en' => 'The main corridor of Penglipuran shows the village\'s distinctive spatial pattern: rows of houses with uniform angkul-angkul gates, the bale banjar, wantilan hall, and penataran temple.',
                 ],
-                'category' => 'tradition',
+                'category' => 'pawongan',
             ], -8.42280, 115.35915),
 
             'paon' => $this->ensureObject(['paon', 'dapur rumah tradisional', 'traditional kitchen'], [
@@ -65,7 +65,7 @@ class Route2CulturalAdventureSeeder extends Seeder
                     'id' => 'Paon adalah dapur tradisional rumah Bali dengan tungku kayu bakar. Di sinilah warga memasak makanan khas seperti Loloh Cemcem, minuman herbal penyegar dari daun cemcem.',
                     'en' => 'The Paon is the traditional kitchen of a Balinese house, with a wood-fired stove. Here residents cook signature dishes such as Loloh Cemcem, a refreshing herbal drink made from cemcem leaves.',
                 ],
-                'category' => 'tradition',
+                'category' => 'pawongan',
             ], -8.42250, 115.35905),
 
             'karang_memadu' => $this->ensureObject(['karang memadu'], [
@@ -78,7 +78,7 @@ class Route2CulturalAdventureSeeder extends Seeder
                     'id' => 'Karang Memadu adalah sebidang tanah yang mencerminkan berlakunya hukum adat (awig-awig) di Desa Penglipuran. Keberadaannya menjadi pengingat bahwa aturan adat dijunjung tinggi dan berlaku bagi siapa saja.',
                     'en' => 'Karang Memadu is a plot of land reflecting the enforcement of customary law (awig-awig) in Penglipuran. Its existence is a reminder that customary rules are upheld and apply to everyone.',
                 ],
-                'category' => 'tradition',
+                'category' => 'pawongan',
             ], -8.42150, 115.35895),
 
             'makam_pahlawan' => $this->ensureObject(['taman makam pahlawan', 'heroes cemetery'], [
@@ -91,7 +91,7 @@ class Route2CulturalAdventureSeeder extends Seeder
                     'id' => 'Taman Makam Pahlawan mengenang perjuangan warga sekitar Bangli dalam mempertahankan kemerdekaan. Setiap tahun, upacara penghormatan diadakan di taman ini.',
                     'en' => 'The Heroes Cemetery Park commemorates the struggle of the people around Bangli in defending independence. Every year, a commemoration ceremony is held here.',
                 ],
-                'category' => 'tradition',
+                'category' => 'pawongan',
             ], -8.42090, 115.35860),
         ];
 
