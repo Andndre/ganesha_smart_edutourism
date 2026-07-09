@@ -133,6 +133,7 @@
             @include('components.navigation.header', [
                 'showBack' => true,
                 'headerTitle' => null,
+                'fallbackUrl' => isset($activeEdutourismSession) ? route('edutourism.active') : route('home'),
             ])
         @endunless
 

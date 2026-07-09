@@ -167,9 +167,9 @@
                     </button>
 
                     @if ($activeSession->currentPoint->locationable instanceof \App\Models\CulturalObject)
-                        <a href="{{ route('cultural-object', ['slug' => $activeSession->currentPoint->locationable->slug]) }}"
+                        <a id="btn-detail-object" href="{{ route('cultural-object', ['slug' => $activeSession->currentPoint->locationable->slug]) }}"
                             target="_blank"
-                            class="text-primary border-primary/30 mt-2 flex w-full items-center justify-center gap-2 rounded-xl border-2 bg-white py-3 text-center text-sm font-bold transition-transform active:scale-95">
+                            class="text-primary border-primary/30 mt-2 flex w-full items-center justify-center gap-2 rounded-xl border-2 bg-white py-3 text-center text-sm font-bold transition-transform active:scale-95 hidden">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                             </svg>
@@ -177,16 +177,18 @@
                         </a>
                     @endif
 
-                    <a href="{{ route('ar-scan', ['route_point_id' => $activeSession->currentPoint->id, 'edutourism_return' => 1]) }}"
-                        class="text-primary border-primary/30 mt-2 flex w-full items-center justify-center gap-2 rounded-xl border-2 bg-white py-3 text-center text-sm font-bold transition-transform active:scale-95">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M13.5 13.5h2.25v2.25H13.5v-2.25zM18.75 13.5H21v2.25h-2.25V13.5zM13.5 18.75h2.25V21H13.5v-2.25zM18.75 18.75H21V21h-2.25v-2.25z" />
-                        </svg>
-                        {{ __('Scan QR di Lokasi') }}
-                    </a>
+                    @if ($activeSession->currentPoint->locationable instanceof \App\Models\CulturalObject && $activeSession->currentPoint->locationable->mapLocation?->arModel)
+                        <a id="btn-scan-qr" href="{{ route('ar-scan', ['route_point_id' => $activeSession->currentPoint->id, 'edutourism_return' => 1]) }}"
+                            class="text-primary border-primary/30 mt-2 flex w-full items-center justify-center gap-2 rounded-xl border-2 bg-white py-3 text-center text-sm font-bold transition-transform active:scale-95 hidden">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 13.5h2.25v2.25H13.5v-2.25zM18.75 13.5H21v2.25h-2.25V13.5zM13.5 18.75h2.25V21H13.5v-2.25zM18.75 18.75H21V21h-2.25v-2.25z" />
+                            </svg>
+                            {{ __('Scan QR di Lokasi') }}
+                        </a>
+                    @endif
                 </div>
             </div>
         @else
@@ -421,104 +423,7 @@
         </div>
     @endif
 
-    <!-- Modal QR Scanner (route point unlock — separate from the AR scanner, ar-scanner.js untouched) -->
-    <x-modal name="qr-scanner-modal" :onCloseAttempt="'qrScannerCloseAttempt'">
-        <div class="space-y-4">
-            <div class="flex items-center justify-between">
-                <span
-                    class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-600">{{ __('Scan QR Titik Rute') }}</span>
-            </div>
-            <div id="qr-reader" class="overflow-hidden rounded-2xl bg-black/90 [&_video]:w-full!"></div>
-            <p id="qr-scan-status" class="min-h-5 text-center text-xs font-semibold text-gray-500">
-                {{ __('Arahkan kamera ke QR yang tertempel di lokasi.') }}</p>
-        </div>
-    </x-modal>
-
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    <script>
-        // QR route-point unlock scanner (separate from the AR scanner; ar-scanner.js untouched).
-        (function() {
-            let qrScanner = null;
-
-            function setQrStatus(text, isError = false) {
-                const el = document.getElementById('qr-scan-status');
-                if (el) {
-                    el.textContent = text;
-                    el.classList.toggle('text-red-500', isError);
-                    el.classList.toggle('text-gray-500', !isError);
-                }
-            }
-
-            function stopQrScanner() {
-                if (!qrScanner) return;
-                const scanner = qrScanner;
-                qrScanner = null;
-                scanner.stop().catch(() => {}).finally(() => {
-                    try { scanner.clear(); } catch (e) { /* already cleared/still running */ }
-                });
-            }
-
-            window.openQrScanner = function() {
-                window.dispatchEvent(new CustomEvent('open-qr-scanner-modal'));
-                setQrStatus(@js(__('Arahkan kamera ke QR yang tertempel di lokasi.')));
-
-                setTimeout(() => {
-                    if (qrScanner || typeof Html5Qrcode === 'undefined') return;
-                    qrScanner = new Html5Qrcode('qr-reader');
-                    qrScanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 220, height: 220 } },
-                        onQrScan, () => {})
-                        .catch(() => {
-                            setQrStatus(@js(__('Tidak bisa mengakses kamera. Izinkan akses kamera lalu coba lagi.')), true);
-                            qrScanner = null;
-                        });
-                }, 350);
-            };
-
-            window.qrScannerCloseAttempt = function(proceed) {
-                stopQrScanner();
-                proceed();
-            };
-
-            function onQrScan(decodedText) {
-                if (!qrScanner) return;
-                stopQrScanner();
-                setQrStatus(@js(__('Memeriksa QR...')));
-                navigator.vibrate?.(50);
-
-                fetch('/edutourism/qr/resolve', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({ code: decodedText })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            window.dispatchEvent(new CustomEvent('close-qr-scanner-modal'));
-                            window.triggerArrive?.(data.point_id);
-                        } else {
-                            setQrStatus(data.message || @js(__('QR tidak dikenali.')), true);
-                            setTimeout(() => window.openQrScanner(), 1800);
-                        }
-                    })
-                    .catch(() => {
-                        setQrStatus(@js(__('Gagal memeriksa QR. Coba lagi.')), true);
-                        setTimeout(() => window.openQrScanner(), 1800);
-                    });
-            }
-
-            document.addEventListener('livewire:navigating', function cleanupQr() {
-                stopQrScanner();
-                delete window.openQrScanner;
-                delete window.qrScannerCloseAttempt;
-                document.removeEventListener('livewire:navigating', cleanupQr);
-            });
-        })();
-    </script>
     <script>
         function missionRunner(missions, completedIds) {
             return {
@@ -683,16 +588,25 @@
                                 const arriveBtn = document.getElementById('btn-arrive');
 
                                 if (infoText && arriveBtn) {
+                                    const detailBtn = document.getElementById('btn-detail-object');
+                                    const scanBtn = document.getElementById('btn-scan-qr');
+
                                     if (dist < 30) {
                                         infoText.innerHTML = `{{ __('Lokasi Ditemukan!') }} ({{ __('Jarak') }}: ${dist}m)`;
                                         arriveBtn.disabled = false;
                                         arriveBtn.classList.remove('opacity-50');
                                         arriveBtn.textContent = @js(__('Jawab Pertanyaan & Lanjut'));
+
+                                        if (detailBtn) detailBtn.classList.remove('hidden');
+                                        if (scanBtn) scanBtn.classList.remove('hidden');
                                     } else {
                                         infoText.textContent = `{{ __('Jarak') }}: ${dist} {{ __('meter') }}`;
                                         arriveBtn.disabled = true;
                                         arriveBtn.classList.add('opacity-50');
                                         arriveBtn.textContent = "{{ __('Mendekati Lokasi...') }}";
+
+                                        if (detailBtn) detailBtn.classList.add('hidden');
+                                        if (scanBtn) scanBtn.classList.add('hidden');
                                     }
                                 }
                             }

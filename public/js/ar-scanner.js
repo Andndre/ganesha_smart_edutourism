@@ -174,7 +174,10 @@
         }
 
         // Navigate back
-        if (window.history.length > 1) {
+        const routePointId = getUrlParam("route_point_id");
+        if (routePointId) {
+            window.location.href = "/edutourism/active";
+        } else if (window.history.length > 1) {
             window.history.back();
         } else {
             window.location.href = "/";
@@ -750,7 +753,12 @@
             };
         }
 
-        fetchModelByMarker(marker);
+        const routePointId = getUrlParam("route_point_id");
+        if (routePointId) {
+            resolveEdutourismQr(marker, routePointId);
+        } else {
+            fetchModelByMarker(marker);
+        }
     }
 
     function fetchModelByMarker(marker) {

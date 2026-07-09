@@ -213,7 +213,7 @@
             <div class="flex items-center gap-3">
                 @if ($showBack && !$isMainTab)
                     <button
-                        onclick="if (document.referrer && document.referrer.includes(window.location.host)) { history.back(); } else { window.location.href = '{{ $fallbackUrl }}'; }"
+                        onclick="if (window.history.length > 1 && document.referrer && document.referrer.includes(window.location.host) && !document.referrer.includes('/login') && !document.referrer.includes('/auth')) { history.back(); } else { window.location.href = '{{ $fallbackUrl }}'; }"
                         class="tap-target -ml-2 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-white transition-all active:scale-95"
                         aria-label="{{ __('Kembali') }}">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
