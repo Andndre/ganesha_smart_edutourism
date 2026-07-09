@@ -189,11 +189,11 @@
             </div>
             <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
                 x-data="itineraryEditor({{ Illuminate\Support\Js::from([
-                    'id' => array_map(
+                    'id' => old('itinerary.id') ?? array_map(
                         fn($s) => ['time' => $s['time'] ?? '', 'title' => $s['title'] ?? '', 'description' => $s['description'] ?? '', 'activities' => implode("\n", $s['activities'] ?? [])],
                         isset($package) ? $package->getItineraryForLocale('id') : [],
                     ),
-                    'en' => array_map(
+                    'en' => old('itinerary.en') ?? array_map(
                         fn($s) => ['time' => $s['time'] ?? '', 'title' => $s['title'] ?? '', 'description' => $s['description'] ?? '', 'activities' => implode("\n", $s['activities'] ?? [])],
                         isset($package) ? $package->getItineraryForLocale('en') : [],
                     ),
@@ -211,31 +211,37 @@
                         class="rounded-xl px-4 py-2 text-sm font-semibold transition-all">English</button>
                 </div>
 
-                <template x-for="(step, idx) in rows()" :key="idx">
-                    <div class="mb-3 rounded-xl border border-gray-100 p-4">
-                        <div class="mb-2 flex items-center justify-between">
-                            <span class="text-xs font-semibold text-gray-400" x-text="'Langkah ' + (idx + 1)"></span>
-                            <button type="button" @click="remove(idx)"
-                                class="text-xs font-semibold text-red-500">Hapus</button>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="text" :name="`itinerary[${locale}][${idx}][time]`" x-model="step.time"
-                                placeholder="Contoh: 08.30 – 10.00"
-                                class="focus:border-primary focus:ring-primary/30 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1">
-                            <input type="text" :name="`itinerary[${locale}][${idx}][title]`" x-model="step.title"
-                                placeholder="Judul aktivitas utama"
-                                class="focus:border-primary focus:ring-primary/30 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1">
-                        </div>
-                        <textarea :name="`itinerary[${locale}][${idx}][description]`" x-model="step.description" rows="2"
-                            placeholder="Deskripsi / interpretasi"
-                            class="focus:border-primary focus:ring-primary/30 mt-2 w-full resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1"></textarea>
-                        <textarea :name="`itinerary[${locale}][${idx}][activities]`" x-model="step.activities" rows="2"
-                            placeholder="Sub-aktivitas, satu per baris"
-                            class="focus:border-primary focus:ring-primary/30 mt-2 w-full resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1"></textarea>
+                <!-- Both locales stay mounted (x-show only) so switching tabs doesn't drop the other locale's form fields on submit -->
+                <template x-for="loc in ['id', 'en']" :key="loc">
+                    <div x-show="locale === loc">
+                        <template x-for="(step, idx) in (loc === 'id' ? id : en)" :key="idx">
+                            <div class="mb-3 rounded-xl border border-gray-100 p-4">
+                                <div class="mb-2 flex items-center justify-between">
+                                    <span class="text-xs font-semibold text-gray-400"
+                                        x-text="'Langkah ' + (idx + 1)"></span>
+                                    <button type="button" @click="remove(loc, idx)"
+                                        class="text-xs font-semibold text-red-500">Hapus</button>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" :name="`itinerary[${loc}][${idx}][time]`" x-model="step.time"
+                                        placeholder="Contoh: 08.30 – 10.00"
+                                        class="focus:border-primary focus:ring-primary/30 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1">
+                                    <input type="text" :name="`itinerary[${loc}][${idx}][title]`" x-model="step.title"
+                                        placeholder="Judul aktivitas utama"
+                                        class="focus:border-primary focus:ring-primary/30 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1">
+                                </div>
+                                <textarea :name="`itinerary[${loc}][${idx}][description]`" x-model="step.description"
+                                    rows="2" placeholder="Deskripsi / interpretasi"
+                                    class="focus:border-primary focus:ring-primary/30 mt-2 w-full resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1"></textarea>
+                                <textarea :name="`itinerary[${loc}][${idx}][activities]`" x-model="step.activities"
+                                    rows="2" placeholder="Sub-aktivitas, satu per baris"
+                                    class="focus:border-primary focus:ring-primary/30 mt-2 w-full resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1"></textarea>
+                            </div>
+                        </template>
+                        <button type="button" @click="add(loc)"
+                            class="text-primary text-xs font-semibold">+ Tambah Langkah Itinerary</button>
                     </div>
                 </template>
-                <button type="button" @click="add()"
-                    class="text-primary text-xs font-semibold">+ Tambah Langkah Itinerary</button>
             </div>
         </div>
 
@@ -316,14 +322,11 @@
                 locale: 'id',
                 id: initial.id || [],
                 en: initial.en || [],
-                rows() {
-                    return this[this.locale];
+                add(loc) {
+                    this[loc].push({ time: '', title: '', description: '', activities: '' });
                 },
-                add() {
-                    this[this.locale].push({ time: '', title: '', description: '', activities: '' });
-                },
-                remove(idx) {
-                    this[this.locale].splice(idx, 1);
+                remove(loc, idx) {
+                    this[loc].splice(idx, 1);
                 },
             };
         }
