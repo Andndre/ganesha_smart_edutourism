@@ -8,19 +8,20 @@
         {{-- Hero / Brand Header --}}
         <div class="mx-auto w-full max-w-sm text-center">
             <div class="mb-6 flex justify-center">
-                <img src="{{ asset('icons/logo-color.png') }}" alt="Penglipuran Logo" class="h-24 w-auto object-contain">
+                <img src="{{ asset('icons/logo-penglipuran.png') }}" alt="Penglipuran Logo" class="h-24 w-auto object-contain">
             </div>
 
             <h1 class="font-display text-charcoal text-3xl font-bold">{{ __('Rahajeng Rauh') }}</h1>
-            <p class="mt-2 text-base leading-relaxed text-gray-500">{{ __('Masuk untuk memulai petualangan edukasi budaya Anda di Desa Penglipuran.') }}</p>
+            <p class="mt-2 text-base leading-relaxed text-gray-500">
+                {{ __('Masuk untuk memulai petualangan edukasi budaya Anda di Desa Penglipuran.') }}</p>
         </div>
 
         {{-- Login Form --}}
         <form class="mx-auto mt-10 w-full max-w-sm space-y-5" action="{{ route('login') }}" method="POST">
             @csrf
-            
-            @if($errors->any())
-                <div class="bg-red-50 text-red-600 p-3 rounded-xl text-sm mb-4 border border-red-100">
+
+            @if ($errors->any())
+                <div class="mb-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-600">
                     {{ $errors->first() }}
                 </div>
             @endif
@@ -28,28 +29,34 @@
             <div class="space-y-1.5">
                 <label for="email" class="text-sm font-semibold text-gray-700">{{ __('Email') }}</label>
                 <input type="email" id="email" name="email" value="{{ old('email') }}"
-                    class="w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
+                    class="focus:border-primary focus:ring-primary/50 w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:outline-none focus:ring-1"
                     placeholder="{{ __('Masukkan email Anda') }}" required>
             </div>
 
             <div class="space-y-1.5">
                 <div class="flex items-center justify-between">
                     <label for="password" class="text-sm font-semibold text-gray-700">{{ __('Password') }}</label>
-                    <a href="{{ route('forgot-password') }}" class="text-xs font-semibold text-primary">{{ __('Lupa password?') }}</a>
+                    <a href="{{ route('forgot-password') }}"
+                        class="text-primary text-xs font-semibold">{{ __('Lupa password?') }}</a>
                 </div>
                 <div class="relative">
                     <input type="password" id="password" name="password"
-                        class="w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
+                        class="focus:border-primary focus:ring-primary/50 w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:outline-none focus:ring-1"
                         placeholder="••••••••" required>
-                    <button type="button" id="toggle-password" class="absolute right-4 top-1/2 -translate-y-1/2 z-10 text-gray-400 focus:outline-none">
+                    <button type="button" id="toggle-password"
+                        class="absolute right-4 top-1/2 z-10 -translate-y-1/2 text-gray-400 focus:outline-none">
                         <!-- Eye Icon (Open) -->
-                        <svg id="eye-open" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg id="eye-open" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                         <!-- Eye Icon (Closed) -->
-                        <svg id="eye-closed" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                        <svg id="eye-closed" class="hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
                         </svg>
                     </button>
                 </div>
@@ -65,7 +72,8 @@
         <div class="mx-auto mt-8 w-full max-w-sm">
             <div class="relative flex items-center">
                 <div class="grow border-t border-gray-200"></div>
-                <span class="mx-4 shrink-0 text-xs font-medium uppercase tracking-wider text-gray-400">{{ __('atau masuk dengan') }}</span>
+                <span
+                    class="mx-4 shrink-0 text-xs font-medium uppercase tracking-wider text-gray-400">{{ __('atau masuk dengan') }}</span>
                 <div class="grow border-t border-gray-200"></div>
             </div>
         </div>
@@ -91,41 +99,42 @@
         {{-- Register Link --}}
         <p class="mt-10 text-center text-sm font-medium text-gray-500">
             {{ __('Belum punya tiket/akun?') }}
-            <a href="{{ route('register') }}" class="text-primary hover:text-primary-600 font-bold transition-colors">{{ __('Daftar sekarang') }}</a>
+            <a href="{{ route('register') }}"
+                class="text-primary hover:text-primary-600 font-bold transition-colors">{{ __('Daftar sekarang') }}</a>
         </p>
     </div>
 @endsection
 
 @push('scripts')
-<script>
-    (function() {
-        function init() {
-            const togglePassword = document.getElementById('toggle-password');
-            const passwordInput = document.getElementById('password');
-            const eyeOpen = document.getElementById('eye-open');
-            const eyeClosed = document.getElementById('eye-closed');
+    <script>
+        (function() {
+            function init() {
+                const togglePassword = document.getElementById('toggle-password');
+                const passwordInput = document.getElementById('password');
+                const eyeOpen = document.getElementById('eye-open');
+                const eyeClosed = document.getElementById('eye-closed');
 
-            if (togglePassword && passwordInput) {
-                togglePassword.addEventListener('click', function() {
-                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                    passwordInput.setAttribute('type', type);
-                    
-                    if (type === 'password') {
-                        eyeOpen.classList.remove('hidden');
-                        eyeClosed.classList.add('hidden');
-                    } else {
-                        eyeOpen.classList.add('hidden');
-                        eyeClosed.classList.remove('hidden');
-                    }
-                });
+                if (togglePassword && passwordInput) {
+                    togglePassword.addEventListener('click', function() {
+                        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                        passwordInput.setAttribute('type', type);
+
+                        if (type === 'password') {
+                            eyeOpen.classList.remove('hidden');
+                            eyeClosed.classList.add('hidden');
+                        } else {
+                            eyeOpen.classList.add('hidden');
+                            eyeClosed.classList.remove('hidden');
+                        }
+                    });
+                }
             }
-        }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    })();
-</script>
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
 @endpush
