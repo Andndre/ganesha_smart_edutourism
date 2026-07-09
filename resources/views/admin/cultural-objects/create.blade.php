@@ -26,6 +26,7 @@
 @push('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script type="module" src="{{ asset('js/model-viewer.min.js') }}"></script>
+    <x-tiptap-editor-script />
     @include('admin.map-manager.partials.scripts.ar')
     @include('admin.map-manager.partials.scripts.ar-model-modal')
 @endpush
