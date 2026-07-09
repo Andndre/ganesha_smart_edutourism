@@ -38,7 +38,7 @@ class Route3EcoQuestSeeder extends Seeder
                     'id' => 'Gerbang Desa Penglipuran menyambut wisatawan menuju kawasan desa adat dengan tata ruang Tri Mandala yang tertata rapi.',
                     'en' => 'The Penglipuran Village Gate welcomes visitors into the traditional village with its neatly arranged Tri Mandala layout.',
                 ],
-                'category' => 'tradition',
+                'category' => 'pawongan',
             ], -8.42340, 115.35920),
 
             'koridor' => $this->ensureObject(['koridor desa', 'village corridor'], [
@@ -51,7 +51,7 @@ class Route3EcoQuestSeeder extends Seeder
                     'id' => 'Koridor utama Desa Penglipuran menerapkan konsep kebersihan dan tata ruang lingkungan yang menjadikannya salah satu desa terbersih di dunia.',
                     'en' => 'The main corridor of Penglipuran applies cleanliness and spatial planning concepts that make it one of the cleanest villages in the world.',
                 ],
-                'category' => 'tradition',
+                'category' => 'pawongan',
             ], -8.42280, 115.35915),
 
             'merajan' => $this->ensureObject(['merajan', 'sanggah', 'traditional house'], [
@@ -64,7 +64,7 @@ class Route3EcoQuestSeeder extends Seeder
                     'id' => 'Rumah tradisional Penglipuran memanfaatkan bambu dalam kehidupan sehari-hari, mulai dari bangunan, peralatan rumah tangga, hingga sarana upacara.',
                     'en' => 'Penglipuran\'s traditional houses use bamboo in daily life, from buildings to household tools and ceremonial items.',
                 ],
-                'category' => 'temple',
+                'category' => 'parahyangan',
             ], -8.42230, 115.35900),
 
             'bambu' => $this->ensureObject(['hutan bambu', 'bamboo forest', 'bamboo'], [
@@ -77,7 +77,7 @@ class Route3EcoQuestSeeder extends Seeder
                     'id' => 'Hutan bambu Penglipuran menjaga sumber air dan mencegah erosi. Pemanfaatannya diatur secara adat agar tetap lestari.',
                     'en' => 'The Penglipuran bamboo forest protects water sources and prevents erosion. Its use is regulated by customary law to keep it sustainable.',
                 ],
-                'category' => 'tradition',
+                'category' => 'pawongan',
             ], -8.42050, 115.35980),
 
             'kerajinan' => $this->ensureObject(['sentra kerajinan bambu', 'bamboo craft center'], [
@@ -90,7 +90,7 @@ class Route3EcoQuestSeeder extends Seeder
                     'id' => 'Sentra Kerajinan Bambu menampilkan berbagai produk bambu buatan warga, mulai dari perabot rumah tangga, dekorasi pariwisata, sarana upacara, hingga suvenir.',
                     'en' => 'The Bamboo Craft Center showcases various bamboo products made by residents, from household items and tourism decor to ceremonial tools and souvenirs.',
                 ],
-                'category' => 'tradition',
+                'category' => 'pawongan',
             ], -8.42010, 115.35950),
         ];
 

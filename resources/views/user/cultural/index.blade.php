@@ -5,10 +5,9 @@
 @section('content')
     @php
         $categoryLabels = [
-            'temple' => __('Pura'),
-            'house' => __('Rumah Adat'),
-            'craft' => __('Kerajinan'),
-            'tradition' => __('Tradisi'),
+            'parahyangan' => __('Parahyangan'),
+            'pawongan' => __('Pawongan'),
+            'palemahan' => __('Palemahan'),
         ];
         // Only offer chips for categories that actually have objects (no empty filter states)
         $categories = array_values(array_intersect(array_keys($categoryLabels), array_column($objects, 'category')));

@@ -82,7 +82,7 @@ class AdminCulturalObjectImportTest extends TestCase
         $row1 = [
             'Pura Kehen',
             'Kehen Temple',
-            'temple',
+            'parahyangan',
             'Pura bersejarah di Bangli',
             'Historical temple in Bangli',
             'Pura Kehen adalah tempat pemujaan leluhur...',
@@ -98,7 +98,7 @@ class AdminCulturalObjectImportTest extends TestCase
         $row2 = [
             'Baju Barong',
             'Barong Shirt',
-            'craft',
+            'pawongan',
             'Kerajinan kaos lukis barong',
             'Barong painted t-shirt craft',
             'Kaos lukis khas Bali yang dibuat seniman...',
@@ -152,7 +152,7 @@ class AdminCulturalObjectImportTest extends TestCase
         $object1 = CulturalObject::where('slug', 'kehen-temple')->firstOrFail();
         $this->assertEquals('Kehen Temple', $object1->getTranslation('name', 'en'));
         $this->assertEquals('Pura Kehen', $object1->getTranslation('name', 'id'));
-        $this->assertEquals('temple', $object1->category);
+        $this->assertEquals('parahyangan', $object1->category);
 
         $this->assertNotNull($object1->mapLocation);
         $this->assertEquals(-8.445123, $object1->mapLocation->latitude);
@@ -162,7 +162,7 @@ class AdminCulturalObjectImportTest extends TestCase
         // ArModel check
         $arModel = ArModel::where('ar_marker_id', 'MARKER_KEHEN')->firstOrFail();
         $this->assertEquals('Kehen Temple Model', $arModel->getTranslation('name', 'en'));
-        $this->assertEquals($object1->mapLocation->id, $arModel->map_location_id);
+        $this->assertEquals($object1->id, $arModel->cultural_object_id);
 
         // Object 2 check
         $object2 = CulturalObject::where('slug', 'barong-shirt')->firstOrFail();

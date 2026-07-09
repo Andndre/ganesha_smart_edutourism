@@ -12,9 +12,11 @@ use App\Models\ArModel;
 use App\Models\CulturalObject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -24,6 +26,66 @@ class CulturalObjectController extends Controller
 {
     use HandlesArFileUploads;
     use NormalizesMultilingualInput;
+
+    /**
+     * Display a listing of cultural objects (dedicated management page, separate from map-manager).
+     */
+    public function index(Request $request): View
+    {
+        $query = CulturalObject::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name->en', 'like', '%'.$search.'%')
+                    ->orWhere('name->id', 'like', '%'.$search.'%');
+            });
+        }
+
+        $objects = $query->with('arModel')->orderBy('name->'.app()->getLocale())->paginate(15)->withQueryString();
+
+        return view('admin.cultural-objects.index', compact('objects'));
+    }
+
+    /**
+     * Show the form for creating a new cultural object.
+     */
+    public function create(): View
+    {
+        $modelsJson = ArModel::whereNull('cultural_object_id')->orderBy('name')->get()
+            ->map(fn ($m) => $this->modelToJson($m));
+
+        return view('admin.cultural-objects.create', compact('modelsJson'));
+    }
+
+    /**
+     * Show the form for editing an existing cultural object.
+     */
+    public function edit(int $id): View
+    {
+        $object = CulturalObject::with('arModel')->findOrFail($id);
+
+        $modelsJson = ArModel::where('cultural_object_id', $id)->orWhereNull('cultural_object_id')
+            ->orderBy('name')->get()
+            ->map(fn ($m) => $this->modelToJson($m));
+
+        return view('admin.cultural-objects.edit', compact('object', 'modelsJson'));
+    }
+
+    private function modelToJson(ArModel $m): array
+    {
+        $name = $m->getTranslations('name');
+
+        return [
+            'id' => (string) $m->id,
+            'name' => $name,
+            'displayName' => $name[app()->getLocale()] ?? $name['en'] ?? $name['id'] ?? '',
+            'ar_marker_id' => $m->ar_marker_id,
+            'thumbnail_path' => $m->thumbnail_path,
+            'model_3d_path' => $m->model_3d_path,
+            'isTaken' => false,
+        ];
+    }
 
     /**
      * Store a newly created cultural object in storage.
@@ -84,7 +146,7 @@ class CulturalObjectController extends Controller
 
         $object = CulturalObject::create($validated);
 
-        $mapLocation = $object->syncMapLocation([
+        $object->syncMapLocation([
             'category' => 'cultural',
             'latitude' => $latitude,
             'longitude' => $longitude,
@@ -115,7 +177,7 @@ class CulturalObjectController extends Controller
             $modelData = [
                 'name' => $submittedName ?: [$defaultLocale => ($object->name[$defaultLocale] ?? 'Model').' Model'],
                 'description' => $request->input('new_model_description') ?: ($object->short_description ?? null),
-                'map_location_id' => $mapLocation->id,
+                'cultural_object_id' => $object->id,
                 'ar_marker_id' => $arMarkerId ?: null,
             ];
 
@@ -140,7 +202,7 @@ class CulturalObjectController extends Controller
         } elseif (is_numeric($arModelId)) {
             $arModel = ArModel::find((int) $arModelId);
             if ($arModel) {
-                $modelData = ['map_location_id' => $mapLocation->id];
+                $modelData = ['cultural_object_id' => $object->id];
 
                 // Handle multilingual name with partial locale merging
                 if ($request->has('new_model_name')) {
@@ -174,7 +236,18 @@ class CulturalObjectController extends Controller
             }
         }
 
-        return redirect()->route('admin.map-manager')->with('success', __('Objek budaya berhasil ditambahkan.'));
+        return $this->redirectAfterSave($request, __('Objek budaya berhasil ditambahkan.'));
+    }
+
+    /**
+     * Redirect to the dedicated management page when the request came from there
+     * (via a `redirect_to=cultural-objects` hidden field), otherwise back to map-manager.
+     */
+    private function redirectAfterSave(Request $request, string $message): RedirectResponse
+    {
+        $route = $request->input('redirect_to') === 'cultural-objects' ? 'admin.cultural-objects' : 'admin.map-manager';
+
+        return redirect()->route($route)->with('success', $message);
     }
 
     /**
@@ -207,8 +280,10 @@ class CulturalObjectController extends Controller
             ];
         }
 
-        $latitude = $validated['latitude'] ?? config('services.penglipuran.latitude');
-        $longitude = $validated['longitude'] ?? config('services.penglipuran.longitude');
+        // Coordinates are only present when this request came from map-manager (which always
+        // includes them). The dedicated cultural-objects edit page omits them entirely, so a
+        // point managed separately via map-manager's point CRUD is never silently moved here.
+        $hasCoordinates = $request->filled('latitude') && $request->filled('longitude');
 
         // Clean up temporary variables not in DB schema
         unset(
@@ -235,13 +310,15 @@ class CulturalObjectController extends Controller
 
         $object->update($validated);
 
-        $mapLocation = $object->syncMapLocation([
-            'category' => 'cultural',
-            'latitude' => $latitude,
-            'longitude' => $longitude,
-            'is_accessible' => $request->has('is_accessible'),
-            'accessibility_notes' => $request->input('accessibility_notes') ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.',
-        ], isUpdate: true);
+        if ($hasCoordinates) {
+            $object->syncMapLocation([
+                'category' => 'cultural',
+                'latitude' => $request->input('latitude'),
+                'longitude' => $request->input('longitude'),
+                'is_accessible' => $request->has('is_accessible'),
+                'accessibility_notes' => $request->input('accessibility_notes') ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.',
+            ], isUpdate: true);
+        }
 
         // Sync AR model link
         $arModelId = $request->input('ar_model_id');
@@ -266,7 +343,7 @@ class CulturalObjectController extends Controller
             $modelData = [
                 'name' => $submittedName ?: [$defaultLocale => ($object->name[$defaultLocale] ?? 'Model').' Model'],
                 'description' => $request->input('new_model_description') ?: ($object->short_description ?? null),
-                'map_location_id' => $mapLocation->id,
+                'cultural_object_id' => $object->id,
                 'ar_marker_id' => $arMarkerId ?: null,
             ];
 
@@ -291,7 +368,7 @@ class CulturalObjectController extends Controller
         } elseif (is_numeric($arModelId)) {
             $arModel = ArModel::find((int) $arModelId);
             if ($arModel) {
-                $modelData = ['map_location_id' => $mapLocation->id];
+                $modelData = ['cultural_object_id' => $object->id];
 
                 // Handle multilingual name with partial locale merging
                 if ($request->has('new_model_name')) {
@@ -323,22 +400,22 @@ class CulturalObjectController extends Controller
                 $arModel->update($modelData);
             }
         } elseif ($arModelId === 'none') {
-            // Detach: clear map_location_id from any model currently linked here
-            ArModel::where('map_location_id', $mapLocation->id)->update(['map_location_id' => null]);
+            // Detach: clear cultural_object_id from any model currently linked here
+            ArModel::where('cultural_object_id', $object->id)->update(['cultural_object_id' => null]);
         }
 
-        return redirect()->route('admin.map-manager')->with('success', __('Objek budaya berhasil diperbarui.'));
+        return $this->redirectAfterSave($request, __('Objek budaya berhasil diperbarui.'));
     }
 
     /**
      * Remove the specified cultural object from storage.
      */
-    public function destroy(int $id): RedirectResponse
+    public function destroy(Request $request, int $id): RedirectResponse
     {
         $object = CulturalObject::findOrFail($id);
         $object->delete();
 
-        return redirect()->route('admin.map-manager')->with('success', __('Objek budaya berhasil dihapus.'));
+        return $this->redirectAfterSave($request, __('Objek budaya berhasil dihapus.'));
     }
 
     /**
@@ -370,7 +447,7 @@ class CulturalObjectController extends Controller
         $headers = [
             'Nama (ID)',
             'Nama (EN)',
-            'Kategori (temple/house/craft/tradition)',
+            'Kategori (parahyangan/pawongan/palemahan)',
             'Deskripsi Singkat (ID)',
             'Deskripsi Singkat (EN)',
             'Deskripsi Lengkap (ID)',
@@ -393,7 +470,7 @@ class CulturalObjectController extends Controller
         $sampleRow = [
             'Pura Penataran Agung',
             'Penataran Agung Temple',
-            'temple',
+            'parahyangan',
             'Jantung spiritual Desa Penglipuran',
             'Spiritual heart of Penglipuran Village',
             'Pura ini terletak di bagian paling utara desa...',
@@ -423,7 +500,7 @@ class CulturalObjectController extends Controller
 
         $instructions = [
             '1. Kolom Nama (ID) & (EN) wajib diisi.',
-            '2. Kolom Kategori hanya menerima nilai: temple (Pura), house (Rumah Adat), craft (Kerajinan), atau tradition (Tradisi).',
+            '2. Kolom Kategori hanya menerima nilai: parahyangan (Hub. Tuhan), pawongan (Hub. Manusia), atau palemahan (Hub. Alam).',
             '3. Latitude & Longitude harus berupa angka koordinat desimal (contoh: -8.43169, 115.35246).',
             '4. Akses Disabilitas diisi dengan "Y" (Ya) atau "N" (Tidak).',
             '5. Catatan Aksesibilitas menjelaskan detail kemudahan akses (contoh: Pintu masuk landai, ramah kursi roda).',
@@ -475,11 +552,11 @@ class CulturalObjectController extends Controller
 
                 $nameId = trim($row[0]);
                 $nameEn = trim($row[1]);
-                $category = trim($row[2] ?? 'temple');
+                $category = trim($row[2] ?? 'parahyangan');
 
                 // Validate category
-                if (! in_array($category, ['temple', 'house', 'craft', 'tradition'])) {
-                    $category = 'temple';
+                if (! in_array($category, ['parahyangan', 'pawongan', 'palemahan'])) {
+                    $category = 'parahyangan';
                 }
 
                 $shortDescId = trim($row[3] ?? '');
@@ -512,7 +589,7 @@ class CulturalObjectController extends Controller
                 );
 
                 // Create or update MapLocation
-                $mapLocation = $culturalObject->mapLocation()->updateOrCreate(
+                $culturalObject->mapLocation()->updateOrCreate(
                     [],
                     [
                         'name' => $nameId,
@@ -531,7 +608,7 @@ class CulturalObjectController extends Controller
                         [
                             'name' => ['id' => $nameId.' Model', 'en' => $nameEn.' Model'],
                             'description' => ['id' => $shortDescId, 'en' => $shortDescEn],
-                            'map_location_id' => $mapLocation->id,
+                            'cultural_object_id' => $culturalObject->id,
                         ]
                     );
                 }

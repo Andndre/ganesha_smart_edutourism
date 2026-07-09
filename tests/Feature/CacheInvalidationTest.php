@@ -46,7 +46,7 @@ class CacheInvalidationTest extends TestCase
             'name' => 'Tari Kecak',
             'slug' => 'tari-kecak',
             'description' => 'Tradisi tari Bali',
-            'category' => 'tradition',
+            'category' => 'pawongan',
         ]);
 
         $this->assertNull(Cache::tags(['cultural'])->get('cultural_objects_all_array'));

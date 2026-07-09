@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\Translatable\HasTranslations;
@@ -51,6 +52,26 @@ class CulturalObject extends Model
     }
 
     /**
+     * Get every map point for this cultural object (e.g. multiple kulkul, padmasana).
+     *
+     * @return MorphMany<MapLocation>
+     */
+    public function mapLocations(): MorphMany
+    {
+        return $this->morphMany(MapLocation::class, 'locationable');
+    }
+
+    /**
+     * Get the AR model owned by this cultural object.
+     *
+     * @return HasOne<ArModel>
+     */
+    public function arModel(): HasOne
+    {
+        return $this->hasOne(ArModel::class, 'cultural_object_id');
+    }
+
+    /**
      * Scope a query to only include objects with coordinates.
      *
      * @param  Builder<CulturalObject>  $query
@@ -80,27 +101,27 @@ class CulturalObject extends Model
      */
     public function scopeWithAr(Builder $query): Builder
     {
-        return $query->whereHas('mapLocation.arModel');
+        return $query->whereHas('arModel');
     }
 
     public function getArMarkerIdAttribute(): ?string
     {
-        return $this->mapLocation?->arModel?->ar_marker_id;
+        return $this->arModel?->ar_marker_id;
     }
 
     public function getArMarkerPattPathAttribute(): ?string
     {
-        return $this->mapLocation?->arModel?->ar_marker_patt_path;
+        return $this->arModel?->ar_marker_patt_path;
     }
 
     public function getModel3dPathAttribute(): ?string
     {
-        return $this->mapLocation?->arModel?->model_3d_path;
+        return $this->arModel?->model_3d_path;
     }
 
     public function getModel3dUsdzPathAttribute(): ?string
     {
-        return $this->mapLocation?->arModel?->model_3d_usdz_path;
+        return $this->arModel?->model_3d_usdz_path;
     }
 
     /**

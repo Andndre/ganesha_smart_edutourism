@@ -33,7 +33,7 @@ class Route1HeritageQuestSeeder extends Seeder
                     'id' => 'Gerbang Desa Penglipuran menyambut wisatawan menuju kawasan desa adat dengan tata ruang Tri Mandala yang tertata rapi. Dari sini pengunjung memulai check-in eduwisata, menonton video pengenalan desa, dan mengakses peta digital.',
                     'en' => 'The Penglipuran Village Gate welcomes visitors into the traditional village with its neatly arranged Tri Mandala layout. From here visitors check in for the edutourism route, watch the village introduction video, and access the digital map.',
                 ],
-                'category' => 'tradition',
+                'category' => 'pawongan',
             ], -8.42340, 115.35920),
 
             'koridor' => $this->ensureObject(['koridor desa', 'village corridor'], [
@@ -46,7 +46,7 @@ class Route1HeritageQuestSeeder extends Seeder
                     'id' => 'Koridor utama Desa Penglipuran memperlihatkan pola tata ruang desa yang khas: deretan rumah dengan angkul-angkul seragam, tanaman Loloh Cemcem, kerajinan anyaman bambu, dan pelinggih di tiap pekarangan.',
                     'en' => 'The main corridor of Penglipuran shows the village\'s distinctive spatial pattern: rows of houses with uniform angkul-angkul gates, Loloh Cemcem plants, woven bamboo crafts, and family shrines in every yard.',
                 ],
-                'category' => 'tradition',
+                'category' => 'pawongan',
             ], -8.42280, 115.35915),
 
             'merajan' => $this->ensureObject(['merajan', 'sanggah'], [
@@ -59,7 +59,7 @@ class Route1HeritageQuestSeeder extends Seeder
                     'id' => 'Merajan (disebut juga Sanggah) adalah area suci keluarga di setiap rumah tradisional Bali, tempat pemujaan leluhur. Di dalamnya terdapat beberapa bangunan suci seperti Sanggah Kemulan, Padmasana, dan Piyasan yang masing-masing memiliki fungsi tersendiri.',
                     'en' => 'The Merajan (also called Sanggah) is the family\'s sacred compound in every traditional Balinese house, dedicated to ancestor worship. It contains several shrines such as the Sanggah Kemulan, Padmasana, and Piyasan, each with its own function.',
                 ],
-                'category' => 'temple',
+                'category' => 'parahyangan',
             ], -8.42230, 115.35900),
 
             'kulkul' => $this->ensureObject(['kulkul'], [
@@ -72,7 +72,7 @@ class Route1HeritageQuestSeeder extends Seeder
                     'id' => 'Bale Kulkul adalah bangunan menara tempat kulkul (kentongan bambu/kayu) digantung. Pola bunyi kulkul yang berbeda memiliki makna berbeda dalam kehidupan masyarakat adat: tanda bahaya, panggilan gotong royong, hingga penanda upacara.',
                     'en' => 'The Bale Kulkul is a tower where the kulkul (bamboo/wooden slit drum) hangs. Different beating patterns carry different meanings in customary life: danger alerts, calls for communal work, and ceremony signals.',
                 ],
-                'category' => 'tradition',
+                'category' => 'pawongan',
             ], -8.42180, 115.35910),
 
             'relief' => $this->ensureObject(['relief'], [
@@ -85,7 +85,7 @@ class Route1HeritageQuestSeeder extends Seeder
                     'id' => 'Relief sejarah menggambarkan kronologi Desa Penglipuran: migrasi leluhur dari Desa Bayung Gede, lahirnya nama Penglipuran ("pengeling pura" — mengenang tempat leluhur), hingga penetapan sebagai desa wisata.',
                     'en' => 'The history relief depicts Penglipuran\'s chronology: the ancestors\' migration from Bayung Gede, the birth of the name Penglipuran ("pengeling pura" — remembering the ancestral place), up to its designation as a tourism village.',
                 ],
-                'category' => 'tradition',
+                'category' => 'pawongan',
             ], -8.42120, 115.35920),
 
             'bambu' => $this->ensureObject(['hutan bambu', 'bamboo forest', 'bamboo'], [
@@ -98,7 +98,7 @@ class Route1HeritageQuestSeeder extends Seeder
                     'id' => 'Hutan bambu Penglipuran menjadi penyangga ekologis desa: menjaga sumber air, mencegah erosi, dan menyediakan bahan bangunan serta kerajinan. Pemanfaatannya diatur secara adat agar tetap lestari.',
                     'en' => 'The Penglipuran bamboo forest is the village\'s ecological buffer: it protects water sources, prevents erosion, and provides building and craft materials. Its use is regulated by customary law to keep it sustainable.',
                 ],
-                'category' => 'tradition',
+                'category' => 'pawongan',
             ], -8.42050, 115.35980),
         ];
 
