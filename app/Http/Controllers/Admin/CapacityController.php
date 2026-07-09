@@ -20,12 +20,7 @@ class CapacityController extends Controller
         $zones = Cache::tags(['capacity'])->flexible('capacity_zones_active_array', [60, 300], function () {
             return CapacityZone::where('is_active', true)->get()->append('occupancy_percentage')->toArray();
         });
-
-        // Reset current counts locally for calculation
-        foreach ($zones as &$zone) {
-            $zone['current_count'] = 0;
-        }
-        unset($zone);
+        $zones = CapacityZone::withLiveCounts($zones);
 
         // Calculate real 24h visitor trend and dynamic hourly labels
         $hourlyData = [];
@@ -84,26 +79,6 @@ class CapacityController extends Controller
                 $visitorLocations[$sessionId] = ['lat' => $lat, 'lng' => $lng];
             }
         }
-
-        // Increment current count
-        foreach ($zones as &$zone) {
-            if (! empty($zone['polygon_coordinates'])) {
-                foreach ($visitorLocations as $userId => $location) {
-                    // Quick bounding box check before ray casting
-                    if ($this->isInBoundingBox($location['lat'], $location['lng'], $zone['polygon_coordinates'])) {
-                        // Create a temporary model instance for the containsPoint method logic
-                        // Since containsPoint is a model method, we can either re-implement it or use a temporary model
-                        $tempZone = new CapacityZone;
-                        $tempZone->polygon_coordinates = $zone['polygon_coordinates'];
-
-                        if ($tempZone->containsPoint($location['lat'], $location['lng'])) {
-                            $zone['current_count']++;
-                        }
-                    }
-                }
-            }
-        }
-        unset($zone);
 
         $totalCurrentCount = collect($zones)->sum('current_count');
         $totalMaxCapacity = collect($zones)->sum('max_capacity');
@@ -183,22 +158,5 @@ class CapacityController extends Controller
         $zone->delete();
 
         return redirect()->back()->with('success', __('Zona berhasil dihapus.'));
-    }
-
-    /**
-     * Quick bounding box check before ray casting.
-     */
-    private function isInBoundingBox(float $lat, float $lng, array $polygonCoordinates): bool
-    {
-        $minLat = $maxLat = $minLng = $maxLng = null;
-
-        foreach ($polygonCoordinates as $coord) {
-            $minLat = $minLat === null ? $coord['lat'] : min($minLat, $coord['lat']);
-            $maxLat = $maxLat === null ? $coord['lat'] : max($maxLat, $coord['lat']);
-            $minLng = $minLng === null ? $coord['lng'] : min($minLng, $coord['lng']);
-            $maxLng = $maxLng === null ? $coord['lng'] : max($maxLng, $coord['lng']);
-        }
-
-        return $lat >= $minLat && $lat <= $maxLat && $lng >= $minLng && $lng <= $maxLng;
     }
 }

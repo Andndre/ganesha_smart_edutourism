@@ -9,22 +9,18 @@
             </div>
             @php
                 $overallPct = $totalMaxCapacity > 0 ? round(($totalCurrentCount / $totalMaxCapacity) * 100, 1) : 0;
-                if ($overallPct >= 80) {
-                    $overallStatus = 'Kapasitas Penuh';
-                    $overallColor = 'text-warning';
-                    $overallBarColor = 'bg-warning';
-                } elseif ($overallPct >= 60) {
-                    $overallStatus = 'Kapasitas Sedang';
-                    $overallColor = 'text-secondary';
-                    $overallBarColor = 'bg-secondary';
-                } else {
-                    $overallStatus = 'Kapasitas Aman';
-                    $overallColor = 'text-primary';
-                    $overallBarColor = 'bg-primary';
-                }
-                
+
                 // Get Desa Penglipuran Zone if exists
                 $desaZone = collect($zones)->firstWhere('zone_identifier', 'desa_penglipuran');
+
+                $overallThresholds = \App\Models\CapacityZone::statusFor(
+                    $overallPct,
+                    $desaZone['warning_threshold'] ?? 60,
+                    $desaZone['critical_threshold'] ?? 80,
+                );
+                $overallStatus = 'Kapasitas ' . $overallThresholds['label'];
+                $overallColor = $overallThresholds['color'];
+                $overallBarColor = $overallThresholds['barColor'];
             @endphp
             <div class="mt-3 h-3 overflow-hidden rounded-full bg-gray-100">
                 <div class="{{ $overallBarColor }} h-full transition-all" style="width: {{ min(100, $overallPct) }}%">
@@ -50,10 +46,12 @@
         </div>
         <div class="grid grid-cols-3 gap-3 sm:text-right">
             @php
+                $warningPct = $desaZone['warning_threshold'] ?? 60;
+                $criticalPct = $desaZone['critical_threshold'] ?? 80;
                 $levels = [
-                    ['label' => 'Aman', 'range' => '< 60%', 'color' => 'bg-primary/10 text-primary'],
-                    ['label' => 'Sedang', 'range' => '60-80%', 'color' => 'bg-secondary/15 text-secondary'],
-                    ['label' => 'Penuh', 'range' => '> 80%', 'color' => 'bg-warning/10 text-warning'],
+                    ['label' => 'Aman', 'range' => "< {$warningPct}%", 'color' => 'bg-primary/10 text-primary'],
+                    ['label' => 'Sedang', 'range' => "{$warningPct}-{$criticalPct}%", 'color' => 'bg-secondary/15 text-secondary'],
+                    ['label' => 'Penuh', 'range' => "> {$criticalPct}%", 'color' => 'bg-warning/10 text-warning'],
                 ];
             @endphp
             @foreach ($levels as $l)
