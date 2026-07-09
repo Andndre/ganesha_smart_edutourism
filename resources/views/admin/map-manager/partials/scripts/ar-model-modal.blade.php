@@ -213,7 +213,7 @@ function generateARMarkerInModal() {
             }
             pattInput.value = generatePattText(markerCanvas, 100, 300);
         };
-        logo.src = '/icons/logo-color-notext.png';
+        logo.src = '/icons/logo-penglipuran.png';
     } catch (e) {
         console.error('AR Marker generation failed:', e);
     }

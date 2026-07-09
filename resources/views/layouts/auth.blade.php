@@ -15,7 +15,7 @@
     <title>@yield('title', __('Penglipuran Smart Tour'))</title>
 
     {{-- Shortcut icon --}}
-    <link rel="shortcut icon" href="{{ asset('icons/logo-color-notext-shortcut.ico') }}">
+    <link rel="shortcut icon" href="{{ asset('icons/logo-penglipuran-shortcut.ico') }}">
 
     <style>
         :root {

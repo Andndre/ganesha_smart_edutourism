@@ -88,98 +88,101 @@
 
 <body class="flex h-full w-full items-center justify-center overflow-hidden bg-gray-50 antialiased">
 
-    <div class="bg-slate-50 text-charcoal relative flex h-full w-full flex-col md:flex-row-reverse overflow-hidden"
+    <div class="text-charcoal relative flex h-full w-full flex-col overflow-hidden bg-slate-50 md:flex-row-reverse"
         style="transform: translateZ(0);">
 
         <!-- Content Area Wrapper -->
-        <div id="main-page-container"
-             class="relative flex h-full w-full flex-1 flex-col overflow-hidden">
+        <div id="main-page-container" class="relative flex h-full w-full flex-1 flex-col overflow-hidden">
 
-        <!-- Global Offline Coaching Modal -->
-        <div id="offline-coaching-modal"
-            class="bg-charcoal/40 pointer-events-none fixed inset-0 flex scale-95 items-center justify-center opacity-0 backdrop-blur-sm transition-all duration-300"
-            style="z-index: 999999;">
-            <div
-                class="flex w-[90%] max-w-sm flex-col items-center rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-2xl">
-                <!-- Icon -->
-                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-[#E28F1B]">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18" />
-                    </svg>
-                </div>
-
-                <!-- Title -->
-                <h3 class="text-charcoal mb-2 text-base font-bold">{{ __('Anda Sedang Luring (Offline)') }}</h3>
-
-                <!-- Description -->
-                <p class="mb-6 text-xs leading-relaxed text-gray-500">
-                    {{ __('Koneksi internet Anda terputus. Jangan khawatir, Anda tetap dapat menjelajahi desa melalui data luring (cache).') }}
-                    <br><br>
-                    {{ __('Perhatikan indikator') }} <span
-                        class="rounded-full bg-[#E28F1B] px-2.5 py-0.5 font-bold text-white">Offline</span> {{ __('di pojok kanan atas sebagai penanda status koneksi Anda.') }}
-                </p>
-
-                <!-- Action Button -->
-                <button id="close-offline-coaching-btn"
-                    class="bg-primary w-full rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-[#152E1D] active:scale-95">
-                    {{ __('Baik, Saya Mengerti') }}
-                </button>
-            </div>
-        </div>
-
-        @unless (Route::is('explore') || Route::is('edutourism.active'))
-            @include('components.navigation.header', [
-                'showBack' => true,
-                'headerTitle' => null,
-                'fallbackUrl' => isset($activeEdutourismSession) ? route('edutourism.active') : route('home'),
-            ])
-        @endunless
-
-        @php
-            $mainTabRoutes = ['home', 'explore', 'umkm', 'profile'];
-            $currentRouteName = Route::currentRouteName();
-            $isMainTab = in_array($currentRouteName, $mainTabRoutes);
-            $hasActiveSession = isset($activeEdutourismSession) && !Route::is('edutourism.active');
-        @endphp
-
-        <main id="main-content"
-            class="no-scrollbar {{ $hasActiveSession ? 'pb-28' : 'pb-6' }} relative flex-1 overflow-y-auto">
-            @yield('content')
-        </main>
-
-        @if ($hasActiveSession)
-            <div class="{{ $isMainTab ? 'bottom-[calc(env(safe-area-inset-bottom)+4rem)] md:bottom-0' : 'bottom-0' }} fixed md:absolute left-0 right-0 z-40 border-t border-gray-200 bg-white/80 px-4 py-3 backdrop-blur-md"
-                id="floating-route-banner">
-                <a href="{{ route('edutourism.active') }}"
-                    class="pointer-events-auto flex items-center justify-between overflow-hidden rounded-2xl bg-[#1E5128] shadow-lg shadow-[#1E5128]/30 transition-transform active:scale-95">
-                    <div class="flex items-center gap-3 p-3">
-                        <div
-                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur-sm">
-                            <svg class="h-6 w-6 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-green-100">{{ __('Smart Edutourism Aktif') }}</p>
-                            <h4 class="max-w-37.5 truncate font-bold leading-tight text-white sm:max-w-50">
-                                {{ $activeEdutourismSession->tourRoute->name }}</h4>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-center border-l border-white/10 bg-black/10 px-4 py-5">
-                        <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            <!-- Global Offline Coaching Modal -->
+            <div id="offline-coaching-modal"
+                class="bg-charcoal/40 pointer-events-none fixed inset-0 flex scale-95 items-center justify-center opacity-0 backdrop-blur-sm transition-all duration-300"
+                style="z-index: 999999;">
+                <div
+                    class="flex w-[90%] max-w-sm flex-col items-center rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-2xl">
+                    <!-- Icon -->
+                    <div
+                        class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-[#E28F1B]">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18" />
                         </svg>
                     </div>
-                </a>
+
+                    <!-- Title -->
+                    <h3 class="text-charcoal mb-2 text-base font-bold">{{ __('Anda Sedang Luring (Offline)') }}</h3>
+
+                    <!-- Description -->
+                    <p class="mb-6 text-xs leading-relaxed text-gray-500">
+                        {{ __('Koneksi internet Anda terputus. Jangan khawatir, Anda tetap dapat menjelajahi desa melalui data luring (cache).') }}
+                        <br><br>
+                        {{ __('Perhatikan indikator') }} <span
+                            class="rounded-full bg-[#E28F1B] px-2.5 py-0.5 font-bold text-white">Offline</span>
+                        {{ __('di pojok kanan atas sebagai penanda status koneksi Anda.') }}
+                    </p>
+
+                    <!-- Action Button -->
+                    <button id="close-offline-coaching-btn"
+                        class="bg-primary w-full rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-[#152E1D] active:scale-95">
+                        {{ __('Baik, Saya Mengerti') }}
+                    </button>
+                </div>
             </div>
-        @endif
+
+            @unless (Route::is('explore') || Route::is('edutourism.active'))
+                @include('components.navigation.header', [
+                    'showBack' => true,
+                    'headerTitle' => null,
+                    'fallbackUrl' => isset($activeEdutourismSession) ? route('edutourism.active') : route('home'),
+                ])
+            @endunless
+
+            @php
+                $mainTabRoutes = ['home', 'explore', 'umkm', 'profile'];
+                $currentRouteName = Route::currentRouteName();
+                $isMainTab = in_array($currentRouteName, $mainTabRoutes);
+                $hasActiveSession = isset($activeEdutourismSession) && !Route::is('edutourism.active');
+            @endphp
+
+            <main id="main-content"
+                class="no-scrollbar {{ $hasActiveSession ? 'pb-28' : 'pb-6' }} relative flex-1 overflow-y-auto">
+                @yield('content')
+            </main>
+
+            @if ($hasActiveSession)
+                <div class="{{ $isMainTab ? 'bottom-[calc(env(safe-area-inset-bottom)+4rem)] md:bottom-0' : 'bottom-0' }} fixed left-0 right-0 z-40 border-t border-gray-200 bg-white/80 px-4 py-3 backdrop-blur-md md:absolute"
+                    id="floating-route-banner">
+                    <a href="{{ route('edutourism.active') }}"
+                        class="pointer-events-auto flex items-center justify-between overflow-hidden rounded-2xl bg-[#1E5128] shadow-lg shadow-[#1E5128]/30 transition-transform active:scale-95">
+                        <div class="flex items-center gap-3 p-3">
+                            <div
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur-sm">
+                                <svg class="h-6 w-6 animate-pulse" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-green-100">
+                                    {{ __('Smart Edutourism Aktif') }}</p>
+                                <h4 class="max-w-37.5 sm:max-w-50 truncate font-bold leading-tight text-white">
+                                    {{ $activeEdutourismSession->tourRoute->name }}</h4>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center border-l border-white/10 bg-black/10 px-4 py-5">
+                            <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </a>
+                </div>
+            @endif
 
         </div> <!-- End of Content Area Wrapper -->
 
@@ -191,7 +194,7 @@
             // Hapus Service Worker jika sebelumnya pernah terinstall agar tidak ada cache nyangkut
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                    for(let registration of registrations) {
+                    for (let registration of registrations) {
                         registration.unregister();
                         console.log('Service Worker dihapus');
                     }
@@ -235,7 +238,8 @@
                     else if (isExplore && currentPath === '/explore') isActive = true;
                     else if (isUmkm && currentPath.startsWith('/umkm')) isActive = true;
                     else if (isProfile && currentPath.startsWith('/profile')) isActive = true;
-                    else if (isLogin && (currentPath.startsWith('/login') || currentPath.startsWith('/register'))) isActive = true;
+                    else if (isLogin && (currentPath.startsWith('/login') || currentPath.startsWith('/register')))
+                        isActive = true;
 
                     const svg = link.querySelector('svg');
                     if (isActive) {
@@ -367,7 +371,9 @@
         @php
             $notifMessages = [
                 'geofence_title' => __('Peringatan Batas Area'),
-                'geofence_body' => __('Anda telah keluar dari area wisata Desa Penglipuran. Harap kembali ke jalur utama untuk keamanan Anda.'),
+                'geofence_body' => __(
+                    'Anda telah keluar dari area wisata Desa Penglipuran. Harap kembali ke jalur utama untuk keamanan Anda.',
+                ),
                 'crowd_warning' => __('cukup padat'),
                 'crowd_critical' => __('sangat padat'),
                 'crowd_prefix' => __('Kepadatan'),
@@ -395,7 +401,9 @@
             function getStoredNotifications() {
                 try {
                     return JSON.parse(localStorage.getItem(NOTIF_STORAGE_KEY) || '[]');
-                } catch { return []; }
+                } catch {
+                    return [];
+                }
             }
 
             function storeNotifications(items) {
@@ -407,7 +415,9 @@
                 items.unshift(notif);
                 storeNotifications(items);
                 // Dispatch event so Alpine bell component reacts
-                window.dispatchEvent(new CustomEvent('notification-received', { detail: notif }));
+                window.dispatchEvent(new CustomEvent('notification-received', {
+                    detail: notif
+                }));
                 // Show toast
                 showNotificationToast(notif);
             }
@@ -442,7 +452,9 @@
                     },
                     timeAgo(timestamp) {
                         if (!window.__locale) window.__locale = document.documentElement.lang || 'id';
-                        const rtf = new Intl.RelativeTimeFormat(window.__locale, { numeric: 'auto' });
+                        const rtf = new Intl.RelativeTimeFormat(window.__locale, {
+                            numeric: 'auto'
+                        });
                         const seconds = Math.floor((Date.now() - timestamp) / 1000);
                         if (seconds < 60) return rtf.format(-seconds, 'second');
                         const minutes = Math.floor(seconds / 60);
@@ -518,13 +530,18 @@
                 // Generate a persistent session ID for tracking
                 let sessionId = localStorage.getItem('gps_session_id');
                 if (!sessionId) {
-                    sessionId = crypto.randomUUID ? crypto.randomUUID() : `session-${Math.random().toString(36).slice(2, 11)}`;
+                    sessionId = crypto.randomUUID ? crypto.randomUUID() :
+                        `session-${Math.random().toString(36).slice(2, 11)}`;
                     localStorage.setItem('gps_session_id', sessionId);
                 }
 
                 // Geofence: Desa Penglipuran center + radius (circle-based)
-                const VILLAGE_CENTER = { lat: {{ config('services.penglipuran.latitude', -8.48858951350677) }}, lng: {{ config('services.penglipuran.longitude', 115.38392483153403) }} };
-                const VILLAGE_RADIUS_METERS = {{ config('services.penglipuran.geofence_radius', 500) }}; // Dynamic radius from config/services.php
+                const VILLAGE_CENTER = {
+                    lat: {{ config('services.penglipuran.latitude', -8.48858951350677) }},
+                    lng: {{ config('services.penglipuran.longitude', 115.38392483153403) }}
+                };
+                const VILLAGE_RADIUS_METERS =
+                {{ config('services.penglipuran.geofence_radius', 500) }}; // Dynamic radius from config/services.php
 
                 // Read persisted geofence state from localStorage to prevent re-alerting on page reload
                 let wasInsideVillage = localStorage.getItem('was_inside_village'); // 'true' | 'false' | null (unknown)
@@ -536,8 +553,8 @@
                     const dLat = (lat2 - lat1) * Math.PI / 180;
                     const dLon = (lon2 - lon1) * Math.PI / 180;
                     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
                     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
                 }
 
@@ -574,7 +591,10 @@
 
                 // Expose method for testing (Local mode only)
                 window.setMockLocation = function(lat, lng) {
-                    lastKnownPos = { latitude: lat, longitude: lng };
+                    lastKnownPos = {
+                        latitude: lat,
+                        longitude: lng
+                    };
                     checkGeofence(lat, lng);
                     sendPing();
                 };
@@ -614,15 +634,18 @@
                             headers: {
                                 'Content-Type': 'application/json',
                                 'Accept': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                                    'content')
                             },
                             body: JSON.stringify({
                                 latitude: lastKnownPos.latitude,
                                 longitude: lastKnownPos.longitude,
                                 session_id: sessionId,
-                                user_name: '@auth{{ Auth::user()->name ?? '' }}@endauth'.trim() || null
+                                user_name: '@auth{{ Auth::user()->name ?? '' }}@endauth'
+                                    .trim() || null
                             })
-                        }).catch(() => { /* silent fail for tracking */ });
+                        }).catch(() => {
+                            /* silent fail for tracking */ });
                     }
                 }
 
@@ -636,9 +659,11 @@
                         navigator.sendBeacon('/api/tracking/leave', new Blob(
                             [JSON.stringify({
                                 session_id: sessionId,
-                                _token: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-                            })],
-                            { type: 'application/json' }
+                                _token: document.querySelector('meta[name="csrf-token"]')
+                                    ?.getAttribute('content')
+                            })], {
+                                type: 'application/json'
+                            }
                         ));
                     } else if (document.visibilityState === 'visible' && lastKnownPos) {
                         sendPing();
@@ -668,8 +693,11 @@
                                 id: 'crowd-' + Date.now(),
                                 type: 'crowd',
                                 level: e.level,
-                                title: _n.crowd_prefix + ' ' + (e.level === 'critical' ? _n.crowd_critical_label : _n.crowd_high_label) + ': ' + e.zone_name,
-                                body: _n.crowd_area_prefix + ' ' + e.zone_name + ' ' + _n.crowd_sedang + ' ' + (levelLabels[e.level] || _n.crowd_padat) + ' (' + e.occupancy_percentage + _n.crowd_capacity + '). ' + _n.crowd_body_suffix,
+                                title: _n.crowd_prefix + ' ' + (e.level === 'critical' ? _n
+                                    .crowd_critical_label : _n.crowd_high_label) + ': ' + e.zone_name,
+                                body: _n.crowd_area_prefix + ' ' + e.zone_name + ' ' + _n.crowd_sedang + ' ' + (
+                                        levelLabels[e.level] || _n.crowd_padat) + ' (' + e
+                                    .occupancy_percentage + _n.crowd_capacity + '). ' + _n.crowd_body_suffix,
                                 timestamp: Date.now(),
                                 read: false
                             });
@@ -680,7 +708,8 @@
                                 type: 'event',
                                 level: 'info',
                                 title: '🎭 ' + e.event_name,
-                                body: _n.event_prefix + ' ' + e.start_time + ' ' + _n.event_suffix + ' ' + e.location_name + '. ' + _n.event_end,
+                                body: _n.event_prefix + ' ' + e.start_time + ' ' + _n.event_suffix + ' ' + e
+                                    .location_name + '. ' + _n.event_end,
                                 timestamp: Date.now(),
                                 read: false
                             });
@@ -698,40 +727,41 @@
     @livewireScripts
 
     @auth
-    <script>
-    (function () {
-        if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+        <script>
+            (function() {
+                if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
 
-        function urlBase64ToUint8Array(base64String) {
-            const padding = '='.repeat((4 - base64String.length % 4) % 4);
-            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-            const rawData = window.atob(base64);
-            return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
-        }
+                function urlBase64ToUint8Array(base64String) {
+                    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+                    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+                    const rawData = window.atob(base64);
+                    return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
+                }
 
-        navigator.serviceWorker.register('/sw.js').then(async reg => {
-            const existing = await reg.pushManager.getSubscription();
-            if (existing) return; // already subscribed
+                navigator.serviceWorker.register('/sw.js').then(async reg => {
+                    const existing = await reg.pushManager.getSubscription();
+                    if (existing) return; // already subscribed
 
-            const permission = await Notification.requestPermission();
-            if (permission !== 'granted') return;
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') return;
 
-            const sub = await reg.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array('{{ config("webpush.vapid.public_key") }}')
-            });
+                    const sub = await reg.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(
+                            '{{ config('webpush.vapid.public_key') }}')
+                    });
 
-            await fetch('{{ route("push-subscriptions.store") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify(sub.toJSON())
-            });
-        }).catch(console.error);
-    }());
-    </script>
+                    await fetch('{{ route('push-subscriptions.store') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify(sub.toJSON())
+                    });
+                }).catch(console.error);
+            }());
+        </script>
     @endauth
 </body>
 

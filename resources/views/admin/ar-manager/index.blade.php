@@ -499,7 +499,7 @@
                     img.src = markerCanvas.toDataURL('image/png');
                     pattInput.value = generatePattText(markerCanvas, 100, 300);
                 };
-                logo.src = '/icons/logo-color-notext.png';
+                logo.src = '/icons/logo-penglipuran.png';
             } catch (e) {
                 console.error('AR Marker generation failed:', e);
             }
@@ -555,7 +555,7 @@
                     link.click();
                     document.body.removeChild(link);
                 };
-                logo.src = '/icons/logo-color-notext.png';
+                logo.src = '/icons/logo-penglipuran.png';
             } catch (e) {
                 console.error('Marker download failed:', e);
             }

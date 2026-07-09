@@ -167,7 +167,7 @@
 
         {{-- Brand Header --}}
         <div class="flex items-center gap-3 border-b border-white/10 px-5 py-5">
-            <img src="{{ asset('icons/logo-wht-notext.png') }}" alt="Penglipuran Logo"
+            <img src="{{ asset('icons/logo-penglipuran.png') }}" alt="Penglipuran Logo"
                 class="h-8 w-auto object-contain">
             <div>
                 <p class="font-display text-sm font-bold leading-tight tracking-wide text-white">Penglipuran</p>
