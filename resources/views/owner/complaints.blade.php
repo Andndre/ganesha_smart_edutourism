@@ -1,11 +1,11 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Daftar Keluhan & Saran')
+@section('title', 'Daftar Saran')
 
 @section('content')
     <div class="mb-8 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between max-w-6xl">
         <div>
-            <h1 class="font-display text-3xl font-extrabold text-charcoal tracking-tight">Keluhan & Saran Wisatawan</h1>
+            <h1 class="font-display text-3xl font-extrabold text-charcoal tracking-tight">Saran Wisatawan</h1>
             <p class="mt-1 text-sm text-gray-500">Berikut adalah daftar masukan, saran, dan keluhan yang dikirimkan oleh wisatawan secara tertutup.</p>
         </div>
     </div>
@@ -15,7 +15,7 @@
         <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Rata-rata Penilaian Keluhan</p>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Rata-rata Penilaian</p>
                     <p class="mt-2 font-display text-3xl font-bold text-charcoal">
                         {{ number_format($profile->rating ?? 5.0, 1) }} / 5.0
                     </p>
@@ -39,7 +39,7 @@
         <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Keluhan Masuk</p>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Masukan</p>
                     <p class="mt-2 font-display text-3xl font-bold text-charcoal">
                         {{ $complaints->total() }}
                     </p>
@@ -56,11 +56,11 @@
         </div>
     </div>
 
-    {{-- Daftar Keluhan --}}
+    {{-- Daftar Saran --}}
     <div class="max-w-6xl">
         <div class="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
             <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-                <h3 class="font-bold text-charcoal">Riwayat Masukan & Keluhan</h3>
+                <h3 class="font-bold text-charcoal">Riwayat Masukan</h3>
             </div>
 
             @if ($complaints->isEmpty())
