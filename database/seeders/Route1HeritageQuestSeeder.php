@@ -360,7 +360,6 @@ class Route1HeritageQuestSeeder extends Seeder
             'riddle' => ['id' => 'Aku merupakan tempat pemujaan leluhur yang terdapat di setiap rumah tradisional Bali. Siapakah aku?', 'en' => 'I am the place of ancestor worship found in every traditional Balinese home. Who am I?'],
             'answers' => ['merajan', 'sanggah', 'sanggah merajan'],
             'hint' => ['id' => 'Kamu sedang berdiri di dekatnya sekarang.', 'en' => 'You are standing near it right now.'],
-            'success_text' => ['id' => 'Benar! Merajan (Sanggah) adalah tempat suci keluarga untuk memuja leluhur.', 'en' => 'Correct! The Merajan (Sanggah) is the family shrine for ancestor worship.'],
             'explanation' => ['id' => 'Merajan atau Sanggah adalah kompleks suci terpenting dalam rumah tradisional Bali, tempat keluarga memuja leluhur dan menjaga hubungan spiritual.', 'en' => 'The Merajan or Sanggah is the most sacred compound in a traditional Balinese house, where the family worships ancestors and maintains spiritual connection.'],
         ]);
 
@@ -402,7 +401,6 @@ class Route1HeritageQuestSeeder extends Seeder
         $this->mission($points[6], 2, 'riddle', ['id' => 'Eco Ranger: Teka-Teki Lingkungan', 'en' => 'Eco Ranger: Environment Riddle'], [
             'riddle' => ['id' => 'Aku berdiri tinggi berumpun, batangku berongga, dan akarku menjaga air serta tanah desa ini. Siapakah aku?', 'en' => 'I stand tall in clumps, my stem is hollow, and my roots guard this village\'s water and soil. Who am I?'],
             'answers' => ['bambu', 'pohon bambu', 'hutan bambu', 'bamboo'],
-            'success_text' => ['id' => 'Tepat! Bambu menjaga sumber air dan mencegah erosi di Penglipuran.', 'en' => 'Right! Bamboo protects water sources and prevents erosion in Penglipuran.'],
             'explanation' => ['id' => 'Akar bambu yang lebat menahan tanah dan menjaga cadangan air, sehingga hutan bambu menjadi paru-paru dan penyaring alami bagi Desa Penglipuran.', 'en' => 'Bamboo\'s dense roots hold the soil and maintain water reserves, making the bamboo forest a natural lung and filter for Penglipuran Village.'],
         ]);
 

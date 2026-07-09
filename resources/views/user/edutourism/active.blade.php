@@ -166,7 +166,18 @@
                         {{ __('Mendekati Lokasi...') }}
                     </button>
 
-                    <button type="button" onclick="openQrScanner()"
+                    @if ($activeSession->currentPoint->locationable instanceof \App\Models\CulturalObject)
+                        <a href="{{ route('cultural-object', ['slug' => $activeSession->currentPoint->locationable->slug]) }}"
+                            target="_blank"
+                            class="text-primary border-primary/30 mt-2 flex w-full items-center justify-center gap-2 rounded-xl border-2 bg-white py-3 text-center text-sm font-bold transition-transform active:scale-95">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            {{ __('Lihat Detail Objek Budaya') }}
+                        </a>
+                    @endif
+
+                    <a href="{{ route('ar-scan', ['route_point_id' => $activeSession->currentPoint->id, 'edutourism_return' => 1]) }}"
                         class="text-primary border-primary/30 mt-2 flex w-full items-center justify-center gap-2 rounded-xl border-2 bg-white py-3 text-center text-sm font-bold transition-transform active:scale-95">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -175,7 +186,7 @@
                                 d="M13.5 13.5h2.25v2.25H13.5v-2.25zM18.75 13.5H21v2.25h-2.25V13.5zM13.5 18.75h2.25V21H13.5v-2.25zM18.75 18.75H21V21h-2.25v-2.25z" />
                         </svg>
                         {{ __('Scan QR di Lokasi') }}
-                    </button>
+                    </a>
                 </div>
             </div>
         @else

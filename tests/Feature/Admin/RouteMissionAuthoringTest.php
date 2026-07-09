@@ -838,7 +838,7 @@ class RouteMissionAuthoringTest extends TestCase
             'config' => [
                 'riddle' => ['en' => 'What has keys but no locks?', 'id' => 'Apa yang punya kunci tapi tidak punya gembok?'],
                 'hint' => ['en' => 'Piano', 'id' => 'Piano'],
-                'success_text' => ['en' => 'Correct!', 'id' => 'Benar!'],
+                'explanation' => ['en' => 'A piano has keys but no locks.', 'id' => 'Piano memiliki tuts tetapi tidak memiliki kunci.'],
                 'answers' => ['piano', 'keyboard'],
             ],
         ]]);
@@ -852,7 +852,7 @@ class RouteMissionAuthoringTest extends TestCase
         $mission = RouteMission::where('tour_route_point_id', $point->id)->firstOrFail();
         $this->assertEquals('riddle', $mission->type);
         $this->assertEquals('Piano', $mission->config['hint']['en']);
-        $this->assertEquals('Correct!', $mission->config['success_text']['en']);
+        $this->assertEquals('A piano has keys but no locks.', $mission->config['explanation']['en']);
         $this->assertEquals(['piano', 'keyboard'], $mission->config['answers']);
     }
 
@@ -875,7 +875,6 @@ class RouteMissionAuthoringTest extends TestCase
         ]);
 
         $this->assertArrayNotHasKey('hint', $existing->config);
-        $this->assertArrayNotHasKey('success_text', $existing->config);
 
         $reconstructed = [
             'riddle' => ['en' => 'Basic riddle', 'id' => 'Teka-teki dasar'],
@@ -898,7 +897,6 @@ class RouteMissionAuthoringTest extends TestCase
 
         $reloaded = RouteMission::find($existing->id);
         $this->assertArrayNotHasKey('hint', $reloaded->config);
-        $this->assertArrayNotHasKey('success_text', $reloaded->config);
     }
 
     public function test_quiz_mission_config_round_trips_with_optional_explanation(): void

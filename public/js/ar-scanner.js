@@ -371,6 +371,19 @@
         if (isProcessing) return;
         console.log("🎯 QR Terdeteksi:", decodedText);
 
+        const routePointId = getUrlParam("route_point_id");
+        if (routePointId) {
+            isProcessing = true;
+            if (navigator.vibrate) navigator.vibrate(50);
+
+            if (html5QrcodeScanner && html5QrcodeScanner.getState() === 2) {
+                html5QrcodeScanner.pause();
+            }
+
+            resolveEdutourismQr(decodedText, routePointId);
+            return;
+        }
+
         let slug = "";
         let marker = "";
 
@@ -414,6 +427,92 @@
                 }
             }, 2000);
         }
+    }
+
+    function resolveEdutourismQr(decodedText, routePointId) {
+        const statusBadge = document.getElementById("status-badge");
+        const loadingOverlay = document.getElementById("loading-overlay");
+
+        if (loadingOverlay) {
+            loadingOverlay.classList.remove("hidden");
+            loadingOverlay.classList.add("flex");
+        }
+        if (statusBadge) {
+            statusBadge.innerText = window.AR_MESSAGES?.checkingQr || "Memeriksa QR...";
+        }
+
+        const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute("content") : "";
+
+        fetch('/edutourism/qr/resolve', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ code: decodedText })
+        })
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(err => { throw new Error(err.message || "QR tidak dikenali."); });
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data.success) {
+                return fetch(`/edutourism/arrive/${data.point_id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+            } else {
+                throw new Error(data.message || "QR tidak dikenali.");
+            }
+        })
+        .then(res => {
+            if (!res) return;
+            if (!res.ok) {
+                throw new Error("Gagal memuat titik rute.");
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (!data) return;
+            if (data.success) {
+                if (loadingOverlay) {
+                    loadingOverlay.classList.add("hidden");
+                    loadingOverlay.classList.remove("flex");
+                }
+                Swal.fire({
+                    title: window.AR_MESSAGES?.success || "Berhasil!",
+                    text: window.AR_MESSAGES?.arrivedAtLocation || "Anda telah tiba di lokasi. Silakan selesaikan misi/kuis di lokasi ini.",
+                    icon: 'success',
+                    confirmButtonColor: '#1E5128',
+                    confirmButtonText: window.AR_MESSAGES?.continue || "Lanjut"
+                }).then(() => {
+                    window.location.href = "/edutourism/active";
+                });
+            } else {
+                throw new Error(data.message || "Gagal memproses kedatangan.");
+            }
+        })
+        .catch(err => {
+            console.error("resolveEdutourismQr error:", err);
+            if (loadingOverlay) {
+                loadingOverlay.classList.add("hidden");
+                loadingOverlay.classList.remove("flex");
+            }
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: err.message,
+                confirmButtonColor: "#1E5128",
+            }).then(() => {
+                showScanner();
+            });
+        });
     }
 
     function onScanFailure(error) {
