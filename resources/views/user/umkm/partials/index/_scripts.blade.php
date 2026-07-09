@@ -242,8 +242,8 @@
                     });
                 }
 
-                const searchInput = document.getElementById('search-input');
-                const clearBtn = document.getElementById('clear-search-btn');
+                const searchInput = document.getElementById('category-search-input');
+                const clearBtn = document.getElementById('category-clear-search-btn');
 
                 if (searchInput) {
                     searchInput.addEventListener('input', function() {

@@ -14,9 +14,14 @@ use Illuminate\View\View;
 
 class UmkmCatalogController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $locale = app()->getLocale();
+        $activeTab = in_array($request->query('tab'), ['smart-route', 'direktori'], true)
+            ? $request->query('tab')
+            : 'smart-route';
+        $q = trim((string) $request->query('q'));
+
         $categories = Cache::tags(['umkm'])->flexible("umkm_categories_array_{$locale}", [86400, 172800], function () {
             $models = UmkmProductCategory::all();
 
@@ -33,15 +38,27 @@ class UmkmCatalogController extends Controller
             })->values()->toArray();
         });
 
-        $umkmList = UmkmProfile::active()
-            ->with(['mapLocation', 'activeProducts.category'])
-            ->paginate(12);
+        $umkmListQuery = UmkmProfile::active()
+            ->with(['mapLocation', 'activeProducts.category']);
+
+        if (mb_strlen($q) >= 2) {
+            $likePattern = '%'.addcslashes($q, '%_').'%';
+
+            $umkmListQuery->where(function ($query) use ($likePattern, $locale) {
+                $query->whereRaw("business_name->>'$.\"{$locale}\"' LIKE ?", [$likePattern])
+                    ->orWhereHas('activeProducts', function ($productQuery) use ($likePattern, $locale) {
+                        $productQuery->whereRaw("name->>'$.\"{$locale}\"' LIKE ?", [$likePattern]);
+                    });
+            });
+        }
+
+        $umkmList = $umkmListQuery->paginate(12)->withQueryString();
 
         if (session()->has('multi_stop_recommendations')) {
             session()->keep(['multi_stop_recommendations', 'missing_categories']);
         }
 
-        return view('user.umkm.index', compact('categories', 'umkmList'));
+        return view('user.umkm.index', compact('categories', 'umkmList', 'activeTab', 'q'));
     }
 
     public function recommend(Request $request, UmkmRecommendationService $recommendationService)
