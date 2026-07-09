@@ -66,6 +66,48 @@
                         </div>
                     </div>
 
+                    <!-- Itinerary -->
+                    @if (count($package->itinerary ?? []) > 0)
+                        <div class="mb-3">
+                            <div class="mb-2 flex items-center gap-1.5 text-xs font-semibold text-gray-500">
+                                <svg class="text-primary h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ __('Rincian Itinerary') }}
+                            </div>
+                            <div class="space-y-2">
+                                @foreach ($package->itinerary as $step)
+                                    <div class="rounded-xl border border-gray-100 bg-gray-50 p-3">
+                                        <div class="mb-1 flex flex-wrap items-baseline gap-x-2">
+                                            @if (! empty($step['time']))
+                                                <span class="text-primary shrink-0 text-xs font-bold">{{ $step['time'] }}</span>
+                                            @endif
+                                            <span class="text-charcoal text-sm font-bold">{{ $step['title'] }}</span>
+                                        </div>
+                                        @if (! empty($step['description']))
+                                            <p class="mb-1.5 text-xs leading-relaxed text-gray-500">{{ $step['description'] }}</p>
+                                        @endif
+                                        @if (! empty($step['activities']))
+                                            <ul class="space-y-0.5">
+                                                @foreach ($step['activities'] as $activity)
+                                                    <li class="flex items-start gap-1.5 text-xs text-gray-600">
+                                                        <svg class="text-primary mt-0.5 h-3 w-3 shrink-0" fill="none"
+                                                            viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="3" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                        {{ $activity }}
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Facilities -->
                     @if (count($package->inclusions ?? []) > 0)
                         <div class="mb-2 rounded-xl border border-gray-100 bg-gray-50 p-3">
@@ -84,6 +126,32 @@
                                             stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
                                                 d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        {{ $item }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Exclusions -->
+                    @if (count($package->exclusions ?? []) > 0)
+                        <div class="mb-2 rounded-xl border border-gray-100 bg-gray-50 p-3">
+                            <div class="mb-2 flex items-center gap-1.5 text-xs font-semibold text-gray-500">
+                                <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                {{ __('Tidak Termasuk') }}
+                            </div>
+                            <div class="flex flex-wrap gap-1.5">
+                                @foreach ($package->exclusions as $item)
+                                    <span
+                                        class="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-gray-200">
+                                        <svg class="h-3 w-3 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                                d="M6 18L18 6M6 6l12 12" />
                                         </svg>
                                         {{ $item }}
                                     </span>

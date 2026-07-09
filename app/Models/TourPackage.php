@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Translatable\HasTranslations;
 
-#[Fillable(['name', 'slug', 'type', 'description', 'inclusions', 'exclusions', 'price', 'duration_hours', 'max_capacity', 'min_capacity', 'images', 'is_active'])]
+#[Fillable(['name', 'slug', 'type', 'description', 'inclusions', 'exclusions', 'itinerary', 'price', 'duration_hours', 'max_capacity', 'min_capacity', 'images', 'is_active'])]
 class TourPackage extends Model
 {
     use HasFactory;
@@ -93,6 +93,44 @@ class TourPackage extends Model
         $this->attributes['exclusions'] = \is_string($value)
             ? $value
             : json_encode($value, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Get itinerary steps for current locale.
+     * Each step: ['time' => string, 'title' => string, 'description' => string, 'activities' => string[]].
+     */
+    public function getItineraryAttribute($value): array
+    {
+        $decoded = $value ? json_decode($value, true) : [];
+
+        if (! \is_array($decoded)) {
+            return [];
+        }
+
+        $locale = app()->getLocale();
+
+        return $decoded[$locale] ?? $decoded[config('app.fallback_locale')] ?? [];
+    }
+
+    /**
+     * Set itinerary steps, keyed by locale.
+     */
+    public function setItineraryAttribute($value): void
+    {
+        $this->attributes['itinerary'] = \is_string($value)
+            ? $value
+            : json_encode($value, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Get raw itinerary steps for a specific locale (admin forms).
+     */
+    public function getItineraryForLocale(string $locale): array
+    {
+        $raw = $this->getRawOriginal('itinerary');
+        $decoded = $raw ? json_decode($raw, true) : [];
+
+        return \is_array($decoded) ? ($decoded[$locale] ?? []) : [];
     }
 
     /**
