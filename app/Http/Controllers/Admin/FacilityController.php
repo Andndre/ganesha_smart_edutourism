@@ -29,7 +29,7 @@ class FacilityController extends Controller
                 ->orWhere('name->id', 'like', '%'.$search.'%'));
         }
 
-        $facilities = $query->with('mapLocation')->orderBy('name->'.app()->getLocale())->paginate(15)->withQueryString();
+        $facilities = $query->with('mapLocation')->withCount('mapLocations')->orderBy('name->'.app()->getLocale())->paginate(15)->withQueryString();
 
         return view('admin.facilities.index', compact('facilities'));
     }

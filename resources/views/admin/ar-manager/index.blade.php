@@ -116,7 +116,7 @@
                             'audio_narration_paths' => $m->audio_narration_paths ?? [],
                             'map_location' => $m->culturalObject
                                 ? [
-                                    'name' => $m->culturalObject->name,
+                                    'name' => translateValue($m->culturalObject->name),
                                     'locationable' => [
                                         'slug' => $m->culturalObject->slug,
                                     ],

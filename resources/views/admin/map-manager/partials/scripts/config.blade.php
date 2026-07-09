@@ -23,6 +23,16 @@
         return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     }
 
+    // Escapes a DB-derived string before interpolating it into innerHTML/template-literal markup.
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
     function markUnsaved() {
         hasUnsavedChanges = true;
     }

@@ -42,7 +42,7 @@ class CulturalObjectController extends Controller
             });
         }
 
-        $objects = $query->with('arModel')->orderBy('name->'.app()->getLocale())->paginate(15)->withQueryString();
+        $objects = $query->with('arModel')->withCount('mapLocations')->orderBy('name->'.app()->getLocale())->paginate(15)->withQueryString();
 
         return view('admin.cultural-objects.index', compact('objects'));
     }
@@ -113,8 +113,10 @@ class CulturalObjectController extends Controller
             ];
         }
 
-        $latitude = $validated['latitude'] ?? config('services.penglipuran.latitude');
-        $longitude = $validated['longitude'] ?? config('services.penglipuran.longitude');
+        // Coordinates are optional: the dedicated cultural-objects create page omits them
+        // entirely so a "perkakas" object (3D model, no map presence) can be created with
+        // zero points. map-manager's own create flow always includes them.
+        $hasCoordinates = $request->filled('latitude') && $request->filled('longitude');
 
         // Clean up temporary variables not in DB schema
         unset(
@@ -146,13 +148,15 @@ class CulturalObjectController extends Controller
 
         $object = CulturalObject::create($validated);
 
-        $object->syncMapLocation([
-            'category' => 'cultural',
-            'latitude' => $latitude,
-            'longitude' => $longitude,
-            'is_accessible' => $request->has('is_accessible'),
-            'accessibility_notes' => $request->input('accessibility_notes') ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.',
-        ]);
+        if ($hasCoordinates) {
+            $object->syncMapLocation([
+                'category' => 'cultural',
+                'latitude' => $request->input('latitude'),
+                'longitude' => $request->input('longitude'),
+                'is_accessible' => $request->has('is_accessible'),
+                'accessibility_notes' => $request->input('accessibility_notes') ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.',
+            ]);
+        }
 
         // AR model logic: create new or link existing
         $arModelId = $request->input('ar_model_id');
@@ -330,6 +334,11 @@ class CulturalObjectController extends Controller
             ($arModelId !== 'none' && empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file') || $hasArAudio));
 
         if ($shouldCreateNewModel) {
+            // Detach any model the object currently owns first — arModel() is a hasOne,
+            // so leaving the old row's cultural_object_id set would give the object two
+            // "owned" models with only one reachable via the relation.
+            ArModel::where('cultural_object_id', $object->id)->update(['cultural_object_id' => null]);
+
             $submittedName = $request->input('new_model_name', []);
             if (\is_array($submittedName) && count($submittedName) === 1) {
                 if (isset($submittedName['en']) && ! isset($submittedName['id'])) {

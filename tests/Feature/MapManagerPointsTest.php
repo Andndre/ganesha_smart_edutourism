@@ -115,4 +115,35 @@ class MapManagerPointsTest extends TestCase
         $this->assertEquals(1, $object->mapLocations()->count());
         $this->assertNotNull(CulturalObject::find($object->id));
     }
+
+    public function test_guests_and_non_admins_cannot_manage_points(): void
+    {
+        $object = CulturalObject::create([
+            'name' => ['en' => 'Kulkul', 'id' => 'Kulkul'],
+            'slug' => 'kulkul-guard-test',
+            'description' => ['en' => 'a', 'id' => 'b'],
+            'short_description' => ['en' => 'a', 'id' => 'b'],
+            'category' => 'pawongan',
+        ]);
+        $point = $object->mapLocations()->create([
+            'name' => 'A', 'category' => 'cultural', 'latitude' => -8.1, 'longitude' => 115.1,
+        ]);
+
+        $storePayload = ['owner_type' => 'cultural_object', 'owner_id' => $object->id, 'latitude' => -8.2, 'longitude' => 115.2];
+
+        // Guest: not authenticated at all.
+        $this->postJson(route('admin.map-manager.points.store'), $storePayload)->assertStatus(401);
+        $this->putJson(route('admin.map-manager.points.update', $point), ['latitude' => -8.9, 'longitude' => 115.9])->assertStatus(401);
+        $this->deleteJson(route('admin.map-manager.points.destroy', $point))->assertStatus(401);
+
+        // Authenticated but not an admin.
+        $nonAdmin = User::factory()->create(['role' => 'tourist']);
+        $this->actingAs($nonAdmin)->postJson(route('admin.map-manager.points.store'), $storePayload)->assertStatus(403);
+        $this->actingAs($nonAdmin)->putJson(route('admin.map-manager.points.update', $point), ['latitude' => -8.9, 'longitude' => 115.9])->assertStatus(403);
+        $this->actingAs($nonAdmin)->deleteJson(route('admin.map-manager.points.destroy', $point))->assertStatus(403);
+
+        // Nothing was actually changed.
+        $this->assertEquals(1, $object->mapLocations()->count());
+        $this->assertEquals(-8.1, $point->fresh()->latitude);
+    }
 }

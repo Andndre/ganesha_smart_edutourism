@@ -98,7 +98,7 @@ class Route1HeritageQuestSeeder extends Seeder
                     'id' => 'Hutan bambu Penglipuran menjadi penyangga ekologis desa: menjaga sumber air, mencegah erosi, dan menyediakan bahan bangunan serta kerajinan. Pemanfaatannya diatur secara adat agar tetap lestari.',
                     'en' => 'The Penglipuran bamboo forest is the village\'s ecological buffer: it protects water sources, prevents erosion, and provides building and craft materials. Its use is regulated by customary law to keep it sustainable.',
                 ],
-                'category' => 'pawongan',
+                'category' => 'palemahan',
             ], -8.42050, 115.35980),
         ];
 

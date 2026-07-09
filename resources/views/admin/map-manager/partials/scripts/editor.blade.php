@@ -72,7 +72,11 @@ function handleMapClick(lat, lng) {
             if (data.success) {
                 // Reload so the new point (and its full owner details) render consistently.
                 window.location.reload();
+            } else {
+                Swal.fire({ title: 'Gagal', text: 'Titik baru gagal disimpan.', icon: 'error', confirmButtonColor: '#1E5128' });
             }
+        }).catch(() => {
+            Swal.fire({ title: 'Gagal', text: 'Terjadi kesalahan jaringan saat menyimpan titik baru.', icon: 'error', confirmButtonColor: '#1E5128' });
         });
         return;
     }
@@ -196,14 +200,15 @@ if (facilityTypeSelect) {
 // MULTI-POINT: sibling popup, point delete, add-point mode
 // ==========================================
 function showPointChoicePopup(marker) {
+    clearSiblingHighlight();
     highlightSiblingGroup(marker);
 
     const loc = marker.locationData;
     const details = loc.locationable;
     const locale = "{{ app()->getLocale() }}";
-    const ownerName = details
+    const ownerName = escapeHtml(details
         ? (typeof details.name === 'object' ? (details.name[locale] || details.name.en || details.name.id || '') : details.name)
-        : loc.name;
+        : loc.name);
 
     window.__pointPopupEdit = function () {
         marker.closePopup();
@@ -245,7 +250,10 @@ function deletePointOnly(marker) {
             method: 'DELETE',
             headers: { 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' }
         }).then(r => r.json()).then(data => {
-            if (!data.success) return;
+            if (!data.success) {
+                Swal.fire({ title: 'Gagal', text: 'Titik gagal dihapus.', icon: 'error', confirmButtonColor: '#1E5128' });
+                return;
+            }
 
             map.removeLayer(marker);
             markers = markers.filter(m => m !== marker);
@@ -256,6 +264,8 @@ function deletePointOnly(marker) {
                 activeMarker = null;
                 cancelEditor();
             }
+        }).catch(() => {
+            Swal.fire({ title: 'Gagal', text: 'Terjadi kesalahan jaringan saat menghapus titik.', icon: 'error', confirmButtonColor: '#1E5128' });
         });
     });
 }
