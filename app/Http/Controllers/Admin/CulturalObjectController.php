@@ -408,8 +408,9 @@ class CulturalObjectController extends Controller
 
                 $arModel->update($modelData);
             }
-        } elseif ($arModelId === 'none') {
-            // Detach: clear cultural_object_id from any model currently linked here
+        } else {
+            // Detach: clear cultural_object_id from any model currently linked here.
+            // Covers 'none' and the empty string the "Hapus Pilihan" button submits.
             ArModel::where('cultural_object_id', $object->id)->update(['cultural_object_id' => null]);
         }
 
