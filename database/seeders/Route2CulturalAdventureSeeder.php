@@ -299,20 +299,21 @@ class Route2CulturalAdventureSeeder extends Seeder
             'prompt' => ['id' => 'Temukan 5 objek budaya asli di sekitar koridor desa. Hati-hati, ada pengecoh!', 'en' => 'Find the 5 authentic cultural objects around the village corridor. Watch out for decoys!'],
             'pick_count' => 5,
             'items' => [
-                ['label' => ['id' => 'Angkul-angkul', 'en' => 'Angkul-angkul'], 'icon' => '🚪', 'correct' => true],
-                ['label' => ['id' => 'Bale Banjar', 'en' => 'Bale Banjar'], 'icon' => '🏛️', 'correct' => true],
-                ['label' => ['id' => 'Wantilan', 'en' => 'Wantilan Hall'], 'icon' => '🏟️', 'correct' => true],
-                ['label' => ['id' => 'Pura Penataran', 'en' => 'Penataran Temple'], 'icon' => '⛩️', 'correct' => true],
-                ['label' => ['id' => 'Rumah Adat Bata Merah', 'en' => 'Traditional Red-Brick House'], 'icon' => '🏠', 'correct' => true],
-                ['label' => ['id' => 'Warung Modern', 'en' => 'Modern Convenience Store'], 'icon' => '🏪', 'correct' => false],
-                ['label' => ['id' => 'Menara Sinyal', 'en' => 'Signal Tower'], 'icon' => '📡', 'correct' => false],
-                ['label' => ['id' => 'Pagar Beton Tinggi', 'en' => 'Tall Concrete Fence'], 'icon' => '🧱', 'correct' => false],
+                ['label' => ['id' => 'Angkul-angkul', 'en' => 'Angkul-angkul'], 'icon' => '🚪', 'correct' => true, 'explanation' => ['id' => 'Angkul-angkul adalah gerbang khas di depan setiap rumah adat Penglipuran.', 'en' => 'Angkul-angkul is the distinctive gate in front of every traditional Penglipuran house.']],
+                ['label' => ['id' => 'Bale Banjar', 'en' => 'Bale Banjar'], 'icon' => '🏛️', 'correct' => true, 'explanation' => ['id' => 'Bale Banjar adalah tempat berkumpulnya warga untuk musyawarah dan gotong royong.', 'en' => 'Bale Banjar is where residents gather for discussion and communal work.']],
+                ['label' => ['id' => 'Wantilan', 'en' => 'Wantilan Hall'], 'icon' => '🏟️', 'correct' => true, 'explanation' => ['id' => 'Wantilan adalah balai terbuka untuk pertemuan besar dan kegiatan sosial desa.', 'en' => 'Wantilan is an open hall for large gatherings and village social activities.']],
+                ['label' => ['id' => 'Pura Penataran', 'en' => 'Penataran Temple'], 'icon' => '⛩️', 'correct' => true, 'explanation' => ['id' => 'Pura Penataran adalah pura desa tempat warga melaksanakan upacara keagamaan bersama.', 'en' => 'Pura Penataran is the village temple where residents carry out communal religious ceremonies.']],
+                ['label' => ['id' => 'Rumah Adat Bata Merah', 'en' => 'Traditional Red-Brick House'], 'icon' => '🏠', 'correct' => true, 'explanation' => ['id' => 'Rumah tradisional Penglipuran mempertahankan bentuk dan material lokal seperti bata merah serta bambu.', 'en' => 'Traditional Penglipuran houses maintain local forms and materials such as red brick and bamboo.']],
+                ['label' => ['id' => 'Warung Modern', 'en' => 'Modern Convenience Store'], 'icon' => '🏪', 'correct' => false, 'explanation' => ['id' => 'Warung modern bukan ciri khas arsitektur atau sosial tradisional desa.', 'en' => 'A modern convenience store is not a feature of traditional village architecture or social life.']],
+                ['label' => ['id' => 'Menara Sinyal', 'en' => 'Signal Tower'], 'icon' => '📡', 'correct' => false, 'explanation' => ['id' => 'Menara sinyal adalah infrastruktur modern yang tidak menjadi bagian tata ruang adat.', 'en' => 'A signal tower is modern infrastructure, not part of the customary spatial layout.']],
+                ['label' => ['id' => 'Pagar Beton Tinggi', 'en' => 'Tall Concrete Fence'], 'icon' => '🧱', 'correct' => false, 'explanation' => ['id' => 'Pagar beton tinggi bertentangan dengan keterbukaan dan keseragaman koridor tradisional.', 'en' => 'A tall concrete fence contradicts the openness and uniformity of the traditional corridor.']],
             ],
         ]);
 
         // Titik 3 — Mission 3 "Master Chef Penglipuran": susun resep + riddle.
         $this->mission($points[3], 1, 'sequence', ['id' => 'Master Chef Penglipuran: Susun Resep', 'en' => 'Master Chef Penglipuran: Arrange the Recipe'], [
             'prompt' => ['id' => 'Susun langkah membuat Loloh Cemcem sesuai urutan yang benar!', 'en' => 'Arrange the steps to make Loloh Cemcem in the correct order!'],
+            'explanation' => ['id' => 'Loloh Cemcem adalah minuman herbal khas Penglipuran yang dibuat dari daun cemcem segar. Prosesnya mencerminkan kearifan lokal dalam memanfaatkan tanaman sekitar untuk kesehatan dan kesegaran.', 'en' => 'Loloh Cemcem is a signature Penglipuran herbal drink made from fresh cemcem leaves. The process reflects local wisdom in using surrounding plants for health and refreshment.'],
             'items' => [
                 ['text' => ['id' => 'Petik daun cemcem muda yang segar.', 'en' => 'Pick fresh young cemcem leaves.']],
                 ['text' => ['id' => 'Cuci bersih daun cemcem.', 'en' => 'Wash the cemcem leaves thoroughly.']],
@@ -328,6 +329,7 @@ class Route2CulturalAdventureSeeder extends Seeder
             'answers' => ['tungku', 'dapur', 'perapian', 'paon'],
             'hint' => ['id' => 'Aku ada di ruangan tempat kamu belajar memasak Loloh Cemcem tadi.', 'en' => 'I am in the room where you just learned to cook Loloh Cemcem.'],
             'success_text' => ['id' => 'Benar! Tungku adalah jantung dapur tradisional Bali.', 'en' => 'Correct! The stove is the heart of the traditional Balinese kitchen.'],
+            'explanation' => ['id' => 'Tungku kayu bakar di Paon tidak hanya untuk memasak, tetapi juga menjadi pusat kehangatan keluarga dan pelestarian resep turun-temurun.', 'en' => 'The wood-fired stove in the Paon is not only for cooking, but also a center of family warmth and the preservation of inherited recipes.'],
         ]);
 
         // Titik 4 — Mission 4 "Judge of Tradition": decision game.
@@ -367,6 +369,7 @@ class Route2CulturalAdventureSeeder extends Seeder
         $this->mission($points[5], 1, 'sequence', ['id' => 'Escape the Timeline', 'en' => 'Escape the Timeline'], [
             'time_limit_seconds' => 180,
             'prompt' => ['id' => 'Susun kronologi perjuangan para pahlawan sebelum waktu habis!', 'en' => 'Arrange the chronology of the heroes\' struggle before time runs out!'],
+            'explanation' => ['id' => 'Perjuangan warga Bangli dan Penglipuran dalam mempertahankan kemerdekaan menjadi bagian penting dari sejarah lokal yang diabadikan di Taman Makam Pahlawan.', 'en' => 'The struggle of the people of Bangli and Penglipuran in defending independence is an important part of local history commemorated at the Heroes Cemetery Park.'],
             'items' => [
                 ['text' => ['id' => 'Pejuang lokal ikut mempertahankan wilayah Bangli pada masa perjuangan kemerdekaan.', 'en' => 'Local fighters helped defend the Bangli region during the independence struggle.']],
                 ['text' => ['id' => 'Warga Penglipuran turut mendukung logistik dan perlindungan para pejuang.', 'en' => 'Penglipuran residents helped support the fighters\' logistics and protection.']],
@@ -380,6 +383,7 @@ class Route2CulturalAdventureSeeder extends Seeder
             'riddle' => ['id' => 'Aku dibangun untuk mengenang mereka yang gugur membela tanah air. Tempat apakah aku?', 'en' => 'I was built to honor those who gave their lives defending the homeland. What place am I?'],
             'answers' => ['taman makam pahlawan', 'makam pahlawan'],
             'success_text' => ['id' => 'Benar! Selamat, kamu berhasil mengumpulkan Heritage Key terakhir.', 'en' => 'Correct! Congratulations, you have collected the final Heritage Key.'],
+            'explanation' => ['id' => 'Taman Makam Pahlawan mengingatkan kita untuk menghargai jasa para pejuang dan menjaga nilai-nilai kebersamaan serta patriotisme.', 'en' => 'The Heroes Cemetery Park reminds us to appreciate the sacrifices of fighters and uphold the values of togetherness and patriotism.'],
         ]);
     }
 

@@ -298,16 +298,16 @@ class Route3EcoQuestSeeder extends Seeder
             'prompt' => ['id' => 'Pilih 6 perilaku ramah lingkungan sebelum waktu habis!', 'en' => 'Pick the 6 eco-friendly behaviors before time runs out!'],
             'pick_count' => 6,
             'items' => [
-                ['label' => ['id' => 'Membawa tumbler sendiri', 'en' => 'Bringing your own tumbler'], 'icon' => '🧴', 'correct' => true],
-                ['label' => ['id' => 'Membuang sampah pada tempatnya', 'en' => 'Disposing of trash properly'], 'icon' => '🗑️', 'correct' => true],
-                ['label' => ['id' => 'Menggunakan tas kain', 'en' => 'Using a cloth bag'], 'icon' => '👜', 'correct' => true],
-                ['label' => ['id' => 'Menghemat penggunaan air', 'en' => 'Conserving water use'], 'icon' => '💧', 'correct' => true],
-                ['label' => ['id' => 'Ikut menanam pohon', 'en' => 'Joining a tree-planting activity'], 'icon' => '🌱', 'correct' => true],
-                ['label' => ['id' => 'Tidak memetik tanaman liar', 'en' => 'Not picking wild plants'], 'icon' => '🌿', 'correct' => true],
-                ['label' => ['id' => 'Membuang sampah sembarangan', 'en' => 'Littering'], 'icon' => '🚯', 'correct' => false],
-                ['label' => ['id' => 'Memetik bunga liar untuk suvenir', 'en' => 'Picking wildflowers as souvenirs'], 'icon' => '🌸', 'correct' => false],
-                ['label' => ['id' => 'Memakai plastik sekali pakai berlebihan', 'en' => 'Overusing single-use plastic'], 'icon' => '🥤', 'correct' => false],
-                ['label' => ['id' => 'Menyalakan api unggun sembarangan', 'en' => 'Lighting campfires carelessly'], 'icon' => '🔥', 'correct' => false],
+                ['label' => ['id' => 'Membawa tumbler sendiri', 'en' => 'Bringing your own tumbler'], 'icon' => '🧴', 'correct' => true, 'explanation' => ['id' => 'Tumbler pribadi mengurangi sampah plastik sekali pakai saat bepergian.', 'en' => 'A personal tumbler reduces single-use plastic waste when traveling.']],
+                ['label' => ['id' => 'Membuang sampah pada tempatnya', 'en' => 'Disposing of trash properly'], 'icon' => '🗑️', 'correct' => true, 'explanation' => ['id' => 'Membuang sampah pada tempatnya menjaga kebersihan desa dan kesehatan lingkungan.', 'en' => 'Proper waste disposal keeps the village clean and the environment healthy.']],
+                ['label' => ['id' => 'Menggunakan tas kain', 'en' => 'Using a cloth bag'], 'icon' => '👜', 'correct' => true, 'explanation' => ['id' => 'Tas kain dapat digunakan berulang kali dan mengurangi kantong plastik.', 'en' => 'Cloth bags are reusable and reduce plastic bag consumption.']],
+                ['label' => ['id' => 'Menghemat penggunaan air', 'en' => 'Conserving water use'], 'icon' => '💧', 'correct' => true, 'explanation' => ['id' => 'Menghemat air membantu menjaga ketersediaan sumber air desa, terutama saat kemarau.', 'en' => 'Conserving water helps maintain the village water supply, especially during the dry season.']],
+                ['label' => ['id' => 'Ikut menanam pohon', 'en' => 'Joining a tree-planting activity'], 'icon' => '🌱', 'correct' => true, 'explanation' => ['id' => 'Menanam pohon membantu menghijaukan kembali lahan dan menjaga keseimbangan ekosistem.', 'en' => 'Planting trees helps re-green land and maintain ecosystem balance.']],
+                ['label' => ['id' => 'Tidak memetik tanaman liar', 'en' => 'Not picking wild plants'], 'icon' => '🌿', 'correct' => true, 'explanation' => ['id' => 'Membiarkan tanaman liar tumbuh menjaga regenerasi alam dan keanekaragaman hayati.', 'en' => 'Leaving wild plants to grow preserves natural regeneration and biodiversity.']],
+                ['label' => ['id' => 'Membuang sampah sembarangan', 'en' => 'Littering'], 'icon' => '🚯', 'correct' => false, 'explanation' => ['id' => 'Sampah yang dibuang sembarangan mencemari tanah, air, dan merusak keindahan desa.', 'en' => 'Litter pollutes soil and water, and damages the village’s beauty.']],
+                ['label' => ['id' => 'Memetik bunga liar untuk suvenir', 'en' => 'Picking wildflowers as souvenirs'], 'icon' => '🌸', 'correct' => false, 'explanation' => ['id' => 'Memetik tanaman liar mengganggu ekosistem dan mengurangi keindahan alam.', 'en' => 'Picking wild plants disrupts the ecosystem and reduces natural beauty.']],
+                ['label' => ['id' => 'Memakai plastik sekali pakai berlebihan', 'en' => 'Overusing single-use plastic'], 'icon' => '🥤', 'correct' => false, 'explanation' => ['id' => 'Plastik sekali pakai menumpuk menjadi sampah yang sulit terurai dan mencemari lingkungan.', 'en' => 'Single-use plastic piles up as hard-to-decompose waste and pollutes the environment.']],
+                ['label' => ['id' => 'Menyalakan api unggun sembarangan', 'en' => 'Lighting campfires carelessly'], 'icon' => '🔥', 'correct' => false, 'explanation' => ['id' => 'Api unggun yang tidak terkendali dapat memicu kebakaran hutan dan merusak habitat.', 'en' => 'Uncontrolled campfires can trigger forest fires and destroy habitats.']],
             ],
         ]);
 
@@ -316,10 +316,10 @@ class Route3EcoQuestSeeder extends Seeder
             'mode' => 'match',
             'prompt' => ['id' => 'Susun rumah tradisional dengan mencocokkan komponen dan bahan yang tepat!', 'en' => 'Build the traditional house by matching each component with the right material!'],
             'pairs' => [
-                ['left' => ['id' => 'Atap', 'en' => 'Roof'], 'right' => ['id' => 'Bambu dianyam / ijuk', 'en' => 'Woven bamboo / palm fiber'], 'icon' => '🏠'],
-                ['left' => ['id' => 'Dinding', 'en' => 'Wall'], 'right' => ['id' => 'Anyaman bambu dan kayu', 'en' => 'Woven bamboo and wood'], 'icon' => '🧱'],
-                ['left' => ['id' => 'Pondasi', 'en' => 'Foundation'], 'right' => ['id' => 'Batu', 'en' => 'Stone'], 'icon' => '🪨'],
-                ['left' => ['id' => 'Lantai', 'en' => 'Floor'], 'right' => ['id' => 'Tanah dipadatkan', 'en' => 'Compacted earth'], 'icon' => '🟫'],
+                ['left' => ['id' => 'Atap', 'en' => 'Roof'], 'right' => ['id' => 'Bambu dianyam / ijuk', 'en' => 'Woven bamboo / palm fiber'], 'icon' => '🏠', 'explanation' => ['id' => 'Atap dari bambu atau ijuk ringan, tahan panas, dan mudah didapat dari alam sekitar.', 'en' => 'Roofs made of bamboo or palm fiber are lightweight, heat-resistant, and easily sourced from the surroundings.']],
+                ['left' => ['id' => 'Dinding', 'en' => 'Wall'], 'right' => ['id' => 'Anyaman bambu dan kayu', 'en' => 'Woven bamboo and wood'], 'icon' => '🧱', 'explanation' => ['id' => 'Anyaman bambu membuat dinding berventilasi baik sehingga udara di dalam rumah tetap sejuk.', 'en' => 'Woven bamboo walls are well-ventilated, keeping the air inside the house cool.']],
+                ['left' => ['id' => 'Pondasi', 'en' => 'Foundation'], 'right' => ['id' => 'Batu', 'en' => 'Stone'], 'icon' => '🪨', 'explanation' => ['id' => 'Pondasi batu kuat menahan bangunan dan melindungi dari air tanah.', 'en' => 'A strong stone foundation supports the building and protects it from groundwater.']],
+                ['left' => ['id' => 'Lantai', 'en' => 'Floor'], 'right' => ['id' => 'Tanah dipadatkan', 'en' => 'Compacted earth'], 'icon' => '🟫', 'explanation' => ['id' => 'Lantai tanah dipadatkan adalah teknik tradisional yang murah, ramah lingkungan, dan sejuk.', 'en' => 'Compacted earth floors are a traditional technique that is affordable, eco-friendly, and cool.']],
             ],
         ]);
 
