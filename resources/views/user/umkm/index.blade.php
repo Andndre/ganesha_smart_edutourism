@@ -3,7 +3,8 @@
 @section('header_title', __('Katalog UMKM'))
 
 @section('content')
-    <div class="px-4 pb-40 pt-[calc(env(safe-area-inset-top)+6rem)]" x-data="{ tab: 'smart-route' }"
+    <div class="px-4 pb-40 pt-[calc(env(safe-area-inset-top)+6rem)]"
+         x-data="{ tab: '{{ $activeTab ?? 'smart-route' }}' }"
          x-on:switch-umkm-tab.window="tab = $event.detail">
         {{-- Alerts OUTSIDE the form --}}
         @include('user.umkm.partials.index._alerts')
@@ -31,6 +32,7 @@
 
             <form action="{{ route('umkm.recommend') }}" method="POST">
                 @csrf
+                @include('user.umkm.partials.index._category_search')
                 @include('user.umkm.partials.index._category_grid')
 
                 @php
@@ -53,7 +55,8 @@
                 <h2 class="text-charcoal text-xl font-bold">{{ __('Direktori UMKM') }}</h2>
                 <p class="mt-1 text-sm text-gray-500">{{ __('Jelajahi semua UMKM di Desa Penglipuran') }}</p>
             </div>
-            @include('user.umkm.partials.index._umkm_grid')
+                @include('user.umkm.partials.index._directory_search')
+                @include('user.umkm.partials.index._umkm_grid')
         </div>
     </div>
 

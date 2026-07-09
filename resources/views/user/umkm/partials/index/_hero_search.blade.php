@@ -51,7 +51,7 @@
             </svg>
         </div>
 
-        <input type="text" x-model.debounce.300ms="query" x-on:input="fetchResults"
+        <input type="text" x-model="query" x-on:input.debounce.300ms="fetchResults"
             placeholder="{{ __('Cari produk atau toko UMKM...') }}"
             class="focus:border-primary focus:ring-primary/20 w-full rounded-xl border border-gray-200 bg-white px-5 py-4 pl-12 text-base shadow-sm transition-all placeholder:text-gray-400 focus:outline-none focus:ring-2"
             role="combobox" aria-expanded="false" aria-haspopup="listbox"
