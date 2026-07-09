@@ -241,6 +241,12 @@
                             'label' => 'Kapasitas Wisatawan'
                         ],
                         [
+                            'url' => route('admin.map-manager'),
+                            'route' => 'admin.map-manager',
+                            'icon' => 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z',
+                            'label' => 'Peta Lokasi & Titik'
+                        ],
+                        [
                             'url' => route('admin.cultural-objects'),
                             'route' => 'admin.cultural-objects',
                             'icon' => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0V9a2 2 0 012-2h2a2 2 0 012 2v12m-6 0h6',
@@ -251,12 +257,6 @@
                             'route' => 'admin.facilities',
                             'icon' => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16M9 7h1m-1 4h1m4-4h1m-1 4h1M9 21v-4a2 2 0 012-2h2a2 2 0 012 2v4',
                             'label' => 'Fasilitas Umum'
-                        ],
-                        [
-                            'url' => route('admin.map-manager'),
-                            'route' => 'admin.map-manager',
-                            'icon' => 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z',
-                            'label' => 'Peta Lokasi & Titik'
                         ],
                         [
                             'url' => route('admin.ar-manager'),
