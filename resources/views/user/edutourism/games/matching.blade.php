@@ -1,7 +1,7 @@
 {{--
     Matching game — 2 modes via config.mode:
-    - "match": pair left items with right targets (tap item, then tap target).
-      config: { prompt?, pairs: [{left, right, image?, audio?}], penalty? }
+    - "match": draft all left-right pairs, then press "Periksa Jawaban" to validate.
+      config: { prompt?, pairs: [{left, right, image?, audio?, explanation?}], penalty? }
     - "pick": scavenger hunt with decoys — pick N correct cards out of M.
       config: { prompt?, items: [{label, icon?, image?, correct, explanation?}], pick_count, penalty? }
     Scoring: match → points - penalty*mistakes (min 20% of points);
@@ -15,7 +15,7 @@
                 cfg, missionId, maxPoints,
                 mode: cfg.mode || 'match',
                 // match mode state
-                lefts: [], rights: [], selectedLeft: null, matched: [], mistakes: 0, wrongPair: null,
+                lefts: [], rights: [], selectedLeft: null, drafts: [], matchMistakes: 0,
                 // pick mode state
                 picked: [], wrongPicks: 0, pickDone: false, earned: 0,
                 done: false,
@@ -28,29 +28,51 @@
                 },
 
                 // ---- match mode ----
+                draftForLeft(i) { return this.drafts.find(d => d.leftI === i); },
+                draftForRight(j) { return this.drafts.find(d => d.rightI === j); },
+                pairResult(i) {
+                    const d = this.draftForLeft(i);
+                    if (!d || !this.done) return null;
+                    return d.leftI === d.rightI ? 'correct' : 'wrong';
+                },
                 pickLeft(i) {
-                    if (this.matched.includes(i) || this.done) return;
+                    if (this.done) return;
                     navigator.vibrate?.(50);
-                    this.selectedLeft = i;
+                    this.selectedLeft = this.selectedLeft === i ? null : i;
                 },
-                pickRight(i) {
-                    if (this.selectedLeft === null || this.matched.includes(i) || this.done) return;
-                    if (i === this.selectedLeft) {
-                        navigator.vibrate?.(50);
-                        this.matched.push(i);
-                        this.selectedLeft = null;
-                        if (this.matched.length === this.cfg.pairs.length) this.finishMatch();
-                    } else {
-                        navigator.vibrate?.([60, 40, 60]);
-                        this.mistakes++;
-                        this.wrongPair = i;
-                        setTimeout(() => this.wrongPair = null, 500);
+                pickRight(j) {
+                    if (this.done) return;
+                    navigator.vibrate?.(50);
+                    if (this.selectedLeft === null) {
+                        const idx = this.drafts.findIndex(d => d.rightI === j);
+                        if (idx >= 0) this.drafts.splice(idx, 1);
+                        return;
                     }
+                    this.drafts = this.drafts.filter(d => d.leftI !== this.selectedLeft && d.rightI !== j);
+                    this.drafts.push({ leftI: this.selectedLeft, rightI: j });
+                    this.selectedLeft = null;
                 },
-                finishMatch() {
-                    const penalty = this.cfg.penalty ?? 10;
-                    this.earned = Math.max(Math.round(this.maxPoints * 0.2), this.maxPoints - penalty * this.mistakes);
-                    this.complete(this.earned);
+                allPairsDrafted() {
+                    return this.drafts.length === this.cfg.pairs.length;
+                },
+                submitMatch() {
+                    if (this.done || !this.allPairsDrafted()) return;
+                    Swal.fire({
+                        title: @js(__('Apakah anda yakin?')),
+                        text: @js(__('Pasangan yang sudah dipilih akan diperiksa.')),
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#1E5128',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: @js(__('Periksa Jawaban')),
+                        cancelButtonText: @js(__('Batal')),
+                    }).then(r => {
+                        if (!r.isConfirmed) return;
+                        this.matchMistakes = this.drafts.filter(d => d.leftI !== d.rightI).length;
+                        const penalty = this.cfg.penalty ?? 10;
+                        this.earned = Math.max(Math.round(this.maxPoints * 0.2), this.maxPoints - penalty * this.matchMistakes);
+                        this.complete(this.earned);
+                    });
                 },
 
                 // ---- pick mode ----
@@ -125,10 +147,11 @@
             <div class="space-y-2">
                 <template x-for="item in lefts" :key="'l' + item.i">
                     <button type="button" @click="pickLeft(item.i)"
-                        class="w-full min-h-11 rounded-xl border-2 p-3 text-left text-sm font-semibold transition"
-                        :class="matched.includes(item.i) ? 'border-emerald-300 bg-emerald-50 text-emerald-700' :
-                            (selectedLeft === item.i ? 'border-primary bg-primary text-white' : 'border-gray-200 bg-white text-gray-700')"
-                        :disabled="matched.includes(item.i)">
+                        class="relative w-full min-h-11 rounded-xl border-2 p-3 text-left text-sm font-semibold transition"
+                        :class="done ? (pairResult(item.i) === 'correct' ? 'border-emerald-300 bg-emerald-50 text-emerald-700' :
+                            (pairResult(item.i) === 'wrong' ? 'quiz-shake border-red-300 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-700')) :
+                            (selectedLeft === item.i ? 'border-primary bg-primary text-white' :
+                            (draftForLeft(item.i) ? 'border-dashed border-primary/60 bg-primary/5 text-gray-700' : 'border-gray-200 bg-white text-gray-700'))">
                         <template x-if="item.image">
                             <img :src="item.image" alt="" class="mx-auto block h-12 w-12 rounded object-cover mb-1" x-on:error="$event.target.style.display='none'">
                         </template>
@@ -146,20 +169,28 @@
                                 </button>
                             </template>
                         </span>
+                        <template x-if="!done && draftForLeft(item.i)">
+                            <span class="mt-1 block text-[10px] font-medium opacity-75"
+                                x-text="'↔ ' + rights.find(r => r.i === draftForLeft(item.i).rightI).right"></span>
+                        </template>
                     </button>
                 </template>
             </div>
             <div class="space-y-2">
                 <template x-for="item in rights" :key="'r' + item.i">
                     <button type="button" @click="pickRight(item.i)"
-                        class="w-full min-h-11 rounded-xl border-2 p-3 text-left text-sm font-medium transition"
-                        :class="matched.includes(item.i) ? 'border-emerald-300 bg-emerald-50 text-emerald-700' :
-                            (wrongPair === item.i ? 'quiz-shake border-red-300 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-700')"
-                        :disabled="matched.includes(item.i)">
+                        class="relative w-full min-h-11 rounded-xl border-2 p-3 text-left text-sm font-medium transition"
+                        :class="done ? (draftForRight(item.i)?.leftI === item.i ? 'border-emerald-300 bg-emerald-50 text-emerald-700' :
+                            (draftForRight(item.i) ? 'quiz-shake border-red-300 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-700')) :
+                            (draftForRight(item.i) ? 'border-dashed border-primary/60 bg-primary/5 text-gray-700' : 'border-gray-200 bg-white text-gray-700')">
                         <template x-if="item.icon">
                             <span class="mr-1" x-text="item.icon"></span>
                         </template>
                         <span x-text="item.right"></span>
+                        <template x-if="!done && draftForRight(item.i)">
+                            <span class="mt-1 block text-[10px] font-medium opacity-75"
+                                x-text="'↔ ' + lefts.find(l => l.i === draftForRight(item.i).leftI).left"></span>
+                        </template>
                     </button>
                 </template>
             </div>
@@ -167,6 +198,12 @@
         <p x-show="!done" class="text-center text-xs text-gray-400">
             {{ __('Ketuk item di kiri, lalu ketuk pasangannya di kanan.') }}
         </p>
+
+        <button type="button" x-show="!done" @click="submitMatch()" :disabled="!allPairsDrafted()"
+            class="bg-primary w-full rounded-xl py-3 text-sm font-bold text-white shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-50">
+            <span>{{ __('Periksa Jawaban') }} (<span x-text="drafts.length"></span>/<span
+                    x-text="cfg.pairs.length"></span>)</span>
+        </button>
 
         <template x-if="done">
             <div class="space-y-2">
