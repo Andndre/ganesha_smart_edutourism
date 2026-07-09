@@ -63,6 +63,12 @@ class DatabaseSeeder extends Seeder
      */
     private function seedDummyData(): void
     {
+        if (UmkmProductCategory::exists()) {
+            $this->command?->info('Dummy data already seeded, skipping.');
+
+            return;
+        }
+
         if (! User::where('email', 'test@example.com')->exists()) {
             User::factory()->create([
                 'name' => 'Test User',

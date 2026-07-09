@@ -132,6 +132,8 @@ class Route1HeritageQuestSeeder extends Seeder
         });
 
         if ($existing) {
+            $existing->update($attributes);
+
             if (! $existing->mapLocation) {
                 $existing->syncMapLocation([
                     'category' => 'cultural',
@@ -160,9 +162,10 @@ class Route1HeritageQuestSeeder extends Seeder
 
     private function ensureRoute(): TourRoute
     {
-        $route = TourRoute::all()->first(
-            fn ($r) => str_contains(mb_strtolower(translateValue($r->name, 'en')), 'penglipuran heritage quest')
-        );
+        $route = TourRoute::where('gamification_key', 'heritage_quest')->first()
+            ?? TourRoute::all()->first(
+                fn ($r) => str_contains(mb_strtolower(translateValue($r->name, 'en')), 'penglipuran heritage quest')
+            );
 
         $attributes = [
             'name' => ['id' => 'Penglipuran Heritage Quest', 'en' => 'Penglipuran Heritage Quest'],

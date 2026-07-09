@@ -13,6 +13,12 @@
 
 ---
 
+## User Preferences
+
+> **Do not auto-commit.** After making changes, leave them in the working tree and wait for the user to review/approve before running `git commit`.
+
+---
+
 ## 1. Project Overview
 
 **Ganesha Smart Edutourism** is a Laravel 13 mobile-first web application for **Desa Wisata Penglipuran, Bali**. It is designed as a "Super App" (Grab/Gojek-style modular grid) optimized for outdoor, on-site tourist use.

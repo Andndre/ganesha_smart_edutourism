@@ -740,15 +740,14 @@ window.MISSION_CONFIG_READERS['decision'] = function (c) {
 };
 
 // --- Task 9: riddle config editor ----------------------------------------------------
-// Config shape: { riddle:{en,id}, hint?:{en,id}, success_text?:{en,id}, answers:["merajan", ...] }
-// Field audit: `hint` and `success_text` are OPTIONAL and must be guarded in the reader.
+// Config shape: { riddle:{en,id}, hint?:{en,id}, explanation?:{en,id}, answers:["merajan", ...] }
+// Field audit: `hint` and `explanation` are OPTIONAL and must be guarded in the reader.
 // `riddle` and `answers` (flat string array) are REQUIRED.
 
 window.MISSION_CONFIG_BUILDERS['riddle'] = function (c, cfg) {
     c.innerHTML = `
       <div class="rd-riddle mb-2">${bilingualInput('rd-riddle', cfg.riddle || {en:'',id:''}, 'Teka-teki')}</div>
       <div class="rd-hint mb-2">${bilingualInput('rd-hint', cfg.hint || {en:'',id:''}, 'Petunjuk (opsional)')}</div>
-      <div class="rd-success mb-2">${bilingualInput('rd-success', cfg.success_text || {en:'',id:''}, 'Teks sukses (opsional)')}</div>
       <div class="rd-explanation mb-2">${bilingualInput('rd-explanation', cfg.explanation || {en:'',id:''}, 'Penjelasan setelah jawab (opsional)')}</div>
       <label class="text-xs font-semibold text-gray-600 block mb-1">Jawaban diterima (satu per baris, tidak sensitif huruf besar/kecil)</label>
       <textarea class="rd-answers w-full rounded border border-gray-200 px-2 py-1 text-sm mb-1" rows="3" oninput="markMissionDirty()">${(cfg.answers || []).join('\n')}</textarea>`;
@@ -759,7 +758,6 @@ window.MISSION_CONFIG_READERS['riddle'] = function (c) {
         answers: c.querySelector('.rd-answers').value.split('\n').map(a => a.trim()).filter(Boolean),
     };
     const hint = readBilingual(c.querySelector('.rd-hint'), 'rd-hint'); if (hint.id || hint.en) out.hint = hint;
-    const st = readBilingual(c.querySelector('.rd-success'), 'rd-success'); if (st.id || st.en) out.success_text = st;
     const exp = readBilingual(c.querySelector('.rd-explanation'), 'rd-explanation'); if (exp.id || exp.en) out.explanation = exp;
     return out;
 };
