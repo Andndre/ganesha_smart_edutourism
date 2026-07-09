@@ -89,7 +89,7 @@ class BookingController extends Controller
 
         abort_if($package->type !== $bookingType, 404);
 
-        if ($request->party_size < $package->min_capacity || $request->party_size > $package->max_capacity) {
+        if ($request->party_size < $package->min_capacity || ($package->max_capacity !== null && $request->party_size > $package->max_capacity)) {
             return response()->json([
                 'success' => false,
                 'message' => __('Jumlah peserta harus antara :min dan :max orang.', ['min' => $package->min_capacity, 'max' => $package->max_capacity]),
