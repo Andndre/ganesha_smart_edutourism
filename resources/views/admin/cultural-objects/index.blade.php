@@ -49,11 +49,10 @@
                                 <span class="bg-primary/10 text-primary-800 rounded-lg px-2.5 py-1 text-xs font-semibold capitalize">{{ $object->category }}</span>
                             </td>
                             <td class="px-5 py-4 text-gray-500">
-                                @php $pointCount = $object->mapLocations()->count(); @endphp
-                                @if ($pointCount === 0)
+                                @if ($object->map_locations_count === 0)
                                     <span class="text-xs italic text-gray-400">Tidak ada titik (perkakas)</span>
                                 @else
-                                    {{ $pointCount }} titik
+                                    {{ $object->map_locations_count }} titik
                                 @endif
                             </td>
                             <td class="px-5 py-4">

@@ -55,7 +55,7 @@
                                     <span class="rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-500">Nonaktif</span>
                                 @endif
                             </td>
-                            <td class="px-5 py-4 text-gray-500">{{ $facility->mapLocations()->count() }} titik</td>
+                            <td class="px-5 py-4 text-gray-500">{{ $facility->map_locations_count }} titik</td>
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-3">
                                     <a href="{{ route('admin.facilities.edit', $facility->id) }}" class="text-primary font-semibold hover:underline">Edit</a>

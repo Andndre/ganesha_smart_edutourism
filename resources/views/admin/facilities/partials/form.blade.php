@@ -65,13 +65,13 @@
             <div>
                 <label class="mb-1 block text-xs font-semibold uppercase text-gray-400">Latitude</label>
                 <input type="text" name="latitude" required
-                    value="{{ old('latitude', $point->latitude ?? config('services.penglipuran.latitude')) }}"
+                    value="{{ old('latitude', $point?->latitude ?? config('services.penglipuran.latitude')) }}"
                     class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none">
             </div>
             <div>
                 <label class="mb-1 block text-xs font-semibold uppercase text-gray-400">Longitude</label>
                 <input type="text" name="longitude" required
-                    value="{{ old('longitude', $point->longitude ?? config('services.penglipuran.longitude')) }}"
+                    value="{{ old('longitude', $point?->longitude ?? config('services.penglipuran.longitude')) }}"
                     class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none">
             </div>
         </div>
@@ -84,7 +84,7 @@
             <span class="text-sm font-semibold text-gray-700">Aktifkan Fasilitas</span>
         </label>
         <label class="flex cursor-pointer select-none items-center gap-2">
-            <input type="checkbox" name="is_accessible" value="1" @checked(old('is_accessible', $point->is_accessible ?? false))
+            <input type="checkbox" name="is_accessible" value="1" @checked(old('is_accessible', $point?->is_accessible ?? false))
                 class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
             <span class="text-sm font-semibold text-gray-700">Akses Ramah Disabilitas</span>
         </label>
@@ -94,12 +94,12 @@
         <div x-show="locale === 'en'">
             <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (EN)</label>
             <textarea name="accessibility_notes[en]" rows="2" placeholder="e.g. Toilet is equipped with handrails..."
-                class="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">{{ old('accessibility_notes.en', is_array($point->accessibility_notes ?? null) ? ($point->accessibility_notes['en'] ?? '') : '') }}</textarea>
+                class="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">{{ old('accessibility_notes.en', is_array($point?->accessibility_notes) ? ($point->accessibility_notes['en'] ?? '') : '') }}</textarea>
         </div>
         <div x-show="locale === 'id'">
             <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (ID)</label>
             <textarea name="accessibility_notes[id]" rows="2" placeholder="Contoh: Toilet dilengkapi dengan pegangan besi..."
-                class="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">{{ old('accessibility_notes.id', is_array($point->accessibility_notes ?? null) ? ($point->accessibility_notes['id'] ?? '') : '') }}</textarea>
+                class="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">{{ old('accessibility_notes.id', is_array($point?->accessibility_notes) ? ($point->accessibility_notes['id'] ?? '') : '') }}</textarea>
         </div>
     </div>
 
