@@ -20,12 +20,13 @@ class UmkmProductCategoryFactory extends Factory
      */
     public function definition(): array
     {
-        $nameEn = fake()->unique()->word();
-        $nameId = 'Kategori '.ucfirst($nameEn);
+        $suffix = Str::lower(Str::random(6));
+        $nameEn = ucfirst(fake()->word()).' '.$suffix;
+        $nameId = 'Kategori '.$nameEn;
 
         return [
-            'name' => ['en' => ucfirst($nameEn), 'id' => $nameId],
-            'slug' => Str::slug($nameEn),
+            'name' => ['en' => $nameEn, 'id' => $nameId],
+            'slug' => Str::slug($nameEn.'-'.$suffix),
             'description' => [
                 'en' => fake()->sentence(),
                 'id' => 'Deskripsi untuk kategori '.$nameId,

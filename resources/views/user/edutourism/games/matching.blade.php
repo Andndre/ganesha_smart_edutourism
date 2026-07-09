@@ -207,7 +207,7 @@
 
         <template x-if="done">
             <div class="space-y-2">
-                <template x-for="item in cfg.pairs" :key="'exp-' + item.i">
+                <template x-for="(item, idx) in cfg.pairs" :key="'exp-' + idx">
                     <div x-show="item.explanation" class="rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-sm text-emerald-800">
                         <p class="font-semibold" x-text="item.left + ' ↔ ' + item.right"></p>
                         <p x-text="item.explanation"></p>

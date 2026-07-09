@@ -120,6 +120,8 @@ class Route3EcoQuestSeeder extends Seeder
         });
 
         if ($existing) {
+            $existing->update($attributes);
+
             if (! $existing->mapLocation) {
                 $existing->syncMapLocation([
                     'category' => 'cultural',
@@ -148,9 +150,10 @@ class Route3EcoQuestSeeder extends Seeder
 
     private function ensureRoute(): TourRoute
     {
-        $route = TourRoute::all()->first(
-            fn ($r) => str_contains(mb_strtolower(translateValue($r->name, 'en')), 'eco quest')
-        );
+        $route = TourRoute::where('gamification_key', 'eco_quest')->first()
+            ?? TourRoute::all()->first(
+                fn ($r) => str_contains(mb_strtolower(translateValue($r->name, 'en')), 'eco quest')
+            );
 
         $attributes = [
             'name' => ['id' => 'Penglipuran Eco Quest: The Secret of the Bamboo Village', 'en' => 'Penglipuran Eco Quest: The Secret of the Bamboo Village'],

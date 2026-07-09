@@ -121,6 +121,8 @@ class Route2CulturalAdventureSeeder extends Seeder
         });
 
         if ($existing) {
+            $existing->update($attributes);
+
             if (! $existing->mapLocation) {
                 $existing->syncMapLocation([
                     'category' => 'cultural',
@@ -149,9 +151,10 @@ class Route2CulturalAdventureSeeder extends Seeder
 
     private function ensureRoute(): TourRoute
     {
-        $route = TourRoute::all()->first(
-            fn ($r) => str_contains(mb_strtolower(translateValue($r->name, 'en')), 'cultural adventure')
-        );
+        $route = TourRoute::where('gamification_key', 'cultural_adventure')->first()
+            ?? TourRoute::all()->first(
+                fn ($r) => str_contains(mb_strtolower(translateValue($r->name, 'en')), 'cultural adventure')
+            );
 
         $attributes = [
             'name' => ['id' => 'Penglipuran Cultural Adventure: Mystery of the Living Tradition', 'en' => 'Penglipuran Cultural Adventure: Mystery of the Living Tradition'],

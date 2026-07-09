@@ -6,6 +6,7 @@ use App\Models\RouteMission;
 use App\Models\RouteSession;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
+use App\Models\User;
 use App\Models\UserVisit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -132,6 +133,14 @@ class SmartEdutourismController extends Controller
         $avatar = $avatarKeys->contains($request->string('avatar')) ? $request->string('avatar')->toString() : null;
 
         $userId = auth()->id();
+
+        // Defensive: stale session (e.g., after migrate:fresh) may reference a
+        // user that no longer exists. Treat it as a guest session.
+        if ($userId && ! User::where('id', $userId)->exists()) {
+            auth()->logout();
+            $userId = null;
+        }
+
         $guestToken = session('guest_token') ?? $request->cookie('visitor_token');
 
         if (! $userId && ! $guestToken) {

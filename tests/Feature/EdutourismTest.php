@@ -104,6 +104,45 @@ class EdutourismTest extends TestCase
     }
 
     /**
+     * Test a stale session whose user no longer exists (e.g. after migrate:fresh)
+     * falls back to a guest session instead of throwing a foreign key violation.
+     */
+    public function test_stale_authenticated_session_falls_back_to_guest_session(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $route = TourRoute::create([
+            'name' => ['en' => 'Cultural Route', 'id' => 'Rute Budaya'],
+            'description' => ['en' => 'Learn about village customs.', 'id' => 'Mengenal adat istiadat desa.'],
+            'difficulty' => 'moderate',
+            'estimated_duration_minutes' => 60,
+            'distance_meters' => 800,
+            'is_active' => true,
+        ]);
+
+        // Simulate a stale session: the session still references the user, but
+        // the user record has been removed from the database.
+        $user->delete();
+
+        // Act
+        $response = $this->actingAs($user)
+            ->postJson(route('edutourism.start', ['id' => $route->id]));
+
+        // Assert
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'redirect' => route('edutourism.active'),
+        ]);
+
+        $this->assertDatabaseHas('route_sessions', [
+            'tour_route_id' => $route->id,
+            'status' => 'active',
+            'user_id' => null,
+        ]);
+    }
+
+    /**
      * Test arriving at a point with no quizzes automatically advances the session.
      */
     public function test_arrive_at_point_without_quizzes_advances_session(): void
