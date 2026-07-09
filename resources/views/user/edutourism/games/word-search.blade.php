@@ -1,6 +1,6 @@
 {{--
     Word search. Grid generated client-side (H/V/diagonal placement + random fill).
-    config: { prompt?, words: ["BAMBU", ...], grid_size?: int }
+    config: { prompt?, words: ["BAMBU", ...], grid_size?: int, explanation?: {en,id} }
     Selection is tap-based (outdoor/mobile friendly): tap the first letter, then the last letter
     of a word — the straight line between them is checked (both directions).
     Scoring: full mission points when all words are found (no fail state).
@@ -73,9 +73,11 @@
                         if (this.foundWords.length === this.cfg.words.length) {
                             this.done = true;
                             confetti?.({ particleCount: 70, spread: 65, origin: { y: 0.7 } });
-                            setTimeout(() => this.$dispatch('mission-complete', { id: this.missionId, earned: this.maxPoints }), 900);
                         }
                     }
+                },
+                finish() {
+                    setTimeout(() => this.$dispatch('mission-complete', { id: this.missionId, earned: this.maxPoints }), 400);
                 },
                 cellClass(r, c) {
                     if (this.foundCells.includes(r + '-' + c)) return 'bg-primary text-white';
@@ -113,5 +115,17 @@
             </template>
         </div>
     </div>
-    <p class="text-center text-xs text-gray-400">{{ __('Ketuk huruf pertama lalu huruf terakhir sebuah kata.') }}</p>
+
+    <template x-if="done && cfg.explanation">
+        <div class="rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-sm text-emerald-800">
+            <p>{{ $cfg['explanation'] }}</p>
+        </div>
+    </template>
+
+    <button type="button" x-show="done" @click="finish()"
+        class="bg-primary w-full rounded-xl py-3 text-sm font-bold text-white shadow-sm transition-transform active:scale-95">
+        {{ __('Lanjut') }}
+    </button>
+
+    <p x-show="!done" class="text-center text-xs text-gray-400">{{ __('Ketuk huruf pertama lalu huruf terakhir sebuah kata.') }}</p>
 </div>
