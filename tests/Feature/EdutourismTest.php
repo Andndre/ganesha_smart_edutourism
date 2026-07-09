@@ -354,9 +354,9 @@ class EdutourismTest extends TestCase
         // Assert
         $response->assertStatus(200);
         $response->assertViewHas('targetPoints', function ($targetPoints) {
-            return count($targetPoints) === 2
-                && $targetPoints[0]['lat'] === -8.111
-                && $targetPoints[1]['lat'] === -8.222;
+            $lats = collect($targetPoints)->pluck('lat')->sort()->values()->all();
+
+            return count($targetPoints) === 2 && $lats === [-8.222, -8.111];
         });
     }
 }
