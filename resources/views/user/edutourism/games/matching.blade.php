@@ -49,8 +49,8 @@
                 },
                 finishMatch() {
                     const penalty = this.cfg.penalty ?? 10;
-                    const earned = Math.max(Math.round(this.maxPoints * 0.2), this.maxPoints - penalty * this.mistakes);
-                    this.complete(earned);
+                    this.earned = Math.max(Math.round(this.maxPoints * 0.2), this.maxPoints - penalty * this.mistakes);
+                    this.complete(this.earned);
                 },
 
                 // ---- pick mode ----
@@ -102,8 +102,8 @@
                 complete(earned) {
                     if (this.done) return;
                     this.done = true;
+                    this.earned = earned;
                     confetti?.({ particleCount: 70, spread: 65, origin: { y: 0.7 } });
-                    setTimeout(() => this.$dispatch('mission-complete', { id: this.missionId, earned }), 900);
                 },
 
                 playAudio(path) {
@@ -158,9 +158,24 @@
                 </template>
             </div>
         </div>
-        <p class="text-center text-xs text-gray-400">
+        <p x-show="!done" class="text-center text-xs text-gray-400">
             {{ __('Ketuk item di kiri, lalu ketuk pasangannya di kanan.') }}
         </p>
+
+        <template x-if="done">
+            <div class="space-y-2">
+                <template x-for="item in cfg.pairs" :key="'exp-' + item.i">
+                    <div x-show="item.explanation" class="rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-sm text-emerald-800">
+                        <p class="font-semibold" x-text="item.left + ' ↔ ' + item.right"></p>
+                        <p x-text="item.explanation"></p>
+                    </div>
+                </template>
+                <button type="button" @click="finish()"
+                    class="bg-primary w-full rounded-xl py-3 text-sm font-bold text-white shadow-sm transition-transform active:scale-95">
+                    {{ __('Lanjut') }}
+                </button>
+            </div>
+        </template>
     @else
         <div class="grid grid-cols-2 gap-3">
             <template x-for="(item, idx) in cfg.items" :key="idx">

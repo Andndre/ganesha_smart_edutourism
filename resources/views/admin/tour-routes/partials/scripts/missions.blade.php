@@ -438,6 +438,7 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
                   ${bilingualInput('mc-left', data.left || {en:'',id:''}, 'Kiri')}
                   ${bilingualInput('mc-right', data.right || {en:'',id:''}, 'Kanan (jawaban)')}
                 </div>
+                ${bilingualInput('mc-match-explanation', data.explanation || {en:'',id:''}, 'Penjelasan pasangan (opsional)')}
                 <div class="flex items-center gap-2">
                   <span class="text-[10px] font-semibold text-gray-500">Audio (opsional):</span>
                   <input type="hidden" class="mc-audio" value="${escapeHtml(data.audio)}">
@@ -477,6 +478,7 @@ window.MISSION_CONFIG_READERS['matching'] = function (c) {
             const pair = { left: readBilingual(r, 'mc-left'), right: readBilingual(r, 'mc-right') };
             const image = r.querySelector('.mc-image').value; if (image) pair.image = image;
             const audio = r.querySelector('.mc-audio')?.value; if (audio) pair.audio = audio;
+            const explanation = readBilingual(r, 'mc-match-explanation'); if (explanation.id || explanation.en) pair.explanation = explanation;
             return pair;
         });
     }
@@ -618,6 +620,7 @@ window.MISSION_CONFIG_READERS['sequence'] = function (c) {
 window.MISSION_CONFIG_BUILDERS['word_search'] = function (c, cfg) {
     c.innerHTML = `
       <div class="ws-prompt mb-2">${bilingualInput('ws-prompt', cfg.prompt || {en:'',id:''}, 'Instruksi (prompt)')}</div>
+      <div class="ws-explanation mb-2">${bilingualInput('ws-explanation', cfg.explanation || {en:'',id:''}, 'Penjelasan setelah selesai (opsional)')}</div>
       <label class="text-xs font-semibold text-gray-600">Ukuran grid (opsional)</label>
       <input type="number" class="ws-grid w-24 rounded border border-gray-200 px-2 py-1 text-sm mb-2 block" value="${cfg.grid_size || ''}" oninput="markMissionDirty()">
       <label class="text-xs font-semibold text-gray-600">Kata (satu per baris, huruf saja)</label>
@@ -626,6 +629,7 @@ window.MISSION_CONFIG_BUILDERS['word_search'] = function (c, cfg) {
 window.MISSION_CONFIG_READERS['word_search'] = function (c) {
     const out = {};
     const prompt = readBilingual(c.querySelector('.ws-prompt'), 'ws-prompt'); if (prompt.id || prompt.en) out.prompt = prompt;
+    const explanation = readBilingual(c.querySelector('.ws-explanation'), 'ws-explanation'); if (explanation.id || explanation.en) out.explanation = explanation;
     out.words = c.querySelector('.ws-words').value.split('\n').map(w => w.trim()).filter(Boolean);
     const g = c.querySelector('.ws-grid').value; if (g) out.grid_size = Number(g);
     return out;
