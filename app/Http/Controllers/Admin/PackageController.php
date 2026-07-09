@@ -45,8 +45,10 @@ class PackageController extends Controller
         $package->price = $validated['price'];
         $package->duration_hours = $validated['duration_hours'] ?? null;
         $package->max_capacity = $validated['max_capacity'] ?? null;
+        $package->min_capacity = $validated['min_capacity'] ?? 1;
         $package->setAttribute('inclusions', self::parseLocaleTextarea('inclusions', $validated));
         $package->setAttribute('exclusions', self::parseLocaleTextarea('exclusions', $validated));
+        $package->setAttribute('itinerary', self::parseItinerary($validated));
         $package->is_active = $request->has('is_active') ? true : false;
 
         if ($request->hasFile('images')) {
@@ -90,8 +92,10 @@ class PackageController extends Controller
         $package->price = $validated['price'];
         $package->duration_hours = $validated['duration_hours'] ?? null;
         $package->max_capacity = $validated['max_capacity'] ?? null;
+        $package->min_capacity = $validated['min_capacity'] ?? $package->min_capacity;
         $package->setAttribute('inclusions', self::parseLocaleTextarea('inclusions', $validated));
         $package->setAttribute('exclusions', self::parseLocaleTextarea('exclusions', $validated));
+        $package->setAttribute('itinerary', self::parseItinerary($validated));
         $package->is_active = $request->has('is_active') ? true : false;
 
         if ($request->hasFile('images')) {
@@ -136,6 +140,47 @@ class PackageController extends Controller
                 if (! empty($items)) {
                     $result[$locale] = $items;
                 }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Parse per-locale itinerary rows into a per-locale array of steps.
+     * Rows with an empty title are dropped (blank repeater rows).
+     */
+    private static function parseItinerary(array $data): array
+    {
+        $result = [];
+
+        foreach (['id', 'en'] as $locale) {
+            $rows = $data['itinerary'][$locale] ?? [];
+
+            if (! \is_array($rows)) {
+                continue;
+            }
+
+            $steps = [];
+            foreach ($rows as $row) {
+                $title = trim($row['title'] ?? '');
+
+                if ($title === '') {
+                    continue;
+                }
+
+                $steps[] = [
+                    'time' => trim($row['time'] ?? ''),
+                    'title' => $title,
+                    'description' => trim($row['description'] ?? ''),
+                    'activities' => array_values(
+                        array_filter(array_map('trim', explode("\n", $row['activities'] ?? '')))
+                    ),
+                ];
+            }
+
+            if (! empty($steps)) {
+                $result[$locale] = $steps;
             }
         }
 

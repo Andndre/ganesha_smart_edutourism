@@ -187,6 +187,56 @@
                     </div>
                 </div>
             </div>
+            <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
+                x-data="itineraryEditor({{ Illuminate\Support\Js::from([
+                    'id' => array_map(
+                        fn($s) => ['time' => $s['time'] ?? '', 'title' => $s['title'] ?? '', 'description' => $s['description'] ?? '', 'activities' => implode("\n", $s['activities'] ?? [])],
+                        isset($package) ? $package->getItineraryForLocale('id') : [],
+                    ),
+                    'en' => array_map(
+                        fn($s) => ['time' => $s['time'] ?? '', 'title' => $s['title'] ?? '', 'description' => $s['description'] ?? '', 'activities' => implode("\n", $s['activities'] ?? [])],
+                        isset($package) ? $package->getItineraryForLocale('en') : [],
+                    ),
+                ]) }})">
+                <h2 class="text-charcoal mb-1 font-semibold">Itinerary</h2>
+                <p class="mb-4 text-xs text-gray-500">Rincian jadwal per jam (opsional). Contoh: 08.30 – 10.00,
+                    "Penyambutan oleh local guide", sub-aktivitas satu per baris.</p>
+
+                <div class="sticky top-0 z-10 mb-4 flex gap-2 border-b border-gray-100 bg-white py-3">
+                    <button @click="locale = 'id'"
+                        :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'" type="button"
+                        class="rounded-xl px-4 py-2 text-sm font-semibold transition-all">Indonesia</button>
+                    <button @click="locale = 'en'"
+                        :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'" type="button"
+                        class="rounded-xl px-4 py-2 text-sm font-semibold transition-all">English</button>
+                </div>
+
+                <template x-for="(step, idx) in rows()" :key="idx">
+                    <div class="mb-3 rounded-xl border border-gray-100 p-4">
+                        <div class="mb-2 flex items-center justify-between">
+                            <span class="text-xs font-semibold text-gray-400" x-text="'Langkah ' + (idx + 1)"></span>
+                            <button type="button" @click="remove(idx)"
+                                class="text-xs font-semibold text-red-500">Hapus</button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" :name="`itinerary[${locale}][${idx}][time]`" x-model="step.time"
+                                placeholder="Contoh: 08.30 – 10.00"
+                                class="focus:border-primary focus:ring-primary/30 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1">
+                            <input type="text" :name="`itinerary[${locale}][${idx}][title]`" x-model="step.title"
+                                placeholder="Judul aktivitas utama"
+                                class="focus:border-primary focus:ring-primary/30 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1">
+                        </div>
+                        <textarea :name="`itinerary[${locale}][${idx}][description]`" x-model="step.description" rows="2"
+                            placeholder="Deskripsi / interpretasi"
+                            class="focus:border-primary focus:ring-primary/30 mt-2 w-full resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1"></textarea>
+                        <textarea :name="`itinerary[${locale}][${idx}][activities]`" x-model="step.activities" rows="2"
+                            placeholder="Sub-aktivitas, satu per baris"
+                            class="focus:border-primary focus:ring-primary/30 mt-2 w-full resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1"></textarea>
+                    </div>
+                </template>
+                <button type="button" @click="add()"
+                    class="text-primary text-xs font-semibold">+ Tambah Langkah Itinerary</button>
+            </div>
         </div>
 
         <div class="space-y-5">
@@ -220,6 +270,15 @@
                 <h2 class="text-charcoal mb-4 font-semibold">Pengaturan</h2>
                 <div class="space-y-4">
                     <div>
+                        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Min. Peserta / Sesi</label>
+                        <input type="number" name="min_capacity" min="1"
+                            value="{{ old('min_capacity', $package->min_capacity ?? 1) }}" placeholder="Contoh: 2"
+                            class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-1">
+                        @error('min_capacity')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
                         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Maks. Peserta / Sesi
                             (opsional)</label>
                         <input type="number" name="max_capacity"
@@ -252,6 +311,23 @@
 
 @push('scripts')
     <script>
+        function itineraryEditor(initial) {
+            return {
+                locale: 'id',
+                id: initial.id || [],
+                en: initial.en || [],
+                rows() {
+                    return this[this.locale];
+                },
+                add() {
+                    this[this.locale].push({ time: '', title: '', description: '', activities: '' });
+                },
+                remove(idx) {
+                    this[this.locale].splice(idx, 1);
+                },
+            };
+        }
+
         document.querySelector('input[name="images[]"]')?.addEventListener('change', function() {
             const maxSize = 5 * 1024 * 1024;
             const oversized = Array.from(this.files || []).find(f => f.size > maxSize);
