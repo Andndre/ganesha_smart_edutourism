@@ -56,6 +56,7 @@ class DatabaseSeeder extends Seeder
         $this->call(Route2CulturalAdventureSeeder::class);
         $this->call(Route3EcoQuestSeeder::class);
         $this->call(EntranceTicketSeeder::class);
+        $this->call(EduCulturalLivingExperienceSeeder::class);
     }
 
     /**
