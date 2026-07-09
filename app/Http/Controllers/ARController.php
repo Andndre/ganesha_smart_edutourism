@@ -13,9 +13,11 @@ class ARController extends Controller
     /**
      * Display the AR Scan page.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        return view('user.ar.index');
+        $routePointId = $request->query('route_point_id');
+        $edutourismReturn = $request->query('edutourism_return');
+        return view('user.ar.index', compact('routePointId', 'edutourismReturn'));
     }
 
     /**

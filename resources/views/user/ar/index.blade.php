@@ -29,7 +29,11 @@
             cameraNotFound: "{{ __('Kamera tidak ditemukan') }}",
             httpConnection: "{{ __('Koneksi HTTP') }}",
             browserNotSupported: "{{ __('Browser Tidak Didukung') }}",
-            downloadingModel: "{{ __('Mengunduh Model...') }}"
+            downloadingModel: "{{ __('Mengunduh Model...') }}",
+            checkingQr: "{{ __('Memeriksa QR...') }}",
+            success: "{{ __('Berhasil!') }}",
+            arrivedAtLocation: "{{ __('Anda telah tiba di lokasi. Silakan selesaikan misi/kuis di lokasi ini.') }}",
+            continue: "{{ __('Lanjut') }}"
         };
         self.ModelViewerElement = self.ModelViewerElement || {};
         self.ModelViewerElement.meshoptDecoderLocation = 'https://cdn.jsdelivr.net/npm/meshoptimizer/meshopt_decoder.js';

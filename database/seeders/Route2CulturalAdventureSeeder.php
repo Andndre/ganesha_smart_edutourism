@@ -331,7 +331,6 @@ class Route2CulturalAdventureSeeder extends Seeder
             'riddle' => ['id' => 'Aku menghangatkan keluarga setiap hari, tetapi aku bukan matahari. Siapakah aku?', 'en' => 'I warm the family every day, but I am not the sun. Who am I?'],
             'answers' => ['tungku', 'dapur', 'perapian', 'paon'],
             'hint' => ['id' => 'Aku ada di ruangan tempat kamu belajar memasak Loloh Cemcem tadi.', 'en' => 'I am in the room where you just learned to cook Loloh Cemcem.'],
-            'success_text' => ['id' => 'Benar! Tungku adalah jantung dapur tradisional Bali.', 'en' => 'Correct! The stove is the heart of the traditional Balinese kitchen.'],
             'explanation' => ['id' => 'Tungku kayu bakar di Paon tidak hanya untuk memasak, tetapi juga menjadi pusat kehangatan keluarga dan pelestarian resep turun-temurun.', 'en' => 'The wood-fired stove in the Paon is not only for cooking, but also a center of family warmth and the preservation of inherited recipes.'],
         ]);
 
@@ -385,7 +384,6 @@ class Route2CulturalAdventureSeeder extends Seeder
         $this->mission($points[5], 2, 'riddle', ['id' => 'Heritage Key Terakhir', 'en' => 'The Final Heritage Key'], [
             'riddle' => ['id' => 'Aku dibangun untuk mengenang mereka yang gugur membela tanah air. Tempat apakah aku?', 'en' => 'I was built to honor those who gave their lives defending the homeland. What place am I?'],
             'answers' => ['taman makam pahlawan', 'makam pahlawan'],
-            'success_text' => ['id' => 'Benar! Selamat, kamu berhasil mengumpulkan Heritage Key terakhir.', 'en' => 'Correct! Congratulations, you have collected the final Heritage Key.'],
             'explanation' => ['id' => 'Taman Makam Pahlawan mengingatkan kita untuk menghargai jasa para pejuang dan menjaga nilai-nilai kebersamaan serta patriotisme.', 'en' => 'The Heroes Cemetery Park reminds us to appreciate the sacrifices of fighters and uphold the values of togetherness and patriotism.'],
         ]);
     }
