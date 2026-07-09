@@ -399,6 +399,7 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
               <!-- Right side: Inputs -->
               <div class="flex-1 min-w-0 space-y-2">
                 ${bilingualInput('mc-label', data.label || {en:'',id:''}, 'Label')}
+                ${bilingualInput('mc-explanation', data.explanation || {en:'',id:''}, 'Penjelasan (opsional)')}
                 <div class="flex items-center justify-between">
                   <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-600 cursor-pointer">
                     <input type="checkbox" class="mc-correct rounded text-primary focus:ring-primary border-gray-300 w-4 h-4" ${data.correct?'checked':''} onchange="markMissionDirty()">
@@ -468,6 +469,7 @@ window.MISSION_CONFIG_READERS['matching'] = function (c) {
         out.items = rows.map(r => {
             const item = { label: readBilingual(r, 'mc-label'), correct: r.querySelector('.mc-correct').checked };
             const image = r.querySelector('.mc-image').value; if (image) item.image = image;
+            const explanation = readBilingual(r, 'mc-explanation'); if (explanation.id || explanation.en) item.explanation = explanation;
             return item;
         });
     } else {
@@ -575,6 +577,7 @@ function uploadMissionAsset(fileInput, hiddenSelector) {
 window.MISSION_CONFIG_BUILDERS['sequence'] = function (c, cfg) {
     c.innerHTML = `
       <div class="sq-prompt mb-2">${bilingualInput('sq-prompt', cfg.prompt || {en:'',id:''}, 'Instruksi (prompt)')}</div>
+      <div class="sq-explanation mb-2">${bilingualInput('sq-explanation', cfg.explanation || {en:'',id:''}, 'Penjelasan setelah periksa (opsional)')}</div>
       <label class="flex items-center gap-2 text-xs mb-2"><input type="checkbox" class="sq-reveal" ${cfg.reveal_first?'checked':''} onchange="markMissionDirty()"> Sembunyikan dulu (reveal first)</label>
       <p class="text-[10px] text-gray-400 mb-1">Urutkan item dari atas ke bawah sesuai kronologi yang BENAR.</p>
       <div class="sq-rows space-y-2"></div>
@@ -597,6 +600,7 @@ window.MISSION_CONFIG_READERS['sequence'] = function (c) {
     // matching's guard — otherwise a no-op open/close/save would add an empty
     // prompt object to missions that never had one.
     const prompt = readBilingual(c.querySelector('.sq-prompt'), 'sq-prompt'); if (prompt.id || prompt.en) out.prompt = prompt;
+    const explanation = readBilingual(c.querySelector('.sq-explanation'), 'sq-explanation'); if (explanation.id || explanation.en) out.explanation = explanation;
     // Always present: a checkbox always has a concrete boolean value.
     out.reveal_first = c.querySelector('.sq-reveal').checked;
     // Always present: every item requires text.
@@ -731,6 +735,7 @@ window.MISSION_CONFIG_BUILDERS['riddle'] = function (c, cfg) {
       <div class="rd-riddle mb-2">${bilingualInput('rd-riddle', cfg.riddle || {en:'',id:''}, 'Teka-teki')}</div>
       <div class="rd-hint mb-2">${bilingualInput('rd-hint', cfg.hint || {en:'',id:''}, 'Petunjuk (opsional)')}</div>
       <div class="rd-success mb-2">${bilingualInput('rd-success', cfg.success_text || {en:'',id:''}, 'Teks sukses (opsional)')}</div>
+      <div class="rd-explanation mb-2">${bilingualInput('rd-explanation', cfg.explanation || {en:'',id:''}, 'Penjelasan setelah jawab (opsional)')}</div>
       <label class="text-xs font-semibold text-gray-600 block mb-1">Jawaban diterima (satu per baris, tidak sensitif huruf besar/kecil)</label>
       <textarea class="rd-answers w-full rounded border border-gray-200 px-2 py-1 text-sm mb-1" rows="3" oninput="markMissionDirty()">${(cfg.answers || []).join('\n')}</textarea>`;
 };
@@ -741,6 +746,7 @@ window.MISSION_CONFIG_READERS['riddle'] = function (c) {
     };
     const hint = readBilingual(c.querySelector('.rd-hint'), 'rd-hint'); if (hint.id || hint.en) out.hint = hint;
     const st = readBilingual(c.querySelector('.rd-success'), 'rd-success'); if (st.id || st.en) out.success_text = st;
+    const exp = readBilingual(c.querySelector('.rd-explanation'), 'rd-explanation'); if (exp.id || exp.en) out.explanation = exp;
     return out;
 };
 

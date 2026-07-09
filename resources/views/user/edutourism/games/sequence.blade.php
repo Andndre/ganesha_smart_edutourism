@@ -17,10 +17,17 @@
                 items: [],
                 attempts: 0,
                 wrongIdx: [],
+                checked: false,
                 done: false,
                 timedOut: false,
                 timeLeft: null,
                 timerInterval: null,
+                earned: 0,
+                // drag state
+                dragging: null,
+                dragY: 0,
+                dragHeight: 0,
+                dragStartY: 0,
 
                 init() {
                     this.items = this.cfg.items.map((it, i) => ({ ...it, i }));
@@ -52,8 +59,8 @@
                     this.done = true;
                     this.timedOut = true;
                     navigator.vibrate?.([60, 40, 60]);
-                    const earned = Math.round(this.maxPoints * 0.2);
-                    setTimeout(() => this.$dispatch('mission-complete', { id: this.missionId, earned }), 900);
+                    this.earned = Math.round(this.maxPoints * 0.2);
+                    setTimeout(() => this.$dispatch('mission-complete', { id: this.missionId, earned: this.earned }), 900);
                 },
                 get timeLabel() {
                     const m = Math.floor(this.timeLeft / 60);
@@ -66,28 +73,74 @@
                         this.revealed.push(i);
                     }
                 },
-                move(pos, dir) {
-                    const target = pos + dir;
-                    if (target < 0 || target >= this.items.length || this.done) return;
-                    navigator.vibrate?.(50);
-                    const tmp = this.items[pos];
-                    this.items[pos] = this.items[target];
-                    this.items[target] = tmp;
-                    this.wrongIdx = [];
+
+                // ---- pointer-based drag-and-drop ----
+                dragStart(pos, e) {
+                    if (this.done || this.checked || this.dragging !== null) return;
+                    const el = e.currentTarget.closest('.sq-item');
+                    if (!el) return;
+                    this.dragging = pos;
+                    this.dragY = 0;
+                    this.dragStartY = e.clientY;
+                    this.dragHeight = el.offsetHeight + 8; // 8px ≈ gap-2
+                    el.setPointerCapture(e.pointerId);
+                    navigator.vibrate?.(30);
                 },
-                check() {
-                    if (this.done) return;
-                    this.attempts++;
-                    this.wrongIdx = this.items.map((it, pos) => it.i !== pos ? pos : null).filter(v => v !== null);
-                    if (this.wrongIdx.length === 0) {
-                        this.done = true;
-                        if (this.timerInterval) clearInterval(this.timerInterval);
-                        confetti?.({ particleCount: 70, spread: 65, origin: { y: 0.7 } });
-                        const earned = Math.max(Math.round(this.maxPoints * 0.2), this.maxPoints - 20 * (this.attempts - 1));
-                        setTimeout(() => this.$dispatch('mission-complete', { id: this.missionId, earned }), 900);
-                    } else {
-                        navigator.vibrate?.([60, 40, 60]);
+                dragMove(pos, e) {
+                    if (this.dragging !== pos) return;
+                    e.preventDefault();
+                    this.dragY = e.clientY - this.dragStartY;
+                    const offset = Math.round(this.dragY / this.dragHeight);
+                    const target = Math.max(0, Math.min(this.items.length - 1, this.dragging + offset));
+                    if (target !== this.dragging) {
+                        const moved = (target - this.dragging) * this.dragHeight;
+                        // swap in place
+                        const tmp = this.items[this.dragging];
+                        this.items[this.dragging] = this.items[target];
+                        this.items[target] = tmp;
+                        this.dragging = target;
+                        this.dragStartY += moved;
+                        this.dragY -= moved;
                     }
+                },
+                dragEnd(pos, e) {
+                    if (this.dragging !== pos) return;
+                    this.dragging = null;
+                    this.dragY = 0;
+                    const el = e.currentTarget.closest('.sq-item');
+                    if (el && e.pointerId) {
+                        try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+                    }
+                },
+
+                check() {
+                    if (this.done || this.checked) return;
+                    Swal.fire({
+                        title: @js(__('Apakah anda yakin?')),
+                        text: @js(__('Urutan yang sudah dipilih akan diperiksa.')),
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#1E5128',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: @js(__('Periksa')),
+                        cancelButtonText: @js(__('Batal')),
+                    }).then(r => {
+                        if (!r.isConfirmed) return;
+                        this.attempts++;
+                        this.wrongIdx = this.items.map((it, pos) => it.i !== pos ? pos : null).filter(v => v !== null);
+                        this.checked = true;
+                        this.done = true;
+                        this.stopTimer();
+                        if (this.wrongIdx.length === 0) {
+                            confetti?.({ particleCount: 70, spread: 65, origin: { y: 0.7 } });
+                        } else {
+                            navigator.vibrate?.([60, 40, 60]);
+                        }
+                        this.earned = Math.max(Math.round(this.maxPoints * 0.2), this.maxPoints - 20 * (this.attempts - 1));
+                    });
+                },
+                finish() {
+                    setTimeout(() => this.$dispatch('mission-complete', { id: this.missionId, earned: this.earned }), 400);
                 },
             };
         }
@@ -134,28 +187,45 @@
             </template>
             <div class="space-y-2">
                 <template x-for="(item, pos) in items" :key="item.i">
-                    <div class="flex items-center gap-2 rounded-xl border-2 bg-white p-2"
-                        :class="done ? 'border-emerald-300 bg-emerald-50' : (wrongIdx.includes(pos) ?
-                            'quiz-shake border-red-300' : 'border-gray-200')">
+                    <div class="sq-item flex items-center gap-2 rounded-xl border-2 bg-white p-2 select-none"
+                        :class="done ? (wrongIdx.includes(pos) ? 'border-red-300 bg-red-50' : 'border-emerald-300 bg-emerald-50') : 'border-gray-200'
+                            + (dragging === pos ? ' z-10 shadow-lg' : '')"
+                        :style="dragging === pos ? 'transform: translateY(' + dragY + 'px); touch-action: none;' : 'touch-action: none;'"
+                        @pointerdown="dragStart(pos, $event)"
+                        @pointermove="dragMove(pos, $event)"
+                        @pointerup="dragEnd(pos, $event)"
+                        @pointercancel="dragEnd(pos, $event)">
                         <span
                             class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-black text-gray-500"
                             x-text="pos + 1"></span>
                         <p class="flex-1 text-sm font-medium text-gray-700" x-text="item.text"></p>
-                        <div class="flex flex-col gap-1">
-                            <button type="button" @click="move(pos, -1)" :disabled="pos === 0 || done"
-                                class="flex h-8 w-11 items-center justify-center rounded-lg bg-gray-100 text-gray-600 disabled:opacity-30">▲</button>
-                            <button type="button" @click="move(pos, 1)" :disabled="pos === items.length - 1 || done"
-                                class="flex h-8 w-11 items-center justify-center rounded-lg bg-gray-100 text-gray-600 disabled:opacity-30">▼</button>
-                        </div>
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16" />
+                        </svg>
                     </div>
                 </template>
             </div>
-            <button type="button" @click="check()" :disabled="done"
-                class="bg-primary w-full rounded-xl py-3 text-sm font-bold text-white shadow-sm transition-transform active:scale-95 disabled:opacity-50">
-                <span x-show="!done">{{ __('Periksa Urutan') }}</span>
-                <span x-show="done && !timedOut">✓ {{ __('Urutan Benar!') }}</span>
-                <span x-show="done && timedOut">⏱ {{ __('Waktu Habis!') }}</span>
+
+            <button type="button" x-show="!checked && !done" @click="check()"
+                class="bg-primary w-full rounded-xl py-3 text-sm font-bold text-white shadow-sm transition-transform active:scale-95">
+                {{ __('Periksa Urutan') }}
             </button>
+
+            <template x-if="done && !timedOut">
+                <div class="space-y-3">
+                    <div class="rounded-xl p-3 text-sm"
+                        :class="wrongIdx.length === 0 ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'">
+                        <p x-text="wrongIdx.length === 0 ? @js(__('Urutan Benar!')) : @js(__('Urutan belum tepat, coba perhatikan kembali.'))"></p>
+                        @if (!empty($cfg['explanation']))
+                            <p class="mt-1">{{ $cfg['explanation'] }}</p>
+                        @endif
+                    </div>
+                    <button type="button" @click="finish()"
+                        class="bg-primary w-full rounded-xl py-3 text-sm font-bold text-white shadow-sm transition-transform active:scale-95">
+                        {{ __('Lanjut') }}
+                    </button>
+                </div>
+            </template>
         </div>
     </template>
 </div>
