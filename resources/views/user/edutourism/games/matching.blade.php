@@ -132,8 +132,11 @@
                         <template x-if="item.image">
                             <img :src="item.image" alt="" class="mx-auto block h-12 w-12 rounded object-cover mb-1" x-on:error="$event.target.style.display='none'">
                         </template>
+                        <template x-if="!item.image && item.icon">
+                            <span class="mx-auto block text-center text-2xl mb-1" x-text="item.icon"></span>
+                        </template>
                         <span class="inline-flex items-center gap-1.5">
-                            <span x-text="item.left" :class="item.image ? 'block text-center text-xs' : ''"></span>
+                            <span x-text="item.left" :class="item.image || item.icon ? 'block text-center text-xs' : ''"></span>
                             <template x-if="item.audio">
                                 <button type="button" @click.stop="playAudio(item.audio)"
                                     class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -153,6 +156,9 @@
                         :class="matched.includes(item.i) ? 'border-emerald-300 bg-emerald-50 text-emerald-700' :
                             (wrongPair === item.i ? 'quiz-shake border-red-300 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-700')"
                         :disabled="matched.includes(item.i)">
+                        <template x-if="item.icon">
+                            <span class="mr-1" x-text="item.icon"></span>
+                        </template>
                         <span x-text="item.right"></span>
                     </button>
                 </template>
@@ -187,7 +193,10 @@
                         <template x-if="item.image">
                             <img :src="item.image" alt="" class="mx-auto block h-12 w-12 rounded object-cover mb-1" x-on:error="$event.target.style.display='none'">
                         </template>
-                        <span x-text="item.label" :class="item.image ? 'block text-center text-xs' : ''"></span>
+                        <template x-if="!item.image && item.icon">
+                            <span class="mx-auto block text-center text-2xl mb-1" x-text="item.icon"></span>
+                        </template>
+                        <span x-text="item.label" :class="item.image || item.icon ? 'block text-center text-xs' : ''"></span>
                     </button>
                     <template x-if="pickDone && item.explanation">
                         <p class="mt-1 rounded-lg px-2 py-1 text-xs leading-snug"

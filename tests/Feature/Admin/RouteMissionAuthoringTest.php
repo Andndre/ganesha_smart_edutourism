@@ -428,6 +428,51 @@ class RouteMissionAuthoringTest extends TestCase
         $this->assertArrayNotHasKey('prompt', $reloaded->config, 'A no-op save must not add a prompt key that was never there.');
     }
 
+    public function test_matching_mission_reader_preserves_icon_in_match_mode(): void
+    {
+        [$route, $point, $obj] = $this->routeWithPoint();
+
+        $originalConfig = [
+            'mode' => 'match',
+            'pairs' => [
+                ['left' => ['en' => 'Door', 'id' => 'Pintu'], 'right' => ['en' => 'Enter', 'id' => 'Masuk'], 'icon' => '🚪'],
+            ],
+        ];
+
+        $existing = RouteMission::create([
+            'tour_route_point_id' => $point->id,
+            'type' => 'matching',
+            'title' => ['en' => 'Icon Match', 'id' => 'Cocokkan Ikon'],
+            'points' => 50,
+            'config' => $originalConfig,
+            'order' => 1,
+        ]);
+
+        $reconstructed = [
+            'mode' => 'match',
+            'pairs' => [
+                ['left' => ['en' => 'Door', 'id' => 'Pintu'], 'right' => ['en' => 'Enter', 'id' => 'Masuk'], 'icon' => '🚪'],
+            ],
+        ];
+
+        $missionsJson = json_encode([[
+            'id' => $existing->id,
+            'type' => 'matching',
+            'title' => ['en' => 'Icon Match', 'id' => 'Cocokkan Ikon'],
+            'points' => 50,
+            'config' => $reconstructed,
+        ]]);
+
+        $this->actingAs($this->admin())->put("/admin/tour-routes/{$route->id}", [
+            'name' => ['en' => 'R', 'id' => 'R'], 'description' => ['en' => 'd', 'id' => 'd'],
+            'difficulty' => 'easy', 'estimated_duration_minutes' => 60, 'distance_meters' => 500, 'is_active' => '1',
+            'points' => [['id' => $point->id, 'locationable_type' => $obj->getMorphClass(), 'locationable_id' => $obj->id, 'missions' => $missionsJson]],
+        ])->assertRedirect();
+
+        $reloaded = RouteMission::find($existing->id);
+        $this->assertEquals('🚪', $reloaded->config['pairs'][0]['icon']);
+    }
+
     public function test_sequence_mission_config_round_trips_with_prompt_and_reveal_first(): void
     {
         // Task 6: register + persist a `sequence` mission via the same PUT flow, with

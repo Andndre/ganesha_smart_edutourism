@@ -399,6 +399,10 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
               <!-- Right side: Inputs -->
               <div class="flex-1 min-w-0 space-y-2">
                 ${bilingualInput('mc-label', data.label || {en:'',id:''}, 'Label')}
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-semibold text-gray-500">Ikon (emoji, opsional):</span>
+                  <input type="text" class="mc-icon w-16 rounded border border-gray-200 px-2 py-1 text-sm" placeholder="🌿" value="${escapeHtml(data.icon || '')}" oninput="markMissionDirty()">
+                </div>
                 ${bilingualInput('mc-explanation', data.explanation || {en:'',id:''}, 'Penjelasan (opsional)')}
                 <div class="flex items-center justify-between">
                   <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-600 cursor-pointer">
@@ -438,6 +442,10 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
                   ${bilingualInput('mc-left', data.left || {en:'',id:''}, 'Kiri')}
                   ${bilingualInput('mc-right', data.right || {en:'',id:''}, 'Kanan (jawaban)')}
                 </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-semibold text-gray-500">Ikon (emoji, opsional):</span>
+                  <input type="text" class="mc-icon w-16 rounded border border-gray-200 px-2 py-1 text-sm" placeholder="🚪" value="${escapeHtml(data.icon || '')}" oninput="markMissionDirty()">
+                </div>
                 ${bilingualInput('mc-match-explanation', data.explanation || {en:'',id:''}, 'Penjelasan pasangan (opsional)')}
                 <div class="flex items-center gap-2">
                   <span class="text-[10px] font-semibold text-gray-500">Audio (opsional):</span>
@@ -469,6 +477,7 @@ window.MISSION_CONFIG_READERS['matching'] = function (c) {
         const pickCount = c.querySelector('.mc-pick-count')?.value; if (pickCount !== '' && pickCount != null) out.pick_count = Number(pickCount);
         out.items = rows.map(r => {
             const item = { label: readBilingual(r, 'mc-label'), correct: r.querySelector('.mc-correct').checked };
+            const icon = r.querySelector('.mc-icon')?.value; if (icon) item.icon = icon;
             const image = r.querySelector('.mc-image').value; if (image) item.image = image;
             const explanation = readBilingual(r, 'mc-explanation'); if (explanation.id || explanation.en) item.explanation = explanation;
             return item;
@@ -476,6 +485,7 @@ window.MISSION_CONFIG_READERS['matching'] = function (c) {
     } else {
         out.pairs = rows.map(r => {
             const pair = { left: readBilingual(r, 'mc-left'), right: readBilingual(r, 'mc-right') };
+            const icon = r.querySelector('.mc-icon')?.value; if (icon) pair.icon = icon;
             const image = r.querySelector('.mc-image').value; if (image) pair.image = image;
             const audio = r.querySelector('.mc-audio')?.value; if (audio) pair.audio = audio;
             const explanation = readBilingual(r, 'mc-match-explanation'); if (explanation.id || explanation.en) pair.explanation = explanation;
