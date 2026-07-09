@@ -10,14 +10,19 @@
         function eduGameDecision(cfg, missionId, maxPoints) {
             return {
                 cfg, missionId, maxPoints,
-                idx: 0, chosen: null, correctCount: 0, done: false,
+                idx: 0, selected: null, chosen: null, checked: false, correctCount: 0, done: false,
 
                 get scenario() { return this.cfg.scenarios[this.idx]; },
                 choose(oIdx) {
-                    if (this.chosen !== null || this.done) return;
+                    if (this.checked || this.done) return;
                     navigator.vibrate?.(50);
-                    this.chosen = oIdx;
-                    if (this.scenario.options[oIdx].correct) {
+                    this.selected = oIdx;
+                },
+                check() {
+                    if (this.checked || this.done || this.selected === null) return;
+                    this.chosen = this.selected;
+                    this.checked = true;
+                    if (this.scenario.options[this.chosen].correct) {
                         this.correctCount++;
                         confetti?.({ particleCount: 40, spread: 55, origin: { y: 0.7 } });
                     } else {
@@ -27,7 +32,9 @@
                 next() {
                     if (this.idx + 1 < this.cfg.scenarios.length) {
                         this.idx++;
+                        this.selected = null;
                         this.chosen = null;
+                        this.checked = false;
                     } else {
                         this.done = true;
                         const earned = Math.round(this.maxPoints * this.correctCount / this.cfg.scenarios.length);
@@ -35,7 +42,11 @@
                     }
                 },
                 optionClass(oIdx) {
-                    if (this.chosen === null) return 'border-gray-200 bg-white text-gray-700 hover:border-emerald-200 hover:bg-emerald-50';
+                    if (!this.checked) {
+                        return this.selected === oIdx
+                            ? 'border-primary bg-primary/10 text-primary'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-emerald-200 hover:bg-emerald-50';
+                    }
                     if (this.scenario.options[oIdx].correct) return 'border-emerald-400 bg-emerald-50 text-emerald-800';
                     if (this.chosen === oIdx) return 'quiz-shake border-red-300 bg-red-50 text-red-700';
                     return 'border-gray-100 bg-gray-50 text-gray-400';
@@ -55,7 +66,7 @@
     </div>
 
     <template x-if="scenario.image">
-        <img :src="chosen !== null && scenario.options[chosen].correct && scenario.image_after ? scenario.image_after :
+        <img :src="checked && scenario.options[chosen].correct && scenario.image_after ? scenario.image_after :
             scenario.image"
             class="max-w-full rounded-2xl" alt="" />
     </template>
@@ -66,20 +77,25 @@
         <template x-for="(opt, oIdx) in scenario.options" :key="idx + '-' + oIdx">
             <button type="button" @click="choose(oIdx)"
                 class="w-full min-h-11 rounded-xl border-2 p-4 text-left text-sm font-medium transition"
-                :class="optionClass(oIdx)" :disabled="chosen !== null">
+                :class="optionClass(oIdx)" :disabled="checked">
                 <span x-text="opt.text"></span>
             </button>
         </template>
     </div>
 
-    <template x-if="chosen !== null && scenario.options[chosen].explanation">
+    <button type="button" x-show="selected !== null && !checked" @click="check()"
+        class="bg-primary w-full rounded-xl py-3 text-sm font-bold text-white shadow-sm transition-transform active:scale-95">
+        {{ __('Periksa') }}
+    </button>
+
+    <template x-if="checked && scenario.options[chosen].explanation">
         <div class="rounded-xl p-3 text-sm"
-            :class="scenario.options[chosen].correct ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'">
+            :class="scenario.options[chosen].correct ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'">
             <p x-text="scenario.options[chosen].explanation"></p>
         </div>
     </template>
 
-    <button type="button" x-show="chosen !== null" @click="next()"
+    <button type="button" x-show="checked" @click="next()"
         class="bg-primary w-full rounded-xl py-3 text-sm font-bold text-white shadow-sm transition-transform active:scale-95">
         <span x-text="idx + 1 < cfg.scenarios.length ? @js(__('Skenario Berikutnya')) : @js(__('Selesai'))"></span>
     </button>
