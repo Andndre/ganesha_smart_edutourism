@@ -49,13 +49,13 @@
     <div x-show="locale === 'en'">
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Description (EN)</label>
         <x-tiptap-editor name="description[en]" id="facility-desc-en"
-            value="{{ old('description.en', $isEdit ? ($facility->getTranslation('description', 'en') ?? '') : '') }}"
+            :value="old('description.en', $isEdit ? ($facility->getTranslation('description', 'en') ?? '') : '')"
             placeholder="Add complementary information about this facility..." />
     </div>
     <div x-show="locale === 'id'">
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi (ID)</label>
         <x-tiptap-editor name="description[id]" id="facility-desc-id"
-            value="{{ old('description.id', $isEdit ? ($facility->getTranslation('description', 'id') ?? '') : '') }}"
+            :value="old('description.id', $isEdit ? ($facility->getTranslation('description', 'id') ?? '') : '')"
             placeholder="Tambahkan informasi pelengkap untuk fasilitas ini..." />
     </div>
 
