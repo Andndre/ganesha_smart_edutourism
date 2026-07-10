@@ -20,7 +20,7 @@
 
                 <div class="flex-1 p-3">
                     <h3 class="text-charcoal line-clamp-1 text-sm font-bold">{{ $umkm->business_name }}</h3>
-                    @php $range = $umkm->price_range; @endphp
+                    {{-- @php $range = $umkm->price_range; @endphp
                     @if ($range)
                         <p class="text-primary mt-1 text-xs font-semibold">
                             @if ($range['min'] === $range['max'])
@@ -35,7 +35,7 @@
                             {{ $umkm->activeProducts->first()->category?->name ?? '' }}</p>
                     @else
                         <p class="mt-1 text-xs text-amber-500">{{ __('Tidak ada produk') }}</p>
-                    @endif
+                    @endif --}}
                 </div>
             </a>
         @endforeach
@@ -62,8 +62,7 @@
         @if (!empty($q))
             <h3 class="text-charcoal text-base font-bold">{{ __('UMKM tidak ditemukan') }}</h3>
             <p class="mt-1 text-xs text-gray-500">{{ __('Coba gunakan kata kunci lain.') }}</p>
-            <a href="{{ route('umkm', ['tab' => 'direktori']) }}"
-                class="text-primary mt-4 text-xs font-bold">
+            <a href="{{ route('umkm', ['tab' => 'direktori']) }}" class="text-primary mt-4 text-xs font-bold">
                 {{ __('Hapus pencarian') }}
             </a>
         @else
