@@ -38,7 +38,7 @@ class UmkmCatalogController extends Controller
         });
 
         $umkmListQuery = UmkmProfile::active()
-            ->with(['mapLocation', 'activeProducts.category']);
+            ->with(['mapLocation', 'activeProducts.category', 'user']);
 
         if (mb_strlen($q) >= 2) {
             $likePattern = '%'.addcslashes($q, '%_').'%';
