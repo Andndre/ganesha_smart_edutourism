@@ -29,7 +29,9 @@
                 $borderClass = 'border-gray-100';
             }
         @endphp
-        <div class="{{ $borderClass }} rounded-2xl border bg-white p-5 shadow-sm">
+        <div class="{{ $borderClass }} rounded-2xl border bg-white p-5 shadow-sm" data-zone-card
+            data-zone-id="{{ $zone['id'] }}" data-warning-threshold="{{ $zone['warning_threshold'] ?? 60 }}"
+            data-critical-threshold="{{ $zone['critical_threshold'] ?? 80 }}">
             <div class="mb-3 flex items-start justify-between gap-2">
                 <div>
                     <h3 class="text-charcoal font-semibold">{{ $zone['name'] }}</h3>
@@ -37,7 +39,7 @@
                         {{ $zone['critical_threshold'] }}% Critical</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span
+                    <span data-zone-badge
                         class="{{ $badgeClass }} shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold">{{ $statusLabel }}</span>
                     @if ($zone['id'])
                         <button onclick="openThresholdModal({{ json_encode([
@@ -68,15 +70,15 @@
                 </div>
             </div>
             <div class="flex items-baseline gap-1">
-                <span class="text-charcoal text-3xl font-bold">{{ $zone['current_count'] }}</span>
+                <span data-zone-count class="text-charcoal text-3xl font-bold">{{ $zone['current_count'] }}</span>
                 <span class="font-medium text-gray-400">/ {{ $zone['max_capacity'] }} orang</span>
             </div>
             <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-gray-100">
-                <div class="{{ $barColor }} h-full rounded-full transition-all"
+                <div data-zone-bar class="{{ $barColor }} h-full rounded-full transition-all"
                     style="width: {{ min(100, $pct) }}%"></div>
             </div>
             <div class="mt-2.5 flex items-center justify-between text-xs text-gray-500">
-                <span>{{ $pct }}% terisi</span>
+                <span data-zone-pct>{{ $pct }}% terisi</span>
                 <span class="font-medium">Identitas: {{ $zone['zone_identifier'] }}</span>
             </div>
         </div>
