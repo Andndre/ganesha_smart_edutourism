@@ -172,7 +172,7 @@
             <div>
                 <p class="font-display text-sm font-bold leading-tight tracking-wide text-white">Penglipuran</p>
                 <p class="text-[10px] font-medium uppercase tracking-widest text-white/40">
-                    {{ (auth()->user()->isAdmin() && session()->has('admin_view_umkm_profile_id') && request()->is('owner/*')) ? 'Owner Panel (Preview)' : (auth()->user()->isAdmin() ? 'Admin Panel' : (auth()->user()->isTicketOfficer() ? 'Staff Panel' : 'Owner Panel')) }}
+                    {{ (auth()->user()->isAdmin() && session()->has('admin_view_umkm_profile_id') && request()->is('owner/*')) ? 'Owner Panel (Preview)' : (auth()->user()->isAdminOrViewer() ? 'Admin Panel' : (auth()->user()->isTicketOfficer() ? 'Staff Panel' : 'Owner Panel')) }}
                 </p>
             </div>
         </div>
@@ -226,7 +226,7 @@
                             'label' => 'Saran'
                         ],
                     ];
-                } elseif (auth()->user()->isAdmin()) {
+                } elseif (auth()->user()->isAdminOrViewer()) {
                     $navItems = [
                         [
                             'url' => route('admin.dashboard'),
@@ -443,7 +443,7 @@
 
         {{-- Footer: User info + Logout --}}
         <div class="border-t border-white/10 p-4">
-            @if (auth()->user()?->isAdmin())
+            @if (auth()->user()?->isAdminOrViewer())
                 <div class="mb-3 px-1">
                     @include('layouts.partials.admin-bell', ['onDarkBg' => true])
                 </div>
@@ -487,7 +487,7 @@
         </button>
         <h1 class="text-sm font-bold text-charcoal">@yield('title', 'Dashboard')</h1>
         <div class="flex items-center gap-2">
-            @if (auth()->user()?->isAdmin())
+            @if (auth()->user()?->isAdminOrViewer())
                 @include('layouts.partials.admin-bell')
             @endif
             <div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">

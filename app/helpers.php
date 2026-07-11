@@ -35,18 +35,6 @@ if (! function_exists('slugFromTranslatable')) {
     }
 }
 
-if (! function_exists('valueOrMock')) {
-    /**
-     * Return $real unless it's falsy (0, 0.0, null, empty array), in which case
-     * return $mock. Used for dashboard/report stats that fall back to demo
-     * numbers when the database has no data yet.
-     */
-    function valueOrMock(int|float|null $real, int|float $mock): int|float
-    {
-        return empty($real) ? $mock : $real;
-    }
-}
-
 if (! function_exists('translateValue')) {
     /**
      * Get the translated string from a value (which can be a JSON string, array, or plain string).

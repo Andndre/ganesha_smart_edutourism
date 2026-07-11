@@ -35,13 +35,7 @@ class ReportController extends Controller
             ->get();
 
         if ($busyDays->isEmpty()) {
-            return [
-                ['day' => 'Sabtu',  'visitors' => 730, 'pct' => 100],
-                ['day' => 'Minggu', 'visitors' => 680, 'pct' => 93],
-                ['day' => "Jum'at", 'visitors' => 510, 'pct' => 70],
-                ['day' => 'Kamis',  'visitors' => 490, 'pct' => 67],
-                ['day' => 'Rabu',   'visitors' => 380, 'pct' => 52],
-            ];
+            return [];
         }
 
         $dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'];
@@ -103,54 +97,44 @@ class ReportController extends Controller
         $visitorCount = VisitorLog::whereBetween('logged_at', [$startDate, $endDate])
             ->where('event_type', 'page_view')
             ->count();
-        $visitorCount = valueOrMock($visitorCount, 14230);
-
         $prevVisitorCount = VisitorLog::whereBetween('logged_at', [$prevStartDate, $prevEndDate])
             ->where('event_type', 'page_view')
             ->count();
-        $prevVisitorCount = valueOrMock($prevVisitorCount, 12060);
         $visitorDelta = $prevVisitorCount > 0 ? round((($visitorCount - $prevVisitorCount) / $prevVisitorCount) * 100) : 0;
 
         // Revenue
         $revenue = Reservation::whereIn('status', ['confirmed', 'completed'])
             ->whereBetween('created_at', [$startDate, $endDate])
             ->sum('total_amount');
-        $revenue = valueOrMock($revenue, 98000000);
 
         $prevRevenue = Reservation::whereIn('status', ['confirmed', 'completed'])
             ->whereBetween('created_at', [$prevStartDate, $prevEndDate])
             ->sum('total_amount');
-        $prevRevenue = valueOrMock($prevRevenue, 80000000);
         $revenueDelta = $prevRevenue > 0 ? round((($revenue - $prevRevenue) / $prevRevenue) * 100) : 0;
 
         // Tickets Sold
         $ticketsSold = Reservation::where('status', 'confirmed')
             ->whereBetween('scheduled_date', [$startDate, $endDate])
             ->count();
-        $ticketsSold = valueOrMock($ticketsSold, 1847);
 
         $prevTicketsSold = Reservation::where('status', 'confirmed')
             ->whereBetween('scheduled_date', [$prevStartDate, $prevEndDate])
             ->count();
-        $prevTicketsSold = valueOrMock($prevTicketsSold, 1606);
         $ticketsDelta = $prevTicketsSold > 0 ? round((($ticketsSold - $prevTicketsSold) / $prevTicketsSold) * 100) : 0;
 
         // Rating
-        $rating = valueOrMock(Feedback::whereBetween('created_at', [$startDate, $endDate])->avg('rating'), 4.7);
-        $rating = round($rating, 1);
+        $rating = round(Feedback::whereBetween('created_at', [$startDate, $endDate])->avg('rating') ?? 0, 1);
 
-        $prevRating = valueOrMock(Feedback::whereBetween('created_at', [$prevStartDate, $prevEndDate])->avg('rating'), 4.4);
+        $prevRating = round(Feedback::whereBetween('created_at', [$prevStartDate, $prevEndDate])->avg('rating') ?? 0, 1);
         $ratingDelta = round($rating - $prevRating, 1);
 
         // Chart Data (21 days)
         $chartData = [];
         for ($day = 1; $day <= 21; $day++) {
             $date = Carbon::createFromDate($year, $month, $day);
-            $count = VisitorLog::whereDate('logged_at', $date)
+            $chartData[] = VisitorLog::whereDate('logged_at', $date)
                 ->where('event_type', 'page_view')
                 ->count();
-            $mockData = [280, 320, 290, 450, 610, 730, 617, 310, 340, 380, 420, 500, 560, 620, 710, 680, 590, 540, 480, 430, 617];
-            $chartData[] = valueOrMock($count, $mockData[$day - 1]);
         }
 
         // Package Revenue breakdown
@@ -171,16 +155,6 @@ class ReportController extends Controller
                 ];
                 $totalSum += $amt;
             }
-        }
-
-        if (empty($revenueBreakdown)) {
-            $revenueBreakdown = [
-                ['label' => 'Paket Keluarga 1 Hari', 'amount' => 48000000],
-                ['label' => 'Paket Edukasi Budaya',  'amount' => 27000000],
-                ['label' => 'Paket Sunrise Trek',    'amount' => 14000000],
-                ['label' => 'Lainnya',               'amount' => 9000000],
-            ];
-            $totalSum = 98000000;
         }
 
         foreach ($revenueBreakdown as &$item) {

@@ -39,24 +39,6 @@ class CapacityController extends Controller
             $hourlyLabels[] = $targetTime->format('H:00');
         }
 
-        // Generate dynamic mock curve peak values if no logs exist anywhere in the last 24h
-        if (array_sum($hourlyData) === 0) {
-            $hourlyData = [];
-            for ($i = 23; $i >= 0; $i--) {
-                $targetTime = $now->copy()->subHours($i);
-                $hour = (int) $targetTime->format('H');
-
-                // Peak visitor counts between 10:00 and 16:00 (bell curve)
-                $mockValue = (int) (400 * exp(-pow($hour - 13, 2) / 18));
-                if ($hour >= 8 && $hour <= 18) {
-                    $mockValue += rand(10, 25);
-                } else {
-                    $mockValue += rand(1, 5);
-                }
-                $hourlyData[] = $mockValue;
-            }
-        }
-
         // Add live tracked visitors from Cache for heatmap and calculate counts
         $heatmapData = [];
         $visitorLocations = [];

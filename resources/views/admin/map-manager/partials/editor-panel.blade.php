@@ -38,7 +38,7 @@
             <button type="button" onclick="cancelEditor()"
                 class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50 shadow-sm">Batal</button>
         </div>
-        
+
         {{-- ADMIN UMKM MANAGE CONTAINER (Only shown on Edit UMKM) --}}
         <div id="umkm-admin-manage-container" class="hidden">
             <a href="" id="btn-umkm-admin-manage" target="_blank"

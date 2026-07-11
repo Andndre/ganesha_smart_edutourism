@@ -57,23 +57,14 @@ class BusyDaysReportTest extends TestCase
         $this->assertIsInt($result[0]['visitors']);
     }
 
-    public function test_fallback_to_dummy_when_empty(): void
+    public function test_returns_empty_when_no_data(): void
     {
         $result = $this->callGetBusyDays(
             Carbon::parse('2026-05-01'),
             Carbon::parse('2026-05-31')
         );
 
-        $expected = [
-            ['day' => 'Sabtu',  'visitors' => 730, 'pct' => 100],
-            ['day' => 'Minggu', 'visitors' => 680, 'pct' => 93],
-            ['day' => "Jum'at", 'visitors' => 510, 'pct' => 70],
-            ['day' => 'Kamis',  'visitors' => 490, 'pct' => 67],
-            ['day' => 'Rabu',   'visitors' => 380, 'pct' => 52],
-        ];
-
-        $this->assertCount(5, $result);
-        $this->assertSame($expected, $result);
+        $this->assertSame([], $result);
     }
 
     public function test_day_of_week_mapping(): void

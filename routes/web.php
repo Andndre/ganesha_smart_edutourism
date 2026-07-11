@@ -183,7 +183,7 @@ Route::post('/translate', TranslateController::class)
     ->middleware('auth')->name('translate');
 
 // Admin Routes
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+Route::prefix('admin')->middleware(['auth', 'admin.viewer'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     // Capacity Zone Routes

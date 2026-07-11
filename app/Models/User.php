@@ -152,6 +152,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if the user is a view-only admin (read-only access to the admin panel).
+     */
+    public function isAdminViewer(): bool
+    {
+        return $this->role === UserRole::AdminViewer;
+    }
+
+    /**
+     * Check if the user can access the admin panel (full admin or view-only).
+     */
+    public function isAdminOrViewer(): bool
+    {
+        return $this->isAdmin() || $this->isAdminViewer();
+    }
+
+    /**
      * Check if the user is a UMKM owner.
      */
     public function isUmkmOwner(): bool

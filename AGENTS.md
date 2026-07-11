@@ -100,7 +100,7 @@ app/
   Observers/               # CacheInvalidationObserver
   Providers/               # AppServiceProvider
   Services/                # MidtransService, TusService, UmkmRecommendationService
-  helpers.php              # Global helpers: translateValue(), qrSvgDataUri(), valueOrMock(), etc.
+  helpers.php              # Global helpers: translateValue(), qrSvgDataUri(), etc.
 
 bootstrap/app.php          # Laravel application bootstrap; registers middleware aliases & CSRF excepts
 
@@ -358,7 +358,6 @@ Loaded via `app/helpers.php`:
 - `translateValue($value, $locale = null)`
 - `slugFromTranslatable(array $translations)`
 - `qrSvgDataUri(string $data, int $size = 250)`
-- `valueOrMock(int|float|null $real, int|float $mock)`
 
 ---
 
