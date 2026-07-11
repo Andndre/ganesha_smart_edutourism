@@ -32,7 +32,7 @@ class CapacityController extends Controller
             $end = $targetTime->copy()->endOfHour();
 
             $count = VisitorLog::whereBetween('logged_at', [$start, $end])
-                ->where('event_type', 'location_visit')
+                ->where('event_type', 'page_view')
                 ->count();
 
             $hourlyData[] = $count;
