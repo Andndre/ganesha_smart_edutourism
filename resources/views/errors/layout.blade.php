@@ -70,8 +70,20 @@
         <div class="code">@yield('code')</div>
         <h1>@yield('title')</h1>
         <p>@yield('message')</p>
-        <a class="btn" href="{{ url('/') }}">Kembali ke Beranda</a>
+        <a class="btn" id="back-btn" href="{{ url('/') }}">Kembali ke Beranda</a>
     </div>
+
+    <script>
+        // ponytail: same-origin referrer = safe to go back; otherwise keep the home-page fallback link above.
+        if (document.referrer && new URL(document.referrer).origin === window.location.origin) {
+            var btn = document.getElementById('back-btn');
+            btn.textContent = 'Kembali';
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                history.back();
+            });
+        }
+    </script>
 </body>
 
 </html>
