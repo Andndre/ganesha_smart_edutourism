@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminSeeder::class,
             StaffSeeder::class,
+            AdminViewerSeeder::class,
         ]);
 
         CapacityZone::firstOrCreate(
