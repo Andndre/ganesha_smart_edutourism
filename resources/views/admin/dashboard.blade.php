@@ -21,51 +21,6 @@
     </div>
 
     {{-- ============================================================
-     TOURIST CAPACITY WARNING SYSTEM
-     ============================================================ --}}
-    <div class="border-warning/20 bg-warning/5 mb-8 overflow-hidden rounded-2xl border p-5">
-        <div class="flex items-start gap-4">
-            <div class="bg-warning/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
-                <svg class="text-warning h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-            </div>
-            <div class="flex-1">
-                <div class="flex flex-wrap items-center gap-3">
-                    <h2 class="text-warning font-semibold">Peringatan Kapasitas Wisatawan</h2>
-                    <span class="bg-warning/15 text-warning rounded-full px-2.5 py-0.5 text-xs font-bold">SEDANG</span>
-                </div>
-                <p class="mt-1 text-sm text-gray-600">Zona Utama mendekati batas kapasitas. Pertimbangkan untuk mengalihkan
-                    wisatawan ke jalur alternatif.</p>
-                <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    @foreach ($zones as $zone)
-                        @php
-                            $pct = $zone['occupancy_percentage'] ?? 0;
-                            $barColor = $pct >= 80 ? 'bg-warning' : ($pct >= 60 ? 'bg-secondary' : 'bg-primary');
-                            $textColor = $pct >= 80 ? 'text-warning' : 'text-primary';
-                        @endphp
-                        <div class="rounded-xl bg-white p-3 shadow-sm">
-                            <p class="text-[11px] font-semibold text-gray-500">{{ $zone['name'] }}</p>
-                            <p class="{{ $textColor }} mt-0.5 text-lg font-bold">{{ $zone['current_count'] }}<span
-                                    class="text-xs font-normal text-gray-400">/{{ $zone['max_capacity'] }}</span></p>
-                            <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
-                                <div class="{{ $barColor }} h-full rounded-full transition-all"
-                                    style="width: {{ $pct }}%"></div>
-                            </div>
-                            <p class="mt-1 text-[10px] text-gray-400">{{ $pct }}% kapasitas</p>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-            <a href="{{ route('admin.capacity') }}"
-                class="text-warning shrink-0 text-xs font-semibold underline underline-offset-2 hover:no-underline">
-                Detail →
-            </a>
-        </div>
-    </div>
-
-    {{-- ============================================================
      KPI STAT CARDS
      ============================================================ --}}
     <div class="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">

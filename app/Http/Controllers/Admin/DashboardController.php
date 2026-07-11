@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\CapacityZone;
 use App\Models\Feedback;
 use App\Models\Reservation;
 use App\Models\VisitorLog;
@@ -66,11 +65,6 @@ class DashboardController extends Controller
         $prevAvgRating = round(Feedback::whereDate('created_at', '<', Carbon::today())->avg('rating') ?? 0, 1);
         $ratingDelta = round($avgRating - $prevAvgRating, 1);
 
-        // 5. Capacity Zones
-        $zones = Cache::tags(['capacity'])->flexible('capacity_zones_active_array', [60, 300], function () {
-            return CapacityZone::where('is_active', true)->get()->append('occupancy_percentage')->toArray();
-        });
-
         // 7. Chart data (7 days)
         $chartLabels = [];
         $chartValues = [];
@@ -87,7 +81,6 @@ class DashboardController extends Controller
             'todayRevenue', 'revenueDelta',
             'activeTicketsCount', 'ticketsDelta',
             'avgRating', 'ratingDelta',
-            'zones',
             'chartLabels', 'chartValues'
         ));
     }
