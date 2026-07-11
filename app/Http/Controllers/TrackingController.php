@@ -84,6 +84,7 @@ class TrackingController extends Controller
             Cache::put('active_visitors', $activeVisitors, now()->addMinutes(5));
 
             broadcast(new VisitorLocationRemoved($request->session_id));
+            $this->checkCrowdAlerts($activeVisitors);
         }
 
         return response()->json(['status' => 'removed']);
