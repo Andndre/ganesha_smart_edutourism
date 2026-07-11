@@ -6,6 +6,7 @@ use App\Http\Middleware\RedirectIfAdmin;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetUserLocale;
 use App\Http\Middleware\StaffMiddleware;
+use App\Http\Middleware\TrackVisitorLog;
 use App\Http\Middleware\UmkmOwnerMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -31,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'redirect.admin' => RedirectIfAdmin::class,
             'umkm_owner' => UmkmOwnerMiddleware::class,
             'staff' => StaffMiddleware::class,
+            'track.visit' => TrackVisitorLog::class,
         ]);
 
         $middleware->preventRequestForgery(

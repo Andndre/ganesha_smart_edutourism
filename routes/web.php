@@ -60,7 +60,7 @@ Route::middleware('guest')->group(function () {
 });
 
 // Public Pages (Guest & Auth)
-Route::middleware('redirect.admin')->group(function () {
+Route::middleware(['redirect.admin', 'track.visit'])->group(function () {
     // Home
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
