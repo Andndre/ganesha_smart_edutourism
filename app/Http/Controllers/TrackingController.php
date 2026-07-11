@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\CrowdAlertSent;
 use App\Events\VisitorLocationRemoved;
 use App\Events\VisitorLocationUpdated;
+use App\Events\ZoneOccupancyUpdated;
 use App\Models\CapacityZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -111,6 +112,15 @@ class TrackingController extends Controller
             $occupancy = ($zone->max_capacity > 0)
                 ? (int) round(($countInZone / $zone->max_capacity) * 100)
                 : 0;
+
+            broadcast(new ZoneOccupancyUpdated(
+                $zone->id,
+                $zone->zone_identifier,
+                $countInZone,
+                $zone->max_capacity,
+                $occupancy,
+                CapacityZone::statusFor($occupancy, $zone->warning_threshold, $zone->critical_threshold),
+            ));
 
             $cacheKey = "crowd_alert_sent:{$zone->id}";
 

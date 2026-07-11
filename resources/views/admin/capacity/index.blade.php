@@ -491,6 +491,37 @@
                         }
                         
                         if (realHeatmapVisible) renderRealHeatmap();
+                    })
+                    .listen('.ZoneOccupancyUpdated', (e) => {
+                        const statusMeta = {
+                            full: { label: 'Kritis', badge: 'bg-warning/10 text-warning', bar: 'bg-warning', border: 'border-warning/20' },
+                            medium: { label: 'Sedang', badge: 'bg-secondary/15 text-secondary-700', bar: 'bg-secondary', border: 'border-secondary/20' },
+                            safe: { label: 'Aman', badge: 'bg-primary/10 text-primary', bar: 'bg-primary', border: 'border-gray-100' },
+                        };
+                        const meta = statusMeta[e.status.key] ?? statusMeta.safe;
+                        const pct = Math.min(100, e.occupancy_percentage);
+
+                        const card = document.querySelector(`[data-zone-card][data-zone-id="${e.zone_id}"]`);
+                        if (card) {
+                            card.className = `${meta.border} rounded-2xl border bg-white p-5 shadow-sm`;
+                            card.querySelector('[data-zone-count]').textContent = e.current_count;
+                            card.querySelector('[data-zone-pct]').textContent = `${pct}% terisi`;
+                            card.querySelector('[data-zone-bar]').className = `${meta.bar} h-full rounded-full transition-all`;
+                            card.querySelector('[data-zone-bar]').style.width = `${pct}%`;
+                            const badge = card.querySelector('[data-zone-badge]');
+                            badge.className = `${meta.badge} shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold`;
+                            badge.textContent = meta.label;
+                        }
+
+                        const statsEl = document.getElementById('tour-stats');
+                        if (statsEl && parseInt(statsEl.dataset.desaZoneId, 10) === e.zone_id) {
+                            statsEl.querySelector('[data-stats-count]').textContent = e.current_count;
+                            statsEl.querySelector('[data-stats-bar]').className = `${meta.bar} h-full transition-all`;
+                            statsEl.querySelector('[data-stats-bar]').style.width = `${pct}%`;
+                            statsEl.querySelector('[data-stats-status] span').className = `${meta.bar.replace('bg-', 'text-')} font-semibold`;
+                            statsEl.querySelector('[data-stats-status] span').textContent = `Kapasitas ${meta.label}`;
+                            statsEl.querySelector('[data-stats-status]').firstChild.textContent = `${pct}% — `;
+                        }
                     });
             } else {
                 setTimeout(setupEchoListener, 500);
