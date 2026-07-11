@@ -15,7 +15,8 @@
 @endphp
 {{-- Overall Crowd Level --}}
 <div id="tour-stats" class="mb-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
-    data-desa-zone-id="{{ $desaZone['id'] ?? '' }}">
+    data-warning-threshold="{{ $desaZone['warning_threshold'] ?? 60 }}"
+    data-critical-threshold="{{ $desaZone['critical_threshold'] ?? 80 }}">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex-1">
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Wisatawan Saat Ini (Desa Penglipuran)</p>

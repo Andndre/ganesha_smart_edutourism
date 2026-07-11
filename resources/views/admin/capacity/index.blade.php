@@ -361,6 +361,12 @@
         let realHeatmapLayer = null;
         let realHeatmapVisible = false;
 
+        // Live-updated per-zone occupant counts, seeded from the server-rendered totals.
+        // Total capacity across zones overlaps (village zone + sub-zones), so the
+        // "Total Wisatawan" card must be re-summed from this map on every zone update.
+        const zoneCounts = {!! json_encode(collect($zones)->pluck('current_count', 'id')) !!};
+        const totalMaxCapacity = {{ (int) $totalMaxCapacity }};
+
         document.getElementById('btn-admin-heatmap').addEventListener('click', function(e) {
             e.stopPropagation();
             toggleAdminHeatmap();
@@ -494,9 +500,9 @@
                     })
                     .listen('.ZoneOccupancyUpdated', (e) => {
                         const statusMeta = {
-                            full: { label: 'Kritis', badge: 'bg-warning/10 text-warning', bar: 'bg-warning', border: 'border-warning/20' },
-                            medium: { label: 'Sedang', badge: 'bg-secondary/15 text-secondary-700', bar: 'bg-secondary', border: 'border-secondary/20' },
-                            safe: { label: 'Aman', badge: 'bg-primary/10 text-primary', bar: 'bg-primary', border: 'border-gray-100' },
+                            full: { label: 'Kritis', overallLabel: 'Penuh', badge: 'bg-warning/10 text-warning', bar: 'bg-warning', border: 'border-warning/20' },
+                            medium: { label: 'Sedang', overallLabel: 'Sedang', badge: 'bg-secondary/15 text-secondary-700', bar: 'bg-secondary', border: 'border-secondary/20' },
+                            safe: { label: 'Aman', overallLabel: 'Aman', badge: 'bg-primary/10 text-primary', bar: 'bg-primary', border: 'border-gray-100' },
                         };
                         const meta = statusMeta[e.status.key] ?? statusMeta.safe;
                         const pct = Math.min(100, e.occupancy_percentage);
@@ -513,14 +519,23 @@
                             badge.textContent = meta.label;
                         }
 
+                        zoneCounts[e.zone_id] = e.current_count;
+                        const totalCurrentCount = Object.values(zoneCounts).reduce((a, b) => a + b, 0);
+                        const overallPct = totalMaxCapacity > 0 ? Math.round((totalCurrentCount / totalMaxCapacity) * 1000) / 10 : 0;
+
                         const statsEl = document.getElementById('tour-stats');
-                        if (statsEl && parseInt(statsEl.dataset.desaZoneId, 10) === e.zone_id) {
-                            statsEl.querySelector('[data-stats-count]').textContent = e.current_count;
-                            statsEl.querySelector('[data-stats-bar]').className = `${meta.bar} h-full transition-all`;
-                            statsEl.querySelector('[data-stats-bar]').style.width = `${pct}%`;
-                            statsEl.querySelector('[data-stats-status] span').className = `${meta.bar.replace('bg-', 'text-')} font-semibold`;
-                            statsEl.querySelector('[data-stats-status] span').textContent = `Kapasitas ${meta.label}`;
-                            statsEl.querySelector('[data-stats-status]').firstChild.textContent = `${pct}% — `;
+                        if (statsEl) {
+                            const warningThreshold = parseInt(statsEl.dataset.warningThreshold, 10);
+                            const criticalThreshold = parseInt(statsEl.dataset.criticalThreshold, 10);
+                            const overallMeta = overallPct >= criticalThreshold ? statusMeta.full :
+                                overallPct >= warningThreshold ? statusMeta.medium : statusMeta.safe;
+
+                            statsEl.querySelector('[data-stats-count]').textContent = totalCurrentCount;
+                            statsEl.querySelector('[data-stats-bar]').className = `${overallMeta.bar} h-full transition-all`;
+                            statsEl.querySelector('[data-stats-bar]').style.width = `${Math.min(100, overallPct)}%`;
+                            statsEl.querySelector('[data-stats-status] span').className = `${overallMeta.bar.replace('bg-', 'text-')} font-semibold`;
+                            statsEl.querySelector('[data-stats-status] span').textContent = `Kapasitas ${overallMeta.overallLabel}`;
+                            statsEl.querySelector('[data-stats-status]').firstChild.textContent = `${overallPct}% — `;
                         }
                     });
             } else {
