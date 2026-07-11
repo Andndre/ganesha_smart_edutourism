@@ -31,7 +31,7 @@
     </div>
 
     {{-- Summary Stats --}}
-    <div id="tour-stats" class="mb-6 grid grid-cols-3 gap-4">
+    <div id="tour-stats" class="mb-6 grid grid-cols-2 gap-4">
         @php
             $umkmStats = [
                 [
@@ -43,12 +43,6 @@
                     'label' => 'Total Produk',
                     'value' => $totalProducts,
                     'icon' => 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z',
-                ],
-                [
-                    'label' => 'Terjual Bulan Ini',
-                    'value' => $totalSoldThisMonth,
-                    'icon' =>
-                        'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
                 ],
             ];
         @endphp

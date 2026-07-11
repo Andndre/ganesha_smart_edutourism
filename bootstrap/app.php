@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\AdminOrViewerMiddleware;
 use App\Http\Middleware\RedirectIfAdmin;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetUserLocale;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->alias([
             'admin' => AdminMiddleware::class,
+            'admin.viewer' => AdminOrViewerMiddleware::class,
             'redirect.admin' => RedirectIfAdmin::class,
             'umkm_owner' => UmkmOwnerMiddleware::class,
             'staff' => StaffMiddleware::class,

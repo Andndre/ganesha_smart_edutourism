@@ -18,15 +18,14 @@ class FeedbackController extends Controller
     {
         $feedbacks = Feedback::with(['user', 'umkmProfile'])->orderBy('created_at', 'desc')->paginate(10);
 
-        $avgRating = round(valueOrMock(Feedback::avg('rating'), 4.7), 1);
+        $avgRating = round(Feedback::avg('rating') ?? 0, 1);
 
-        $totalReviews = valueOrMock(Feedback::count(), 148);
+        $totalReviews = Feedback::count();
 
         $now = Carbon::now();
         $thisMonthReviews = Feedback::whereMonth('created_at', $now->month)
             ->whereYear('created_at', $now->year)
             ->count();
-        $thisMonthReviews = valueOrMock($thisMonthReviews, 38);
 
         // Star distribution
         $starsDistribution = [];
@@ -34,11 +33,6 @@ class FeedbackController extends Controller
         foreach ($starRatings as $star) {
             $count = Feedback::where('rating', $star)->count();
             $percentage = $totalReviews > 0 ? round(($count / $totalReviews) * 100) : 0;
-            // Fallback for mock if DB empty
-            if ($totalReviews === 148) {
-                $mockDistribution = [5 => 72, 4 => 20, 3 => 5, 2 => 2, 1 => 1];
-                $percentage = $mockDistribution[$star];
-            }
             $starsDistribution[] = [$star, $percentage];
         }
 

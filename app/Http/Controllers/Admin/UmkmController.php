@@ -58,20 +58,11 @@ class UmkmController extends Controller
 
         // Compute dynamic stats
         $totalProfiles = UmkmProfile::count();
-        if ($totalProfiles === 0) {
-            $totalProfiles = 24;
-        }
-
         $totalProducts = UmkmProduct::count();
-        if ($totalProducts === 0) {
-            $totalProducts = 137;
-        }
-
-        $totalSoldThisMonth = 89; // Mock sold value or count
 
         $categories = UmkmProductCategory::orderBy('name->'.app()->getLocale())->get();
 
-        return view('admin.umkm.index', compact('products', 'profiles', 'categories', 'totalProfiles', 'totalProducts', 'totalSoldThisMonth'));
+        return view('admin.umkm.index', compact('products', 'profiles', 'categories', 'totalProfiles', 'totalProducts'));
     }
 
     /**
