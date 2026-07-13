@@ -19,7 +19,9 @@
     </div>
 
     @if ($umkm->description)
-        <p class="mt-2 text-sm text-gray-600 leading-relaxed lg:text-base">{{ $umkm->description }}</p>
+        <div class="prose prose-sm mt-2 max-w-none text-gray-600 prose-p:leading-relaxed lg:prose-base">
+            {!! $umkm->description !!}
+        </div>
     @endif
 
     <!-- Inline CTA (desktop only) -->
