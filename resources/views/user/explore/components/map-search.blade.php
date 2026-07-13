@@ -6,6 +6,12 @@
         </svg>
         <input type="text" id="search-input" placeholder="{{ __('Cari objek budaya atau UMKM...') }}"
             class="text-charcoal flex-1 bg-transparent text-sm font-medium placeholder-gray-400 outline-none" />
+        <button type="button" id="btn-search-clear" aria-label="{{ __('Hapus pencarian') }}"
+            class="hidden shrink-0 rounded-full p-1 text-gray-400 transition-transform duration-150 active:scale-90">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
         <div class="mx-1 h-5 w-[1.5px] bg-gray-200"></div>
         <button type="button" id="btn-filter-toggle"
             class="text-primary transition-transform duration-150 focus:outline-none active:scale-90">
@@ -14,6 +20,12 @@
                     d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
             </svg>
         </button>
+    </div>
+
+    <!-- Search Results Dropdown -->
+    <div id="search-results"
+        class="mt-3 hidden overflow-hidden rounded-2xl border border-gray-100/50 bg-white/95 shadow-lg backdrop-blur-md">
+        <ul id="search-results-list" class="max-h-64 divide-y divide-gray-50 overflow-y-auto"></ul>
     </div>
 
     <!-- Bento Grid Filter Panel -->
@@ -166,6 +178,11 @@
                     const filterPanel = document.getElementById('filter-panel');
                     if (filterPanel) {
                         filterPanel.classList.toggle('hidden');
+                    }
+                    // Filter panel and search results share the same spot
+                    const searchResults = document.getElementById('search-results');
+                    if (searchResults) {
+                        searchResults.classList.add('hidden');
                     }
                     return;
                 }
