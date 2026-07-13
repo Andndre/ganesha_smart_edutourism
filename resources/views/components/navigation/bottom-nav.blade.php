@@ -25,7 +25,7 @@
         <a href="{{ route('home') }}" wire:navigate
             class="tap-target {{ $isHome ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-400 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
             @if ($isHome)
-                <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <svg class="h-6 w-6 shrink-0 scale-[1.077]" viewBox="0 0 24 24" fill="currentColor">
                     <path
                         d="M11.47 3.841a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.061l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 101.061 1.06l8.69-8.689z" />
                     <path
@@ -44,7 +44,7 @@
         <a href="{{ route('explore') }}" wire:navigate
             class="tap-target {{ $isExplore ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-400 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
             @if ($isExplore)
-                <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <svg class="h-6 w-6 shrink-0 scale-[1.077]" viewBox="0 0 24 24" fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M8.161 2.58a1.875 1.875 0 011.678 0l4.993 2.498c.106.052.23.052.336 0l3.869-1.935A1.875 1.875 0 0121.75 4.82v12.485c0 .71-.401 1.36-1.037 1.677l-4.875 2.437a1.875 1.875 0 01-1.676 0l-4.994-2.497a.375.375 0 00-.336 0l-3.868 1.935A1.875 1.875 0 012.25 19.18V6.695c0-.71.401-1.36 1.036-1.677l4.875-2.437zM9 6a.75.75 0 01.75.75V15a.75.75 0 01-1.5 0V6.75A.75.75 0 019 6zm6.75 3a.75.75 0 00-1.5 0v8.25a.75.75 0 001.5 0V9z"
                         clip-rule="evenodd" />
@@ -53,7 +53,8 @@
                 <svg class="h-6 w-6 shrink-0 transition-colors duration-200" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.752a1.125 1.125 0 00-1.006 0L3.622 6.189C3.24 6.38 3 6.77 3 7.195v10.485c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+                        d="M8.161 2.58a1.875 1.875 0 011.678 0l4.993 2.498c.106.052.23.052.336 0l3.869-1.935A1.875 1.875 0 0121.75 4.82v12.485c0 .71-.401 1.36-1.037 1.677l-4.875 2.437a1.875 1.875 0 01-1.676 0l-4.994-2.497a.375.375 0 00-.336 0l-3.868 1.935A1.875 1.875 0 012.25 19.18V6.695c0-.71.401-1.36 1.036-1.677l4.875-2.437z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v15M15 6v15" />
                 </svg>
             @endif
             <span class="text-[10px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('Peta') }}</span>
@@ -74,7 +75,7 @@
         <a href="{{ route('umkm') }}" wire:navigate
             class="tap-target {{ $isUmkm ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-400 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
             @if ($isUmkm)
-                <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <svg class="h-6 w-6 shrink-0 scale-[1.077]" viewBox="0 0 24 24" fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z"
                         clip-rule="evenodd" />
@@ -111,7 +112,7 @@
             <a href="{{ route('login') }}" wire:navigate
                 class="tap-target {{ $isLogin ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-400 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
                 @if ($isLogin)
-                    <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                    <svg class="h-6 w-6 shrink-0 scale-[1.077]" viewBox="0 0 24 24" fill="currentColor">
                         <path fill-rule="evenodd"
                             d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5a1.5 1.5 0 001.5 1.5h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm10.72 4.72a.75.75 0 011.06 0l3 3a.75.75 0 010 1.06l-3 3a.75.75 0 11-1.06-1.06l1.72-1.72H9a.75.75 0 010-1.5h10.94l-1.72-1.72a.75.75 0 010-1.06z"
                             clip-rule="evenodd" />
