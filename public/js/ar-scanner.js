@@ -271,9 +271,10 @@
     };
 
     function showCameraPermissionDeniedError() {
+        const msg = window.AR_MESSAGES || {};
         const badge = document.getElementById("status-badge");
         if (badge) {
-            badge.innerText = "Izin kamera ditolak / Tertahan";
+            badge.innerText = msg.cameraDeniedBadge || "Izin kamera ditolak / Tertahan";
             badge.classList.replace("bg-black/40", "bg-red-500/80");
         }
         const reticles = document.querySelectorAll(
@@ -287,14 +288,14 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                 </div>
-                <h3 class="font-bold text-lg text-white mb-2">Akses Kamera Tertahan / Ditolak</h3>
+                <h3 class="font-bold text-lg text-white mb-2">${msg.cameraDeniedTitle || "Akses Kamera Tertahan / Ditolak"}</h3>
                 <p class="text-sm text-gray-400 mb-6 max-w-xs leading-relaxed">
-                    Browser membutuhkan izin Anda untuk mengaktifkan kamera. Ketuk tombol di bawah untuk meminta ulang izin akses kamera.<br><br>
-                    Jika tetap tidak bisa, pastikan Anda telah memberikan Izin Kamera di pengaturan <b>Google Chrome</b> atau <b>Safari</b> Anda.
+                    ${msg.cameraDeniedBody || "Browser membutuhkan izin Anda untuk mengaktifkan kamera. Ketuk tombol di bawah untuk meminta ulang izin akses kamera."}<br><br>
+                    ${msg.cameraDeniedHint || "Jika tetap tidak bisa, pastikan Anda telah memberikan Izin Kamera di pengaturan Google Chrome atau Safari Anda."}
                 </p>
                 <div class="flex flex-col gap-3 w-full max-w-xs">
                     <button onclick="window.retryCameraInit()" class="w-full bg-green-700 hover:bg-green-600 text-white text-sm font-semibold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-green-700/20 pointer-events-auto">
-                        Izinkan Kamera & Coba Lagi
+                        ${msg.cameraDeniedRetry || "Izinkan Kamera & Coba Lagi"}
                     </button>
                 </div>
             </div>

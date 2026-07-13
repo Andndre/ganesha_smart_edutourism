@@ -67,7 +67,7 @@
                 <h3 class="font-display text-charcoal text-lg font-bold">Tiket Terjual Hari Ini</h3>
 
                 <!-- Filters & Sorting (ui-ux-pro-max) -->
-                <div id="tour-filters" class="no-scrollbar flex w-full gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:justify-end sm:pb-0">
+                <div id="tour-filters" class="no-scrollbar flex w-full gap-2 overflow-x-auto pb-2 sm:w-auto sm:flex-wrap sm:justify-end sm:pb-0">
                     <select x-model="filterStatus"
                         class="focus:border-primary min-w-32.5 shrink-0 rounded-xl border border-gray-100 bg-gray-50/50 px-2.5 py-2 text-xs text-gray-600 shadow-sm transition-all focus:bg-white focus:outline-none sm:w-auto">
                         <option value="all">Semua Status</option>

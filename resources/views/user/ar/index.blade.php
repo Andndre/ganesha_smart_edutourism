@@ -33,7 +33,12 @@
             checkingQr: "{{ __('Memeriksa QR...') }}",
             success: "{{ __('Berhasil!') }}",
             arrivedAtLocation: "{{ __('Anda telah tiba di lokasi. Silakan selesaikan misi/kuis di lokasi ini.') }}",
-            continue: "{{ __('Lanjut') }}"
+            continue: "{{ __('Lanjut') }}",
+            cameraDeniedBadge: "{{ __('Izin kamera ditolak / Tertahan') }}",
+            cameraDeniedTitle: "{{ __('Akses Kamera Tertahan / Ditolak') }}",
+            cameraDeniedBody: "{{ __('Browser membutuhkan izin Anda untuk mengaktifkan kamera. Ketuk tombol di bawah untuk meminta ulang izin akses kamera.') }}",
+            cameraDeniedHint: "{{ __('Jika tetap tidak bisa, pastikan Anda telah memberikan Izin Kamera di pengaturan Google Chrome atau Safari Anda.') }}",
+            cameraDeniedRetry: "{{ __('Izinkan Kamera & Coba Lagi') }}"
         };
         self.ModelViewerElement = self.ModelViewerElement || {};
         self.ModelViewerElement.meshoptDecoderLocation = 'https://cdn.jsdelivr.net/npm/meshoptimizer/meshopt_decoder.js';

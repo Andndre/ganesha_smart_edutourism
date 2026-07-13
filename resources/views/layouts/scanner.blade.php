@@ -68,14 +68,6 @@
         @yield('content')
     </div>
 
-    {{-- Eruda Mobile DevTools for local environment --}}
-    @env('local')
-        <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-        <script>
-            eruda.init();
-        </script>
-    @endenv
-
     @livewireScripts
     @stack('scripts')
 </body>
