@@ -137,12 +137,13 @@
                         <div
                             class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
                             <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
-                                <path d="M6.5 10.9v3.1a5.5 5.5 0 0 0 11 0v-3.1L12 14.2l-5.5-3.3Z" fill="#1565C0" />
-                                <path d="M6.5 10.1v3.1a5.5 5.5 0 0 0 11 0v-3.1L12 13.4l-5.5-3.3Z" fill="#2979FF" />
-                                <path d="M12 5 21 9.4 12 13.8 3 9.4 12 5Z" fill="#1565C0" />
-                                <path d="M12 4.2 21 8.6 12 13 3 8.6 12 4.2Z" fill="#448AFF" />
-                                <path d="M19 9.3v4" stroke="#F9A825" stroke-width="1.6" stroke-linecap="round" />
-                                <circle cx="19" cy="14.3" r="1.2" fill="#FDD835" />
+                                <path d="M4 5.8C6.4 4.8 9 4.5 12 5.8V18.8C9 17.5 6.4 17.8 4 18.8V5.8Z" fill="#1565C0" />
+                                <path d="M4 5C6.4 4 9 3.7 12 5V18C9 16.7 6.4 17 4 18V5Z" fill="#2979FF" />
+                                <path d="M20 5.8C17.6 4.8 15 4.5 12 5.8V18.8C15 17.5 17.6 17.8 20 18.8V5.8Z" fill="#1565C0" />
+                                <path d="M20 5C17.6 4 15 3.7 12 5V18C15 16.7 17.6 17 20 18V5Z" fill="#448AFF" />
+                                <path d="M7 9H9.3M7 11.3H9.3M14.7 9H17M14.7 11.3H17" stroke="#fff" stroke-width="1"
+                                    stroke-linecap="round" opacity="0.85" />
+                                <path d="M10.8 3.2V9.5L12 8.5 13.2 9.5V3.2Z" fill="#E53935" />
                             </svg>
                         </div>
                         <span
@@ -170,15 +171,14 @@
                         <div
                             class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
                             <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
-                                <rect x="3.5" y="17.8" width="17" height="3.5" rx="1" fill="#C62828" />
-                                <rect x="3.5" y="17" width="17" height="3.5" rx="1" fill="#E53935" />
-                                <rect x="5.5" y="13.8" width="13" height="3.4" rx="1" fill="#C62828" />
-                                <rect x="5.5" y="13" width="13" height="3.4" rx="1" fill="#EF5350" />
-                                <rect x="7.5" y="9.8" width="9" height="3.4" rx="1" fill="#C62828" />
-                                <rect x="7.5" y="9" width="9" height="3.4" rx="1" fill="#E53935" />
-                                <rect x="9.5" y="6.3" width="5" height="3" rx="1" fill="#C62828" />
-                                <rect x="9.5" y="5.5" width="5" height="3" rx="1" fill="#EF5350" />
-                                <path d="M12 2.2v2.3" stroke="#F9A825" stroke-width="1.8" stroke-linecap="round" />
+                                <path d="M2 21.8 2 16.8 4 16.8 4 13.8 6 13.8 6 10.8 8 10.8 8 7.8 10 7.8 10 21.8Z"
+                                    fill="#C62828" />
+                                <path d="M2 21 2 16 4 16 4 13 6 13 6 10 8 10 8 7 10 7 10 21Z" fill="#E53935" />
+                                <path d="M22 21.8 22 16.8 20 16.8 20 13.8 18 13.8 18 10.8 16 10.8 16 7.8 14 7.8 14 21.8Z"
+                                    fill="#C62828" />
+                                <path d="M22 21 22 16 20 16 20 13 18 13 18 10 16 10 16 7 14 7 14 21Z" fill="#EF5350" />
+                                <circle cx="9" cy="5.6" r="1.1" fill="#F9A825" />
+                                <circle cx="15" cy="5.6" r="1.1" fill="#FDD835" />
                             </svg>
                         </div>
                         <span
