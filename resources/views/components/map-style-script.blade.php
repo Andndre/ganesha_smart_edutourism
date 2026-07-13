@@ -1,4 +1,5 @@
 <script>
+    (function() {
     const MAP_STYLE_TILE_URLS = {
         standard: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         satellite: 'https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
@@ -67,4 +68,7 @@
 
         switchMapStyle(localStorage.getItem('mapStyle') || 'standard');
     }
+
+    window.initMapStyleSwitcher = initMapStyleSwitcher;
+    })();
 </script>

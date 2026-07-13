@@ -169,7 +169,7 @@
 
 <script>
     (function() {
-        if (!window.mapSearchListenersRegistered) {
+        if (!document.body.dataset.mapSearchListenersRegistered) {
             document.body.addEventListener('click', function(e) {
                 // 1. Toggle filter panel
                 const filterToggleBtn = e.target.closest('#btn-filter-toggle');
@@ -218,7 +218,7 @@
                     });
                 }
             });
-            window.mapSearchListenersRegistered = true;
+            document.body.dataset.mapSearchListenersRegistered = 'true';
         }
     })();
 </script>
