@@ -4,6 +4,7 @@
     class="bottom-(--route-banner-h,0px) fixed inset-x-0 z-30 border-t border-gray-100 bg-white/90 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-8px_20px_rgba(0,0,0,0.06)] backdrop-blur-md">
     @if ($umkm->mapLocation)
         <a href="{{ route('explore', [
+            'id' => $umkm->mapLocation->id,
             'lat' => $umkm->mapLocation->latitude,
             'lng' => $umkm->mapLocation->longitude,
             'name' => $umkm->business_name,
