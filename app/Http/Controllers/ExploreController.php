@@ -8,6 +8,7 @@ use App\Models\MapLocation;
 use App\Models\TourRoute;
 use App\Models\UmkmProfile;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ExploreController extends Controller
@@ -62,7 +63,8 @@ class ExploreController extends Controller
                     'lng' => (float) $loc->longitude,
                     'name' => $loc->name,
                     'cat' => $category,
-                    'desc' => $description,
+                    // Plain text only: the client searches this string and the sheet shows a 120-char preview
+                    'desc' => Str::of(strip_tags((string) $description))->squish()->limit(160)->toString(),
                     'is_accessible' => (bool) $loc->is_accessible,
                     'accessibility' => $loc->accessibility_notes ?? '',
                     'detail_url' => $detailUrl,
