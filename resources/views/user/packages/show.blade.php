@@ -80,15 +80,17 @@
                                 @foreach ($package->itinerary as $step)
                                     <div class="rounded-xl border border-gray-100 bg-gray-50 p-3">
                                         <div class="mb-1 flex flex-wrap items-baseline gap-x-2">
-                                            @if (! empty($step['time']))
-                                                <span class="text-primary shrink-0 text-xs font-bold">{{ $step['time'] }}</span>
+                                            @if (!empty($step['time']))
+                                                <span
+                                                    class="text-primary shrink-0 text-xs font-bold">{{ $step['time'] }}</span>
                                             @endif
                                             <span class="text-charcoal text-sm font-bold">{{ $step['title'] }}</span>
                                         </div>
-                                        @if (! empty($step['description']))
-                                            <p class="mb-1.5 text-xs leading-relaxed text-gray-500">{{ $step['description'] }}</p>
+                                        @if (!empty($step['description']))
+                                            <p class="mb-1.5 text-xs leading-relaxed text-gray-500">
+                                                {{ $step['description'] }}</p>
                                         @endif
-                                        @if (! empty($step['activities']))
+                                        @if (!empty($step['activities']))
                                             <ul class="space-y-0.5">
                                                 @foreach ($step['activities'] as $activity)
                                                     <li class="flex items-start gap-1.5 text-xs text-gray-600">
@@ -207,7 +209,7 @@
 
     <!-- Sticky Bottom CTA (mobile & tablet) -->
     <div
-        class="fixed inset-x-0 bottom-0 z-30 border-t border-gray-100 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_10px_rgba(0,0,0,0.05)] lg:hidden">
+        class="bottom-(--route-banner-h,0px) fixed inset-x-0 z-30 border-t border-gray-100 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_10px_rgba(0,0,0,0.05)] lg:hidden">
         <div class="mx-auto w-full max-w-2xl">
             <div class="mb-3 flex items-center justify-between px-1">
                 <span class="text-sm font-medium text-gray-500">{{ __('Mulai dari') }}</span>

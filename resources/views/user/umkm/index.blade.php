@@ -35,16 +35,6 @@
                 @include('user.umkm.partials.index._category_search')
                 @include('user.umkm.partials.index._category_grid')
 
-                @php
-                    $hasActiveSession = false;
-                    if (auth()->check() || session()->has('guest_token')) {
-                        $hasActiveSession = \App\Models\RouteSession::where('status', 'active')
-                            ->where(function ($q) {
-                                $q->where('user_id', auth()->id())->orWhere('guest_token', session('guest_token'));
-                            })
-                            ->exists();
-                    }
-                @endphp
                 @include('user.umkm.partials.index._sticky_bar')
             </form>
         </div>

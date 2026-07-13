@@ -1,5 +1,5 @@
 <!-- Sticky Bottom CTA (mobile & tablet only) -->
-<div class="fixed bottom-0 inset-x-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-white border-t border-gray-100 z-30 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] lg:hidden">
+<div class="fixed bottom-(--route-banner-h,0px) inset-x-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-white border-t border-gray-100 z-30 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] lg:hidden">
     <div class="mx-auto w-full max-w-2xl">
         <div class="flex items-center gap-3">
             @if($umkm->user && $umkm->user->phone)

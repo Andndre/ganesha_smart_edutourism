@@ -1,6 +1,6 @@
 <!-- Payment Bar: fixed bottom on mobile/tablet, sticky summary panel on desktop -->
 <div
-    class="fixed inset-x-0 bottom-0 z-30 border-t border-gray-100 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_10px_rgba(0,0,0,0.05)] lg:sticky lg:inset-x-auto lg:bottom-auto lg:top-8 lg:mt-0 lg:rounded-2xl lg:border lg:border-gray-100 lg:p-5 lg:shadow-sm">
+    class="fixed inset-x-0 bottom-(--route-banner-h,0px) z-30 border-t border-gray-100 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_10px_rgba(0,0,0,0.05)] lg:sticky lg:inset-x-auto lg:bottom-auto lg:top-8 lg:mt-0 lg:rounded-2xl lg:border lg:border-gray-100 lg:p-5 lg:shadow-sm">
     <div class="mx-auto w-full max-w-2xl lg:max-w-none">
         <h3 class="text-charcoal mb-3 hidden font-bold lg:block">{{ __('Ringkasan Pembayaran') }}</h3>
 
