@@ -155,7 +155,7 @@ translateValue($model->name, 'en')    // explicit locale
 
 ### Dashboard Translation Policy (Layer 1 Constraint)
 
-**Do not use UI translation (`__()` helper) in dashboard views** (`resources/views/admin/*`, `resources/views/owner/*`, `resources/views/staff/*`). Dashboard is internal-only and must use hardcoded English strings to avoid:
+**Do not use UI translation (`__()` helper) in dashboard views** (`resources/views/admin/*`, `resources/views/owner/*`, `resources/views/staff/*`). Dashboard is internal-only and must use hardcoded strings — in practice this codebase writes them in **Indonesian** (e.g. sidebar labels in `resources/views/layouts/dashboard.blade.php`: "Kapasitas Wisatawan", "Fasilitas Umum", "Manajemen Staff"), not English. Keep new dashboard strings consistent with this (hardcoded Indonesian), to avoid:
 
 - Incomplete translations fragmenting the UI (e.g., some buttons in ID, labels in EN)
 - Maintenance burden of syncing N dashboard strings across locales

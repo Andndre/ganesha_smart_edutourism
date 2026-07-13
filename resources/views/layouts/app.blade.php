@@ -360,14 +360,6 @@
         @stack('modals')
         @stack('scripts')
 
-        {{-- Eruda Mobile DevTools for local environment --}}
-        @env('local')
-            <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-            <script>
-                eruda.init();
-            </script>
-        @endenv
-
         @php
             $notifMessages = [
                 'geofence_title' => __('Peringatan Batas Area'),

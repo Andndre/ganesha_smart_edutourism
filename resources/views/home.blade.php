@@ -115,12 +115,17 @@
                     <a href="{{ route('explore') }}"
                         class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-16">
                         <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50 text-teal-600 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                            <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
-                                <path d="M4 5.5 9 4l6 2 5-1.5v13L15 19l-6-2-5 1.5V5.5Z" fill="currentColor"
-                                    opacity="0.55" />
-                                <path d="M12 8a2.6 2.6 0 0 0-2.6 2.6c0 1.9 2.6 5 2.6 5s2.6-3.1 2.6-5A2.6 2.6 0 0 0 12 8Z"
-                                    fill="currentColor" />
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
+                                <path d="M4 6.3 9 4.8l6 2 5-1.5v13L15 19.8l-6-2-5 1.5V6.3Z" fill="#2E7D32" />
+                                <path d="M4 5.5 9 4l6 2 5-1.5v13L15 19l-6-2-5 1.5V5.5Z" fill="#4CAF50" />
+                                <path
+                                    d="M12 3.8a4.1 4.1 0 0 0-4.1 4.1c0 3 4.1 7.3 4.1 7.3s4.1-4.3 4.1-7.3A4.1 4.1 0 0 0 12 3.8Z"
+                                    fill="#C62828" />
+                                <path
+                                    d="M12 3a4.1 4.1 0 0 0-4.1 4.1c0 3 4.1 7.3 4.1 7.3s4.1-4.3 4.1-7.3A4.1 4.1 0 0 0 12 3Z"
+                                    fill="#E53935" />
+                                <circle cx="12" cy="7.2" r="1.7" fill="#fff" />
                             </svg>
                         </div>
                         <span
@@ -130,13 +135,14 @@
                     <a href="{{ route('edutourism.index') }}"
                         class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
                         <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                            <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
-                                <path d="M12 4.2 21 8.6 12 13 3 8.6 12 4.2Z" fill="currentColor" />
-                                <path d="M6.5 10.1v3.1a5.5 5.5 0 0 0 11 0v-3.1L12 13.4l-5.5-3.3Z" fill="currentColor"
-                                    opacity="0.55" />
-                                <path d="M19 9.3v4" stroke="#D4AF37" stroke-width="1.6" stroke-linecap="round" />
-                                <circle cx="19" cy="14.1" r="1.15" fill="#D4AF37" />
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
+                                <path d="M6.5 10.9v3.1a5.5 5.5 0 0 0 11 0v-3.1L12 14.2l-5.5-3.3Z" fill="#1565C0" />
+                                <path d="M6.5 10.1v3.1a5.5 5.5 0 0 0 11 0v-3.1L12 13.4l-5.5-3.3Z" fill="#2979FF" />
+                                <path d="M12 5 21 9.4 12 13.8 3 9.4 12 5Z" fill="#1565C0" />
+                                <path d="M12 4.2 21 8.6 12 13 3 8.6 12 4.2Z" fill="#448AFF" />
+                                <path d="M19 9.3v4" stroke="#F9A825" stroke-width="1.6" stroke-linecap="round" />
+                                <circle cx="19" cy="14.3" r="1.2" fill="#FDD835" />
                             </svg>
                         </div>
                         <span
@@ -146,13 +152,13 @@
                     <a href="{{ route('umkm') }}"
                         class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
                         <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                            <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
-                                <path d="M5 9h14l1 12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1L5 9Z" fill="currentColor"
-                                    opacity="0.55" />
-                                <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="1.8"
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 9.8h14l1 11.2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1L5 9.8Z" fill="#F9A825" />
+                                <path d="M5 9h14l1 11.2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1L5 9Z" fill="#FDD835" />
+                                <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#E53935" stroke-width="1.9"
                                     stroke-linecap="round" />
-                                <circle cx="15.5" cy="13.2" r="1.05" fill="currentColor" />
+                                <circle cx="15.3" cy="14" r="1.3" fill="#fff" />
                             </svg>
                         </div>
                         <span
@@ -162,15 +168,17 @@
                     <a href="{{ route('cultural-objects') }}"
                         class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
                         <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                            <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
-                                <rect x="3.5" y="17" width="17" height="3.5" rx="1" fill="currentColor" />
-                                <rect x="5.5" y="13" width="13" height="3.5" rx="1" fill="currentColor"
-                                    opacity="0.65" />
-                                <rect x="7.5" y="9" width="9" height="3.5" rx="1" fill="currentColor" />
-                                <rect x="9.5" y="5.5" width="5" height="3" rx="1" fill="currentColor"
-                                    opacity="0.65" />
-                                <path d="M12 2.2v2.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
+                                <rect x="3.5" y="17.8" width="17" height="3.5" rx="1" fill="#C62828" />
+                                <rect x="3.5" y="17" width="17" height="3.5" rx="1" fill="#E53935" />
+                                <rect x="5.5" y="13.8" width="13" height="3.4" rx="1" fill="#C62828" />
+                                <rect x="5.5" y="13" width="13" height="3.4" rx="1" fill="#EF5350" />
+                                <rect x="7.5" y="9.8" width="9" height="3.4" rx="1" fill="#C62828" />
+                                <rect x="7.5" y="9" width="9" height="3.4" rx="1" fill="#E53935" />
+                                <rect x="9.5" y="6.3" width="5" height="3" rx="1" fill="#C62828" />
+                                <rect x="9.5" y="5.5" width="5" height="3" rx="1" fill="#EF5350" />
+                                <path d="M12 2.2v2.3" stroke="#F9A825" stroke-width="1.8" stroke-linecap="round" />
                             </svg>
                         </div>
                         <span
@@ -180,13 +188,17 @@
                     <a href="{{ route('tour-packages') }}"
                         class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
                         <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                            <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M3 7.8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 1 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 1 0 0-4v-2Z"
+                                    fill="#1565C0" />
                                 <path
                                     d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 1 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 1 0 0-4V7Z"
-                                    fill="currentColor" opacity="0.55" />
-                                <path d="M15 5v2m0 3v2m0 3v2" stroke="currentColor" stroke-width="1.7"
-                                    stroke-linecap="round" />
+                                    fill="#2979FF" />
+                                <path d="M15 5.6v1.8m0 3.1v1.8m0 3.1v1.8" stroke="#fff" stroke-width="1.7"
+                                    stroke-linecap="round" opacity="0.9" />
+                                <circle cx="9.2" cy="12" r="1.7" fill="#FDD835" />
                             </svg>
                         </div>
                         <span
@@ -196,14 +208,19 @@
                     <a href="{{ route('events') }}"
                         class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
                         <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                            <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 6.8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-11a2 2 0 0 0-2-2H5Z"
+                                    fill="#1565C0" />
                                 <path d="M5 6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5Z"
-                                    fill="currentColor" opacity="0.55" />
-                                <path d="M3 10h18v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2Z" fill="currentColor" />
-                                <path d="M8 3v3M16 3v3" stroke="currentColor" stroke-width="1.8"
+                                    fill="#42A5F5" />
+                                <path d="M3 11h18V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3Z" fill="#E53935" />
+                                <path d="M8 3.2v3M16 3.2v3" stroke="#B71C1C" stroke-width="1.8"
                                     stroke-linecap="round" />
-                                <circle cx="12" cy="15" r="1.3" fill="currentColor" />
+                                <circle cx="8.8" cy="14.5" r="1.2" fill="#fff" />
+                                <circle cx="12.8" cy="14.5" r="1.2" fill="#fff" opacity="0.85" />
+                                <circle cx="8.8" cy="18" r="1.2" fill="#fff" opacity="0.85" />
+                                <circle cx="12.8" cy="18" r="1.2" fill="#FDD835" />
                             </svg>
                         </div>
                         <span
@@ -214,16 +231,16 @@
                         <a href="{{ route('owner.dashboard') }}"
                             class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
                             <div
-                                class="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-50 text-purple-600 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                                <svg class="h-7 w-7 lg:h-8 lg:w-8" viewBox="0 0 24 24" fill="none">
-                                    <rect x="4" y="4" width="7" height="7" rx="2"
-                                        fill="currentColor" />
-                                    <rect x="13" y="4" width="7" height="7" rx="2" fill="currentColor"
-                                        opacity="0.55" />
-                                    <rect x="4" y="13" width="7" height="7" rx="2" fill="currentColor"
-                                        opacity="0.55" />
-                                    <rect x="13" y="13" width="7" height="7" rx="2" fill="currentColor"
-                                        opacity="0.55" />
+                                class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                                <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
+                                    <rect x="4" y="4.8" width="7" height="7" rx="2" fill="#2E7D32" />
+                                    <rect x="4" y="4" width="7" height="7" rx="2" fill="#4CAF50" />
+                                    <rect x="13" y="4.8" width="7" height="7" rx="2" fill="#1565C0" />
+                                    <rect x="13" y="4" width="7" height="7" rx="2" fill="#2979FF" />
+                                    <rect x="4" y="13.8" width="7" height="7" rx="2" fill="#F9A825" />
+                                    <rect x="4" y="13" width="7" height="7" rx="2" fill="#FDD835" />
+                                    <rect x="13" y="13.8" width="7" height="7" rx="2" fill="#C62828" />
+                                    <rect x="13" y="13" width="7" height="7" rx="2" fill="#E53935" />
                                 </svg>
                             </div>
                             <span

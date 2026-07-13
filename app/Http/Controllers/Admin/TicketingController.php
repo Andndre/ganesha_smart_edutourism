@@ -53,7 +53,8 @@ class TicketingController extends Controller
 
         $packages = TourPackage::all();
         $reservations = Reservation::with(['user', 'tourPackage'])
-            ->whereIn('status', ['pending', 'confirmed'])
+            ->whereIn('status', ['pending', 'confirmed', 'completed'])
+            ->whereDate('scheduled_date', today())
             ->orderBy('scheduled_date', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();

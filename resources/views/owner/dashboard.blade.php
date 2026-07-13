@@ -110,13 +110,6 @@
                         <span class="text-base text-charcoal font-semibold">{{ $profile->business_name }}</span>
                     </div>
                     <div>
-                        <span class="text-xs text-gray-400 block font-semibold uppercase">Kategori Toko</span>
-                        <span
-                            class="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
-                            {{ ucfirst($profile->category) }}
-                        </span>
-                    </div>
-                    <div>
                         {{-- TODO: Pertimbangkan menambahkan fitur jadwal buka toko --}}
                         <span class="text-xs text-gray-400 block font-semibold uppercase">Status Toko</span>
                         @if ($profile->is_active)
@@ -133,7 +126,7 @@
                 <div class="space-y-4">
                     <div>
                         <span class="text-xs text-gray-400 block font-semibold uppercase">Deskripsi Toko</span>
-                        <p class="text-sm text-gray-600 leading-relaxed">{{ $profile->description ?? 'Belum ada deskripsi.' }}
+                        <p class="text-sm text-gray-600 leading-relaxed">{!! $profile->description ?? 'Belum ada deskripsi.' !!}
                         </p>
                     </div>
                     <div>
