@@ -97,6 +97,22 @@
             stroke-dashoffset: 60;
             animation: quiz-success-draw 0.5s ease-out 0.25s forwards;
         }
+
+        @keyframes sheet-slide-up {
+            from {
+                opacity: 0;
+                transform: translateY(100%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sheet-slide-up {
+            animation: sheet-slide-up 0.3s ease-out both;
+        }
     </style>
 @endpush
 
@@ -117,7 +133,9 @@
                     </a>
                     <div>
                         <h2 class="text-charcoal font-bold leading-tight">{{ $activeSession->tourRoute->name }}</h2>
-                        <p class="text-xs text-gray-500">{{ __('Misi: :completed / :total Selesai', ['completed' => $activeSession->points_completed, 'total' => $activeSession->tourRoute->routePoints->count()]) }}</p>
+                        <p class="text-xs text-gray-500">
+                            {{ __('Misi: :completed / :total Selesai', ['completed' => $activeSession->points_completed, 'total' => $activeSession->tourRoute->routePoints->count()]) }}
+                        </p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
@@ -139,8 +157,10 @@
 
         <!-- Active Point Info (Bottom Sheet Style) -->
         @if ($activeSession->currentPoint)
-            <div class="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-4 pb-24">
-                <div class="pointer-events-auto rounded-3xl bg-white p-6 shadow-2xl">
+            <div class="pointer-events-none absolute inset-x-0 bottom-0 z-20 md:mx-auto md:max-w-md md:p-4">
+                <div class="sheet-slide-up pointer-events-auto rounded-t-[2.5rem] bg-white p-6 shadow-2xl md:rounded-b-3xl"
+                    style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
+                    <div class="mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-gray-200"></div>
                     <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">{{ __('Tujuan Saat Ini') }}</h3>
                     <h2 class="text-charcoal mt-1 text-xl font-black">
                         {{ $activeSession->currentPoint->locationable->name ?? __('Titik Perhentian') }}</h2>
@@ -156,8 +176,10 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-sm font-bold text-blue-900" id="distance-info">{{ __('Mencari lokasi GPS...') }}</p>
-                            <p class="text-[10px] uppercase tracking-wider text-blue-700">{{ __('Arahkan ke lokasi untuk membuka kuis') }}</p>
+                            <p class="text-sm font-bold text-blue-900" id="distance-info">{{ __('Mencari lokasi GPS...') }}
+                            </p>
+                            <p class="text-[10px] uppercase tracking-wider text-blue-700">
+                                {{ __('Arahkan ke lokasi untuk membuka kuis') }}</p>
                         </div>
                     </div>
 
@@ -167,19 +189,24 @@
                     </button>
 
                     @if ($activeSession->currentPoint->locationable instanceof \App\Models\CulturalObject)
-                        <a id="btn-detail-object" href="{{ route('cultural-object', ['slug' => $activeSession->currentPoint->locationable->slug]) }}"
+                        <a id="btn-detail-object"
+                            href="{{ route('cultural-object', ['slug' => $activeSession->currentPoint->locationable->slug]) }}"
                             target="_blank"
-                            class="text-primary border-primary/30 mt-2 flex w-full items-center justify-center gap-2 rounded-xl border-2 bg-white py-3 text-center text-sm font-bold transition-transform active:scale-95 hidden">
+                            class="text-primary border-primary/30 mt-2 flex hidden w-full items-center justify-center gap-2 rounded-xl border-2 bg-white py-3 text-center text-sm font-bold transition-transform active:scale-95">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                             </svg>
                             {{ __('Lihat Detail Objek Budaya') }}
                         </a>
                     @endif
 
-                    @if ($activeSession->currentPoint->locationable instanceof \App\Models\CulturalObject && $activeSession->currentPoint->locationable->arModel)
-                        <a id="btn-scan-qr" href="{{ route('ar-scan', ['route_point_id' => $activeSession->currentPoint->id, 'edutourism_return' => 1]) }}"
-                            class="text-primary border-primary/30 mt-2 flex w-full items-center justify-center gap-2 rounded-xl border-2 bg-white py-3 text-center text-sm font-bold transition-transform active:scale-95 hidden">
+                    @if (
+                        $activeSession->currentPoint->locationable instanceof \App\Models\CulturalObject &&
+                            $activeSession->currentPoint->locationable->arModel)
+                        <a id="btn-scan-qr"
+                            href="{{ route('ar-scan', ['route_point_id' => $activeSession->currentPoint->id, 'edutourism_return' => 1]) }}"
+                            class="text-primary border-primary/30 mt-2 flex hidden w-full items-center justify-center gap-2 rounded-xl border-2 bg-white py-3 text-center text-sm font-bold transition-transform active:scale-95">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
@@ -215,13 +242,17 @@
                     ],
                     'good' => [
                         'title' => __('Misi Selesai!'),
-                        'message' => __('Selamat! Anda telah menyelesaikan seluruh rute ini dengan baik. Skor akhir Anda:'),
+                        'message' => __(
+                            'Selamat! Anda telah menyelesaikan seluruh rute ini dengan baik. Skor akhir Anda:',
+                        ),
                         'accent' => 'emerald',
                         'icon' => 'check',
                     ],
                     'basic' => [
                         'title' => __('Rute Selesai!'),
-                        'message' => __('Anda telah menyelesaikan rute ini. Masih ada beberapa hal menarik untuk dipelajari ulang. Skor akhir Anda:'),
+                        'message' => __(
+                            'Anda telah menyelesaikan rute ini. Masih ada beberapa hal menarik untuk dipelajari ulang. Skor akhir Anda:',
+                        ),
                         'accent' => 'blue',
                         'icon' => 'flag',
                     ],
@@ -273,7 +304,7 @@
             <div class="absolute inset-0 z-50 overflow-y-auto bg-white">
                 <div class="mx-auto max-w-md px-6 py-10 pb-28 text-center md:max-w-lg lg:max-w-xl">
                     <div
-                        class="quiz-success-icon mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full {{ $accentClasses['icon_bg'] }} {{ $accentClasses['icon_text'] }} shadow-inner md:h-24 md:w-24 lg:h-28 lg:w-28">
+                        class="quiz-success-icon {{ $accentClasses['icon_bg'] }} {{ $accentClasses['icon_text'] }} mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full shadow-inner md:h-24 md:w-24 lg:h-28 lg:w-28">
                         @if ($tierContent['icon'] === 'star')
                             <svg class="h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14" fill="currentColor" viewBox="0 0 24 24">
                                 <path
@@ -298,32 +329,44 @@
                             </svg>
                         @endif
                     </div>
-                    <h2 class="mt-2 text-3xl font-black {{ $accentClasses['title'] }} md:text-4xl">{{ $tierContent['title'] }}</h2>
+                    <h2 class="{{ $accentClasses['title'] }} mt-2 text-3xl font-black md:text-4xl">
+                        {{ $tierContent['title'] }}</h2>
                     <p class="mt-4 text-base leading-relaxed text-gray-600 lg:text-lg">{{ $tierContent['message'] }}</p>
-                    <div class="my-6 rounded-2xl border {{ $accentClasses['score_bg'] }} {{ $accentClasses['score_border'] }} py-4 shadow-sm">
-                        <span class="block text-4xl font-black {{ $accentClasses['score_text'] }} lg:text-5xl">{{ $activeSession->total_score }}</span>
-                        <span class="text-xs font-bold uppercase tracking-wider {{ $accentClasses['score_label'] }}">{{ __('Total Poin') }}</span>
+                    <div
+                        class="{{ $accentClasses['score_bg'] }} {{ $accentClasses['score_border'] }} my-6 rounded-2xl border py-4 shadow-sm">
+                        <span
+                            class="{{ $accentClasses['score_text'] }} block text-4xl font-black lg:text-5xl">{{ $activeSession->total_score }}</span>
+                        <span
+                            class="{{ $accentClasses['score_label'] }} text-xs font-bold uppercase tracking-wider">{{ __('Total Poin') }}</span>
                     </div>
 
                     @if ($activeSession->badge_awarded)
-                        <div class="quiz-success-icon mb-6 rounded-2xl border border-[#D4AF37]/40 bg-gradient-to-b from-amber-50 to-white p-5 shadow-sm">
-                            <div class="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-[#D4AF37]/15 text-[#B8962E]">
+                        <div
+                            class="quiz-success-icon mb-6 rounded-2xl border border-[#D4AF37]/40 bg-gradient-to-b from-amber-50 to-white p-5 shadow-sm">
+                            <div
+                                class="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-[#D4AF37]/15 text-[#B8962E]">
                                 <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M5 3h14v2h2v4a4 4 0 01-3.42 3.96A6.01 6.01 0 0113 16.92V19h3v2H8v-2h3v-2.08a6.01 6.01 0 01-4.58-3.96A4 4 0 013 9V5h2V3zm0 4v2a2 2 0 001.18 1.82A8.2 8.2 0 016 9V7H5zm14 0h-1v2c0 .61-.06 1.22-.18 1.82A2 2 0 0019 9V7z" />
+                                    <path
+                                        d="M5 3h14v2h2v4a4 4 0 01-3.42 3.96A6.01 6.01 0 0113 16.92V19h3v2H8v-2h3v-2.08a6.01 6.01 0 01-4.58-3.96A4 4 0 013 9V5h2V3zm0 4v2a2 2 0 001.18 1.82A8.2 8.2 0 016 9V7H5zm14 0h-1v2c0 .61-.06 1.22-.18 1.82A2 2 0 0019 9V7z" />
                                 </svg>
                             </div>
-                            <p class="text-[10px] font-bold uppercase tracking-widest text-[#B8962E]">{{ __('Predikat Diraih') }}</p>
-                            <p class="font-display text-charcoal mt-1 text-xl font-black">{{ $activeSession->badge_awarded }}</p>
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-[#B8962E]">
+                                {{ __('Predikat Diraih') }}</p>
+                            <p class="font-display text-charcoal mt-1 text-xl font-black">
+                                {{ $activeSession->badge_awarded }}</p>
                         </div>
                     @endif
 
                     @if (!empty($activeSession->collectibles_earned))
                         <div class="mb-6 text-left">
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">{{ __('Koleksi Didapat') }}</h3>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">
+                                {{ __('Koleksi Didapat') }}</h3>
                             <div class="mt-2 flex flex-wrap gap-2">
                                 @foreach ($activeSession->collectibles_earned as $collectible)
-                                    <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
-                                        🎖️ {{ $collectible === 'digital_passport' ? __('Digital Passport') : \Illuminate\Support\Str::of($collectible)->replace('_', ' ')->title() }}
+                                    <span
+                                        class="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
+                                        🎖️
+                                        {{ $collectible === 'digital_passport' ? __('Digital Passport') : \Illuminate\Support\Str::of($collectible)->replace('_', ' ')->title() }}
                                     </span>
                                 @endforeach
                             </div>
@@ -333,7 +376,7 @@
 
                 <div class="fixed inset-x-0 bottom-0 z-50 border-t border-gray-100 bg-white/95 p-4 backdrop-blur-sm">
                     <a href="{{ route('home') }}"
-                        class="mx-auto block max-w-md rounded-xl {{ $accentClasses['button_bg'] }} py-4 text-center text-base font-bold text-white shadow-md transition-transform {{ $accentClasses['button_hover'] }} active:scale-95 md:max-w-lg lg:max-w-xl">{{ __('Kembali ke Beranda') }}</a>
+                        class="{{ $accentClasses['button_bg'] }} {{ $accentClasses['button_hover'] }} mx-auto block max-w-md rounded-xl py-4 text-center text-base font-bold text-white shadow-md transition-transform active:scale-95 md:max-w-lg lg:max-w-xl">{{ __('Kembali ke Beranda') }}</a>
                 </div>
             </div>
         @endif
@@ -344,12 +387,11 @@
 
     <!-- Mission Runner Overlay (gamified missions per route point) -->
     @if ($pointMissions->isNotEmpty())
-        <div x-data="missionRunner(@js($pointMissions->map(fn($m) => ['id' => $m->id])->values()), @js($completedMissionIds))" x-show="open" x-cloak
-            @open-mission-runner.window="openRunner()" @mission-complete="onMissionComplete($event.detail)"
-            class="fixed inset-0 z-[60] flex flex-col bg-[#FAF9F6]">
-            <div class="flex items-center gap-3 border-b border-gray-100 bg-white p-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
-                <button type="button"
-                    @click="open = false; $dispatch('close-mission-runner')"
+        <div x-data="missionRunner(@js($pointMissions->map(fn($m) => ['id' => $m->id])->values()), @js($completedMissionIds))" x-show="open" x-cloak @open-mission-runner.window="openRunner()"
+            @mission-complete="onMissionComplete($event.detail)" class="fixed inset-0 z-[60] flex flex-col bg-[#FAF9F6]">
+            <div
+                class="flex items-center gap-3 border-b border-gray-100 bg-white p-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
+                <button type="button" @click="open = false; $dispatch('close-mission-runner')"
                     class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -372,8 +414,8 @@
                 <template x-if="stage === 'intro'">
                     <div class="mx-auto max-w-md space-y-5">
                         @if ($activeSession->currentPoint->intro_video_path)
-                            <video src="{{ route('audio.stream', $activeSession->currentPoint->intro_video_path) }}" controls
-                                playsinline class="w-full rounded-2xl border border-gray-100 shadow-sm"></video>
+                            <video src="{{ route('audio.stream', $activeSession->currentPoint->intro_video_path) }}"
+                                controls playsinline class="w-full rounded-2xl border border-gray-100 shadow-sm"></video>
                         @endif
                         @if ($activeSession->currentPoint->intro_audio_path)
                             <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
@@ -414,7 +456,9 @@
                                         {{ $mission->points }} {{ __('poin maks.') }}</span>
                                 </div>
                                 <h3 class="font-display text-charcoal text-xl font-black">{{ $mission->title }}</h3>
-                                @include('user.edutourism.games.' . str_replace('_', '-', $mission->type), ['mission' => $mission])
+                                @include('user.edutourism.games.' . str_replace('_', '-', $mission->type), [
+                                    'mission' => $mission,
+                                ])
                             </div>
                         </template>
                     @endforeach
@@ -491,283 +535,284 @@
         }
 
         (function() {
-                let mapInstance = null;
-                let watchId = null;
-                const hasCurrentPoint = @json((bool) $activeSession->currentPoint);
-                // A locationable may have several map points (e.g. multiple entrances) —
-                // arriving at any one of them completes the mission.
-                const targetPoints = @json($targetPoints);
+            let mapInstance = null;
+            let watchId = null;
+            const hasCurrentPoint = @json((bool) $activeSession->currentPoint);
+            // A locationable may have several map points (e.g. multiple entrances) —
+            // arriving at any one of them completes the mission.
+            const targetPoints = @json($targetPoints);
 
-                const initActiveEdutourism = function() {
-                    const mapEl = document.getElementById('map');
-                    if (mapEl && !mapInstance) {
-                        if (!hasCurrentPoint) {
-                            const duration = 3 * 1000;
-                            const animationEnd = Date.now() + duration;
-                            const defaults = {
-                                startVelocity: 30,
-                                spread: 360,
-                                ticks: 60,
-                                zIndex: 100
-                            };
+            const initActiveEdutourism = function() {
+                const mapEl = document.getElementById('map');
+                if (mapEl && !mapInstance) {
+                    if (!hasCurrentPoint) {
+                        const duration = 3 * 1000;
+                        const animationEnd = Date.now() + duration;
+                        const defaults = {
+                            startVelocity: 30,
+                            spread: 360,
+                            ticks: 60,
+                            zIndex: 100
+                        };
 
-                            function randomInRange(min, max) {
-                                return Math.random() * (max - min) + min;
-                            }
-
-                            const interval = setInterval(function() {
-                                const timeLeft = animationEnd - Date.now();
-
-                                if (timeLeft <= 0) {
-                                    clearInterval(interval);
-                                    return;
-                                }
-
-                                const particleCount = 50 * (timeLeft / duration);
-                                confetti(Object.assign({}, defaults, {
-                                    particleCount,
-                                    origin: {
-                                        x: randomInRange(0.1, 0.3),
-                                        y: Math.random() - 0.2
-                                    }
-                                }));
-                                confetti(Object.assign({}, defaults, {
-                                    particleCount,
-                                    origin: {
-                                        x: randomInRange(0.7, 0.9),
-                                        y: Math.random() - 0.2
-                                    }
-                                }));
-                            }, 250);
+                        function randomInRange(min, max) {
+                            return Math.random() * (max - min) + min;
                         }
 
-                        const map = L.map(mapEl, {
-                            zoomControl: false
-                        }).setView([-8.4223, 115.3595], 17);
-                        mapInstance = map;
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            maxZoom: 19
-                        }).addTo(map);
+                        const interval = setInterval(function() {
+                            const timeLeft = animationEnd - Date.now();
 
-                        targetPoints.forEach(function(point) {
-                            L.marker([point.lat, point.lng], {
+                            if (timeLeft <= 0) {
+                                clearInterval(interval);
+                                return;
+                            }
+
+                            const particleCount = 50 * (timeLeft / duration);
+                            confetti(Object.assign({}, defaults, {
+                                particleCount,
+                                origin: {
+                                    x: randomInRange(0.1, 0.3),
+                                    y: Math.random() - 0.2
+                                }
+                            }));
+                            confetti(Object.assign({}, defaults, {
+                                particleCount,
+                                origin: {
+                                    x: randomInRange(0.7, 0.9),
+                                    y: Math.random() - 0.2
+                                }
+                            }));
+                        }, 250);
+                    }
+
+                    const map = L.map(mapEl, {
+                        zoomControl: false
+                    }).setView([-8.4223, 115.3595], 17);
+                    mapInstance = map;
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19
+                    }).addTo(map);
+
+                    targetPoints.forEach(function(point) {
+                        L.marker([point.lat, point.lng], {
+                            icon: L.divIcon({
+                                className: 'target-pin',
+                                html: `<div style="background-color: #1E5128; width: 32px; height: 32px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;"><svg style="width: 16px; height: 16px; color: white;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div>`,
+                                iconSize: [32, 32],
+                                iconAnchor: [16, 16]
+                            })
+                        }).addTo(map);
+                    });
+
+                    let userMarker = null;
+
+                    // FOR TESTING PURPOSES ONLY! Delete in production if actual GPS is strictly needed.
+                    // Simulasi click on map to move GPS to test arrive trigger since dev GPS might be far
+                    map.on('click', function(e) {
+                        updateUserPosition(e.latlng.lat, e.latlng.lng);
+                    });
+
+                    function updateUserPosition(lat, lng) {
+                        if (!userMarker) {
+                            userMarker = L.marker([lat, lng], {
                                 icon: L.divIcon({
-                                    className: 'target-pin',
-                                    html: `<div style="background-color: #1E5128; width: 32px; height: 32px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;"><svg style="width: 16px; height: 16px; color: white;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div>`,
-                                    iconSize: [32, 32],
-                                    iconAnchor: [16, 16]
+                                    className: 'user-pin',
+                                    html: `<div style="background-color: #3B82F6; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(59,130,246,0.8);"></div>`,
+                                    iconSize: [24, 24],
+                                    iconAnchor: [12, 12]
                                 })
                             }).addTo(map);
-                        });
+                            map.setView([lat, lng], 18);
+                        } else {
+                            userMarker.setLatLng([lat, lng]);
+                        }
 
-                        let userMarker = null;
+                        if (targetPoints.length > 0) {
+                            // Arriving at any one of the target's points completes the mission.
+                            const dist = Math.min(...targetPoints.map(function(point) {
+                                return calculateDistance(lat, lng, point.lat, point.lng);
+                            }));
+                            const infoText = document.getElementById('distance-info');
+                            const arriveBtn = document.getElementById('btn-arrive');
 
-                        // FOR TESTING PURPOSES ONLY! Delete in production if actual GPS is strictly needed.
-                        // Simulasi click on map to move GPS to test arrive trigger since dev GPS might be far
-                        map.on('click', function(e) {
-                            updateUserPosition(e.latlng.lat, e.latlng.lng);
-                        });
+                            if (infoText && arriveBtn) {
+                                const detailBtn = document.getElementById('btn-detail-object');
+                                const scanBtn = document.getElementById('btn-scan-qr');
 
-                        function updateUserPosition(lat, lng) {
-                            if (!userMarker) {
-                                userMarker = L.marker([lat, lng], {
-                                    icon: L.divIcon({
-                                        className: 'user-pin',
-                                        html: `<div style="background-color: #3B82F6; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(59,130,246,0.8);"></div>`,
-                                        iconSize: [24, 24],
-                                        iconAnchor: [12, 12]
-                                    })
-                                }).addTo(map);
-                                map.setView([lat, lng], 18);
-                            } else {
-                                userMarker.setLatLng([lat, lng]);
-                            }
+                                if (dist < 30) {
+                                    infoText.innerHTML =
+                                        `{{ __('Lokasi Ditemukan!') }} ({{ __('Jarak') }}: ${dist}m)`;
+                                    arriveBtn.disabled = false;
+                                    arriveBtn.classList.remove('opacity-50');
+                                    arriveBtn.textContent = @js(__('Jawab Pertanyaan & Lanjut'));
 
-                            if (targetPoints.length > 0) {
-                                // Arriving at any one of the target's points completes the mission.
-                                const dist = Math.min(...targetPoints.map(function(point) {
-                                    return calculateDistance(lat, lng, point.lat, point.lng);
-                                }));
-                                const infoText = document.getElementById('distance-info');
-                                const arriveBtn = document.getElementById('btn-arrive');
+                                    if (detailBtn) detailBtn.classList.remove('hidden');
+                                    if (scanBtn) scanBtn.classList.remove('hidden');
+                                } else {
+                                    infoText.textContent = `{{ __('Jarak') }}: ${dist} {{ __('meter') }}`;
+                                    arriveBtn.disabled = true;
+                                    arriveBtn.classList.add('opacity-50');
+                                    arriveBtn.textContent = "{{ __('Mendekati Lokasi...') }}";
 
-                                if (infoText && arriveBtn) {
-                                    const detailBtn = document.getElementById('btn-detail-object');
-                                    const scanBtn = document.getElementById('btn-scan-qr');
-
-                                    if (dist < 30) {
-                                        infoText.innerHTML = `{{ __('Lokasi Ditemukan!') }} ({{ __('Jarak') }}: ${dist}m)`;
-                                        arriveBtn.disabled = false;
-                                        arriveBtn.classList.remove('opacity-50');
-                                        arriveBtn.textContent = @js(__('Jawab Pertanyaan & Lanjut'));
-
-                                        if (detailBtn) detailBtn.classList.remove('hidden');
-                                        if (scanBtn) scanBtn.classList.remove('hidden');
-                                    } else {
-                                        infoText.textContent = `{{ __('Jarak') }}: ${dist} {{ __('meter') }}`;
-                                        arriveBtn.disabled = true;
-                                        arriveBtn.classList.add('opacity-50');
-                                        arriveBtn.textContent = "{{ __('Mendekati Lokasi...') }}";
-
-                                        if (detailBtn) detailBtn.classList.add('hidden');
-                                        if (scanBtn) scanBtn.classList.add('hidden');
-                                    }
+                                    if (detailBtn) detailBtn.classList.add('hidden');
+                                    if (scanBtn) scanBtn.classList.add('hidden');
                                 }
                             }
                         }
+                    }
 
-                        if (navigator.geolocation && targetPoints.length > 0) {
-                            watchId = navigator.geolocation.watchPosition(pos => {
-                                updateUserPosition(pos.coords.latitude, pos.coords.longitude);
-                            }, err => {
-                                console.error(err);
-                            }, {
-                                enableHighAccuracy: true
+                    if (navigator.geolocation && targetPoints.length > 0) {
+                        watchId = navigator.geolocation.watchPosition(pos => {
+                            updateUserPosition(pos.coords.latitude, pos.coords.longitude);
+                        }, err => {
+                            console.error(err);
+                        }, {
+                            enableHighAccuracy: true
+                        });
+                    }
+
+                    function calculateDistance(lat1, lon1, lat2, lon2) {
+                        const R = 6371e3;
+                        const p1 = lat1 * Math.PI / 180;
+                        const p2 = lat2 * Math.PI / 180;
+                        const dp = (lat2 - lat1) * Math.PI / 180;
+                        const dl = (lon2 - lon1) * Math.PI / 180;
+
+                        const a = Math.sin(dp / 2) * Math.sin(dp / 2) +
+                            Math.cos(p1) * Math.cos(p2) *
+                            Math.sin(dl / 2) * Math.sin(dl / 2);
+                        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                        return Math.floor(R * c);
+                    }
+
+                    window.triggerArrive = function(pointId) {
+                        console.log("triggerArrive called for point ID:", pointId);
+                        const btnArrive = document.getElementById('btn-arrive');
+                        if (btnArrive) {
+                            btnArrive.disabled = true;
+                            btnArrive.textContent = "{{ __('Memuat...') }}";
+                        }
+
+                        const url = `/edutourism/arrive/${pointId}`;
+                        console.log("Fetching URL:", url);
+
+                        fetch(url, {
+                                method: 'GET',
+                                headers: {
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(res => {
+                                console.log("Response received. Status:", res.status);
+                                if (!res.ok) {
+                                    throw new Error(`HTTP error! status: ${res.status}`);
+                                }
+                                return res.json();
+                            })
+                            .then(data => {
+                                console.log("Data received successfully:", data);
+                                if (data.success && data.has_missions) {
+                                    window.dispatchEvent(new CustomEvent('open-mission-runner'));
+                                    document.getElementById('btn-arrive').disabled = false;
+                                    document.getElementById('btn-arrive').textContent =
+                                        @js(__('Mulai Misi'));
+                                } else if (data.success && data.session_status === 'completed') {
+                                    window.location.reload();
+                                } else {
+                                    Swal.fire({
+                                        title: "{{ __('Info') }}",
+                                        text: "{{ __('Rute berlanjut...') }}",
+                                        icon: 'info',
+                                        confirmButtonColor: '#1E5128',
+                                        confirmButtonText: "{{ __('Lanjut') }}"
+                                    }).then(() => {
+                                        window.location.reload();
+                                    });
+                                }
+                            })
+                            .catch(err => {
+                                console.error("Error occurred in triggerArrive:", err);
+                                document.getElementById('btn-arrive').disabled = false;
+                                document.getElementById('btn-arrive').textContent =
+                                    @js(__('Lanjut'));
+                                Swal.fire({
+                                    title: "{{ __('Oops!') }}",
+                                    text: "{{ __('Gagal memuat titik.') }}",
+                                    icon: 'error',
+                                    confirmButtonColor: '#1E5128'
+                                });
                             });
-                        }
+                    }
 
-                        function calculateDistance(lat1, lon1, lat2, lon2) {
-                            const R = 6371e3;
-                            const p1 = lat1 * Math.PI / 180;
-                            const p2 = lat2 * Math.PI / 180;
-                            const dp = (lat2 - lat1) * Math.PI / 180;
-                            const dl = (lon2 - lon1) * Math.PI / 180;
-
-                            const a = Math.sin(dp / 2) * Math.sin(dp / 2) +
-                                Math.cos(p1) * Math.cos(p2) *
-                                Math.sin(dl / 2) * Math.sin(dl / 2);
-                            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                            return Math.floor(R * c);
-                        }
-
-                        window.triggerArrive = function(pointId) {
-                            console.log("triggerArrive called for point ID:", pointId);
-                            const btnArrive = document.getElementById('btn-arrive');
-                            if (btnArrive) {
-                                btnArrive.disabled = true;
-                                btnArrive.textContent = "{{ __('Memuat...') }}";
+                    window.stopRoute = function() {
+                        const btn = document.getElementById('btn-stop-route');
+                        Swal.fire({
+                            title: "{{ __('Berhenti dari Rute?') }}",
+                            text: "{{ __('Progres Anda akan hilang jika berhenti sekarang.') }}",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: "{{ __('Ya, Berhenti') }}",
+                            cancelButtonText: "{{ __('Batal') }}",
+                            confirmButtonColor: '#E65100'
+                        }).then(result => {
+                            if (!result.isConfirmed) {
+                                return;
                             }
 
-                            const url = `/edutourism/arrive/${pointId}`;
-                            console.log("Fetching URL:", url);
+                            if (btn) {
+                                btn.disabled = true;
+                            }
 
-                            fetch(url, {
-                                    method: 'GET',
+                            fetch('/edutourism/stop', {
+                                    method: 'POST',
                                     headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
                                         'Accept': 'application/json'
                                     }
                                 })
-                                .then(res => {
-                                    console.log("Response received. Status:", res.status);
-                                    if (!res.ok) {
-                                        throw new Error(`HTTP error! status: ${res.status}`);
-                                    }
-                                    return res.json();
-                                })
+                                .then(res => res.json())
                                 .then(data => {
-                                    console.log("Data received successfully:", data);
-                                    if (data.success && data.has_missions) {
-                                        window.dispatchEvent(new CustomEvent('open-mission-runner'));
-                                        document.getElementById('btn-arrive').disabled = false;
-                                        document.getElementById('btn-arrive').textContent =
-                                            @js(__('Mulai Misi'));
-                                    } else if (data.success && data.session_status === 'completed') {
-                                        window.location.reload();
-                                    } else {
-                                        Swal.fire({
-                                            title: "{{ __('Info') }}",
-                                            text: "{{ __('Rute berlanjut...') }}",
-                                            icon: 'info',
-                                            confirmButtonColor: '#1E5128',
-                                            confirmButtonText: "{{ __('Lanjut') }}"
-                                        }).then(() => {
-                                            window.location.reload();
-                                        });
+                                    if (data.success) {
+                                        if (window.history.length > 1) {
+                                            window.history.back();
+                                        } else {
+                                            window.location.href = data.redirect;
+                                        }
                                     }
                                 })
-                                .catch(err => {
-                                    console.error("Error occurred in triggerArrive:", err);
-                                    document.getElementById('btn-arrive').disabled = false;
-                                    document.getElementById('btn-arrive').textContent =
-                                        @js(__('Lanjut'));
+                                .catch(() => {
+                                    if (btn) {
+                                        btn.disabled = false;
+                                    }
                                     Swal.fire({
                                         title: "{{ __('Oops!') }}",
-                                        text: "{{ __('Gagal memuat titik.') }}",
+                                        text: "{{ __('Gagal menghentikan rute.') }}",
                                         icon: 'error',
                                         confirmButtonColor: '#1E5128'
                                     });
                                 });
-                        }
-
-                        window.stopRoute = function() {
-                            const btn = document.getElementById('btn-stop-route');
-                            Swal.fire({
-                                title: "{{ __('Berhenti dari Rute?') }}",
-                                text: "{{ __('Progres Anda akan hilang jika berhenti sekarang.') }}",
-                                icon: 'warning',
-                                showCancelButton: true,
-                                confirmButtonText: "{{ __('Ya, Berhenti') }}",
-                                cancelButtonText: "{{ __('Batal') }}",
-                                confirmButtonColor: '#E65100'
-                            }).then(result => {
-                                if (!result.isConfirmed) {
-                                    return;
-                                }
-
-                                if (btn) {
-                                    btn.disabled = true;
-                                }
-
-                                fetch('/edutourism/stop', {
-                                        method: 'POST',
-                                        headers: {
-                                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                            'Accept': 'application/json'
-                                        }
-                                    })
-                                    .then(res => res.json())
-                                    .then(data => {
-                                        if (data.success) {
-                                            if (window.history.length > 1) {
-                                                window.history.back();
-                                            } else {
-                                                window.location.href = data.redirect;
-                                            }
-                                        }
-                                    })
-                                    .catch(() => {
-                                        if (btn) {
-                                            btn.disabled = false;
-                                        }
-                                        Swal.fire({
-                                            title: "{{ __('Oops!') }}",
-                                            text: "{{ __('Gagal menghentikan rute.') }}",
-                                            icon: 'error',
-                                            confirmButtonColor: '#1E5128'
-                                        });
-                                    });
-                            });
-                        }
+                        });
                     }
-                };
+                }
+            };
 
-                // Run immediately
-                initActiveEdutourism();
+            // Run immediately
+            initActiveEdutourism();
 
-                // Clean up GPS watch position and map instance when navigating away via Livewire
-                document.addEventListener('livewire:navigating', function cleanup(e) {
-                    if (watchId !== null) {
-                        navigator.geolocation.clearWatch(watchId);
-                        watchId = null;
-                    }
-                    if (mapInstance) {
-                        mapInstance.remove();
-                        mapInstance = null;
-                    }
-                    delete window.triggerArrive;
-                    delete window.stopRoute;
-                    document.removeEventListener('livewire:navigating', cleanup);
-                });
+            // Clean up GPS watch position and map instance when navigating away via Livewire
+            document.addEventListener('livewire:navigating', function cleanup(e) {
+                if (watchId !== null) {
+                    navigator.geolocation.clearWatch(watchId);
+                    watchId = null;
+                }
+                if (mapInstance) {
+                    mapInstance.remove();
+                    mapInstance = null;
+                }
+                delete window.triggerArrive;
+                delete window.stopRoute;
+                document.removeEventListener('livewire:navigating', cleanup);
+            });
         })();
     </script>
 @endsection
