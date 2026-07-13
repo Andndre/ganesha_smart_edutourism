@@ -146,8 +146,10 @@
                 $hasActiveSession = isset($activeEdutourismSession) && !Route::is('edutourism.active');
             @endphp
 
+            {{-- --route-banner-h: tinggi floating-route-banner; sticky bar halaman pakai bottom-(--route-banner-h,0px) agar otomatis naik saat banner aktif --}}
             <main id="main-content"
-                class="no-scrollbar {{ $hasActiveSession ? 'pb-28' : 'pb-6' }} relative flex-1 overflow-y-auto">
+                class="no-scrollbar {{ $hasActiveSession ? 'pb-28' : 'pb-6' }} relative flex-1 overflow-y-auto"
+                @if ($hasActiveSession) style="--route-banner-h: 5.5rem" @endif>
                 @yield('content')
             </main>
 

@@ -4,7 +4,7 @@
 
 @section('content')
     <article
-        class="bg-surface {{ !empty($object['ar_marker_id']) || !empty($object['model_3d_path']) ? (isset($activeEdutourismSession) && !Route::is('edutourism.active') ? 'pb-52' : 'pb-32') : 'pb-10' }}">
+        class="bg-surface {{ !empty($object['ar_marker_id']) || !empty($object['model_3d_path']) ? 'pb-32' : 'pb-10' }}">
         <!-- Hero Image Area / Carousel -->
         <div class="relative h-[40dvh] w-full overflow-hidden bg-gray-200" x-data="{
             currentIndex: 0,
@@ -56,8 +56,10 @@
                 </template>
             @else
                 <div class="absolute inset-0 flex items-center justify-center text-gray-400">
-                    <svg class="h-16 w-16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                    <svg class="h-16 w-16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                     </svg>
                 </div>
             @endif
@@ -133,11 +135,13 @@
                         </svg>
                     </button>
                     <div class="flex-1">
-                        <div class="mb-0.5 inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
+                        <div
+                            class="mb-0.5 inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
                             {{ app()->getLocale() === 'id' ? __('Audio Bahasa Indonesia') : __('Audio Bahasa Inggris') }}
                         </div>
                         <div class="text-charcoal text-sm font-bold"
-                            x-text="playing ? '{{ __('Memutar Kisah Sejarah...') }}' : '{{ __('Dengarkan Kisah Ini') }}'">{{ __('Dengarkan Kisah Ini') }}</div>
+                            x-text="playing ? '{{ __('Memutar Kisah Sejarah...') }}' : '{{ __('Dengarkan Kisah Ini') }}'">
+                            {{ __('Dengarkan Kisah Ini') }}</div>
                         <!-- Playback Seekbar & Timers -->
                         <div class="mt-1.5 flex items-center gap-3">
                             <span class="min-w-7 text-[10px] font-bold tabular-nums text-gray-500"
@@ -182,7 +186,7 @@
 
         <!-- Article Content -->
         <div
-            class="prose prose-p:text-gray-600 prose-p:leading-relaxed prose-h2:font-playfair prose-h2:text-charcoal prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 max-w-none px-6 {{ empty($object['audio_narration_path']) ? 'pt-8' : '' }}">
+            class="prose prose-p:text-gray-600 prose-p:leading-relaxed prose-h2:font-playfair prose-h2:text-charcoal prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 {{ empty($object['audio_narration_path']) ? 'pt-8' : '' }} max-w-none px-6">
 
             @if (!empty($object['description']))
                 {!! $object['description'] !!}
@@ -203,7 +207,8 @@
                         @error('comment')
                             <p class="mb-3 text-sm text-red-600">{{ $message }}</p>
                         @enderror
-                        <form method="POST" action="{{ route('cultural-object.rating.store', $object['slug']) }}" x-data="{ rating: {{ $existingRating->rating ?? 0 }} }">
+                        <form method="POST" action="{{ route('cultural-object.rating.store', $object['slug']) }}"
+                            x-data="{ rating: {{ $existingRating->rating ?? 0 }} }">
                             @csrf
                             <div class="mb-3 flex gap-1">
                                 @for ($i = 1; $i <= 5; $i++)
@@ -215,10 +220,8 @@
                             </div>
                             <input type="hidden" name="rating" x-model="rating">
                             <textarea name="comment" rows="2" maxlength="1000"
-                                class="w-full rounded-xl border border-gray-200 p-3 text-sm"
-                                placeholder="{{ __('Komentar (opsional)') }}">{{ $existingRating->comment ?? '' }}</textarea>
-                            <button type="submit"
-                                class="bg-primary mt-3 w-full rounded-xl py-3 font-bold text-white">
+                                class="w-full rounded-xl border border-gray-200 p-3 text-sm" placeholder="{{ __('Komentar (opsional)') }}">{{ $existingRating->comment ?? '' }}</textarea>
+                            <button type="submit" class="bg-primary mt-3 w-full rounded-xl py-3 font-bold text-white">
                                 {{ $existingRating ? __('Perbarui Rating') : __('Kirim Rating') }}
                             </button>
                         </form>
@@ -230,7 +233,7 @@
         <!-- AR Button -->
         @if (!empty($object['ar_marker_id']) || !empty($object['model_3d_path']))
             <div
-                class="{{ isset($activeEdutourismSession) && !Route::is('edutourism.active') ? 'bottom-22 pb-4' : 'bottom-0 pb-[calc(1rem+env(safe-area-inset-bottom))]' }} fixed inset-x-0 z-30 border-t border-gray-100 bg-white p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+                class="bottom-(--route-banner-h,0px) fixed inset-x-0 z-30 border-t border-gray-100 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
                 <a href="{{ route('ar-scan', empty($object['ar_marker_id']) ? [] : ['marker' => $object['ar_marker_id']]) }}"
                     class="bg-primary flex w-full items-center justify-center gap-2 rounded-xl py-4 font-bold text-white shadow-[0_4px_14px_rgba(30,81,40,0.3)] transition-all active:scale-[0.98]">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
