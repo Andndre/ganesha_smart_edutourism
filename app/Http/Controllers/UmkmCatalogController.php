@@ -93,7 +93,9 @@ class UmkmCatalogController extends Controller
                 session()->put('missing_categories', $missingNames);
             }
 
-            return back();
+            // Flash a one-shot trigger so the modal only pops right after a search,
+            // not on every later visit to /umkm (route data itself stays in session).
+            return back()->with('show_multi_stop_modal', true);
         }
 
         return back()->with('error', __('Maaf, tidak ada UMKM yang saat ini memiliki stok untuk barang pilihan Anda.'));

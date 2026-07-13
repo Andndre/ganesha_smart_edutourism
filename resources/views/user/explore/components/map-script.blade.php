@@ -354,12 +354,15 @@
                 if (action === 'route' && targetLat && targetLng) {
                     const latNum = parseFloat(targetLat);
                     const lngNum = parseFloat(targetLng);
+                    const targetId = parseInt(urlParams.get('id'), 10);
 
-                    // Find matching location in locations array (allowing a small tolerance)
-                    const targetLoc = locations.find(loc =>
-                        Math.abs(parseFloat(loc.lat) - latNum) < 0.0001 &&
-                        Math.abs(parseFloat(loc.lng) - lngNum) < 0.0001
-                    ) || {
+                    // Prefer an exact MapLocation id match (unambiguous when UMKM sit
+                    // side by side); fall back to coordinate proximity for old links.
+                    const targetLoc = locations.find(loc => loc.id === targetId) ||
+                        locations.find(loc =>
+                            Math.abs(parseFloat(loc.lat) - latNum) < 0.0001 &&
+                            Math.abs(parseFloat(loc.lng) - lngNum) < 0.0001
+                        ) || {
                         lat: latNum,
                         lng: lngNum,
                         name: targetName || 'Tujuan',
@@ -373,6 +376,10 @@
 
                     // Trigger opening the sheet and route calculation after a short timeout to let Leaflet load
                     setTimeout(() => {
+                        // Highlight the specific marker so it stands out from neighbours
+                        const targetItem = markerLayers.find(item => item.loc.id === targetLoc.id);
+                        if (targetItem) targetItem.marker.setIcon(focusMarkerIcon(targetLoc.cat));
+
                         openSheet(targetLoc);
                         map.flyTo([targetLoc.lat - 0.0005, targetLoc.lng], 18, {
                             animate: true,
@@ -1225,6 +1232,18 @@
                 } catch (e) {
                     return {};
                 }
+            }
+
+            // Single highlighted destination (action=route) — a larger green pin
+            // with a ring so it stands out among closely-packed UMKM markers.
+            function focusMarkerIcon(category) {
+                const color = categoryColors[category] || '#1E5128';
+                return L.divIcon({
+                    className: 'custom-pin',
+                    html: `<div style="background:${color};width:34px;height:34px;border-radius:50%;border:4px solid white;box-shadow:0 0 0 4px rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 6a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/></svg></div>`,
+                    iconSize: [34, 34],
+                    iconAnchor: [17, 17]
+                });
             }
 
             function stopBadgeIcon(number, done) {

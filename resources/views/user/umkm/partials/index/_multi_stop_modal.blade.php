@@ -1,6 +1,6 @@
 {{-- ponytail: partial dipecah untuk keterbacaan --}}
     <!-- Multi-Stop Recommendation Modal -->
-    @if (session('multi_stop_recommendations'))
+    @if (session('show_multi_stop_modal'))
         <x-modal name="multi-stop" maxWidth="sm" :defaultOpen="true">
             <div class="text-center">
                 <div
