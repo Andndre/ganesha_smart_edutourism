@@ -32,6 +32,8 @@
 
             <form action="{{ route('umkm.recommend') }}" method="POST">
                 @csrf
+                <input type="hidden" name="lat" id="recommend-lat">
+                <input type="hidden" name="lng" id="recommend-lng">
                 @include('user.umkm.partials.index._category_search')
                 @include('user.umkm.partials.index._category_grid')
 

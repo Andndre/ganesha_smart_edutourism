@@ -13,6 +13,19 @@
             let currentModalTab = 'image';
             const messages = @json($umkmMessages);
 
+            // Silently grab GPS so the recommendation can start from the user's position.
+            // Denied/unavailable → inputs stay empty → server falls back to old behavior.
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(pos) {
+                    const latEl = document.getElementById('recommend-lat');
+                    const lngEl = document.getElementById('recommend-lng');
+                    if (latEl && lngEl) {
+                        latEl.value = pos.coords.latitude;
+                        lngEl.value = pos.coords.longitude;
+                    }
+                }, function() {}, { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 });
+            }
+
             function updateCardHighlight(id) {
                 const card = document.getElementById(`card-cat-${id}`);
                 const checkbox = document.getElementById(`checkbox-cat-${id}`);

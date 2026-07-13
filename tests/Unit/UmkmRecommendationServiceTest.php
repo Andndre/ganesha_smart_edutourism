@@ -304,4 +304,56 @@ class UmkmRecommendationServiceTest extends TestCase
             'recommendation_count' => 1,
         ]);
     }
+
+    public function test_recommend_multiple_orders_stops_from_user_location(): void
+    {
+        $cat1 = $this->makeCategory('Kopi');
+        $cat2 = $this->makeCategory('Kerajinan');
+
+        // Far UMKM (~7 km away) covers cat1
+        $owner1 = $this->makeOwner();
+        $far = $this->makeUmkm($owner1);
+        $this->attachLocation($far, -8.40, 115.30);
+        $this->makeProduct($far, $cat1);
+
+        // Near UMKM (~15 m away) covers cat2
+        $owner2 = $this->makeOwner();
+        $near = $this->makeUmkm($owner2);
+        $this->attachLocation($near, -8.4210, 115.3592);
+        $this->makeProduct($near, $cat2);
+
+        // User standing right next to $near
+        $result = $this->service->recommendMultipleForCategories(
+            [$cat1->id, $cat2->id], -8.4211, 115.3593
+        );
+
+        $this->assertNotNull($result);
+        $this->assertCount(2, $result['route']);
+        $this->assertEquals($near->id, $result['route'][0]['umkm_id']);
+        $this->assertEquals($far->id, $result['route'][1]['umkm_id']);
+    }
+
+    public function test_recommend_multiple_without_coordinates_is_unchanged(): void
+    {
+        // Same setup as above, but no coords: both UMKMs cover distinct categories,
+        // so both must appear; no distance reference for the first pick.
+        $cat1 = $this->makeCategory('Kopi');
+        $cat2 = $this->makeCategory('Kerajinan');
+
+        $owner1 = $this->makeOwner();
+        $umkm1 = $this->makeUmkm($owner1);
+        $this->attachLocation($umkm1, -8.40, 115.30);
+        $this->makeProduct($umkm1, $cat1);
+
+        $owner2 = $this->makeOwner();
+        $umkm2 = $this->makeUmkm($owner2);
+        $this->attachLocation($umkm2, -8.4210, 115.3592);
+        $this->makeProduct($umkm2, $cat2);
+
+        $result = $this->service->recommendMultipleForCategories([$cat1->id, $cat2->id]);
+
+        $this->assertNotNull($result);
+        $this->assertCount(2, $result['route']);
+        $this->assertEmpty($result['missing']);
+    }
 }

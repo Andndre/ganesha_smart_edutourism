@@ -61,6 +61,8 @@ class UmkmCatalogController extends Controller
         $request->validate([
             'category_ids' => 'required|array|min:1',
             'category_ids.*' => 'exists:umkm_product_categories,id',
+            'lat' => 'nullable|numeric|between:-90,90',
+            'lng' => 'nullable|numeric|between:-180,180',
         ]);
 
         // Clear any previous multi-stop result so a new search never shows stale data.
@@ -74,7 +76,10 @@ class UmkmCatalogController extends Controller
         }
 
         // Fallback: Multi-Stop Recommendation
-        $multiStopData = $recommendationService->recommendMultipleForCategories($request->category_ids);
+        $lat = $request->filled('lat') ? (float) $request->input('lat') : null;
+        $lng = $request->filled('lng') ? (float) $request->input('lng') : null;
+
+        $multiStopData = $recommendationService->recommendMultipleForCategories($request->category_ids, $lat, $lng);
 
         if ($multiStopData && ! empty($multiStopData['route'])) {
             // ponytail: plain session (not flash) — flash data ages out after any

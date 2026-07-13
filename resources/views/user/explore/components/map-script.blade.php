@@ -46,6 +46,10 @@
             const liveUserMarkers = {};
             let heatmapData = [];
 
+            // Multi-stop shopping route state (action=multi_route)
+            let multiRouteStops = []; // [{marker, loc}] in route order, subset of markerLayers
+            let multiRouteDoneKey = null; // localStorage key, namespaced by the stops param
+
             function updateRouteButtonUI() {
                 const iconEl = document.getElementById('route-btn-icon');
                 const textEl = document.getElementById('route-btn-text');
@@ -386,58 +390,7 @@
                 if (action === 'multi_route') {
                     const stopsParam = urlParams.get('stops');
                     if (stopsParam) {
-                        const stops = stopsParam.split('|').map(s => {
-                            const parts = s.split(',');
-                            return [parseFloat(parts[0]), parseFloat(parts[1])];
-                        });
-
-                        // Trigger drawing the route after map and user GPS load
-                        setTimeout(() => {
-                            // Fit bounds to all stops to center map
-                            const bounds = L.latLngBounds(stops);
-                            map.fitBounds(bounds, {
-                                padding: [50, 50]
-                            });
-
-                            // Show SweetAlert GPS loading spinner
-                            Swal.fire({
-                                title: @js(__('Mendeteksi Lokasi...')),
-                                text: @js(__('Mohon tunggu, sedang memuat rute navigasi belanja...')),
-                                allowOutsideClick: false,
-                                showConfirmButton: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
-                                }
-                            });
-
-                            // Wait for user GPS location
-                            let checkCount = 0;
-                            const checkInterval = setInterval(() => {
-                                checkCount++;
-                                if (lastPosition) {
-                                    clearInterval(checkInterval);
-                                    Swal.close();
-
-                                    // Draw the route from user's current position through all stops
-                                    const allCoords = [
-                                        [parseFloat(lastPosition.lng), parseFloat(lastPosition.lat)]
-                                    ];
-                                    // ORS route coordinates are [lng, lat]
-                                    stops.forEach(stop => {
-                                        allCoords.push([stop[1], stop[0]]);
-                                    });
-
-                                    drawMultiStopRoute(allCoords);
-                                } else if (!isGpsLoading || checkCount >= 16) {
-                                    // Timeout fallback: just draw lines between the stops (without user position)
-                                    clearInterval(checkInterval);
-                                    Swal.close();
-
-                                    const allCoords = stops.map(stop => [stop[1], stop[0]]);
-                                    drawMultiStopRoute(allCoords);
-                                }
-                            }, 500);
-                        }, 800);
+                        initMultiRoute(stopsParam);
                     }
                 }
             }
@@ -1073,6 +1026,22 @@
                     }
                 }
 
+                // Multi-route "mark done" button — only for active, unfinished stops
+                const doneBtn = document.getElementById('sheet-done-btn');
+                if (doneBtn) {
+                    const isActiveStop = multiRouteStops.some(item => item.loc.id === loc.id);
+                    const isDone = isActiveStop && !!getMultiRouteDone()[loc.id];
+                    if (isActiveStop && !isDone) {
+                        doneBtn.style.display = 'flex';
+                        doneBtn.onclick = function() {
+                            if (navigator.vibrate) navigator.vibrate(50);
+                            markStopDone(loc);
+                        };
+                    } else {
+                        doneBtn.style.display = 'none';
+                    }
+                }
+
                 window.dispatchEvent(new CustomEvent('open-location-sheet', {
                     detail: {
                         images: loc.images || []
@@ -1244,6 +1213,128 @@
                 map.fitBounds(polyline.getBounds(), {
                     padding: [60, 60]
                 });
+            }
+
+            // ==========================================
+            // MULTI-STOP SHOPPING ROUTE (action=multi_route)
+            // ==========================================
+            function getMultiRouteDone() {
+                if (!multiRouteDoneKey) return {};
+                try {
+                    return JSON.parse(localStorage.getItem(multiRouteDoneKey)) || {};
+                } catch (e) {
+                    return {};
+                }
+            }
+
+            function stopBadgeIcon(number, done) {
+                const bg = done ? '#9CA3AF' : '#F97316';
+                const label = done ? '✓' : number;
+                return L.divIcon({
+                    className: 'custom-pin',
+                    html: `<div style="background:${bg};width:30px;height:30px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.35);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;">${label}</div>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                });
+            }
+
+            function initMultiRoute(stopsParam) {
+                multiRouteDoneKey = 'multi_route_done:' + stopsParam;
+
+                // Prune progress of older routes so localStorage doesn't accumulate
+                Object.keys(localStorage)
+                    .filter(k => k.startsWith('multi_route_done:') && k !== multiRouteDoneKey)
+                    .forEach(k => localStorage.removeItem(k));
+
+                const ids = stopsParam.split(',').map(s => parseInt(s, 10));
+                multiRouteStops = ids
+                    .map(id => markerLayers.find(item => item.loc.id === id))
+                    .filter(Boolean);
+
+                if (multiRouteStops.length === 0) return;
+
+                const done = getMultiRouteDone();
+                multiRouteStops.forEach((item, i) => {
+                    item.marker.setIcon(stopBadgeIcon(i + 1, !!done[item.loc.id]));
+                });
+
+                const bounds = L.latLngBounds(multiRouteStops.map(item => [item.loc.lat, item.loc.lng]));
+                map.fitBounds(bounds, { padding: [50, 50] });
+
+                // Wait briefly for GPS, then draw (same pattern as single-destination routing)
+                setTimeout(() => {
+                    Swal.fire({
+                        title: @js(__('Mendeteksi Lokasi...')),
+                        text: @js(__('Mohon tunggu, sedang memuat rute navigasi belanja...')),
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    let checkCount = 0;
+                    const checkInterval = setInterval(() => {
+                        checkCount++;
+                        if (lastPosition || !isGpsLoading || checkCount >= 16) {
+                            clearInterval(checkInterval);
+                            Swal.close();
+                            redrawMultiRoute();
+                        }
+                    }, 500);
+                }, 800);
+            }
+
+            function redrawMultiRoute() {
+                const done = getMultiRouteDone();
+                const remaining = multiRouteStops.filter(item => !done[item.loc.id]);
+
+                if (userRouteLayer) {
+                    map.removeLayer(userRouteLayer);
+                    userRouteLayer = null;
+                }
+                if (remaining.length === 0) return;
+
+                // ORS wants [lng, lat]; start from the user's position when we have one
+                const coords = [];
+                if (lastPosition) {
+                    coords.push([parseFloat(lastPosition.lng), parseFloat(lastPosition.lat)]);
+                }
+                remaining.forEach(item => coords.push([item.loc.lng, item.loc.lat]));
+
+                if (coords.length >= 2) {
+                    drawMultiStopRoute(coords);
+                }
+            }
+
+            function markStopDone(loc) {
+                const done = getMultiRouteDone();
+                done[loc.id] = true;
+                localStorage.setItem(multiRouteDoneKey, JSON.stringify(done));
+
+                const idx = multiRouteStops.findIndex(item => item.loc.id === loc.id);
+                if (idx !== -1) {
+                    multiRouteStops[idx].marker.setIcon(stopBadgeIcon(idx + 1, true));
+                }
+                closeSheet();
+
+                const allDone = multiRouteStops.every(item => done[item.loc.id]);
+                if (allDone) {
+                    if (userRouteLayer) {
+                        map.removeLayer(userRouteLayer);
+                        userRouteLayer = null;
+                    }
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: @js(__('Perjalanan belanja selesai!')),
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                } else {
+                    redrawMultiRoute();
+                }
             }
 
             // Expose required sheet functions to window for inline HTML onclick attributes

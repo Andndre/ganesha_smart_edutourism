@@ -19,7 +19,7 @@ class ExploreController extends Controller
     public function index(): View
     {
         $locale = app()->getLocale();
-        $locations = Cache::tags(['explore'])->flexible("explore_map_locations_array_{$locale}", [86400, 172800], function () {
+        $locations = Cache::tags(['explore'])->flexible("explore_map_locations_array_v2_{$locale}", [86400, 172800], function () {
             return MapLocation::with(['locationable' => function ($morphTo) {
                 $morphTo->morphWith([CulturalObject::class => ['arModel']]);
             }])->get()->map(function ($loc) {
@@ -59,6 +59,7 @@ class ExploreController extends Controller
                 }
 
                 return [
+                    'id' => $loc->id,
                     'lat' => (float) $loc->latitude,
                     'lng' => (float) $loc->longitude,
                     'name' => $loc->name,
