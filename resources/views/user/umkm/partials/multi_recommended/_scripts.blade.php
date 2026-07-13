@@ -125,11 +125,13 @@
             function startNavigation() {
                 if (navigator.vibrate) navigator.vibrate(50);
 
-                // Extract coordinate strings: "lat,lng|lat,lng"
-                const coordsStr = mapCoordinates.map(coord => coord.join(',')).join('|');
+                // MapLocation IDs in route order — explore resolves & highlights them
+                const stopIds = routeData
+                    .map(stop => stop.umkm && (stop.umkm.map_location || stop.umkm.mapLocation))
+                    .filter(loc => loc && loc.id)
+                    .map(loc => loc.id);
 
-                // Redirect to explore page with action=multi_route and coordinates
-                window.location.href = `/explore?action=multi_route&stops=${encodeURIComponent(coordsStr)}`;
+                window.location.href = `/explore?action=multi_route&stops=${stopIds.join(',')}`;
             }
 
             // Expose required functions to window for inline HTML onclick attributes

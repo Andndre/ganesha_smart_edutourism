@@ -1,5 +1,5 @@
 <x-modal name="location-sheet" maxWidth="md" :hasBackdrop="false" desktopLayout="drawer">
-    <div class="px-1 py-1 h-full flex flex-col">
+    <div class="flex h-full flex-col px-1 py-1">
         <!-- Dynamic Cover Image Slider -->
         <div id="sheet-image-container" class="relative mb-4 hidden h-40 w-full overflow-hidden rounded-2xl bg-gray-100"
             x-data="{
@@ -64,7 +64,8 @@
         <!-- Header -->
         <div class="mb-4 flex items-start justify-between">
             <div>
-                <h3 id="sheet-title" class="font-display text-charcoal text-xl font-bold tracking-tight">{{ __('Nama Lokasi') }}
+                <h3 id="sheet-title" class="font-display text-charcoal text-xl font-bold tracking-tight">
+                    {{ __('Nama Lokasi') }}
                 </h3>
                 <div class="mt-2 flex flex-wrap gap-2">
                     <span id="sheet-category-badge"
@@ -94,11 +95,12 @@
         </div>
 
         <!-- Content Area -->
-        <div class="flex-1 space-y-4 overflow-y-auto pr-1 pb-20">
+        <div class="flex-1 space-y-4 overflow-y-auto pb-3 pr-1">
             <!-- Deskripsi Section -->
             <div id="section-desc">
                 <h4 class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{{ __('Deskripsi') }}</h4>
-                <p id="sheet-desc" class="text-sm leading-relaxed text-gray-600">{{ __('Detail deskripsi lokasi.') }}</p>
+                <p id="sheet-desc" class="text-sm leading-relaxed text-gray-600">{{ __('Detail deskripsi lokasi.') }}
+                </p>
             </div>
 
             <!-- Aksesibilitas Section -->
@@ -111,14 +113,21 @@
                     </svg>
                 </div>
                 <div>
-                    <h4 class="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-800">{{ __('Aksesibilitas') }}</h4>
+                    <h4 class="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-800">
+                        {{ __('Aksesibilitas') }}</h4>
                     <p id="sheet-accessibility" class="text-xs font-medium leading-relaxed text-amber-700"></p>
                 </div>
             </div>
         </div>
 
+        <!-- Multi-route: mark stop as done (hidden unless location is an active stop) -->
+        <button type="button" id="sheet-done-btn" style="display: none;"
+            class="bg-primary mt-4 w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95">
+            ✓ {{ __('Tandai Selesai Belanja') }}
+        </button>
+
         <!-- Action Buttons -->
-        <div class="mt-4 pt-4 border-t border-gray-100 flex gap-3 pb-2 shrink-0">
+        <div class="mt-4 flex shrink-0 gap-3 border-t border-gray-100 pb-2 pt-4">
             <a href="#" id="sheet-route-btn" target="_blank"
                 class="shadow-xs flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-3.5 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 active:scale-95">
                 <span id="route-btn-icon" class="flex items-center justify-center">

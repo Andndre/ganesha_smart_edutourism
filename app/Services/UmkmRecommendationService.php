@@ -50,7 +50,7 @@ class UmkmRecommendationService
      * @param  array<int>  $categoryIds
      * @return array<int, array>|null An array of stops: [['umkm' => UmkmProfile, 'categories' => [id1, id2]]]
      */
-    public function recommendMultipleForCategories(array $categoryIds): ?array
+    public function recommendMultipleForCategories(array $categoryIds, ?float $userLat = null, ?float $userLng = null): ?array
     {
         if (empty($categoryIds)) {
             return null;
@@ -58,7 +58,10 @@ class UmkmRecommendationService
 
         $remainingCategories = collect($categoryIds);
         $route = [];
-        $lastUmkm = null;
+        // Seed the distance reference with the user's position (if known) so the
+        // FIRST pick is already distance-weighted; falls back to old behavior.
+        $lastLat = $userLat;
+        $lastLng = $userLng;
 
         // Pre-fetch all active UMKMs with active, in-stock products
         $allUmkms = UmkmProfile::active()
@@ -97,10 +100,10 @@ class UmkmRecommendationService
                 $distancePenalty = 0;
                 $fairnessPenalty = ($umkm->recommendation_count * 0.001);
 
-                if ($lastUmkm && $lastUmkm->mapLocation && $umkm->mapLocation) {
+                if ($lastLat !== null && $lastLng !== null && $umkm->mapLocation) {
                     $distance = $this->calculateDistance(
-                        $lastUmkm->mapLocation->latitude,
-                        $lastUmkm->mapLocation->longitude,
+                        $lastLat,
+                        $lastLng,
                         $umkm->mapLocation->latitude,
                         $umkm->mapLocation->longitude
                     );
@@ -130,7 +133,10 @@ class UmkmRecommendationService
 
             // Remove covered categories
             $remainingCategories = $remainingCategories->diff($bestCover);
-            $lastUmkm = $bestUmkm;
+            if ($bestUmkm->mapLocation) {
+                $lastLat = (float) $bestUmkm->mapLocation->latitude;
+                $lastLng = (float) $bestUmkm->mapLocation->longitude;
+            }
 
             // Increment recommendation count
             $bestUmkm->increment('recommendation_count');

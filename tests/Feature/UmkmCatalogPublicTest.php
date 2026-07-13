@@ -597,4 +597,36 @@ class UmkmCatalogPublicTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Wayan Coffee');
     }
+
+    public function test_recommend_accepts_optional_coordinates(): void
+    {
+        $user = User::factory()->create();
+        $category = UmkmProductCategory::create([
+            'name' => 'Kopi', 'slug' => 'kopi-'.uniqid(),
+        ]);
+
+        $response = $this->actingAs($user)->post('/umkm/recommend', [
+            'category_ids' => [$category->id],
+            'lat' => -8.4211,
+            'lng' => 115.3593,
+        ]);
+
+        $response->assertSessionDoesntHaveErrors(['lat', 'lng']);
+    }
+
+    public function test_recommend_rejects_invalid_coordinates(): void
+    {
+        $user = User::factory()->create();
+        $category = UmkmProductCategory::create([
+            'name' => 'Kopi', 'slug' => 'kopi-'.uniqid(),
+        ]);
+
+        $response = $this->actingAs($user)->post('/umkm/recommend', [
+            'category_ids' => [$category->id],
+            'lat' => 'not-a-number',
+            'lng' => 999,
+        ]);
+
+        $response->assertSessionHasErrors(['lat', 'lng']);
+    }
 }
