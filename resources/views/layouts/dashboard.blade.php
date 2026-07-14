@@ -32,6 +32,9 @@
             inset: 0 auto 0 0;
             width: 260px;
             overflow-y: auto;
+            /* ponytail: dvh, not vh — vh includes the space behind the mobile URL bar,
+               which pushed the "Keluar" footer off-screen */
+            height: 100dvh;
         }
 
         @media (min-width: 1024px) {
