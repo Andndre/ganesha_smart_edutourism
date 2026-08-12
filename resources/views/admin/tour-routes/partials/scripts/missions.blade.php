@@ -11,6 +11,7 @@ const MISSION_TYPES = [
     { value: 'decision', label: 'Skenario Keputusan (Decision)' },
     { value: 'riddle', label: 'Teka-teki (Riddle)' },
     { value: 'quiz', label: 'Kuis Pilihan Ganda (Quiz)' },
+    { value: 'puzzle', label: 'Puzzle Foto (Puzzle)' },
 ];
 
 // Per-type config editors are registered by Tasks 5-8 into MISSION_CONFIG_BUILDERS[type].
@@ -528,8 +529,8 @@ function uploadMissionAudio(fileInput, hiddenSelector) {
 }
 
 // Shared asset uploader: uploads the picked file, stores returned URL into the sibling hidden input.
-// Scoped to the nearest `.mc-row` or `.ds-scenario` ancestor so both Task 5 (matching) and
-// Task 8 (decision scenarios) can reuse this same helper without rewriting it.
+// Scoped to the nearest `.mc-row`, `.ds-scenario`, or `.pz-row` ancestor so matching (Task 5),
+// decision scenarios (Task 8), and puzzle can reuse this same helper without rewriting it.
 function uploadMissionAsset(fileInput, hiddenSelector) {
     const file = fileInput.files[0];
     if (!file) return;
@@ -546,7 +547,7 @@ function uploadMissionAsset(fileInput, hiddenSelector) {
         })
         .then(d => {
             if (d.url) {
-                const scope = fileInput.closest('.mc-row, .ds-scenario');
+                const scope = fileInput.closest('.mc-row, .ds-scenario, .pz-row');
                 scope.querySelector(hiddenSelector).value = d.url;
                 
                 // Update preview container
@@ -818,5 +819,58 @@ window.MISSION_CONFIG_READERS['quiz'] = function (c) {
             return out;
         }),
     };
+};
+
+// --- puzzle config editor -----------------------------------------------------------
+// Config shape: { prompt?:{en,id}, image?:url, grid_size?:3|4|5, explanation?:{en,id} }
+// Field audit: EVERY field is OPTIONAL and guarded below, so a no-op open/close/save never
+// injects empty values into a mission that didn't have them. `image` may stay empty on
+// purpose — puzzle.blade.php then falls back to the photo of the point's cultural object.
+// Difficulty lives here (admin-set), not in the player UI: letting the tourist pick 3x3
+// and still bank full points would defeat the scoring.
+
+window.MISSION_CONFIG_BUILDERS['puzzle'] = function (c, cfg) {
+    c.innerHTML = `
+      <div class="pz-row flex gap-4 items-start">
+        <div class="img-container relative w-24 h-24 shrink-0 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 hover:bg-gray-100/50 hover:border-primary/50 transition-all flex items-center justify-center overflow-hidden cursor-pointer"
+             onclick="this.querySelector('input[type=file]').click()">
+          <input type="hidden" class="pz-image" value="${escapeHtml(cfg.image)}">
+          <input type="file" accept="image/*" class="hidden" onchange="uploadMissionAsset(this, '.pz-image')">
+          <div class="img-preview-wrap w-full h-full flex items-center justify-center">
+            ${cfg.image ? `
+              <img src="${escapeHtml(cfg.image)}" alt="" class="mc-image-preview w-full h-full object-cover">
+              <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] text-white font-semibold">Ganti</div>
+            ` : `
+              <div class="text-gray-400 flex flex-col items-center gap-0.5 placeholder-wrap">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span class="text-[8px] font-medium">Foto</span>
+              </div>
+            `}
+          </div>
+        </div>
+        <div class="flex-1 min-w-0 space-y-2">
+          <p class="text-[10px] leading-snug text-gray-500">Kosongkan foto untuk memakai gambar objek budaya di titik ini.</p>
+          <div class="flex items-center gap-3">
+            <label class="text-xs font-semibold text-gray-600">Tingkat kesulitan</label>
+            <select class="pz-grid rounded-lg border border-gray-200 px-2 py-1 text-sm" onchange="markMissionDirty()">
+              <option value="3" ${Number(cfg.grid_size) === 3 || !cfg.grid_size ? 'selected' : ''}>Mudah (3x3)</option>
+              <option value="4" ${Number(cfg.grid_size) === 4 ? 'selected' : ''}>Sedang (4x4)</option>
+              <option value="5" ${Number(cfg.grid_size) === 5 ? 'selected' : ''}>Sulit (5x5)</option>
+            </select>
+          </div>
+          <p class="text-[10px] leading-snug text-gray-500">Papan mengikuti rasio foto aslinya, jadi tidak ada bagian yang terpotong. Foto utuh juga ditampilkan di bawah papan sebagai contoh.</p>
+        </div>
+      </div>
+      <div class="pz-prompt mt-2">${bilingualInput('pz-prompt', cfg.prompt || {en:'',id:''}, 'Instruksi (prompt)')}</div>
+      <div class="pz-explanation mt-2">${bilingualInput('pz-explanation', cfg.explanation || {en:'',id:''}, 'Penjelasan setelah selesai (opsional)')}</div>`;
+};
+
+window.MISSION_CONFIG_READERS['puzzle'] = function (c) {
+    const out = {};
+    const image = c.querySelector('.pz-image').value; if (image) out.image = image;
+    const grid = c.querySelector('.pz-grid').value; if (grid) out.grid_size = Number(grid);
+    const prompt = readBilingual(c.querySelector('.pz-prompt'), 'pz-prompt'); if (prompt.id || prompt.en) out.prompt = prompt;
+    const explanation = readBilingual(c.querySelector('.pz-explanation'), 'pz-explanation'); if (explanation.id || explanation.en) out.explanation = explanation;
+    return out;
 };
 </script>
