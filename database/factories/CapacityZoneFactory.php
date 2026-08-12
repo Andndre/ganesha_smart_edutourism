@@ -14,7 +14,7 @@ class CapacityZoneFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'zone_identifier' => $this->faker->word(),
+            'zone_identifier' => $this->faker->unique()->slug(2),
             'max_capacity' => $this->faker->randomNumber(2, 100),
             'warning_threshold' => $this->faker->randomNumber(2, 50),
             'critical_threshold' => $this->faker->randomNumber(2, 30),
