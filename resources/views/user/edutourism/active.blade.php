@@ -440,7 +440,10 @@
                     </div>
                 </template>
 
-                <div x-show="stage === 'mission'" class="mx-auto max-w-md">
+                {{-- Puzzle points get a wider column: the board sits beside its reference photo,
+                and halving max-w-md would shrink both to roughly a third of a playable size. --}}
+                @php($hasPuzzleMission = $pointMissions->contains(fn($m) => $m->type === 'puzzle'))
+                <div x-show="stage === 'mission'" class="mx-auto {{ $hasPuzzleMission ? 'max-w-4xl' : 'max-w-md' }}">
                     @foreach ($pointMissions as $i => $mission)
                         {{-- x-if (not x-show): defers mounting each game's x-data until it's the
                         active mission — otherwise every mission on the point mounts up front and

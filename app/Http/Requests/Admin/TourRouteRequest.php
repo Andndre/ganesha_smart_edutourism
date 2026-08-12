@@ -49,7 +49,7 @@ class TourRouteRequest extends FormRequest
             'points.*.intro_audio_paths.id' => ['nullable', 'string'],
             'points.*.missions' => ['nullable', 'array'],
             'points.*.missions.*.id' => ['nullable', 'integer'],
-            'points.*.missions.*.type' => ['required_with:points.*.missions', 'string', 'in:matching,sequence,word_search,decision,riddle,quiz'],
+            'points.*.missions.*.type' => ['required_with:points.*.missions', 'string', 'in:matching,sequence,word_search,decision,riddle,quiz,puzzle'],
             'points.*.missions.*.title' => ['nullable', 'array'],
             'points.*.missions.*.points' => ['nullable', 'integer', 'min:0'],
             'points.*.missions.*.time_limit_seconds' => ['nullable', 'integer', 'min:0'],
