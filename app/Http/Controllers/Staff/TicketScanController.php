@@ -98,13 +98,24 @@ class TicketScanController extends Controller
     }
 
     /**
+     * Jumlah baris riwayat yang dirender di halaman statistik.
+     */
+    private const HISTORY_LIMIT = 200;
+
+    /**
      * Riwayat dan statistik kunjungan dari hasil scan.
      */
     public function stats(Request $request): View
     {
-        $preset = $request->query('preset', 'today');
-        $startDate = $request->query('start_date');
-        $endDate = $request->query('end_date');
+        $validated = $request->validate([
+            'preset' => ['nullable', 'string', 'in:today,month,custom'],
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+        ]);
+
+        $preset = $validated['preset'] ?? 'today';
+        $startDate = $validated['start_date'] ?? null;
+        $endDate = $validated['end_date'] ?? null;
 
         if ($preset === 'custom') {
             $startDate = $startDate ?: today()->subDays(7)->format('Y-m-d');
@@ -120,20 +131,38 @@ class TicketScanController extends Controller
             $to = today()->endOfDay();
         }
 
+        // Agregat dihitung di SQL supaya rentang panjang (mis. 30 hari) tidak
+        // perlu menghidrasi seluruh baris ke PHP hanya untuk dijumlahkan.
+        $originTotals = TicketScan::whereBetween('scanned_at', [$from, $to])
+            ->selectRaw('origin, sum(party_size) as visitors, count(*) as tickets')
+            ->groupBy('origin')
+            ->get()
+            ->keyBy('origin');
+
+        $totalVisitors = (int) $originTotals->sum('visitors');
+        $totalTickets = (int) $originTotals->sum('tickets');
+        $domesticVisitors = (int) (optional($originTotals->get('domestic'))->visitors ?? 0);
+        $foreignVisitors = (int) (optional($originTotals->get('foreign'))->visitors ?? 0);
+
+        // Proyeksi sempit (hanya kolom yang dipakai) untuk sebaran per jam,
+        // tetap menghidrasi semua baris di rentang tapi tanpa relasi/kolom lain.
+        $hourly = array_fill(0, 24, 0);
+        TicketScan::whereBetween('scanned_at', [$from, $to])
+            ->select('scanned_at', 'party_size')
+            ->orderBy('scanned_at')
+            ->get()
+            ->each(function (TicketScan $record) use (&$hourly) {
+                $hourly[(int) $record->scanned_at->format('G')] += $record->party_size;
+            });
+
+        // Tabel riwayat dibatasi ke baris terbaru saja agar halaman tetap ringan.
         $scanRecords = TicketScan::with('scanner')
             ->whereBetween('scanned_at', [$from, $to])
             ->orderByDesc('scanned_at')
+            ->limit(self::HISTORY_LIMIT)
             ->get();
 
-        $totalVisitors = (int) $scanRecords->sum('party_size');
-        $totalTickets = $scanRecords->count();
-        $domesticVisitors = (int) $scanRecords->where('origin', 'domestic')->sum('party_size');
-        $foreignVisitors = (int) $scanRecords->where('origin', 'foreign')->sum('party_size');
-
-        $hourly = array_fill(0, 24, 0);
-        foreach ($scanRecords as $record) {
-            $hourly[(int) $record->scanned_at->format('G')] += $record->party_size;
-        }
+        $historyTruncated = $totalTickets > self::HISTORY_LIMIT;
 
         $scans = $scanRecords->map(fn (TicketScan $record) => [
             'visitor_name' => $record->visitor_name ?: 'Pengunjung',
@@ -148,7 +177,7 @@ class TicketScanController extends Controller
         return view('staff.ticketing.stats', compact(
             'preset', 'startDate', 'endDate',
             'totalVisitors', 'totalTickets', 'domesticVisitors', 'foreignVisitors',
-            'hourly', 'scans'
+            'hourly', 'scans', 'historyTruncated'
         ));
     }
 

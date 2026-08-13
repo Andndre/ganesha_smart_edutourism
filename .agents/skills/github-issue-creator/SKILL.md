@@ -119,52 +119,44 @@ Device tested: Google Pixel 7, Android 14, Chrome version 125. Camera permission
 
 ---
 
-**Input (error paste about Midtrans Payment)**:
+**Input (error paste about Ticket Scan duplicate detection)**:
 
-> Midtrans webhook returning error:
-> Signature key verification failed for order_id: ORDER-10294. 
-> Error logs show: "Invalid signature hash. Expected: 3c5a6d... Got: 8e2c1a..."
+> Gate staff report that scanning a ticket they just recorded a few seconds earlier immediately shows the "Tiket Sudah Dipakai" (duplicate) screen, even though it's the first real scan of that ticket.
+> No error is logged server-side, but `duplicate_attempts` on the row is incrementing for tickets that were only scanned once by a visitor.
 
 **Output**:
 
 ```markdown
 ## Summary
 
-Midtrans Webhook: Signature key verification failed for orders
+Ticket scanner flags a freshly recorded ticket as a duplicate on the next scan
 
 ## Environment
 
-- **Device/OS**: Midtrans Server Webhook
-- **Browser**: N/A
-- **App Environment**: Sandbox / Production
+- **Device/OS**: Staff Android phone, Chrome
+- **Browser**: Google Chrome (mobile)
+- **App Environment**: Local / Production
 
 ## Reproduction Steps
 
-1. Trigger a payment status update from Midtrans Sandbox (e.g. settlement).
-2. The Midtrans webhook handler endpoint `/api/payment/webhook` receives the payload.
-3. Verify signature hash calculation.
+1. Open `/staff/ticketing` and scan a ticket QR code.
+2. Fill in the quick form and tap "Simpan" to record the visit.
+3. Tap "Scan Tiket Berikutnya" while still holding the phone over the same QR code.
+4. Observe the duplicate result panel appears for the ticket just saved.
 
 ## Expected Behavior
 
-Webhook successfully verifies the SHA512 signature hash generated using `order_id`, `status_code`, `gross_amount`, and the server key, then updates the booking status.
+The camera should not re-read the same code until a new ticket is presented; recording a visit should not immediately flag it as a duplicate.
 
 ## Actual Behavior
 
-Webhook validation fails with an invalid signature hash error, preventing booking status updates.
-
-## Error Details
-```
-
-Signature key verification failed for order_id: ORDER-10294. 
-Invalid signature hash. Expected: [EXPECTED_HASH] Got: [RECEIVED_HASH]
-
-```
+The camera keeps scanning in the background while the result panel is shown, so the just-saved code is read again and `TicketScanController::check`/`store` increments `duplicate_attempts` on a ticket that was only scanned once.
 
 ## Impact
 
-**Critical** - Blocks automated booking status updates when customers complete payments.
+**High** - Corrupts the `duplicate_attempts` metric that exists to detect ticket fraud, and confuses gate staff.
 
 ## Additional Context
 
-Check if `MIDTRANS_SERVER_KEY` is loaded correctly from `.env` in the webhook controller, and verify if the concatenation order for the SHA512 signature matches Midtrans API specification.
+Check whether the camera (`html5-qrcode`) is paused while the form or result panel is visible, and resumed only when the officer taps "Scan Tiket Berikutnya".
 ```

@@ -89,5 +89,8 @@
         </tbody>
     </table>
 </div>
+@if ($historyTruncated)
+    <p class="mt-3 text-center text-xs text-gray-400">Hanya 200 tiket terbaru yang ditampilkan pada tabel ini. Kartu ringkasan di atas tetap menghitung seluruh rentang.</p>
+@endif
 
 @endsection
