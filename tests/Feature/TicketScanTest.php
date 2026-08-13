@@ -151,4 +151,29 @@ class TicketScanTest extends TestCase
     {
         $this->get('/staff/ticketing')->assertRedirect('/login');
     }
+
+    public function test_stats_counts_people_not_rows(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+        TicketScan::factory()->create(['party_size' => 4, 'origin' => 'domestic', 'scanned_at' => now(), 'scanned_by' => $officer->id]);
+        TicketScan::factory()->create(['party_size' => 3, 'origin' => 'foreign', 'scanned_at' => now(), 'scanned_by' => $officer->id]);
+
+        $response = $this->actingAs($officer)->get('/staff/ticketing/history');
+
+        $response->assertOk()
+            ->assertViewHas('totalVisitors', 7)
+            ->assertViewHas('totalTickets', 2)
+            ->assertViewHas('domesticVisitors', 4)
+            ->assertViewHas('foreignVisitors', 3);
+    }
+
+    public function test_stats_excludes_scans_outside_the_selected_day(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+        TicketScan::factory()->create(['party_size' => 5, 'scanned_at' => now()->subDays(3), 'scanned_by' => $officer->id]);
+
+        $this->actingAs($officer)->get('/staff/ticketing/history')
+            ->assertOk()
+            ->assertViewHas('totalVisitors', 0);
+    }
 }
