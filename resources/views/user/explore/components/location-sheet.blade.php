@@ -1,4 +1,5 @@
-<x-modal name="location-sheet" maxWidth="md" :hasBackdrop="false" desktopLayout="drawer">
+<x-modal name="location-sheet" maxWidth="md" :hasBackdrop="false" desktopLayout="drawer"
+    panelId="location-sheet-panel">
     <div class="flex h-full flex-col px-1 py-1">
         <!-- Dynamic Cover Image Slider -->
         <div id="sheet-image-container" class="relative mb-4 hidden h-40 w-full overflow-hidden rounded-2xl bg-gray-100"

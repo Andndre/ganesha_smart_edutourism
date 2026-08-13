@@ -125,10 +125,7 @@
                             e.originalEvent.stopPropagation();
                         }
                         openSheet(loc);
-                        map.flyTo([loc.lat - 0.0005, loc.lng], 18, {
-                            animate: true,
-                            duration: 0.5
-                        });
+                        focusOnLocation(loc, 18, 0.5);
                     });
 
                     markerLayers.push({
@@ -378,10 +375,7 @@
                     setTimeout(() => {
                         // openSheet highlights the marker as the active one
                         openSheet(targetLoc);
-                        map.flyTo([targetLoc.lat - 0.0005, targetLoc.lng], 18, {
-                            animate: true,
-                            duration: 0.8
-                        });
+                        focusOnLocation(targetLoc, 18, 0.8);
 
                         // Auto-trigger click on the route directions button
                         const routeBtn = document.getElementById('sheet-route-btn');
@@ -688,10 +682,7 @@
                 if (searchInput) searchInput.blur();
                 if (navigator.vibrate) navigator.vibrate(50);
                 openSheet(loc);
-                map.flyTo([loc.lat - 0.0005, loc.lng], 18, {
-                    animate: true,
-                    duration: 0.5
-                });
+                focusOnLocation(loc, 18, 0.5);
             }
 
             function onFilterChange(e) {
@@ -1261,6 +1252,33 @@
                 }
 
                 return window.gseMapPin(item.loc.cat, { highlight: active });
+            }
+
+            // Centre the map on a location, offset so the open sheet doesn't cover it.
+            // The sheet is a right-hand drawer from the `md` breakpoint up and a bottom
+            // sheet below it, so we shift the centre in pixel space by half its width or
+            // half its height — which stays correct at any zoom, unlike a fixed lat nudge.
+            function focusOnLocation(loc, zoom, duration) {
+                // Wait a frame so Alpine has rendered the sheet and it can be measured.
+                // Its enter transition only translates it, so the size is already final.
+                requestAnimationFrame(() => {
+                    const panel = document.getElementById('location-sheet-panel');
+                    const rect = panel ? panel.getBoundingClientRect() : null;
+                    const point = map.project([loc.lat, loc.lng], zoom);
+
+                    if (rect && rect.width && rect.height) {
+                        if (window.matchMedia('(min-width: 768px)').matches) {
+                            point.x += rect.width / 2;
+                        } else {
+                            point.y += rect.height / 2;
+                        }
+                    }
+
+                    map.flyTo(map.unproject(point, zoom), zoom, {
+                        animate: true,
+                        duration: duration
+                    });
+                });
             }
 
             // Highlight the marker whose sheet is open, and restore the previous one.
