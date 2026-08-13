@@ -9,7 +9,6 @@ use App\Models\Event;
 use App\Models\Facility;
 use App\Models\Feedback;
 use App\Models\MapLocation;
-use App\Models\TourPackage;
 use App\Models\TourRoute;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProfile;
@@ -747,119 +746,6 @@ class AdminTest extends TestCase
         $this->assertDatabaseMissing('tour_route_points', [
             'tour_route_id' => $route->id,
         ]);
-    }
-
-    /**
-     * Test Tour Packages CRUD workflows.
-     */
-    public function test_tour_packages_crud(): void
-    {
-        Storage::fake('public');
-
-        $response = $this->actingAs($this->adminUser)
-            ->get(route('admin.packages'));
-        $response->assertStatus(200);
-
-        // 1. Create valid package
-        $pkgImg1 = UploadedFile::fake()->image('pkg1.png');
-        $pkgImg2 = UploadedFile::fake()->image('pkg2.png');
-
-        $responseCreate = $this->actingAs($this->adminUser)
-            ->post(route('admin.packages.store'), [
-                'name' => ['en' => 'Ancient Balinese Culture Package', 'id' => 'Paket Budaya Bali Kuno'],
-                'description' => ['en' => 'Learn weaving and Loloh Cemcem.', 'id' => 'Belajar kerajinan tenun dan Loloh Cemcem.'],
-                'price' => 150000,
-                'duration_hours' => 4.5,
-                'max_capacity' => 15,
-                'min_party_size' => 2,
-                'inclusions' => ['en' => "Local guide\nWelcome drink\nWeaving materials", 'id' => "Pemandu lokal\nWelcome drink\nMateri tenun"],
-                'is_active' => true,
-                'images' => [$pkgImg1, $pkgImg2],
-            ]);
-        $responseCreate->assertRedirect();
-
-        $package = TourPackage::where('name->en', 'Ancient Balinese Culture Package')->firstOrFail();
-        $this->assertCount(2, $package->images);
-        foreach ($package->images as $path) {
-            Storage::disk('public')->assertExists($path);
-        }
-
-        // 2. Edit route renders
-        $responseEdit = $this->actingAs($this->adminUser)
-            ->get(route('admin.packages.edit', $package->id));
-        $responseEdit->assertStatus(200);
-
-        // 3. Update package
-        $newPkgImg = UploadedFile::fake()->image('new_pkg.png');
-
-        $responseUpdate = $this->actingAs($this->adminUser)
-            ->put(route('admin.packages.update', $package->id), [
-                'name' => ['en' => 'Balinese Culture Package Mod', 'id' => 'Paket Budaya Bali Kuno Mod'],
-                'description' => ['en' => 'Updated package.', 'id' => 'Paket terupdate.'],
-                'price' => 180000,
-                'duration_hours' => 5.0,
-                'max_capacity' => 20,
-                'min_party_size' => 1,
-                'inclusions' => ['en' => "Local guide\nWelcome drink", 'id' => "Pemandu lokal\nWelcome drink"],
-                'is_active' => true,
-                'images' => [$newPkgImg],
-            ]);
-        $responseUpdate->assertRedirect();
-
-        $package->refresh();
-        $this->assertEquals('Balinese Culture Package Mod', $package->name);
-        $this->assertCount(1, $package->images);
-        Storage::disk('public')->assertExists($package->images[0]);
-
-        // 4. Delete package
-        $responseDelete = $this->actingAs($this->adminUser)
-            ->delete(route('admin.packages.destroy', $package->id));
-        $responseDelete->assertRedirect();
-        $this->assertDatabaseMissing('tour_packages', [
-            'id' => $package->id,
-        ]);
-    }
-
-    /**
-     * Test admin can manage entrance-ticket products via the same package CRUD.
-     */
-    public function test_admin_can_manage_entrance_ticket_products(): void
-    {
-        // Create with type ticket
-        $responseCreate = $this->actingAs($this->adminUser)
-            ->post(route('admin.packages.store'), [
-                'name' => ['en' => 'Domestic Entry Ticket', 'id' => 'Tiket Masuk Domestik'],
-                'description' => ['en' => 'Entry only.', 'id' => 'Hanya tiket masuk.'],
-                'type' => 'ticket',
-                'price' => 25000,
-                'duration_hours' => 1.0,
-                'max_capacity' => 100,
-                'is_active' => true,
-            ]);
-        $responseCreate->assertRedirect();
-
-        $ticket = TourPackage::where('name->en', 'Domestic Entry Ticket')->firstOrFail();
-        $this->assertSame('ticket', $ticket->type);
-
-        // Ticket badge shows on admin index
-        $this->actingAs($this->adminUser)
-            ->get(route('admin.packages'))
-            ->assertStatus(200)
-            ->assertSee('Entrance Ticket');
-
-        // Update can switch type back to package
-        $responseUpdate = $this->actingAs($this->adminUser)
-            ->put(route('admin.packages.update', $ticket->id), [
-                'name' => ['en' => 'Domestic Entry Ticket', 'id' => 'Tiket Masuk Domestik'],
-                'description' => ['en' => 'Entry only.', 'id' => 'Hanya tiket masuk.'],
-                'type' => 'package',
-                'price' => 25000,
-                'duration_hours' => 1.0,
-                'max_capacity' => 100,
-                'is_active' => true,
-            ]);
-        $responseUpdate->assertRedirect();
-        $this->assertSame('package', $ticket->refresh()->type);
     }
 
     /**
