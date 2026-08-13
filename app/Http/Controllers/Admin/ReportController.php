@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Feedback;
-use App\Models\Reservation;
+use App\Models\TicketScan;
 use App\Models\VisitorLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -101,25 +101,19 @@ class ReportController extends Controller
             ->count();
         $visitorDelta = $prevVisitorCount > 0 ? round((($visitorCount - $prevVisitorCount) / $prevVisitorCount) * 100) : 0;
 
-        // Revenue
-        $revenue = Reservation::whereIn('status', ['confirmed', 'completed'])
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->sum('total_amount');
+        // Kunjungan tercatat dari scan tiket
+        $scannedVisitors = (int) TicketScan::whereBetween('scanned_at', [$startDate, $endDate])->sum('party_size');
+        $prevScannedVisitors = (int) TicketScan::whereBetween('scanned_at', [$prevStartDate, $prevEndDate])->sum('party_size');
+        $scannedDelta = $prevScannedVisitors > 0
+            ? round((($scannedVisitors - $prevScannedVisitors) / $prevScannedVisitors) * 100)
+            : 0;
 
-        $prevRevenue = Reservation::whereIn('status', ['confirmed', 'completed'])
-            ->whereBetween('created_at', [$prevStartDate, $prevEndDate])
-            ->sum('total_amount');
-        $revenueDelta = $prevRevenue > 0 ? round((($revenue - $prevRevenue) / $prevRevenue) * 100) : 0;
-
-        // Tickets Sold
-        $ticketsSold = Reservation::where('status', 'confirmed')
-            ->whereBetween('scheduled_date', [$startDate, $endDate])
-            ->count();
-
-        $prevTicketsSold = Reservation::where('status', 'confirmed')
-            ->whereBetween('scheduled_date', [$prevStartDate, $prevEndDate])
-            ->count();
-        $ticketsDelta = $prevTicketsSold > 0 ? round((($ticketsSold - $prevTicketsSold) / $prevTicketsSold) * 100) : 0;
+        // Jumlah tiket yang dipindai
+        $ticketsScanned = TicketScan::whereBetween('scanned_at', [$startDate, $endDate])->count();
+        $prevTicketsScanned = TicketScan::whereBetween('scanned_at', [$prevStartDate, $prevEndDate])->count();
+        $ticketsDelta = $prevTicketsScanned > 0
+            ? round((($ticketsScanned - $prevTicketsScanned) / $prevTicketsScanned) * 100)
+            : 0;
 
         // Rating
         $rating = round(Feedback::whereBetween('created_at', [$startDate, $endDate])->avg('rating') ?? 0, 1);
@@ -136,18 +130,33 @@ class ReportController extends Controller
                 ->count();
         }
 
-        // Package revenue breakdown removed together with the tour package feature.
-        $revenueBreakdown = [];
+        // Komposisi asal pengunjung
+        $domestic = (int) TicketScan::whereBetween('scanned_at', [$startDate, $endDate])
+            ->where('origin', 'domestic')->sum('party_size');
+        $foreign = (int) TicketScan::whereBetween('scanned_at', [$startDate, $endDate])
+            ->where('origin', 'foreign')->sum('party_size');
+        $originTotal = $domestic + $foreign;
+
+        $originBreakdown = [];
+        foreach (['Domestik' => $domestic, 'Mancanegara' => $foreign] as $label => $count) {
+            if ($count > 0) {
+                $originBreakdown[] = [
+                    'label' => $label,
+                    'amount' => number_format($count).' orang',
+                    'pct' => $originTotal > 0 ? (int) round(($count / $originTotal) * 100) : 0,
+                ];
+            }
+        }
 
         $busyDays = $this->getBusyDays($startDate, $endDate);
 
         return compact(
             'selectedPeriod',
             'visitorCount', 'visitorDelta',
-            'revenue', 'revenueDelta',
-            'ticketsSold', 'ticketsDelta',
+            'scannedVisitors', 'scannedDelta',
+            'ticketsScanned', 'ticketsDelta',
             'rating', 'ratingDelta',
-            'chartData', 'revenueBreakdown',
+            'chartData', 'originBreakdown',
             'busyDays'
         );
     }
