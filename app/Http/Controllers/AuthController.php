@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -82,11 +81,6 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        // Link orphaned walk-in tickets matching this email
-        Reservation::where('guest_email', $user->email)
-            ->whereNull('user_id')
-            ->update(['user_id' => $user->id]);
-
         Auth::login($user);
         $request->session()->regenerate();
 
@@ -143,11 +137,6 @@ class AuthController extends Controller
                     'password' => null,
                     'avatar_path' => $googleUser->getAvatar(),
                 ]);
-
-                // Link orphaned walk-in tickets matching this email
-                Reservation::where('guest_email', $user->email)
-                    ->whereNull('user_id')
-                    ->update(['user_id' => $user->id]);
             }
 
             Auth::login($user);

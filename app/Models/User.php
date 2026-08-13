@@ -53,16 +53,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the user's reservations.
-     *
-     * @return HasMany<Reservation>
-     */
-    public function reservations(): HasMany
-    {
-        return $this->hasMany(Reservation::class);
-    }
-
-    /**
      * Get the user's route sessions.
      *
      * @return HasMany<RouteSession>

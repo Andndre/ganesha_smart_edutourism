@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Feedback;
-use App\Models\Reservation;
 use App\Models\UmkmProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -36,26 +35,8 @@ class FeedbackController extends Controller
         $feedbackType = $validated['feedback_type'] ?? 'general';
         $umkmProfileId = $validated['umkm_profile_id'] ?? null;
 
-        $latestCompleted = null;
-        if ($feedbackType === 'general') {
-            // Find latest completed reservation without existing feedback
-            $latestCompleted = Reservation::where('user_id', auth()->id())
-                ->where('status', 'completed')
-                ->whereDoesntHave('feedbacks')
-                ->latest('scheduled_date')
-                ->first();
-
-            // Check if already has feedback for this reservation
-            if ($latestCompleted && $latestCompleted->feedbacks()->exists()) {
-                $existingFeedback = $latestCompleted->feedbacks()->first();
-
-                return redirect()->route('feedback.edit', $existingFeedback);
-            }
-        }
-
         $feedback = Feedback::create([
             'user_id' => auth()->id(),
-            'reservation_id' => $latestCompleted?->id,
             'umkm_profile_id' => $umkmProfileId,
             'feedback_type' => $feedbackType,
             'rating' => $validated['rating'],
@@ -139,7 +120,6 @@ class FeedbackController extends Controller
     public function index(): View
     {
         $feedbacks = Feedback::where('user_id', auth()->id())
-            ->with('reservation')
             ->orderBy('created_at', 'desc')
             ->get();
 
