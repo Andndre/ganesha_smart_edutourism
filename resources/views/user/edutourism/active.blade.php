@@ -457,17 +457,23 @@
                     </div>
                 </template>
 
-                {{-- Puzzle points get a wider column: the board sits beside its reference photo,
-                and halving max-w-md would shrink both to roughly a third of a playable size. --}}
-                @php($hasPuzzleMission = $pointMissions->contains(fn($m) => $m->type === 'puzzle'))
-                <div x-show="stage === 'mission'" class="mx-auto {{ $hasPuzzleMission ? 'max-w-4xl' : 'max-w-md' }}">
+                <div x-show="stage === 'mission'">
                     @foreach ($pointMissions as $i => $mission)
                         {{-- x-if (not x-show): defers mounting each game's x-data until it's the
                         active mission — otherwise every mission on the point mounts up front and
                         e.g. sequence.blade.php's countdown timer starts immediately, before the
                         player even taps "Mulai Misi". --}}
                         <template x-if="index === {{ $i }}">
-                            <div class="space-y-4" x-cloak>
+                            {{-- Width is per mission, not per point. The puzzle needs the wide
+                            column — its board sits beside a reference photo, and max-w-md would
+                            shrink both to about a third of a playable size — but when it shares a
+                            point with a quiz or a riddle, those used to inherit the wide column
+                            too: option cards stretched to 56rem while the docked CTA below them
+                            stayed at its own 28rem, which read as a layout bug on a desktop
+                            screen. Everything except the puzzle stays a single readable column,
+                            the same width as the CTA. --}}
+                            <div class="mx-auto space-y-4 {{ $mission->type === 'puzzle' ? 'max-w-4xl' : 'max-w-md' }}"
+                                x-cloak>
                                 <div class="flex items-center justify-between">
                                     <span
                                         class="rounded-lg border border-amber-100 bg-amber-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-amber-600">{{ __('Misi') }}
