@@ -28,10 +28,10 @@ class SecurityHeaders
         }
 
         $defaultSrc = "default-src 'self'";
-        $scriptSrc = "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com https://esm.sh https://app.midtrans.com https://api.midtrans.com https://app.sandbox.midtrans.com https://api.sandbox.midtrans.com https://static.cloudflareinsights.com";
+        $scriptSrc = "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com https://esm.sh https://static.cloudflareinsights.com";
         $styleSrc = "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com";
         $fontSrc = "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:";
-        $connectSrc = "connect-src 'self' ws: wss: blob: https://nominatim.openstreetmap.org https://router.project-osrm.org https://overpass-api.de https://api.midtrans.com https://app.midtrans.com https://api.sandbox.midtrans.com https://app.sandbox.midtrans.com https://esm.sh https://cdnjs.cloudflare.com https://cloudflareinsights.com https://static.cloudflareinsights.com https://www.gstatic.com https://unpkg.com";
+        $connectSrc = "connect-src 'self' ws: wss: blob: https://nominatim.openstreetmap.org https://router.project-osrm.org https://overpass-api.de https://esm.sh https://cdnjs.cloudflare.com https://cloudflareinsights.com https://static.cloudflareinsights.com https://www.gstatic.com https://unpkg.com";
 
         if (app()->environment('local', 'testing')) {
             // ponytail: Firefox mengecek modulepreload ke default-src, bukan script-src.
@@ -52,7 +52,7 @@ class SecurityHeaders
                 "img-src 'self' data: blob: https:",
                 "media-src 'self' blob:",
                 $connectSrc,
-                "frame-src 'self' https://app.midtrans.com https://api.midtrans.com https://app.sandbox.midtrans.com https://api.sandbox.midtrans.com",
+                "frame-src 'self'",
                 "worker-src 'self' blob:",
                 "object-src 'none'",
             ])

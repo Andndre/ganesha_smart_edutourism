@@ -25,7 +25,6 @@ use App\Http\Controllers\ArScanController;
 use App\Http\Controllers\ArViewerController;
 use App\Http\Controllers\AudioController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CulturalController;
 use App\Http\Controllers\CulturalObjectRatingController;
 use App\Http\Controllers\EventController as PublicEventController;
@@ -63,9 +62,6 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['redirect.admin', 'track.visit'])->group(function () {
     // Home
     Route::get('/', [HomeController::class, 'index'])->name('home');
-
-    // Guest Walk-In Access
-    Route::get('/guest-access/{reservation}/{hash}', [AuthController::class, 'guestAccess'])->name('guest.access');
 
     // Explore/Map
     Route::get('/explore', [ExploreController::class, 'index'])->name('explore');
@@ -137,22 +133,12 @@ Route::middleware('auth')->group(function () {
         // Cultural Object Rating
         Route::post('/cultural/{slug}/rating', [CulturalObjectRatingController::class, 'store'])->name('cultural-object.rating.store');
 
-        // Tour Package Booking
-        Route::get('/tour-package/{id}/book', [BookingController::class, 'checkout'])->name('tour-package.book');
-        Route::post('/tour-package/{id}/process', [BookingController::class, 'process'])->name('tour-package.process');
-
-        // Entrance Ticket Booking (same controller, reservation_type: ticket)
-        Route::get('/tiket/{id}/book', [BookingController::class, 'checkout'])->name('ticket.book')->defaults('bookingType', 'ticket');
-        Route::post('/tiket/{id}/process', [BookingController::class, 'process'])->name('ticket.process')->defaults('bookingType', 'ticket');
-
         // Profile & E-Ticket
         Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
         Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
-        Route::get('/profile/bookings', [BookingController::class, 'index'])->name('bookings');
-        Route::post('/profile/bookings/{reservation}/pay', [BookingController::class, 'repay'])->name('bookings.repay');
         Route::get('/profile/favorites', [FavoriteController::class, 'index'])->name('favorites');
         Route::post('/favorites/toggle', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
         Route::get('/profile/visited', [ProfileController::class, 'visited'])->name('visited');

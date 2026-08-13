@@ -36,16 +36,8 @@
                         'a' => __('Pastikan Anda telah menginstal browser terbaru (Chrome). Arahkan kamera ke marker AR, model 3D akan tampil langsung di layar. Geser layar untuk melihat objek dari berbagai sudut.'),
                     ],
                     [
-                        'q' => __('Bagaimana cara memesan paket wisata?'),
-                        'a' => __('Buka menu "Paket Wisata" di halaman utama. Pilih paket yang Anda inginkan, tentukan jadwal dan jumlah peserta, lalu lakukan pembayaran melalui Midtrans. Tiket elektronik akan dikirim ke email Anda setelah pembayaran berhasil.'),
-                    ],
-                    [
-                        'q' => __('Bagaimana cara melihat tiket saya?'),
-                        'a' => __('Semua tiket aktif Anda bisa dilihat di halaman "Tiket Saya" dari menu profil. Tiket juga dikirim ke email Anda dalam bentuk e-ticket.'),
-                    ],
-                    [
-                        'q' => __('Apa saja metode pembayaran yang tersedia?'),
-                        'a' => __('Kami menggunakan Midtrans yang mendukung berbagai metode pembayaran: transfer bank (BCA, Mandiri, BRI, BNI), kartu kredit, GoPay, OVO, Dana, LinkAja, dan Indomaret/Alfamart.'),
+                        'q' => __('Bagaimana cara membeli tiket masuk?'),
+                        'a' => __('Tiket masuk Desa Wisata Penglipuran dapat dibeli melalui mitra OTA (seperti Traveloka) atau langsung di loket masuk. Tunjukkan tiket Anda kepada petugas untuk dipindai saat memasuki area wisata.'),
                     ],
                     [
                         'q' => __('Bagaimana cara melihat riwayat kunjungan saya?'),
