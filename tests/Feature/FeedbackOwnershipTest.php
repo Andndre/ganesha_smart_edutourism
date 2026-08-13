@@ -19,7 +19,7 @@ class FeedbackOwnershipTest extends TestCase
     {
         $owner = User::factory()->create();
         $intruder = User::factory()->create();
-        $feedback = Feedback::factory()->create(['user_id' => $owner->id, 'reservation_id' => null, 'feedback_type' => 'general']);
+        $feedback = Feedback::factory()->create(['user_id' => $owner->id, 'feedback_type' => 'general']);
 
         $this->actingAs($intruder)->get(route('feedback.show', $feedback))->assertForbidden();
         $this->actingAs($intruder)->get(route('feedback.edit', $feedback))->assertForbidden();
@@ -30,7 +30,7 @@ class FeedbackOwnershipTest extends TestCase
     public function test_owner_can_view_their_own_feedback(): void
     {
         $owner = User::factory()->create();
-        $feedback = Feedback::factory()->create(['user_id' => $owner->id, 'reservation_id' => null, 'feedback_type' => 'general']);
+        $feedback = Feedback::factory()->create(['user_id' => $owner->id, 'feedback_type' => 'general']);
 
         $this->actingAs($owner)->get(route('feedback.show', $feedback))->assertOk();
     }

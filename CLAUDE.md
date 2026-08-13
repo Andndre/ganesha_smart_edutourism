@@ -44,10 +44,10 @@ php artisan app:cleanup-tus             # Clean up stale TUS upload temp files (
 The application has **5 distinct user roles** with separate route prefixes and middleware:
 
 1. **Guest** - Public access to explore, UMKM catalog, cultural objects, AR scan
-2. **User** (authenticated) - Bookings, profile, feedback, e-tickets, favorites, edutourism
+2. **User** (authenticated) - Profile, feedback, favorites, edutourism
 3. **Admin** (`/admin/*`) - Full system management
 4. **UMKM Owner** (`/owner/*`) - Product catalog and profile management
-5. **Ticket Officer** (`/staff/*`) - QR scanning, walk-in ticketing, check-ins
+5. **Ticket Officer** (`/staff/*`) - Scans OTA-purchased tickets (QR) for visit logging, check-ins
 
 **Middleware:** `redirect.admin`, `staff`, `umkm_owner` control access.
 
@@ -58,7 +58,6 @@ The application has **5 distinct user roles** with separate route prefixes and m
 - `CulturalObject` - Heritage sites with AR markers, quizzes, stories (TipTap rich text). Has custom `attributesToArray()` override — see Multilingual section.
 - `CulturalStory` - Narrative content (`story_type`: `history` | `philosophy` | `value`) per cultural object
 - `TourRoute` / `TourRoutePoint` - Predefined walking routes with waypoints and `storytelling_content`
-- `TourPackage` - Bookable tour packages. `inclusions`/`exclusions` use per-locale accessor/mutator supporting both old flat-list and new `{en, id}` format
 - `Event` - Scheduled events with registration
 - `MapLocation` - Generic map pins with polymorphic `locationable` (CulturalObject, Facility, UmkmProfile)
 - `Facility` - Service locations (toilets, parking, info centers)
@@ -77,10 +76,10 @@ The application has **5 distinct user roles** with separate route prefixes and m
 
 **User Activity:**
 
-- `Reservation` - Tour package bookings with Midtrans payment integration
+- `TicketScan` - catatan scan tiket OTA; `code_hash` unik untuk deteksi duplikat
 - `VisitorLog` - Track visitor entry/exit
 - `RouteSession` - Tracks user progress through edutourism tour routes
-- `UserFavorite` - Polymorphic favorites (`favoritable` morph: CulturalObject, Event, TourPackage, UmkmProfile)
+- `UserFavorite` - Polymorphic favorites (`favoritable` morph: CulturalObject, Event, UmkmProfile)
 - `UserVisit` - Polymorphic visit history (`visitable` morph: CulturalObject)
 - `CapacityZone` - Geofenced zones with crowd thresholds (triggers WebSocket alerts)
 
@@ -99,7 +98,6 @@ All in `app/Models/Concerns/`:
 ### Service Layer
 
 - `UmkmRecommendationService` - Fair rotation algorithm based on geolocation and visit history
-- `MidtransService` - Wraps Midtrans API status checks; returns parsed `transaction_status` and `payment_type`
 - `TusService` - Resolves TUS chunked upload temp files and moves them to final storage
 
 ### Events & Notifications
@@ -107,7 +105,6 @@ All in `app/Models/Concerns/`:
 - `CrowdAlertSent` - Broadcast when capacity zone threshold exceeded
 - `VisitorLocationUpdated` / `VisitorLocationRemoved` - Real-time visitor tracking
 - `EventReminderSent` - Sent 1 day before event
-- `ETicketMail` - Email e-tickets to users
 
 ## Multilingual Content System
 
@@ -123,7 +120,7 @@ This is a **dual-layer** i18n system:
 
 Most content models use `spatie/laravel-translatable`. Translatable fields are stored as JSON in the DB: `{"en": "...", "id": "..."}`.
 
-**Models with `HasTranslations`:** CulturalObject (`name`, `short_description`, `description`), CulturalStory (`title`, `content`), Event (`name`, `description`, `location_name`), Facility (`name`, `description`), TourRoute (`name`, `description`), TourRoutePoint (`storytelling_content`), TourPackage (`name`, `description`), UmkmProfile (`business_name`, `description`), UmkmProduct (`name`, `description`), UmkmProductCategory (`name`, `description`), ArModel (`name`, `description`), MapLocation (`accessibility_notes`).
+**Models with `HasTranslations`:** CulturalObject (`name`, `short_description`, `description`), CulturalStory (`title`, `content`), Event (`name`, `description`, `location_name`), Facility (`name`, `description`), TourRoute (`name`, `description`), TourRoutePoint (`storytelling_content`), UmkmProfile (`business_name`, `description`), UmkmProduct (`name`, `description`), UmkmProductCategory (`name`, `description`), ArModel (`name`, `description`), MapLocation (`accessibility_notes`).
 
 **Admin form input pattern** — use locale-keyed inputs, one tab per locale:
 
@@ -224,12 +221,6 @@ Routes at `/edutourism/*`. Users follow `TourRoute` → `TourRoutePoint` sequenc
 - `TrackingController` receives GPS pings, stores in Redis `active_visitors` cache, broadcasts `VisitorLocationUpdated`
 - Channels in `routes/channels.php`; Echo configured in `resources/js/echo.js`
 
-### Payment Integration
-
-- **Midtrans** for payment processing via `MidtransService`
-- Webhook: `/api/midtrans/webhook` handles payment status updates
-- E-tickets emailed after successful payment via `ETicketMail`
-
 ### Routing & Maps
 
 - **OpenRouteService** (self-hosted) via `Api\RoutingController` for turn-by-turn directions
@@ -288,7 +279,7 @@ php artisan test --testsuite=Unit       # Unit only
 
 - `tests/Feature/` — controller/route/auth integration tests
 - `tests/Unit/` — services, models, helpers
-- Uses SQLite in-memory for test DB; mock external APIs (Midtrans, OpenRouteService, Weather API)
+- Uses SQLite in-memory for test DB; mock external APIs (OpenRouteService, Weather API)
 
 ## External Services
 
@@ -296,7 +287,6 @@ php artisan test --testsuite=Unit       # Unit only
 | ----------------- | ------------------------- | ------------------------------------------------------------- |
 | Cloudflare Tunnel | `ganesha-tunnel`          | `composer share` — required for mobile testing                |
 | OpenRouteService  | `OPENROUTE_SERVICE_URL`   | Self-hosted in `openrouteservice/`, `./start-ors.sh` (Docker) |
-| Midtrans          | `.env` sandbox/prod keys  | Webhook: `/api/midtrans/webhook`                              |
 | Weather API       | `WEATHER_API_KEY`         | Updated every 10min via share script                          |
 | Google OAuth      | `GOOGLE_CLIENT_ID/SECRET` | Socialite driver                                              |
 

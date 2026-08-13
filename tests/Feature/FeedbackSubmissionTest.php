@@ -28,7 +28,6 @@ class FeedbackSubmissionTest extends TestCase
             'rating' => 5,
             'comment' => 'Bagus sekali!',
             'feedback_type' => 'general',
-            'reservation_id' => null,
         ]);
     }
 
@@ -67,22 +66,6 @@ class FeedbackSubmissionTest extends TestCase
         ]);
 
         $response->assertStatus(302);
-    }
-
-    public function test_reservation_id_is_null(): void
-    {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-
-        $this->postJson('/feedback', [
-            'rating' => 3,
-            'comment' => 'Cukup bagus',
-        ]);
-
-        $this->assertDatabaseHas('feedbacks', [
-            'user_id' => $user->id,
-            'reservation_id' => null,
-        ]);
     }
 
     public function test_feedback_type_is_general(): void

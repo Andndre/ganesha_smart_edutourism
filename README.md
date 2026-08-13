@@ -63,7 +63,6 @@ graph TB
     end
 
     subgraph External["Layanan Eksternal"]
-        MIDTRANS[Midtrans — Payment Gateway]
         ORS[OpenRouteService — Self-hosted Routing]
         WEATHER[Weather API]
         GOOGLE[Google OAuth — Socialite]
@@ -79,7 +78,6 @@ graph TB
     SERVICE --> CACHE_LAYER
     CTRL --> EVENTS --> REVERB
     CTRL --> QUEUE
-    QUEUE --> MIDTRANS
     QUEUE --> DB
     OBS --> CACHE_LAYER
     SERVICE --> ORS
@@ -101,11 +99,11 @@ graph LR
         A[Admin<br/>/admin/*]
     end
 
-    G -->|Bisa akses| PUB["Eksplorasi, Peta, AR Scan<br/>Katalog UMKM, Objek Budaya<br/>Edutourism (preview), Paket Tour"]
-    U -->|Tambahan| AUTH["Booking, Pembayaran, E-Ticket<br/>Favorit, Profil, Riwayat Kunjungan<br/>Feedback, Edutourism (aktif)"]
-    S -->|Tambahan| STAFF["Ticketing Walk-In, Scan QR<br/>Check-In Reservasi"]
+    G -->|Bisa akses| PUB["Eksplorasi, Peta, AR Scan<br/>Katalog UMKM, Objek Budaya<br/>Edutourism (preview)"]
+    U -->|Tambahan| AUTH["Favorit, Profil, Riwayat Kunjungan<br/>Feedback, Edutourism (aktif)"]
+    S -->|Tambahan| STAFF["Scan QR Tiket OTA<br/>Pendataan Kunjungan"]
     OW -->|Tambahan| OWNER["Kelola Produk & Profil UMKM<br/>Manajemen Lokasi Toko"]
-    A -->|Akses penuh| ADMIN["Dashboard, Laporan, Objek Budaya<br/>AR Manager, Peta, Kapasitas<br/>Paket Tour, Event, UMKM Global<br/>Pengaturan Sistem, Feedback"]
+    A -->|Akses penuh| ADMIN["Dashboard, Laporan, Objek Budaya<br/>AR Manager, Peta, Kapasitas<br/>Event, UMKM Global<br/>Pengaturan Sistem, Feedback"]
 ```
 
 ---
@@ -121,9 +119,8 @@ graph LR
 | **Objek Budaya Digital** | Halaman detail dengan narasi audio (range-request streaming), galeri historis, cerita berlapis (sejarah, filosofi, nilai), dan kuis interaktif. |
 | **Smart Edutourism** | Ikuti rute berpemandu yang terkunci secara progresif—titik berikutnya terbuka hanya setelah pengunjung tiba di titik saat ini. Termasuk kuis per-titik. |
 | **Katalog UMKM** | Daftar produk UMKM lokal dengan rekomendasi berbasis lokasi dan rotasi adil. Multi-route untuk kunjungan beberapa toko sekaligus. |
-| **Booking & Pembayaran** | Pemesanan paket tour dengan pembayaran digital via Midtrans (Snap). E-ticket dikirim ke email. Walk-in via petugas dengan Snap token on-site. |
 | **Event Budaya** | Kalender event dengan detail, lokasi, dan pendaftaran. Pengingat email otomatis 1 hari sebelum acara. |
-| **Profil & Favorit** | Riwayat kunjungan, daftar favorit (polimorfik: objek budaya, event, paket, UMKM), dan manajemen reservasi. |
+| **Profil & Favorit** | Riwayat kunjungan, daftar favorit (polimorfik: objek budaya, event, UMKM). |
 | **Multilingual** | Konten tersedia dalam Bahasa Indonesia dan English. Pengguna dapat beralih via `/lang/{locale}` atau preferensi profil. |
 | **Push Notifications** | Notifikasi push berbasis Web Push API untuk pengingat event dan peringatan kapasitas. |
 
@@ -136,7 +133,7 @@ graph LR
 | **Manajemen Konten** | CRUD objek budaya (TipTap WYSIWYG, rich text), cerita, galeri, audio narasi. Import massal via XLSX. |
 | **Kapasitas Real-Time** | Definisikan zona geofence dengan ambang batas kapasitas. Peringatan WebSocket otomatis saat zona kritis. |
 | **UMKM Global** | Kelola seluruh profil UMKM, produk, kategori, dan akun pemilik. |
-| **Ticketing** | Scan QR e-ticket pengunjung, proses walk-in, check-in, pembatalan, dan refund via Midtrans. |
+| **Ticketing** | Scan QR tiket yang dibeli via OTA (mis. Traveloka) di gerbang untuk pendataan kunjungan; deteksi scan ganda via `code_hash`, riwayat & statistik kunjungan. |
 | **Pengaturan Desa** | Konfigurasi umum sistem (nama desa, kontak, jam operasional, dll.). |
 | **Auto-Translate** | Proxy LibreTranslate terintegrasi di form admin untuk mengisi otomatis konten bilingual. |
 
@@ -158,15 +155,12 @@ flowchart TD
     subgraph PRE["Fase 1 — Persiapan"]
         E --> F[Lihat Event & Kalender Budaya]:::process
         E --> G[Eksplorasi Peta & Fasilitas]:::process
-        F & G --> H{Cara Pesan?}:::decision
-        H -->|Paket Tour| I[Booking + Bayar via Midtrans]:::process
-        H -->|Walk-in| J[Beli Tiket di Petugas]:::process
-        I --> K[Terima E-Ticket & QR Code]:::process
+        F & G --> J[Beli Tiket via OTA — mis. Traveloka]:::process
     end
 
     subgraph ARRIVAL["Fase 2 — Kedatangan"]
-        K & J --> L[Petugas Scan QR Tiket]:::process
-        L --> M[Check-In Sukses]:::process
+        J --> L[Petugas Scan QR Tiket di Gerbang]:::process
+        L --> M[Pendataan Kunjungan Sukses]:::process
     end
 
     subgraph ONSITE["Fase 3 — On-Site & AR"]
@@ -256,21 +250,15 @@ erDiagram
         json storytelling_content "translatable"
     }
 
-    tour_packages {
+    ticket_scans {
         int id PK
-        json name "translatable"
-        decimal price
-        int duration_hours
-        int max_capacity
-    }
-
-    reservations {
-        int id PK
-        int user_id FK
-        int tour_package_id FK
-        string status "pending|confirmed|completed|cancelled"
-        string payment_status "unpaid|paid|refunded"
-        string qr_code
+        string code_hash "unique, deteksi duplikat"
+        text raw_code
+        string visitor_name
+        int party_size
+        string origin "domestic|foreign"
+        datetime scanned_at
+        int scanned_by FK
     }
 
     umkm_profiles {
@@ -308,21 +296,18 @@ erDiagram
     feedbacks {
         int id PK
         int user_id FK
-        int reservation_id FK
         int rating
         string feedback_type
     }
 
-    users ||--o{ reservations : "membuat"
     users ||--o{ umkm_profiles : "memiliki"
     users ||--o{ feedbacks : "menulis"
+    users ||--o{ ticket_scans : "memindai"
     cultural_objects ||--o{ cultural_stories : "punya"
     cultural_objects ||--o| map_locations : "punya lokasi"
     tour_routes ||--o{ tour_route_points : "terdiri dari"
-    tour_packages ||--o{ reservations : "dipesan via"
     umkm_profiles ||--o{ umkm_products : "menjual"
     umkm_profiles ||--o| map_locations : "punya lokasi"
-    reservations ||--o{ feedbacks : "menerima"
     ar_models ||--o| map_locations : "terpasang di"
 ```
 
@@ -402,7 +387,6 @@ Translating via http://172.26.0.2:5000...
 | **Cache & Queue** | Redis (tags + Stale-While-Revalidate) |
 | **WebSocket** | Laravel Reverb, Laravel Echo, Pusher-JS |
 | **Auth** | Session-based + Google OAuth (Socialite) |
-| **Pembayaran** | Midtrans Snap |
 | **AR** | AR.js / A-Frame (WebAR), iOS AR Quick Look (USDZ) |
 | **Peta** | Leaflet + OpenRouteService (self-hosted) |
 | **Upload Besar** | TUS Chunked Upload (ankitpokhrel/tus-php) |
@@ -441,7 +425,7 @@ Antarmuka dirancang untuk **keterbacaan di luar ruangan di bawah sinar matahari 
 - **Bottom Sheet** — detail pin peta dibuka as drawer (swipeable), bukan halaman baru
 - **Skeleton Loading** — pulse animation, bukan spinner, saat data dimuat
 - **Glassmorphism HUD** — overlay AR menggunakan `backdrop-blur-md` agar viewfinder tetap terlihat
-- **Haptic Feedback** — `navigator.vibrate(50)` pada aksi inti (pembayaran, deteksi marker AR)
+- **Haptic Feedback** — `navigator.vibrate(50)` pada aksi inti (deteksi marker AR, aksi lain yang penting)
 - **Tap Target minimum** — 44×44px pada semua tombol dan ikon
 
 ---
@@ -463,7 +447,7 @@ Antarmuka dirancang untuk **keterbacaan di luar ruangan di bawah sinar matahari 
 git clone <repo-url>
 cd ganesha_smart_edutourism
 
-# Salin .env dan sesuaikan konfigurasi DB, Redis, Midtrans, dll.
+# Salin .env dan sesuaikan konfigurasi DB, Redis, dll.
 cp .env.example .env
 
 # Setup lengkap: install deps, generate key, migrate, build assets
@@ -482,10 +466,6 @@ QUEUE_CONNECTION=redis
 REVERB_APP_ID=...
 REVERB_APP_KEY=...
 REVERB_APP_SECRET=...
-
-MIDTRANS_SERVER_KEY=...
-MIDTRANS_CLIENT_KEY=...
-MIDTRANS_IS_PRODUCTION=false
 
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
@@ -547,7 +527,7 @@ app/
 ├── Models/
 │   └── Concerns/           # HasSlug, HasMapLocation traits
 ├── Observers/              # CacheInvalidationObserver
-└── Services/               # UmkmRecommendationService, MidtransService, TusService
+└── Services/               # UmkmRecommendationService, TusService
 
 resources/
 ├── views/                  # Blade templates per-role
@@ -555,7 +535,7 @@ resources/
 
 routes/
 ├── web.php                 # Web routes (public, auth, admin, owner, staff)
-├── api.php                 # API routes (TUS, webhook, routing)
+├── api.php                 # API routes (TUS, routing, tracking)
 └── channels.php            # WebSocket channels
 
 lang/

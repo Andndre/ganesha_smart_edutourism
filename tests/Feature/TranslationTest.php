@@ -3,12 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\CulturalObject;
-use App\Models\TourPackage;
 use App\Models\UmkmProductCategory;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class TranslationTest extends TestCase
@@ -49,34 +47,6 @@ class TranslationTest extends TestCase
         app()->setLocale('id');
         $this->assertEquals('Pura Indah', $object->fresh()->name);
         $this->assertEquals('Pura yang indah', $object->fresh()->short_description);
-    }
-
-    public function test_tour_package_create_with_translations_via_controller(): void
-    {
-        Storage::fake('public');
-
-        $response = $this->actingAs($this->adminUser)
-            ->post(route('admin.packages.store'), [
-                'name' => ['en' => 'Cultural Tour', 'id' => 'Tur Budaya'],
-                'description' => ['en' => 'Explore Balinese culture.', 'id' => 'Jelajahi budaya Bali.'],
-                'price' => 100000,
-                'duration_hours' => 3.5,
-                'max_capacity' => 15,
-                'is_active' => true,
-            ]);
-
-        $response->assertSessionHasNoErrors();
-        $response->assertRedirect();
-
-        $package = TourPackage::where('slug', 'like', 'cultural-tour%')->firstOrFail();
-
-        app()->setLocale('en');
-        $this->assertEquals('Cultural Tour', $package->fresh()->name);
-        $this->assertEquals('Explore Balinese culture.', $package->fresh()->description);
-
-        app()->setLocale('id');
-        $this->assertEquals('Tur Budaya', $package->fresh()->name);
-        $this->assertEquals('Jelajahi budaya Bali.', $package->fresh()->description);
     }
 
     public function test_updating_one_locale_preserves_other(): void

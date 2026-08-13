@@ -266,7 +266,7 @@
                 element: '#tour-charts',
                 popover: {
                     title: '📈 Grafik Pengunjung',
-                    description: 'Lihat tren jumlah pengunjung harian dan rincian pendapatan per kategori paket wisata di sini.',
+                    description: 'Lihat tren jumlah pengunjung harian dan komposisi asal pengunjung di sini.',
                     side: 'top',
                     align: 'start'
                 }

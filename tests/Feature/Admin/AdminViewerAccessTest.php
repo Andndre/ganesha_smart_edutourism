@@ -50,6 +50,5 @@ class AdminViewerAccessTest extends TestCase
 
         $this->actingAs($viewer)->get(route('staff.ticketing'))->assertOk();
         $this->actingAs($viewer)->get(route('staff.ticketing.stats'))->assertOk();
-        $this->actingAs($viewer)->get(route('staff.ticketing.scan'))->assertOk();
     }
 }
