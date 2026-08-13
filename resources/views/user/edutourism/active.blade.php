@@ -387,6 +387,23 @@
 
     <!-- Mission Runner Overlay (gamified missions per route point) -->
     @if ($pointMissions->isNotEmpty())
+        {{-- Hoisted out of the individual games on purpose. Each game still @includes this (they
+        stay self-contained), but the @once inside would otherwise emit the stylesheet inside a
+        <template x-if> — meaning the `edu-*` classes, including the sticky CTA bar, would only
+        exist in the DOM while that one mission happened to be mounted. Emitting it here, above the
+        mission loop, makes the @once fire at the top level and every game inherit the same feel. --}}
+        @include('user.edutourism.games.partials.game-fx')
+
+        {{-- Each game's eduGame*() factory is hoisted here for the same reason, and it is not
+        cosmetic: a <script> inside a <template> is inert until Alpine clones it, and the games'
+        @once emitted theirs into the *first* mission of that type only. Resume a session on
+        mission 2 and mission 1's template never mounts, so the factory never runs and every
+        binding on the board dies with "eduGameMatching is not defined". Emitting one script per
+        distinct type up here means the factories exist before any mission is cloned. --}}
+        @foreach ($pointMissions->pluck('type')->unique() as $missionType)
+            @include('user.edutourism.games.partials.' . str_replace('_', '-', $missionType) . '-script')
+        @endforeach
+
         <div x-data="missionRunner(@js($pointMissions->map(fn($m) => ['id' => $m->id])->values()), @js($completedMissionIds))" x-show="open" x-cloak @open-mission-runner.window="openRunner()"
             @mission-complete="onMissionComplete($event.detail)" class="fixed inset-0 z-[60] flex flex-col bg-[#FAF9F6]">
             <div
@@ -410,7 +427,7 @@
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-5 pb-10">
+            <div class="edu-mission-scroll flex-1 overflow-y-auto p-5">
                 <template x-if="stage === 'intro'">
                     <div class="mx-auto max-w-md space-y-5">
                         @if ($activeSession->currentPoint->intro_video_path)

@@ -4,62 +4,6 @@
     Scoring: points split evenly per question; correct pick = full share, wrong = 0 for that question.
     Emits: mission-complete {id, earned}
 --}}
-@once
-    <script>
-        function eduGameQuiz(cfg, missionId, maxPoints) {
-            return {
-                cfg, missionId, maxPoints,
-                idx: 0, selected: null, chosen: null, checked: false, correctCount: 0, done: false,
-
-                get question() { return this.cfg.questions[this.idx]; },
-                get options() {
-                    return ['A', 'B', 'C', 'D'].map(letter => ({
-                        letter,
-                        text: this.question['option_' + letter.toLowerCase()],
-                    }));
-                },
-                choose(letter) {
-                    if (this.checked || this.done) return;
-                    navigator.vibrate?.(50);
-                    this.selected = letter;
-                },
-                check() {
-                    if (this.checked || this.done || this.selected === null) return;
-                    this.chosen = this.selected;
-                    this.checked = true;
-                    if (this.chosen === this.question.correct_option) {
-                        this.correctCount++;
-                        confetti?.({ particleCount: 40, spread: 55, origin: { y: 0.7 } });
-                    } else {
-                        navigator.vibrate?.([60, 40, 60]);
-                    }
-                },
-                next() {
-                    if (this.idx + 1 < this.cfg.questions.length) {
-                        this.idx++;
-                        this.selected = null;
-                        this.chosen = null;
-                        this.checked = false;
-                    } else {
-                        this.done = true;
-                        const earned = Math.round(this.maxPoints * this.correctCount / this.cfg.questions.length);
-                        setTimeout(() => this.$dispatch('mission-complete', { id: this.missionId, earned }), 400);
-                    }
-                },
-                optionClass(letter) {
-                    if (!this.checked) {
-                        return this.selected === letter
-                            ? 'border-primary bg-primary/10 text-primary'
-                            : 'border-gray-200 bg-white text-gray-700 hover:border-emerald-200 hover:bg-emerald-50';
-                    }
-                    if (letter === this.question.correct_option) return 'border-emerald-400 bg-emerald-50 text-emerald-800';
-                    if (this.chosen === letter) return 'quiz-shake border-red-300 bg-red-50 text-red-700';
-                    return 'border-gray-100 bg-gray-50 text-gray-400';
-                },
-            };
-        }
-    </script>
-@endonce
 
 @php($cfg = $mission->localizedConfig())
 <div x-data="eduGameQuiz(@js($cfg), @js($mission->id), @js($mission->points))" class="space-y-4">
@@ -83,10 +27,14 @@
         </template>
     </div>
 
-    <button type="button" x-show="selected !== null && !checked" @click="check()"
-        class="bg-primary w-full rounded-xl py-3 text-sm font-bold text-white shadow-sm transition-transform active:scale-95">
-        {{ __('Periksa') }}
-    </button>
+    {{-- x-show sits on the sticky wrapper, not the button: leaving the wrapper mounted would park
+    an empty backdrop bar across the bottom of the question. --}}
+    <div x-show="selected !== null && !checked" class="edu-sticky-cta">
+        <button type="button" @click="check()"
+            class="bg-primary w-full rounded-xl py-3 text-sm font-bold text-white shadow-sm transition-transform active:scale-95">
+            {{ __('Periksa') }}
+        </button>
+    </div>
 
     <template x-if="checked && question.explanation">
         <div class="rounded-xl p-3 text-sm"
@@ -95,8 +43,10 @@
         </div>
     </template>
 
-    <button type="button" x-show="checked" @click="next()"
-        class="bg-primary w-full rounded-xl py-3 text-sm font-bold text-white shadow-sm transition-transform active:scale-95">
-        <span x-text="idx + 1 < cfg.questions.length ? @js(__('Soal Berikutnya')) : @js(__('Selesai'))"></span>
-    </button>
+    <div x-show="checked" class="edu-sticky-cta">
+        <button type="button" @click="next()"
+            class="bg-primary w-full rounded-xl py-3 text-sm font-bold text-white shadow-sm transition-transform active:scale-95">
+            <span x-text="idx + 1 < cfg.questions.length ? @js(__('Soal Berikutnya')) : @js(__('Selesai'))"></span>
+        </button>
+    </div>
 </div>

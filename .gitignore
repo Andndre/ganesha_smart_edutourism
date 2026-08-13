@@ -41,3 +41,4 @@ Thumbs.db
 /openrouteservice/config/example-ors-config.env
 /openrouteservice/config/example-ors-config.yml
 docs/superpowers/
+.superpowers/
