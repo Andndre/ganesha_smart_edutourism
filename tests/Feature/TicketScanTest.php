@@ -176,4 +176,15 @@ class TicketScanTest extends TestCase
             ->assertOk()
             ->assertViewHas('totalVisitors', 0);
     }
+
+    public function test_admin_dashboard_shows_scanned_visitor_metrics(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        TicketScan::factory()->create(['party_size' => 6, 'scanned_at' => now()]);
+
+        $this->actingAs($admin)->get('/admin/dashboard')
+            ->assertOk()
+            ->assertViewHas('todayScannedVisitors', 6)
+            ->assertViewHas('todayTicketCount', 1);
+    }
 }
