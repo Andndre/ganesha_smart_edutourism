@@ -1,24 +1,8 @@
     <script>
         // Execution wrapper to handle Livewire and page navigation
         (function() {
-            // Category colors mapping matching the filter panel dots
-            const categoryColors = {
-                umkm: '#8B5CF6', // Violet
-                facilities: '#3B82F6', // Blue
-                toilets: '#06B6D4', // Cyan
-                accessibility: '#F59E0B', // Amber
-                cultural: '#1E5128' // Green (Default)
-            };
-
-            // Category glyphs reused verbatim from the filter panel (map-search.blade.php)
-            // so the legend and the map markers show the same iconography.
-            const categoryGlyphs = {
-                cultural: '<path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>',
-                umkm: '<path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>',
-                facilities: '<path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>',
-                toilets: '<path d="M12 4a1 1 0 100 2 1 1 0 000-2zm-2 8h4v8h-4v-8zm8-2h-3v8h2v-8h1zM5 10h3v8H6v-8H5z"/>',
-                accessibility: '<path d="M19 10.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM7.5 13.5h7.5m-7.5-3.5h5a2 2 0 012 2v6m-7-6.5V6a2 2 0 012-2h1.5"/>'
-            };
+            // Shared with the filter panel dots and the pins (components/map-pin-script)
+            const categoryColors = window.GSE_MAP_CATEGORY_COLORS;
 
             const categoryLabels = {
                 cultural: @js(__('Objek Budaya')),
@@ -1256,30 +1240,13 @@
                 }
             }
 
-            // Teardrop pin in the category colour with a white glyph, anchored at its tip.
-            // `highlight` swaps the white outline for Bali Gold and enlarges the pin —
-            // used for the single routing destination (action=route).
-            function getMarkerIcon(category, highlight = false) {
-                const color = categoryColors[category] || '#1E5128';
-                const glyph = categoryGlyphs[category] || categoryGlyphs.cultural;
-                const scale = highlight ? 1.35 : 1;
-                const w = Math.round(32 * scale);
-                const h = Math.round(42 * scale);
-
-                return L.divIcon({
-                    className: 'custom-pin',
-                    html: `<svg width="${w}" height="${h}" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))">
-                        <path d="M16 1C8.8 1 3 6.8 3 14c0 9.2 13 27 13 27s13-17.8 13-27C29 6.8 23.2 1 16 1z" fill="${color}" stroke="${highlight ? '#D4AF37' : '#FFFFFF'}" stroke-width="${highlight ? 3 : 2}"/>
-                        <g transform="translate(8 6) scale(0.6667)" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${glyph}</g>
-                    </svg>`,
-                    iconSize: [w, h],
-                    iconAnchor: [w / 2, h],
-                    popupAnchor: [0, -h]
-                });
+            function getMarkerIcon(category) {
+                return window.gseMapPin(category);
             }
 
+            // Routing destination (action=route) — same pin, enlarged with a Bali Gold outline
             function focusMarkerIcon(category) {
-                return getMarkerIcon(category, true);
+                return window.gseMapPin(category, { highlight: true });
             }
 
             // Cluster bubble: white disc with a Penglipuran Green ring, growing with count.
@@ -1296,15 +1263,11 @@
                 });
             }
 
+            // Numbered stop of a multi-stop shopping route; greys out once visited.
             function stopBadgeIcon(number, done) {
-                const bg = done ? '#9CA3AF' : '#F97316';
-                const label = done ? '✓' : number;
-                return L.divIcon({
-                    className: 'custom-pin',
-                    html: `<div style="background:${bg};width:30px;height:30px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.35);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;">${label}</div>`,
-                    iconSize: [30, 30],
-                    iconAnchor: [15, 15]
-                });
+                return done
+                    ? window.gseMapPin('check', { dimmed: true })
+                    : window.gseMapPin(null, { number: number, color: '#F97316' });
             }
 
             function initMultiRoute(stopsParam) {

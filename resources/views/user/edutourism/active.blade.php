@@ -598,12 +598,7 @@
 
                     targetPoints.forEach(function(point) {
                         L.marker([point.lat, point.lng], {
-                            icon: L.divIcon({
-                                className: 'target-pin',
-                                html: `<div style="background-color: #1E5128; width: 32px; height: 32px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;"><svg style="width: 16px; height: 16px; color: white;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div>`,
-                                iconSize: [32, 32],
-                                iconAnchor: [16, 16]
-                            })
+                            icon: window.gseMapPin('check')
                         }).addTo(map);
                     });
 
