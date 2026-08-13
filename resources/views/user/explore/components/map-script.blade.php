@@ -26,6 +26,7 @@
             let locationPulse = null;
             const markerLayers = [];
             let markerCluster = null;
+            let activeMarkerItem = null; // markerLayers entry whose sheet is open
 
             const activeFilters = {
                 cultural: true,
@@ -375,10 +376,7 @@
 
                     // Trigger opening the sheet and route calculation after a short timeout to let Leaflet load
                     setTimeout(() => {
-                        // Highlight the specific marker so it stands out from neighbours
-                        const targetItem = markerLayers.find(item => item.loc.id === targetLoc.id);
-                        if (targetItem) targetItem.marker.setIcon(focusMarkerIcon(targetLoc.cat));
-
+                        // openSheet highlights the marker as the active one
                         openSheet(targetLoc);
                         map.flyTo([targetLoc.lat - 0.0005, targetLoc.lng], 18, {
                             animate: true,
@@ -915,6 +913,7 @@
             function openSheet(loc) {
                 hideSearchResults();
                 activeLocation = loc;
+                setActiveMarker(loc);
                 updateRouteButtonUI();
                 document.getElementById('sheet-title').textContent = loc.name;
 
@@ -1064,6 +1063,7 @@
 
             function closeSheet() {
                 activeLocation = null;
+                setActiveMarker(null);
                 window.dispatchEvent(new CustomEvent('close-location-sheet'));
             }
 
@@ -1244,9 +1244,41 @@
                 return window.gseMapPin(category);
             }
 
-            // Routing destination (action=route) — same pin, enlarged with a Bali Gold outline
-            function focusMarkerIcon(category) {
-                return window.gseMapPin(category, { highlight: true });
+            // Single source of truth for what a marker looks like. A marker is either a
+            // plain POI or a numbered stop of an active shopping route; `active` adds the
+            // selected-state treatment on top of whichever it is.
+            function iconFor(item, active) {
+                const stopIndex = multiRouteStops.findIndex(stop => stop.loc.id === item.loc.id);
+
+                if (stopIndex !== -1) {
+                    return getMultiRouteDone()[item.loc.id]
+                        ? window.gseMapPin('check', { dimmed: true, highlight: active })
+                        : window.gseMapPin(null, {
+                            number: stopIndex + 1,
+                            color: '#F97316',
+                            highlight: active
+                        });
+                }
+
+                return window.gseMapPin(item.loc.cat, { highlight: active });
+            }
+
+            // Highlight the marker whose sheet is open, and restore the previous one.
+            function setActiveMarker(loc) {
+                if (activeMarkerItem) {
+                    activeMarkerItem.marker.setIcon(iconFor(activeMarkerItem, false));
+                    activeMarkerItem.marker.setZIndexOffset(0);
+                    activeMarkerItem = null;
+                }
+
+                if (!loc) return;
+
+                const item = markerLayers.find(entry => entry.loc.id === loc.id);
+                if (!item) return;
+
+                item.marker.setIcon(iconFor(item, true));
+                item.marker.setZIndexOffset(1000); // draw above neighbouring pins
+                activeMarkerItem = item;
             }
 
             // Cluster bubble: white disc with a Penglipuran Green ring, growing with count.
@@ -1261,13 +1293,6 @@
                     iconSize: [size, size],
                     iconAnchor: [size / 2, size / 2]
                 });
-            }
-
-            // Numbered stop of a multi-stop shopping route; greys out once visited.
-            function stopBadgeIcon(number, done) {
-                return done
-                    ? window.gseMapPin('check', { dimmed: true })
-                    : window.gseMapPin(null, { number: number, color: '#F97316' });
             }
 
             function initMultiRoute(stopsParam) {
@@ -1285,9 +1310,8 @@
 
                 if (multiRouteStops.length === 0) return;
 
-                const done = getMultiRouteDone();
-                multiRouteStops.forEach((item, i) => {
-                    item.marker.setIcon(stopBadgeIcon(i + 1, !!done[item.loc.id]));
+                multiRouteStops.forEach(item => {
+                    item.marker.setIcon(iconFor(item, item === activeMarkerItem));
 
                     // Pull stops out of the cluster so the 1-2-3 order stays readable at any zoom
                     if (markerCluster.hasLayer(item.marker)) {
@@ -1350,9 +1374,9 @@
                 done[loc.id] = true;
                 localStorage.setItem(multiRouteDoneKey, JSON.stringify(done));
 
-                const idx = multiRouteStops.findIndex(item => item.loc.id === loc.id);
-                if (idx !== -1) {
-                    multiRouteStops[idx].marker.setIcon(stopBadgeIcon(idx + 1, true));
+                const stop = multiRouteStops.find(item => item.loc.id === loc.id);
+                if (stop) {
+                    stop.marker.setIcon(iconFor(stop, false));
                 }
                 closeSheet();
 
