@@ -94,23 +94,6 @@ class AuthController extends Controller
     }
 
     /**
-     * Guest Walk-In Access Logic
-     */
-    public function guestAccess($reservationId, $hash)
-    {
-        $reservation = Reservation::findOrFail($reservationId);
-
-        if (md5($reservation->qr_code) !== $hash) {
-            abort(403, __('Link akses tidak valid atau telah kadaluarsa.'));
-        }
-
-        // Store guest token in session
-        session(['guest_token' => $reservation->qr_code, 'guest_name' => $reservation->guest_name]);
-
-        return redirect()->route('home')->with('success', __('Selamat datang, :name! Anda dapat mulai menjelajahi Ganesha Smart Edutourism.', ['name' => $reservation->guest_name]));
-    }
-
-    /**
      * Log the user out of the application.
      */
     public function logout(Request $request)

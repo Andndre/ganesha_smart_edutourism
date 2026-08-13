@@ -188,19 +188,9 @@
                             <span class="text-primary text-2xl font-bold">Rp
                                 {{ number_format($package->price, 0, ',', '.') }}</span>
                         </div>
-                        <a href="{{ route($package->isTicket() ? 'ticket.book' : 'tour-package.book', $package->id) }}"
-                            class="bg-primary shadow-primary/30 flex h-14 w-full items-center justify-center gap-2 rounded-2xl font-bold text-white shadow-lg transition-all hover:bg-[#152E1D] active:scale-[0.98]">
-                            {{ __('Pesan Tiket Sekarang') }}
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </a>
-                        @guest
-                            <p class="mt-2 text-center text-xs text-gray-400">
-                                {{ __('Anda akan diminta untuk login terlebih dahulu.') }}
-                            </p>
-                        @endguest
+                        <p class="text-center text-xs text-gray-400">
+                            {{ __('Tiket dapat dibeli melalui mitra OTA (seperti Traveloka) atau langsung di loket masuk.') }}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -216,17 +206,9 @@
                 <span class="text-primary text-lg font-bold">Rp {{ number_format($package->price, 0, ',', '.') }}</span>
             </div>
 
-            <a href="{{ route($package->isTicket() ? 'ticket.book' : 'tour-package.book', $package->id) }}"
-                class="bg-primary shadow-primary/30 flex h-14 w-full items-center justify-center gap-2 rounded-2xl font-bold text-white shadow-lg transition-all active:scale-[0.98]">
-                {{ __('Pesan Tiket Sekarang') }}
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-            </a>
-            @guest
-                <p class="mt-2 text-center text-xs text-gray-400">{{ __('Anda akan diminta untuk login terlebih dahulu.') }}
-                </p>
-            @endguest
+            <p class="text-center text-xs text-gray-400">
+                {{ __('Tiket dapat dibeli melalui mitra OTA (seperti Traveloka) atau langsung di loket masuk.') }}
+            </p>
         </div>
     </div>
 @endsection
