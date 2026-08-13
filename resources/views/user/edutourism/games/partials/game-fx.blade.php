@@ -192,6 +192,113 @@
             animation-delay: var(--edu-flash-delay, 0s);
         }
 
+        /* ---- shared chrome: chips, labels, progress segments, verdict marks ----------------
+         *
+         * The quiz, decision and riddle missions all render the same header furniture and the
+         * same "consequence card", so it lives here instead of being copied into three sheets.
+         * (sequence.blade.php keeps its own `sq-*` variants — it is mid-rework on this branch and
+         * folding it in here would collide with that.)
+         *
+         * Same Tailwind rule as the rest of this file: these rules own shape and motion only.
+         * Verdict colour arrives as utilities from each game's optionClass(), so nothing here has
+         * to out-specify anything.
+         */
+        .edu-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            border-radius: 9999px;
+            padding: 0.3rem 0.65rem;
+            font-size: 10px;
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            background: rgba(30, 81, 40, .08);
+            color: rgba(30, 81, 40, .9);
+        }
+
+        .edu-chip-gold {
+            background: rgba(212, 175, 55, .18);
+            color: #8a6a10;
+        }
+
+        .edu-chip-plain {
+            background: rgba(25, 26, 25, .05);
+            color: #6b7280;
+        }
+
+        .edu-label {
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        /* One segment per question/scenario rather than a single sliding bar: the shape of the
+           run stays readable at a glance — which answers helped, which cost points. */
+        .edu-seg {
+            flex: 1;
+            overflow: hidden;
+            height: 6px;
+            border-radius: 9999px;
+            background: rgba(25, 26, 25, .10);
+        }
+
+        /* Grows by scaleX, not width, so the fill stays on the compositor. */
+        .edu-seg-fill {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border-radius: inherit;
+            transform: scaleX(0);
+            transform-origin: left center;
+            background: linear-gradient(90deg, #1E5128, #2f8f52);
+            transition: transform .55s cubic-bezier(.34, 1.4, .64, 1), background .3s ease;
+        }
+
+        /* The step being played: a stub of fill, so "you are here" is visible before the
+           verdict lands. */
+        .edu-seg-live {
+            transform: scaleX(.34);
+            background: linear-gradient(90deg, rgba(30, 81, 40, .45), rgba(47, 143, 82, .35));
+        }
+
+        .edu-seg-done {
+            transform: scaleX(1);
+        }
+
+        .edu-seg-bad {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        /* The letter/verdict disc on an option card. */
+        .edu-mark {
+            transition: background-color .25s ease, color .25s ease, transform .25s cubic-bezier(.34, 1.4, .64, 1);
+        }
+
+        .edu-mark-active {
+            transform: scale(1.08);
+        }
+
+        @keyframes edu-drop {
+            0% {
+                opacity: 0;
+                transform: translate3d(0, -10px, 0) scale(.985);
+            }
+
+            100% {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        /* Drops out of the options above it rather than rising from below: the explanation reads
+           as coming from the card that was just pressed. */
+        .edu-drop {
+            animation: edu-drop .42s cubic-bezier(.34, 1.4, .64, 1) both;
+        }
+
         .edu-card {
             transition: transform .18s cubic-bezier(.34, 1.4, .64, 1), box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
         }
@@ -232,15 +339,22 @@
             /* Clears the iOS home indicator without adding a gap on Android. */
             padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
             background: #FAF9F6;
+            /* Centring lives on the bar, not on the button. See below. */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         /* The bar spans the viewport, but the button tracks the mission column so it doesn't
-           stretch into a full-width slab on a desktop screen. */
+           stretch into a full-width slab on a desktop screen.
+           Deliberately no `display` here: this sheet is unlayered, so it outranks every Tailwind
+           utility, and a `display: block` would silently kill the `flex` on any CTA that lays an
+           icon out beside its label — the icon drops to the start of a block box and the whole
+           button falls apart. Auto margins cannot centre an inline-block <button> either, which is
+           why the bar itself is the flex container instead. */
         .edu-sticky-cta>* {
-            display: block;
             width: 100%;
             max-width: 28rem;
-            margin-inline: auto;
         }
 
         .edu-sticky-cta::before {
@@ -266,12 +380,15 @@
             .edu-pulse-glow,
             .edu-slide-up,
             .edu-rise,
+            .edu-drop,
             .edu-shine::after,
             .edu-flash::before {
                 animation: none !important;
             }
 
-            .edu-card {
+            .edu-card,
+            .edu-seg-fill,
+            .edu-mark {
                 transition: none !important;
             }
         }
@@ -295,7 +412,7 @@
         window.eduSfx = window.eduSfx || {
             ctx: null,
 
-            /** @param {'tap'|'match'|'wrong'|'win'|'snap'|'flip'} kind */
+            /** @param {'tap'|'match'|'wrong'|'win'|'snap'|'flip'|'chime'|'nature'} kind */
             play(kind) {
                 try {
                     this.ctx = this.ctx || new(window.AudioContext || window.webkitAudioContext)();
@@ -325,18 +442,64 @@
                     ],
                     /* Turning a face-down card over. */
                     flip: [{ f: 780, t: 0, d: 0.09, g: 0.05, w: 'sine' }],
+                    /* Solving a riddle: a struck bell rather than the `win` fanfare. Partials
+                       rise on a G major triad and are stacked, not sequenced — they overlap into
+                       one shimmering tone, each quieter and longer than the one below it. */
+                    chime: [
+                        { f: 784, t: 0, d: 0.55, g: 0.070, w: 'sine' },
+                        { f: 1174, t: 0.06, d: 0.60, g: 0.050, w: 'sine' },
+                        { f: 1568, t: 0.14, d: 0.75, g: 0.040, w: 'sine' },
+                        { f: 2349, t: 0.22, d: 0.55, g: 0.022, w: 'triangle' },
+                    ],
+                    /* An eco-friendly decision: leaves settling, then a wooden chime over them.
+                       The rustle is the `noise` voice below — a pitched oscillator cannot make a
+                       broadband texture, and this cue is the one place the games need one. */
+                    nature: [
+                        { w: 'noise', f: 1400, f2: 3200, q: 0.9, t: 0, d: 0.45, g: 0.045 },
+                        { w: 'noise', f: 900, f2: 2200, q: 1.1, t: 0.18, d: 0.40, g: 0.030 },
+                        { f: 880, t: 0.16, d: 0.30, g: 0.060, w: 'sine' },
+                        { f: 1318, t: 0.28, d: 0.45, g: 0.045, w: 'sine' },
+                    ],
                 } [kind];
                 if (!notes) return;
 
                 const now = this.ctx.currentTime;
                 for (const n of notes) {
-                    const osc = this.ctx.createOscillator();
                     const gain = this.ctx.createGain();
-                    osc.type = n.w;
-                    osc.frequency.setValueAtTime(n.f, now + n.t);
                     // Ramp to a floor rather than 0: exponentialRamp cannot reach zero.
                     gain.gain.setValueAtTime(n.g, now + n.t);
                     gain.gain.exponentialRampToValueAtTime(0.0001, now + n.t + n.d);
+
+                    /**
+                     * A `noise` voice: white noise through a band-pass whose centre sweeps from
+                     * `f` to `f2`. That sweep is what turns a flat hiss into something that reads
+                     * as leaves or water. The buffer is built per call and is only ever a few
+                     * hundred milliseconds long, so it is cheaper than shipping an audio file.
+                     */
+                    if (n.w === 'noise') {
+                        const frames = Math.max(1, Math.ceil(this.ctx.sampleRate * n.d));
+                        const buffer = this.ctx.createBuffer(1, frames, this.ctx.sampleRate);
+                        const data = buffer.getChannelData(0);
+                        for (let i = 0; i < frames; i++) data[i] = Math.random() * 2 - 1;
+
+                        const src = this.ctx.createBufferSource();
+                        src.buffer = buffer;
+
+                        const band = this.ctx.createBiquadFilter();
+                        band.type = 'bandpass';
+                        band.Q.value = n.q ?? 1;
+                        band.frequency.setValueAtTime(n.f, now + n.t);
+                        if (n.f2) band.frequency.exponentialRampToValueAtTime(n.f2, now + n.t + n.d);
+
+                        src.connect(band).connect(gain).connect(this.ctx.destination);
+                        src.start(now + n.t);
+                        src.stop(now + n.t + n.d);
+                        continue;
+                    }
+
+                    const osc = this.ctx.createOscillator();
+                    osc.type = n.w;
+                    osc.frequency.setValueAtTime(n.f, now + n.t);
                     osc.connect(gain).connect(this.ctx.destination);
                     osc.start(now + n.t);
                     osc.stop(now + n.t + n.d);
