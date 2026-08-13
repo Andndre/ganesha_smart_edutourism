@@ -42,4 +42,113 @@ class TicketScanTest extends TestCase
         ]);
         $this->assertSame($officer->id, $scan->scanner->id);
     }
+
+    public function test_check_reports_new_code_as_new(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+
+        $response = $this->actingAs($officer)
+            ->postJson('/staff/ticketing/check', ['raw_code' => 'TVLK-BARU-1']);
+
+        $response->assertOk()->assertJson(['status' => 'new']);
+    }
+
+    public function test_store_records_a_visit(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+
+        $response = $this->actingAs($officer)->postJson('/staff/ticketing/store', [
+            'raw_code' => 'TVLK-BARU-2',
+            'party_size' => 3,
+            'origin' => 'foreign',
+        ]);
+
+        $response->assertOk()->assertJson(['success' => true]);
+        $this->assertDatabaseHas('ticket_scans', [
+            'code_hash' => TicketScan::hashCode('TVLK-BARU-2'),
+            'party_size' => 3,
+            'origin' => 'foreign',
+            'scanned_by' => $officer->id,
+        ]);
+    }
+
+    public function test_second_scan_of_same_code_is_rejected_and_counted(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+        TicketScan::factory()->create([
+            'code_hash' => TicketScan::hashCode('TVLK-DOBEL'),
+            'raw_code' => 'TVLK-DOBEL',
+            'party_size' => 2,
+            'scanned_by' => $officer->id,
+        ]);
+
+        $check = $this->actingAs($officer)
+            ->postJson('/staff/ticketing/check', ['raw_code' => 'TVLK-DOBEL']);
+
+        $check->assertOk()
+            ->assertJson(['status' => 'duplicate'])
+            ->assertJsonPath('scan.party_size', 2);
+
+        $this->assertSame(1, TicketScan::count());
+        $this->assertSame(1, TicketScan::first()->duplicate_attempts);
+        $this->assertNotNull(TicketScan::first()->last_attempt_at);
+    }
+
+    public function test_store_refuses_to_create_a_second_row_for_the_same_code(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+        TicketScan::factory()->create([
+            'code_hash' => TicketScan::hashCode('TVLK-RACE'),
+            'raw_code' => 'TVLK-RACE',
+            'scanned_by' => $officer->id,
+        ]);
+
+        $response = $this->actingAs($officer)->postJson('/staff/ticketing/store', [
+            'raw_code' => 'TVLK-RACE',
+            'party_size' => 5,
+            'origin' => 'domestic',
+        ]);
+
+        $response->assertStatus(409)->assertJson(['success' => false, 'status' => 'duplicate']);
+        $this->assertSame(1, TicketScan::count());
+    }
+
+    public function test_visitor_name_is_optional_and_falls_back_to_pengunjung(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+
+        $this->actingAs($officer)->postJson('/staff/ticketing/store', [
+            'raw_code' => 'TVLK-ANON',
+            'party_size' => 1,
+            'origin' => 'domestic',
+        ])->assertOk()->assertJsonPath('scan.visitor_name', 'Pengunjung');
+
+        $this->assertNull(TicketScan::first()->visitor_name);
+    }
+
+    public function test_store_validates_party_size_and_origin(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+
+        $this->actingAs($officer)->postJson('/staff/ticketing/store', [
+            'raw_code' => 'TVLK-INVALID',
+            'party_size' => 0,
+            'origin' => 'mars',
+        ])->assertStatus(422)->assertJsonValidationErrors(['party_size', 'origin']);
+    }
+
+    public function test_tourists_cannot_reach_scan_endpoints(): void
+    {
+        $tourist = User::factory()->create(['role' => 'tourist']);
+
+        $this->actingAs($tourist)->get('/staff/ticketing')->assertForbidden();
+        $this->actingAs($tourist)
+            ->postJson('/staff/ticketing/check', ['raw_code' => 'X'])
+            ->assertForbidden();
+    }
+
+    public function test_guests_are_redirected_to_login(): void
+    {
+        $this->get('/staff/ticketing')->assertRedirect('/login');
+    }
 }

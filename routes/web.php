@@ -14,7 +14,6 @@ use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RouteMissionAssetController;
 use App\Http\Controllers\Admin\SettingsController;
-use App\Http\Controllers\Admin\TicketingController;
 use App\Http\Controllers\Admin\TicketOfficerController;
 use App\Http\Controllers\Admin\TourRouteController;
 use App\Http\Controllers\Admin\UmkmCategoryController;
@@ -41,6 +40,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\SmartEdutourismController;
+use App\Http\Controllers\Staff\TicketScanController;
 use App\Http\Controllers\TourPackageController;
 use App\Http\Controllers\TranslateController;
 use App\Http\Controllers\UmkmCatalogController;
@@ -167,15 +167,10 @@ Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
 
 // Staff Routes (Admin & Ticket Officer)
 Route::prefix('staff')->middleware(['auth', 'staff'])->group(function () {
-    Route::get('/ticketing', [TicketingController::class, 'index'])->name('staff.ticketing');
-    Route::get('/ticketing/stats', [TicketingController::class, 'stats'])->name('staff.ticketing.stats');
-    Route::post('/ticketing/walk-in', [TicketingController::class, 'storeWalkIn'])->name('staff.ticketing.walk-in');
-    Route::get('/ticketing/scan', [TicketingController::class, 'scan'])->name('staff.ticketing.scan');
-    Route::post('/ticketing/verify', [TicketingController::class, 'verify'])->name('staff.ticketing.verify');
-    Route::post('/ticketing/sync/{reservation}', [TicketingController::class, 'syncStatus'])->name('staff.ticketing.sync');
-    Route::post('/ticketing/check-in/{reservation}', [TicketingController::class, 'checkIn'])->name('staff.ticketing.check-in');
-    Route::post('/ticketing/pay/{reservation}', [TicketingController::class, 'getSnapToken'])->name('staff.ticketing.pay');
-    Route::post('/ticketing/cancel/{reservation}', [TicketingController::class, 'cancel'])->name('staff.ticketing.cancel');
+    Route::get('/ticketing', [TicketScanController::class, 'index'])->name('staff.ticketing');
+    Route::post('/ticketing/check', [TicketScanController::class, 'check'])->name('staff.ticketing.check');
+    Route::post('/ticketing/store', [TicketScanController::class, 'store'])->name('staff.ticketing.store');
+    Route::get('/ticketing/history', [TicketScanController::class, 'stats'])->name('staff.ticketing.stats');
 });
 
 // Translation proxy (LibreTranslate) — used by admin multilingual form auto-translate
