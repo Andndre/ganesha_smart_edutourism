@@ -119,6 +119,18 @@
             formEl.classList.remove('hidden');
         }
 
+        function pauseCamera() {
+            if (html5QrCode && typeof html5QrCode.pause === 'function' && html5QrCode.getState() === Html5QrcodeScannerState.SCANNING) {
+                html5QrCode.pause(true);
+            }
+        }
+
+        function resumeCamera() {
+            if (html5QrCode && typeof html5QrCode.resume === 'function' && html5QrCode.getState() === Html5QrcodeScannerState.PAUSED) {
+                html5QrCode.resume();
+            }
+        }
+
         function paintOrigin() {
             document.querySelectorAll('.origin-btn').forEach(btn => {
                 const active = btn.dataset.origin === origin;
@@ -131,29 +143,56 @@
             });
         }
 
+        function buildResumeButton(colorClass) {
+            const btn = document.createElement('button');
+            btn.className = `mt-6 min-h-[44px] rounded-xl ${colorClass} px-6 text-sm font-semibold text-white active:scale-95`;
+            btn.textContent = 'Scan Tiket Berikutnya';
+            btn.addEventListener('click', () => window.resumeScan());
+            return btn;
+        }
+
         function showSaved(scan) {
             formEl.classList.add('hidden');
             resultEl.className = 'mt-6 rounded-2xl border border-primary/20 bg-primary/10 p-6 text-center text-primary-900';
-            resultEl.innerHTML = `
-                <h3 class="text-lg font-bold">Tercatat</h3>
-                <p class="mt-2 text-sm">${scan.visitor_name} • ${scan.party_size} orang • ${scan.origin === 'foreign' ? 'Asing' : 'Domestik'}</p>
-                <button class="mt-6 min-h-[44px] rounded-xl bg-primary px-6 text-sm font-semibold text-white active:scale-95" onclick="resumeScan()">Scan Tiket Berikutnya</button>
-            `;
+            resultEl.innerHTML = '';
+
+            const title = document.createElement('h3');
+            title.className = 'text-lg font-bold';
+            title.textContent = 'Tercatat';
+
+            const detail = document.createElement('p');
+            detail.className = 'mt-2 text-sm';
+            detail.textContent = `${scan.visitor_name} • ${scan.party_size} orang • ${scan.origin === 'foreign' ? 'Asing' : 'Domestik'}`;
+
+            resultEl.append(title, detail, buildResumeButton('bg-primary'));
         }
 
         function showDuplicate(scan) {
             formEl.classList.add('hidden');
             resultEl.className = 'mt-6 rounded-2xl border border-warning/20 bg-warning/10 p-6 text-center text-warning-900';
-            resultEl.innerHTML = `
-                <h3 class="text-lg font-bold">Tiket Sudah Dipakai</h3>
-                <p class="mt-2 text-sm">Dipindai ${scan.scanned_at_date} pukul ${scan.scanned_at} oleh ${scan.scanner_name}</p>
-                <p class="mt-1 text-sm">${scan.visitor_name} • ${scan.party_size} orang • ${scan.origin === 'foreign' ? 'Asing' : 'Domestik'}</p>
-                <p class="mt-2 text-xs">Percobaan ulang: ${scan.duplicate_attempts}x</p>
-                <button class="mt-6 min-h-[44px] rounded-xl bg-warning px-6 text-sm font-semibold text-white active:scale-95" onclick="resumeScan()">Scan Tiket Berikutnya</button>
-            `;
+            resultEl.innerHTML = '';
+
+            const title = document.createElement('h3');
+            title.className = 'text-lg font-bold';
+            title.textContent = 'Tiket Sudah Dipakai';
+
+            const scannedInfo = document.createElement('p');
+            scannedInfo.className = 'mt-2 text-sm';
+            scannedInfo.textContent = `Dipindai ${scan.scanned_at_date} pukul ${scan.scanned_at} oleh ${scan.scanner_name}`;
+
+            const detail = document.createElement('p');
+            detail.className = 'mt-1 text-sm';
+            detail.textContent = `${scan.visitor_name} • ${scan.party_size} orang • ${scan.origin === 'foreign' ? 'Asing' : 'Domestik'}`;
+
+            const attempts = document.createElement('p');
+            attempts.className = 'mt-2 text-xs';
+            attempts.textContent = `Percobaan ulang: ${scan.duplicate_attempts}x`;
+
+            resultEl.append(title, scannedInfo, detail, attempts, buildResumeButton('bg-warning'));
         }
 
         function handleCode(code) {
+            pauseCamera();
             post(checkUrl, { raw_code: code }).then(res => {
                 if (res.body.status === 'duplicate') {
                     navigator.vibrate && navigator.vibrate([50, 50, 50]);
@@ -165,6 +204,7 @@
             }).catch(() => {
                 alert('Gagal menghubungi server. Coba lagi.');
                 isScanning = true;
+                resumeCamera();
             });
         }
 
@@ -247,6 +287,7 @@
             document.getElementById('manual-code').value = '';
             pendingCode = null;
             isScanning = true;
+            resumeCamera();
         };
     });
 </script>

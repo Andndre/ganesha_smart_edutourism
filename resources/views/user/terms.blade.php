@@ -92,10 +92,7 @@
                                 Ticket Booking & Tour Packages
                             </h3>
                             <p class="mt-2 pl-8 text-gray-500">
-                                All bookings and transactions made through this application are final. E-tickets will be
-                                issued
-                                immediately upon verification of payment and must be shown at the village entry gate for QR
-                                scanning.
+                                {{ __('Tiket masuk dibeli melalui mitra OTA (mis. Traveloka) sebelum kunjungan Anda. Petugas gerbang memindai kode QR pada tiket Anda untuk mencatat kunjungan di pintu masuk desa.') }}
                             </p>
                         </section>
 
@@ -180,11 +177,7 @@
                                 Pemesanan Tiket & Paket Wisata
                             </h3>
                             <p class="mt-2 pl-8 text-gray-500">
-                                Seluruh pemesanan dan transaksi melalui aplikasi ini bersifat final. E-ticket akan
-                                diterbitkan
-                                secara otomatis setelah verifikasi pembayaran berhasil dan wajib ditunjukkan di gerbang
-                                masuk
-                                desa untuk dipindai (QR Scan).
+                                {{ __('Tiket masuk dibeli melalui mitra OTA (mis. Traveloka) sebelum kunjungan Anda. Petugas gerbang memindai kode QR pada tiket Anda untuk mencatat kunjungan di pintu masuk desa.') }}
                             </p>
                         </section>
 
