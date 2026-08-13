@@ -27,7 +27,7 @@
         <input type="hidden" name="preset" value="custom">
         <input type="date" name="start_date" value="{{ $startDate }}" class="min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm">
         <input type="date" name="end_date" value="{{ $endDate }}" class="min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm">
-        <button type="submit" class="min-h-[44px] rounded-xl bg-gray-900 px-4 text-sm font-semibold text-white">Terapkan</button>
+        <button type="submit" class="min-h-[44px] rounded-xl bg-primary px-4 text-sm font-semibold text-white">Terapkan</button>
     @endif
 </form>
 
