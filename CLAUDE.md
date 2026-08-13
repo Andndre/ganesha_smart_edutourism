@@ -47,7 +47,7 @@ The application has **5 distinct user roles** with separate route prefixes and m
 2. **User** (authenticated) - Profile, feedback, favorites, edutourism
 3. **Admin** (`/admin/*`) - Full system management
 4. **UMKM Owner** (`/owner/*`) - Product catalog and profile management
-5. **Ticket Officer** (`/staff/*`) - Scans OTA-purchased tickets (QR) for visit logging, check-ins
+5. **Ticket Officer** (`/staff/*`) - Scans OTA-purchased tickets (QR) to record visits and flag duplicate scans
 
 **Middleware:** `redirect.admin`, `staff`, `umkm_owner` control access.
 

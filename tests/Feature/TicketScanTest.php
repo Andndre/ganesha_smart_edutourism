@@ -111,6 +111,8 @@ class TicketScanTest extends TestCase
 
         $response->assertStatus(409)->assertJson(['success' => false, 'status' => 'duplicate']);
         $this->assertSame(1, TicketScan::count());
+        $this->assertSame(1, TicketScan::first()->duplicate_attempts);
+        $this->assertNotNull(TicketScan::first()->last_attempt_at);
     }
 
     public function test_visitor_name_is_optional_and_falls_back_to_pengunjung(): void
@@ -175,6 +177,50 @@ class TicketScanTest extends TestCase
         $this->actingAs($officer)->get('/staff/ticketing/history')
             ->assertOk()
             ->assertViewHas('totalVisitors', 0);
+    }
+
+    public function test_stats_custom_preset_filters_by_the_given_date_range(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+        TicketScan::factory()->create(['party_size' => 4, 'scanned_at' => now()->subDays(2), 'scanned_by' => $officer->id]);
+        TicketScan::factory()->create(['party_size' => 3, 'scanned_at' => now()->subDays(20), 'scanned_by' => $officer->id]);
+
+        $response = $this->actingAs($officer)->get('/staff/ticketing/history?'.http_build_query([
+            'preset' => 'custom',
+            'start_date' => now()->subDays(5)->format('Y-m-d'),
+            'end_date' => now()->format('Y-m-d'),
+        ]));
+
+        $response->assertOk()
+            ->assertViewHas('preset', 'custom')
+            ->assertViewHas('totalVisitors', 4)
+            ->assertViewHas('totalTickets', 1);
+    }
+
+    public function test_stats_rejects_an_unparseable_start_date_instead_of_500ing(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+
+        $response = $this->actingAs($officer)
+            ->get('/staff/ticketing/history?preset=custom&start_date=abc');
+
+        // This is a plain <form method="GET"> page, so an invalid query string
+        // redirects back with flashed errors instead of a raw 422 — either way,
+        // it must not throw and 500 the page.
+        $response->assertStatus(302)->assertSessionHasErrors(['start_date']);
+    }
+
+    public function test_stats_rejects_a_start_date_after_the_end_date(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+
+        $response = $this->actingAs($officer)->get('/staff/ticketing/history?'.http_build_query([
+            'preset' => 'custom',
+            'start_date' => now()->format('Y-m-d'),
+            'end_date' => now()->subDays(3)->format('Y-m-d'),
+        ]));
+
+        $response->assertStatus(302)->assertSessionHasErrors(['end_date']);
     }
 
     public function test_admin_dashboard_shows_scanned_visitor_metrics(): void

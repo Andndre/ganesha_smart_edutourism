@@ -126,7 +126,7 @@ Halaman utama dokumentasi. Tulis dalam Bahasa Indonesia. Harus mencakup:
 - Apa itu Ganesha Smart Edutourism
 - Siapa saja pengguna aplikasi ini (5 role)
 - Link cepat ke masing-masing panduan role
-- Teknologi yang digunakan (Laravel 13, TailwindCSS, AR.js, Midtrans)
+- Teknologi yang digunakan (Laravel 13, TailwindCSS, AR.js)
 
 ---
 
@@ -262,7 +262,7 @@ Tulis panduan untuk pengguna yang sudah **login**. Tambahkan semua fitur eksklus
 - `GET /feedback/thank-you/{id}` — Halaman terima kasih
 - `GET /tour-package/{id}/book` — Halaman checkout booking paket wisata
   - Form fields: nama pemesan, email, nomor HP, jumlah orang, tanggal kunjungan, catatan khusus
-- `POST /tour-package/{id}/process` — Proses pembayaran Midtrans
+- `POST /tour-package/{id}/process` — Proses pembayaran
 - `GET /profile` — Halaman profil pengguna
 - `GET /profile/edit` — Edit profil
   - Form fields: nama lengkap, nomor HP, preferensi bahasa (id/en)
@@ -553,7 +553,7 @@ Setelah submit:
 1. Sistem membuat reservasi baru
 2. Kirim SMS/WA berisi link tiket ke nomor HP tamu
 3. Tamu bisa akses tiket via: `GET /guest-access/{reservation}/{hash}`
-4. Jika metode QRIS: tampilkan QR Midtrans di layar
+4. Jika metode QRIS: tampilkan QR pembayaran di layar
 
 #### D. Scan QR (`GET /staff/ticketing/scan`)
 - Kamera aktif untuk scan QR code di tiket tamu
@@ -570,12 +570,12 @@ Setelah submit:
 - Tampilkan konfirmasi sukses
 
 #### F. Sinkronisasi Status (`POST /staff/ticketing/sync/{reservation}`)
-- Gunakan jika status pembayaran tidak update otomatis dari Midtrans
-- Sistem query ulang status transaksi ke Midtrans API
+- Gunakan jika status pembayaran tidak update otomatis dari penyedia pembayaran
+- Sistem query ulang status transaksi ke API penyedia pembayaran
 - Update status reservasi sesuai hasil
 
 #### G. Pembayaran di Counter (`POST /staff/ticketing/pay/{reservation}`)
-- Generate link pembayaran Midtrans Snap untuk tamu yang belum bayar
+- Generate link pembayaran untuk tamu yang belum bayar
 - Tampilkan QR code / URL pembayaran
 - Tamu bisa bayar langsung via HP mereka
 
@@ -643,7 +643,7 @@ Setelah submit:
   2. Isi form booking (lihat tabel form fields)
   3. Review pesanan dan harga total
   4. Pilih metode pembayaran
-  5. Selesaikan via Midtrans Snap (popup)
+  5. Selesaikan pembayaran (popup)
   6. Tunggu konfirmasi email (1-5 menit)
   7. Tunjukkan e-tiket di pintu masuk
 
