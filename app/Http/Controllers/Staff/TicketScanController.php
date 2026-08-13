@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\TicketScan;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class TicketScanController extends Controller
@@ -63,38 +65,58 @@ class TicketScanController extends Controller
 
         $codeHash = TicketScan::hashCode($validated['raw_code']);
 
-        return DB::transaction(function () use ($validated, $codeHash) {
-            $existing = TicketScan::with('scanner')
-                ->where('code_hash', $codeHash)
-                ->lockForUpdate()
-                ->first();
+        try {
+            return DB::transaction(function () use ($validated, $codeHash) {
+                $existing = TicketScan::with('scanner')
+                    ->where('code_hash', $codeHash)
+                    ->lockForUpdate()
+                    ->first();
 
-            if ($existing) {
-                $existing->increment('duplicate_attempts');
-                $existing->update(['last_attempt_at' => now()]);
+                if ($existing) {
+                    return $this->duplicateResponse($existing);
+                }
+
+                $scan = TicketScan::create([
+                    'code_hash' => $codeHash,
+                    'raw_code' => trim($validated['raw_code']),
+                    'visitor_name' => $validated['visitor_name'] ?? null,
+                    'party_size' => $validated['party_size'],
+                    'origin' => $validated['origin'],
+                    'scanned_at' => now(),
+                    'scanned_by' => auth()->id(),
+                ]);
 
                 return response()->json([
-                    'success' => false,
-                    'status' => 'duplicate',
-                    'scan' => $this->presentScan($existing->fresh('scanner')),
-                ], 409);
+                    'success' => true,
+                    'scan' => $this->presentScan($scan->load('scanner')),
+                ]);
+            });
+        } catch (UniqueConstraintViolationException) {
+            // Petugas lain menang balapan setelah lock kita lepas: perlakukan
+            // sama seperti duplikat biasa, bukan kegagalan server.
+            $winner = TicketScan::with('scanner')->where('code_hash', $codeHash)->first();
+
+            if (! $winner) {
+                throw new \RuntimeException('Tiket dobel terdeteksi tetapi barisnya tidak ditemukan.');
             }
 
-            $scan = TicketScan::create([
-                'code_hash' => $codeHash,
-                'raw_code' => trim($validated['raw_code']),
-                'visitor_name' => $validated['visitor_name'] ?? null,
-                'party_size' => $validated['party_size'],
-                'origin' => $validated['origin'],
-                'scanned_at' => now(),
-                'scanned_by' => auth()->id(),
-            ]);
+            return $this->duplicateResponse($winner);
+        }
+    }
 
-            return response()->json([
-                'success' => true,
-                'scan' => $this->presentScan($scan->load('scanner')),
-            ]);
-        });
+    /**
+     * Catat percobaan ulang dan balas dengan detail scan pertama.
+     */
+    private function duplicateResponse(TicketScan $existing): JsonResponse
+    {
+        $existing->increment('duplicate_attempts');
+        $existing->update(['last_attempt_at' => now()]);
+
+        return response()->json([
+            'success' => false,
+            'status' => 'duplicate',
+            'scan' => $this->presentScan($existing->fresh('scanner')),
+        ], 409);
     }
 
     /**
@@ -122,6 +144,15 @@ class TicketScanController extends Controller
             $endDate = $endDate ?: today()->format('Y-m-d');
             $from = Carbon::parse($startDate)->startOfDay();
             $to = Carbon::parse($endDate)->endOfDay();
+
+            // Tanggal yang terisi otomatis bisa melewati tanggal akhir yang
+            // dikirim petugas (mis. hanya end_date yang diisi), dan aturan
+            // after_or_equal di atas tidak menjangkau nilai default itu.
+            if ($from->greaterThan($to)) {
+                throw ValidationException::withMessages([
+                    'end_date' => 'Tanggal akhir harus sama dengan atau setelah tanggal mulai.',
+                ]);
+            }
         } elseif ($preset === 'month') {
             $from = today()->subDays(30)->startOfDay();
             $to = today()->endOfDay();
@@ -171,7 +202,6 @@ class TicketScanController extends Controller
             'scanned_at' => $record->scanned_at->format('d/m/Y H:i'),
             'scanner_name' => $record->scanner->name ?? 'Petugas',
             'duplicate_attempts' => $record->duplicate_attempts,
-            'raw_code' => $record->raw_code,
         ])->values()->toArray();
 
         return view('staff.ticketing.stats', compact(

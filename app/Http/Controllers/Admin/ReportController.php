@@ -142,7 +142,7 @@ class ReportController extends Controller
             if ($count > 0) {
                 $originBreakdown[] = [
                     'label' => $label,
-                    'amount' => number_format($count).' orang',
+                    'amount' => number_format($count, 0, ',', '.').' orang',
                     'pct' => $originTotal > 0 ? (int) round(($count / $originTotal) * 100) : 0,
                 ];
             }

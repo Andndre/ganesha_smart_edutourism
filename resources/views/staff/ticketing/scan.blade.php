@@ -83,7 +83,8 @@
 </style>
 @endpush
 
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+{{-- Versi dipatok: tanpa ini setiap rilis baru html5-qrcode langsung masuk ke gerbang tanpa diuji. --}}
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" type="text/javascript"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const csrf = '{{ csrf_token() }}';
@@ -236,7 +237,15 @@
         });
         document.getElementById('scan-cancel').addEventListener('click', () => window.resumeScan());
 
-        document.getElementById('scan-save').addEventListener('click', function() {
+        const saveBtn = document.getElementById('scan-save');
+
+        saveBtn.addEventListener('click', function() {
+            // Satu ketukan = satu permintaan: tanpa ini, ketukan ganda di layar
+            // sentuh mengirim dua store dan yang kedua terhitung sebagai dobel.
+            if (saveBtn.disabled) return;
+            saveBtn.disabled = true;
+            saveBtn.classList.add('opacity-60');
+
             post(storeUrl, {
                 raw_code: pendingCode,
                 party_size: parseInt(partyEl.value || '1', 10),
@@ -250,7 +259,10 @@
                 } else {
                     alert('Data tidak valid. Periksa jumlah orang dan asal pengunjung.');
                 }
-            }).catch(() => alert('Gagal menyimpan. Coba lagi.'));
+            }).catch(() => alert('Gagal menyimpan. Coba lagi.')).finally(() => {
+                saveBtn.disabled = false;
+                saveBtn.classList.remove('opacity-60');
+            });
         });
 
         html5QrCode = new Html5Qrcode("reader");

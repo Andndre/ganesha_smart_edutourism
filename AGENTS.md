@@ -39,7 +39,7 @@ Roles are defined in `app/Enums/UserRole.php`:
 | Role | Value | Access |
 |------|-------|--------|
 | Admin | `admin` | `/admin/*` — full system management |
-| Ticket Officer | `ticket_officer` | `/staff/*` — scans OTA-purchased tickets (QR) for visit logging, check-in |
+| Ticket Officer | `ticket_officer` | `/staff/*` — scans OTA-purchased tickets (QR) for visit logging |
 | UMKM Owner | `umkm_owner` | `/owner/*` — own profile & products |
 | Tourist | `tourist` | public + authenticated features |
 | Guest | — | public pages only (`/`, `/explore`, `/cultural`, `/umkm`, `/ar-scan`, etc.) |
@@ -224,7 +224,7 @@ Requires the LibreTranslate container running (`docker compose up -d libretransl
 3. Role middleware aliases: `admin`, `staff`, `umkm_owner`, `redirect.admin`.
 4. Controllers delegate to `app/Services/` for domain logic.
 5. Eloquent observers auto-flush relevant cache tags.
-6. Queue jobs / events handle payments, refunds, emails, real-time broadcasts.
+6. Queue jobs / events handle emails (event reminders) and real-time broadcasts.
 
 ### Controllers by Area
 
@@ -297,6 +297,7 @@ Reusable traits in `app/Models/Concerns/`:
 - No online booking or payment gateway. Tickets are sold via OTAs (e.g. Traveloka); staff scan the QR at the gate.
 - `Staff\TicketScanController` (`index`, `check`, `store`, `stats`) records each scan in `TicketScan`, using a unique `code_hash` to detect duplicate/repeat scans.
 - Routes: `staff.ticketing`, `staff.ticketing.check`, `staff.ticketing.store`, `staff.ticketing.stats`.
+- **Access:** `StaffMiddleware` admits `admin`, `ticket_officer`, **and `admin_viewer`**. `admin_viewer` is read-only everywhere else (`AdminOrViewerMiddleware`), but on `/staff/*` it can POST to `staff.ticketing.check` and `staff.ticketing.store` — i.e. record visits and bump `duplicate_attempts`. Pre-existing behaviour, kept deliberately; tighten `StaffMiddleware` if that role must stay read-only.
 
 ---
 
