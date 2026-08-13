@@ -10,6 +10,16 @@
                 cultural: '#1E5128' // Green (Default)
             };
 
+            // Category glyphs reused verbatim from the filter panel (map-search.blade.php)
+            // so the legend and the map markers show the same iconography.
+            const categoryGlyphs = {
+                cultural: '<path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>',
+                umkm: '<path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>',
+                facilities: '<path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>',
+                toilets: '<path d="M12 4a1 1 0 100 2 1 1 0 000-2zm-2 8h4v8h-4v-8zm8-2h-3v8h2v-8h1zM5 10h3v8H6v-8H5z"/>',
+                accessibility: '<path d="M19 10.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM7.5 13.5h7.5m-7.5-3.5h5a2 2 0 012 2v6m-7-6.5V6a2 2 0 012-2h1.5"/>'
+            };
+
             const categoryLabels = {
                 cultural: @js(__('Objek Budaya')),
                 umkm: @js(__('UMKM')),
@@ -31,6 +41,7 @@
             let locationArrow = null;
             let locationPulse = null;
             const markerLayers = [];
+            let markerCluster = null;
 
             const activeFilters = {
                 cultural: true,
@@ -105,21 +116,24 @@
                 // 3. Data from ExploreController
                 const locations = @json($locations);
 
-                function getMarkerIcon(category) {
-                    const color = categoryColors[category] || '#1E5128';
-                    return L.divIcon({
-                        className: 'custom-pin',
-                        html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
-                        iconSize: [24, 24],
-                        iconAnchor: [12, 12]
-                    });
-                }
+                // 4. Cluster group — collapses dense marker groups when zoomed out.
+                // Clustering stops at zoom 18 so individual pins are always tappable up close.
+                markerCluster = L.markerClusterGroup({
+                    maxClusterRadius: 50,
+                    disableClusteringAtZoom: 18,
+                    spiderfyOnMaxZoom: true,
+                    showCoverageOnHover: false,
+                    iconCreateFunction: getClusterIcon
+                });
+                map.addLayer(markerCluster);
 
                 // 5. Render Marker
+                const clusteredMarkers = [];
                 locations.forEach(loc => {
                     const marker = L.marker([loc.lat, loc.lng], {
                         icon: getMarkerIcon(loc.cat)
-                    }).addTo(map);
+                    });
+                    clusteredMarkers.push(marker);
 
                     marker.on('click', function(e) {
                         if (e && e.originalEvent) {
@@ -137,6 +151,7 @@
                         loc: loc
                     });
                 });
+                markerCluster.addLayers(clusteredMarkers);
 
                 // ==========================================
                 // HEATMAP OVERLAY DATA (from controller)
@@ -595,14 +610,21 @@
                         item.loc.name.toLowerCase().includes(query) ||
                         (item.loc.desc && item.loc.desc.toLowerCase().includes(query));
 
+                    // Numbered multi-route stops live outside the cluster; leave them alone
+                    // so filtering never hides or re-clusters an active shopping route.
+                    if (multiRouteStops.some(stop => stop.loc.id === item.loc.id)) {
+                        if (isFilterActive && matchesSearch) matches.push(item.loc);
+                        return;
+                    }
+
                     if (isFilterActive && matchesSearch) {
-                        if (!map.hasLayer(item.marker)) {
-                            map.addLayer(item.marker);
+                        if (!markerCluster.hasLayer(item.marker)) {
+                            markerCluster.addLayer(item.marker);
                         }
                         matches.push(item.loc);
                     } else {
-                        if (map.hasLayer(item.marker)) {
-                            map.removeLayer(item.marker);
+                        if (markerCluster.hasLayer(item.marker)) {
+                            markerCluster.removeLayer(item.marker);
                         }
                     }
                 });
@@ -1234,15 +1256,43 @@
                 }
             }
 
-            // Single highlighted destination (action=route) — a larger green pin
-            // with a ring so it stands out among closely-packed UMKM markers.
-            function focusMarkerIcon(category) {
+            // Teardrop pin in the category colour with a white glyph, anchored at its tip.
+            // `highlight` swaps the white outline for Bali Gold and enlarges the pin —
+            // used for the single routing destination (action=route).
+            function getMarkerIcon(category, highlight = false) {
                 const color = categoryColors[category] || '#1E5128';
+                const glyph = categoryGlyphs[category] || categoryGlyphs.cultural;
+                const scale = highlight ? 1.35 : 1;
+                const w = Math.round(32 * scale);
+                const h = Math.round(42 * scale);
+
                 return L.divIcon({
                     className: 'custom-pin',
-                    html: `<div style="background:${color};width:34px;height:34px;border-radius:50%;border:4px solid white;box-shadow:0 0 0 4px rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 6a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/></svg></div>`,
-                    iconSize: [34, 34],
-                    iconAnchor: [17, 17]
+                    html: `<svg width="${w}" height="${h}" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))">
+                        <path d="M16 1C8.8 1 3 6.8 3 14c0 9.2 13 27 13 27s13-17.8 13-27C29 6.8 23.2 1 16 1z" fill="${color}" stroke="${highlight ? '#D4AF37' : '#FFFFFF'}" stroke-width="${highlight ? 3 : 2}"/>
+                        <g transform="translate(8 6) scale(0.6667)" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${glyph}</g>
+                    </svg>`,
+                    iconSize: [w, h],
+                    iconAnchor: [w / 2, h],
+                    popupAnchor: [0, -h]
+                });
+            }
+
+            function focusMarkerIcon(category) {
+                return getMarkerIcon(category, true);
+            }
+
+            // Cluster bubble: white disc with a Penglipuran Green ring, growing with count.
+            function getClusterIcon(cluster) {
+                const count = cluster.getChildCount();
+                const size = count < 10 ? 38 : count < 30 ? 46 : 54;
+                const fontSize = count < 10 ? 13 : count < 30 ? 15 : 17;
+
+                return L.divIcon({
+                    className: 'custom-cluster',
+                    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:#fff;border:3px solid #1E5128;color:#1E5128;font-weight:800;font-size:${fontSize}px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.35);">${count}</div>`,
+                    iconSize: [size, size],
+                    iconAnchor: [size / 2, size / 2]
                 });
             }
 
@@ -1275,6 +1325,12 @@
                 const done = getMultiRouteDone();
                 multiRouteStops.forEach((item, i) => {
                     item.marker.setIcon(stopBadgeIcon(i + 1, !!done[item.loc.id]));
+
+                    // Pull stops out of the cluster so the 1-2-3 order stays readable at any zoom
+                    if (markerCluster.hasLayer(item.marker)) {
+                        markerCluster.removeLayer(item.marker);
+                    }
+                    item.marker.addTo(map);
                 });
 
                 const bounds = L.latLngBounds(multiRouteStops.map(item => [item.loc.lat, item.loc.lng]));
