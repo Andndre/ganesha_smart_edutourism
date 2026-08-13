@@ -19,11 +19,6 @@
             <p class="text-charcoal mt-4 text-sm leading-relaxed">{{ $feedback->comment }}</p>
         @endif
 
-        @if ($feedback->reservation_id)
-            <p class="mt-4 text-xs text-gray-400">
-                {{ __('Terkait dengan reservasi') }} {{ $feedback->reservation_id }}
-            </p>
-        @endif
     </div>
 
     <!-- Photos Grid -->
