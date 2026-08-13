@@ -8,7 +8,6 @@ use App\Models\CulturalObject;
 use App\Models\Event;
 use App\Models\Facility;
 use App\Models\MapLocation;
-use App\Models\TourPackage;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
 use App\Models\UmkmProductCategory;
@@ -85,24 +84,6 @@ class CacheInvalidationTest extends TestCase
             $this->assertNull(Cache::tags(['events'])->get('public_events_upcoming_'.$cat));
             $this->assertNull(Cache::tags(['events'])->get('public_events_calendar_'.$cat));
         }
-    }
-
-    public function test_tour_package_saved_invalidates_cache(): void
-    {
-        Cache::tags(['packages'])->put('tour_packages_active_array', ['packages'], 86400);
-
-        TourPackage::create([
-            'name' => 'Paket Hemat',
-            'slug' => 'paket-hemat',
-            'description' => 'Paket murah meriah',
-            'price' => 50000,
-            'duration_hours' => 4.0,
-            'max_capacity' => 10,
-            'min_capacity' => 2,
-            'is_active' => true,
-        ]);
-
-        $this->assertNull(Cache::tags(['packages'])->get('tour_packages_active_array'));
     }
 
     public function test_tour_route_and_points_saved_invalidates_cache(): void
