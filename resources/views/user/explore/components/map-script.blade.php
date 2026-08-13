@@ -106,11 +106,25 @@
                 markerCluster = L.markerClusterGroup({
                     maxClusterRadius: 50,
                     disableClusteringAtZoom: 18,
-                    spiderfyOnMaxZoom: true,
+                    spiderfyOnMaxZoom: false,
+                    zoomToBoundsOnClick: false, // handled below, so we control the zoom floor
                     showCoverageOnHover: false,
                     iconCreateFunction: getClusterIcon
                 });
                 map.addLayer(markerCluster);
+
+                // Clicking a cluster zooms into it rather than fanning the pins out in
+                // place. Landing above disableClusteringAtZoom guarantees the cluster
+                // breaks apart into individual pins instead of smaller clusters.
+                markerCluster.on('clusterclick', function(e) {
+                    const bounds = e.layer.getBounds();
+                    const fitZoom = map.getBoundsZoom(bounds, false, L.point(60, 60));
+
+                    map.flyTo(bounds.getCenter(), Math.max(18, fitZoom), {
+                        animate: true,
+                        duration: 0.6
+                    });
+                });
 
                 // 5. Render Marker
                 const clusteredMarkers = [];
@@ -1254,23 +1268,37 @@
                 return window.gseMapPin(item.loc.cat, { highlight: active });
             }
 
-            // Centre the map on a location, offset so the open sheet doesn't cover it.
-            // The sheet is a right-hand drawer from the `md` breakpoint up and a bottom
-            // sheet below it, so we shift the centre in pixel space by half its width or
-            // half its height — which stays correct at any zoom, unlike a fixed lat nudge.
+            // Pins are anchored at their tip, so centring the anchor leaves the body of
+            // the pin sitting half its height too high. 42px tall, hence 21.
+            const PIN_HALF_HEIGHT = 21;
+
+            // Centre the map on a location, offset so nothing covers it: the sheet eats
+            // into the right edge (desktop drawer) or the bottom edge (mobile sheet), and
+            // the search bar always covers the top. We measure how much of the map each
+            // one hides and shift the centre by half the difference — correct at any zoom,
+            // unlike the fixed latitude nudge this replaced.
             function focusOnLocation(loc, zoom, duration) {
                 // Wait a frame so Alpine has rendered the sheet and it can be measured.
                 // Its enter transition only translates it, so the size is already final.
                 requestAnimationFrame(() => {
-                    const panel = document.getElementById('location-sheet-panel');
-                    const rect = panel ? panel.getBoundingClientRect() : null;
+                    const box = map.getContainer().getBoundingClientRect();
                     const point = map.project([loc.lat, loc.lng], zoom);
 
-                    if (rect && rect.width && rect.height) {
-                        if (window.matchMedia('(min-width: 768px)').matches) {
-                            point.x += rect.width / 2;
+                    const sheet = document.getElementById('location-sheet-panel');
+                    const sheetRect = sheet ? sheet.getBoundingClientRect() : null;
+
+                    if (sheetRect && sheetRect.width && sheetRect.height) {
+                        // A drawer is narrower than the map; a bottom sheet spans its width
+                        if (sheetRect.width < box.width - 1) {
+                            point.x += Math.max(0, box.right - sheetRect.left) / 2;
                         } else {
-                            point.y += rect.height / 2;
+                            const search = document.getElementById('map-search-overlay');
+                            const searchRect = search ? search.getBoundingClientRect() : null;
+
+                            const hiddenBottom = Math.max(0, box.bottom - sheetRect.top);
+                            const hiddenTop = searchRect ? Math.max(0, searchRect.bottom - box.top) : 0;
+
+                            point.y += (hiddenBottom - hiddenTop) / 2 - PIN_HALF_HEIGHT;
                         }
                     }
 
