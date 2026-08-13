@@ -34,18 +34,12 @@
                             attributionControl: false
                         }).setView([lat, lng], 17);
 
-                        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                            maxZoom: 20
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 20,
+                            maxNativeZoom: 19
                         }).addTo(mapInstance);
 
-                        const customIcon = L.divIcon({
-                            className: 'custom-div-icon',
-                            html: `<div class="marker-pin"></div>`,
-                            iconSize: [30, 42],
-                            iconAnchor: [15, 42]
-                        });
-
-                        L.marker([lat, lng], { icon: customIcon })
+                        L.marker([lat, lng], { icon: window.gseMapPin('umkm') })
                             .bindPopup(`<b>{{ $umkm->business_name }}</b>`)
                             .addTo(mapInstance);
                     }
