@@ -133,11 +133,7 @@
                 </div>
                 <h4 class="text-charcoal mb-1 text-sm font-bold">{{ __('Belum Ada Tiket Aktif') }}</h4>
                 <p class="mb-4 text-xs text-gray-500">
-                    {{ __('Pesan tiket atau paket wisata menarik untuk memulai perjalanan edukasi Anda.') }}</p>
-                <a href="{{ route('tour-packages') }}"
-                    class="bg-primary/10 text-primary active:bg-primary/20 inline-block rounded-xl px-4 py-2 text-xs font-bold transition-all">
-                    {{ __('Beli Tiket Sekarang') }}
-                </a>
+                    {{ __('Belum ada tiket yang tercatat untuk akun Anda.') }}</p>
             </div>
         @endif
 

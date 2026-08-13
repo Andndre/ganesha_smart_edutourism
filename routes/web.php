@@ -10,7 +10,6 @@ use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\MapManagerController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
-use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RouteMissionAssetController;
 use App\Http\Controllers\Admin\SettingsController;
@@ -40,7 +39,6 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\SmartEdutourismController;
 use App\Http\Controllers\Staff\TicketScanController;
-use App\Http\Controllers\TourPackageController;
 use App\Http\Controllers\TranslateController;
 use App\Http\Controllers\UmkmCatalogController;
 use Illuminate\Support\Facades\Route;
@@ -103,10 +101,6 @@ Route::middleware(['redirect.admin', 'track.visit'])->group(function () {
     Route::post('/edutourism/mission/{missionId}/complete', [SmartEdutourismController::class, 'completeMission'])->name('edutourism.mission.complete');
     Route::post('/edutourism/qr/resolve', [SmartEdutourismController::class, 'resolveQr'])->name('edutourism.qr.resolve');
     Route::post('/edutourism/stop', [SmartEdutourismController::class, 'stop'])->name('edutourism.stop');
-
-    // Tour Packages
-    Route::get('/tour-packages', [TourPackageController::class, 'index'])->name('tour-packages');
-    Route::get('/tour-package/{id}', [TourPackageController::class, 'show'])->name('tour-package');
 
     // Routing API (public — used by /explore which is also public)
     Route::post('/api/routing/directions', [RoutingController::class, 'directions'])->name('routing.directions');
@@ -256,14 +250,6 @@ Route::prefix('admin')->middleware(['auth', 'admin.viewer'])->group(function () 
     Route::put('/tour-routes/{id}', [TourRouteController::class, 'update'])->name('admin.tour-routes.update');
     Route::patch('/tour-routes/{id}/toggle-active', [TourRouteController::class, 'toggleActive'])->name('admin.tour-routes.toggle');
     Route::delete('/tour-routes/{id}', [TourRouteController::class, 'destroy'])->name('admin.tour-routes.destroy');
-
-    // Tour Package Routes
-    Route::get('/packages', [PackageController::class, 'index'])->name('admin.packages');
-    Route::get('/packages/create', [PackageController::class, 'create'])->name('admin.packages.create');
-    Route::post('/packages', [PackageController::class, 'store'])->name('admin.packages.store');
-    Route::get('/packages/{id}/edit', [PackageController::class, 'edit'])->name('admin.packages.edit');
-    Route::put('/packages/{id}', [PackageController::class, 'update'])->name('admin.packages.update');
-    Route::delete('/packages/{id}', [PackageController::class, 'destroy'])->name('admin.packages.destroy');
 
     // Feedback Routes
     Route::get('/feedback', [AdminFeedbackController::class, 'index'])->name('admin.feedback');
