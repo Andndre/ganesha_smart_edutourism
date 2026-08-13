@@ -11,6 +11,66 @@
     @include('user.edutourism.games.partials.game-fx')
 
     <style>
+        /* ---- small type & chips ---------------------------------------------------------
+         *
+         * Every rule in this sheet has to respect one Tailwind v4 rule: utilities are emitted
+         * inside `@layer utilities`, and unlayered CSS outranks any layer regardless of
+         * specificity. So a class here must never declare a property that a utility on the same
+         * element also owns — colour and spacing stay in the markup, structure stays here.
+         */
+        .sq-label {
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .sq-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            border-radius: 9999px;
+            padding: 0.3rem 0.65rem;
+            font-size: 10px;
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            background: rgba(30, 81, 40, .08);
+            color: rgba(30, 81, 40, .9);
+        }
+
+        .sq-chip-plain {
+            background: rgba(25, 26, 25, .05);
+            color: #6b7280;
+        }
+
+        .sq-chip-gold {
+            background: rgba(212, 175, 55, .18);
+            color: #8a6a10;
+        }
+
+        /* ---- reveal progress meter ------------------------------------------------------ */
+
+        .sq-meter {
+            overflow: hidden;
+            height: 6px;
+            border-radius: 9999px;
+            background: rgba(30, 81, 40, .1);
+        }
+
+        /* Grows by scaleX rather than width, so the fill stays on the compositor like every
+           other animation in these games. Alpine writes the transform inline. */
+        .sq-meter-fill {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border-radius: inherit;
+            transform-origin: left center;
+            background: linear-gradient(90deg, #1E5128, #2f8f52 55%, #D4AF37);
+            transition: transform .45s cubic-bezier(.34, 1.4, .64, 1);
+        }
+
         /* ---- timeline rail ------------------------------------------------------------- */
 
         /**
@@ -30,8 +90,27 @@
             transition: background .4s ease;
         }
 
+        /* Solved: the rail turns emerald and light travels down it, so the eye is walked from the
+           first step to the last one it just got right. */
+        @keyframes sq-rail-flow {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 0 -200%;
+            }
+        }
+
         .sq-rail-done {
-            background: linear-gradient(to bottom, rgb(16 185 129), rgba(16, 185, 129, .55));
+            background: linear-gradient(to bottom, rgb(16 185 129), rgba(16, 185, 129, .35) 50%, rgb(16 185 129));
+            background-size: 100% 200%;
+            animation: sq-rail-flow 2.6s linear infinite;
+        }
+
+        .sq-rail-done::before,
+        .sq-rail-done::after {
+            color: rgb(16 185 129);
         }
 
         .sq-rail::before,
@@ -96,7 +175,8 @@
             /* A mouse drag would otherwise start selecting the step text instead. */
             user-select: none;
             -webkit-user-select: none;
-            transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease;
+            transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease,
+                transform .18s cubic-bezier(.34, 1.4, .64, 1);
         }
 
         /* Grabbing the whole card is a pointer-only affordance — see the card's pointerdown. */
@@ -108,6 +188,42 @@
             .sq-row.is-dragging .sq-card {
                 cursor: grabbing;
             }
+
+            /**
+             * Hover lift, pointer devices only. Checked cards stay put on their own: their verdict
+             * animation runs with `both`, and an animation's retained value beats a transition.
+             */
+            .sq-row:not(.is-dragging) .sq-card:hover {
+                transform: translate3d(0, -2px, 0);
+                box-shadow: 0 12px 22px -14px rgba(25, 26, 25, .5);
+            }
+        }
+
+        /* ---- step node ------------------------------------------------------------------
+         *
+         * The badge is a bead on the timeline rail, so it gets a coloured glow to sit proud of the
+         * card, plus a top highlight that reads as a lit sphere. Box-shadow only — the size, fill
+         * and text colour all stay with the utilities in the markup.
+         */
+        .sq-node {
+            box-shadow: 0 3px 10px -2px rgba(30, 81, 40, .5);
+        }
+
+        .sq-node-ok {
+            box-shadow: 0 3px 12px -2px rgba(16, 185, 129, .65);
+        }
+
+        .sq-node-bad {
+            box-shadow: 0 3px 12px -2px rgba(239, 68, 68, .55);
+        }
+
+        .sq-node::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, .32), rgba(255, 255, 255, 0) 55%);
         }
 
         .sq-grip {
@@ -197,6 +313,45 @@
             animation-delay: var(--sq-sheen-delay, 0ms);
         }
 
+        /**
+         * Woven texture on the face-down card — a nod to the bedeg matting on a Penglipuran
+         * compound wall, drawn as two crossed stripe gradients so it costs no image request.
+         * Lives on ::before because .sq-sheen already owns ::after on this same element.
+         */
+        .sq-weave::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: .55;
+            background-image:
+                repeating-linear-gradient(45deg, rgba(255, 255, 255, .07) 0 6px, transparent 6px 12px),
+                repeating-linear-gradient(-45deg, rgba(255, 255, 255, .05) 0 6px, transparent 6px 12px);
+        }
+
+        /* Gold halo breathing out of the "?" badge: the one thing on a face-down card that says
+           it is waiting to be tapped. */
+        @keyframes sq-qpulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(212, 175, 55, .5);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(212, 175, 55, 0);
+            }
+        }
+
+        .sq-qpulse {
+            animation: sq-qpulse 2.2s ease-out infinite;
+        }
+
+        /* Once flipped, the halo would keep pulsing behind the fact face. */
+        .sq-flip.is-flipped .sq-qpulse {
+            animation: none;
+        }
+
         /* ---- countdown ------------------------------------------------------------------ */
 
         .sq-timer-ring {
@@ -225,13 +380,21 @@
             .sq-settle,
             .sq-card,
             .sq-rail,
+            .sq-meter-fill,
             .sq-timer-ring {
                 transition: none !important;
             }
 
             .sq-sheen::after,
+            .sq-qpulse,
+            .sq-rail-done,
             .sq-throb {
                 animation: none !important;
+            }
+
+            /* The hover lift is motion too, and on a hybrid device it still fires. */
+            .sq-row:not(.is-dragging) .sq-card:hover {
+                transform: none;
             }
 
             /* The lift still needs to read as "this one is in your hand" — minus the theatrics. */
