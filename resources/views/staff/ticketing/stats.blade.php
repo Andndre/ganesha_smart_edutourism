@@ -51,7 +51,9 @@
     @php $peak = max(1, max($hourly)); @endphp
     <div class="flex items-end gap-1" style="height: 120px">
         @foreach ($hourly as $hour => $count)
-            <div class="flex-1" title="{{ sprintf('%02d:00', $hour) }} — {{ $count }} orang">
+            <div class="flex-1" role="img"
+                aria-label="Pukul {{ sprintf('%02d:00', $hour) }}: {{ $count }} orang"
+                title="{{ sprintf('%02d:00', $hour) }} — {{ $count }} orang">
                 <div class="rounded-t bg-primary/70" style="height: {{ (int) round($count / $peak * 110) }}px"></div>
             </div>
         @endforeach
@@ -61,7 +63,8 @@
     </div>
 </div>
 
-<div class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+{{-- overflow-x-auto: enam kolom tidak muat di layar ponsel petugas, jadi tabel digeser, bukan dipotong. --}}
+<div class="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
     <table class="min-w-full divide-y divide-gray-100 text-sm">
         <thead class="bg-gray-50 text-left text-xs uppercase tracking-wider text-gray-500">
             <tr>

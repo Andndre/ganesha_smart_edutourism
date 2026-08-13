@@ -18,7 +18,7 @@ Aplikasi ini adalah platform pariwisata edukasi cerdas untuk Desa Wisata Penglip
 2. **User (Wisatawan Terdaftar)** — Login dengan email/Google
 3. **Admin** — Pengelola sistem penuh (`/admin/*`)
 4. **UMKM Owner (Pemilik Toko)** — Kelola produk & profil (`/owner/*`)
-5. **Ticket Officer (Petugas Tiket)** — Scan QR, walk-in ticketing (`/staff/*`)
+5. **Ticket Officer (Petugas Tiket)** — Scan QR tiket OTA untuk pendataan kunjungan (`/staff/*`)
 
 ---
 
@@ -45,7 +45,7 @@ docs/
 │   ├── ar-scan.md
 │   ├── edutourism.md
 │   ├── umkm-katalog.md
-│   ├── paket-wisata.md
+│   ├── tiket-masuk.md
 │   ├── objek-budaya.md
 │   ├── events.md
 │   ├── feedback.md
@@ -63,7 +63,6 @@ docs/
 │   ├── ar-manager.md
 │   ├── event.md
 │   ├── tour-route.md
-│   ├── paket-wisata.md
 │   ├── feedback.md
 │   └── laporan.md
 ├── owner/
@@ -72,10 +71,8 @@ docs/
 │   ├── lokasi-toko.md
 │   └── produk.md
 ├── petugas/
-│   ├── ticketing.md
-│   ├── scan-qr.md
-│   ├── walk-in.md
-│   └── check-in.md
+│   ├── scan-tiket.md
+│   └── riwayat-kunjungan.md
 └── faq.md
 ```
 
@@ -147,7 +144,7 @@ Sidebar navigasi Docsify. Struktur:
   - [📷 AR Scan](fitur/ar-scan.md)
   - [🎓 Smart Edutourism](fitur/edutourism.md)
   - [🛍️ Katalog UMKM](fitur/umkm-katalog.md)
-  - [📦 Paket Wisata](fitur/paket-wisata.md)
+  - [🎫 Tiket Masuk](fitur/tiket-masuk.md)
   - [🏺 Objek Budaya](fitur/objek-budaya.md)
   - [🎉 Event](fitur/events.md)
   - [💬 Feedback](fitur/feedback.md)
@@ -166,7 +163,6 @@ Sidebar navigasi Docsify. Struktur:
   - [📷 AR Manager](admin/ar-manager.md)
   - [🎉 Event](admin/event.md)
   - [🚶 Tour Route](admin/tour-route.md)
-  - [📦 Paket Wisata](admin/paket-wisata.md)
   - [💬 Feedback Admin](admin/feedback.md)
   - [📈 Laporan](admin/laporan.md)
 
@@ -177,10 +173,8 @@ Sidebar navigasi Docsify. Struktur:
   - [📦 Produk](owner/produk.md)
 
 - **Petugas Tiket**
-  - [🎫 Ticketing](petugas/ticketing.md)
-  - [📷 Scan QR](petugas/scan-qr.md)
-  - [🚶 Walk-In](petugas/walk-in.md)
-  - [✅ Check-In](petugas/check-in.md)
+  - [📷 Scan Tiket](petugas/scan-tiket.md)
+  - [📊 Riwayat & Statistik Kunjungan](petugas/riwayat-kunjungan.md)
 
 - [❓ FAQ](faq.md)
 ```
@@ -231,8 +225,6 @@ Tulis panduan lengkap untuk pengguna yang **tidak login**. Sertakan semua route 
 - `GET /events` — Daftar event/acara di desa
 - `GET /edutourism` — Daftar rute wisata edukasi
 - `GET /edutourism/routes/{id}/preview` — Preview rute: peta + waypoint
-- `GET /tour-packages` — Daftar paket wisata
-- `GET /tour-package/{id}` — Detail paket: deskripsi, harga, fasilitas
 - `GET /login` — Halaman login
 - `GET /register` — Halaman registrasi
 - `GET /auth/google` — Login dengan Google
@@ -260,16 +252,12 @@ Tulis panduan untuk pengguna yang sudah **login**. Tambahkan semua fitur eksklus
 - `GET /feedback/{id}` — Lihat detail feedback
 - `GET /feedback/{id}/edit` — Edit feedback
 - `GET /feedback/thank-you/{id}` — Halaman terima kasih
-- `GET /tour-package/{id}/book` — Halaman checkout booking paket wisata
-  - Form fields: nama pemesan, email, nomor HP, jumlah orang, tanggal kunjungan, catatan khusus
-- `POST /tour-package/{id}/process` — Proses pembayaran
 - `GET /profile` — Halaman profil pengguna
 - `GET /profile/edit` — Edit profil
   - Form fields: nama lengkap, nomor HP, preferensi bahasa (id/en)
 - `PUT /profile` — Simpan perubahan profil
 - `POST /profile/avatar` — Upload foto profil (maks 2MB, JPG/PNG)
 - `DELETE /profile/avatar` — Hapus foto profil (kembali ke avatar default)
-- `GET /profile/bookings` — Riwayat booking & e-tiket (status: pending/paid/checked-in/cancelled)
 - `GET /profile/favorites` — Daftar UMKM & objek budaya yang difavoritkan
 - `POST /favorites/toggle` — Toggle favorit (AJAX)
 - `GET /profile/visited` — Objek budaya yang sudah dikunjungi selama edutourism
@@ -298,7 +286,7 @@ Untuk setiap fitur, sertakan:
 Tulis panduan lengkap untuk **Admin** yang mengakses `/admin/*`. Sertakan semua fitur manajemen:
 
 #### A. Dashboard Admin (`GET /admin/dashboard`)
-- Statistik: total pengunjung, booking, UMKM, kapasitas zona
+- Statistik: total pengunjung, kunjungan tiket terpindai, UMKM, kapasitas zona
 - Grafik aktivitas kunjungan harian/bulanan
 - Alert kapasitas zona jika melebihi threshold
 - Link cepat ke modul yang sering digunakan
@@ -456,19 +444,6 @@ Produk UMKM:
 - `PATCH /admin/tour-routes/{id}/toggle-active` — Aktif/nonaktifkan rute
 - `GET /admin/tour-routes/{id}/edit`, `PUT /admin/tour-routes/{id}`, `DELETE /admin/tour-routes/{id}`
 
-#### N. Paket Wisata (`GET /admin/packages`)
-- `GET /admin/packages/create` — Form buat paket:
-  | Field | Tipe | Wajib |
-  |-------|------|-------|
-  | Nama Paket | Text | ✅ |
-  | Deskripsi | Rich Text | ✅ |
-  | Harga per Orang | Number (IDR) | ✅ |
-  | Gambar | File Upload | ✅ |
-  | Durasi | Number (jam) | ✅ |
-  | Kapasitas per Booking | Number | ✅ |
-  | Fasilitas Termasuk | Checkboxes | ❌ |
-  | Status | aktif / nonaktif | ✅ |
-
 #### O. Feedback Admin (`GET /admin/feedback`)
 - Tabel semua feedback wisatawan dengan filter status
 - `POST /admin/feedback/{id}/reply` — Form: isi balasan
@@ -476,7 +451,7 @@ Produk UMKM:
 - `DELETE /admin/feedback/{id}` — Hapus feedback
 
 #### P. Laporan (`GET /admin/reports`)
-- Filter: rentang tanggal (from - to), jenis laporan (kunjungan/booking/pendapatan)
+- Filter: rentang tanggal (from - to), jenis laporan (kunjungan/asal pengunjung)
 - Tampilan: tabel dan grafik
 - `GET /admin/reports/download` — Download sebagai PDF
   - Query params: `?from=YYYY-MM-DD&to=YYYY-MM-DD&type=visits`
@@ -528,46 +503,20 @@ Form edit profil: `PUT /owner/profile`
 
 Route prefix: `/staff/*`
 
-#### A. Dashboard Ticketing (`GET /staff/ticketing`)
-- Tampilkan reservasi hari ini dengan status real-time
-- Filter: Semua / Pending Pembayaran / Sudah Check-In / Dibatalkan
-- Statistik harian: total tamu, pendapatan hari ini
-- Aksi cepat: Scan QR, Walk-In baru
+#### A. Scan Tiket (`GET /staff/ticketing`)
+Tiket masuk dijual lewat OTA (mis. Traveloka); aplikasi tidak menjual tiket dan tidak memverifikasi ke server OTA. Petugas hanya mencatat kunjungan dan mendeteksi tiket dobel.
+- Kamera aktif otomatis untuk memindai QR pada tiket tamu
+- Tersedia input manual bila QR tidak terbaca
+- `POST /staff/ticketing/check` — cek apakah kode sudah pernah tercatat
+  - Response `new`: form cepat muncul (jumlah orang, asal Domestik/Asing, nama opsional)
+  - Response `duplicate`: layar merah berisi waktu scan pertama, petugas, jumlah orang, dan jumlah percobaan ulang
+- `POST /staff/ticketing/store` — simpan kunjungan; membalas 409 bila kode sudah tercatat
 
-#### B. Statistik Real-Time (`GET /staff/ticketing/stats`)
-- Jumlah pengunjung aktif di area (dari visitor log)
-- Status kapasitas zona (hijau/kuning/merah)
-- Update otomatis setiap 30 detik via WebSocket (Laravel Reverb)
-
-#### C. Walk-In Ticketing (`POST /staff/ticketing/walk-in`)
-Proses tamu tanpa reservasi online:
-| Field | Tipe | Wajib | Keterangan |
-|-------|------|-------|-----------|
-| Nama Tamu | Text | ✅ | Nama kepala rombongan |
-| Nomor HP | Text | ✅ | Untuk kirim link tiket |
-| Jumlah Orang | Number | ✅ | Total anggota rombongan |
-| Paket Wisata | Dropdown | ✅ | Pilih paket yang tersedia |
-| Metode Pembayaran | Select | ✅ | Tunai / Transfer / QRIS |
-
-Setelah submit:
-1. Sistem membuat reservasi baru
-2. Kirim SMS/WA berisi link tiket ke nomor HP tamu
-3. Tamu bisa akses tiket via: `GET /guest-access/{reservation}/{hash}`
-4. Jika metode QRIS: tampilkan QR pembayaran di layar
-
-#### D. Scan QR (`GET /staff/ticketing/scan`)
-- Kamera aktif untuk scan QR code di tiket tamu
-- `POST /staff/ticketing/verify` — Verifikasi QR
-  - Input: data QR code
-  - Response sukses: nama tamu, paket, tanggal booking, status, jumlah orang
-  - Response gagal: "Tiket tidak valid" / "Tiket sudah digunakan" / "Tiket expired"
-
-#### E. Check-In (`POST /staff/ticketing/check-in/{reservation}`)
-- Setelah QR terverifikasi, tombol "Check-In" aktif
-- Tekan tombol untuk konfirmasi kedatangan tamu
-- Sistem update status reservasi → "checked_in"
-- Catat waktu dan lokasi entry di VisitorLog
-- Tampilkan konfirmasi sukses
+#### B. Riwayat & Statistik (`GET /staff/ticketing/history`)
+- Total pengunjung (jumlah orang, bukan jumlah tiket), tiket dipindai, komposisi domestik/mancanegara
+- Sebaran kunjungan per jam
+- Tabel 200 scan terbaru: waktu, nama, jumlah orang, asal, petugas, jumlah percobaan dobel
+- Filter rentang: Hari Ini / 30 Hari / Kustom
 
 #### F. Sinkronisasi Status (`POST /staff/ticketing/sync/{reservation}`)
 - Gunakan jika status pembayaran tidak update otomatis dari penyedia pembayaran
@@ -635,17 +584,11 @@ Setelah submit:
 - Detail toko: produk, lokasi di peta, jam buka, kontak WhatsApp
 - Rute multi-UMKM: kunjungi beberapa toko dalam satu rute optimal
 
-**`fitur/paket-wisata.md`:**
-- Browse paket (`/tour-packages`)
-- Detail paket: harga, durasi, fasilitas yang termasuk, deskripsi lengkap
-- Proses booking step-by-step (harus login):
-  1. Pilih paket → "Pesan Sekarang"
-  2. Isi form booking (lihat tabel form fields)
-  3. Review pesanan dan harga total
-  4. Pilih metode pembayaran
-  5. Selesaikan pembayaran (popup)
-  6. Tunggu konfirmasi email (1-5 menit)
-  7. Tunjukkan e-tiket di pintu masuk
+**`fitur/tiket-masuk.md`:**
+- Tiket masuk dibeli melalui mitra OTA (mis. Traveloka), bukan di dalam aplikasi
+- Bawa tiket ber-QR (cetak atau di layar ponsel) ke gerbang desa
+- Petugas memindai QR untuk mencatat kunjungan; satu tiket hanya bisa dicatat sekali
+- Aplikasi tidak menyimpan data pembayaran dan tidak memproses refund
 
 **`fitur/objek-budaya.md`:**
 - Browse semua objek (`/cultural`): grid dengan filter
@@ -682,7 +625,6 @@ Setelah submit:
   - Google: tap "Login dengan Google" di `/login` atau `/register`
 - Edit profil (`/profile/edit`): nama, nomor HP, bahasa
 - Ganti avatar: upload foto baru (JPG/PNG maks 2MB) atau hapus
-- Tab Riwayat Booking: lihat semua pemesanan, status, download e-tiket
 - Tab Favorit: daftar UMKM dan objek budaya yang disimpan
 - Tab Sudah Dikunjungi: jejak perjalanan edutourism
 - Ganti bahasa: pilihan Indonesia / English (tersimpan di akun)
@@ -712,12 +654,12 @@ Buat minimal 20 pertanyaan & jawaban yang relevan dan lengkap:
 - Browser apa yang didukung untuk AR?
 - Apakah AR bisa digunakan di dalam ruangan?
 
-**Grup 4: Booking Paket Wisata**
-- Bagaimana cara memesan paket wisata?
-- Metode pembayaran apa yang tersedia?
-- Apakah e-tiket bisa digunakan untuk lebih dari satu orang?
-- Bagaimana jika pembayaran gagal?
-- Apakah ada refund jika saya batalkan?
+**Grup 4: Tiket Masuk**
+- Di mana saya membeli tiket masuk Desa Penglipuran?
+- Apakah tiket bisa dibeli lewat aplikasi ini?
+- Apa yang terjadi bila QR tiket saya sudah pernah dipindai?
+- Bagaimana jika QR pada tiket saya tidak terbaca kamera petugas?
+- Ke mana saya mengurus pembatalan atau refund tiket?
 
 **Grup 5: UMKM**
 - Bagaimana cara menghubungi toko UMKM?
@@ -753,43 +695,25 @@ Buat minimal 20 pertanyaan & jawaban yang relevan dan lengkap:
 ## CONTOH FORMAT STEP-BY-STEP
 
 ```markdown
-## Cara Memesan Paket Wisata
+## Cara Masuk ke Desa dengan Tiket OTA
 
 ### Langkah-langkah
 
-1. **Buka halaman Paket Wisata**
-   - Dari menu bawah, tap ikon 🎒
-   - Atau akses langsung: `penglipuran.digowave.com/tour-packages`
+1. **Beli tiket lewat mitra OTA**
+   - Tiket masuk dijual melalui mitra seperti Traveloka, bukan di aplikasi ini
+   - Simpan tiket ber-QR yang dikirim mitra (cetak atau tampil di layar ponsel)
 
-2. **Pilih paket yang diinginkan**
-   - Browse daftar paket yang tersedia
-   - Tap kartu paket untuk lihat detail lengkap
+2. **Tunjukkan tiket di gerbang**
+   - Petugas memindai QR pada tiket Anda
+   - Petugas mencatat jumlah orang dalam rombongan dan asal (domestik/mancanegara)
 
-3. **Isi form pemesanan**
+3. **Masuk desa**
+   - Setelah tercatat, layar petugas menampilkan konfirmasi hijau
+   - Buka aplikasi untuk peta, rute edukasi, katalog UMKM, dan fitur AR
 
-   | Field | Keterangan | Wajib |
-   |-------|-----------|-------|
-   | Nama Pemesan | Nama lengkap sesuai KTP | ✅ |
-   | Email | Untuk pengiriman e-tiket | ✅ |
-   | Nomor HP | Format: 08xx-xxxx-xxxx | ✅ |
-   | Jumlah Orang | Min 1, Maks sesuai kapasitas | ✅ |
-   | Tanggal Kunjungan | Pilih dari date picker | ✅ |
-   | Catatan Khusus | Permintaan diet, aksesibilitas, dll | ❌ |
+> **💡 Tips:** Simpan tiket sampai kunjungan selesai; satu QR hanya dapat dicatat satu kali.
 
-4. **Pilih metode pembayaran**
-   - Transfer Bank (BCA, Mandiri, BNI, BRI)
-   - Kartu Kredit/Debit
-   - GoPay / OVO / DANA
-   - QRIS
-
-5. **Konfirmasi & Bayar**
-   - Review ringkasan pesanan
-   - Tap **Bayar Sekarang**
-   - Selesaikan pembayaran dalam 15 menit
-
-> **💡 Tips:** E-tiket akan dikirim ke email dalam 1-5 menit setelah pembayaran berhasil.
-
-> **⚠️ Perhatian:** Pembayaran yang tidak diselesaikan dalam 15 menit akan dibatalkan otomatis.
+> **⚠️ Perhatian:** Tiket yang QR-nya sudah pernah dipindai akan ditandai dobel oleh sistem. Hubungi petugas bila itu terjadi pada tiket yang belum Anda gunakan.
 ```
 
 ---

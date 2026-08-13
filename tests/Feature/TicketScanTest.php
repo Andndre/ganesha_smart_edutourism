@@ -223,6 +223,21 @@ class TicketScanTest extends TestCase
         $response->assertStatus(302)->assertSessionHasErrors(['end_date']);
     }
 
+    public function test_stats_rejects_an_end_date_before_the_defaulted_start_date(): void
+    {
+        $officer = User::factory()->create(['role' => 'ticket_officer']);
+
+        // Only end_date supplied: start_date defaults to seven days ago, which
+        // lands after the given end date. The after_or_equal rule cannot see
+        // that, so the resolved range has to be checked as well.
+        $response = $this->actingAs($officer)->get('/staff/ticketing/history?'.http_build_query([
+            'preset' => 'custom',
+            'end_date' => now()->subDays(30)->format('Y-m-d'),
+        ]));
+
+        $response->assertStatus(302)->assertSessionHasErrors(['end_date']);
+    }
+
     public function test_admin_dashboard_shows_scanned_visitor_metrics(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

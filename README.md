@@ -128,7 +128,7 @@ graph LR
 
 | Fitur | Deskripsi |
 |---|---|
-| **Dashboard & Laporan** | Ringkasan kunjungan, pendapatan, kapasitas zona real-time. Export laporan PDF. |
+| **Dashboard & Laporan** | Ringkasan kunjungan (dari scan tiket), komposisi asal pengunjung, kapasitas zona real-time. Export laporan PDF. |
 | **AR Manager** | Upload model 3D (GLB/USDZ) via TUS chunked upload, kelola marker PATT, hubungkan ke lokasi peta. |
 | **Manajemen Konten** | CRUD objek budaya (TipTap WYSIWYG, rich text), cerita, galeri, audio narasi. Import massal via XLSX. |
 | **Kapasitas Real-Time** | Definisikan zona geofence dengan ambang batas kapasitas. Peringatan WebSocket otomatis saat zona kritis. |
