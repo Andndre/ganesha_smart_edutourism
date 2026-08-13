@@ -1288,8 +1288,11 @@
                     const sheetRect = sheet ? sheet.getBoundingClientRect() : null;
 
                     if (sheetRect && sheetRect.width && sheetRect.height) {
-                        // A drawer is narrower than the map; a bottom sheet spans its width
-                        if (sheetRect.width < box.width - 1) {
+                        // A right-hand drawer spans the full height of the map; a bottom
+                        // sheet never does. Width can't tell them apart — the panel is
+                        // capped at max-w-md, so between 448px and the md breakpoint a
+                        // bottom sheet is narrower than the map too.
+                        if (sheetRect.height >= box.height - 1) {
                             point.x += Math.max(0, box.right - sheetRect.left) / 2;
                         } else {
                             const search = document.getElementById('map-search-overlay');
