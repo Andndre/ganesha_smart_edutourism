@@ -125,11 +125,6 @@
                                 'icon' => 'M12 4v16m8-8H4',
                             ],
                             [
-                                'label' => 'Tambah Paket Wisata',
-                                'route' => route('admin.packages.create'),
-                                'icon' => 'M12 4v16m8-8H4',
-                            ],
-                            [
                                 'label' => 'Monitor Kapasitas',
                                 'route' => route('admin.capacity'),
                                 'icon' =>
