@@ -1,3 +1,42 @@
+<style>
+    .gse-map-pin {
+        background: none;
+        border: none;
+    }
+
+    .gse-pin-halo {
+        position: absolute;
+        left: 50%;
+        top: 33%;
+        width: 46px;
+        height: 46px;
+        margin: -23px 0 0 -23px;
+        border-radius: 50%;
+        background: rgba(212, 175, 55, 0.45);
+        animation: gse-pin-pulse 1.6s ease-out infinite;
+        pointer-events: none;
+    }
+
+    @keyframes gse-pin-pulse {
+        0% {
+            transform: scale(0.6);
+            opacity: 0.9;
+        }
+
+        100% {
+            transform: scale(1.3);
+            opacity: 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .gse-pin-halo {
+            animation: none;
+            opacity: 0.5;
+        }
+    }
+</style>
+
 <script>
     (function() {
         // Category colours shared by the map pins, the explore filter cards and the
@@ -28,7 +67,7 @@
          *
          * @param {string} category  key of CATEGORY_COLORS / CATEGORY_GLYPHS
          * @param {object} [options]
-         *   highlight {boolean} enlarge and outline in Bali Gold (routing destination)
+         *   highlight {boolean} the selected pin: enlarged, Bali Gold outline, pulsing halo
          *   number    {number}  render this digit instead of the category glyph (route stops)
          *   color     {string}  override the category colour
          *   dimmed    {boolean} grey out (a completed route stop)
@@ -48,12 +87,19 @@
                 inner = `<g transform="translate(8 6) scale(0.6667)" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${glyph}</g>`;
             }
 
-            return L.divIcon({
-                className: 'gse-map-pin',
-                html: `<svg width="${w}" height="${h}" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))">
+            const svg = `<svg width="${w}" height="${h}" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))">
                     <path d="${PIN_PATH}" fill="${color}" stroke="${opts.highlight ? '#D4AF37' : '#FFFFFF'}" stroke-width="${opts.highlight ? 3 : 2}"/>
                     ${inner}
-                </svg>`,
+                </svg>`;
+
+            // The halo sits behind the pin head (a third of the way down the pin)
+            const html = opts.highlight
+                ? `<div style="position:relative;width:${w}px;height:${h}px"><span class="gse-pin-halo"></span>${svg}</div>`
+                : svg;
+
+            return L.divIcon({
+                className: 'gse-map-pin',
+                html: html,
                 iconSize: [w, h],
                 iconAnchor: [w / 2, h],
                 popupAnchor: [0, -h]
