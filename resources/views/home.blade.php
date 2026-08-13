@@ -185,26 +185,6 @@
                             class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Budaya') }}</span>
                     </a>
 
-                    <a href="{{ route('tour-packages') }}"
-                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                        <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
-                                <path
-                                    d="M3 7.8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 1 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 1 0 0-4v-2Z"
-                                    fill="#1565C0" />
-                                <path
-                                    d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 1 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 1 0 0-4V7Z"
-                                    fill="#2979FF" />
-                                <path d="M15 5.6v1.8m0 3.1v1.8m0 3.1v1.8" stroke="#fff" stroke-width="1.7"
-                                    stroke-linecap="round" opacity="0.9" />
-                                <circle cx="9.2" cy="12" r="1.7" fill="#FDD835" />
-                            </svg>
-                        </div>
-                        <span
-                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Tiket') }}</span>
-                    </a>
-
                     <a href="{{ route('events') }}"
                         class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
                         <div

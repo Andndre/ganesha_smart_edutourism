@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Feedback;
 use App\Models\Reservation;
-use App\Models\TourPackage;
 use App\Models\VisitorLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -137,30 +136,8 @@ class ReportController extends Controller
                 ->count();
         }
 
-        // Package Revenue breakdown
-        $packages = TourPackage::withCount(['reservations as revenue' => function ($q) use ($startDate, $endDate) {
-            $q->whereIn('status', ['confirmed', 'completed'])
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->select(\DB::raw('SUM(total_amount)'));
-        }])->get();
-
+        // Package revenue breakdown removed together with the tour package feature.
         $revenueBreakdown = [];
-        $totalSum = 0;
-        foreach ($packages as $pkg) {
-            $amt = (float) $pkg->revenue;
-            if ($amt > 0) {
-                $revenueBreakdown[] = [
-                    'label' => $pkg->name,
-                    'amount' => $amt,
-                ];
-                $totalSum += $amt;
-            }
-        }
-
-        foreach ($revenueBreakdown as &$item) {
-            $item['pct'] = $totalSum > 0 ? round(($item['amount'] / $totalSum) * 100) : 0;
-            $item['amount'] = 'Rp '.number_format($item['amount'] / 1000000, 0, ',', '.').' Jt';
-        }
 
         $busyDays = $this->getBusyDays($startDate, $endDate);
 
