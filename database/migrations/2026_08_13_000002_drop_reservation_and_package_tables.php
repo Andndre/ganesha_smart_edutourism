@@ -7,12 +7,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * PERINGATAN: migrasi ini menghapus tabel beserta isinya dan tidak dapat
+     * dibatalkan. `down()` hanya membangun ulang struktur, bukan data. Ambil
+     * dump `reservations` dan `tour_packages` sebelum menjalankannya di
+     * produksi.
+     */
     public function up(): void
     {
         // Favorit yang menunjuk paket tur tidak punya target lagi.
-        DB::table('user_favorites')
-            ->where('favoritable_type', 'App\\Models\\TourPackage')
-            ->delete();
+        if (Schema::hasTable('user_favorites')) {
+            DB::table('user_favorites')
+                ->where('favoritable_type', 'App\\Models\\TourPackage')
+                ->delete();
+        }
 
         if (Schema::hasColumn('feedbacks', 'reservation_id')) {
             Schema::table('feedbacks', function (Blueprint $table) {
