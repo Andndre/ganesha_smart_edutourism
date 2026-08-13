@@ -307,16 +307,16 @@
                 </div>
 
                 <div class="kpi-card">
-                    <div class="kpi-label">Total Pendapatan</div>
-                    <div class="kpi-value">Rp {{ number_format($revenue / 1000000, 0, ',', '.') }} Jt</div>
-                    <div class="kpi-delta {{ $revenueDelta >= 0 ? 'delta-positive' : 'delta-negative' }}">
-                        {{ $revenueDelta >= 0 ? '+' : '' }}{{ $revenueDelta }}% vs bulan lalu
+                    <div class="kpi-label">Kunjungan Tiket</div>
+                    <div class="kpi-value">{{ number_format($scannedVisitors) }} orang</div>
+                    <div class="kpi-delta {{ $scannedDelta >= 0 ? 'delta-positive' : 'delta-negative' }}">
+                        {{ $scannedDelta >= 0 ? '+' : '' }}{{ $scannedDelta }}% vs bulan lalu
                     </div>
                 </div>
 
                 <div class="kpi-card">
-                    <div class="kpi-label">Tiket Terjual</div>
-                    <div class="kpi-value">{{ number_format($ticketsSold) }}</div>
+                    <div class="kpi-label">Tiket Dipindai</div>
+                    <div class="kpi-value">{{ number_format($ticketsScanned) }}</div>
                     <div class="kpi-delta {{ $ticketsDelta >= 0 ? 'delta-positive' : 'delta-negative' }}">
                         {{ $ticketsDelta >= 0 ? '+' : '' }}{{ $ticketsDelta }}% vs bulan lalu
                     </div>
@@ -361,20 +361,20 @@
                 </table>
             </div>
 
-            <!-- Revenue Breakdown -->
+            <!-- Origin Breakdown -->
             <div class="section">
-                <h3 class="section-title">Breakdown Pendapatan per Paket</h3>
+                <h3 class="section-title">Komposisi Asal Pengunjung</h3>
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Nama Paket</th>
+                            <th>Asal</th>
                             <th>Jumlah</th>
                             <th style="width: 40%;">Proporsi</th>
                             <th style="text-align: right;">Persentase</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($revenueBreakdown as $item)
+                        @foreach ($originBreakdown as $item)
                             <tr>
                                 <td><strong>{{ $item['label'] }}</strong></td>
                                 <td class="amount-text">{{ $item['amount'] }}</td>
