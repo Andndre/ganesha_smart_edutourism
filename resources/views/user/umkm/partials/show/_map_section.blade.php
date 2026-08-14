@@ -30,22 +30,16 @@
                         const lng = {{ $umkm->mapLocation->longitude }};
 
                         mapInstance = L.map(mapEl, {
-                            zoomControl: false,
-                            attributionControl: false
+                            zoomControl: false
                         }).setView([lat, lng], 17);
 
-                        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                            maxZoom: 20
+                        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 20,
+                            maxNativeZoom: 19,
+                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         }).addTo(mapInstance);
 
-                        const customIcon = L.divIcon({
-                            className: 'custom-div-icon',
-                            html: `<div class="marker-pin"></div>`,
-                            iconSize: [30, 42],
-                            iconAnchor: [15, 42]
-                        });
-
-                        L.marker([lat, lng], { icon: customIcon })
+                        L.marker([lat, lng], { icon: window.gseMapPin('umkm') })
                             .bindPopup(`<b>{{ $umkm->business_name }}</b>`)
                             .addTo(mapInstance);
                     }

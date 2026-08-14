@@ -9,7 +9,6 @@ use App\Models\Event;
 use App\Models\Facility;
 use App\Models\MapLocation;
 use App\Models\RouteSession;
-use App\Models\TourPackage;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
 use App\Models\UmkmProductCategory;
@@ -74,7 +73,6 @@ class AppServiceProvider extends ServiceProvider
         Event::observe($observer);
         Facility::observe($observer);
         MapLocation::observe($observer);
-        TourPackage::observe($observer);
         TourRoute::observe($observer);
         TourRoutePoint::observe($observer);
         UmkmProductCategory::observe($observer);

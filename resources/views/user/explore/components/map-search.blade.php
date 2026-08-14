@@ -1,4 +1,4 @@
-<div class="absolute inset-x-4 top-[env(safe-area-inset-top)] z-40 mt-4">
+<div id="map-search-overlay" class="absolute inset-x-4 top-[env(safe-area-inset-top)] z-40 mt-4">
     <div
         class="flex h-14 items-center gap-3 rounded-full border border-white bg-white/90 px-5 shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-md">
         <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">

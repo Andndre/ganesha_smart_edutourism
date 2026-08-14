@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Feedback;
-use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,7 +20,6 @@ class FeedbackFactory extends Factory
             'admin_response' => null,
 
             'user_id' => User::factory(),
-            'reservation_id' => Reservation::factory(),
         ];
     }
 }

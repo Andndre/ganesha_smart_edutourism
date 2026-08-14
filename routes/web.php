@@ -10,11 +10,9 @@ use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\MapManagerController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
-use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RouteMissionAssetController;
 use App\Http\Controllers\Admin\SettingsController;
-use App\Http\Controllers\Admin\TicketingController;
 use App\Http\Controllers\Admin\TicketOfficerController;
 use App\Http\Controllers\Admin\TourRouteController;
 use App\Http\Controllers\Admin\UmkmCategoryController;
@@ -26,7 +24,6 @@ use App\Http\Controllers\ArScanController;
 use App\Http\Controllers\ArViewerController;
 use App\Http\Controllers\AudioController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CulturalController;
 use App\Http\Controllers\CulturalObjectRatingController;
 use App\Http\Controllers\EventController as PublicEventController;
@@ -41,7 +38,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\SmartEdutourismController;
-use App\Http\Controllers\TourPackageController;
+use App\Http\Controllers\Staff\TicketScanController;
 use App\Http\Controllers\TranslateController;
 use App\Http\Controllers\UmkmCatalogController;
 use Illuminate\Support\Facades\Route;
@@ -63,9 +60,6 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['redirect.admin', 'track.visit'])->group(function () {
     // Home
     Route::get('/', [HomeController::class, 'index'])->name('home');
-
-    // Guest Walk-In Access
-    Route::get('/guest-access/{reservation}/{hash}', [AuthController::class, 'guestAccess'])->name('guest.access');
 
     // Explore/Map
     Route::get('/explore', [ExploreController::class, 'index'])->name('explore');
@@ -108,10 +102,6 @@ Route::middleware(['redirect.admin', 'track.visit'])->group(function () {
     Route::post('/edutourism/qr/resolve', [SmartEdutourismController::class, 'resolveQr'])->name('edutourism.qr.resolve');
     Route::post('/edutourism/stop', [SmartEdutourismController::class, 'stop'])->name('edutourism.stop');
 
-    // Tour Packages
-    Route::get('/tour-packages', [TourPackageController::class, 'index'])->name('tour-packages');
-    Route::get('/tour-package/{id}', [TourPackageController::class, 'show'])->name('tour-package');
-
     // Routing API (public — used by /explore which is also public)
     Route::post('/api/routing/directions', [RoutingController::class, 'directions'])->name('routing.directions');
 });
@@ -137,22 +127,12 @@ Route::middleware('auth')->group(function () {
         // Cultural Object Rating
         Route::post('/cultural/{slug}/rating', [CulturalObjectRatingController::class, 'store'])->name('cultural-object.rating.store');
 
-        // Tour Package Booking
-        Route::get('/tour-package/{id}/book', [BookingController::class, 'checkout'])->name('tour-package.book');
-        Route::post('/tour-package/{id}/process', [BookingController::class, 'process'])->name('tour-package.process');
-
-        // Entrance Ticket Booking (same controller, reservation_type: ticket)
-        Route::get('/tiket/{id}/book', [BookingController::class, 'checkout'])->name('ticket.book')->defaults('bookingType', 'ticket');
-        Route::post('/tiket/{id}/process', [BookingController::class, 'process'])->name('ticket.process')->defaults('bookingType', 'ticket');
-
         // Profile & E-Ticket
         Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
         Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
-        Route::get('/profile/bookings', [BookingController::class, 'index'])->name('bookings');
-        Route::post('/profile/bookings/{reservation}/pay', [BookingController::class, 'repay'])->name('bookings.repay');
         Route::get('/profile/favorites', [FavoriteController::class, 'index'])->name('favorites');
         Route::post('/favorites/toggle', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
         Route::get('/profile/visited', [ProfileController::class, 'visited'])->name('visited');
@@ -166,16 +146,13 @@ Route::get('/terms', [PageController::class, 'terms'])->name('terms');
 Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
 
 // Staff Routes (Admin & Ticket Officer)
+// Catatan: middleware `staff` juga mengizinkan peran `admin_viewer`, sehingga
+// peran yang read-only di area admin tetap bisa POST ke check/store di sini.
 Route::prefix('staff')->middleware(['auth', 'staff'])->group(function () {
-    Route::get('/ticketing', [TicketingController::class, 'index'])->name('staff.ticketing');
-    Route::get('/ticketing/stats', [TicketingController::class, 'stats'])->name('staff.ticketing.stats');
-    Route::post('/ticketing/walk-in', [TicketingController::class, 'storeWalkIn'])->name('staff.ticketing.walk-in');
-    Route::get('/ticketing/scan', [TicketingController::class, 'scan'])->name('staff.ticketing.scan');
-    Route::post('/ticketing/verify', [TicketingController::class, 'verify'])->name('staff.ticketing.verify');
-    Route::post('/ticketing/sync/{reservation}', [TicketingController::class, 'syncStatus'])->name('staff.ticketing.sync');
-    Route::post('/ticketing/check-in/{reservation}', [TicketingController::class, 'checkIn'])->name('staff.ticketing.check-in');
-    Route::post('/ticketing/pay/{reservation}', [TicketingController::class, 'getSnapToken'])->name('staff.ticketing.pay');
-    Route::post('/ticketing/cancel/{reservation}', [TicketingController::class, 'cancel'])->name('staff.ticketing.cancel');
+    Route::get('/ticketing', [TicketScanController::class, 'index'])->name('staff.ticketing');
+    Route::post('/ticketing/check', [TicketScanController::class, 'check'])->name('staff.ticketing.check');
+    Route::post('/ticketing/store', [TicketScanController::class, 'store'])->name('staff.ticketing.store');
+    Route::get('/ticketing/history', [TicketScanController::class, 'stats'])->name('staff.ticketing.stats');
 });
 
 // Translation proxy (LibreTranslate) — used by admin multilingual form auto-translate
@@ -275,14 +252,6 @@ Route::prefix('admin')->middleware(['auth', 'admin.viewer'])->group(function () 
     Route::put('/tour-routes/{id}', [TourRouteController::class, 'update'])->name('admin.tour-routes.update');
     Route::patch('/tour-routes/{id}/toggle-active', [TourRouteController::class, 'toggleActive'])->name('admin.tour-routes.toggle');
     Route::delete('/tour-routes/{id}', [TourRouteController::class, 'destroy'])->name('admin.tour-routes.destroy');
-
-    // Tour Package Routes
-    Route::get('/packages', [PackageController::class, 'index'])->name('admin.packages');
-    Route::get('/packages/create', [PackageController::class, 'create'])->name('admin.packages.create');
-    Route::post('/packages', [PackageController::class, 'store'])->name('admin.packages.store');
-    Route::get('/packages/{id}/edit', [PackageController::class, 'edit'])->name('admin.packages.edit');
-    Route::put('/packages/{id}', [PackageController::class, 'update'])->name('admin.packages.update');
-    Route::delete('/packages/{id}', [PackageController::class, 'destroy'])->name('admin.packages.destroy');
 
     // Feedback Routes
     Route::get('/feedback', [AdminFeedbackController::class, 'index'])->name('admin.feedback');

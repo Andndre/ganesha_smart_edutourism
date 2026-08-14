@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Feedback;
-use App\Models\Reservation;
+use App\Models\TicketScan;
 use App\Models\VisitorLog;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -32,31 +32,23 @@ class DashboardController extends Controller
             ? round((($todayVisitorCount - $yesterdayVisitorCount) / $yesterdayVisitorCount) * 100)
             : 0;
 
-        // 2. Revenue stats
-        $todayRevenue = Cache::tags(['dashboard'])->flexible('dashboard_today_revenue', [300, 600], function () {
-            return Reservation::whereIn('status', ['confirmed', 'completed'])
-                ->whereDate('created_at', Carbon::today())
-                ->sum('total_amount');
+        // 2. Kunjungan tercatat dari scan tiket
+        $todayScannedVisitors = Cache::tags(['dashboard'])->flexible('dashboard_today_scanned_visitors', [300, 600], function () {
+            return (int) TicketScan::whereDate('scanned_at', Carbon::today())->sum('party_size');
         });
-        $yesterdayRevenue = Cache::tags(['dashboard'])->flexible('dashboard_yesterday_revenue', [3600, 7200], function () {
-            return Reservation::whereIn('status', ['confirmed', 'completed'])
-                ->whereDate('created_at', Carbon::yesterday())
-                ->sum('total_amount');
+        $yesterdayScannedVisitors = Cache::tags(['dashboard'])->flexible('dashboard_yesterday_scanned_visitors', [3600, 7200], function () {
+            return (int) TicketScan::whereDate('scanned_at', Carbon::yesterday())->sum('party_size');
         });
-        $revenueDelta = $yesterdayRevenue > 0
-            ? round((($todayRevenue - $yesterdayRevenue) / $yesterdayRevenue) * 100)
+        $scannedDelta = $yesterdayScannedVisitors > 0
+            ? round((($todayScannedVisitors - $yesterdayScannedVisitors) / $yesterdayScannedVisitors) * 100)
             : 0;
 
-        // 3. Active tickets count
-        $activeTicketsCount = Reservation::where('status', 'confirmed')
-            ->whereDate('scheduled_date', Carbon::today())
-            ->count();
+        // 3. Jumlah tiket yang dipindai
+        $todayTicketCount = TicketScan::whereDate('scanned_at', Carbon::today())->count();
 
-        $yesterdayActiveTickets = Reservation::where('status', 'confirmed')
-            ->whereDate('scheduled_date', Carbon::yesterday())
-            ->count();
-        $ticketsDelta = $yesterdayActiveTickets > 0
-            ? round((($activeTicketsCount - $yesterdayActiveTickets) / $yesterdayActiveTickets) * 100)
+        $yesterdayTicketCount = TicketScan::whereDate('scanned_at', Carbon::yesterday())->count();
+        $ticketsDelta = $yesterdayTicketCount > 0
+            ? round((($todayTicketCount - $yesterdayTicketCount) / $yesterdayTicketCount) * 100)
             : 0;
 
         // 4. Avg satisfaction rating
@@ -78,8 +70,8 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact(
             'todayVisitorCount', 'visitorDelta',
-            'todayRevenue', 'revenueDelta',
-            'activeTicketsCount', 'ticketsDelta',
+            'todayScannedVisitors', 'scannedDelta',
+            'todayTicketCount', 'ticketsDelta',
             'avgRating', 'ratingDelta',
             'chartLabels', 'chartValues'
         ));
