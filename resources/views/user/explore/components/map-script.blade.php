@@ -318,9 +318,10 @@
                 });
 
                 document.getElementById('btn-locate').addEventListener('click', function() {
-                    // Focus bounds only on visible markers
+                    // Focus bounds only on visible markers. POIs live in the cluster
+                    // group; multi-route stops are pulled out onto the map directly.
                     const visibleCoords = markerLayers
-                        .filter(item => map.hasLayer(item.marker))
+                        .filter(item => markerCluster.hasLayer(item.marker) || map.hasLayer(item.marker))
                         .map(item => [item.loc.lat, item.loc.lng]);
 
                     if (visibleCoords.length > 0) {

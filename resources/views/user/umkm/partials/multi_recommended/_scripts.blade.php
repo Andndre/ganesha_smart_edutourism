@@ -15,14 +15,14 @@
                 const mapEl = document.getElementById('map');
                 if (mapEl) {
                     mapInstance = L.map(mapEl, {
-                        zoomControl: false,
-                        attributionControl: false
+                        zoomControl: false
                     });
 
                     // Same tiles as the explore map so both screens read as one product
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         maxZoom: 20,
-                        maxNativeZoom: 19
+                        maxNativeZoom: 19,
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     }).addTo(mapInstance);
 
                     // Add markers
