@@ -1,10 +1,9 @@
 {
     "mcpServers": {
         "laravel-boost": {
-            "command": "wsl.exe",
+            "command": "php",
             "args": [
-                "/usr/bin/php8.4",
-                "/home/andndre/Code/ganesha_smart_edutourism/artisan",
+                "artisan",
                 "boost:mcp"
             ]
         }
