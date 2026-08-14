@@ -30,13 +30,13 @@
                         const lng = {{ $umkm->mapLocation->longitude }};
 
                         mapInstance = L.map(mapEl, {
-                            zoomControl: false,
-                            attributionControl: false
+                            zoomControl: false
                         }).setView([lat, lng], 17);
 
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                             maxZoom: 20,
-                            maxNativeZoom: 19
+                            maxNativeZoom: 19,
+                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         }).addTo(mapInstance);
 
                         L.marker([lat, lng], { icon: window.gseMapPin('umkm') })
