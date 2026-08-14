@@ -12,15 +12,19 @@
         function eduGameWordSearch(cfg, missionId, maxPoints) {
             return {
                 cfg, missionId, maxPoints,
-                size: 0, grid: [], anchor: null, foundCells: [], foundWords: [], done: false,
+                size: 0, grid: [], anchor: null, foundCells: [], foundWords: [], done: false, finished: false,
 
                 init() {
-                    const words = this.cfg.words.map(w => w.toUpperCase().replace(/[^A-Z]/g, ''));
-                    this.size = this.cfg.grid_size || Math.max(8, ...words.map(w => w.length));
+                    const clean = w => String(w).toUpperCase().replace(/[^A-Z]/g, '');
+                    const source = (Array.isArray(this.cfg.words) ? this.cfg.words : []).filter(w => clean(w) !== '');
+                    // Never smaller than the longest word, or every long word would fail placement.
+                    this.size = Math.max(Number(this.cfg.grid_size) || 8, ...source.map(w => clean(w).length));
                     const n = this.size;
                     const grid = Array.from({ length: n }, () => Array(n).fill(''));
                     const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
-                    for (const word of words) {
+                    const kept = [];
+                    for (const original of source) {
+                        const word = clean(original);
                         let placed = false;
                         for (let tries = 0; tries < 200 && !placed; tries++) {
                             const [dr, dc] = dirs[Math.floor(Math.random() * dirs.length)];
@@ -38,8 +42,14 @@
                             placed = true;
                         }
                         // ponytail: if random placement fails after 200 tries, drop the word from the puzzle
-                        if (!placed) this.cfg.words = this.cfg.words.filter(w => w.toUpperCase().replace(/[^A-Z]/g, '') !== word);
+                        if (placed) kept.push(original);
                     }
+                    // The chip list, the "all found" check and the finish CTA all read cfg.words,
+                    // so dropped words have to leave it too or the mission can never be completed.
+                    this.cfg.words = kept;
+                    // Nothing playable (empty config, or every word failed placement): unlock the
+                    // CTA right away instead of parking the player on a puzzle with no exit.
+                    this.done = kept.length === 0;
                     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
                     for (let r = 0; r < n; r++)
                         for (let c = 0; c < n; c++)
@@ -73,11 +83,14 @@
                         navigator.vibrate?.([50, 30, 50]);
                         if (this.foundWords.length === this.cfg.words.length) {
                             this.done = true;
-                            confetti?.({ particleCount: 70, spread: 65, origin: { y: 0.7 } });
+                            window.confetti?.({ particleCount: 70, spread: 65, origin: { y: 0.7 } });
                         }
                     }
                 },
                 finish() {
+                    // The dispatch is delayed, so a second tap inside that window would score twice.
+                    if (this.finished) return;
+                    this.finished = true;
                     setTimeout(() => this.$dispatch('mission-complete', { id: this.missionId, earned: this.maxPoints }), 400);
                 },
                 cellClass(r, c) {

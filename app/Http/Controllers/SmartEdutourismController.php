@@ -520,7 +520,9 @@ class SmartEdutourismController extends Controller
         $point = TourRoutePoint::with(['locationable', 'missions'])->find($mission->tour_route_point_id);
         $isLastMission = $point->missions->last()?->id === $mission->id;
 
-        if ($isLastMission) {
+        // Guarded on $alreadyCompleted too: a double-tap or a retry would otherwise re-run the
+        // whole last-mission branch, inflating points_completed and re-advancing the session.
+        if ($isLastMission && ! $alreadyCompleted) {
             $session->points_completed += 1;
             $this->recordVisit($userId, $point, $session);
             $this->maybeAwardFirstPointCollectible($session, $point);

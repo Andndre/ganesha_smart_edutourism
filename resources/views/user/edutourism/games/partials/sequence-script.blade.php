@@ -414,6 +414,7 @@
                 wrongIdx: [],
                 verdictShown: false,
                 done: false,
+                finished: false,
                 timedOut: false,
                 timeLeft: null,
                 timerInterval: null,
@@ -440,7 +441,7 @@
                     // rows move around.
                     this.items = this.cfg.items.map((it, i) => ({ ...it, i }));
                     do {
-                        this.items.sort(() => Math.random() - 0.5);
+                        window.eduShuffle(this.items);
                     } while (this.items.length > 1 && this.items.every((it, pos) => it.i === pos));
                     this.items.forEach((it, pos) => { it.enter = pos; });
 
@@ -485,6 +486,9 @@
                     this.done = true;
                     this.timedOut = true;
                     this.dragIdx = null;
+                    // Clearing dragIdx makes dragMove a no-op, but dragEnd then bails before it can
+                    // unbind — so the window listeners have to be dropped here or they outlive the game.
+                    this.releasePointer();
                     navigator.vibrate?.([60, 40, 60]);
                     this.sfx.play('wrong');
                     this.earned = Math.round(this.maxPoints * 0.2);
@@ -830,6 +834,9 @@
                 },
 
                 finish() {
+                    // The dispatch is delayed, so a second tap inside that window would score twice.
+                    if (this.finished) return;
+                    this.finished = true;
                     setTimeout(() => this.$dispatch('mission-complete', { id: this.missionId, earned: this.earned }), 400);
                 },
             };

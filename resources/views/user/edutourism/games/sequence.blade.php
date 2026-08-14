@@ -310,23 +310,12 @@
                     @include('user.edutourism.games.partials.sequence-victory')
 
                     @if (!empty($cfg['explanation']))
-                        <div class="edu-rise rounded-2xl border border-amber-100 bg-gradient-to-br from-white to-amber-50/50 p-4 shadow-sm"
-                            :style="`animation-delay:${revealDelay + 140}ms`">
-                            <div class="flex items-center gap-2">
-                                <span class="bg-secondary/15 text-secondary flex h-6 w-6 items-center justify-center rounded-lg">
-                                    <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                        <path d="M12 2a7 7 0 00-4 12.7V17a1 1 0 001 1h6a1 1 0 001-1v-2.3A7 7 0 0012 2zM9 20h6v.5a1.5 1.5 0 01-1.5 1.5h-3A1.5 1.5 0 019 20.5z" />
-                                    </svg>
-                                </span>
-                                <h4 class="sq-label text-amber-700/80">{{ __('Tahukah Kamu') }}</h4>
-                            </div>
-                            <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ $cfg['explanation'] }}</p>
-                        </div>
+                        @include('user.edutourism.games.partials.explanation-card', ['text' => $cfg['explanation'], 'delay' => 'revealDelay + 140'])
                     @endif
 
                     <div class="edu-sticky-cta">
-                        <button type="button" @click="finish()"
-                            class="from-primary shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r to-emerald-700 py-3.5 text-sm font-bold text-white shadow-lg transition-transform active:scale-95">
+                        <button type="button" @click="finish()" :disabled="finished"
+                            class="from-primary shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r to-emerald-700 py-3.5 text-sm font-bold text-white shadow-lg transition-transform active:scale-95 disabled:opacity-60">
                             {{ __('Lanjut') }}
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"
                                 viewBox="0 0 24 24" aria-hidden="true">
@@ -344,7 +333,12 @@
                         <div class="pointer-events-none absolute -top-10 left-1/2 h-24 w-24 -translate-x-1/2 rounded-full bg-red-300/25 blur-2xl"
                             aria-hidden="true"></div>
 
-                        <div class="relative" role="status" aria-live="polite">
+                        {{-- Same reason as the victory panel: the count-up would otherwise be
+                        announced once per frame. --}}
+                        <p class="sr-only" role="status" aria-live="polite"
+                            x-text="`{{ __('Waktu Habis!') }} +${earned} {{ __('poin') }}`"></p>
+
+                        <div class="relative">
                             <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-red-400 to-red-600 text-white shadow-lg shadow-red-500/25">
                                 <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"
                                     viewBox="0 0 24 24" aria-hidden="true">
@@ -363,23 +357,12 @@
                     </div>
 
                     @if (!empty($cfg['explanation']))
-                        <div class="edu-rise rounded-2xl border border-amber-100 bg-gradient-to-br from-white to-amber-50/50 p-4 shadow-sm"
-                            style="animation-delay:160ms">
-                            <div class="flex items-center gap-2">
-                                <span class="bg-secondary/15 text-secondary flex h-6 w-6 items-center justify-center rounded-lg">
-                                    <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                        <path d="M12 2a7 7 0 00-4 12.7V17a1 1 0 001 1h6a1 1 0 001-1v-2.3A7 7 0 0012 2zM9 20h6v.5a1.5 1.5 0 01-1.5 1.5h-3A1.5 1.5 0 019 20.5z" />
-                                    </svg>
-                                </span>
-                                <h4 class="sq-label text-amber-700/80">{{ __('Tahukah Kamu') }}</h4>
-                            </div>
-                            <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ $cfg['explanation'] }}</p>
-                        </div>
+                        @include('user.edutourism.games.partials.explanation-card', ['text' => $cfg['explanation'], 'delay' => '160'])
                     @endif
 
                     <div class="edu-sticky-cta">
-                        <button type="button" @click="finish()"
-                            class="from-primary shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r to-emerald-700 py-3.5 text-sm font-bold text-white shadow-lg transition-transform active:scale-95">
+                        <button type="button" @click="finish()" :disabled="finished"
+                            class="from-primary shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r to-emerald-700 py-3.5 text-sm font-bold text-white shadow-lg transition-transform active:scale-95 disabled:opacity-60">
                             {{ __('Lanjut') }}
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"
                                 viewBox="0 0 24 24" aria-hidden="true">
