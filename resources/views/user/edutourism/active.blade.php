@@ -387,6 +387,23 @@
 
     <!-- Mission Runner Overlay (gamified missions per route point) -->
     @if ($pointMissions->isNotEmpty())
+        {{-- Hoisted out of the individual games on purpose. Each game still @includes this (they
+        stay self-contained), but the @once inside would otherwise emit the stylesheet inside a
+        <template x-if> — meaning the `edu-*` classes, including the sticky CTA bar, would only
+        exist in the DOM while that one mission happened to be mounted. Emitting it here, above the
+        mission loop, makes the @once fire at the top level and every game inherit the same feel. --}}
+        @include('user.edutourism.games.partials.game-fx')
+
+        {{-- Each game's eduGame*() factory is hoisted here for the same reason, and it is not
+        cosmetic: a <script> inside a <template> is inert until Alpine clones it, and the games'
+        @once emitted theirs into the *first* mission of that type only. Resume a session on
+        mission 2 and mission 1's template never mounts, so the factory never runs and every
+        binding on the board dies with "eduGameMatching is not defined". Emitting one script per
+        distinct type up here means the factories exist before any mission is cloned. --}}
+        @foreach ($pointMissions->pluck('type')->unique() as $missionType)
+            @include('user.edutourism.games.partials.' . str_replace('_', '-', $missionType) . '-script')
+        @endforeach
+
         <div x-data="missionRunner(@js($pointMissions->map(fn($m) => ['id' => $m->id])->values()), @js($completedMissionIds))" x-show="open" x-cloak @open-mission-runner.window="openRunner()"
             @mission-complete="onMissionComplete($event.detail)" class="fixed inset-0 z-[60] flex flex-col bg-[#FAF9F6]">
             <div
@@ -410,7 +427,7 @@
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-5 pb-10">
+            <div class="edu-mission-scroll flex-1 overflow-y-auto p-5">
                 <template x-if="stage === 'intro'">
                     <div class="mx-auto max-w-md space-y-5">
                         @if ($activeSession->currentPoint->intro_video_path)
@@ -440,17 +457,23 @@
                     </div>
                 </template>
 
-                {{-- Puzzle points get a wider column: the board sits beside its reference photo,
-                and halving max-w-md would shrink both to roughly a third of a playable size. --}}
-                @php($hasPuzzleMission = $pointMissions->contains(fn($m) => $m->type === 'puzzle'))
-                <div x-show="stage === 'mission'" class="mx-auto {{ $hasPuzzleMission ? 'max-w-4xl' : 'max-w-md' }}">
+                <div x-show="stage === 'mission'">
                     @foreach ($pointMissions as $i => $mission)
                         {{-- x-if (not x-show): defers mounting each game's x-data until it's the
                         active mission — otherwise every mission on the point mounts up front and
                         e.g. sequence.blade.php's countdown timer starts immediately, before the
                         player even taps "Mulai Misi". --}}
                         <template x-if="index === {{ $i }}">
-                            <div class="space-y-4" x-cloak>
+                            {{-- Width is per mission, not per point. The puzzle needs the wide
+                            column — its board sits beside a reference photo, and max-w-md would
+                            shrink both to about a third of a playable size — but when it shares a
+                            point with a quiz or a riddle, those used to inherit the wide column
+                            too: option cards stretched to 56rem while the docked CTA below them
+                            stayed at its own 28rem, which read as a layout bug on a desktop
+                            screen. Everything except the puzzle stays a single readable column,
+                            the same width as the CTA. --}}
+                            <div class="mx-auto space-y-4 {{ $mission->type === 'puzzle' ? 'max-w-4xl' : 'max-w-md' }}"
+                                x-cloak>
                                 <div class="flex items-center justify-between">
                                     <span
                                         class="rounded-lg border border-amber-100 bg-amber-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-amber-600">{{ __('Misi') }}

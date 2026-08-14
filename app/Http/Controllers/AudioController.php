@@ -11,9 +11,13 @@ class AudioController extends Controller
      */
     public function stream(string $path): BinaryFileResponse
     {
-        $fullPath = storage_path('app/public/'.$path);
+        // The route pattern is `.*`, so `$path` can contain `..` segments. Resolve both sides and
+        // confirm the result is still inside public storage before touching the filesystem —
+        // this endpoint is unauthenticated.
+        $root = realpath(storage_path('app/public'));
+        $fullPath = realpath(storage_path('app/public/'.$path));
 
-        if (! file_exists($fullPath)) {
+        if ($root === false || $fullPath === false || ! str_starts_with($fullPath, $root.\DIRECTORY_SEPARATOR)) {
             abort(404);
         }
 
