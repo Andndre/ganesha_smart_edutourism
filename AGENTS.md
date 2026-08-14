@@ -25,11 +25,10 @@
 
 ### What It Does
 
-- Publishes multilingual cultural-object stories, audio narration, quizzes, events, and tour packages.
+- Publishes multilingual cultural-object stories, audio narration, quizzes, and events.
 - Provides an interactive Leaflet map with geocoded locations (cultural sites, UMKM, facilities).
 - Serves AR content: marker-based AR.js/A-Frame camera plus iOS AR Quick Look via USDZ models.
-- Books tour packages / entrance tickets and processes payments through Midtrans Snap.
-- Supports staff QR scanning, walk-in ticketing, check-ins, and refunds.
+- Tickets are sold externally via OTAs (e.g. Traveloka); staff scan them on-site with `TicketScanController` to log visits and deduplicate re-scans via `code_hash`.
 - Lets UMKM owners manage their business profile and products.
 - Provides real-time crowd tracking and capacity alerts via Laravel Reverb.
 
@@ -40,7 +39,7 @@ Roles are defined in `app/Enums/UserRole.php`:
 | Role | Value | Access |
 |------|-------|--------|
 | Admin | `admin` | `/admin/*` — full system management |
-| Ticket Officer | `ticket_officer` | `/staff/*` — QR scan, walk-in, check-in |
+| Ticket Officer | `ticket_officer` | `/staff/*` — scans OTA-purchased tickets (QR) for visit logging |
 | UMKM Owner | `umkm_owner` | `/owner/*` — own profile & products |
 | Tourist | `tourist` | public + authenticated features |
 | Guest | — | public pages only (`/`, `/explore`, `/cultural`, `/umkm`, `/ar-scan`, etc.) |
@@ -62,7 +61,6 @@ Roles are defined in `app/Enums/UserRole.php`:
 | CSS | TailwindCSS 4.x | `@import "tailwindcss"` in `resources/css/app.css` |
 | JS framework | Alpine.js 3 | Sprinkled on Blade views |
 | Livewire | Livewire 4.x | Used **only** for navigation, not for components |
-| Payment gateway | Midtrans Snap | `config/midtrans.php` |
 | Maps / routing | Leaflet + OpenRouteService | ORS is self-hosted in Docker |
 | Large uploads | TUS chunked protocol | `ankitpokhrel/tus-php`, admin AR model uploads |
 | QR codes | `bacon/bacon-qr-code` | `qrSvgDataUri()` helper in `app/helpers.php` |
@@ -88,23 +86,22 @@ app/
       Admin/               # CRUD/dashboard controllers for admin role
       Api/                 # RoutingController, TusController
       Owner/               # UMKM owner controllers
-      * public controllers (Home, Explore, Cultural, UMKM, Booking, etc.)
+      Staff/               # TicketScanController
+      * public controllers (Home, Explore, Cultural, UMKM, etc.)
     Middleware/            # Admin, Staff, UmkmOwner, SetUserLocale, SecurityHeaders, RedirectIfAdmin
     Requests/              # Form request classes per role
-    Resources/             # API resources (CulturalObject, TourPackage, UMKM)
-  Jobs/                    # Midtrans refund/void jobs
-  Mail/                    # ETicketMail
+    Resources/             # API resources (CulturalObject, UMKM)
   Models/                  # Eloquent models
   Models/Concerns/         # HasSlug, HasMapLocation, HasLocalizedAudioNarration, HasTranslatableArrayOutput
   Notifications/           # (package-driven push notifications)
   Observers/               # CacheInvalidationObserver
   Providers/               # AppServiceProvider
-  Services/                # MidtransService, TusService, UmkmRecommendationService
+  Services/                # TusService, UmkmRecommendationService
   helpers.php              # Global helpers: translateValue(), qrSvgDataUri(), etc.
 
 bootstrap/app.php          # Laravel application bootstrap; registers middleware aliases & CSRF excepts
 
-config/                    # Standard Laravel configs + admin.php, midtrans.php
+config/                    # Standard Laravel configs + admin.php
 
 database/
   factories/               # Model factories
@@ -132,7 +129,7 @@ resources/
 
 routes/
   web.php                  # All web routes (public, auth, admin, owner, staff)
-  api.php                  # Midtrans webhook, AR model lookup, tracking ping/leave
+  api.php                  # AR model lookup, tracking ping/leave
   channels.php             # Private user channel
   console.php              # Scheduled commands
 
@@ -227,15 +224,15 @@ Requires the LibreTranslate container running (`docker compose up -d libretransl
 3. Role middleware aliases: `admin`, `staff`, `umkm_owner`, `redirect.admin`.
 4. Controllers delegate to `app/Services/` for domain logic.
 5. Eloquent observers auto-flush relevant cache tags.
-6. Queue jobs / events handle payments, refunds, emails, real-time broadcasts.
+6. Queue jobs / events handle emails (event reminders) and real-time broadcasts.
 
 ### Controllers by Area
 
-- **Public:** `HomeController`, `ExploreController`, `CulturalController`, `UmkmCatalogController`, `TourPackageController`, `SmartEdutourismController`, `ARController`, `BookingController`, `AuthController`, etc.
-- **Admin (`/admin/*`):** `DashboardController`, `CulturalObjectController`, `UmkmController`, `TourRouteController`, `PackageController`, `CapacityController`, `ARManagerController`, `MapManagerController`, `ReportController`, `SettingsController`, etc.
+- **Public:** `HomeController`, `ExploreController`, `CulturalController`, `UmkmCatalogController`, `SmartEdutourismController`, `ARController`, `AuthController`, etc.
+- **Admin (`/admin/*`):** `DashboardController`, `CulturalObjectController`, `UmkmController`, `TourRouteController`, `CapacityController`, `ARManagerController`, `MapManagerController`, `ReportController`, `SettingsController`, etc.
 - **Owner (`/owner/*`):** `OwnerDashboardController`, `OwnerProductController`, `OwnerCategoryController`.
-- **Staff (`/staff/*`):** `TicketingController`.
-- **API (`/api/*`):** `RoutingController`, `TusController`, `BookingController::webhook`, `TrackingController`.
+- **Staff (`/staff/*`):** `TicketScanController` — scan/check/store/stats for OTA ticket visit logging.
+- **API (`/api/*`):** `RoutingController`, `TusController`, `TrackingController`.
 
 ### Middleware
 
@@ -251,12 +248,11 @@ Requires the LibreTranslate container running (`docker compose up -d libretransl
 ### Service Layer
 
 - `UmkmRecommendationService` — fair-rotation recommendation algorithm using geolocation and `last_recommended_at`.
-- `MidtransService` — wraps Midtrans status checks, returns parsed `transaction_status`/`payment_type`.
 - `TusService` — resolves TUS temp files and moves them to final storage.
 
 ### Models & Concerns
 
-Core models: `User`, `CulturalObject`, `CulturalObjectRating`, `CulturalStory`, `Facility`, `MapLocation`, `TourRoute`, `TourRoutePoint`, `RouteMission`, `RouteSession`, `TourPackage`, `Reservation`, `Event`, `UmkmProfile`, `UmkmProduct`, `UmkmProductCategory`, `ArModel`, `CapacityZone`, `VisitorLog`, `WeatherReport`, `Feedback`, `UserFavorite`, `UserVisit`, `VillageSettings`.
+Core models: `User`, `CulturalObject`, `CulturalObjectRating`, `CulturalStory`, `Facility`, `MapLocation`, `TourRoute`, `TourRoutePoint`, `RouteMission`, `RouteSession`, `TicketScan`, `Event`, `UmkmProfile`, `UmkmProduct`, `UmkmProductCategory`, `ArModel`, `CapacityZone`, `VisitorLog`, `WeatherReport`, `Feedback`, `UserFavorite`, `UserVisit`, `VillageSettings`.
 
 Reusable traits in `app/Models/Concerns/`:
 
@@ -276,8 +272,6 @@ Reusable traits in `app/Models/Concerns/`:
 ### Events, Jobs, and Broadcasting
 
 - Events: `CrowdAlertSent`, `VisitorLocationUpdated`, `VisitorLocationRemoved`, `EventReminderSent`.
-- Jobs: `RefundMidtransTransaction`, `VoidMidtransTransaction`.
-- Mail: `ETicketMail`.
 - Real-time: GPS pings hit `TrackingController`, stored in Redis `active_visitors`, broadcast via Reverb; client config in `resources/js/echo.js`.
 
 ### File Uploads
@@ -298,11 +292,12 @@ Reusable traits in `app/Models/Concerns/`:
 - `Api\RoutingController` proxies turn-by-turn directions.
 - `CapacityZone` stores polygon `geofence` JSON and crowd thresholds.
 
-### Payments
+### Ticket Scanning
 
-- Midtrans Snap is used for online booking and on-site staff payments.
-- Webhook endpoint: `POST /api/midtrans/webhook`.
-- After successful payment, e-tickets are emailed via `ETicketMail`.
+- No online booking or payment gateway. Tickets are sold via OTAs (e.g. Traveloka); staff scan the QR at the gate.
+- `Staff\TicketScanController` (`index`, `check`, `store`, `stats`) records each scan in `TicketScan`, using a unique `code_hash` to detect duplicate/repeat scans.
+- Routes: `staff.ticketing`, `staff.ticketing.check`, `staff.ticketing.store`, `staff.ticketing.stats`.
+- **Access:** `StaffMiddleware` admits `admin`, `ticket_officer`, **and `admin_viewer`**. `admin_viewer` is read-only everywhere else (`AdminOrViewerMiddleware`), but on `/staff/*` it can POST to `staff.ticketing.check` and `staff.ticketing.store` — i.e. record visits and bump `duplicate_attempts`. Pre-existing behaviour, kept deliberately; tighten `StaffMiddleware` if that role must stay read-only.
 
 ---
 
@@ -368,14 +363,14 @@ Loaded via `app/helpers.php`:
 - Configuration: `phpunit.xml`.
 - Environment: `APP_ENV=testing`, `DB_CONNECTION=sqlite`, `DB_DATABASE=:memory:`, `CACHE_STORE=array`, `QUEUE_CONNECTION=sync`.
 - Suites: `Unit` and `Feature`.
-- Feature tests cover HTTP routes, auth, admin CRUD, payments, caching, localization, UMKM, edutourism, etc.
+- Feature tests cover HTTP routes, auth, admin CRUD, ticket scanning, caching, localization, UMKM, edutourism, etc.
 - Unit tests cover services, model traits, helpers, and AR upload handling.
-- External APIs (Midtrans, OpenRouteService, Weather) should be mocked in tests.
+- External APIs (OpenRouteService, Weather) should be mocked in tests.
 
 ### Laravel Dusk (Browser Tests)
 
 - Configuration: `phpunit.dusk.xml`.
-- Tests live in `tests/Browser/` and cover end-to-end flows: authentication, public explore, admin capacity zones, admin tour routes, UMKM management, owner products, staff ticketing, user booking, and smart edutourism.
+- Tests live in `tests/Browser/` and cover end-to-end flows: authentication, public explore, admin capacity zones, admin tour routes, UMKM management, owner products, and smart edutourism.
 - `DuskTestCase.php` starts chromedriver automatically unless running in Sail.
 - Dusk reads from `.env.dusk.local` (do not commit secrets).
 
@@ -464,8 +459,6 @@ What `deploy.sh` does:
 
 - `app:update-weather` — every 10 minutes.
 - `events:send-reminders` — every minute.
-- `reservations:expire-stale` — hourly.
-- `reservations:send-reminders` — daily at 09:00.
 - `app:cleanup-tus` — daily.
 
 In production, run `php artisan schedule:run` every minute via cron or use the Docker `penglipuran-app` container's scheduler.
@@ -492,7 +485,6 @@ Key variables from `.env.example`:
 | `DB_HOST` | `penglipuran-db` in Docker |
 | `CACHE_STORE`, `QUEUE_CONNECTION`, `SESSION_DRIVER` | Should be `redis` in Docker |
 | `REDIS_HOST` | `penglipuran-redis` in Docker |
-| `MIDTRANS_SERVER_KEY`, `MIDTRANS_CLIENT_KEY`, `MIDTRANS_IS_PRODUCTION` | Payment gateway |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google OAuth |
 | `REVERB_*` | WebSocket credentials |
 | `ORS_BASE_URL` | OpenRouteService URL (`http://penglipuran-ors:8082` in Docker) |

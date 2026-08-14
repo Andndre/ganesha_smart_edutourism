@@ -6,10 +6,7 @@ use App\Models\ArModel;
 use App\Models\CapacityZone;
 use App\Models\CulturalObject;
 use App\Models\Event;
-use App\Models\Feedback;
 use App\Models\MapLocation;
-use App\Models\Reservation;
-use App\Models\TourPackage;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
 use App\Models\UmkmProduct;
@@ -56,8 +53,6 @@ class DatabaseSeeder extends Seeder
         $this->call(Route1HeritageQuestSeeder::class);
         $this->call(Route2CulturalAdventureSeeder::class);
         $this->call(Route3EcoQuestSeeder::class);
-        $this->call(EntranceTicketSeeder::class);
-        $this->call(EduCulturalLivingExperienceSeeder::class);
     }
 
     /**
@@ -107,18 +102,6 @@ class DatabaseSeeder extends Seeder
         });
 
         Event::factory()->count(4)->create();
-
-        $packages = TourPackage::factory()->count(5)->create();
-
-        $reservations = $users->flatMap(fn (User $user) => Reservation::factory()->count(2)->create([
-            'user_id' => $user->id,
-            'tour_package_id' => $packages->random()->id,
-        ]));
-
-        $reservations->each(fn (Reservation $reservation) => Feedback::factory()->create([
-            'user_id' => $reservation->user_id,
-            'reservation_id' => $reservation->id,
-        ]));
 
         VisitorLog::factory()->count(10)->create();
 

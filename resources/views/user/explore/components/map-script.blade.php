@@ -1,14 +1,8 @@
     <script>
         // Execution wrapper to handle Livewire and page navigation
         (function() {
-            // Category colors mapping matching the filter panel dots
-            const categoryColors = {
-                umkm: '#8B5CF6', // Violet
-                facilities: '#3B82F6', // Blue
-                toilets: '#06B6D4', // Cyan
-                accessibility: '#F59E0B', // Amber
-                cultural: '#1E5128' // Green (Default)
-            };
+            // Shared with the filter panel dots and the pins (components/map-pin-script)
+            const categoryColors = window.GSE_MAP_CATEGORY_COLORS;
 
             const categoryLabels = {
                 cultural: @js(__('Objek Budaya')),
@@ -31,6 +25,8 @@
             let locationArrow = null;
             let locationPulse = null;
             const markerLayers = [];
+            let markerCluster = null;
+            let activeMarkerItem = null; // markerLayers entry whose sheet is open
 
             const activeFilters = {
                 cultural: true,
@@ -105,31 +101,45 @@
                 // 3. Data from ExploreController
                 const locations = @json($locations);
 
-                function getMarkerIcon(category) {
-                    const color = categoryColors[category] || '#1E5128';
-                    return L.divIcon({
-                        className: 'custom-pin',
-                        html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
-                        iconSize: [24, 24],
-                        iconAnchor: [12, 12]
+                // 4. Cluster group — collapses dense marker groups when zoomed out.
+                // Clustering stops at zoom 18 so individual pins are always tappable up close.
+                markerCluster = L.markerClusterGroup({
+                    maxClusterRadius: 50,
+                    disableClusteringAtZoom: 18,
+                    spiderfyOnMaxZoom: false,
+                    zoomToBoundsOnClick: false, // handled below, so we control the zoom floor
+                    showCoverageOnHover: false,
+                    iconCreateFunction: getClusterIcon
+                });
+                map.addLayer(markerCluster);
+
+                // Clicking a cluster zooms into it rather than fanning the pins out in
+                // place. Landing above disableClusteringAtZoom guarantees the cluster
+                // breaks apart into individual pins instead of smaller clusters.
+                markerCluster.on('clusterclick', function(e) {
+                    const bounds = e.layer.getBounds();
+                    const fitZoom = map.getBoundsZoom(bounds, false, L.point(60, 60));
+
+                    map.flyTo(bounds.getCenter(), Math.max(18, fitZoom), {
+                        animate: true,
+                        duration: 0.6
                     });
-                }
+                });
 
                 // 5. Render Marker
+                const clusteredMarkers = [];
                 locations.forEach(loc => {
                     const marker = L.marker([loc.lat, loc.lng], {
                         icon: getMarkerIcon(loc.cat)
-                    }).addTo(map);
+                    });
+                    clusteredMarkers.push(marker);
 
                     marker.on('click', function(e) {
                         if (e && e.originalEvent) {
                             e.originalEvent.stopPropagation();
                         }
                         openSheet(loc);
-                        map.flyTo([loc.lat - 0.0005, loc.lng], 18, {
-                            animate: true,
-                            duration: 0.5
-                        });
+                        focusOnLocation(loc, 18, 0.5);
                     });
 
                     markerLayers.push({
@@ -137,6 +147,7 @@
                         loc: loc
                     });
                 });
+                markerCluster.addLayers(clusteredMarkers);
 
                 // ==========================================
                 // HEATMAP OVERLAY DATA (from controller)
@@ -307,9 +318,10 @@
                 });
 
                 document.getElementById('btn-locate').addEventListener('click', function() {
-                    // Focus bounds only on visible markers
+                    // Focus bounds only on visible markers. POIs live in the cluster
+                    // group; multi-route stops are pulled out onto the map directly.
                     const visibleCoords = markerLayers
-                        .filter(item => map.hasLayer(item.marker))
+                        .filter(item => markerCluster.hasLayer(item.marker) || map.hasLayer(item.marker))
                         .map(item => [item.loc.lat, item.loc.lng]);
 
                     if (visibleCoords.length > 0) {
@@ -376,15 +388,9 @@
 
                     // Trigger opening the sheet and route calculation after a short timeout to let Leaflet load
                     setTimeout(() => {
-                        // Highlight the specific marker so it stands out from neighbours
-                        const targetItem = markerLayers.find(item => item.loc.id === targetLoc.id);
-                        if (targetItem) targetItem.marker.setIcon(focusMarkerIcon(targetLoc.cat));
-
+                        // openSheet highlights the marker as the active one
                         openSheet(targetLoc);
-                        map.flyTo([targetLoc.lat - 0.0005, targetLoc.lng], 18, {
-                            animate: true,
-                            duration: 0.8
-                        });
+                        focusOnLocation(targetLoc, 18, 0.8);
 
                         // Auto-trigger click on the route directions button
                         const routeBtn = document.getElementById('sheet-route-btn');
@@ -595,14 +601,21 @@
                         item.loc.name.toLowerCase().includes(query) ||
                         (item.loc.desc && item.loc.desc.toLowerCase().includes(query));
 
+                    // Numbered multi-route stops live outside the cluster; leave them alone
+                    // so filtering never hides or re-clusters an active shopping route.
+                    if (multiRouteStops.some(stop => stop.loc.id === item.loc.id)) {
+                        if (isFilterActive && matchesSearch) matches.push(item.loc);
+                        return;
+                    }
+
                     if (isFilterActive && matchesSearch) {
-                        if (!map.hasLayer(item.marker)) {
-                            map.addLayer(item.marker);
+                        if (!markerCluster.hasLayer(item.marker)) {
+                            markerCluster.addLayer(item.marker);
                         }
                         matches.push(item.loc);
                     } else {
-                        if (map.hasLayer(item.marker)) {
-                            map.removeLayer(item.marker);
+                        if (markerCluster.hasLayer(item.marker)) {
+                            markerCluster.removeLayer(item.marker);
                         }
                     }
                 });
@@ -684,10 +697,7 @@
                 if (searchInput) searchInput.blur();
                 if (navigator.vibrate) navigator.vibrate(50);
                 openSheet(loc);
-                map.flyTo([loc.lat - 0.0005, loc.lng], 18, {
-                    animate: true,
-                    duration: 0.5
-                });
+                focusOnLocation(loc, 18, 0.5);
             }
 
             function onFilterChange(e) {
@@ -909,6 +919,7 @@
             function openSheet(loc) {
                 hideSearchResults();
                 activeLocation = loc;
+                setActiveMarker(loc);
                 updateRouteButtonUI();
                 document.getElementById('sheet-title').textContent = loc.name;
 
@@ -1058,6 +1069,7 @@
 
             function closeSheet() {
                 activeLocation = null;
+                setActiveMarker(null);
                 window.dispatchEvent(new CustomEvent('close-location-sheet'));
             }
 
@@ -1234,26 +1246,102 @@
                 }
             }
 
-            // Single highlighted destination (action=route) — a larger green pin
-            // with a ring so it stands out among closely-packed UMKM markers.
-            function focusMarkerIcon(category) {
-                const color = categoryColors[category] || '#1E5128';
-                return L.divIcon({
-                    className: 'custom-pin',
-                    html: `<div style="background:${color};width:34px;height:34px;border-radius:50%;border:4px solid white;box-shadow:0 0 0 4px rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 6a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/></svg></div>`,
-                    iconSize: [34, 34],
-                    iconAnchor: [17, 17]
+            function getMarkerIcon(category) {
+                return window.gseMapPin(category);
+            }
+
+            // Single source of truth for what a marker looks like. A marker is either a
+            // plain POI or a numbered stop of an active shopping route; `active` adds the
+            // selected-state treatment on top of whichever it is.
+            function iconFor(item, active) {
+                const stopIndex = multiRouteStops.findIndex(stop => stop.loc.id === item.loc.id);
+
+                if (stopIndex !== -1) {
+                    return getMultiRouteDone()[item.loc.id]
+                        ? window.gseMapPin('check', { dimmed: true, highlight: active })
+                        : window.gseMapPin(null, {
+                            number: stopIndex + 1,
+                            color: '#F97316',
+                            highlight: active
+                        });
+                }
+
+                return window.gseMapPin(item.loc.cat, { highlight: active });
+            }
+
+            // Pins are anchored at their tip, so centring the anchor leaves the body of
+            // the pin sitting half its height too high. 42px tall, hence 21.
+            const PIN_HALF_HEIGHT = 21;
+
+            // Centre the map on a location, offset so nothing covers it: the sheet eats
+            // into the right edge (desktop drawer) or the bottom edge (mobile sheet), and
+            // the search bar always covers the top. We measure how much of the map each
+            // one hides and shift the centre by half the difference — correct at any zoom,
+            // unlike the fixed latitude nudge this replaced.
+            function focusOnLocation(loc, zoom, duration) {
+                // Wait a frame so Alpine has rendered the sheet and it can be measured.
+                // Its enter transition only translates it, so the size is already final.
+                requestAnimationFrame(() => {
+                    const box = map.getContainer().getBoundingClientRect();
+                    const point = map.project([loc.lat, loc.lng], zoom);
+
+                    const sheet = document.getElementById('location-sheet-panel');
+                    const sheetRect = sheet ? sheet.getBoundingClientRect() : null;
+
+                    if (sheetRect && sheetRect.width && sheetRect.height) {
+                        // A right-hand drawer spans the full height of the map; a bottom
+                        // sheet never does. Width can't tell them apart — the panel is
+                        // capped at max-w-md, so between 448px and the md breakpoint a
+                        // bottom sheet is narrower than the map too.
+                        if (sheetRect.height >= box.height - 1) {
+                            point.x += Math.max(0, box.right - sheetRect.left) / 2;
+                        } else {
+                            const search = document.getElementById('map-search-overlay');
+                            const searchRect = search ? search.getBoundingClientRect() : null;
+
+                            const hiddenBottom = Math.max(0, box.bottom - sheetRect.top);
+                            const hiddenTop = searchRect ? Math.max(0, searchRect.bottom - box.top) : 0;
+
+                            point.y += (hiddenBottom - hiddenTop) / 2 - PIN_HALF_HEIGHT;
+                        }
+                    }
+
+                    map.flyTo(map.unproject(point, zoom), zoom, {
+                        animate: true,
+                        duration: duration
+                    });
                 });
             }
 
-            function stopBadgeIcon(number, done) {
-                const bg = done ? '#9CA3AF' : '#F97316';
-                const label = done ? '✓' : number;
+            // Highlight the marker whose sheet is open, and restore the previous one.
+            function setActiveMarker(loc) {
+                if (activeMarkerItem) {
+                    activeMarkerItem.marker.setIcon(iconFor(activeMarkerItem, false));
+                    activeMarkerItem.marker.setZIndexOffset(0);
+                    activeMarkerItem = null;
+                }
+
+                if (!loc) return;
+
+                const item = markerLayers.find(entry => entry.loc.id === loc.id);
+                if (!item) return;
+
+                item.marker.setIcon(iconFor(item, true));
+                item.marker.setZIndexOffset(1000); // draw above neighbouring pins
+                activeMarkerItem = item;
+            }
+
+            // Cluster bubble: white disc with a Penglipuran Green ring, growing with count.
+            function getClusterIcon(cluster) {
+                const count = cluster.getChildCount();
+                const size = count < 10 ? 38 : count < 30 ? 46 : 54;
+                const fontSize = count < 10 ? 13 : count < 30 ? 15 : 17;
+
                 return L.divIcon({
-                    className: 'custom-pin',
-                    html: `<div style="background:${bg};width:30px;height:30px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.35);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;">${label}</div>`,
-                    iconSize: [30, 30],
-                    iconAnchor: [15, 15]
+                    className: 'custom-cluster',
+                    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:#fff;border:3px solid #1E5128;color:#1E5128;font-weight:800;font-size:${fontSize}px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.35);">${count}</div>`,
+                    iconSize: [size, size],
+                    iconAnchor: [size / 2, size / 2]
                 });
             }
 
@@ -1272,9 +1360,14 @@
 
                 if (multiRouteStops.length === 0) return;
 
-                const done = getMultiRouteDone();
-                multiRouteStops.forEach((item, i) => {
-                    item.marker.setIcon(stopBadgeIcon(i + 1, !!done[item.loc.id]));
+                multiRouteStops.forEach(item => {
+                    item.marker.setIcon(iconFor(item, item === activeMarkerItem));
+
+                    // Pull stops out of the cluster so the 1-2-3 order stays readable at any zoom
+                    if (markerCluster.hasLayer(item.marker)) {
+                        markerCluster.removeLayer(item.marker);
+                    }
+                    item.marker.addTo(map);
                 });
 
                 const bounds = L.latLngBounds(multiRouteStops.map(item => [item.loc.lat, item.loc.lng]));
@@ -1331,9 +1424,9 @@
                 done[loc.id] = true;
                 localStorage.setItem(multiRouteDoneKey, JSON.stringify(done));
 
-                const idx = multiRouteStops.findIndex(item => item.loc.id === loc.id);
-                if (idx !== -1) {
-                    multiRouteStops[idx].marker.setIcon(stopBadgeIcon(idx + 1, true));
+                const stop = multiRouteStops.find(item => item.loc.id === loc.id);
+                if (stop) {
+                    stop.marker.setIcon(iconFor(stop, false));
                 }
                 closeSheet();
 

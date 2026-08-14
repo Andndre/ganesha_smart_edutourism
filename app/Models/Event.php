@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\Translatable\HasTranslations;
 
@@ -47,16 +46,6 @@ class Event extends Model
     public function mapLocation(): MorphOne
     {
         return $this->morphOne(MapLocation::class, 'locationable');
-    }
-
-    /**
-     * Get the reservations for this event.
-     *
-     * @return HasMany<Reservation>
-     */
-    public function reservations(): HasMany
-    {
-        return $this->hasMany(Reservation::class, 'reservation_type', 'event');
     }
 
     /**

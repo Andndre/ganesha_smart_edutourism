@@ -47,7 +47,7 @@
                 {{ __('Syarat & Ketentuan Penggunaan') }}
             </h2>
             <p class="mt-2 text-xs text-gray-500">
-                {{ __('Terakhir diperbarui') }}: 25 Mei 2026
+                {{ __('Terakhir diperbarui') }}: 13 Agustus 2026
             </p>
         </div>
 
@@ -75,7 +75,7 @@
                                 Account Registration
                             </h3>
                             <p class="mt-2 pl-8 text-gray-500">
-                                To use the booking and interactive tourism features, you must register a valid account. You
+                                To use the interactive tourism features, you must register a valid account. You
                                 are
                                 responsible for maintaining the confidentiality of your password and all activities under
                                 your
@@ -89,13 +89,10 @@
                                 class="text-charcoal group-hover:text-primary flex items-center gap-2 text-base font-bold transition-colors">
                                 <span
                                     class="bg-primary/10 text-primary flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-bold">2</span>
-                                Ticket Booking & Tour Packages
+                                OTA Ticket Purchase & Gate Scanning
                             </h3>
                             <p class="mt-2 pl-8 text-gray-500">
-                                All bookings and transactions made through this application are final. E-tickets will be
-                                issued
-                                immediately upon verification of payment and must be shown at the village entry gate for QR
-                                scanning.
+                                {{ __('Tiket masuk dibeli melalui mitra OTA (mis. Traveloka) sebelum kunjungan Anda. Petugas gerbang memindai kode QR pada tiket Anda untuk mencatat kunjungan di pintu masuk desa.') }}
                             </p>
                         </section>
 
@@ -165,7 +162,7 @@
                                 Pendaftaran Akun
                             </h3>
                             <p class="mt-2 pl-8 text-gray-500">
-                                Untuk menggunakan fitur pemesanan tiket dan jelajah interaktif, Anda wajib mendaftarkan akun
+                                Untuk menggunakan fitur jelajah interaktif, Anda wajib mendaftarkan akun
                                 dengan data yang valid. Anda bertanggung jawab penuh atas kerahasiaan kata sandi dan semua
                                 aktivitas di bawah akun Anda.
                             </p>
@@ -177,14 +174,10 @@
                                 class="text-charcoal group-hover:text-primary flex items-center gap-2 text-base font-bold transition-colors">
                                 <span
                                     class="bg-primary/10 text-primary flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-bold">2</span>
-                                Pemesanan Tiket & Paket Wisata
+                                Pembelian Tiket via OTA & Pemindaian di Gerbang
                             </h3>
                             <p class="mt-2 pl-8 text-gray-500">
-                                Seluruh pemesanan dan transaksi melalui aplikasi ini bersifat final. E-ticket akan
-                                diterbitkan
-                                secara otomatis setelah verifikasi pembayaran berhasil dan wajib ditunjukkan di gerbang
-                                masuk
-                                desa untuk dipindai (QR Scan).
+                                {{ __('Tiket masuk dibeli melalui mitra OTA (mis. Traveloka) sebelum kunjungan Anda. Petugas gerbang memindai kode QR pada tiket Anda untuk mencatat kunjungan di pintu masuk desa.') }}
                             </p>
                         </section>
 

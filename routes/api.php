@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\ARController;
-use App\Http\Controllers\BookingController;
 use App\Http\Controllers\TrackingController;
 
 /*
@@ -14,8 +13,6 @@ use App\Http\Controllers\TrackingController;
 | be assigned to the "api" middleware group.
 |
 */
-
-Route::post('/midtrans/webhook', [BookingController::class, 'webhook']);
 
 Route::get('/ar/model', [ARController::class, 'getModel']);
 

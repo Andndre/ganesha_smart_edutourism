@@ -50,18 +50,18 @@
             {{ ($visitorDelta >= 0 ? '+' : '') . $visitorDelta }}% {{ $visitorDelta >= 0 ? '↑' : '↓' }} vs. bulan lalu
         </p>
     </div>
-    {{-- Revenue KPI --}}
+    {{-- Scanned Visitors KPI --}}
     <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Pendapatan</p>
-        <p class="mt-2 text-2xl font-bold text-charcoal">Rp {{ number_format($revenue, 0, ',', '.') }}</p>
-        <p class="mt-1 text-xs font-semibold {{ $revenueDelta >= 0 ? 'text-primary' : 'text-warning' }}">
-            {{ ($revenueDelta >= 0 ? '+' : '') . $revenueDelta }}% {{ $revenueDelta >= 0 ? '↑' : '↓' }} vs. bulan lalu
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Kunjungan Tiket</p>
+        <p class="mt-2 text-2xl font-bold text-charcoal">{{ number_format($scannedVisitors, 0, ',', '.') }} orang</p>
+        <p class="mt-1 text-xs font-semibold {{ $scannedDelta >= 0 ? 'text-primary' : 'text-warning' }}">
+            {{ ($scannedDelta >= 0 ? '+' : '') . $scannedDelta }}% {{ $scannedDelta >= 0 ? '↑' : '↓' }} vs. bulan lalu
         </p>
     </div>
     {{-- Tickets KPI --}}
     <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Tiket Terjual</p>
-        <p class="mt-2 text-2xl font-bold text-charcoal">{{ number_format($ticketsSold, 0, ',', '.') }}</p>
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Tiket Dipindai</p>
+        <p class="mt-2 text-2xl font-bold text-charcoal">{{ number_format($ticketsScanned, 0, ',', '.') }}</p>
         <p class="mt-1 text-xs font-semibold {{ $ticketsDelta >= 0 ? 'text-primary' : 'text-warning' }}">
             {{ ($ticketsDelta >= 0 ? '+' : '') . $ticketsDelta }}% {{ $ticketsDelta >= 0 ? '↑' : '↓' }} vs. bulan lalu
         </p>
@@ -83,9 +83,9 @@
         <canvas id="monthlyChart" class="w-full" height="180"></canvas>
     </div>
     <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-        <h3 class="mb-4 font-semibold text-charcoal">Pendapatan per Kategori Paket</h3>
+        <h3 class="mb-4 font-semibold text-charcoal">Komposisi Asal Pengunjung</h3>
         <div class="space-y-3">
-            @foreach ($revenueBreakdown as $r)
+            @foreach ($originBreakdown as $r)
                 <div>
                     <div class="mb-1 flex items-center justify-between text-sm">
                         <span class="font-medium text-charcoal">{{ $r['label'] }}</span>
@@ -265,8 +265,8 @@
             steps.push({
                 element: '#tour-charts',
                 popover: {
-                    title: '📈 Grafik Pengunjung & Pendapatan',
-                    description: 'Lihat tren jumlah pengunjung harian dan rincian pendapatan per kategori paket wisata di sini.',
+                    title: '📈 Grafik Pengunjung',
+                    description: 'Lihat tren jumlah pengunjung harian dan komposisi asal pengunjung di sini.',
                     side: 'top',
                     align: 'start'
                 }

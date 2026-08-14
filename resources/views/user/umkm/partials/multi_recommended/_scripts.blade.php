@@ -15,13 +15,14 @@
                 const mapEl = document.getElementById('map');
                 if (mapEl) {
                     mapInstance = L.map(mapEl, {
-                        zoomControl: false,
-                        attributionControl: false
+                        zoomControl: false
                     });
 
-                    // Add CartoDB Positron tiles for a clean look
-                    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                        maxZoom: 20
+                    // Same tiles as the explore map so both screens read as one product
+                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 20,
+                        maxNativeZoom: 19,
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     }).addTo(mapInstance);
 
                     // Add markers
@@ -37,20 +38,11 @@
                         const lng = parseFloat(loc.longitude);
                         bounds.extend([lat, lng]);
 
-                        const iconHtml = `
-                        <div class="marker-pin"></div>
-                        <div class="marker-number">${index + 1}</div>
-                    `;
-
-                        const customIcon = L.divIcon({
-                            className: 'custom-div-icon',
-                            html: iconHtml,
-                            iconSize: [30, 42],
-                            iconAnchor: [15, 42]
-                        });
-
                         L.marker([lat, lng], {
-                                icon: customIcon
+                                icon: window.gseMapPin(null, {
+                                    number: index + 1,
+                                    color: '#F97316'
+                                })
                             })
                             .bindPopup(`<b>${umkm.business_name || 'UMKM'}</b>`)
                             .addTo(mapInstance);

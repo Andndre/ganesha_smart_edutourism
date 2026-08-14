@@ -11,6 +11,9 @@
     // directly when the user clicks outside or the X button. It decides whether/when
     // to call `proceed()` — e.g. to confirm discarding unsaved changes first.
     'onCloseAttempt' => null,
+    // Optional id for the panel element, so callers can measure it (e.g. the explore
+    // map offsets its centre by the sheet's size to keep the active pin visible).
+    'panelId' => null,
 ])
 
 @php
@@ -70,7 +73,8 @@
     x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>
 
-    <div class="{{ $desktopContainerClass }} {{ $maxWidthClass }} pointer-events-auto relative flex w-full flex-col rounded-t-[2.5rem] bg-white p-6 pb-10 shadow-2xl md:pb-6"
+    <div @if ($panelId) id="{{ $panelId }}" @endif
+        class="{{ $desktopContainerClass }} {{ $maxWidthClass }} pointer-events-auto relative flex w-full flex-col rounded-t-[2.5rem] bg-white p-6 pb-10 shadow-2xl md:pb-6"
         style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));"
         @click.outside="! {{ $closeOnOutsideClick ? 'true' : 'false' }} || (!document.querySelector('.swal2-container') && attemptClose())"
         x-show="isOpen" x-transition:enter="transition ease-out duration-300 transform"
