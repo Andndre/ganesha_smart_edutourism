@@ -14,7 +14,12 @@
     <div class="pointer-events-none absolute -top-10 left-1/2 h-24 w-24 -translate-x-1/2 rounded-full blur-2xl"
         :class="allCorrect ? 'bg-secondary/20' : 'bg-amber-300/20'" aria-hidden="true"></div>
 
-    <div class="relative" role="status" aria-live="polite">
+    {{-- The score counts up frame by frame, so a live region around it would read out every
+    intermediate number. The panel is silent and this one line announces the outcome once. --}}
+    <p class="sr-only" role="status" aria-live="polite"
+        x-text="`${allCorrect ? @js(__('Kronologi Tersusun Sempurna!')) : @js(__('Urutan Belum Tepat'))} +${earned} {{ __('poin') }}`"></p>
+
+    <div class="relative">
         {{-- A trophy for a clean sweep, a checklist when some steps missed — the icon carries the
         outcome before the words do. --}}
         <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg"

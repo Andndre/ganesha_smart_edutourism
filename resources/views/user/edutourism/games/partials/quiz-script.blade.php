@@ -43,7 +43,7 @@
                 get correctCount() { return this.outcomes.filter(Boolean).length; },
 
                 /** Points banked so far — the chip has to move for the segments to mean anything. */
-                get earnedSoFar() { return Math.round(this.maxPoints * this.correctCount / this.total); },
+                get earnedSoFar() { return this.total ? Math.round(this.maxPoints * this.correctCount / this.total) : 0; },
 
                 get lastCorrect() { return this.checked && this.chosen === this.answer; },
 
@@ -81,6 +81,8 @@
                 },
 
                 next() {
+                    // The final dispatch is delayed, so a second tap inside that window would score twice.
+                    if (this.done) return;
                     if (this.idx + 1 < this.total) {
                         this.idx++;
                         this.selected = null;

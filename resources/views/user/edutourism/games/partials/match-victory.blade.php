@@ -20,18 +20,20 @@
             <span class="text-base font-bold uppercase tracking-wide">{{ __('poin') }}</span>
         </p>
 
+        {{-- Whole sentences, not concatenated fragments: the tallies sit in different places in
+        different languages, so a translator needs the full line to move them around. --}}
         <template x-if="mode === 'match'">
-            <p class="mt-1.5 text-xs font-semibold text-gray-500">
-                <span x-text="cfg.pairs.length - matchMistakes"></span> {{ __('dari') }}
-                <span x-text="cfg.pairs.length"></span> {{ __('pasangan benar') }}
-            </p>
+            <p class="mt-1.5 text-xs font-semibold text-gray-500"
+                x-text="@js(__(':correct dari :total pasangan benar'))
+                    .replace(':correct', cfg.pairs.length - matchMistakes)
+                    .replace(':total', cfg.pairs.length)"></p>
         </template>
 
         <template x-if="mode !== 'match'">
-            <p class="mt-1.5 text-xs font-semibold text-gray-500">
-                <span x-text="picked.length - wrongPicks"></span> {{ __('pilihan benar') }}
-                <span x-show="wrongPicks > 0">· <span x-text="wrongPicks"></span> {{ __('salah') }}</span>
-            </p>
+            <p class="mt-1.5 text-xs font-semibold text-gray-500"
+                x-text="(wrongPicks > 0 ? @js(__(':correct pilihan benar · :wrong salah')) : @js(__(':correct pilihan benar')))
+                    .replace(':correct', picked.length - wrongPicks)
+                    .replace(':wrong', wrongPicks)"></p>
         </template>
     </div>
 </div>

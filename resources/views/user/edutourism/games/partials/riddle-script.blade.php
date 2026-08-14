@@ -190,7 +190,7 @@
             return {
                 cfg, missionId, maxPoints,
                 guess: '', attempts: 0, checked: false, wrong: false, solved: false,
-                answerShown: '', earned: 0, rootEl: null, hintOpen: false, emptyGuess: false,
+                answerShown: '', earned: 0, rootEl: null, hintOpen: false, emptyGuess: false, finished: false,
 
                 /**
                  * Guesses past this point are all worth the same (the score floor is reached at
@@ -315,6 +315,9 @@
                 },
 
                 continueMission() {
+                    // The dispatch is delayed, so a second tap inside that window would score twice.
+                    if (this.finished) return;
+                    this.finished = true;
                     setTimeout(() => this.rootEl.dispatchEvent(new CustomEvent('mission-complete', { bubbles: true, detail: { id: this.missionId, earned: this.earned } })), 400);
                 },
             };

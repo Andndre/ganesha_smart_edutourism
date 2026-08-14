@@ -69,7 +69,7 @@
                                         <span role="button" tabindex="0" @click.stop="playAudio(item.audio)"
                                             @keydown.enter.stop.prevent="playAudio(item.audio)"
                                             @keydown.space.stop.prevent="playAudio(item.audio)"
-                                            class="edu-card inline-flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-full active:scale-90"
+                                            class="edu-card edu-tap inline-flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-full active:scale-90"
                                             :class="selectedLeft === item.i ? 'bg-white/25 text-white' : 'bg-primary/10 text-primary'"
                                             :aria-label="@js(__('Putar audio'))">
                                             <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">

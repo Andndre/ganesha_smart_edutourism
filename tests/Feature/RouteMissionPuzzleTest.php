@@ -154,17 +154,17 @@ class RouteMissionPuzzleTest extends TestCase
         $response->assertDontSee('x-data="eduGamePuzzle(', false);
     }
 
-    public function test_only_a_puzzle_point_widens_the_mission_column(): void
+    public function test_only_a_puzzle_mission_widens_the_mission_column(): void
     {
-        // A puzzle point: the board sits beside its reference, so the column has to be wide.
+        // A puzzle mission: the board sits beside its reference, so the column has to be wide.
         $this->puzzleMission(['grid_size' => 4]);
         $this->startSession();
 
         $wide = $this->actingAs($this->user)->get(route('edutourism.active'));
-        // Matched with the closing quote: other stages on this page carry their own
+        // Matched with the leading "space-y-4": other stages on this page carry their own
         // "mx-auto max-w-md ..." classes, so a loose substring would collide with them.
-        $wide->assertSee('class="mx-auto max-w-4xl"', false);
-        $wide->assertDontSee('class="mx-auto max-w-md"', false);
+        $wide->assertSee('class="mx-auto space-y-4 max-w-4xl"', false);
+        $wide->assertDontSee('class="mx-auto space-y-4 max-w-md"', false);
 
         // The same point without a puzzle keeps the narrow default.
         RouteMission::where('tour_route_point_id', $this->point->id)->delete();
@@ -178,8 +178,8 @@ class RouteMissionPuzzleTest extends TestCase
         ]);
 
         $narrow = $this->actingAs($this->user)->get(route('edutourism.active'));
-        $narrow->assertSee('class="mx-auto max-w-md"', false);
-        $narrow->assertDontSee('class="mx-auto max-w-4xl"', false);
+        $narrow->assertSee('class="mx-auto space-y-4 max-w-md"', false);
+        $narrow->assertDontSee('class="mx-auto space-y-4 max-w-4xl"', false);
     }
 
     public function test_completing_a_puzzle_mission_scores_through_the_shared_endpoint(): void

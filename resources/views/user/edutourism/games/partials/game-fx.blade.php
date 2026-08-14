@@ -299,6 +299,23 @@
             animation: edu-drop .42s cubic-bezier(.34, 1.4, .64, 1) both;
         }
 
+        /* Keeps a small glyph visually small while giving it the 44x44 tap target the design
+           system asks for. Pseudo-element rather than padding so it cannot push the text line
+           it sits in taller. */
+        .edu-tap {
+            position: relative;
+        }
+
+        .edu-tap::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 44px;
+            height: 44px;
+            transform: translate(-50%, -50%);
+        }
+
         .edu-card {
             transition: transform .18s cubic-bezier(.34, 1.4, .64, 1), box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
         }
@@ -401,6 +418,20 @@
          */
         window.eduReducedMotion = function () {
             return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+        };
+
+        /**
+         * Fisher-Yates, in place. `sort(() => Math.random() - 0.5)` is not a shuffle: it feeds an
+         * inconsistent comparator to a merge sort, and on short arrays it leaves most elements
+         * near where they started — which for these games means handing the player a board that
+         * is already half solved.
+         */
+        window.eduShuffle = function (arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
         };
 
         /**

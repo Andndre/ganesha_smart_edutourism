@@ -94,7 +94,8 @@
                     <input type="text" x-model="guess" @input="onType()" @keydown.enter="submit()"
                         class="focus:border-primary focus:ring-primary/15 min-h-11 w-full rounded-xl border-2 bg-white p-3.5 text-sm font-semibold text-gray-800 outline-none transition placeholder:font-medium placeholder:text-gray-400 focus:ring-4"
                         :class="wrong ? 'rd-field-wrong' : 'border-gray-200'"
-                        placeholder="{{ __('Ketik jawabanmu...') }}" autocomplete="off" autocapitalize="off"
+                        placeholder="{{ __('Ketik jawabanmu...') }}" aria-label="{{ __('Ketik jawabanmu...') }}"
+                        autocomplete="off" autocapitalize="off"
                         spellcheck="false" />
                 </div>
 

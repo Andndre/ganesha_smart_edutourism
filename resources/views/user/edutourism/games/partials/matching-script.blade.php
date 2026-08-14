@@ -34,9 +34,13 @@
                 palette: ['#1E5128', '#D4AF37', '#0F766E', '#7C3AED', '#C2410C', '#1D4ED8'],
 
                 init() {
+                    // Normalised on the component's own config, not just locally: the view reads
+                    // cfg.pairs.length directly for the tally and would throw on a malformed config.
+                    if (!Array.isArray(this.cfg.pairs)) this.cfg.pairs = [];
+
                     if (this.mode === 'match') {
                         this.lefts = this.cfg.pairs.map((p, i) => ({ ...p, i }));
-                        this.rights = this.cfg.pairs.map((p, i) => ({ ...p, i })).sort(() => Math.random() - 0.5);
+                        this.rights = window.eduShuffle(this.cfg.pairs.map((p, i) => ({ ...p, i })));
 
                         // Redraw whenever the pairing changes, and again whenever the board is
                         // resized — the curves are measured from live geometry, so a rotation or

@@ -14,7 +14,8 @@
                 cfg, missionId, maxPoints, imageUrl,
                 // Replaced with the photo's real ratio once it loads; 1/1 only until then.
                 aspect: '1 / 1',
-                size: [3, 4, 5].includes(cfg.grid_size) ? cfg.grid_size : 3,
+                // Coerced: the config often arrives from JSON with grid_size as a string.
+                size: [3, 4, 5].includes(Number(cfg.grid_size)) ? Number(cfg.grid_size) : 3,
                 timeLimit: timeLimit || 0,
                 tiles: [], selected: null, dragFrom: null,
                 moves: 0, elapsed: 0, timerId: null,
