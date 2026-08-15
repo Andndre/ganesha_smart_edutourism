@@ -12,6 +12,16 @@
             viewMode: 'calendar',
             showModal: false,
             selectedEvent: {},
+            selectedBalineseDate: {},
+            monthRahinanList: [],
+            monthRahinanLabel: '',
+
+            openMonthRahinan() {
+                const anchor = window.adminFcInstance ? window.adminFcInstance.getDate() : new Date();
+                this.monthRahinanList = window.getMonthRahinan(anchor.getFullYear(), anchor.getMonth());
+                this.monthRahinanLabel = anchor.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                window.dispatchEvent(new CustomEvent('open-balinese-month-list-modal'));
+            },
 
             showFormModal: false,
             formAction: '',
@@ -306,8 +316,35 @@
                 list: 'Agenda'
             },
             events: calendarEvents,
+            dayCellDidMount: function(arg) {
+                const info = window.getBalineseInfo(arg.date);
+                const numEl = arg.el.querySelector('.fc-daygrid-day-number');
+                const topEl = arg.el.querySelector('.fc-daygrid-day-top');
+                if (!numEl || !topEl) return;
+
+                if (info.isRedDate) {
+                    numEl.classList.add('bali-red-number');
+                }
+                if (info.isPurnama) {
+                    topEl.insertAdjacentHTML('beforeend', '<span class="bali-dot bali-dot-purnama"></span>');
+                }
+                if (info.isTilem) {
+                    topEl.insertAdjacentHTML('beforeend', '<span class="bali-dot bali-dot-tilem"></span>');
+                }
+
+                // Klik angka tanggal buka detail kalender Bali; klik area kosong di bawahnya tetap buka form tambah event
+                numEl.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.dispatchEvent(new CustomEvent('open-balinese-detail', { detail: info }));
+                });
+            },
             selectable: true,
             select: function(info) {
+                // Klik di angka tanggal itu untuk buka detail kalender Bali, bukan bikin event baru
+                if (info.jsEvent && info.jsEvent.target.closest('.fc-daygrid-day-number')) {
+                    return;
+                }
+
                 const datePart = info.startStr.split('T')[0];
                 const timePart = info.startStr.includes('T') ? info.startStr.split('T')[1]
                     .substring(0, 5) : '10:00';
@@ -355,6 +392,7 @@
         });
 
         calendar.render();
+        window.adminFcInstance = calendar;
 
         // Fix calendar size calculation when Alpine switches tab dynamically
         window.addEventListener('click', function() {
