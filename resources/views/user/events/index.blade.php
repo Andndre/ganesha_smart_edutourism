@@ -17,10 +17,27 @@
                     selectedCategory: 'All',
                     calendarEvents: @json($calendarEvents),
                     upcomingEvents: @json($upcomingEvents),
+                    selectedBalineseDate: {},
+                    monthRahinanList: [],
+                    monthRahinanLabel: '',
 
                     openDetail(eventObj) {
                         this.selectedEvent = eventObj;
                         window.dispatchEvent(new CustomEvent('open-event-detail'));
+                    },
+
+                    openBalineseDate(info) {
+                        this.selectedBalineseDate = info;
+                    },
+
+                    openMonthRahinan() {
+                        const anchor = window.fcInstance ? window.fcInstance.getDate() : new Date();
+                        this.monthRahinanList = window.getMonthRahinan(anchor.getFullYear(), anchor.getMonth());
+                        this.monthRahinanLabel = anchor.toLocaleDateString('id-ID', {
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                        window.dispatchEvent(new CustomEvent('open-balinese-month-list'));
                     },
 
                     filterCategory(cat) {
@@ -100,6 +117,29 @@
                                         this.openDetail(rawData);
                                     }
                                 },
+                                dayCellDidMount: (arg) => {
+                                    const info = window.getBalineseInfo(arg.date);
+                                    const numEl = arg.el.querySelector('.fc-daygrid-day-number');
+                                    const topEl = arg.el.querySelector('.fc-daygrid-day-top');
+                                    if (!numEl || !topEl) return;
+
+                                    if (info.isRedDate) {
+                                        numEl.classList.add('bali-red-number');
+                                    }
+                                    if (info.isPurnama) {
+                                        topEl.insertAdjacentHTML('beforeend', '<span class="bali-dot bali-dot-purnama"></span>');
+                                    }
+                                    if (info.isTilem) {
+                                        topEl.insertAdjacentHTML('beforeend', '<span class="bali-dot bali-dot-tilem"></span>');
+                                    }
+
+                                    // Klik angka tanggal (bukan cuma yang bermarker) buka detail kalender Bali
+                                    numEl.addEventListener('click', (e) => {
+                                        e.stopPropagation();
+                                        this.openBalineseDate(info);
+                                        window.dispatchEvent(new CustomEvent('open-balinese-detail'));
+                                    });
+                                },
                                 height: 'auto',
                                 handleWindowResize: true
                             });
@@ -158,6 +198,10 @@
         @include('user.events.partials.events-list')
 
         @include('user.events.partials.events-detail-modal')
+
+        @include('user.events.partials.events-balinese-modal')
+
+        @include('user.events.partials.events-balinese-month-modal')
 
     </div>
 @endsection

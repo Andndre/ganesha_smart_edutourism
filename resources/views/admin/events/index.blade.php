@@ -54,7 +54,8 @@
     <div x-data="adminEvents"
         @open-event-modal.window="selectedEvent = $event.detail; $dispatch('open-event-detail-modal')"
         @open-create-modal.window="openCreate($event.detail.date, $event.detail.time)"
-        @open-edit-modal.window="openEdit($event.detail)">
+        @open-edit-modal.window="openEdit($event.detail)"
+        @open-balinese-detail.window="selectedBalineseDate = $event.detail; $dispatch('open-balinese-detail-modal')">
 
         <div class="space-y-6">
             {{-- Header --}}
@@ -135,6 +136,8 @@
         {{-- Modals Partials --}}
         @include('admin.events.partials.detail-modal')
         @include('admin.events.partials.form-modal')
+        @include('admin.events.partials.balinese-detail-modal')
+        @include('admin.events.partials.balinese-month-list-modal')
 
         <x-map-style-modal zIndex="z-110" />
 

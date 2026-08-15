@@ -177,4 +177,35 @@
     .animate-fade-in-up {
         animation: fadeInUp 0.4s ease forwards;
     }
+
+    /* Balinese calendar markers: red-letter number (Sunday/hari raya besar/libur nasional)
+       plus a small Purnama (red) / Tilem (black) dot beside the date, like a physical Bali calendar */
+    .fc-daygrid-day-top {
+        align-items: center !important;
+    }
+
+    .fc-daygrid-day-number {
+        cursor: pointer;
+    }
+
+    .fc-daygrid-day-number.bali-red-number {
+        color: #dc2626 !important;
+        font-weight: 800 !important;
+    }
+
+    .bali-dot {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        margin: 0 3px;
+        border-radius: 9999px;
+    }
+
+    .bali-dot-purnama {
+        background-color: #dc2626;
+    }
+
+    .bali-dot-tilem {
+        background-color: #191A19;
+    }
 </style>
