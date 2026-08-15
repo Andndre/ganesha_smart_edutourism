@@ -29,6 +29,9 @@ services:
       - penglipuran-ors
       - penglipuran-redis
       - penglipuran-libretranslate
+    # ponytail: pagar keras biar tidak rebutan RAM VPS dengan project lain di server yang sama.
+    mem_limit: 512m
+    cpus: 1
     networks:
       - penglipuran-network
 
@@ -45,6 +48,8 @@ services:
     depends_on:
       - penglipuran-db
       - penglipuran-redis
+    mem_limit: 256m
+    cpus: 0.5
     networks:
       - penglipuran-network
 
@@ -73,6 +78,8 @@ services:
     depends_on:
       - penglipuran-db
       - penglipuran-redis
+    mem_limit: 256m
+    cpus: 0.5
     networks:
       - penglipuran-network
 
@@ -95,6 +102,8 @@ services:
       - "127.0.0.1:${FORWARD_DB_PORT:-3306}:3306"
     volumes:
       - penglipuran-db-data:/var/lib/mysql
+    mem_limit: 1g
+    cpus: 1
     networks:
       - penglipuran-network
 
@@ -102,12 +111,16 @@ services:
     image: redis:7-alpine
     container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-redis
     restart: unless-stopped
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    # ponytail: maxmemory diset di bawah mem_limit container biar redis evict sendiri (LRU)
+    # daripada di-OOM-kill Docker saat data mendekati limit.
+    command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory 200mb --maxmemory-policy allkeys-lru
     ports:
       # ponytail: bind ke loopback saja, sama alasan seperti db di atas.
       - "127.0.0.1:${FORWARD_REDIS_PORT:-6379}:6379"
     volumes:
       - penglipuran-redis-data:/data
+    mem_limit: 256m
+    cpus: 0.5
     networks:
       - penglipuran-network
 
@@ -135,6 +148,9 @@ services:
       - XMS=512m
       - XMX=1g
       - ORS_CONFIG_LOCATION=/home/ors/config/ors-config.yml
+    # ponytail: pagar keras di atas XMX=1g (heap JVM) biar container tidak rebutan RAM host.
+    mem_limit: 1500m
+    cpus: 1.5
     networks:
       - penglipuran-network
 
@@ -156,6 +172,9 @@ services:
     volumes:
       # Persist downloaded en<->id models so rebuilds don't re-download them
       - penglipuran-libretranslate-models:/home/libretranslate/.local/share/argos-translate
+    # ponytail: pagar keras, model EN<->ID saja butuh ~200MB idle.
+    mem_limit: 512m
+    cpus: 1
     networks:
       - penglipuran-network
 
@@ -177,6 +196,8 @@ services:
       UPLOAD_LIMIT: 64M
     depends_on:
       - penglipuran-db
+    mem_limit: 128m
+    cpus: 0.25
     networks:
       - penglipuran-network
 
