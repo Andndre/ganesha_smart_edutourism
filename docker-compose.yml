@@ -91,7 +91,8 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD:-999}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password_here}
     ports:
-      - "${FORWARD_DB_PORT:-3306}:3306"
+      # ponytail: bind ke loopback saja, Laravel pakai jaringan internal; akses dari lokal lewat SSH tunnel.
+      - "127.0.0.1:${FORWARD_DB_PORT:-3306}:3306"
     volumes:
       - penglipuran-db-data:/var/lib/mysql
     networks:
@@ -101,8 +102,10 @@ services:
     image: redis:7-alpine
     container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-redis
     restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     ports:
-      - "${FORWARD_REDIS_PORT:-6379}:6379"
+      # ponytail: bind ke loopback saja, sama alasan seperti db di atas.
+      - "127.0.0.1:${FORWARD_REDIS_PORT:-6379}:6379"
     volumes:
       - penglipuran-redis-data:/data
     networks:
@@ -126,7 +129,9 @@ services:
       - ./openrouteservice/files:/home/ors/files
       - ./openrouteservice/logs:/home/ors/logs
     environment:
-      - BUILD_GRAPHS=True
+      # ponytail: matikan setelah graph pertama sukses dibuild di ./openrouteservice/graphs;
+      # True bikin rebuild (berat, menit-an CPU/RAM) tiap kali container restart.
+      - BUILD_GRAPHS=False
       - XMS=512m
       - XMX=1g
       - ORS_CONFIG_LOCATION=/home/ors/config/ors-config.yml
