@@ -26,6 +26,9 @@ class ChunkedUploader {
         this.statusIcon =
             opts.progressContainer?.querySelector(".tus-status-icon");
 
+        // Store original name attribute of the input so we can remove/restore it
+        this.originalInputName = opts.input?.getAttribute('name');
+
         // Find submit button — explicit or first [type="submit"] in form
         const form = opts.progressContainer?.closest("form");
         this.submitBtn =
@@ -52,8 +55,8 @@ class ChunkedUploader {
                     return;
                 }
 
-                // If chunked upload was completed and hiddenInput has value, disable the file input
-                // so the browser does NOT send the large binary file again in the multipart form POST payload.
+                // If chunked upload was completed and hiddenInput has value, disable/strip the raw file input
+                // so the browser does NOT send the large binary file again in the multipart form POST payload!
                 form._tusUploaders.forEach((u) => {
                     if (
                         u.opts.hiddenInput &&
@@ -61,6 +64,7 @@ class ChunkedUploader {
                         u.opts.input
                     ) {
                         u.opts.input.disabled = true;
+                        u.opts.input.removeAttribute('name');
                     }
                 });
             });
@@ -72,6 +76,9 @@ class ChunkedUploader {
     onFileSelect() {
         if (this.opts.input) {
             this.opts.input.disabled = false;
+            if (this.originalInputName) {
+                this.opts.input.setAttribute('name', this.originalInputName);
+            }
         }
         const file = this.opts.input.files[0];
         if (!file) return;
@@ -134,6 +141,9 @@ class ChunkedUploader {
                 this.state = "complete";
                 this.showComplete(file.name);
                 this.disableSubmit(false);
+                if (this.opts.input && this.originalInputName) {
+                    this.opts.input.removeAttribute('name');
+                }
                 this.opts.onComplete?.(uuid + "." + ext);
             },
             onError: (error) => {

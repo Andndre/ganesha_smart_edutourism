@@ -620,7 +620,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
-    <script src="{{ asset('js/chunked-upload.js') }}"></script>
+    <script src="{{ asset('js/chunked-upload.js') }}?v={{ file_exists(public_path('js/chunked-upload.js')) ? filemtime(public_path('js/chunked-upload.js')) : time() }}"></script>
     @include('admin.partials.translate-button')
     @livewireScripts
     @stack('scripts')
