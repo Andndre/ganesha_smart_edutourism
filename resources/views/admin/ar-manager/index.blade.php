@@ -261,7 +261,8 @@
             });
         }
 
-        // Intercept form submit — inject thumbnail data and strip binary files if chunked upload was used
+        // Intercept form submit — inject thumbnail data.
+        // Form ini submit native, jadi ChunkedUploader yang men-disable file input mentahnya.
         document.addEventListener('DOMContentLoaded', () => {
             modelForm?.addEventListener('submit', function() {
                 if (pendingThumbnailData) {
@@ -274,20 +275,6 @@
                         this.appendChild(input);
                     }
                     input.value = pendingThumbnailData;
-                }
-
-                // If chunked upload was completed, remove name and disable raw file inputs
-                const tmpGlb = document.getElementById('model-field-tmp-glb');
-                const glbInput = document.getElementById('model-field-glb-file');
-                if (tmpGlb && tmpGlb.value && glbInput) {
-                    glbInput.disabled = true;
-                    glbInput.removeAttribute('name');
-                }
-                const tmpUsdz = document.getElementById('model-field-tmp-usdz');
-                const usdzInput = document.getElementById('model-field-usdz-file');
-                if (tmpUsdz && tmpUsdz.value && usdzInput) {
-                    usdzInput.disabled = true;
-                    usdzInput.removeAttribute('name');
                 }
             });
         });
@@ -318,14 +305,12 @@
             if (glbInput) {
                 glbInput.value = "";
                 glbInput.disabled = false;
-                glbInput.setAttribute('name', 'model_3d_file');
             }
             document.getElementById('glb-required-asterisk').style.display = 'inline';
             const usdzInput = document.getElementById('model-field-usdz-file');
             if (usdzInput) {
                 usdzInput.value = "";
                 usdzInput.disabled = false;
-                usdzInput.setAttribute('name', 'model_3d_usdz_file');
             }
             document.getElementById('model-field-audio-file-en').value = "";
             document.getElementById('model-field-audio-file-id').value = "";
@@ -374,7 +359,6 @@
             if (glbInput) {
                 glbInput.value = "";
                 glbInput.disabled = false;
-                glbInput.setAttribute('name', 'model_3d_file');
                 glbInput.required = false;
             }
             document.getElementById('glb-required-asterisk').style.display = 'none';
@@ -382,7 +366,6 @@
             if (usdzInput) {
                 usdzInput.value = "";
                 usdzInput.disabled = false;
-                usdzInput.setAttribute('name', 'model_3d_usdz_file');
             }
             document.getElementById('model-field-audio-file-en').value = "";
             document.getElementById('model-field-audio-file-id').value = "";

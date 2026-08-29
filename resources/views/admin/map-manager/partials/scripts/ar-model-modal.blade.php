@@ -30,8 +30,9 @@
 
     // Global submit handler for model form — called via onsubmit=window.submitModelForm(event)
     window.submitModelForm = async function(e) {
-        e
-    .preventDefault(); // Must be synchronous before any await — async return value is a Promise (truthy), so onsubmit="return ..." cannot prevent submit
+        // Harus sinkron sebelum await mana pun — nilai balik async adalah Promise (truthy),
+        // jadi onsubmit="return ..." tidak bisa mencegah submit.
+        e.preventDefault();
         console.log('[AR-MODEL] submitModelForm called, preventDefault done');
 
         // Inject thumbnail data if captured
