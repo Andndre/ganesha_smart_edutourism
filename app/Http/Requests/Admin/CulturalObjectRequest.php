@@ -42,9 +42,6 @@ class CulturalObjectRequest extends FormRequest
             'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
             // mimetypes (content-sniffed) + extensions (filename) instead of `mimes`: .m4a
             // is frequently sniffed as audio/mp4 or video/mp4, which `mimes:m4a` rejects.
-            'audio_narration_file' => ['nullable', 'array'],
-            'audio_narration_file.en' => ['nullable', 'file', 'mimetypes:audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,video/mp4', 'extensions:mp3,ogg,wav,m4a', 'max:10240'],
-            'audio_narration_file.id' => ['nullable', 'file', 'mimetypes:audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,video/mp4', 'extensions:mp3,ogg,wav,m4a', 'max:10240'],
             'cultural_audio_file' => ['nullable', 'array'],
             'cultural_audio_file.en' => ['nullable', 'file', 'mimetypes:audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,video/mp4', 'extensions:mp3,ogg,wav,m4a', 'max:10240'],
             'cultural_audio_file.id' => ['nullable', 'file', 'mimetypes:audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,video/mp4', 'extensions:mp3,ogg,wav,m4a', 'max:10240'],

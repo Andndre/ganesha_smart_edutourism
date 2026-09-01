@@ -278,37 +278,6 @@ class AdminTest extends TestCase
         // model_3d_path should NOT be changed (no file uploaded)
         $this->assertEquals('models/name_only.glb', $nameOnlyModel->model_3d_path);
 
-        // 5. Create with AR model + audio file replacement
-        $audioModel = ArModel::create([
-            'name' => ['en' => 'Audio Model', 'id' => 'Model Audio'],
-            'description' => ['en' => 'Audio desc', 'id' => 'Deskripsi audio'],
-            'model_3d_path' => 'models/audio_model.glb',
-            'audio_narration_paths' => ['en' => 'audio/old_audio.mp3'],
-        ]);
-
-        $newAudio = UploadedFile::fake()->create('new_audio.mp3', 150);
-        $responseAudioEdit = $this->actingAs($this->adminUser)
-            ->post(route('admin.cultural-objects.store'), [
-                'name' => ['en' => 'Audio Replace Test', 'id' => 'Tes Ganti Audio'],
-                'category' => 'parahyangan',
-                'short_description' => ['en' => 'Audio replace', 'id' => 'Ganti audio'],
-                'description' => ['en' => 'Testing audio replacement.', 'id' => 'Menguji penggantian audio.'],
-                'latitude' => -8.6,
-                'longitude' => 115.6,
-                'ar_model_id' => (string) $audioModel->id,
-                'new_model_name' => ['en' => 'Audio Model Updated'],
-                'audio_narration_file' => ['en' => $newAudio],
-            ]);
-        $responseAudioEdit->assertRedirect();
-
-        $audioModel->refresh();
-        $this->assertEquals('Audio Model Updated', $audioModel->getTranslation('name', 'en'));
-        $this->assertNotNull($audioModel->audio_narration_path);
-        $this->assertNotEquals('audio/old_audio.mp3', $audioModel->audio_narration_path);
-        Storage::disk('public')->assertMissing('audio/old_audio.mp3');
-        // model_3d_path should be unchanged (no new GLB uploaded)
-        $this->assertEquals('models/audio_model.glb', $audioModel->model_3d_path);
-
         // Save ID before delete to assert missing later
         $objectId = $object->id;
 
