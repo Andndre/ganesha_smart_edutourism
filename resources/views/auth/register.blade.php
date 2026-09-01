@@ -30,7 +30,7 @@
                 <label for="name" class="text-sm font-semibold text-gray-700">{{ __('Nama Lengkap') }}</label>
                 <input type="text" id="name" name="name" value="{{ old('name') }}"
                     class="focus:border-primary focus:ring-primary/50 w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:outline-none focus:ring-1"
-                    placeholder="{{ __('Contoh: Andre Kusuma') }}" required>
+                    placeholder="{{ __('Masukkan nama lengkap') }}" required>
             </div>
 
             <div class="space-y-1.5">
