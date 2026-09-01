@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CapacityZone;
+use App\Models\UmkmProfile;
 use App\Models\WeatherReport;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
@@ -50,9 +51,25 @@ class HomeController extends Controller
             }
         }
 
+        // ponytail: rotasi acak yang di-cache per jam, bukan UmkmRecommendationService —
+        // service itu butuh categoryIds dan menulis last_recommended_at, yang tidak pantas
+        // dijalankan pada setiap kunjungan beranda.
+        $locale = app()->getLocale();
+        $featuredUmkm = Cache::tags(['explore', 'umkm'])->flexible(
+            "home_featured_umkm_array_{$locale}",
+            [600, 1800],
+            fn () => UmkmProfile::active()
+                ->with('user:id,name')
+                ->inRandomOrder()
+                ->limit(8)
+                ->get()
+                ->toArray()
+        );
+
         return view('home', \compact(
             'densityText', 'densityClass', 'densityBg', 'weather',
-            'totalCurrent', 'totalMax', 'densityStatus', 'warningThreshold', 'criticalThreshold'
+            'totalCurrent', 'totalMax', 'densityStatus', 'warningThreshold', 'criticalThreshold',
+            'featuredUmkm'
         ));
     }
 }
