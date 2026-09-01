@@ -241,9 +241,11 @@
         {{-- Konten: tanpa ini beranda hanya berisi chrome navigasi --}}
         @if (!empty($featuredUmkm))
             <section class="mb-6 mt-6">
-                <div class="mb-3 flex items-baseline justify-between px-4 md:px-8">
+                <div class="mb-1 flex items-center justify-between px-4 md:px-8">
                     <h3 class="text-base font-bold text-gray-800">{{ __('UMKM Desa') }}</h3>
-                    <a href="{{ route('umkm') }}" class="text-primary text-xs font-bold">{{ __('Lihat semua') }}</a>
+                    {{-- -me-3 supaya teks tetap rata kanan meski area sentuhnya diperlebar --}}
+                    <a href="{{ route('umkm') }}"
+                        class="tap-target -me-3 flex min-h-11 items-center px-3 text-xs font-bold text-primary">{{ __('Lihat semua') }}</a>
                 </div>
 
                 {{-- Padding ditaruh di item (first:ms-*/last:me-*), bukan di container.
