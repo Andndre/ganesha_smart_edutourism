@@ -111,19 +111,16 @@
         @else
             <a href="{{ route('login') }}" wire:navigate
                 class="tap-target {{ $isLogin ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-500 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
-                @if ($isLogin)
-                    <svg class="h-6 w-6 shrink-0 scale-[1.077]" viewBox="0 0 24 24" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5a1.5 1.5 0 001.5 1.5h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm10.72 4.72a.75.75 0 011.06 0l3 3a.75.75 0 010 1.06l-3 3a.75.75 0 11-1.06-1.06l1.72-1.72H9a.75.75 0 010-1.5h10.94l-1.72-1.72a.75.75 0 010-1.06z"
-                            clip-rule="evenodd" />
-                    </svg>
-                @else
-                    <svg class="h-6 w-6 shrink-0 transition-colors duration-200" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-                    </svg>
-                @endif
+                {{-- arrow-right-end-on-rectangle: kepala panah masuk ke dalam pintu.
+                     Sebelumnya memakai glyph keluar (arrow-right-start-on-rectangle),
+                     yang berlawanan arti dengan label "Masuk". Satu varian outline saja
+                     untuk kedua state — skrip di layouts/app.blade.php sudah menaikkan
+                     stroke-width ke 2.5 saat tab aktif. --}}
+                <svg class="h-6 w-6 shrink-0 transition-colors duration-200" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="{{ $isLogin ? '2.5' : '1.5' }}">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M8.25 9 V5.25 A2.25 2.25 0 0 1 10.5 3 h6 a2.25 2.25 0 0 1 2.25 2.25 v13.5 a2.25 2.25 0 0 1 -2.25 2.25 h-6 a2.25 2.25 0 0 1 -2.25 -2.25 V15 M12 9 l3 3 m0 0 l-3 3 m3 -3 H2.25" />
+                </svg>
                 <span class="text-[11px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('Masuk') }}</span>
             </a>
         @endauth
