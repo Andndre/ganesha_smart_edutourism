@@ -130,7 +130,6 @@ class CulturalObjectController extends Controller
             $validated['new_model_description'],
             $validated['model_3d_file'],
             $validated['model_3d_usdz_file'],
-            $validated['audio_narration_file'],
             $validated['cultural_audio_file']
         );
 
@@ -162,10 +161,8 @@ class CulturalObjectController extends Controller
         $arModelId = $request->input('ar_model_id');
         $arMarkerId = $request->input('ar_marker_id');
 
-        $hasArAudio = collect(['en', 'id'])->contains(fn ($l) => $request->hasFile("audio_narration_file.$l"));
-
         $shouldCreateNewModel = $arModelId === 'new' ||
-            (empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file') || $hasArAudio));
+            (empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file')));
 
         if ($shouldCreateNewModel) {
             $submittedName = $request->input('new_model_name', []);
@@ -191,10 +188,6 @@ class CulturalObjectController extends Controller
             if ($request->hasFile('model_3d_usdz_file')) {
                 $modelData['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')
                     ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
-            }
-            $arAudioPaths = $this->replaceLocalizedAudio($request, 'audio_narration_file', []);
-            if ($arAudioPaths) {
-                $modelData['audio_narration_paths'] = $arAudioPaths;
             }
             if ($request->filled('ar_marker_patt_content') && $arMarkerId) {
                 $pattPath = 'ar-markers/'.$arMarkerId.'.patt';
@@ -232,9 +225,6 @@ class CulturalObjectController extends Controller
                         $request->file('model_3d_usdz_file'), 'models_usdz', $arModel->model_3d_usdz_path, Str::random(40).'.usdz'
                     );
                 }
-
-                $existingAudioPaths = $this->replaceLocalizedAudio($request, 'audio_narration_file', $arModel->audio_narration_paths ?? []);
-                $modelData['audio_narration_paths'] = $existingAudioPaths ?: null;
 
                 $arModel->update($modelData);
             }
@@ -301,7 +291,6 @@ class CulturalObjectController extends Controller
             $validated['new_model_description'],
             $validated['model_3d_file'],
             $validated['model_3d_usdz_file'],
-            $validated['audio_narration_file'],
             $validated['cultural_audio_file']
         );
 
@@ -328,10 +317,8 @@ class CulturalObjectController extends Controller
         $arModelId = $request->input('ar_model_id');
         $arMarkerId = $request->input('ar_marker_id');
 
-        $hasArAudio = collect(['en', 'id'])->contains(fn ($l) => $request->hasFile("audio_narration_file.$l"));
-
         $shouldCreateNewModel = $arModelId === 'new' ||
-            ($arModelId !== 'none' && empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file') || $hasArAudio));
+            ($arModelId !== 'none' && empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file')));
 
         if ($shouldCreateNewModel) {
             // Detach any model the object currently owns first — arModel() is a hasOne,
@@ -362,10 +349,6 @@ class CulturalObjectController extends Controller
             if ($request->hasFile('model_3d_usdz_file')) {
                 $modelData['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')
                     ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
-            }
-            $arAudioPaths = $this->replaceLocalizedAudio($request, 'audio_narration_file', []);
-            if ($arAudioPaths) {
-                $modelData['audio_narration_paths'] = $arAudioPaths;
             }
             if ($request->filled('ar_marker_patt_content') && $arMarkerId) {
                 $pattPath = 'ar-markers/'.$arMarkerId.'.patt';
@@ -403,8 +386,6 @@ class CulturalObjectController extends Controller
                         $request->file('model_3d_usdz_file'), 'models_usdz', $arModel->model_3d_usdz_path, Str::random(40).'.usdz'
                     );
                 }
-
-                $modelData['audio_narration_paths'] = $this->replaceLocalizedAudio($request, 'audio_narration_file', $arModel->audio_narration_paths ?? []) ?: null;
 
                 $arModel->update($modelData);
             }
