@@ -246,10 +246,13 @@
                     <a href="{{ route('umkm') }}" class="text-primary text-xs font-bold">{{ __('Lihat semua') }}</a>
                 </div>
 
-                <div class="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 md:px-8">
+                {{-- Padding ditaruh di item (first:ms-*/last:me-*), bukan di container.
+                     Padding akhir pada container overflow-x yang juga flex sering diabaikan
+                     mesin render, sehingga kartu terakhir menempel ke tepi layar. --}}
+                <div class="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 scroll-px-4 md:scroll-px-8">
                     @foreach ($featuredUmkm as $item)
                         <a href="{{ route('umkm.store', $item['id']) }}"
-                            class="w-40 shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-transform active:scale-[0.98]">
+                            class="w-40 shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-transform first:ms-4 last:me-4 active:scale-[0.98] md:first:ms-8 md:last:me-8">
                             <div class="relative aspect-video bg-gray-100">
                                 @if (!empty($item['image_path']))
                                     <img src="{{ asset('storage/' . $item['image_path']) }}"
