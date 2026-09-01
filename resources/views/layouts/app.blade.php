@@ -248,15 +248,17 @@
                     else if (isLogin && (currentPath.startsWith('/login') || currentPath.startsWith('/register')))
                         isActive = true;
 
-                    const svg = link.querySelector('svg');
+                    // stroke-width sengaja tidak disentuh di sini. Blade menetapkan nilai
+                    // per tab (1.5, dan 1.35 untuk Profil karena ikonnya di-scale 110%),
+                    // jadi satu nilai tunggal di JS pasti salah untuk sebagian tab.
+                    // Livewire merender ulang seluruh body saat navigasi, sehingga nilai
+                    // dari server sudah benar dan tidak perlu ditimpa.
                     if (isActive) {
                         link.classList.remove('text-gray-500', 'hover:text-gray-600', 'lg:hover:bg-gray-100');
                         link.classList.add('text-primary', 'lg:bg-primary/10', 'lg:text-primary-700');
-                        if (svg) svg.setAttribute('stroke-width', '2.5');
                     } else {
                         link.classList.remove('text-primary', 'lg:bg-primary/10', 'lg:text-primary-700');
                         link.classList.add('text-gray-500', 'hover:text-gray-600', 'lg:hover:bg-gray-100');
-                        if (svg) svg.setAttribute('stroke-width', '2');
                     }
                 });
             }
