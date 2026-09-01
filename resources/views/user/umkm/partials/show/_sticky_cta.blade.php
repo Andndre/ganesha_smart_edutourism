@@ -24,9 +24,8 @@
                 </a>
             @else
                 <button disabled
-                    class="flex-1 bg-gray-300 text-white font-bold h-12 rounded-xl cursor-not-allowed"
-                    title="{{ __('Penjual belum mencantumkan nomor kontak') }}">
-                    {{ __('Hubungi Penjual') }}
+                    class="flex-1 bg-gray-100 text-gray-600 border border-gray-200 font-bold h-12 rounded-xl cursor-not-allowed">
+                    {{ __('Kontak belum tersedia') }}
                 </button>
             @endif
         </div>

@@ -67,7 +67,7 @@
     {{-- Search + Filter --}}
     <form id="tour-filters" method="GET" action="{{ route('admin.umkm') }}" class="mb-4 flex flex-col gap-3 sm:flex-row">
         <div class="relative flex-1">
-            <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24"
+            <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -90,17 +90,17 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-gray-100 bg-gray-50/50">
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                             Produk</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Toko
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Toko
                         </th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                             Kategori</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Harga
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Harga
                         </th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Stok
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Stok
                         </th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Aksi
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Aksi
                         </th>
                     </tr>
                 </thead>
@@ -112,7 +112,7 @@
                                     <p>{{ $p->display_name }}</p>
                                     @if (!$p->is_active)
                                         <span
-                                            class="mt-0.5 inline-block rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-400">Nonaktif</span>
+                                            class="mt-0.5 inline-block rounded bg-gray-100 px-1.5 py-0.5 text-[11px] font-semibold text-gray-500">Nonaktif</span>
                                     @endif
                                 </div>
                             </td>
@@ -125,7 +125,7 @@
                                 @if ($p->display_price !== null)
                                     Rp {{ number_format($p->display_price, 0, ',', '.') }}
                                 @else
-                                    <span class="text-xs italic text-gray-400">—</span>
+                                    <span class="text-xs italic text-gray-500">—</span>
                                 @endif
                             </td>
                             <td class="px-5 py-4">
@@ -134,7 +134,7 @@
                                         class="bg-warning/10 text-warning rounded-full px-2.5 py-0.5 text-xs font-bold">{{ $p->stock }}
                                         — Stok Rendah</span>
                                 @elseif ($p->stock === null)
-                                    <span class="text-gray-400 text-xs italic">{{ 'Tidak terbatas' }}</span>
+                                    <span class="text-gray-500 text-xs italic">{{ 'Tidak terbatas' }}</span>
                                 @else
                                     <span class="text-gray-600">{{ $p->stock }} {{ $p->display_unit }}</span>
                                 @endif
@@ -153,7 +153,7 @@
                                         'images' => $p->images,
                                         'is_active' => $p->is_active,
                                     ]) }})"
-                                        class="hover:bg-primary/10 hover:text-primary rounded-lg p-1.5 text-gray-400 transition-colors"
+                                        class="hover:bg-primary/10 hover:text-primary rounded-lg p-1.5 text-gray-500 transition-colors"
                                         title="Edit">
                                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                             stroke-width="2">
@@ -167,7 +167,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
-                                            class="hover:bg-warning/10 hover:text-warning rounded-lg p-1.5 text-gray-400 transition-colors"
+                                            class="hover:bg-warning/10 hover:text-warning rounded-lg p-1.5 text-gray-500 transition-colors"
                                             title="Hapus">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                                 stroke-width="2">
@@ -181,7 +181,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td id="tour-empty-state" colspan="6" class="px-5 py-8 text-center text-gray-400">Belum ada
+                            <td id="tour-empty-state" colspan="6" class="px-5 py-8 text-center text-gray-500">Belum ada
                                 data produk UMKM.</td>
                         </tr>
                     @endforelse

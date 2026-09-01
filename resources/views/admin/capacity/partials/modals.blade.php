@@ -2,7 +2,7 @@
 <x-modal name="threshold-modal" maxWidth="2xl" desktopLayout="drawer">
     <div class="mb-4">
         <h3 class="font-display text-charcoal text-lg font-bold" id="modal-title">Edit Zone <span id="modal-zone-name"
-                class="text-gray-400"></span></h3>
+                class="text-gray-500"></span></h3>
     </div>
     <form id="modal-threshold-form" method="POST">
         @csrf
@@ -11,7 +11,7 @@
 
         <div class="space-y-4">
             <div>
-                <label for="modal-name" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Nama
+                <label for="modal-name" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Nama
                     Zona</label>
                 <input type="text" name="name" id="modal-name" required
                     class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
@@ -20,7 +20,7 @@
 
             <div id="identifier-group">
                 <label for="modal-identifier"
-                    class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Identifier
+                    class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Identifier
                     (unik)</label>
                 <input type="text" name="zone_identifier" id="modal-identifier"
                     class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
@@ -29,7 +29,7 @@
 
             <div>
                 <label for="modal-max-capacity"
-                    class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Kapasitas
+                    class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Kapasitas
                     Maksimal</label>
                 <input type="number" name="max_capacity" id="modal-max-capacity" required min="1"
                     class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
@@ -39,7 +39,7 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label for="modal-warning-threshold"
-                        class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Warning (%)</label>
+                        class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Warning (%)</label>
                     <input type="number" name="warning_threshold" id="modal-warning-threshold" required min="1"
                         max="100"
                         class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
@@ -47,7 +47,7 @@
                 </div>
                 <div>
                     <label for="modal-critical-threshold"
-                        class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Critical (%)</label>
+                        class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Critical (%)</label>
                     <input type="number" name="critical_threshold" id="modal-critical-threshold" required
                         min="1" max="100"
                         class="focus:border-primary focus:ring-primary text-charcoal w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm focus:outline-none focus:ring-1">
@@ -56,7 +56,7 @@
             </div>
 
             <div>
-                <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Area Zona
+                <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Area Zona
                     (Polygon)</label>
                 <p class="mb-2 text-xs text-gray-500">Gunakan alat gambar di map bawah ini untuk menentukan area zona.
                 </p>

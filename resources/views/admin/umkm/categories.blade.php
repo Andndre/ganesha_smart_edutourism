@@ -79,7 +79,7 @@
                         @endif
                     </div>
                     <h3 class="text-charcoal text-base font-semibold leading-tight">{{ $cat->name }}</h3>
-                    <p class="mb-2 mt-1 font-mono text-[10px] text-gray-400">{{ $cat->slug }}</p>
+                    <p class="mb-2 mt-1 font-mono text-[11px] text-gray-500">{{ $cat->slug }}</p>
                     <p class="min-h-15 mb-4 line-clamp-3 text-sm text-gray-500">
                         {{ $cat->description ? $cat->description : 'Tidak ada deskripsi.' }}</p>
                 </div>
@@ -87,11 +87,11 @@
                 <div>
                     <div class="flex items-center justify-between border-t border-gray-50 pt-3">
                         <div>
-                            <p class="text-xs text-gray-400">Total Produk</p>
+                            <p class="text-xs text-gray-500">Total Produk</p>
                             <p class="text-primary text-sm font-bold">{{ $cat->products_count }} produk</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-xs text-gray-400">Model 3D AR</p>
+                            <p class="text-xs text-gray-500">Model 3D AR</p>
                             @if ($cat->model_3d_path)
                                 <span class="text-primary mt-0.5 inline-flex items-center gap-1 text-xs font-semibold">
                                     <svg class="text-primary h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
@@ -102,7 +102,7 @@
                                     Tersedia
                                 </span>
                             @else
-                                <span class="mt-0.5 block text-xs italic text-gray-400">Tidak ada</span>
+                                <span class="mt-0.5 block text-xs italic text-gray-500">Tidak ada</span>
                             @endif
                         </div>
                     </div>
@@ -137,7 +137,7 @@
             </div>
         @empty
             <div id="tour-empty-state"
-                class="col-span-full rounded-2xl border border-dashed border-gray-200 p-8 text-center text-gray-400">
+                class="col-span-full rounded-2xl border border-dashed border-gray-200 p-8 text-center text-gray-500">
                 Belum ada data kategori produk. Klik "Tambah Kategori" untuk membuat baru.
             </div>
         @endforelse
@@ -228,12 +228,12 @@
                     <input type="file" name="image" id="field-image" accept="image/*"
                         onchange="previewCategoryImage(this)"
                         class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
-                    <span class="mt-1 block text-[10px] text-gray-400">Format gambar (jpg, jpeg, png), maks 2MB.</span>
+                    <span class="mt-1 block text-[11px] text-gray-500">Format gambar (jpg, jpeg, png), maks 2MB.</span>
                     @error('image')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
                     <div id="image-preview-container" class="mt-2.5 hidden">
-                        <span class="text-primary block text-[10px] font-bold uppercase tracking-wider">Gambar Saat
+                        <span class="text-primary block text-[11px] font-bold uppercase tracking-wider">Gambar Saat
                             Ini:</span>
                         <div class="relative mt-1 h-20 w-32 overflow-hidden rounded-lg border border-gray-200">
                             <img id="image-preview" src="" alt="Pratinjau" class="h-full w-full object-cover">
@@ -244,7 +244,7 @@
                     <label class="font-display block text-sm font-semibold text-gray-700">Model 3D (.glb)</label>
                     <input type="file" name="model_3d_file" id="field-model-3d" accept=".glb"
                         class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
-                    <span class="mt-1 block text-[10px] text-gray-400">Format model GLB (kompresi Draco didukung), maks
+                    <span class="mt-1 block text-[11px] text-gray-500">Format model GLB (kompresi Draco didukung), maks
                         20MB.</span>
                     @error('model_3d_file')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -253,20 +253,20 @@
                     <div id="model-3d-progress" class="tus-progress-container mt-2 hidden">
                         <div class="flex items-center gap-2">
                             <span class="tus-status-icon"></span>
-                            <span class="tus-progress-text flex-1 text-[10px] text-gray-500"></span>
+                            <span class="tus-progress-text flex-1 text-[11px] text-gray-500"></span>
                         </div>
                         <div class="mt-1 h-1 w-full overflow-hidden rounded-full bg-gray-200">
                             <div class="tus-progress-bar bg-primary h-full rounded-full transition-all duration-300"
                                 style="width:0"></div>
                         </div>
                     </div>
-                    <span id="current-model-3d" class="text-primary mt-1 block text-[10px] font-semibold"></span>
+                    <span id="current-model-3d" class="text-primary mt-1 block text-[11px] font-semibold"></span>
                 </div>
                 <div>
                     <label class="font-display block text-sm font-semibold text-gray-700">Model 3D iOS (.usdz)</label>
                     <input type="file" name="model_3d_usdz_file" id="field-model-3d-usdz" accept=".usdz"
                         class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
-                    <span class="mt-1 block text-[10px] text-gray-400">Format model USDZ untuk iOS Apple Quick Look, maks
+                    <span class="mt-1 block text-[11px] text-gray-500">Format model USDZ untuk iOS Apple Quick Look, maks
                         50MB.</span>
                     @error('model_3d_usdz_file')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -275,22 +275,22 @@
                     <div id="model-usdz-progress" class="tus-progress-container mt-2 hidden">
                         <div class="flex items-center gap-2">
                             <span class="tus-status-icon"></span>
-                            <span class="tus-progress-text flex-1 text-[10px] text-gray-500"></span>
+                            <span class="tus-progress-text flex-1 text-[11px] text-gray-500"></span>
                         </div>
                         <div class="mt-1 h-1 w-full overflow-hidden rounded-full bg-gray-200">
                             <div class="tus-progress-bar bg-primary h-full rounded-full transition-all duration-300"
                                 style="width:0"></div>
                         </div>
                     </div>
-                    <span id="current-model-3d-usdz" class="text-primary mt-1 block text-[10px] font-semibold"></span>
+                    <span id="current-model-3d-usdz" class="text-primary mt-1 block text-[11px] font-semibold"></span>
 
                     {{-- 3D Model Preview --}}
                     <div class="mt-2.5 rounded-2xl border border-dashed border-gray-200 bg-gray-50/50 p-3">
-                        <span class="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-gray-400">Pratinjau
+                        <span class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-gray-500">Pratinjau
                             Model 3D</span>
                         <div class="model-viewer-wrapper flex items-center justify-center">
                             <div id="modal-viewer-placeholder" class="p-4 text-center">
-                                <span class="text-xs text-gray-400">Pilih atau unggah file GLB untuk melihat model
+                                <span class="text-xs text-gray-500">Pilih atau unggah file GLB untuk melihat model
                                     3D</span>
                             </div>
                             <model-viewer id="modal-viewer-3d" class="hidden" camera-controls auto-rotate

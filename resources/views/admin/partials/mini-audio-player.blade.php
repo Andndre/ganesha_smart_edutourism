@@ -9,7 +9,7 @@
                 <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
             </svg>
         </button>
-        <span class="mini-audio-name min-w-0 flex-1 truncate text-[10px] text-gray-500" title=""></span>
+        <span class="mini-audio-name min-w-0 flex-1 truncate text-[11px] text-gray-500" title=""></span>
         <audio class="mini-audio-el" preload="none"></audio>
     </div>
 </div>

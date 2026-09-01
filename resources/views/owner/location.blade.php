@@ -65,7 +65,7 @@
             {{-- Map Container Card --}}
             <div id="tour-map-wrapper" class="lg:col-span-2 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
                 <div class="mb-3 flex items-center justify-between px-2">
-                    <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Peta Desa Wisata</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Peta Desa Wisata</span>
                     <span class="text-xs font-medium text-primary">Klik di mana saja pada peta atau geser pin untuk memperbarui
                         lokasi</span>
                 </div>
@@ -88,7 +88,7 @@
 
                         {{-- Latitude --}}
                         <div id="tour-coords">
-                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">Latitude</label>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-500">Latitude</label>
                             <input type="text" name="latitude" id="field-lat" readonly required
                                 value="{{ old('latitude', $location->latitude ?? '') }}"
                                 class="mt-1 w-full rounded-xl bg-gray-50 border border-gray-200 px-4 py-2.5 font-mono text-sm text-gray-500 focus:outline-none">
@@ -96,7 +96,7 @@
 
                         {{-- Longitude --}}
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">Longitude</label>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-500">Longitude</label>
                             <input type="text" name="longitude" id="field-lng" readonly required
                                 value="{{ old('longitude', $location->longitude ?? '') }}"
                                 class="mt-1 w-full rounded-xl bg-gray-50 border border-gray-200 px-4 py-2.5 font-mono text-sm text-gray-500 focus:outline-none">
@@ -111,7 +111,7 @@
                             <div>
                                 <label for="field-accessible" class="text-sm font-semibold text-gray-700">Akses Ramah
                                     Disabilitas</label>
-                                <p class="text-xs text-gray-400">Centang jika toko Anda memiliki akses ramah pengguna kursi roda
+                                <p class="text-xs text-gray-500">Centang jika toko Anda memiliki akses ramah pengguna kursi roda
                                     atau lansia.</p>
                             </div>
                         </div>

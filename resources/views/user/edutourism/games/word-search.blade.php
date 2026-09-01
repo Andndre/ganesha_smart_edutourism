@@ -49,5 +49,5 @@
         </button>
     </div>
 
-    <p x-show="!done" class="text-center text-xs text-gray-400">{{ __('Ketuk huruf pertama lalu huruf terakhir sebuah kata.') }}</p>
+    <p x-show="!done" class="text-center text-xs text-gray-500">{{ __('Ketuk huruf pertama lalu huruf terakhir sebuah kata.') }}</p>
 </div>

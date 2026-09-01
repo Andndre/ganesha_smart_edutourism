@@ -41,7 +41,7 @@
                 class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Produk</p>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Total Produk</p>
                         <p class="mt-2 font-display text-3xl font-bold text-charcoal">{{ $productCount }}</p>
                     </div>
                     <div class="rounded-xl bg-primary/10 p-3.5 text-primary">
@@ -61,7 +61,7 @@
                 class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Produk Aktif</p>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Produk Aktif</p>
                         <p class="mt-2 font-display text-3xl font-bold text-charcoal">{{ $activeProductCount }}</p>
                     </div>
                     <div class="rounded-xl bg-secondary/10 p-3.5 text-secondary">
@@ -81,7 +81,7 @@
                 class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Rating Toko</p>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Rating Toko</p>
                         <p class="mt-2 font-display text-3xl font-bold text-charcoal">
                             {{ number_format($profile->rating ?? 5.0, 1) }}
                         </p>
@@ -106,31 +106,31 @@
             <div class="grid gap-6 sm:grid-cols-2">
                 <div class="space-y-4">
                     <div>
-                        <span class="text-xs text-gray-400 block font-semibold uppercase">Nama Bisnis / Toko</span>
+                        <span class="text-xs text-gray-500 block font-semibold uppercase">Nama Bisnis / Toko</span>
                         <span class="text-base text-charcoal font-semibold">{{ $profile->business_name }}</span>
                     </div>
                     <div>
                         {{-- TODO: Pertimbangkan menambahkan fitur jadwal buka toko --}}
-                        <span class="text-xs text-gray-400 block font-semibold uppercase">Status Toko</span>
+                        <span class="text-xs text-gray-500 block font-semibold uppercase">Status Toko</span>
                         @if ($profile->is_active)
                             <span
                                 class="inline-flex items-center gap-1.5 rounded-lg bg-secondary/10 px-2.5 py-1 text-xs font-bold text-secondary">Buka
                                 / Aktif</span>
                         @else
                             <span
-                                class="inline-flex items-center gap-1.5 rounded-lg bg-gray-150 px-2.5 py-1 text-xs font-bold text-gray-500">Tutup
+                                class="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-600">Tutup
                                 / Nonaktif</span>
                         @endif
                     </div>
                 </div>
                 <div class="space-y-4">
                     <div>
-                        <span class="text-xs text-gray-400 block font-semibold uppercase">Deskripsi Toko</span>
+                        <span class="text-xs text-gray-500 block font-semibold uppercase">Deskripsi Toko</span>
                         <p class="text-sm text-gray-600 leading-relaxed">{!! $profile->description ?? 'Belum ada deskripsi.' !!}
                         </p>
                     </div>
                     <div>
-                        <span class="text-xs text-gray-400 block font-semibold uppercase">Lokasi Koordinat Peta</span>
+                        <span class="text-xs text-gray-500 block font-semibold uppercase">Lokasi Koordinat Peta</span>
                         @if ($profile->mapLocation)
                             <span class="text-sm font-mono text-gray-600 block">Lat: {{ $profile->mapLocation->latitude }}, Lng:
                                 {{ $profile->mapLocation->longitude }}</span>

@@ -40,7 +40,7 @@
                     <option value="cultural_adventure" {{ $selectedGk === 'cultural_adventure' ? 'selected' : '' }}>Cultural Adventure</option>
                     <option value="eco_quest" {{ $selectedGk === 'eco_quest' ? 'selected' : '' }}>Eco Quest</option>
                 </select>
-                <p class="mt-1 text-xs text-gray-400">Menentukan badge, collectible &amp; avatar. Aman diubah tanpa mengganggu nama rute.</p>
+                <p class="mt-1 text-xs text-gray-500">Menentukan badge, collectible &amp; avatar. Aman diubah tanpa mengganggu nama rute.</p>
             </div>
             <div class="flex flex-col gap-2 justify-end pb-1.5">
                 <label class="relative flex items-center gap-2 cursor-pointer select-none">

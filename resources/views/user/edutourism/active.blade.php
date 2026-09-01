@@ -141,7 +141,7 @@
                 <div class="flex items-center gap-2">
                     <div class="text-right">
                         <span class="text-primary text-xl font-black leading-none">{{ $activeSession->total_score }}</span>
-                        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">{{ __('Poin') }}</p>
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500">{{ __('Poin') }}</p>
                     </div>
                     <button type="button" id="btn-stop-route" onclick="stopRoute()"
                         aria-label="{{ __('Berhenti dari Rute?') }}"
@@ -161,7 +161,7 @@
                 <div class="sheet-slide-up pointer-events-auto rounded-t-[2.5rem] bg-white p-6 shadow-2xl md:rounded-b-3xl"
                     style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
                     <div class="mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-gray-200"></div>
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">{{ __('Tujuan Saat Ini') }}</h3>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">{{ __('Tujuan Saat Ini') }}</h3>
                     <h2 class="text-charcoal mt-1 text-xl font-black">
                         {{ $activeSession->currentPoint->locationable->name ?? __('Titik Perhentian') }}</h2>
 
@@ -178,7 +178,7 @@
                         <div>
                             <p class="text-sm font-bold text-blue-900" id="distance-info">{{ __('Mencari lokasi GPS...') }}
                             </p>
-                            <p class="text-[10px] uppercase tracking-wider text-blue-700">
+                            <p class="text-[11px] uppercase tracking-wider text-blue-700">
                                 {{ __('Arahkan ke lokasi untuk membuka kuis') }}</p>
                         </div>
                     </div>
@@ -350,7 +350,7 @@
                                         d="M5 3h14v2h2v4a4 4 0 01-3.42 3.96A6.01 6.01 0 0113 16.92V19h3v2H8v-2h3v-2.08a6.01 6.01 0 01-4.58-3.96A4 4 0 013 9V5h2V3zm0 4v2a2 2 0 001.18 1.82A8.2 8.2 0 016 9V7H5zm14 0h-1v2c0 .61-.06 1.22-.18 1.82A2 2 0 0019 9V7z" />
                                 </svg>
                             </div>
-                            <p class="text-[10px] font-bold uppercase tracking-widest text-[#B8962E]">
+                            <p class="text-[11px] font-bold uppercase tracking-widest text-[#B8962E]">
                                 {{ __('Predikat Diraih') }}</p>
                             <p class="font-display text-charcoal mt-1 text-xl font-black">
                                 {{ $activeSession->badge_awarded }}</p>
@@ -436,7 +436,7 @@
                         @endif
                         @if ($activeSession->currentPoint->intro_audio_path)
                             <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                                <h3 class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">
+                                <h3 class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-500">
                                     {{ __('Audio Pengantar') }}</h3>
                                 <audio src="{{ route('audio.stream', $activeSession->currentPoint->intro_audio_path) }}"
                                     controls class="w-full"></audio>
@@ -444,7 +444,7 @@
                         @endif
                         @if ($activeSession->currentPoint->storytelling_content)
                             <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">
                                     {{ __('Tentang Titik Ini') }}</h3>
                                 <p class="font-display text-charcoal mt-2 text-base leading-relaxed">
                                     {{ $activeSession->currentPoint->storytelling_content }}</p>
@@ -476,9 +476,9 @@
                                 x-cloak>
                                 <div class="flex items-center justify-between">
                                     <span
-                                        class="rounded-lg border border-amber-100 bg-amber-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-amber-600">{{ __('Misi') }}
+                                        class="rounded-lg border border-amber-100 bg-amber-50 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-amber-600">{{ __('Misi') }}
                                         {{ $i + 1 }}</span>
-                                    <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">+
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-gray-500">+
                                         {{ $mission->points }} {{ __('poin maks.') }}</span>
                                 </div>
                                 <h3 class="font-display text-charcoal text-xl font-black">{{ $mission->title }}</h3>

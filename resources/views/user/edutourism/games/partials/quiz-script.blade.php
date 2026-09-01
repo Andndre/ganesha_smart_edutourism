@@ -112,7 +112,7 @@
                     // The right answer is always surfaced, even when it was not the one picked.
                     if (letter === this.answer) return 'border-emerald-500 bg-emerald-50 text-emerald-900 edu-shine';
                     if (this.chosen === letter) return 'border-red-400 bg-red-50 text-red-900 edu-shake edu-flash';
-                    return 'border-gray-100 bg-gray-50/70 text-gray-400';
+                    return 'border-gray-100 bg-gray-50/70 text-gray-500';
                 },
 
                 markClass(letter) {

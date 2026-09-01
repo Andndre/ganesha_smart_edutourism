@@ -12,7 +12,7 @@
                 <div>
                     <h2 class="text-charcoal text-xl font-bold">{{ $umkm->business_name }}</h2>
                     <p class="mt-1 flex items-center gap-1 text-sm text-gray-500">
-                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
@@ -20,7 +20,7 @@
                     </p>
                     <div class="mt-1.5 flex items-center gap-2">
                         <span
-                            class="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                            class="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider">
                             {{ __('Rekomendasi') }}
                         </span>
                     </div>

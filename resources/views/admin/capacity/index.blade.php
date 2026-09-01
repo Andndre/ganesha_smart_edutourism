@@ -153,7 +153,7 @@
         }
 
         function openThresholdModal(data) {
-            document.getElementById('modal-title').innerHTML = 'Edit Zona <span id="modal-zone-name" class="text-gray-400"></span>';
+            document.getElementById('modal-title').innerHTML = 'Edit Zona <span id="modal-zone-name" class="text-gray-500"></span>';
             document.getElementById('modal-zone-name').innerText = data.name;
             document.getElementById('modal-name').value = data.name;
             document.getElementById('modal-max-capacity').value = data.max_capacity;

@@ -15,15 +15,15 @@
 
     <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Objek Dinilai</p>
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Total Objek Dinilai</p>
             <p class="mt-1 text-2xl font-bold text-charcoal">{{ $stats['total_objects_rated'] }}</p>
         </div>
         <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Ulasan Masuk</p>
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Total Ulasan Masuk</p>
             <p class="mt-1 text-2xl font-bold text-charcoal">{{ $stats['total_ratings_count'] }}</p>
         </div>
         <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Rata-rata Rating Global</p>
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Rata-rata Rating Global</p>
             <p class="mt-1 text-2xl font-bold text-charcoal">{{ number_format($stats['global_avg_rating'], 1) }} / 5</p>
         </div>
     </div>
@@ -58,7 +58,7 @@
                         <div class="flex items-center justify-between text-sm">
                             <span class="font-medium">
                                 {{ $rating->user->name ?? 'Pengguna dihapus' }}
-                                <span class="font-normal text-gray-400">&middot; {{ $rating->created_at->diffForHumans() }}</span>
+                                <span class="font-normal text-gray-500">&middot; {{ $rating->created_at->diffForHumans() }}</span>
                             </span>
                             <div class="flex items-center gap-3">
                                 <div class="flex items-center gap-0.5 text-[#D4AF37]">

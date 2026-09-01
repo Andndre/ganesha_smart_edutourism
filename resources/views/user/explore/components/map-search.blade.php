@@ -1,13 +1,13 @@
 <div id="map-search-overlay" class="absolute inset-x-4 top-[env(safe-area-inset-top)] z-40 mt-4">
     <div
         class="flex h-14 items-center gap-3 rounded-full border border-white bg-white/90 px-5 shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-md">
-        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+        <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
         <input type="text" id="search-input" placeholder="{{ __('Cari objek budaya atau UMKM...') }}"
-            class="text-charcoal flex-1 bg-transparent text-sm font-medium placeholder-gray-400 outline-none" />
+            class="text-charcoal flex-1 bg-transparent text-sm font-medium placeholder-gray-500 outline-none" />
         <button type="button" id="btn-search-clear" aria-label="{{ __('Hapus pencarian') }}"
-            class="hidden shrink-0 rounded-full p-1 text-gray-400 transition-transform duration-150 active:scale-90">
+            class="hidden shrink-0 rounded-full p-1 text-gray-500 transition-transform duration-150 active:scale-90">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -32,9 +32,9 @@
     <div id="filter-panel"
         class="mt-3 hidden rounded-2xl border border-gray-100/50 bg-white/95 px-4 py-4 shadow-lg backdrop-blur-md transition-all duration-300">
         <div class="mb-3 flex items-center justify-between">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400">{{ __('Kategori Tempat') }}</p>
+            <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500">{{ __('Kategori Tempat') }}</p>
             <button type="button" id="btn-reset-filters"
-                class="text-primary hover:text-primary/80 text-[10px] font-extrabold transition-colors active:scale-95">{{ __('Reset') }}</button>
+                class="text-primary hover:text-primary/80 text-[11px] font-extrabold transition-colors active:scale-95">{{ __('Reset') }}</button>
         </div>
 
         <div class="grid grid-cols-2 gap-2.5">
@@ -218,6 +218,24 @@
                     });
                 }
             });
+            // Sembunyikan bottom nav saat keyboard naik — tanpa ini hasil pencarian
+            // terhimpit antara keyboard dan nav, hanya muat satu baris.
+            // Delegasi di document supaya tetap hidup lintas wire:navigate.
+            const isCompact = () => window.matchMedia('(max-width: 767px)').matches;
+            const bottomNav = () => document.querySelector('nav[role="navigation"]');
+            document.addEventListener('focusin', (e) => {
+                if (e.target.id === 'search-input' && isCompact()) {
+                    const nav = bottomNav();
+                    if (nav) nav.style.display = 'none';
+                }
+            });
+            document.addEventListener('focusout', (e) => {
+                if (e.target.id === 'search-input') {
+                    const nav = bottomNav();
+                    if (nav) nav.style.display = '';
+                }
+            });
+
             document.body.dataset.mapSearchListenersRegistered = 'true';
         }
     })();

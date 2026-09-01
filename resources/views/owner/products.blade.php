@@ -52,7 +52,7 @@
         {{-- Search + Filter --}}
         <form id="tour-search-filter" method="GET" action="{{ route('owner.products') }}" class="mb-6 flex max-w-6xl flex-col gap-3 sm:flex-row">
             <div class="relative flex-1">
-                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none"
+                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -72,7 +72,7 @@
 
         {{-- Products Grid --}}
         @if ($products->isEmpty())
-            <div id="tour-empty-state" class="max-w-6xl rounded-2xl border border-gray-100 bg-white p-8 text-center text-gray-400">
+            <div id="tour-empty-state" class="max-w-6xl rounded-2xl border border-gray-100 bg-white p-8 text-center text-gray-500">
                 {{ 'Belum ada produk terdaftar.' }}
             </div>
         @else
@@ -89,18 +89,18 @@
                                     <svg class="h-10 w-10 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                     </svg>
-                                    <span class="mt-2 text-[10px] font-bold uppercase tracking-widest opacity-60">{{ 'Tanpa Foto' }}</span>
+                                    <span class="mt-2 text-[11px] font-bold uppercase tracking-widest opacity-60">{{ 'Tanpa Foto' }}</span>
                                 </div>
                             @endif
 
                             <div class="absolute left-3 right-3 top-3 z-10 flex items-center justify-between">
-                                <span class="text-primary rounded-lg bg-white/95 px-2.5 py-1 text-[10px] font-bold shadow-sm backdrop-blur-sm">
+                                <span class="text-primary rounded-lg bg-white/95 px-2.5 py-1 text-[11px] font-bold shadow-sm backdrop-blur-sm">
                                     {{ translateValue($p->category?->name) ?? 'Lainnya' }}
                                 </span>
                                 @if ($p->is_active)
-                                    <span class="bg-secondary rounded-lg px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">{{ 'Aktif' }}</span>
+                                    <span class="bg-secondary rounded-lg px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">{{ 'Aktif' }}</span>
                                 @else
-                                    <span class="rounded-lg bg-gray-500 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">{{ 'Nonaktif' }}</span>
+                                    <span class="rounded-lg bg-gray-500 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">{{ 'Nonaktif' }}</span>
                                 @endif
                             </div>
                         </div>
@@ -115,22 +115,22 @@
 
                             <div class="mt-4 flex items-center justify-between border-t border-gray-50 pt-4">
                                 <div>
-                                    <span class="block text-[10px] font-semibold uppercase text-gray-400">{{ 'Harga' }}</span>
+                                    <span class="block text-[11px] font-semibold uppercase text-gray-500">{{ 'Harga' }}</span>
                                     <span class="text-charcoal text-base font-bold">
                                         @if ($p->display_price !== null)
                                             Rp {{ number_format($p->display_price, 0, ',', '.') }}
                                         @else
-                                            <span class="text-xs italic text-gray-400">{{ 'Belum diatur' }}</span>
+                                            <span class="text-xs italic text-gray-500">{{ 'Belum diatur' }}</span>
                                         @endif
                                     </span>
                                 </div>
 
                                 <div class="text-right">
-                                    <span class="block text-[10px] font-semibold uppercase text-gray-400">{{ 'Stok' }}</span>
+                                    <span class="block text-[11px] font-semibold uppercase text-gray-500">{{ 'Stok' }}</span>
                                     @if ($p->stock !== null && $p->stock <= 5)
                                         <span class="text-warning text-xs font-bold">{{ $p->stock }} ({{ 'Menipis' }})</span>
                                     @elseif ($p->stock === null)
-                                        <span class="text-xs font-semibold italic text-gray-400">{{ 'Tersedia' }}</span>
+                                        <span class="text-xs font-semibold italic text-gray-500">{{ 'Tersedia' }}</span>
                                     @else
                                         <span class="text-xs font-bold text-gray-600">{{ $p->stock }} {{ $p->display_unit }}</span>
                                     @endif
@@ -187,7 +187,7 @@
                         <div class="flex items-center justify-between gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
                             <div class="min-w-0">
                                 <p class="truncate font-semibold text-charcoal">{{ translateValue($cat->name) }}</p>
-                                <p class="text-[10px] font-bold uppercase tracking-wider {{ $editable ? 'text-primary' : 'text-warning' }}">
+                                <p class="text-[11px] font-bold uppercase tracking-wider {{ $editable ? 'text-primary' : 'text-warning' }}">
                                     {{ $editable ? 'Bisa diubah langsung' : 'Perlu izin admin' }}
                                 </p>
                             </div>
@@ -230,7 +230,7 @@
                         <input type="text" x-model="query" @focus="open = true" @click="open = true"
                             placeholder="{{ 'Cari kategori...' }}"
                             class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-                        <svg class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                         </svg>
                     </div>
@@ -242,12 +242,12 @@
                                 <img x-show="c.image_path" :src="`/storage/${c.image_path}`" class="h-8 w-8 rounded-lg object-cover">
                                 <div class="min-w-0 flex-1">
                                     <p class="truncate font-semibold text-charcoal" x-text="c.name"></p>
-                                    <p x-show="c.price !== null" class="text-[10px] text-gray-500">Rp <span x-text="Number(c.price).toLocaleString('id-ID')"></span></p>
+                                    <p x-show="c.price !== null" class="text-[11px] text-gray-500">Rp <span x-text="Number(c.price).toLocaleString('id-ID')"></span></p>
                                 </div>
                             </button>
                         </template>
                         <template x-if="filtered().length === 0">
-                            <p class="px-4 py-2.5 text-xs italic text-gray-400">{{ 'Tidak ada kategori cocok.' }}</p>
+                            <p class="px-4 py-2.5 text-xs italic text-gray-500">{{ 'Tidak ada kategori cocok.' }}</p>
                         </template>
                         <button type="button" @click="openCreate()"
                             class="flex w-full items-center gap-2 border-t border-gray-100 bg-primary/5 px-4 py-3 text-left text-sm font-bold text-primary hover:bg-primary/10">

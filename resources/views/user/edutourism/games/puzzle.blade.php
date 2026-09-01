@@ -41,7 +41,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div class="min-w-0">
-                    <p class="text-[10px] font-medium uppercase tracking-wide text-gray-400"
+                    <p class="text-[11px] font-medium uppercase tracking-wide text-gray-500"
                         x-text="timeLimit ? @js(__('Sisa Waktu')) : @js(__('Waktu'))"></p>
                     <p class="text-charcoal text-sm font-bold tabular-nums" x-text="timeLabel"></p>
                 </div>
@@ -51,7 +51,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4" />
                 </svg>
                 <div class="min-w-0">
-                    <p class="text-[10px] font-medium uppercase tracking-wide text-gray-400">{{ __('Langkah') }}</p>
+                    <p class="text-[11px] font-medium uppercase tracking-wide text-gray-500">{{ __('Langkah') }}</p>
                     <p class="text-charcoal text-sm font-bold tabular-nums" x-text="moves"></p>
                 </div>
             </div>
@@ -87,13 +87,13 @@
             <figure class="overflow-hidden rounded-2xl bg-white p-2 shadow-sm ring-1 ring-gray-100 sm:min-w-0 sm:flex-1 sm:basis-0">
                 {{-- No forced ratio: the img keeps its natural one, which is exactly the board's. --}}
                 <img :src="imageUrl" alt="{{ __('Contoh') }}" class="block w-full rounded-xl">
-                <figcaption class="pb-1 pt-2 text-center text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                <figcaption class="pb-1 pt-2 text-center text-[11px] font-bold uppercase tracking-wider text-gray-500">
                     {{ __('Contoh') }}
                 </figcaption>
             </figure>
         </div>
 
-        <p x-show="!done" class="text-center text-xs text-gray-400">
+        <p x-show="!done" class="text-center text-xs text-gray-500">
             {{ __('Ketuk satu kepingan lalu ketuk kepingan lain untuk menukar posisinya.') }}
         </p>
 

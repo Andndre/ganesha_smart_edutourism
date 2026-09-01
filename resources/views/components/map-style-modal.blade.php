@@ -14,6 +14,6 @@
                 <div class="py-2 text-sm font-semibold text-charcoal text-center">{{ __('Satelit') }}</div>
             </button>
         </div>
-        <p class="text-xs text-gray-400 text-center mt-4">{{ __('Pilih tampilan peta yang sesuai dengan kebutuhan Anda.') }}</p>
+        <p class="text-xs text-gray-500 text-center mt-4">{{ __('Pilih tampilan peta yang sesuai dengan kebutuhan Anda.') }}</p>
     </div>
 </x-modal>
