@@ -109,7 +109,32 @@
                 </div>
             </div>
         </section>
-        <section class="mb-6 mt-4 px-4 md:px-8 lg:mt-6">
+        {{-- Aksi utama. Peta & UMKM sengaja tidak diulang di sini: keduanya sudah
+             jadi tab di bottom nav, dan tab bar adalah navigasi primer. --}}
+        <section class="mt-5 px-4 md:px-8">
+            <a href="{{ route('edutourism.index') }}"
+                class="bg-primary shadow-primary/25 flex items-center gap-4 rounded-3xl p-5 shadow-lg transition-transform active:scale-[0.98]">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                    </svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <h3 class="text-base font-bold leading-tight text-white">{{ __('Mulai Edutourism') }}</h3>
+                    <p class="mt-1 text-xs leading-snug text-green-100">
+                        {{ __('Ikuti rute berpemandu keliling desa') }}</p>
+                </div>
+                <svg class="h-5 w-5 shrink-0 text-green-100" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+        </section>
+
+        {{-- Bento grid. 4 item = tepat satu baris penuh; Edutourism tidak diulang
+             di sini karena sudah jadi CTA utama di atas. --}}
+        <section class="mt-3 px-4 md:px-8">
             <div class="rounded-4xl w-full border border-slate-100 bg-white p-5 shadow-sm">
                 <div class="grid grid-cols-4 gap-x-2 gap-y-6 sm:grid-cols-6 lg:flex lg:flex-wrap lg:justify-start lg:gap-8">
                     <a href="{{ route('explore') }}"
@@ -130,24 +155,6 @@
                         </div>
                         <span
                             class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Peta') }}</span>
-                    </a>
-
-                    <a href="{{ route('edutourism.index') }}"
-                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                        <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
-                                <path d="M4 5.8C6.4 4.8 9 4.5 12 5.8V18.8C9 17.5 6.4 17.8 4 18.8V5.8Z" fill="#1565C0" />
-                                <path d="M4 5C6.4 4 9 3.7 12 5V18C9 16.7 6.4 17 4 18V5Z" fill="#2979FF" />
-                                <path d="M20 5.8C17.6 4.8 15 4.5 12 5.8V18.8C15 17.5 17.6 17.8 20 18.8V5.8Z" fill="#1565C0" />
-                                <path d="M20 5C17.6 4 15 3.7 12 5V18C15 16.7 17.6 17 20 18V5Z" fill="#448AFF" />
-                                <path d="M7 9H9.3M7 11.3H9.3M14.7 9H17M14.7 11.3H17" stroke="#fff" stroke-width="1"
-                                    stroke-linecap="round" opacity="0.85" />
-                                <path d="M10.8 3.2V9.5L12 8.5 13.2 9.5V3.2Z" fill="#E53935" />
-                            </svg>
-                        </div>
-                        <span
-                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Edutourism') }}</span>
                     </a>
 
                     <a href="{{ route('umkm') }}"
@@ -230,6 +237,46 @@
                 </div>
             </div>
         </section>
+
+        {{-- Konten: tanpa ini beranda hanya berisi chrome navigasi --}}
+        @if (!empty($featuredUmkm))
+            <section class="mb-6 mt-6">
+                <div class="mb-3 flex items-baseline justify-between px-4 md:px-8">
+                    <h3 class="text-base font-bold text-gray-800">{{ __('UMKM Desa') }}</h3>
+                    <a href="{{ route('umkm') }}" class="text-primary text-xs font-bold">{{ __('Lihat semua') }}</a>
+                </div>
+
+                <div class="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 md:px-8">
+                    @foreach ($featuredUmkm as $item)
+                        <a href="{{ route('umkm.store', $item['id']) }}"
+                            class="w-40 shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-transform active:scale-[0.98]">
+                            <div class="relative aspect-video bg-gray-100">
+                                @if (!empty($item['image_path']))
+                                    <img src="{{ asset('storage/' . $item['image_path']) }}"
+                                        alt="{{ translateValue($item['business_name']) }}" loading="lazy"
+                                        class="h-full w-full object-cover">
+                                @else
+                                    <div class="text-primary absolute inset-0 flex items-center justify-center opacity-50">
+                                        <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                            stroke-width="1.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M4 9h16l-1 11a1 1 0 01-1 1H6a1 1 0 01-1-1L4 9zm4 0V6a4 4 0 018 0v3" />
+                                        </svg>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="p-3">
+                                <h4 class="line-clamp-1 text-sm font-bold text-gray-800">
+                                    {{ translateValue($item['business_name']) }}</h4>
+                                @if (!empty($item['user']['name']))
+                                    <p class="mt-0.5 line-clamp-1 text-xs text-gray-500">{{ $item['user']['name'] }}</p>
+                                @endif
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </section>
+        @endif
     </div>
 
     @push('modals')
