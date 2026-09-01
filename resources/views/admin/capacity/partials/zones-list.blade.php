@@ -35,7 +35,7 @@
             <div class="mb-3 flex items-start justify-between gap-2">
                 <div>
                     <h3 class="text-charcoal font-semibold">{{ $zone['name'] }}</h3>
-                    <span class="text-[10px] text-gray-400">Limit: {{ $zone['warning_threshold'] }}% Warning /
+                    <span class="text-[11px] text-gray-500">Limit: {{ $zone['warning_threshold'] }}% Warning /
                         {{ $zone['critical_threshold'] }}% Critical</span>
                 </div>
                 <div class="flex items-center gap-2">
@@ -50,7 +50,7 @@
                                 'max_capacity' => $zone['max_capacity'],
                                 'polygon_coordinates' => $zone['polygon_coordinates'],
                             ]) }})"
-                            class="hover:text-primary text-gray-400 transition-colors focus:outline-none"
+                            class="hover:text-primary text-gray-500 transition-colors focus:outline-none"
                             title="Edit Zona">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -60,7 +60,7 @@
                         <form action="{{ route('admin.capacity.destroy', $zone['id']) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus zona ini?');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="hover:text-red-500 text-gray-400 transition-colors focus:outline-none" title="Hapus Zona">
+                            <button type="submit" class="hover:text-red-500 text-gray-500 transition-colors focus:outline-none" title="Hapus Zona">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
@@ -71,7 +71,7 @@
             </div>
             <div class="flex items-baseline gap-1">
                 <span data-zone-count class="text-charcoal text-3xl font-bold">{{ $zone['current_count'] }}</span>
-                <span class="font-medium text-gray-400">/ {{ $zone['max_capacity'] }} orang</span>
+                <span class="font-medium text-gray-500">/ {{ $zone['max_capacity'] }} orang</span>
             </div>
             <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-gray-100">
                 <div data-zone-bar class="{{ $barColor }} h-full rounded-full transition-all"

@@ -47,7 +47,7 @@
                         class="focus:border-primary focus:ring-primary/50 w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:outline-none focus:ring-1"
                         placeholder="{{ __('Minimal 8 karakter') }}" required>
                     <button type="button" id="toggle-password"
-                        class="absolute right-4 top-1/2 z-10 -translate-y-1/2 text-gray-400 focus:outline-none">
+                        class="absolute right-4 top-1/2 z-10 -translate-y-1/2 text-gray-500 focus:outline-none">
                         <!-- Eye Icon (Open) -->
                         <svg id="eye-open-pw" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                             stroke-width="2">
@@ -73,7 +73,7 @@
                         class="focus:border-primary focus:ring-primary/50 w-full rounded-2xl border border-gray-200 px-4 py-3.5 text-sm transition-all focus:outline-none focus:ring-1"
                         placeholder="{{ __('Ketik ulang password') }}" required>
                     <button type="button" id="toggle-password-conf"
-                        class="absolute right-4 top-1/2 z-10 -translate-y-1/2 text-gray-400 focus:outline-none">
+                        class="absolute right-4 top-1/2 z-10 -translate-y-1/2 text-gray-500 focus:outline-none">
                         <!-- Eye Icon (Open) -->
                         <svg id="eye-open-conf" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                             stroke-width="2">
@@ -117,7 +117,7 @@
             <div class="relative flex items-center">
                 <div class="grow border-t border-gray-200"></div>
                 <span
-                    class="mx-4 shrink-0 text-xs font-medium uppercase tracking-wider text-gray-400">{{ __('atau daftar dengan') }}</span>
+                    class="mx-4 shrink-0 text-xs font-medium uppercase tracking-wider text-gray-500">{{ __('atau daftar dengan') }}</span>
                 <div class="grow border-t border-gray-200"></div>
             </div>
         </div>

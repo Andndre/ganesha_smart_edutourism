@@ -13,7 +13,7 @@
                     ]) }})"
                         class="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-100 p-3 transition-colors active:bg-gray-50">
                         <div
-                            class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100 text-gray-400">
+                            class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100 text-gray-500">
                             @if ($product->display_image)
                                 <img src="{{ asset('storage/' . $product->display_image) }}" alt="{{ $product->display_name }}"
                                     class="h-full w-full object-cover">

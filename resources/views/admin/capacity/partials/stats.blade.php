@@ -19,10 +19,10 @@
     data-critical-threshold="{{ $desaZone['critical_threshold'] ?? 80 }}">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex-1">
-            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Wisatawan Saat Ini (Desa Penglipuran)</p>
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Total Wisatawan Saat Ini (Desa Penglipuran)</p>
             <div class="mt-1 flex items-baseline gap-2">
                 <span data-stats-count class="text-charcoal text-5xl font-bold">{{ $totalCurrentCount }}</span>
-                <span class="text-lg text-gray-400">/ {{ $totalMaxCapacity }} kapasitas total</span>
+                <span class="text-lg text-gray-500">/ {{ $totalMaxCapacity }} kapasitas total</span>
             </div>
             <div class="mt-3 h-3 overflow-hidden rounded-full bg-gray-100">
                 <div data-stats-bar class="{{ $overallBarColor }} h-full transition-all" style="width: {{ min(100, $overallPct) }}%">

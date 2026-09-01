@@ -9,7 +9,7 @@
         <div>
             <h1 class="text-charcoal text-xl font-bold lg:text-2xl">{{ $umkm->business_name }}</h1>
             <p class="mt-1 flex items-center gap-1 text-sm text-gray-500">
-                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
@@ -48,9 +48,8 @@
             </a>
         @else
             <button disabled
-                class="flex h-14 w-full cursor-not-allowed items-center justify-center rounded-2xl bg-gray-200 font-bold text-gray-400"
-                title="{{ __('Penjual belum mencantumkan nomor kontak') }}">
-                {{ __('Hubungi Penjual') }}
+                class="flex h-14 w-full cursor-not-allowed items-center justify-center rounded-2xl border border-gray-200 bg-gray-100 font-bold text-gray-600">
+                {{ __('Kontak belum tersedia') }}
             </button>
         @endif
     </div>

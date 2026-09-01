@@ -92,7 +92,7 @@
                 the input takes the ring flash. --}}
                 <div :class="wrong && 'edu-shake'">
                     <input type="text" x-model="guess" @input="onType()" @keydown.enter="submit()"
-                        class="focus:border-primary focus:ring-primary/15 min-h-11 w-full rounded-xl border-2 bg-white p-3.5 text-sm font-semibold text-gray-800 outline-none transition placeholder:font-medium placeholder:text-gray-400 focus:ring-4"
+                        class="focus:border-primary focus:ring-primary/15 min-h-11 w-full rounded-xl border-2 bg-white p-3.5 text-sm font-semibold text-gray-800 outline-none transition placeholder:font-medium placeholder:text-gray-500 focus:ring-4"
                         :class="wrong ? 'rd-field-wrong' : 'border-gray-200'"
                         placeholder="{{ __('Ketik jawabanmu...') }}" aria-label="{{ __('Ketik jawabanmu...') }}"
                         autocomplete="off" autocapitalize="off"
@@ -118,7 +118,7 @@
             <div class="text-center" x-show="canGiveUp" x-cloak x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
                 <button type="button" @click="reveal()"
-                    class="min-h-11 px-3 text-xs font-bold text-gray-400 underline decoration-dotted underline-offset-4 transition active:scale-95">
+                    class="min-h-11 px-3 text-xs font-bold text-gray-500 underline decoration-dotted underline-offset-4 transition active:scale-95">
                     {{ __('Menyerah & lihat jawaban') }}
                 </button>
             </div>
@@ -179,7 +179,7 @@
                         </template>
                     </span>
 
-                    <p class="edu-label mt-3.5" :class="solved ? 'text-amber-600/80' : 'text-gray-400'"
+                    <p class="edu-label mt-3.5" :class="solved ? 'text-amber-600/80' : 'text-gray-500'"
                         x-text="solved ? @js(__('Terpecahkan')) : @js(__('Jawabannya'))"></p>
 
                     {{-- The word itself, lit by a gold sweep. No text-colour utility here: the

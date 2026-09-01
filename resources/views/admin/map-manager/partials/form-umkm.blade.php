@@ -36,7 +36,7 @@
             <input type="text" id="umkm-owner-search" placeholder="Cari nama atau email pemilik..."
                 class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 pr-10 text-sm focus:outline-none"
                 onfocus="showOwnerDropdown()" oninput="filterOwners(this.value)" autocomplete="off">
-            <div class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <div class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
@@ -50,10 +50,10 @@
                         data-id="{{ $owner->id }}" data-name="{{ $owner->name }}" data-email="{{ $owner->email }}"
                         onclick="selectOwner({{ $owner->id }}, '{{ $owner->name }}')">
                         <div class="font-semibold">{{ $owner->name }}</div>
-                        <div class="font-mono text-[10px] opacity-75">{{ $owner->email }}</div>
+                        <div class="font-mono text-[11px] opacity-75">{{ $owner->email }}</div>
                     </div>
                 @empty
-                    <div class="px-4 py-3 text-sm italic text-gray-400">Belum ada akun pemilik UMKM.</div>
+                    <div class="px-4 py-3 text-sm italic text-gray-500">Belum ada akun pemilik UMKM.</div>
                 @endforelse
             </div>
         </div>
@@ -93,12 +93,12 @@
 
     <div class="grid grid-cols-2 gap-3">
         <div>
-            <label class="mb-1 block text-xs font-semibold uppercase text-gray-400">Latitude</label>
+            <label class="mb-1 block text-xs font-semibold uppercase text-gray-500">Latitude</label>
             <input type="text" name="latitude" readonly
                 class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 focus:outline-none">
         </div>
         <div>
-            <label class="mb-1 block text-xs font-semibold uppercase text-gray-400">Longitude</label>
+            <label class="mb-1 block text-xs font-semibold uppercase text-gray-500">Longitude</label>
             <input type="text" name="longitude" readonly
                 class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 focus:outline-none">
         </div>
@@ -141,7 +141,7 @@
             onclick="event.stopPropagation()">
             <div class="flex items-center justify-between">
                 <h3 class="text-charcoal text-lg font-bold">Buat Akun Pemilik Baru</h3>
-                <button type="button" onclick="closeCreateOwnerModal()" class="text-gray-400 hover:text-gray-600">
+                <button type="button" onclick="closeCreateOwnerModal()" class="text-gray-500 hover:text-gray-600">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -335,7 +335,7 @@
             opt.dataset.email = data.owner.email;
             opt.onclick = () => selectOwner(data.owner.id, data.owner.name);
             opt.innerHTML =
-                `<div class="font-semibold">${data.owner.name}</div><div class="text-[10px] opacity-75 font-mono">${data.owner.email}</div>`;
+                `<div class="font-semibold">${data.owner.name}</div><div class="text-[11px] opacity-75 font-mono">${data.owner.email}</div>`;
             dropdown.prepend(opt);
 
             // Auto-select

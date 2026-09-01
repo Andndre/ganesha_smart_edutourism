@@ -23,7 +23,7 @@
         </div>
 
         <a href="{{ route('home') }}" wire:navigate
-            class="tap-target {{ $isHome ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-400 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
+            class="tap-target {{ $isHome ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-500 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
             @if ($isHome)
                 <svg class="h-6 w-6 shrink-0 scale-[1.077]" viewBox="0 0 24 24" fill="currentColor">
                     <path
@@ -38,11 +38,11 @@
                         d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                 </svg>
             @endif
-            <span class="text-[10px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">Home</span>
+            <span class="text-[11px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">Home</span>
         </a>
 
         <a href="{{ route('explore') }}" wire:navigate
-            class="tap-target {{ $isExplore ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-400 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
+            class="tap-target {{ $isExplore ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-500 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
             @if ($isExplore)
                 <svg class="h-6 w-6 shrink-0 scale-[1.077]" viewBox="0 0 24 24" fill="currentColor">
                     <path fill-rule="evenodd"
@@ -57,7 +57,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v15M15 6v15" />
                 </svg>
             @endif
-            <span class="text-[10px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('Peta') }}</span>
+            <span class="text-[11px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('Peta') }}</span>
         </a>
 
         <!-- AR Scan Button Mobile Position (Floating on mobile) -->
@@ -73,7 +73,7 @@
         </div>
 
         <a href="{{ route('umkm') }}" wire:navigate
-            class="tap-target {{ $isUmkm ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-400 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
+            class="tap-target {{ $isUmkm ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-500 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
             @if ($isUmkm)
                 <svg class="h-6 w-6 shrink-0 scale-[1.077]" viewBox="0 0 24 24" fill="currentColor">
                     <path fill-rule="evenodd"
@@ -87,12 +87,12 @@
                         d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
                 </svg>
             @endif
-            <span class="text-[10px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('UMKM') }}</span>
+            <span class="text-[11px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('UMKM') }}</span>
         </a>
 
         @auth
             <a href="{{ route('profile') }}" wire:navigate
-                class="tap-target {{ $isProfile ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-400 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
+                class="tap-target {{ $isProfile ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-500 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
                 @if ($isProfile)
                     <svg class="h-6 w-6 shrink-0 scale-110" viewBox="0 0 24 24" fill="currentColor">
                         <path fill-rule="evenodd"
@@ -106,11 +106,11 @@
                             d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                 @endif
-                <span class="text-[10px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('Profil') }}</span>
+                <span class="text-[11px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('Profil') }}</span>
             </a>
         @else
             <a href="{{ route('login') }}" wire:navigate
-                class="tap-target {{ $isLogin ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-400 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
+                class="tap-target {{ $isLogin ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-500 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
                 @if ($isLogin)
                     <svg class="h-6 w-6 shrink-0 scale-[1.077]" viewBox="0 0 24 24" fill="currentColor">
                         <path fill-rule="evenodd"
@@ -124,7 +124,7 @@
                             d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
                     </svg>
                 @endif
-                <span class="text-[10px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('Masuk') }}</span>
+                <span class="text-[11px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('Masuk') }}</span>
             </a>
         @endauth
 

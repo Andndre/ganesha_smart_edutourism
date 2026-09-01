@@ -49,12 +49,12 @@
 
     <div class="grid grid-cols-2 gap-3">
         <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-400 uppercase">Latitude</label>
+            <label class="mb-1 block text-xs font-semibold text-gray-500 uppercase">Latitude</label>
             <input type="text" name="latitude" readonly
                 class="w-full rounded-xl bg-gray-50 border border-gray-200 px-3 py-2 text-sm text-gray-500 focus:outline-none">
         </div>
         <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-400 uppercase">Longitude</label>
+            <label class="mb-1 block text-xs font-semibold text-gray-500 uppercase">Longitude</label>
             <input type="text" name="longitude" readonly
                 class="w-full rounded-xl bg-gray-50 border border-gray-200 px-3 py-2 text-sm text-gray-500 focus:outline-none">
         </div>

@@ -65,14 +65,14 @@
                         </div>
                         <div class="flex min-w-0 flex-col">
                             <span
-                                class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Cuaca') }}</span>
+                                class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">{{ __('Cuaca') }}</span>
                             <span
                                 class="mt-1 text-xl font-black leading-none text-gray-800">{{ round($weather->temperature) }}°</span>
                             <span
                                 class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ __($weather->condition) }}</span>
                         </div>
                     @else
-                        <div class="flex shrink-0 items-center justify-center rounded-2xl bg-gray-50 p-2.5 text-gray-400">
+                        <div class="flex shrink-0 items-center justify-center rounded-2xl bg-gray-50 p-2.5 text-gray-500">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
@@ -80,8 +80,8 @@
                         </div>
                         <div class="flex min-w-0 flex-col">
                             <span
-                                class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Cuaca') }}</span>
-                            <span class="mt-1 text-xl font-black leading-none text-gray-400">--°</span>
+                                class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">{{ __('Cuaca') }}</span>
+                            <span class="mt-1 text-xl font-black leading-none text-gray-500">--°</span>
                             <span
                                 class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ __('Belum Ada') }}</span>
                         </div>
@@ -101,7 +101,7 @@
                     </div>
                     <div class="flex min-w-0 flex-col">
                         <span
-                            class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Kepadatan') }}</span>
+                            class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">{{ __('Kepadatan') }}</span>
                         <span class="{{ $densityClass }} mt-1 text-xl font-black leading-none">{{ $densityMain }}</span>
                         <span
                             class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ $densitySub }}</span>
@@ -238,9 +238,9 @@
             <div class="space-y-5">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <span
-                        class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-600">{{ __('Desa Penglipuran') }}</span>
+                        class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-emerald-600">{{ __('Desa Penglipuran') }}</span>
                     <button type="button" @click="isOpen = false"
-                        class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:text-gray-600 active:scale-95 md:hidden"
+                        class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-500 transition-all hover:text-gray-600 active:scale-95 md:hidden"
                         title="{{ __('Tutup') }}">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -276,7 +276,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">
+                                <p class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">
                                     {{ __('Kelembapan') }}
                                 </p>
                                 <p class="mt-1 text-xs font-black text-gray-700">{{ $weather->humidity }}%</p>
@@ -292,7 +292,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">
+                                <p class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">
                                     {{ __('Angin') }}</p>
                                 <p class="mt-1 text-xs font-black text-gray-700">{{ $weather->wind_speed }} km/h</p>
                             </div>
@@ -301,7 +301,7 @@
 
                     <!-- Recommendation Box based on Weather Code -->
                     <div class="border-t border-gray-50 pt-3">
-                        <h4 class="mb-1.5 text-[10px] font-black uppercase tracking-wider text-gray-400">
+                        <h4 class="mb-1.5 text-[11px] font-black uppercase tracking-wider text-gray-500">
                             {{ __('Rekomendasi Aktivitas') }}
                         </h4>
                         <p class="text-xs leading-relaxed text-gray-500">
@@ -319,7 +319,7 @@
 
                     <!-- Footer Info / Updated Time -->
                     <div class="border-t border-gray-50 pt-3 text-center">
-                        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500">
                             {{ __('Pembaruan Terakhir:') }}
                             {{ $weather->updated_at->timezone('Asia/Makassar')->format('d M Y H:i') }} WITA
                         </p>
@@ -327,7 +327,7 @@
                 @else
                     <!-- No Weather Info State -->
                     <div class="space-y-4 py-8 text-center">
-                        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+                        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-gray-500">
                             <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
@@ -348,9 +348,9 @@
             <div class="space-y-5">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <span
-                        class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-600">{{ __('Desa Penglipuran') }}</span>
+                        class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-emerald-600">{{ __('Desa Penglipuran') }}</span>
                     <button type="button" @click="isOpen = false"
-                        class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:text-gray-600 active:scale-95 md:hidden"
+                        class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-500 transition-all hover:text-gray-600 active:scale-95 md:hidden"
                         title="{{ __('Tutup') }}">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -363,11 +363,11 @@
 
                 <!-- Total Wisatawan Saat Ini -->
                 <div class="rounded-2xl border border-gray-100 bg-gray-50/70 p-3.5">
-                    <p class="text-[10px] font-bold uppercase leading-none tracking-wider text-gray-400">
+                    <p class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">
                         {{ __('Total Wisatawan Saat Ini') }}</p>
                     <div class="mt-1.5 flex items-baseline gap-1.5">
                         <span class="text-3xl font-black leading-none text-gray-800">{{ $totalCurrent }}</span>
-                        <span class="text-sm font-semibold text-gray-400">/ {{ $totalMax }}
+                        <span class="text-sm font-semibold text-gray-500">/ {{ $totalMax }}
                             {{ __('kapasitas total') }}</span>
                     </div>
                     @php($modalDensityPercent = $totalMax > 0 ? round(($totalCurrent / $totalMax) * 100) : 0)
@@ -386,19 +386,21 @@
                 <div class="grid grid-cols-3 gap-3">
                     <div class="rounded-xl bg-primary/10 p-3 text-center">
                         <p class="text-xs font-bold text-primary">{{ __('Aman') }}</p>
-                        <p class="text-[11px] text-primary opacity-70">&lt; {{ $warningThreshold }}%</p>
+                        <p class="text-[11px] text-primary">&lt; {{ $warningThreshold }}%</p>
                     </div>
+                    {{-- Teks pakai amber-800/orange-800, bukan token secondary/warning: token aslinya
+                         hanya 1,87:1 dan 3,42:1 di atas latar tint-nya sendiri --}}
                     <div class="rounded-xl bg-secondary/15 p-3 text-center">
-                        <p class="text-xs font-bold text-secondary">{{ __('Sedang') }}</p>
-                        <p class="text-[11px] text-secondary opacity-70">{{ $warningThreshold }}-{{ $criticalThreshold }}%</p>
+                        <p class="text-xs font-bold text-amber-800">{{ __('Sedang') }}</p>
+                        <p class="text-[11px] text-amber-800">{{ $warningThreshold }}-{{ $criticalThreshold }}%</p>
                     </div>
                     <div class="rounded-xl bg-warning/10 p-3 text-center">
-                        <p class="text-xs font-bold text-warning">{{ __('Penuh') }}</p>
-                        <p class="text-[11px] text-warning opacity-70">&gt; {{ $criticalThreshold }}%</p>
+                        <p class="text-xs font-bold text-orange-800">{{ __('Penuh') }}</p>
+                        <p class="text-[11px] text-orange-800">&gt; {{ $criticalThreshold }}%</p>
                     </div>
                 </div>
 
-                <p class="border-t border-gray-50 pt-3 text-center text-[9px] font-bold uppercase tracking-wider text-gray-400">
+                <p class="border-t border-gray-50 pt-3 text-center text-[11px] font-bold uppercase tracking-wider text-gray-500">
                     {{ __('Data diperbarui setiap kali halaman dimuat ulang') }}
                 </p>
             </div>

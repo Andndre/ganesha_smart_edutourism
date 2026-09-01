@@ -73,14 +73,14 @@
         <span class="mb-2 block text-xs text-gray-500">MP3/OGG/WAV/M4A, maks. 10 MB per bahasa</span>
         <div class="grid grid-cols-2 gap-3">
             <div>
-                <span class="mb-1 block text-[10px] font-semibold text-gray-500">Audio (ID)</span>
+                <span class="mb-1 block text-[11px] font-semibold text-gray-500">Audio (ID)</span>
                 @include('admin.partials.mini-audio-player', ['playerId' => 'current-audio-id'])
                 <input type="file" name="cultural_audio_file[id]" accept=".mp3,.ogg,.wav,.m4a,audio/*"
                     class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold"
                     onchange="var maxSize=10*1024*1024;if(this.files[0]&&this.files[0].size>maxSize){Swal.fire({title:'File Terlalu Besar',text:'Maksimal 10MB per file audio.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value=''}">
             </div>
             <div>
-                <span class="mb-1 block text-[10px] font-semibold text-gray-500">Audio (EN)</span>
+                <span class="mb-1 block text-[11px] font-semibold text-gray-500">Audio (EN)</span>
                 @include('admin.partials.mini-audio-player', ['playerId' => 'current-audio-en'])
                 <input type="file" name="cultural_audio_file[en]" accept=".mp3,.ogg,.wav,.m4a,audio/*"
                     class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold"
@@ -100,12 +100,12 @@
 
     <div class="grid grid-cols-2 gap-3">
         <div>
-            <label class="mb-1 block text-xs font-semibold uppercase text-gray-400">Latitude</label>
+            <label class="mb-1 block text-xs font-semibold uppercase text-gray-500">Latitude</label>
             <input type="text" name="latitude" readonly
                 class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 focus:outline-none">
         </div>
         <div>
-            <label class="mb-1 block text-xs font-semibold uppercase text-gray-400">Longitude</label>
+            <label class="mb-1 block text-xs font-semibold uppercase text-gray-500">Longitude</label>
             <input type="text" name="longitude" readonly
                 class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 focus:outline-none">
         </div>

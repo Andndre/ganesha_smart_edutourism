@@ -44,7 +44,7 @@
 <div id="tour-stats" class="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
     {{-- Visitor KPI --}}
     <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Pengunjung</p>
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Total Pengunjung</p>
         <p class="mt-2 text-2xl font-bold text-charcoal">{{ number_format($visitorCount, 0, ',', '.') }}</p>
         <p class="mt-1 text-xs font-semibold {{ $visitorDelta >= 0 ? 'text-primary' : 'text-warning' }}">
             {{ ($visitorDelta >= 0 ? '+' : '') . $visitorDelta }}% {{ $visitorDelta >= 0 ? '↑' : '↓' }} vs. bulan lalu
@@ -52,7 +52,7 @@
     </div>
     {{-- Scanned Visitors KPI --}}
     <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Kunjungan Tiket</p>
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Kunjungan Tiket</p>
         <p class="mt-2 text-2xl font-bold text-charcoal">{{ number_format($scannedVisitors, 0, ',', '.') }} orang</p>
         <p class="mt-1 text-xs font-semibold {{ $scannedDelta >= 0 ? 'text-primary' : 'text-warning' }}">
             {{ ($scannedDelta >= 0 ? '+' : '') . $scannedDelta }}% {{ $scannedDelta >= 0 ? '↑' : '↓' }} vs. bulan lalu
@@ -60,7 +60,7 @@
     </div>
     {{-- Tickets KPI --}}
     <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Tiket Dipindai</p>
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Tiket Dipindai</p>
         <p class="mt-2 text-2xl font-bold text-charcoal">{{ number_format($ticketsScanned, 0, ',', '.') }}</p>
         <p class="mt-1 text-xs font-semibold {{ $ticketsDelta >= 0 ? 'text-primary' : 'text-warning' }}">
             {{ ($ticketsDelta >= 0 ? '+' : '') . $ticketsDelta }}% {{ $ticketsDelta >= 0 ? '↑' : '↓' }} vs. bulan lalu
@@ -68,7 +68,7 @@
     </div>
     {{-- Rating KPI --}}
     <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Rating Kepuasan</p>
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Rating Kepuasan</p>
         <p class="mt-2 text-2xl font-bold text-charcoal">{{ $rating }} ★</p>
         <p class="mt-1 text-xs font-semibold {{ $ratingDelta >= 0 ? 'text-primary' : 'text-warning' }}">
             {{ ($ratingDelta >= 0 ? '+' : '') . $ratingDelta }} {{ $ratingDelta >= 0 ? '↑' : '↓' }} vs. bulan lalu

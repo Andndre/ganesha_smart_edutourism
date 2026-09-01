@@ -36,7 +36,7 @@
     <div class="relative">
         {{-- Search icon --}}
         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -53,7 +53,7 @@
 
         <input type="text" x-model="query" x-on:input.debounce.300ms="fetchResults"
             placeholder="{{ __('Cari produk atau toko UMKM...') }}"
-            class="focus:border-primary focus:ring-primary/20 w-full rounded-xl border border-gray-200 bg-white px-5 py-4 pl-12 text-base shadow-sm transition-all placeholder:text-gray-400 focus:outline-none focus:ring-2"
+            class="focus:border-primary focus:ring-primary/20 w-full rounded-xl border border-gray-200 bg-white px-5 py-4 pl-12 text-base shadow-sm transition-all placeholder:text-gray-500 focus:outline-none focus:ring-2"
             role="combobox" aria-expanded="false" aria-haspopup="listbox"
             aria-label="{{ __('Cari produk atau toko UMKM...') }}">
     </div>
@@ -97,7 +97,7 @@
                             <div class="min-w-0 flex-1">
                                 <p class="truncate font-medium text-gray-900" x-text="umkm.business_name"></p>
                             </div>
-                            <svg class="h-4 w-4 shrink-0 text-gray-400" fill="none" stroke="currentColor"
+                            <svg class="h-4 w-4 shrink-0 text-gray-500" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 5l7 7-7 7" />
@@ -123,7 +123,7 @@
                                     class="h-full w-full object-cover">
                             </div>
                             <div x-show="!product.image_path"
-                                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
+                                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -134,7 +134,7 @@
                                 <p x-show="product.umkm_business_name" class="truncate text-xs text-gray-500"
                                     x-text="product.umkm_business_name"></p>
                             </div>
-                            <svg class="h-4 w-4 shrink-0 text-gray-400" fill="none" stroke="currentColor"
+                            <svg class="h-4 w-4 shrink-0 text-gray-500" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 5l7 7-7 7" />
@@ -169,7 +169,7 @@
                             <div class="min-w-0 flex-1">
                                 <p class="truncate font-medium text-gray-900" x-text="cat.name"></p>
                             </div>
-                            <svg class="h-4 w-4 shrink-0 text-gray-400" fill="none" stroke="currentColor"
+                            <svg class="h-4 w-4 shrink-0 text-gray-500" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 5l7 7-7 7" />
@@ -182,7 +182,7 @@
             {{-- No results state --}}
             <div x-show="query.length >= 2 && totalResults() === 0" x-cloak
                 class="flex flex-col items-center px-4 py-10 text-center">
-                <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-50 text-gray-400">
+                <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-50 text-gray-500">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

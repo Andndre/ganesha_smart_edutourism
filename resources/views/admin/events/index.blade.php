@@ -114,7 +114,7 @@
                     $upcoming = [
                         ['label' => 'Mendatang', 'count' => $upcomingCount, 'color' => 'text-primary bg-primary/10'],
                         ['label' => 'Bulan Ini', 'count' => $thisMonthCount, 'color' => 'text-secondary bg-secondary/10'],
-                        ['label' => 'Sudah Lewat', 'count' => $pastCount, 'color' => 'text-gray-400 bg-gray-100'],
+                        ['label' => 'Sudah Lewat', 'count' => $pastCount, 'color' => 'text-gray-500 bg-gray-100'],
                     ];
                 @endphp
                 @foreach ($upcoming as $u)

@@ -7,7 +7,7 @@
             <p class="mt-0.5 text-xs text-gray-500">Lengkapi detail event budaya desa di bawah ini.</p>
         </div>
         <button @click="$dispatch('close-event-form-modal')"
-            class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 md:hidden">
+            class="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-gray-100 md:hidden">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -101,7 +101,7 @@
                     Mulai</span>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[10px] font-semibold uppercase text-gray-500">Tanggal <span
+                        <label class="text-[11px] font-semibold uppercase text-gray-500">Tanggal <span
                                 class="text-red-500">*</span></label>
                         <input type="date" name="start_date" x-model="formFields.start_date"
                             class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-1"
@@ -111,7 +111,7 @@
                         @enderror
                     </div>
                     <div>
-                        <label class="text-[10px] font-semibold uppercase text-gray-500">Jam</label>
+                        <label class="text-[11px] font-semibold uppercase text-gray-500">Jam</label>
                         <input type="time" name="start_time" x-model="formFields.start_time"
                             class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-1">
                         @error('start_time')
@@ -125,7 +125,7 @@
                     Selesai</span>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[10px] font-semibold uppercase text-gray-500">Tanggal <span
+                        <label class="text-[11px] font-semibold uppercase text-gray-500">Tanggal <span
                                 class="text-red-500">*</span></label>
                         <input type="date" name="end_date" x-model="formFields.end_date"
                             class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-1"
@@ -135,7 +135,7 @@
                         @enderror
                     </div>
                     <div>
-                        <label class="text-[10px] font-semibold uppercase text-gray-500">Jam</label>
+                        <label class="text-[11px] font-semibold uppercase text-gray-500">Jam</label>
                         <input type="time" name="end_time" x-model="formFields.end_time"
                             class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-1">
                         @error('end_time')
@@ -184,7 +184,7 @@
             </div>
             {{-- Map Selection --}}
             <div>
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Pilih Lokasi Peta <span class="text-[10px] font-normal text-gray-400">(Klik pada peta untuk menentukan koordinat)</span></label>
+                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Pilih Lokasi Peta <span class="text-[11px] font-normal text-gray-500">(Klik pada peta untuk menentukan koordinat)</span></label>
                 <div id="form-location-map" class="relative h-64 w-full rounded-xl border border-gray-200 shadow-inner" style="z-index: 0;">
                     <x-map-style-fab size="sm" class="absolute bottom-3 right-3 z-1000" />
                 </div>

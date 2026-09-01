@@ -139,7 +139,7 @@
             </div>
         </div>
 
-        <p x-show="!done" class="text-center text-xs text-gray-400">
+        <p x-show="!done" class="text-center text-xs text-gray-500">
             {{ __('Ketuk item di kiri, lalu ketuk pasangannya di kanan.') }}
         </p>
 

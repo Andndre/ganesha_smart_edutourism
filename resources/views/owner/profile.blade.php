@@ -36,7 +36,7 @@
                         value="{{ old('business_name.en', $profile ? $profile->getTranslation('business_name', 'en', false) : '') }}"
                         placeholder="Example: Penglipuran Coffee Shop, Beautiful Knits"
                         class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">
-                    <p class="mt-1.5 text-xs text-gray-400">Your unique business name in English.</p>
+                    <p class="mt-1.5 text-xs text-gray-500">Your unique business name in English.</p>
                     @error('business_name.en')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
@@ -48,7 +48,7 @@
                         value="{{ old('business_name.id', $profile ? $profile->getTranslation('business_name', 'id', false) : '') }}"
                         placeholder="Contoh: Warung Kopi Penglipuran, Rajutan Indah"
                         class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">
-                    <p class="mt-1.5 text-xs text-gray-400">Nama toko Anda yang unik dan mudah diingat oleh wisatawan.</p>
+                    <p class="mt-1.5 text-xs text-gray-500">Nama toko Anda yang unik dan mudah diingat oleh wisatawan.</p>
                     @error('business_name.id')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
@@ -60,7 +60,7 @@
                     <textarea name="description[en]" rows="5"
                         placeholder="Write a short story of your shop, featured products, or operational hours..."
                         class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">{{ old('description.en', $profile ? $profile->getTranslation('description', 'en', false) : '') }}</textarea>
-                    <p class="mt-1.5 text-xs text-gray-400">Describe the uniqueness of your shop in English to attract tourists.</p>
+                    <p class="mt-1.5 text-xs text-gray-500">Describe the uniqueness of your shop in English to attract tourists.</p>
                     @error('description.en')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
@@ -70,7 +70,7 @@
                     <textarea name="description[id]" rows="5"
                         placeholder="Tuliskan cerita singkat toko Anda, produk unggulan, atau jam operasional..."
                         class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">{{ old('description.id', $profile ? $profile->getTranslation('description', 'id', false) : '') }}</textarea>
-                    <p class="mt-1.5 text-xs text-gray-400">Gambarkan keunikan toko Anda untuk menarik minat kunjungan wisatawan.</p>
+                    <p class="mt-1.5 text-xs text-gray-500">Gambarkan keunikan toko Anda untuk menarik minat kunjungan wisatawan.</p>
                     @error('description.id')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror

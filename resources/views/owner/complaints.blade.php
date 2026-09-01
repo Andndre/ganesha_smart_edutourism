@@ -15,7 +15,7 @@
         <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Rata-rata Penilaian</p>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Rata-rata Penilaian</p>
                     <p class="mt-2 font-display text-3xl font-bold text-charcoal">
                         {{ number_format($profile->rating ?? 5.0, 1) }} / 5.0
                     </p>
@@ -39,7 +39,7 @@
         <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Masukan</p>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Total Masukan</p>
                     <p class="mt-2 font-display text-3xl font-bold text-charcoal">
                         {{ $complaints->total() }}
                     </p>
@@ -65,7 +65,7 @@
 
             @if ($complaints->isEmpty())
                 <div class="flex flex-col items-center justify-center py-12 text-center">
-                    <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 text-gray-400">
+                    <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 text-gray-500">
                         <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -82,8 +82,8 @@
                                     <span class="text-sm font-bold text-charcoal">
                                         {{ $complaint->user ? $complaint->user->name : 'Wisatawan Anonim' }}
                                     </span>
-                                    <span class="text-xs text-gray-400">&bull;</span>
-                                    <span class="text-xs text-gray-400">
+                                    <span class="text-xs text-gray-500">&bull;</span>
+                                    <span class="text-xs text-gray-500">
                                         {{ $complaint->created_at->format('d M Y H:i') }}
                                     </span>
                                 </div>
@@ -100,7 +100,7 @@
                             @if ($complaint->comment)
                                 <p class="text-sm text-gray-700 leading-relaxed">{{ $complaint->comment }}</p>
                             @else
-                                <p class="text-sm italic text-gray-400">Tidak ada komentar detail.</p>
+                                <p class="text-sm italic text-gray-500">Tidak ada komentar detail.</p>
                             @endif
 
                             {{-- Foto Lampiran --}}

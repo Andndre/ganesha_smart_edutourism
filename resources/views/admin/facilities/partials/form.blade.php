@@ -63,13 +63,13 @@
         <p class="mb-3 text-xs text-gray-500">Titik utama fasilitas ini. Untuk menambah titik lain (mis. pintu masuk kedua), gunakan <a href="{{ route('admin.map-manager') }}" class="text-primary underline">Peta Lokasi & Titik</a> setelah menyimpan.</p>
         <div class="grid grid-cols-2 gap-3">
             <div>
-                <label class="mb-1 block text-xs font-semibold uppercase text-gray-400">Latitude</label>
+                <label class="mb-1 block text-xs font-semibold uppercase text-gray-500">Latitude</label>
                 <input type="text" name="latitude" required
                     value="{{ old('latitude', $point?->latitude ?? config('services.penglipuran.latitude')) }}"
                     class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none">
             </div>
             <div>
-                <label class="mb-1 block text-xs font-semibold uppercase text-gray-400">Longitude</label>
+                <label class="mb-1 block text-xs font-semibold uppercase text-gray-500">Longitude</label>
                 <input type="text" name="longitude" required
                     value="{{ old('longitude', $point?->longitude ?? config('services.penglipuran.longitude')) }}"
                     class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none">

@@ -8,7 +8,7 @@
             <h3 class="font-display text-charcoal mt-2 text-xl font-bold" x-text="selectedEvent.title"></h3>
         </div>
         <button @click="$dispatch('close-event-detail-modal')"
-            class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 md:hidden">
+            class="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 md:hidden">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -18,39 +18,39 @@
     {{-- Modal Body --}}
     <div class="space-y-4 text-sm text-gray-600">
         <div class="flex items-start gap-3">
-            <div class="shrink-0 rounded-lg bg-gray-50 p-2 text-gray-400">
+            <div class="shrink-0 rounded-lg bg-gray-50 p-2 text-gray-500">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             </div>
             <div>
-                <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Waktu Pelaksanaan</p>
+                <p class="text-xs font-bold uppercase tracking-wider text-gray-500">Waktu Pelaksanaan</p>
                 <p class="text-charcoal mt-0.5 font-medium" x-text="selectedEvent.start"></p>
                 <template x-if="selectedEvent.end">
                     <p class="text-charcoal mt-0.5 font-medium"><span
-                            class="font-normal text-gray-400">sampai</span> <span
+                            class="font-normal text-gray-500">sampai</span> <span
                             x-text="selectedEvent.end"></span></p>
                 </template>
             </div>
         </div>
 
         <div class="flex items-start gap-3">
-            <div class="shrink-0 rounded-lg bg-gray-50 p-2 text-gray-400">
+            <div class="shrink-0 rounded-lg bg-gray-50 p-2 text-gray-500">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 </svg>
             </div>
             <div>
-                <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Lokasi Tempat</p>
+                <p class="text-xs font-bold uppercase tracking-wider text-gray-500">Lokasi Tempat</p>
                 <p class="text-charcoal mt-0.5 font-medium" x-text="selectedEvent.location"></p>
             </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
             <div class="flex items-start gap-3">
-                <div class="shrink-0 rounded-lg bg-gray-50 p-2 text-gray-400">
+                <div class="shrink-0 rounded-lg bg-gray-50 p-2 text-gray-500">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                         stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -58,12 +58,12 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Harga Tiket</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-gray-500">Harga Tiket</p>
                     <p class="text-charcoal mt-0.5 font-medium" x-text="selectedEvent.price"></p>
                 </div>
             </div>
             <div class="flex items-start gap-3">
-                <div class="shrink-0 rounded-lg bg-gray-50 p-2 text-gray-400">
+                <div class="shrink-0 rounded-lg bg-gray-50 p-2 text-gray-500">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                         stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -71,14 +71,14 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Maks. Peserta</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-gray-500">Maks. Peserta</p>
                     <p class="text-charcoal mt-0.5 font-medium" x-text="selectedEvent.max_participants"></p>
                 </div>
             </div>
         </div>
 
         <div class="border-t border-gray-100 pt-2">
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Deskripsi Event</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-500">Deskripsi Event</p>
             <p class="mt-1 rounded-xl bg-gray-50 p-3 text-sm leading-relaxed text-gray-600"
                 x-text="selectedEvent.description || 'Belum ada deskripsi.'"></p>
         </div>

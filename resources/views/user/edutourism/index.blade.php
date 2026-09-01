@@ -47,7 +47,7 @@
                             <div class="flex flex-wrap items-center gap-2">
                                 @if ($isCompleted)
                                     <span
-                                        class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700 shadow-sm">
+                                        class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-700 shadow-sm">
                                         <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                             stroke-width="3">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -56,7 +56,7 @@
                                     </span>
                                 @else
                                     <span
-                                        class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-gray-500">
+                                        class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-gray-500">
                                         {{ __('Rute') }} {{ $number }}
                                     </span>
                                 @endif
@@ -85,7 +85,7 @@
                         <div class="relative mt-5 flex flex-wrap gap-2">
                             <span
                                 class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700">
-                                <svg class="h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                <svg class="h-3.5 w-3.5 text-gray-500" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -94,7 +94,7 @@
                             </span>
                             <span
                                 class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700">
-                                <svg class="h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                <svg class="h-3.5 w-3.5 text-gray-500" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -104,7 +104,7 @@
                             </span>
                             <span
                                 class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700">
-                                <svg class="h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                <svg class="h-3.5 w-3.5 text-gray-500" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -152,11 +152,11 @@
             <div class="space-y-5">
                 <div class="flex items-center justify-between">
                     <span
-                        class="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wide text-emerald-600">
+                        class="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide text-emerald-600">
                         {{ __('Smart Edutourism') }}
                     </span>
                     <button type="button" @click="isOpen = false"
-                        class="tap-target flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors hover:text-gray-600 md:hidden"
+                        class="tap-target flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:text-gray-600 md:hidden"
                         title="{{ __('Tutup') }}">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -172,7 +172,7 @@
                 </div>
 
                 <div class="rounded-2xl border border-gray-100 bg-gray-50 p-5">
-                    <h4 class="mb-4 text-xs font-bold uppercase tracking-wide text-gray-400">
+                    <h4 class="mb-4 text-xs font-bold uppercase tracking-wide text-gray-500">
                         {{ __('Titik Perhentian') }}</h4>
                     <ul id="preview-points" class="space-y-3">
                         <li class="flex items-center gap-3 text-sm text-gray-500">
@@ -183,7 +183,7 @@
                 </div>
 
                 <div id="preview-avatar-picker" class="hidden">
-                    <h4 class="mb-3 text-xs font-bold uppercase tracking-wide text-gray-400">{{ __('Pilih Avatarmu') }}
+                    <h4 class="mb-3 text-xs font-bold uppercase tracking-wide text-gray-500">{{ __('Pilih Avatarmu') }}
                     </h4>
                     <div id="preview-avatar-options" class="grid grid-cols-2 gap-3"></div>
                 </div>
@@ -273,7 +273,7 @@
                             data.points.forEach((pt, index) => {
                                 ul.innerHTML += `
                                 <li class="flex items-start gap-3">
-                                    <div class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-700">${index + 1}</div>
+                                    <div class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-700">${index + 1}</div>
                                     <span class="text-sm font-medium text-gray-700">${pt.name}</span>
                                 </li>
                             `;

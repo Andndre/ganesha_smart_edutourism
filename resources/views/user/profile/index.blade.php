@@ -87,7 +87,7 @@
                     </div>
                     <span class="text-charcoal text-sm font-medium">{{ __('Riwayat Kunjungan') }}
                         @if ($visitCount > 0)
-                            <span class="ml-1 text-[10px] font-bold text-green-600">({{ $visitCount }})</span>
+                            <span class="ml-1 text-[11px] font-bold text-green-600">({{ $visitCount }})</span>
                         @endif
                     </span>
                 </div>

@@ -166,7 +166,7 @@
                         </span>
                         <span class="leading-tight">
                             <span class="sq-label block"
-                                :class="timeCritical ? 'text-red-400' : 'text-gray-400'">{{ __('Sisa Waktu') }}</span>
+                                :class="timeCritical ? 'text-red-400' : 'text-gray-500'">{{ __('Sisa Waktu') }}</span>
                             <span class="block text-base font-black tabular-nums"
                                 :class="timeCritical ? 'animate-pulse text-red-500' : 'text-charcoal'"
                                 x-text="timeLabel"></span>
@@ -267,7 +267,7 @@
                                     card's own padding so the target reaches the card's real edges,
                                     and the card's overflow-hidden clips it to the rounded corner. --}}
                                     <button type="button" data-grip
-                                        class="sq-grip focus-visible:ring-primary/50 hover:from-primary/10 hover:to-primary/5 hover:text-primary -my-3 flex shrink-0 items-center justify-center self-stretch border-l border-gray-200/70 bg-gradient-to-b from-gray-50 to-gray-100/70 px-5 text-gray-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset disabled:opacity-30"
+                                        class="sq-grip focus-visible:ring-primary/50 hover:from-primary/10 hover:to-primary/5 hover:text-primary -my-3 flex shrink-0 items-center justify-center self-stretch border-l border-gray-200/70 bg-gradient-to-b from-gray-50 to-gray-100/70 px-5 text-gray-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset disabled:opacity-30"
                                         :disabled="locked"
                                         :aria-label="@js(__('Geser untuk memindahkan langkah')) + ' ' + (pos + 1)"
                                         {{-- Only pointerdown is bound here; the rest of the gesture

@@ -21,21 +21,21 @@
 
     <div class="grid grid-cols-2 gap-4">
         <div class="rounded-xl bg-gray-50 p-4 border border-gray-100">
-            <span class="text-xs text-gray-400 font-semibold block uppercase">Total Jarak</span>
+            <span class="text-xs text-gray-500 font-semibold block uppercase">Total Jarak</span>
             <span id="route-distance-display" class="text-xl font-bold text-charcoal block mt-1">
                 {{ isset($route) && $route->distance_meters ? ($route->distance_meters >= 1000 ? number_format($route->distance_meters / 1000, 2) . ' km' : $route->distance_meters . ' m') : '0 m' }}
             </span>
             <input type="hidden" name="distance_meters" id="field-distance" value="{{ isset($route) ? $route->distance_meters : '0' }}">
         </div>
         <div class="rounded-xl bg-gray-50 p-4 border border-gray-100">
-            <span class="text-xs text-gray-400 font-semibold block uppercase">Total Durasi</span>
+            <span class="text-xs text-gray-500 font-semibold block uppercase">Total Durasi</span>
             <span id="route-duration-display" class="text-xl font-bold text-charcoal block mt-1">
                 {{ isset($route) && $route->estimated_duration_minutes ? ($route->estimated_duration_minutes >= 60 ? floor($route->estimated_duration_minutes / 60) . ' jam ' . ($route->estimated_duration_minutes % 60) . ' menit' : $route->estimated_duration_minutes . ' menit') : '0 menit' }}
             </span>
             <input type="hidden" name="estimated_duration_minutes" id="field-duration" value="{{ isset($route) ? $route->estimated_duration_minutes : '0' }}">
         </div>
     </div>
-    <p class="mt-2.5 text-[11px] text-gray-400 italic leading-relaxed">
+    <p class="mt-2.5 text-[11px] text-gray-500 italic leading-relaxed">
         * Durasi dihitung otomatis berdasarkan akumulasi waktu perjalanan kaki dan estimasi durasi kunjungan di setiap titik.
     </p>
 </div>

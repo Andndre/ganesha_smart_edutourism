@@ -8,7 +8,7 @@
         <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-red-600"></span>{{ __('Purnama') }}</span>
         <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-[#191A19]"></span>{{ __('Tilem') }}</span>
         <span class="flex items-center gap-1.5"><span class="font-black text-red-600">15</span>{{ __('Hari Libur / Hari Raya') }}</span>
-        <span class="text-gray-400">{{ __('Klik tanggal untuk lihat detail') }}</span>
+        <span class="text-gray-500">{{ __('Klik tanggal untuk lihat detail') }}</span>
     </div>
 
     <button type="button" @click="openMonthRahinan()"

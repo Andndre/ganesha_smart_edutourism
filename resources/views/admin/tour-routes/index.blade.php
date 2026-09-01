@@ -42,7 +42,7 @@
                         <span class="h-1.5 w-1.5 rounded-full bg-primary"></span> Aktif
                     </span>
                 @else
-                    <span class="flex shrink-0 items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-bold text-gray-400">
+                    <span class="flex shrink-0 items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-bold text-gray-500">
                         <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span> Nonaktif
                     </span>
                 @endif
@@ -92,7 +92,7 @@
                         </p>
                     </div>
                 @empty
-                    <p class="text-xs text-gray-400 italic">Belum ada titik rute yang dikonfigurasi.</p>
+                    <p class="text-xs text-gray-500 italic">Belum ada titik rute yang dikonfigurasi.</p>
                 @endforelse
             </div>
 
@@ -118,7 +118,7 @@
             </div>
         </div>
     @empty
-        <div id="tour-empty-state" class="col-span-full rounded-2xl border border-dashed border-gray-200 p-8 text-center text-gray-400">
+        <div id="tour-empty-state" class="col-span-full rounded-2xl border border-dashed border-gray-200 p-8 text-center text-gray-500">
             Belum ada rute wisata. Klik "Tambah Rute" untuk memulai.
         </div>
     @endforelse

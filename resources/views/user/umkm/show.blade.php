@@ -17,9 +17,10 @@
                 {{-- Kolom Kanan: Info + Produk + Peta --}}
                 <div class="space-y-4 md:space-y-6 mt-4 lg:mt-0">
                     @include('user.umkm.partials.show._info')
-                    @include('user.umkm.partials.show._complaint_section')
                     @include('user.umkm.partials.show._products')
                     @include('user.umkm.partials.show._map_section')
+                    {{-- Saran ditaruh paling bawah: aksi tersier, jangan bersaing dengan produk --}}
+                    @include('user.umkm.partials.show._complaint_section')
                 </div>
 
             </div>

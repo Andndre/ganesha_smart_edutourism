@@ -12,12 +12,12 @@
         {{-- Tab Navigation --}}
         <div class="mb-6 flex gap-4 border-b border-gray-100">
             <button @click="tab = 'smart-route'"
-                :class="{ 'text-primary border-b-2 border-primary': tab === 'smart-route', 'text-gray-400': tab !== 'smart-route' }"
+                :class="{ 'text-primary border-b-2 border-primary': tab === 'smart-route', 'text-gray-500': tab !== 'smart-route' }"
                 class="pb-2 text-sm font-bold transition-all">
                 {{ __('Smart Route') }}
             </button>
             <button @click="tab = 'direktori'"
-                :class="{ 'text-primary border-b-2 border-primary': tab === 'direktori', 'text-gray-400': tab !== 'direktori' }"
+                :class="{ 'text-primary border-b-2 border-primary': tab === 'direktori', 'text-gray-500': tab !== 'direktori' }"
                 class="pb-2 text-sm font-bold transition-all">
                 {{ __('Direktori UMKM') }}
             </button>

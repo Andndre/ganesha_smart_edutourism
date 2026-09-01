@@ -25,7 +25,7 @@
 @section('content')
 
 <div class="mb-6 flex items-center gap-3">
-    <a href="{{ route('admin.tour-routes') }}" class="rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-charcoal">
+    <a href="{{ route('admin.tour-routes') }}" class="rounded-xl p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-charcoal">
         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
         </svg>

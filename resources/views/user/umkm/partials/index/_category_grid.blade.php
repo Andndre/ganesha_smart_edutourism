@@ -24,7 +24,7 @@
                                 <label class="flex cursor-pointer items-center justify-center">
                                     <input type="checkbox" name="category_ids[]" value="{{ $category['id'] }}"
                                         id="checkbox-cat-{{ $category['id'] }}"
-                                        class="w-5.5 h-5.5 text-primary focus:ring-primary accent-primary cursor-pointer rounded-full border-gray-300 transition-all focus:ring-offset-0"
+                                        class="w-5.5 h-5.5 text-primary focus:ring-primary accent-primary cursor-pointer rounded-md border-gray-300 transition-all focus:ring-offset-0"
                                         onchange="updateCardHighlight({{ $category['id'] }})">
                                 </label>
                             </div>
@@ -41,7 +41,7 @@
 
             <!-- Empty State for Search -->
             <div id="empty-state" class="hidden flex-col items-center justify-center py-12 text-center">
-                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 text-gray-400">
+                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 text-gray-500">
                     <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

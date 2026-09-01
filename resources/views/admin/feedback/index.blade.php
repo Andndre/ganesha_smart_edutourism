@@ -24,7 +24,7 @@
     {{-- Rating Summary --}}
     <div id="tour-rating-summary" class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Rating Rata-rata</p>
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Rating Rata-rata</p>
             <div class="mt-2 flex items-baseline gap-2">
                 <span class="text-4xl font-bold text-charcoal">{{ $avgRating }}</span>
                 <span class="text-secondary">
@@ -33,22 +33,22 @@
                     @endfor
                 </span>
             </div>
-            <p class="mt-1 text-xs text-gray-400">dari 5.0 · {{ $totalReviews }} ulasan</p>
+            <p class="mt-1 text-xs text-gray-500">dari 5.0 · {{ $totalReviews }} ulasan</p>
         </div>
         <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Ulasan Bulan Ini</p>
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Ulasan Bulan Ini</p>
             <p class="mt-2 text-4xl font-bold text-charcoal">{{ $thisMonthReviews }}</p>
             <p class="mt-1 text-xs font-semibold text-primary">↑ Aktif Bulan Ini</p>
         </div>
         <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-            <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Distribusi Bintang</p>
+            <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Distribusi Bintang</p>
             @foreach ($starsDistribution as [$star, $pct])
                 <div class="mb-1 flex items-center gap-2 text-xs">
                     <span class="w-4 text-gray-500">{{ $star }}★</span>
                     <div class="flex-1 h-1.5 rounded-full bg-gray-100">
                         <div class="h-full rounded-full bg-secondary" style="width: {{ $pct }}%"></div>
                     </div>
-                    <span class="w-8 text-right text-gray-400">{{ $pct }}%</span>
+                    <span class="w-8 text-right text-gray-500">{{ $pct }}%</span>
                 </div>
             @endforeach
         </div>
@@ -69,28 +69,28 @@
                             <div class="flex items-center gap-2">
                                 <p class="font-semibold text-charcoal">{{ $f->user ? $f->user->name : 'Wisatawan' }}</p>
                                 @if ($f->feedback_type === 'umkm')
-                                    <span class="inline-flex items-center rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 border border-amber-200">
+                                    <span class="inline-flex items-center rounded-full bg-amber-50 px-1.5 py-0.5 text-[11px] font-bold text-amber-700 border border-amber-200">
                                         UMKM: {{ $f->umkmProfile ? $f->umkmProfile->business_name : 'Toko' }}
                                     </span>
                                 @elseif ($f->feedback_type === 'cultural')
-                                    <span class="inline-flex items-center rounded-full bg-purple-50 px-1.5 py-0.5 text-[10px] font-bold text-purple-700 border border-purple-200">
+                                    <span class="inline-flex items-center rounded-full bg-purple-50 px-1.5 py-0.5 text-[11px] font-bold text-purple-700 border border-purple-200">
                                         Objek Budaya
                                     </span>
                                 @elseif ($f->feedback_type === 'service')
-                                    <span class="inline-flex items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 border border-blue-200">
+                                    <span class="inline-flex items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-[11px] font-bold text-blue-700 border border-blue-200">
                                         Pelayanan
                                     </span>
                                 @elseif ($f->feedback_type === 'facility')
-                                    <span class="inline-flex items-center rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+                                    <span class="inline-flex items-center rounded-full bg-emerald-50 px-1.5 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200">
                                         Fasilitas
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-[10px] font-bold text-gray-700 border border-gray-200">
+                                    <span class="inline-flex items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-[11px] font-bold text-gray-700 border border-gray-200">
                                         Umum
                                     </span>
                                 @endif
                             </div>
-                            <p class="text-xs text-gray-400">{{ $f->created_at ? $f->created_at->format('d M Y') : '-' }}</p>
+                            <p class="text-xs text-gray-500">{{ $f->created_at ? $f->created_at->format('d M Y') : '-' }}</p>
                         </div>
                     </div>
                     <div class="flex shrink-0 items-center gap-0.5 text-secondary">
@@ -141,7 +141,7 @@
                     <form action="{{ route('admin.feedback.reply', $f->id) }}" method="POST">
                         @csrf
                         <label for="admin-response-input-{{ $f->id }}"
-                            class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Tulis Balasan
+                            class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Tulis Balasan
                             Admin</label>
                         <textarea name="admin_response" id="admin-response-input-{{ $f->id }}" rows="2" required
                             class="w-full rounded-xl border border-gray-200 p-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white text-charcoal mb-3"
@@ -160,7 +160,7 @@
                 </div>
             </div>
         @empty
-            <div id="tour-empty-state" class="rounded-2xl border border-gray-100 bg-white p-8 text-center text-gray-400">
+            <div id="tour-empty-state" class="rounded-2xl border border-gray-100 bg-white p-8 text-center text-gray-500">
                 Tidak ada ulasan atau feedback dari wisatawan.
             </div>
         @endforelse

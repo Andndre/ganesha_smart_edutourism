@@ -20,16 +20,16 @@
                             x-text="item.date.toLocaleDateString('id-ID', { weekday: 'long' }) + ' · ' + item.wuku"></p>
                         <div class="mt-1 flex flex-wrap gap-1.5">
                             <template x-if="item.isPurnama">
-                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-100 bg-gray-50 px-2 py-0.5 text-[10px] font-bold text-gray-700"><span class="h-1.5 w-1.5 rounded-full bg-red-600"></span>Purnama</span>
+                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-100 bg-gray-50 px-2 py-0.5 text-[11px] font-bold text-gray-700"><span class="h-1.5 w-1.5 rounded-full bg-red-600"></span>Purnama</span>
                             </template>
                             <template x-if="item.isTilem">
-                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-100 bg-gray-50 px-2 py-0.5 text-[10px] font-bold text-gray-700"><span class="h-1.5 w-1.5 rounded-full bg-[#191A19]"></span>Tilem</span>
+                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-100 bg-gray-50 px-2 py-0.5 text-[11px] font-bold text-gray-700"><span class="h-1.5 w-1.5 rounded-full bg-[#191A19]"></span>Tilem</span>
                             </template>
                             <template x-for="name in item.rahinan" :key="name">
-                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-100 bg-gray-50 px-2 py-0.5 text-[10px] font-bold text-gray-700"><span class="h-1.5 w-1.5 rounded-full bg-red-600"></span><span x-text="name"></span></span>
+                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-100 bg-gray-50 px-2 py-0.5 text-[11px] font-bold text-gray-700"><span class="h-1.5 w-1.5 rounded-full bg-red-600"></span><span x-text="name"></span></span>
                             </template>
                             <template x-if="item.nationalHoliday">
-                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-100 bg-gray-50 px-2 py-0.5 text-[10px] font-bold text-gray-700"><span class="h-1.5 w-1.5 rounded-full bg-red-600"></span><span x-text="item.nationalHoliday"></span></span>
+                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-100 bg-gray-50 px-2 py-0.5 text-[11px] font-bold text-gray-700"><span class="h-1.5 w-1.5 rounded-full bg-red-600"></span><span x-text="item.nationalHoliday"></span></span>
                             </template>
                         </div>
                     </div>

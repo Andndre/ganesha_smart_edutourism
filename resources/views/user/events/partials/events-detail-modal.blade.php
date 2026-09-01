@@ -15,11 +15,11 @@
                     'bg-rose-50 text-rose-600 border-rose-100': selectedEvent.category && selectedEvent.category
                         .toLowerCase().includes('kuliner')
                 }"
-                class="rounded-lg border px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider"
+                class="rounded-lg border px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider"
                 x-text="selectedEvent.category"></span>
 
             <button type="button" @click="isOpen = false"
-                class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:text-gray-600 active:scale-95 md:hidden"
+                class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-500 transition-all hover:text-gray-600 active:scale-95 md:hidden"
                 title="{{ __('Tutup') }}">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -34,7 +34,7 @@
         <div class="flex items-center gap-3 rounded-2xl border border-gray-100 bg-gray-50/70 p-3.5">
             <div
                 class="bg-primary shadow-primary/10 flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl font-black text-white shadow-sm">
-                <span class="text-[9px] uppercase leading-none tracking-wider"
+                <span class="text-[11px] uppercase leading-none tracking-wider"
                     x-text="formatDateCard(selectedEvent.start_date).month"></span>
                 <span class="mt-1 text-lg leading-none" x-text="formatDateCard(selectedEvent.start_date).day"></span>
             </div>
@@ -70,7 +70,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Harga Tiket') }}</p>
+                    <p class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">{{ __('Harga Tiket') }}</p>
                     <p class="mt-1 text-xs font-black text-gray-700"
                         x-text="selectedEvent.is_free ? '{{ __('Gratis') }}' : '{{ __('Rp') }} ' + Number(selectedEvent.price).toLocaleString('id-ID')">
                     </p>
@@ -84,7 +84,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-[9px] font-bold uppercase leading-none tracking-wider text-gray-400">{{ __('Kapasitas') }}</p>
+                    <p class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">{{ __('Kapasitas') }}</p>
                     <p class="mt-1 text-xs font-black text-gray-700"
                         x-text="selectedEvent.max_participants ? selectedEvent.max_participants + ' {{ __('Orang') }}' : '-'"></p>
                 </div>
@@ -93,7 +93,7 @@
 
         <!-- Description -->
         <div class="border-t border-gray-50 pt-3">
-            <h4 class="mb-1.5 text-[10px] font-black uppercase tracking-wider text-gray-400">{{ __('Deskripsi Acara') }}</h4>
+            <h4 class="mb-1.5 text-[11px] font-black uppercase tracking-wider text-gray-500">{{ __('Deskripsi Acara') }}</h4>
             <p class="max-h-36 overflow-y-auto text-xs leading-relaxed text-gray-500"
                 x-text="selectedEvent.description || '{{ __('Tidak ada deskripsi tambahan.') }}'"></p>
         </div>
