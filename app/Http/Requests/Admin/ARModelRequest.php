@@ -27,9 +27,11 @@ class ARModelRequest extends FormRequest
             'description.id' => ['nullable', 'string'],
             'ar_marker_patt_content' => ['nullable', 'string'],
             'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
+            // mimetypes (content-sniffed) + extensions (filename) instead of `mimes`: .m4a
+            // is frequently sniffed as audio/mp4 or video/mp4, which `mimes:m4a` rejects.
             'audio_narration_file' => ['nullable', 'array'],
-            'audio_narration_file.en' => ['nullable', 'file', 'mimes:mp3,ogg,wav,m4a', 'max:10240'],
-            'audio_narration_file.id' => ['nullable', 'file', 'mimes:mp3,ogg,wav,m4a', 'max:10240'],
+            'audio_narration_file.en' => ['nullable', 'file', 'mimetypes:audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,video/mp4', 'extensions:mp3,ogg,wav,m4a', 'max:10240'],
+            'audio_narration_file.id' => ['nullable', 'file', 'mimetypes:audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,video/mp4', 'extensions:mp3,ogg,wav,m4a', 'max:10240'],
         ];
 
         // Store: require model_3d_file unless tmp path provided
