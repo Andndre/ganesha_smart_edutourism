@@ -70,12 +70,12 @@
                 </h3>
                 <div class="mt-2 flex flex-wrap gap-2">
                     <span id="sheet-category-badge"
-                        class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                        class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider">
                         <span id="sheet-category-dot" class="h-2 w-2 rounded-full"></span>
                         <span id="sheet-category-text">{{ __('Kategori') }}</span>
                     </span>
                     <span id="sheet-ar-badge"
-                        class="hidden items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-green-700">
+                        class="hidden items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-green-700">
                         <svg class="h-3 w-3 shrink-0 text-green-600" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -87,7 +87,7 @@
             </div>
             <!-- Custom close button for mobile (desktop close button is handled by x-modal template) -->
             <button type="button" onclick="closeSheet()"
-                class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:text-gray-600 active:scale-95 md:hidden"
+                class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-500 transition-all hover:text-gray-600 active:scale-95 md:hidden"
                 title="{{ __('Tutup') }}">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
@@ -99,7 +99,7 @@
         <div class="flex-1 space-y-4 overflow-y-auto pb-3 pr-1">
             <!-- Deskripsi Section -->
             <div id="section-desc">
-                <h4 class="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{{ __('Deskripsi') }}</h4>
+                <h4 class="mb-1 text-[11px] font-bold uppercase tracking-wider text-gray-500">{{ __('Deskripsi') }}</h4>
                 <p id="sheet-desc" class="text-sm leading-relaxed text-gray-600">{{ __('Detail deskripsi lokasi.') }}
                 </p>
             </div>
@@ -114,7 +114,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h4 class="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-800">
+                    <h4 class="mb-1 text-[11px] font-bold uppercase tracking-wider text-amber-800">
                         {{ __('Aksesibilitas') }}</h4>
                     <p id="sheet-accessibility" class="text-xs font-medium leading-relaxed text-amber-700"></p>
                 </div>

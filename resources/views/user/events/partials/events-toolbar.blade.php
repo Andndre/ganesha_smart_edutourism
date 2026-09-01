@@ -41,7 +41,7 @@
                     class="h-2 w-2 shrink-0 rounded-full"></span>
                 <span x-text="selectedCategory === 'All' ? '{{ __('Semua Kategori') }}' : selectedCategory"></span>
             </div>
-            <svg class="h-3.5 w-3.5 text-gray-400 transition-transform duration-200" :class="isOpen ? 'rotate-180' : ''"
+            <svg class="h-3.5 w-3.5 text-gray-500 transition-transform duration-200" :class="isOpen ? 'rotate-180' : ''"
                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>

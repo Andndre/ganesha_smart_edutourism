@@ -11,7 +11,7 @@
         aria-hidden="true"></div>
 
     <div class="relative">
-        <span class="text-secondary text-[10px] font-black uppercase tracking-[0.18em]">{{ __('Misi Selesai') }}</span>
+        <span class="text-secondary text-[11px] font-black uppercase tracking-[0.18em]">{{ __('Misi Selesai') }}</span>
 
         <p class="font-display text-charcoal mt-1 text-xl font-black">{{ __('Kerja Bagus!') }}</p>
 

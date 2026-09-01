@@ -114,7 +114,7 @@
             let popupContent = `
                 <div class="p-1">
                     <h4 class="font-bold text-charcoal text-sm mb-1">${loc.name}</h4>
-                    <span class="inline-block px-2 py-0.5 text-[10px] font-semibold text-white rounded mb-3 bg-${getCategoryColorClass(loc.category)}">
+                    <span class="inline-block px-2 py-0.5 text-[11px] font-semibold text-white rounded mb-3 bg-${getCategoryColorClass(loc.category)}">
                         ${loc.category.toUpperCase()}
                     </span>
                     <div class="mt-1">
@@ -345,16 +345,16 @@
                             </span>
                             <div>
                                 <h4 class="font-semibold text-charcoal text-sm">${point.name}</h4>
-                                <p class="text-[10px] uppercase font-bold tracking-wider text-gray-400 mt-0.5">${point.category}</p>
+                                <p class="text-[11px] uppercase font-bold tracking-wider text-gray-500 mt-0.5">${point.category}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button type="button" onclick="movePoint(${index}, -1)" ${index === 0 ? 'disabled' : ''} class="p-1 text-gray-400 hover:text-charcoal disabled:opacity-30">
+                            <button type="button" onclick="movePoint(${index}, -1)" ${index === 0 ? 'disabled' : ''} class="p-1 text-gray-500 hover:text-charcoal disabled:opacity-30">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
                                 </svg>
                             </button>
-                            <button type="button" onclick="movePoint(${index}, 1)" ${index === selectedPoints.length - 1 ? 'disabled' : ''} class="p-1 text-gray-400 hover:text-charcoal disabled:opacity-30">
+                            <button type="button" onclick="movePoint(${index}, 1)" ${index === selectedPoints.length - 1 ? 'disabled' : ''} class="p-1 text-gray-500 hover:text-charcoal disabled:opacity-30">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                                 </svg>
@@ -369,19 +369,19 @@
                     
                     <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-4 items-center">
                         <div class="sm:col-span-1">
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase">Kunjungan</label>
+                            <label class="block text-[11px] font-bold text-gray-500 uppercase">Kunjungan</label>
                             <div class="relative mt-1 flex items-center">
                                 <input type="number" min="1" value="${point.estimated_visit_minutes}" onchange="updatePointMinutes(${index}, this.value)" class="w-full rounded-lg border border-gray-200 py-1.5 pl-2 pr-12 text-xs focus:border-primary focus:outline-none">
-                                <span class="absolute right-2 text-[10px] text-gray-400 font-bold">menit</span>
+                                <span class="absolute right-2 text-[11px] text-gray-500 font-bold">menit</span>
                             </div>
                         </div>
                         <div class="sm:col-span-3 space-y-2">
                             <div>
-                                <label class="block text-[10px] font-bold text-gray-500 uppercase">Narasi Storytelling (EN)</label>
+                                <label class="block text-[11px] font-bold text-gray-500 uppercase">Narasi Storytelling (EN)</label>
                                 <input type="text" value="${storytellingEn}" onchange="updatePointStorytelling(${index}, 'en', this.value)" placeholder="e.g. Interesting story about this temple..." class="mt-1 w-full rounded-lg border border-gray-200 py-1.5 px-3 text-xs focus:border-primary focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-gray-500 uppercase">Narasi Storytelling (ID)</label>
+                                <label class="block text-[11px] font-bold text-gray-500 uppercase">Narasi Storytelling (ID)</label>
                                 <input type="text" value="${storytellingId}" onchange="updatePointStorytelling(${index}, 'id', this.value)" placeholder="Contoh: Cerita menarik untuk titik ini..." class="mt-1 w-full rounded-lg border border-gray-200 py-1.5 px-3 text-xs focus:border-primary focus:outline-none">
                             </div>
                         </div>
@@ -423,14 +423,14 @@
 
         const columns = locales.map(([locale, label]) => `
             <div class="rounded-lg border border-gray-100 p-2 space-y-2">
-                <span class="text-[10px] font-bold text-gray-400">${label}</span>
+                <span class="text-[11px] font-bold text-gray-500">${label}</span>
                 <div>
-                    <label class="block text-[9px] font-semibold text-gray-500">Video Pengantar</label>
-                    <input type="file" accept=".mp4,.webm" id="intro-video-file-${index}-${locale}" class="mt-0.5 w-full text-[10px]">
+                    <label class="block text-[11px] font-semibold text-gray-500">Video Pengantar</label>
+                    <input type="file" accept=".mp4,.webm" id="intro-video-file-${index}-${locale}" class="mt-0.5 w-full text-[11px]">
                     <input type="hidden" id="intro-video-tmp-${index}-${locale}" name="points[${index}][intro_video_tmp][${locale}]">
                     <input type="hidden" id="intro-video-path-${index}-${locale}" name="points[${index}][intro_video_paths][${locale}]" value="${escapeHtml(videoPaths[locale])}">
                     <div id="intro-video-progress-${index}-${locale}" class="tus-progress-container hidden mt-1">
-                        <div class="flex items-center gap-1 text-[9px] text-gray-500">
+                        <div class="flex items-center gap-1 text-[11px] text-gray-500">
                             <span class="tus-status-icon"></span>
                             <span class="tus-progress-text flex-1"></span>
                         </div>
@@ -441,8 +441,8 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[9px] font-semibold text-gray-500">Audio Narasi</label>
-                    <input type="file" accept=".mp3,.ogg,.wav,.m4a" class="mt-0.5 w-full text-[10px]" onchange="uploadIntroAudio(this, ${index}, '${locale}')">
+                    <label class="block text-[11px] font-semibold text-gray-500">Audio Narasi</label>
+                    <input type="file" accept=".mp3,.ogg,.wav,.m4a" class="mt-0.5 w-full text-[11px]" onchange="uploadIntroAudio(this, ${index}, '${locale}')">
                     <input type="hidden" id="intro-audio-path-${index}-${locale}" name="points[${index}][intro_audio_paths][${locale}]" value="${escapeHtml(audioPaths[locale])}">
                     <div id="intro-audio-preview-${index}-${locale}" class="intro-audio-preview">
                         ${audioPaths[locale] ? `<audio src="/audio-stream/${escapeHtml(audioPaths[locale])}" controls class="mt-1 h-8 w-full"></audio>` : ''}
@@ -452,7 +452,7 @@
 
         return `
             <div class="mt-1 border-t border-gray-100 pt-3">
-                <label class="mb-2 block text-[10px] font-bold uppercase text-gray-500">Media Pengantar (Opsional)</label>
+                <label class="mb-2 block text-[11px] font-bold uppercase text-gray-500">Media Pengantar (Opsional)</label>
                 <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">${columns}</div>
             </div>`;
     }

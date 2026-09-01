@@ -20,7 +20,7 @@
 
     <form method="GET" action="{{ route('admin.cultural-objects') }}" class="mb-4">
         <div class="relative max-w-md">
-            <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24"
+            <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -34,11 +34,11 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-gray-100 bg-gray-50/50">
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Nama</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Tri Hita Karana</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Titik Peta</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">AR</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Aksi</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Nama</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Tri Hita Karana</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Titik Peta</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">AR</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
@@ -50,7 +50,7 @@
                             </td>
                             <td class="px-5 py-4 text-gray-500">
                                 @if ($object->map_locations_count === 0)
-                                    <span class="text-xs italic text-gray-400">Tidak ada titik (perkakas)</span>
+                                    <span class="text-xs italic text-gray-500">Tidak ada titik (perkakas)</span>
                                 @else
                                     {{ $object->map_locations_count }} titik
                                 @endif
@@ -59,7 +59,7 @@
                                 @if ($object->arModel)
                                     <span class="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">Ada</span>
                                 @else
-                                    <span class="text-xs italic text-gray-400">—</span>
+                                    <span class="text-xs italic text-gray-500">—</span>
                                 @endif
                             </td>
                             <td class="px-5 py-4">
@@ -77,7 +77,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-5 py-10 text-center text-gray-400">Belum ada objek budaya.</td>
+                            <td colspan="5" class="px-5 py-10 text-center text-gray-500">Belum ada objek budaya.</td>
                         </tr>
                     @endforelse
                 </tbody>

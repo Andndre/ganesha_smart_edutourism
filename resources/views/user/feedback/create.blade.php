@@ -89,11 +89,11 @@
             </div>
             <input type="file" id="photo-input" accept="image/*" multiple class="hidden">
             <button type="button" id="add-photo-btn" onclick="document.getElementById('photo-input').click()"
-                class="flex h-20 w-20 shrink-0 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-400 transition-colors active:bg-gray-100">
+                class="flex h-20 w-20 shrink-0 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-500 transition-colors active:bg-gray-100">
                 <svg class="mb-1 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                <span class="text-[10px] font-semibold">{{ __('Tambah') }}</span>
+                <span class="text-[11px] font-semibold">{{ __('Tambah') }}</span>
             </button>
         </div>
 

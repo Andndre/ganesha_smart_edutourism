@@ -3,8 +3,8 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=0">
+    {{-- Pinch-zoom sengaja dibiarkan aktif: app dipakai outdoor, banyak wisatawan lansia --}}
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#FAF9F6">
     <meta name="mobile-web-app-capable" content="yes">
 
@@ -175,7 +175,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-[10px] font-bold uppercase tracking-wider text-green-100">
+                                <p class="text-[11px] font-bold uppercase tracking-wider text-green-100">
                                     {{ __('Smart Edutourism Aktif') }}</p>
                                 <h4 class="max-w-37.5 sm:max-w-50 truncate font-bold leading-tight text-white">
                                     {{ $activeEdutourismSession->tourRoute->name }}</h4>
@@ -250,12 +250,12 @@
 
                     const svg = link.querySelector('svg');
                     if (isActive) {
-                        link.classList.remove('text-gray-400', 'hover:text-gray-600', 'lg:hover:bg-gray-100');
+                        link.classList.remove('text-gray-500', 'hover:text-gray-600', 'lg:hover:bg-gray-100');
                         link.classList.add('text-primary', 'lg:bg-primary/10', 'lg:text-primary-700');
                         if (svg) svg.setAttribute('stroke-width', '2.5');
                     } else {
                         link.classList.remove('text-primary', 'lg:bg-primary/10', 'lg:text-primary-700');
-                        link.classList.add('text-gray-400', 'hover:text-gray-600', 'lg:hover:bg-gray-100');
+                        link.classList.add('text-gray-500', 'hover:text-gray-600', 'lg:hover:bg-gray-100');
                         if (svg) svg.setAttribute('stroke-width', '2');
                     }
                 });

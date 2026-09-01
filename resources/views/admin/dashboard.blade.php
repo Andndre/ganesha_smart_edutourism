@@ -83,7 +83,7 @@
                     </span>
                 </div>
                 <p class="text-charcoal mt-4 text-2xl font-bold">
-                    {{ $stat['value'] }}<span class="ml-1 text-sm font-normal text-gray-400">{{ $stat['unit'] }}</span>
+                    {{ $stat['value'] }}<span class="ml-1 text-sm font-normal text-gray-500">{{ $stat['unit'] }}</span>
                 </p>
                 <p class="mt-0.5 text-xs font-medium text-gray-500">{{ $stat['label'] }}</p>
             </div>

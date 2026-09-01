@@ -67,7 +67,7 @@
                             class="h-full w-full object-cover">
                     @else
                         <div class="flex h-full w-full items-center justify-center p-4 text-center">
-                            <span class="text-xs text-gray-400">Tidak ada pratinjau</span>
+                            <span class="text-xs text-gray-500">Tidak ada pratinjau</span>
                         </div>
                     @endif
                 </div>
@@ -83,7 +83,7 @@
                     <div @if ($loop->first) id="tour-marker-download" @endif
                         class="mt-3 flex items-center gap-1.5">
                         <span
-                            class="bg-primary/10 text-primary max-w-40 truncate rounded-full px-2 py-0.5 font-mono text-[10px] font-bold">{{ $m->ar_marker_id }}</span>
+                            class="bg-primary/10 text-primary max-w-40 truncate rounded-full px-2 py-0.5 font-mono text-[11px] font-bold">{{ $m->ar_marker_id }}</span>
                         <button type="button" onclick="triggerMarkerDownload('{{ $m->ar_marker_id }}')"
                             class="text-primary hover:bg-primary/10 ml-auto shrink-0 rounded-lg p-1.5 transition-colors"
                             title="Unduh QR Marker">
@@ -95,12 +95,12 @@
                     </div>
                 @else
                     <div @if ($loop->first) id="tour-marker-download" @endif class="mt-3">
-                        <span class="text-[10px] italic text-gray-400">Belum ada marker QR</span>
+                        <span class="text-[11px] italic text-gray-500">Belum ada marker QR</span>
                     </div>
                 @endif
 
                 @if ($m->culturalObject)
-                    <span class="mt-1 truncate text-[10px] font-medium text-gray-500">📍 {{ translateValue($m->culturalObject->name) }}</span>
+                    <span class="mt-1 truncate text-[11px] font-medium text-gray-500">📍 {{ translateValue($m->culturalObject->name) }}</span>
                 @endif
 
                 <div @if ($loop->first) id="tour-actions" @endif
@@ -123,7 +123,7 @@
                                 ]
                                 : null,
                         ]) }})"
-                        class="hover:text-primary p-1 text-gray-400 transition-colors" title="Edit Model">
+                        class="hover:text-primary p-1 text-gray-500 transition-colors" title="Edit Model">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -133,7 +133,7 @@
                         class="delete-form inline" data-confirm="{{ 'Apakah Anda yakin ingin menghapus model ini?' }}">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="hover:text-warning p-1 text-gray-400 transition-colors"
+                        <button type="submit" class="hover:text-warning p-1 text-gray-500 transition-colors"
                             title="Hapus Model">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -144,7 +144,7 @@
                 </div>
             </div>
         @empty
-            <div id="tour-empty-state" class="col-span-3 py-12 text-center text-sm text-gray-400">Belum ada model 3D
+            <div id="tour-empty-state" class="col-span-3 py-12 text-center text-sm text-gray-500">Belum ada model 3D
                 ditambahkan.</div>
         @endforelse
     </div>

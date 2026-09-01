@@ -168,7 +168,7 @@
                     // this game teaches the consequence, it does not just grade the guess.
                     if (this.scenario.options[oIdx].correct) return 'border-emerald-500 bg-emerald-50 text-emerald-900 edu-shine';
                     if (this.chosen === oIdx) return 'border-red-400 bg-red-50 text-red-900 edu-shake edu-flash';
-                    return 'border-gray-100 bg-gray-50/70 text-gray-400';
+                    return 'border-gray-100 bg-gray-50/70 text-gray-500';
                 },
 
                 markClass(oIdx) {

@@ -651,7 +651,7 @@
 
                 if (matches.length === 0) {
                     const li = document.createElement('li');
-                    li.className = 'px-5 py-4 text-center text-sm text-gray-400';
+                    li.className = 'px-5 py-4 text-center text-sm text-gray-500';
                     li.textContent = @js(__('Hasil tidak ditemukan'));
                     list.appendChild(li);
                 } else {
@@ -671,7 +671,7 @@
                         name.className = 'truncate text-sm font-semibold text-gray-800';
                         name.textContent = loc.name;
                         const cat = document.createElement('p');
-                        cat.className = 'text-[11px] text-gray-400';
+                        cat.className = 'text-[11px] text-gray-500';
                         cat.textContent = categoryLabels[loc.cat] || @js(__('Lokasi'));
                         info.appendChild(name);
                         info.appendChild(cat);

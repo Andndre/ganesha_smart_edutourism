@@ -4,7 +4,7 @@
     <form id="tour-search-form" @submit.prevent="searchEvents" method="GET" action="{{ route('admin.events') }}"
         class="flex flex-col gap-3 sm:flex-row">
         <div class="relative flex-1">
-            <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none"
+            <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" fill="none"
                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round"
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -39,19 +39,19 @@
                 <thead>
                     <tr class="border-b border-gray-100 bg-gray-50/50">
                         <th
-                            class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+                            class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                             Nama Event</th>
                         <th
-                            class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+                            class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                             Tanggal</th>
                         <th
-                            class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+                            class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                             Lokasi</th>
                         <th
-                            class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+                            class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                             Status</th>
                         <th
-                            class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+                            class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                             Aksi</th>
                     </tr>
                 </thead>
@@ -64,7 +64,7 @@
                                 $statusClass = 'bg-primary/10 text-primary';
                             } elseif ($e->end_datetime < $now) {
                                 $statusLabel = 'Selesai';
-                                $statusClass = 'bg-gray-100 text-gray-400';
+                                $statusClass = 'bg-gray-100 text-gray-500';
                             } else {
                                 $statusLabel = 'Berlangsung';
                                 $statusClass = 'bg-secondary/10 text-secondary-800';
@@ -75,7 +75,7 @@
                                 <div>
                                     <p>{{ $e->name }}</p>
                                     <span
-                                        class="bg-primary/8 text-primary mt-0.5 inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold">{{ $e->getCategoryLabel() }}</span>
+                                        class="bg-primary/8 text-primary mt-0.5 inline-block rounded px-1.5 py-0.5 text-[11px] font-semibold">{{ $e->getCategoryLabel() }}</span>
                                 </div>
                             </td>
                             <td class="px-5 py-4 text-gray-500">
@@ -108,7 +108,7 @@
                                             'price' => $e->price,
                                             'max_participants' => $e->max_participants,
                                         ]) }})"
-                                        class="hover:bg-primary/10 hover:text-primary rounded-lg p-1.5 text-gray-400 transition-colors"
+                                        class="hover:bg-primary/10 hover:text-primary rounded-lg p-1.5 text-gray-500 transition-colors"
                                         title="Edit">
                                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                             stroke="currentColor" stroke-width="2">
@@ -122,7 +122,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
-                                            class="hover:bg-warning/10 hover:text-warning rounded-lg p-1.5 text-gray-400 transition-colors"
+                                            class="hover:bg-warning/10 hover:text-warning rounded-lg p-1.5 text-gray-500 transition-colors"
                                             title="Hapus">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                                 stroke="currentColor" stroke-width="2">
@@ -136,7 +136,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-5 py-8 text-center text-gray-400">Belum ada data event.
+                            <td colspan="5" class="px-5 py-8 text-center text-gray-500">Belum ada data event.
                             </td>
                         </tr>
                     @endforelse

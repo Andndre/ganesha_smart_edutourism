@@ -39,7 +39,7 @@
         ['label' => 'Mancanegara', 'value' => $foreignVisitors, 'unit' => 'orang'],
     ] as $card)
         <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">{{ $card['label'] }}</p>
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">{{ $card['label'] }}</p>
             <p class="mt-2 text-2xl font-bold text-charcoal">{{ number_format($card['value']) }}</p>
             <p class="mt-1 text-xs text-gray-500">{{ $card['unit'] }}</p>
         </div>
@@ -58,7 +58,7 @@
             </div>
         @endforeach
     </div>
-    <div class="mt-2 flex justify-between text-[10px] text-gray-400">
+    <div class="mt-2 flex justify-between text-[11px] text-gray-500">
         <span>00</span><span>06</span><span>12</span><span>18</span><span>23</span>
     </div>
 </div>
@@ -87,13 +87,13 @@
                     <td class="px-4 py-3">{{ $scan['duplicate_attempts'] > 0 ? $scan['duplicate_attempts'].'x' : '-' }}</td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="px-4 py-8 text-center text-gray-400">Belum ada tiket yang dipindai pada rentang ini.</td></tr>
+                <tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">Belum ada tiket yang dipindai pada rentang ini.</td></tr>
             @endforelse
         </tbody>
     </table>
 </div>
 @if ($historyTruncated)
-    <p class="mt-3 text-center text-xs text-gray-400">Hanya 200 tiket terbaru yang ditampilkan pada tabel ini. Kartu ringkasan di atas tetap menghitung seluruh rentang.</p>
+    <p class="mt-3 text-center text-xs text-gray-500">Hanya 200 tiket terbaru yang ditampilkan pada tabel ini. Kartu ringkasan di atas tetap menghitung seluruh rentang.</p>
 @endif
 
 @endsection

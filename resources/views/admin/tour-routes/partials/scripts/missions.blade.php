@@ -107,20 +107,20 @@ function addMissionField(mission = null) {
     row.innerHTML = `
         <div class="flex items-center justify-between">
             <button type="button" onclick="toggleMissionBody(this)" class="mission-toggle-btn flex min-w-0 flex-1 items-center gap-2 py-1 text-left">
-                <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                <svg class="h-4 w-4 shrink-0 text-gray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                 <div class="min-w-0">
                     <span class="text-sm font-bold text-gray-700">Misi ${idx + 1}</span>
-                    <p class="mission-summary truncate text-[10px] text-gray-400">${escapeHtml(missionTypeLabel(m.type))} · ${escapeHtml(m.title?.id || m.title?.en || '(tanpa judul)')}</p>
+                    <p class="mission-summary truncate text-[11px] text-gray-500">${escapeHtml(missionTypeLabel(m.type))} · ${escapeHtml(m.title?.id || m.title?.en || '(tanpa judul)')}</p>
                 </div>
             </button>
             <div class="flex shrink-0 items-center gap-1.5">
-                <button @click="locale='id'" :class="locale==='id'?'bg-primary text-white':'bg-gray-100 text-gray-500'" class="px-2 py-0.5 rounded text-[10px] font-semibold" type="button">ID</button>
-                <button @click="locale='en'" :class="locale==='en'?'bg-primary text-white':'bg-gray-100 text-gray-500'" class="px-2 py-0.5 rounded text-[10px] font-semibold" type="button">EN</button>
-                <button type="button" onclick="translateMissionTitle(this)" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-secondary/20 hover:bg-secondary/30 text-charcoal flex items-center gap-0.5 transition-all">
+                <button @click="locale='id'" :class="locale==='id'?'bg-primary text-white':'bg-gray-100 text-gray-500'" class="px-2 py-0.5 rounded text-[11px] font-semibold" type="button">ID</button>
+                <button @click="locale='en'" :class="locale==='en'?'bg-primary text-white':'bg-gray-100 text-gray-500'" class="px-2 py-0.5 rounded text-[11px] font-semibold" type="button">EN</button>
+                <button type="button" onclick="translateMissionTitle(this)" class="px-1.5 py-0.5 rounded text-[11px] font-bold bg-secondary/20 hover:bg-secondary/30 text-charcoal flex items-center gap-0.5 transition-all">
                     <svg class="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.05 9.5A18 18 0 016.4 9m6.1 9h7M11 21l5-10 5 10M12.75 5C11.78 10.77 8.07 15.61 3 18.13"/></svg>
                     <span>Terjemahkan</span>
                 </button>
-                <button type="button" onclick="this.closest('.mission-item').remove(); markMissionDirty();" class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors">
+                <button type="button" onclick="this.closest('.mission-item').remove(); markMissionDirty();" class="p-1 text-gray-500 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>
             </div>
@@ -193,7 +193,7 @@ function renderMissionConfig(row, type, config) {
     container.innerHTML = '';
     const builder = window.MISSION_CONFIG_BUILDERS[type];
     if (builder) builder(container, config);
-    else container.innerHTML = '<p class="text-xs text-gray-400">Editor untuk tipe ini belum tersedia.</p>';
+    else container.innerHTML = '<p class="text-xs text-gray-500">Editor untuk tipe ini belum tersedia.</p>';
 }
 
 // DOM -> window.missionState[currentMissionPoint]
@@ -233,11 +233,11 @@ function collectMissions() {
 function bilingualInput(cls, value = { en: '', id: '' }, label = '') {
     return `
       <div x-data="{ l:'id' }" class="rounded-lg border border-gray-100 p-2">
-        ${label ? `<div class="flex items-center justify-between"><span class="text-[10px] font-semibold text-gray-500">${label}</span>
+        ${label ? `<div class="flex items-center justify-between"><span class="text-[11px] font-semibold text-gray-500">${label}</span>
           <span class="flex gap-1 items-center">
-            <button type="button" @click="l='id'" :class="l==='id'?'bg-primary text-white':'bg-gray-100'" class="px-1.5 py-0.5 rounded text-[10px] font-semibold">ID</button>
-            <button type="button" @click="l='en'" :class="l==='en'?'bg-primary text-white':'bg-gray-100'" class="px-1.5 py-0.5 rounded text-[10px] font-semibold">EN</button>
-            <button type="button" onclick="translateBilingualField(this, '${cls}')" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-secondary/20 hover:bg-secondary/30 text-charcoal flex items-center gap-0.5 transition-all">
+            <button type="button" @click="l='id'" :class="l==='id'?'bg-primary text-white':'bg-gray-100'" class="px-1.5 py-0.5 rounded text-[11px] font-semibold">ID</button>
+            <button type="button" @click="l='en'" :class="l==='en'?'bg-primary text-white':'bg-gray-100'" class="px-1.5 py-0.5 rounded text-[11px] font-semibold">EN</button>
+            <button type="button" onclick="translateBilingualField(this, '${cls}')" class="px-1.5 py-0.5 rounded text-[11px] font-bold bg-secondary/20 hover:bg-secondary/30 text-charcoal flex items-center gap-0.5 transition-all">
               <svg class="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.05 9.5A18 18 0 016.4 9m6.1 9h7M11 21l5-10 5 10M12.75 5C11.78 10.77 8.07 15.61 3 18.13"/></svg>
               <span>Terjemahkan</span>
             </button>
@@ -387,9 +387,9 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
                 <div class="img-preview-wrap w-full h-full flex items-center justify-center">
                   ${data.image ? `
                     <img src="${escapeHtml(data.image)}" alt="" class="mc-image-preview w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] text-white font-semibold">Ganti</div>
+                    <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-[11px] text-white font-semibold">Ganti</div>
                   ` : `
-                    <div class="text-gray-400 flex flex-col items-center gap-0.5 placeholder-wrap">
+                    <div class="text-gray-500 flex flex-col items-center gap-0.5 placeholder-wrap">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                       <span class="text-[8px] font-medium">Gambar</span>
                     </div>
@@ -401,7 +401,7 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
               <div class="flex-1 min-w-0 space-y-2">
                 ${bilingualInput('mc-label', data.label || {en:'',id:''}, 'Label')}
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-semibold text-gray-500">Ikon (emoji, opsional):</span>
+                  <span class="text-[11px] font-semibold text-gray-500">Ikon (emoji, opsional):</span>
                   <input type="text" class="mc-icon w-16 rounded border border-gray-200 px-2 py-1 text-sm" placeholder="🌿" value="${escapeHtml(data.icon || '')}" oninput="markMissionDirty()">
                 </div>
                 ${bilingualInput('mc-explanation', data.explanation || {en:'',id:''}, 'Penjelasan (opsional)')}
@@ -411,7 +411,7 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
                     <span>Pilihan Benar</span>
                   </label>
                   
-                  <button type="button" onclick="this.closest('.mc-row').remove(); markMissionDirty()" class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center" title="Hapus">
+                  <button type="button" onclick="this.closest('.mc-row').remove(); markMissionDirty()" class="p-1 text-gray-500 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center" title="Hapus">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                   </button>
                 </div>
@@ -427,9 +427,9 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
                 <div class="img-preview-wrap w-full h-full flex items-center justify-center">
                   ${data.image ? `
                     <img src="${escapeHtml(data.image)}" alt="" class="mc-image-preview w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] text-white font-semibold">Ganti</div>
+                    <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-[11px] text-white font-semibold">Ganti</div>
                   ` : `
-                    <div class="text-gray-400 flex flex-col items-center gap-0.5 placeholder-wrap">
+                    <div class="text-gray-500 flex flex-col items-center gap-0.5 placeholder-wrap">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                       <span class="text-[8px] font-medium">Gambar</span>
                     </div>
@@ -444,18 +444,18 @@ window.MISSION_CONFIG_BUILDERS['matching'] = function (c, cfg) {
                   ${bilingualInput('mc-right', data.right || {en:'',id:''}, 'Kanan (jawaban)')}
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-semibold text-gray-500">Ikon (emoji, opsional):</span>
+                  <span class="text-[11px] font-semibold text-gray-500">Ikon (emoji, opsional):</span>
                   <input type="text" class="mc-icon w-16 rounded border border-gray-200 px-2 py-1 text-sm" placeholder="🚪" value="${escapeHtml(data.icon || '')}" oninput="markMissionDirty()">
                 </div>
                 ${bilingualInput('mc-match-explanation', data.explanation || {en:'',id:''}, 'Penjelasan pasangan (opsional)')}
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-semibold text-gray-500">Audio (opsional):</span>
+                  <span class="text-[11px] font-semibold text-gray-500">Audio (opsional):</span>
                   <input type="hidden" class="mc-audio" value="${escapeHtml(data.audio)}">
-                  <input type="file" accept=".mp3,.ogg,.wav,.m4a" class="text-[10px]" onchange="uploadMissionAudio(this, '.mc-audio')">
+                  <input type="file" accept=".mp3,.ogg,.wav,.m4a" class="text-[11px]" onchange="uploadMissionAudio(this, '.mc-audio')">
                 </div>
                 <div class="mc-audio-preview">${data.audio ? `<audio src="/audio-stream/${escapeHtml(data.audio)}" controls class="mt-1 h-6 w-full"></audio>` : ''}</div>
                 <div class="flex justify-end">
-                  <button type="button" onclick="this.closest('.mc-row').remove(); markMissionDirty()" class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center" title="Hapus">
+                  <button type="button" onclick="this.closest('.mc-row').remove(); markMissionDirty()" class="p-1 text-gray-500 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center" title="Hapus">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                   </button>
                 </div>
@@ -557,7 +557,7 @@ function uploadMissionAsset(fileInput, hiddenSelector) {
                     if (previewWrap) {
                         previewWrap.innerHTML = `
                           <img src="${escapeHtml(d.url)}" alt="" class="mc-image-preview w-full h-full object-cover">
-                          <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] text-white font-semibold">Ganti</div>
+                          <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-[11px] text-white font-semibold">Ganti</div>
                         `;
                     }
                 } else {
@@ -592,7 +592,7 @@ window.MISSION_CONFIG_BUILDERS['sequence'] = function (c, cfg) {
       <div class="sq-prompt mb-2">${bilingualInput('sq-prompt', cfg.prompt || {en:'',id:''}, 'Instruksi (prompt)')}</div>
       <div class="sq-explanation mb-2">${bilingualInput('sq-explanation', cfg.explanation || {en:'',id:''}, 'Penjelasan setelah periksa (opsional)')}</div>
       <label class="flex items-center gap-2 text-xs mb-2"><input type="checkbox" class="sq-reveal" ${cfg.reveal_first?'checked':''} onchange="markMissionDirty()"> Sembunyikan dulu (reveal first)</label>
-      <p class="text-[10px] text-gray-400 mb-1">Urutkan item dari atas ke bawah sesuai kronologi yang BENAR.</p>
+      <p class="text-[11px] text-gray-500 mb-1">Urutkan item dari atas ke bawah sesuai kronologi yang BENAR.</p>
       <div class="sq-rows space-y-2"></div>
       <button type="button" class="sq-add mt-2 text-xs text-primary font-semibold">+ Tambah Langkah</button>`;
     const rows = c.querySelector('.sq-rows');
@@ -704,7 +704,7 @@ window.MISSION_CONFIG_BUILDERS['decision'] = function (c, cfg) {
                 </div>
               </div>
               <div class="flex justify-end mt-1">
-                <button type="button" onclick="this.closest('.ds-option').remove(); markMissionDirty()" class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center" title="Hapus Opsi">
+                <button type="button" onclick="this.closest('.ds-option').remove(); markMissionDirty()" class="p-1 text-gray-500 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center" title="Hapus Opsi">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>
               </div>`;
@@ -839,9 +839,9 @@ window.MISSION_CONFIG_BUILDERS['puzzle'] = function (c, cfg) {
           <div class="img-preview-wrap w-full h-full flex items-center justify-center">
             ${cfg.image ? `
               <img src="${escapeHtml(cfg.image)}" alt="" class="mc-image-preview w-full h-full object-cover">
-              <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] text-white font-semibold">Ganti</div>
+              <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-[11px] text-white font-semibold">Ganti</div>
             ` : `
-              <div class="text-gray-400 flex flex-col items-center gap-0.5 placeholder-wrap">
+              <div class="text-gray-500 flex flex-col items-center gap-0.5 placeholder-wrap">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                 <span class="text-[8px] font-medium">Foto</span>
               </div>
@@ -849,7 +849,7 @@ window.MISSION_CONFIG_BUILDERS['puzzle'] = function (c, cfg) {
           </div>
         </div>
         <div class="flex-1 min-w-0 space-y-2">
-          <p class="text-[10px] leading-snug text-gray-500">Kosongkan foto untuk memakai gambar objek budaya di titik ini.</p>
+          <p class="text-[11px] leading-snug text-gray-500">Kosongkan foto untuk memakai gambar objek budaya di titik ini.</p>
           <div class="flex items-center gap-3">
             <label class="text-xs font-semibold text-gray-600">Tingkat kesulitan</label>
             <select class="pz-grid rounded-lg border border-gray-200 px-2 py-1 text-sm" onchange="markMissionDirty()">
@@ -858,7 +858,7 @@ window.MISSION_CONFIG_BUILDERS['puzzle'] = function (c, cfg) {
               <option value="5" ${Number(cfg.grid_size) === 5 ? 'selected' : ''}>Sulit (5x5)</option>
             </select>
           </div>
-          <p class="text-[10px] leading-snug text-gray-500">Papan mengikuti rasio foto aslinya, jadi tidak ada bagian yang terpotong. Foto utuh juga ditampilkan di bawah papan sebagai contoh.</p>
+          <p class="text-[11px] leading-snug text-gray-500">Papan mengikuti rasio foto aslinya, jadi tidak ada bagian yang terpotong. Foto utuh juga ditampilkan di bawah papan sebagai contoh.</p>
         </div>
       </div>
       <div class="pz-prompt mt-2">${bilingualInput('pz-prompt', cfg.prompt || {en:'',id:''}, 'Instruksi (prompt)')}</div>

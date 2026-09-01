@@ -11,7 +11,7 @@
     </div>
 
     {{-- Empty state --}}
-    <div id="points-empty-state" class="rounded-xl border border-dashed border-gray-200 p-8 text-center text-xs text-gray-400">
+    <div id="points-empty-state" class="rounded-xl border border-dashed border-gray-200 p-8 text-center text-xs text-gray-500">
         Belum ada titik yang dipilih. Silakan klik penanda lokasi di peta di sebelah kanan untuk menambahkan titik kunjungan.
     </div>
 

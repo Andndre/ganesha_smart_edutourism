@@ -35,15 +35,15 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-gray-100 bg-gray-50/50">
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Nama
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Nama
                             Petugas</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Email
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Email
                         </th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Nomor
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Nomor
                             Telepon</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                             Tanggal Terdaftar</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Aksi
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Aksi
                         </th>
                     </tr>
                 </thead>
@@ -58,7 +58,7 @@
                             <td class="px-5 py-4">
                                 <div @if ($loop->first) id="tour-actions" @endif class="flex items-center gap-2">
                                     <button onclick="openEditModal({{ json_encode($officer) }})"
-                                        class="hover:bg-primary/10 hover:text-primary rounded-lg p-1.5 text-gray-400 transition-colors"
+                                        class="hover:bg-primary/10 hover:text-primary rounded-lg p-1.5 text-gray-500 transition-colors"
                                         title="Edit">
                                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                             stroke-width="2">
@@ -72,7 +72,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
-                                            class="hover:bg-warning/10 hover:text-warning rounded-lg p-1.5 text-gray-400 transition-colors"
+                                            class="hover:bg-warning/10 hover:text-warning rounded-lg p-1.5 text-gray-500 transition-colors"
                                             title="Hapus">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                                 stroke-width="2">
@@ -86,7 +86,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td id="tour-empty-state" colspan="5" class="px-5 py-8 text-center text-gray-400">Belum ada
+                            <td id="tour-empty-state" colspan="5" class="px-5 py-8 text-center text-gray-500">Belum ada
                                 akun petugas tiket.
                             </td>
                         </tr>
@@ -133,7 +133,7 @@
                         <input type="password" name="password" id="field-password" required
                             class="focus:border-primary w-full rounded-xl border border-gray-200 py-2.5 pl-4 pr-10 text-sm focus:outline-none">
                         <button type="button" onclick="togglePasswordVisibility()"
-                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
+                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-600">
                             <svg id="eye-open-icon" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -148,7 +148,7 @@
                             </svg>
                         </button>
                     </div>
-                    <p id="password-help" class="mt-1 hidden text-xs text-gray-400">* Biarkan kosong jika tidak ingin
+                    <p id="password-help" class="mt-1 hidden text-xs text-gray-500">* Biarkan kosong jika tidak ingin
                         mengganti password.</p>
                     @error('password')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>

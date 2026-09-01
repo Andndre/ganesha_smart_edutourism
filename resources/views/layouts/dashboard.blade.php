@@ -174,7 +174,7 @@
                 class="h-8 w-auto object-contain">
             <div>
                 <p class="font-display text-sm font-bold leading-tight tracking-wide text-white">Penglipuran</p>
-                <p class="text-[10px] font-medium uppercase tracking-widest text-white/40">
+                <p class="text-[11px] font-medium uppercase tracking-widest text-white/40">
                     {{ (auth()->user()->isAdmin() && session()->has('admin_view_umkm_profile_id') && request()->is('owner/*')) ? 'Owner Panel (Preview)' : (auth()->user()->isAdminOrViewer() ? 'Admin Panel' : (auth()->user()->isTicketOfficer() ? 'Staff Panel' : 'Owner Panel')) }}
                 </p>
             </div>
@@ -409,7 +409,7 @@
 
             @foreach ($navItems as $item)
                 @if (isset($item['type']) && $item['type'] === 'header')
-                    <div class="px-4 pt-4 pb-1 text-[10px] font-bold uppercase tracking-wider text-white/30">{{ $item['label'] }}</div>
+                    <div class="px-4 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-white/30">{{ $item['label'] }}</div>
                 @else
                     @php
                         $isActive = Route::is($item['route']) || (!($item['exact'] ?? false) && Route::is($item['route'] . '.*'));
@@ -446,7 +446,7 @@
                 </div>
                 <div class="min-w-0">
                     <p class="truncate text-xs font-semibold text-white">{{ auth()->user()?->name ?? 'User' }}</p>
-                    <p class="truncate text-[10px] text-white/40">{{ auth()->user()?->email ?? '' }}</p>
+                    <p class="truncate text-[11px] text-white/40">{{ auth()->user()?->email ?? '' }}</p>
                 </div>
             </div>
             <form method="POST" action="{{ route('logout') }}">

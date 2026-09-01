@@ -3,7 +3,7 @@
     <x-modal name="category-detail" maxWidth="sm">
         <!-- Close Button (Mobile only, desktop has close button in x-modal) -->
         <button type="button" onclick="closeCategoryModal()"
-            class="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:text-gray-600 active:scale-95 md:hidden"
+            class="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-500 transition-all hover:text-gray-600 active:scale-95 md:hidden"
             title="{{ __('Tutup') }}">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />

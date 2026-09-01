@@ -55,7 +55,7 @@
                     </div>
                 </template>
             @else
-                <div class="absolute inset-0 flex items-center justify-center text-gray-400">
+                <div class="absolute inset-0 flex items-center justify-center text-gray-500">
                     <svg class="h-16 w-16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -136,7 +136,7 @@
                     </button>
                     <div class="flex-1">
                         <div
-                            class="mb-0.5 inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
+                            class="mb-0.5 inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-500">
                             {{ app()->getLocale() === 'id' ? __('Audio Bahasa Indonesia') : __('Audio Bahasa Inggris') }}
                         </div>
                         <div class="text-charcoal text-sm font-bold"
@@ -144,7 +144,7 @@
                             {{ __('Dengarkan Kisah Ini') }}</div>
                         <!-- Playback Seekbar & Timers -->
                         <div class="mt-1.5 flex items-center gap-3">
-                            <span class="min-w-7 text-[10px] font-bold tabular-nums text-gray-500"
+                            <span class="min-w-7 text-[11px] font-bold tabular-nums text-gray-500"
                                 x-text="formatTime(currentTime)">0:00</span>
                             <input type="range" min="0" :max="duration || 100" x-model.number="currentTime"
                                 @mousedown="dragging = true" @touchstart="dragging = true"
@@ -153,7 +153,7 @@
                                 :style="'background: linear-gradient(to right, #1E5128 0%, #1E5128 ' + (currentTime / (
                                     duration || 100) * 100) + '%, #f3f4f6 ' + (currentTime / (duration || 100) * 100) +
                                 '%, #f3f4f6 100%);'">
-                            <span class="min-w-7 text-right text-[10px] font-bold tabular-nums text-gray-500"
+                            <span class="min-w-7 text-right text-[11px] font-bold tabular-nums text-gray-500"
                                 x-text="duration ? formatTime(duration) : '0:00'">0:00</span>
                         </div>
                     </div>

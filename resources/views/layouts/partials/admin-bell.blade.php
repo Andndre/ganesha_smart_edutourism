@@ -12,7 +12,7 @@
             <span class="text-sm font-medium">{{ __('Notifikasi') }}</span>
         @endif
         <span x-show="unread > 0" x-cloak x-text="unread > 9 ? '9+' : unread"
-            class="{{ $onDarkBg ? 'ml-auto' : 'absolute -top-0.5 -right-0.5' }} min-w-4.5 rounded-full bg-warning px-1 text-[10px] font-bold leading-[18px] text-white text-center"></span>
+            class="{{ $onDarkBg ? 'ml-auto' : 'absolute -top-0.5 -right-0.5' }} min-w-4.5 rounded-full bg-warning px-1 text-[11px] font-bold leading-[18px] text-white text-center"></span>
     </button>
 
     <div x-show="open" x-cloak @click.outside="open = false" @keydown.escape.window="open = false"
@@ -25,7 +25,7 @@
         </div>
 
         <template x-if="items.length === 0">
-            <p class="px-4 py-8 text-center text-sm text-gray-400">{{ __('Tidak ada notifikasi.') }}</p>
+            <p class="px-4 py-8 text-center text-sm text-gray-500">{{ __('Tidak ada notifikasi.') }}</p>
         </template>
 
         <template x-for="n in items" :key="n.id">
@@ -34,7 +34,7 @@
                 :class="n.read_at ? 'opacity-60' : ''">
                 <div class="text-sm font-semibold text-charcoal" x-text="n.data.title"></div>
                 <div class="mt-0.5 text-xs text-gray-500" x-text="n.data.body"></div>
-                <div class="mt-1 text-[10px] uppercase tracking-wider text-gray-400" x-text="n.created_at"></div>
+                <div class="mt-1 text-[11px] uppercase tracking-wider text-gray-500" x-text="n.created_at"></div>
             </a>
         </template>
     </div>

@@ -9,14 +9,14 @@
     <button type="button" @click="openGridModal"
         class="flex w-full items-center justify-between gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/20">
         <span class="flex items-center gap-2 min-w-0">
-            <svg class="h-5 w-5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg class="h-5 w-5 shrink-0 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
             </svg>
             <span x-text="selectedId ? selectedModelName : 'Pilih atau tambah model 3D...'"
-                :class="selectedId ? 'text-charcoal font-semibold' : 'text-gray-400'"
+                :class="selectedId ? 'text-charcoal font-semibold' : 'text-gray-500'"
                 class="truncate">Pilih atau tambah model 3D...</span>
         </span>
-        <svg class="h-4 w-4 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <svg class="h-4 w-4 shrink-0 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
         </svg>
     </button>
@@ -28,15 +28,15 @@
                 class="h-10 w-10 shrink-0 rounded-lg border border-gray-100 object-cover">
         </template>
         <template x-if="!selectedModel?.thumbnail_path && selectedModel?.model_3d_path">
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-[10px] font-bold text-gray-400">3D</div>
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-[11px] font-bold text-gray-500">3D</div>
         </template>
         <div class="min-w-0 flex-1">
             <p class="truncate text-xs font-bold text-charcoal" x-text="selectedModelName"></p>
             <p x-show="selectedModel?.ar_marker_id">
-                <span class="mt-0.5 inline-block rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[10px] font-bold text-primary" x-text="selectedModel?.ar_marker_id || ''"></span>
+                <span class="mt-0.5 inline-block rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[11px] font-bold text-primary" x-text="selectedModel?.ar_marker_id || ''"></span>
             </p>
         </div>
-        <button type="button" @click="clearSelection" class="shrink-0 rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+        <button type="button" @click="clearSelection" class="shrink-0 rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-600">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
             </svg>
@@ -55,7 +55,7 @@
             {{-- Search + Add New --}}
             <div class="flex items-center gap-2">
                 <div class="relative flex-1">
-                    <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                     <input type="text" x-model="search" placeholder="Cari model 3D..."
@@ -73,7 +73,7 @@
             {{-- Grid --}}
             <div class="max-h-[55vh] overflow-y-auto -mx-1 px-1">
                 <template x-if="filteredModels.length === 0">
-                    <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+                    <div class="flex flex-col items-center justify-center py-12 text-gray-500">
                         <svg class="mb-2 h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
@@ -101,12 +101,12 @@
                             {{-- Body --}}
                             <div class="flex flex-col gap-1 p-3">
                                 <p class="truncate text-xs font-bold text-charcoal" x-text="model.displayName"></p>
-                                <p x-show="model.ar_marker_id" class="truncate font-mono text-[10px] text-gray-400" x-text="model.ar_marker_id"></p>
+                                <p x-show="model.ar_marker_id" class="truncate font-mono text-[11px] text-gray-500" x-text="model.ar_marker_id"></p>
                             </div>
                             {{-- Disabled overlay --}}
                             <div x-show="model.isTaken"
                                 class="absolute inset-0 flex items-center justify-center">
-                                <span class="rounded-full bg-charcoal/70 px-3 py-1 text-[10px] font-bold text-white shadow-sm backdrop-blur-sm">Terpakai</span>
+                                <span class="rounded-full bg-charcoal/70 px-3 py-1 text-[11px] font-bold text-white shadow-sm backdrop-blur-sm">Terpakai</span>
                             </div>
                             {{-- Selected check --}}
                             <div x-show="!model.isTaken && selectedId == model.id"

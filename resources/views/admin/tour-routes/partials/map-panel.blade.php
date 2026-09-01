@@ -2,7 +2,7 @@
 <div class="lg:col-span-7 lg:h-full">
     <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm h-full flex flex-col">
         <div class="mb-3 flex items-center justify-between shrink-0">
-            <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Peta Lokasi Desa Penglipuran</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Peta Lokasi Desa Penglipuran</span>
             <button type="button" onclick="clearAllPoints()" class="text-xs font-semibold text-warning hover:underline">Hapus Semua Titik</button>
         </div>
         <div id="route-map" class="relative w-full rounded-xl border border-gray-200 shadow-inner flex-1 min-h-100 lg:min-h-0" style="z-index: 0;">

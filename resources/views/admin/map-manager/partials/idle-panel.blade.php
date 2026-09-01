@@ -19,7 +19,7 @@
     </div>
 
     <div id="tour-filters" class="border-t border-gray-100 pt-4">
-        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Filter Kategori Peta</h3>
+        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Filter Kategori Peta</h3>
         <div class="space-y-2.5">
             <label class="flex items-center gap-2.5 cursor-pointer select-none">
                 <input type="checkbox" id="filter-cultural" checked
@@ -57,8 +57,8 @@
     </div>
 
     <div class="border-t border-gray-100 pt-4 space-y-3">
-        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Bulk Import Objek Budaya (Excel)</h3>
-        <p class="text-[10px] text-gray-500 leading-relaxed">
+        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Bulk Import Objek Budaya (Excel)</h3>
+        <p class="text-[11px] text-gray-500 leading-relaxed">
             Gunakan fitur ini untuk menambahkan banyak lokasi objek budaya sekaligus menggunakan berkas Excel (.xlsx).
         </p>
         <div class="flex flex-col gap-2">
@@ -77,10 +77,10 @@
                         class="absolute inset-0 cursor-pointer opacity-0"
                         onchange="document.getElementById('import-file-name').textContent = this.files[0] ? this.files[0].name : 'Pilih file Excel (.xlsx)';" />
                     <div class="text-center space-y-1">
-                        <svg class="mx-auto h-6.5 w-6.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <svg class="mx-auto h-6.5 w-6.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <span id="import-file-name" class="block text-[10px] font-semibold text-gray-500">Pilih file Excel (.xlsx)</span>
+                        <span id="import-file-name" class="block text-[11px] font-semibold text-gray-500">Pilih file Excel (.xlsx)</span>
                     </div>
                 </div>
                 <button type="submit"
