@@ -43,9 +43,8 @@
                 class="filter-card active active:scale-98 flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200"
                 data-filter="cultural">
                 <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-50 text-[#1E5128]">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3.5 21.5V10L6.5 4H10v17.5zM20.5 21.5V10L17.5 4H14v17.5z" />
                     </svg>
                 </span>
                 <div>
@@ -59,9 +58,9 @@
                 class="filter-card active active:scale-98 flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200"
                 data-filter="umkm">
                 <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-[#8B5CF6]">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8.5 10V6.8a3.5 3.5 0 017 0V10h-2V6.8a1.5 1.5 0 00-3 0V10z" />
+                        <path d="M5 9.5h14l.8 10.6a1.1 1.1 0 01-1.1 1.2H5.3a1.1 1.1 0 01-1.1-1.2z" />
                     </svg>
                 </span>
                 <div>
@@ -75,10 +74,9 @@
                 class="filter-card active active:scale-98 flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200"
                 data-filter="facilities">
                 <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#3B82F6]">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M12 3a9 9 0 100 18 9 9 0 000-18zm0 2.8a1.7 1.7 0 110 3.4 1.7 1.7 0 010-3.4zm-1.6 4.8h3.2v7.2h-3.2z" />
                     </svg>
                 </span>
                 <div>
@@ -91,15 +89,21 @@
             <button type="button"
                 class="filter-card active active:scale-98 flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200"
                 data-filter="toilets">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-50 text-[#06B6D4]">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 4a1 1 0 100 2 1 1 0 000-2zm-2 8h4v8h-4v-8zm8-2h-3v8h2v-8h1zM5 10h3v8H6v-8H5z" />
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-50 text-[#0E7490]">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="6.75" cy="3.6" r="2.1" />
+                        <rect x="4.2" y="6.9" width="5.1" height="7.6" rx="1.8" />
+                        <rect x="4.9" y="13" width="1.7" height="8" rx="0.8" />
+                        <rect x="6.9" y="13" width="1.7" height="8" rx="0.8" />
+                        <circle cx="17.25" cy="3.6" r="2.1" />
+                        <path d="M17.25 6.9 21.2 15.6H13.3z" />
+                        <rect x="15.4" y="14.6" width="1.7" height="6.4" rx="0.8" />
+                        <rect x="17.4" y="14.6" width="1.7" height="6.4" rx="0.8" />
                     </svg>
                 </span>
                 <div>
                     <p class="text-xs font-bold leading-tight text-gray-800">{{ __('Toilet') }}</p>
-                    <span class="mt-0.5 inline-block h-1 w-6 rounded-full" style="background: #06B6D4;"></span>
+                    <span class="mt-0.5 inline-block h-1 w-6 rounded-full" style="background: #0E7490;"></span>
                 </div>
             </button>
 
@@ -107,15 +111,17 @@
             <button type="button"
                 class="filter-card active active:scale-98 col-span-2 flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200"
                 data-filter="accessibility">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-[#F59E0B]">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M19 10.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM7.5 13.5h7.5m-7.5-3.5h5a2 2 0 012 2v6m-7-6.5V6a2 2 0 012-2h1.5" />
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-[#B45309]">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="9" cy="3.8" r="2.1" />
+                        <path d="M7.7 7.3h2.5v4.6h4.5v2.4H9.1a1.4 1.4 0 01-1.4-1.4z" />
+                        <path fill-rule="evenodd"
+                            d="M11.5 10.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zm0 2.2a3.3 3.3 0 110 6.6 3.3 3.3 0 010-6.6z" />
                     </svg>
                 </span>
                 <div>
                     <p class="text-xs font-bold leading-tight text-gray-800">{{ __('Aksesibilitas') }}</p>
-                    <span class="mt-0.5 inline-block h-1 w-12 rounded-full" style="background: #F59E0B;"></span>
+                    <span class="mt-0.5 inline-block h-1 w-12 rounded-full" style="background: #B45309;"></span>
                 </div>
             </button>
         </div>
@@ -145,13 +151,13 @@
     }
 
     .filter-card.active[data-filter="toilets"] {
-        border-color: rgba(6, 182, 212, 0.25);
-        background-color: rgba(6, 182, 212, 0.04);
+        border-color: rgba(14, 116, 144, 0.25);
+        background-color: rgba(14, 116, 144, 0.04);
     }
 
     .filter-card.active[data-filter="accessibility"] {
-        border-color: rgba(245, 158, 11, 0.25);
-        background-color: rgba(245, 158, 11, 0.04);
+        border-color: rgba(180, 83, 9, 0.25);
+        background-color: rgba(180, 83, 9, 0.04);
     }
 
     /* Inactive State */

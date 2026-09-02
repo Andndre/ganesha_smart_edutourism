@@ -19,10 +19,10 @@
                 <span class="h-2.5 w-2.5 rounded-full" style="background-color: #3B82F6"></span> Fasilitas Umum
             </div>
             <div class="flex items-center gap-1.5">
-                <span class="h-2.5 w-2.5 rounded-full" style="background-color: #06B6D4"></span> Toilet
+                <span class="h-2.5 w-2.5 rounded-full" style="background-color: #0E7490"></span> Toilet
             </div>
             <div class="flex items-center gap-1.5">
-                <span class="h-2.5 w-2.5 rounded-full" style="background-color: #F59E0B"></span> Aksesibilitas
+                <span class="h-2.5 w-2.5 rounded-full" style="background-color: #B45309"></span> Aksesibilitas
             </div>
         </div>
     </div>
