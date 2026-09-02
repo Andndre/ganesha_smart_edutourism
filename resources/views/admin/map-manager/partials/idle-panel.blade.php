@@ -49,7 +49,7 @@
                 <input type="checkbox" id="filter-toilet" checked
                     class="rounded border-gray-300 text-primary focus:ring-primary h-4.5 w-4.5"
                     onchange="filterMarkers()">
-                <span class="h-3.5 w-3.5 rounded-full" style="background-color: #06B6D4"></span>
+                <span class="h-3.5 w-3.5 rounded-full" style="background-color: #0E7490"></span>
                 <span class="text-xs font-semibold text-gray-700">Toilet (<span
                         id="count-toilet">0</span>)</span>
             </label>
