@@ -121,7 +121,7 @@ Aplikasi web _mobile-first_, berjalan di browser HP tanpa instalasi.
 | Peta & rute | Leaflet + OpenRouteService (mandiri, tanpa biaya per-panggilan) |
 | Unggah besar | TUS chunked upload |
 | Dwibahasa | spatie/laravel-translatable (konten tersimpan per bahasa) |
-| Infrastruktur | Docker · Cloudflare Tunnel |
+| Infrastruktur | Docker |
 
 **Kebutuhan pengguna:** HP Android/iOS dengan browser modern, kamera (untuk AR), dan GPS. Koneksi internet ringan — halaman dioptimalkan dengan cache berlapis.
 
