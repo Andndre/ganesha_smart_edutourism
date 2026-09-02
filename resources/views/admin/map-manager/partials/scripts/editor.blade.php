@@ -71,7 +71,8 @@ function handleMapClick(lat, lng) {
         }).then(r => r.json()).then(data => {
             if (data.success) {
                 // Reload so the new point (and its full owner details) render consistently.
-                window.location.reload();
+                // Drops any ?place= so the page doesn't re-arm add-point mode.
+                window.location.href = '{{ route('admin.map-manager') }}';
             } else {
                 Swal.fire({ title: 'Gagal', text: 'Titik baru gagal disimpan.', icon: 'error', confirmButtonColor: '#1E5128' });
             }
@@ -575,6 +576,29 @@ function updateAccessibilityNotesVisibility(formElement) {
 
     container.style.display = checkbox.checked ? 'block' : 'none';
 }
+
+// Arrive from the cultural-objects list with ?place=cultural_object:12 — arms add-point mode for an
+// object that has no marker yet, which is otherwise unreachable (no marker = nothing to click).
+(function () {
+    const place = new URLSearchParams(window.location.search).get('place');
+    if (!place) return;
+
+    const [type, id] = place.split(':');
+    if (!['cultural_object', 'facility'].includes(type) || !/^\d+$/.test(id || '')) return;
+
+    addPointOwner = { type, id };
+    currentMode = 'add-point';
+
+    Swal.fire({
+        toast: true,
+        position: 'top',
+        icon: 'info',
+        title: 'Klik peta untuk menaruh titik lokasinya',
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true
+    });
+})();
 
 // Initialize accessibility notes toggle event listeners
 document.addEventListener('DOMContentLoaded', () => {
