@@ -5,14 +5,40 @@ namespace Tests\Unit;
 use Tests\TestCase;
 
 /**
- * Map pins draw a white glyph on the category colour, so every colour has to clear
- * the WCAG 3:1 minimum for non-text contrast. Cyan-500 (2.4:1) and amber-500
- * (2.1:1) both shipped here once and were unreadable on a phone outdoors.
+ * Guards the two things about the map pin that break silently, because both look
+ * plausible in the source and only show up on a phone in the field.
  */
-class MapPinContrastTest extends TestCase
+class MapPinTest extends TestCase
 {
     private const PIN_SCRIPT = 'resources/views/components/map-pin-script.blade.php';
 
+    /**
+     * The offsets have to track the scale. Changing the scale and hand-picking new
+     * offsets once shifted every glyph 1px left of the pin head, which reads as a
+     * wonky icon rather than as a bug.
+     */
+    public function test_glyph_transform_centres_the_glyph_on_the_pin_head(): void
+    {
+        $source = file_get_contents(base_path(self::PIN_SCRIPT));
+
+        preg_match('/transform="translate\(([\d.]+) ([\d.]+)\) scale\(([\d.]+)\)"/', $source, $m);
+        $this->assertNotEmpty($m, 'No glyph transform found in '.self::PIN_SCRIPT);
+
+        [, $tx, $ty, $scale] = array_map('floatval', $m);
+
+        // Glyphs are drawn in a 24x24 box; the pin head's centre is (16, 14) in the
+        // pin's own "0 0 32 42" viewBox. So the box's centre lands on the head's.
+        $this->assertEqualsWithDelta(16 - 12 * $scale, $tx, 0.01,
+            'Glyph is off-centre horizontally by '.round($tx - (16 - 12 * $scale), 2).' units.');
+        $this->assertEqualsWithDelta(14 - 12 * $scale, $ty, 0.01,
+            'Glyph is off-centre vertically by '.round($ty - (14 - 12 * $scale), 2).' units.');
+    }
+
+    /**
+     * Pins draw a white glyph on the category colour, so every colour has to clear
+     * the WCAG 3:1 minimum for non-text contrast. Cyan-500 (2.4:1) and amber-500
+     * (2.1:1) both shipped here once and were unreadable on a phone outdoors.
+     */
     public function test_every_category_colour_is_readable_behind_a_white_glyph(): void
     {
         $colors = $this->categoryColors();
