@@ -50,7 +50,8 @@
                             </td>
                             <td class="px-5 py-4 text-gray-500">
                                 @if ($object->map_locations_count === 0)
-                                    <span class="text-xs italic text-gray-500">Tidak ada titik (perkakas)</span>
+                                    <a href="{{ route('admin.map-manager', ['place' => 'cultural_object:'.$object->id]) }}"
+                                        class="text-primary text-xs font-semibold hover:underline">Taruh di peta</a>
                                 @else
                                     {{ $object->map_locations_count }} titik
                                 @endif

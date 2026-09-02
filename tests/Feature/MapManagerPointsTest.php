@@ -46,6 +46,22 @@ class MapManagerPointsTest extends TestCase
         $this->assertEquals(2, $object->mapLocations()->count());
     }
 
+    public function test_point_less_object_gets_a_link_that_arms_the_map_placer(): void
+    {
+        $object = CulturalObject::create([
+            'name' => ['en' => 'Perkakas', 'id' => 'Perkakas'],
+            'slug' => 'perkakas',
+            'description' => ['en' => 'a', 'id' => 'b'],
+            'short_description' => ['en' => 'a', 'id' => 'b'],
+            'category' => 'pawongan',
+        ]);
+
+        $this->actingAs($this->adminUser)
+            ->get(route('admin.cultural-objects'))
+            ->assertOk()
+            ->assertSee('place=cultural_object%3A'.$object->id, false);
+    }
+
     public function test_admin_can_add_a_second_point_to_a_facility(): void
     {
         $facility = Facility::create(['name' => ['en' => 'Entrance', 'id' => 'Pintu Masuk'], 'type' => 'entrance', 'is_active' => true]);
