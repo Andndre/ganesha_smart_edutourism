@@ -79,7 +79,7 @@
     const categoryColors = {
         umkm: '#8B5CF6',         // Violet
         facility: '#3B82F6',     // Blue
-        toilet: '#06B6D4',       // Cyan
+        toilet: '#0E7490',       // Cyan
         cultural: '#1E5128'      // Green
     };
 </script>
