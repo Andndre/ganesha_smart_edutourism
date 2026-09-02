@@ -91,14 +91,14 @@
                 data-filter="toilets">
                 <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-50 text-[#0E7490]">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="6.75" cy="3.6" r="2.1" />
-                        <rect x="4.2" y="6.9" width="5.1" height="7.6" rx="1.8" />
-                        <rect x="4.9" y="13" width="1.7" height="8" rx="0.8" />
-                        <rect x="6.9" y="13" width="1.7" height="8" rx="0.8" />
-                        <circle cx="17.25" cy="3.6" r="2.1" />
-                        <path d="M17.25 6.9 21.2 15.6H13.3z" />
-                        <rect x="15.4" y="14.6" width="1.7" height="6.4" rx="0.8" />
-                        <rect x="17.4" y="14.6" width="1.7" height="6.4" rx="0.8" />
+                        <circle cx="6.05" cy="3.6" r="2.1" />
+                        <rect x="3.5" y="6.9" width="5.1" height="7.6" rx="1.8" />
+                        <rect x="4.2" y="13" width="1.7" height="8" rx="0.8" />
+                        <rect x="6.2" y="13" width="1.7" height="8" rx="0.8" />
+                        <circle cx="16.55" cy="3.6" r="2.1" />
+                        <path d="M16.55 6.9 20.5 15.6H12.6z" />
+                        <rect x="14.7" y="14.6" width="1.7" height="6.4" rx="0.8" />
+                        <rect x="16.7" y="14.6" width="1.7" height="6.4" rx="0.8" />
                     </svg>
                 </span>
                 <div>
