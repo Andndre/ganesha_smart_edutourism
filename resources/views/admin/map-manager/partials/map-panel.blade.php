@@ -18,7 +18,7 @@
             <span class="h-3 w-3 rounded-full" style="background-color: #3B82F6"></span> Fasilitas Umum
         </div>
         <div class="flex items-center gap-1.5">
-            <span class="h-3 w-3 rounded-full" style="background-color: #06B6D4"></span> Toilet
+            <span class="h-3 w-3 rounded-full" style="background-color: #0E7490"></span> Toilet
         </div>
     </div>
 </div>

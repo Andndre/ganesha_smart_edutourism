@@ -149,8 +149,8 @@
         const categoryColors = {
             umkm: '#8B5CF6',         // Violet
             facilities: '#3B82F6',   // Blue
-            toilets: '#06B6D4',      // Cyan
-            accessibility: '#F59E0B',// Amber
+            toilets: '#0E7490',      // Cyan
+            accessibility: '#B45309',// Amber
             cultural: '#1E5128'      // Green (Default)
         };
         const color = categoryColors[category] || '#1E5128';
