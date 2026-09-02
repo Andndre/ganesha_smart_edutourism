@@ -14,7 +14,7 @@
     <div class="mb-6">
         <a href="{{ route('admin.cultural-objects') }}" class="text-sm text-gray-500 hover:text-charcoal">&larr; Kembali</a>
         <h1 class="font-display text-charcoal mt-1 text-2xl font-bold">Tambah Objek Budaya</h1>
-        <p class="mt-0.5 text-sm text-gray-500">Setelah disimpan, kamu akan diarahkan ke Peta Lokasi & Titik untuk menaruh titiknya di peta (opsional untuk perkakas tanpa titik).</p>
+        <p class="mt-0.5 text-sm text-gray-500">Setelah disimpan, objek muncul di daftar dengan tombol <strong>Taruh di peta</strong> untuk menentukan koordinatnya (boleh dilewati untuk perkakas tanpa titik).</p>
     </div>
 
     @include('admin.cultural-objects.partials.form')
