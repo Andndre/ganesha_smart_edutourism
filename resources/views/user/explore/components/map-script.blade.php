@@ -36,8 +36,27 @@
                 accessibility: true
             };
 
-            let heatmapVisible = false;
-            let realHeatmapVisible = false;
+            const STORAGE_KEY_LIVE_USERS = 'explore_layer_live_users';
+            const STORAGE_KEY_HEATMAP = 'explore_layer_heatmap';
+
+            function getStoredLayerPreference(key, defaultValue = true) {
+                try {
+                    const val = localStorage.getItem(key);
+                    if (val === null) return defaultValue;
+                    return val === 'true';
+                } catch (e) {
+                    return defaultValue;
+                }
+            }
+
+            function setStoredLayerPreference(key, val) {
+                try {
+                    localStorage.setItem(key, val ? 'true' : 'false');
+                } catch (e) {}
+            }
+
+            let heatmapVisible = getStoredLayerPreference(STORAGE_KEY_LIVE_USERS, true);
+            let realHeatmapVisible = getStoredLayerPreference(STORAGE_KEY_HEATMAP, true);
             let realHeatmapLayer = null;
             const liveUserMarkers = {};
             let heatmapData = [];
@@ -279,10 +298,14 @@
                     });
                 }
 
-                document.getElementById('btn-layer-map').addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    toggleLiveUsers();
-                });
+                const btnLiveUsers = document.getElementById('btn-layer-map');
+                if (btnLiveUsers) {
+                    btnLiveUsers.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        toggleLiveUsers();
+                    });
+                    setLayerToggleState(btnLiveUsers, heatmapVisible);
+                }
 
                 const btnRealHeatmap = document.getElementById('btn-real-heatmap');
                 if (btnRealHeatmap) {
@@ -290,6 +313,15 @@
                         e.stopPropagation();
                         toggleRealHeatmap();
                     });
+                    setLayerToggleState(btnRealHeatmap, realHeatmapVisible);
+                }
+
+                if (heatmapVisible) {
+                    renderInitialLiveMarkers();
+                }
+
+                if (realHeatmapVisible) {
+                    renderRealHeatmap();
                 }
 
                 document.getElementById('btn-my-location').addEventListener('click', function(e) {
@@ -381,16 +413,16 @@
                             Math.abs(parseFloat(loc.lat) - latNum) < 0.0001 &&
                             Math.abs(parseFloat(loc.lng) - lngNum) < 0.0001
                         ) || {
-                        lat: latNum,
-                        lng: lngNum,
-                        name: targetName || 'Tujuan',
-                        cat: 'umkm',
-                        desc: '',
-                        is_accessible: false,
-                        accessibility: '',
-                        detail_url: null,
-                        images: []
-                    };
+                            lat: latNum,
+                            lng: lngNum,
+                            name: targetName || 'Tujuan',
+                            cat: 'umkm',
+                            desc: '',
+                            is_accessible: false,
+                            accessibility: '',
+                            detail_url: null,
+                            images: []
+                        };
 
                     // Trigger opening the sheet and route calculation after a short timeout to let Leaflet load
                     setTimeout(() => {
@@ -422,6 +454,7 @@
                 }
 
                 if (!realHeatmapVisible) return;
+                if (typeof L.heatLayer !== 'function') return;
 
                 const points = [];
                 heatmapData.forEach(point => {
@@ -462,6 +495,7 @@
             // Toggle Real Heatmap
             function toggleRealHeatmap() {
                 realHeatmapVisible = !realHeatmapVisible;
+                setStoredLayerPreference(STORAGE_KEY_HEATMAP, realHeatmapVisible);
                 const btn = document.getElementById('btn-real-heatmap');
 
                 setLayerToggleState(btn, realHeatmapVisible);
@@ -512,6 +546,7 @@
             // Toggle Live Users
             function toggleLiveUsers() {
                 heatmapVisible = !heatmapVisible;
+                setStoredLayerPreference(STORAGE_KEY_LIVE_USERS, heatmapVisible);
                 const btn = document.getElementById('btn-layer-map');
 
                 setLayerToggleState(btn, heatmapVisible);
@@ -683,7 +718,8 @@
                         const li = document.createElement('li');
                         const btn = document.createElement('button');
                         btn.type = 'button';
-                        btn.className = 'flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-gray-50';
+                        btn.className =
+                            'flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-gray-50';
 
                         const dot = document.createElement('span');
                         dot.className = 'h-2.5 w-2.5 shrink-0 rounded-full';
@@ -1277,7 +1313,9 @@
             }
 
             function getMarkerIcon(loc) {
-                return window.gseMapPin(loc.cat, { placeType: loc.place_type });
+                return window.gseMapPin(loc.cat, {
+                    placeType: loc.place_type
+                });
             }
 
             // Single source of truth for what a marker looks like. A marker is either a
@@ -1287,9 +1325,12 @@
                 const stopIndex = multiRouteStops.findIndex(stop => stop.loc.id === item.loc.id);
 
                 if (stopIndex !== -1) {
-                    return getMultiRouteDone()[item.loc.id]
-                        ? window.gseMapPin('check', { dimmed: true, highlight: active })
-                        : window.gseMapPin(null, {
+                    return getMultiRouteDone()[item.loc.id] ?
+                        window.gseMapPin('check', {
+                            dimmed: true,
+                            highlight: active
+                        }) :
+                        window.gseMapPin(null, {
                             number: stopIndex + 1,
                             color: '#F97316',
                             highlight: active
@@ -1427,7 +1468,9 @@
                 });
 
                 const bounds = L.latLngBounds(multiRouteStops.map(item => [item.loc.lat, item.loc.lng]));
-                map.fitBounds(bounds, { padding: [50, 50] });
+                map.fitBounds(bounds, {
+                    padding: [50, 50]
+                });
 
                 document.getElementById('multi-route-banner')?.classList.remove('hidden');
                 document.getElementById('btn-stop-multi-route')?.addEventListener('click', stopMultiRoute);
