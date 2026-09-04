@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\Translatable\HasTranslations;
 
-#[Fillable(['name', 'slug', 'short_description', 'description', 'category', 'historical_images', 'audio_narration_paths'])]
+#[Fillable(['name', 'slug', 'short_description', 'description', 'category', 'place_type', 'is_detail', 'historical_images', 'audio_narration_paths'])]
 class CulturalObject extends Model
 {
     use HasFactory;
@@ -29,6 +29,26 @@ class CulturalObject extends Model
     public array $translatable = ['name', 'short_description', 'description'];
 
     /**
+     * Preset jenis tempat yang memilih glyph pin di peta. Diturunkan dari inventaris
+     * "Obyek Budaya Umum" desa, bukan daftar spekulatif. Label untuk form admin ada di
+     * sebelah kanan; glyph-nya sendiri di map-pin-script.blade.php.
+     *
+     * Daftar ini juga jadi sumber aturan validasi, supaya preset tidak menyimpang
+     * antara form dan request. Enum di database punya salinannya sendiri — kalau
+     * menambah jenis baru, migrasi harus ikut diubah.
+     */
+    public const PLACE_TYPES = [
+        'gerbang' => 'Gerbang / Angkul-angkul',
+        'pura' => 'Pura / Merajan',
+        'patung' => 'Patung',
+        'bale' => 'Bale',
+        'monumen' => 'Monumen / Relief',
+        'kawasan' => 'Kawasan / Koridor',
+        'alam' => 'Alam',
+        'rumah' => 'Rumah Tradisional',
+    ];
+
+    /**
      * The attributes that should be cast.
      *
      * @return array<string, string>
@@ -38,6 +58,7 @@ class CulturalObject extends Model
         return [
             'historical_images' => 'array',
             'audio_narration_paths' => 'array',
+            'is_detail' => 'boolean',
         ];
     }
 

@@ -59,6 +59,34 @@
                 </select>
             </div>
 
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Jenis Tempat</label>
+                <select name="place_type"
+                    class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    @php $currentPlaceType = old('place_type', $isEdit ? $object->place_type : null); @endphp
+                    <option value="">— Belum ditentukan —</option>
+                    @foreach (\App\Models\CulturalObject::PLACE_TYPES as $value => $label)
+                        <option value="{{ $value }}" @selected($currentPlaceType === $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Menentukan bentuk ikon di peta. Dibiarkan kosong berarti memakai
+                    ikon candi bentar.</p>
+            </div>
+
+            <div class="rounded-xl border border-gray-200 bg-gray-50/60 px-4 py-3">
+                @php $currentIsDetail = (bool) old('is_detail', $isEdit ? $object->is_detail : false); @endphp
+                <div class="flex items-start gap-2">
+                    <input type="checkbox" id="cultural_is_detail" name="is_detail" value="1"
+                        @checked($currentIsDetail)
+                        class="text-primary focus:ring-primary mt-0.5 h-4 w-4 rounded border-gray-300">
+                    <label for="cultural_is_detail" class="text-sm font-semibold text-gray-700">Komponen pekarangan
+                        rumah</label>
+                </div>
+                <p class="mt-1.5 pl-6 text-xs text-gray-500">Centang untuk objek yang ada di dalam setiap rumah adat
+                    (angkul-angkul, paon, merajan, saka enam). Pinnya baru muncul saat peta di-zoom dekat, supaya
+                    puluhan pin kembar tidak menutupi peta. Tidak memengaruhi rute edutourism.</p>
+            </div>
+
             {{-- Description --}}
             <div x-show="locale === 'en'">
                 <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi (EN)</label>

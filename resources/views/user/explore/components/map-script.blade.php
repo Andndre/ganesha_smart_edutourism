@@ -130,7 +130,7 @@
                 const clusteredMarkers = [];
                 locations.forEach(loc => {
                     const marker = L.marker([loc.lat, loc.lng], {
-                        icon: getMarkerIcon(loc.cat)
+                        icon: getMarkerIcon(loc)
                     });
                     clusteredMarkers.push(marker);
 
@@ -148,6 +148,12 @@
                     });
                 });
                 markerCluster.addLayers(clusteredMarkers);
+
+                // Pin komponen pekarangan disaring per level zoom, jadi keanggotaan cluster
+                // harus dihitung ulang setiap kali zoom berubah — dan sekali di awal,
+                // karena addLayers di atas memasukkan semuanya tanpa pandang bulu.
+                updateVisibleMarkers();
+                map.on('zoomend', updateVisibleMarkers);
 
                 // ==========================================
                 // HEATMAP OVERLAY DATA (from controller)
@@ -604,9 +610,16 @@
                 const searchInput = document.getElementById('search-input');
                 const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
                 const matches = [];
+                const zoom = map.getZoom();
 
                 markerLayers.forEach(item => {
                     const isFilterActive = activeFilters[item.loc.cat] !== false;
+
+                    // Objek komponen pekarangan (merajan, paon, saka enam) dipin di tiap
+                    // rumah, jadi di zoom jauh puluhan pin kembar menutupi peta. Tahan
+                    // sampai cukup dekat — kecuali turis mengetik namanya, karena
+                    // pencarian eksplisit menang atas penyembunyian bertahap.
+                    const isZoomVisible = !item.loc.is_detail || !!query || zoom >= DETAIL_MIN_ZOOM;
 
                     const matchesSearch = !query ||
                         item.loc.name.toLowerCase().includes(query) ||
@@ -619,7 +632,7 @@
                         return;
                     }
 
-                    if (isFilterActive && matchesSearch) {
+                    if (isFilterActive && matchesSearch && isZoomVisible) {
                         if (!markerCluster.hasLayer(item.marker)) {
                             markerCluster.addLayer(item.marker);
                         }
@@ -1263,8 +1276,8 @@
                 }
             }
 
-            function getMarkerIcon(category) {
-                return window.gseMapPin(category);
+            function getMarkerIcon(loc) {
+                return window.gseMapPin(loc.cat, { placeType: loc.place_type });
             }
 
             // Single source of truth for what a marker looks like. A marker is either a
@@ -1283,12 +1296,22 @@
                         });
                 }
 
-                return window.gseMapPin(item.loc.cat, { highlight: active });
+                return window.gseMapPin(item.loc.cat, {
+                    highlight: active,
+                    placeType: item.loc.place_type
+                });
             }
 
             // Pins are anchored at their tip, so centring the anchor leaves the body of
             // the pin sitting half its height too high. 42px tall, hence 21.
             const PIN_HALF_HEIGHT = 21;
+
+            // Ambang zoom tempat pin komponen pekarangan rumah mulai dirender. Diturunkan
+            // dari skala peta di lintang Penglipuran (-8,42°): pada zoom 20 skalanya
+            // ~0,15 m/px, jadi layar HP ~390px hanya mencakup ~58 m — sekitar tiga rumah.
+            // Pada zoom 18 cakupannya ~230 m, belasan rumah sekaligus, dan itulah yang
+            // dulu membuat peta tertutup pin kembar.
+            const DETAIL_MIN_ZOOM = 20;
 
             // Sengaja tidak ada label nama permanen di marker. Pernah dicoba muncul di
             // zoom >= 18 dan hasilnya peta tertutup penuh: Penglipuran satu koridor padat
