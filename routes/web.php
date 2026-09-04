@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RouteMissionAssetController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TicketOfficerController;
+use App\Http\Controllers\Admin\TicketRateController;
 use App\Http\Controllers\Admin\TourRouteController;
 use App\Http\Controllers\Admin\UmkmCategoryController;
 use App\Http\Controllers\Admin\UmkmController;
@@ -213,6 +214,12 @@ Route::prefix('admin')->middleware(['auth', 'admin.viewer'])->group(function () 
     Route::post('/umkm/owners/check-email', [UmkmController::class, 'checkEmail'])->name('admin.umkm.owners.check-email');
     Route::put('/umkm/owners/{id}', [UmkmController::class, 'updateOwner'])->name('admin.umkm.owners.update');
     Route::delete('/umkm/owners/{id}', [UmkmController::class, 'destroyOwner'])->name('admin.umkm.owners.destroy');
+
+    // Ticket Rate Routes
+    Route::get('/ticket-rates', [TicketRateController::class, 'index'])->name('admin.ticket-rates');
+    Route::post('/ticket-rates', [TicketRateController::class, 'store'])->name('admin.ticket-rates.store');
+    Route::put('/ticket-rates/{ticketRate}', [TicketRateController::class, 'update'])->name('admin.ticket-rates.update');
+    Route::delete('/ticket-rates/{ticketRate}', [TicketRateController::class, 'destroy'])->name('admin.ticket-rates.destroy');
 
     // Ticket Officer Routes
     Route::get('/ticket-officers', [TicketOfficerController::class, 'index'])->name('admin.ticket-officers');

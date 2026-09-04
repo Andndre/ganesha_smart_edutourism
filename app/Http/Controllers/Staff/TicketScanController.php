@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
+use App\Models\TicketRate;
 use App\Models\TicketScan;
+use App\Models\TicketScanLine;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,7 +21,9 @@ class TicketScanController extends Controller
      */
     public function index(): View
     {
-        return view('staff.ticketing.scan');
+        $rates = TicketRate::active()->ordered()->get();
+
+        return view('staff.ticketing.scan', compact('rates'));
     }
 
     /**
@@ -34,7 +38,7 @@ class TicketScanController extends Controller
             'raw_code' => ['required', 'string', 'max:2048'],
         ]);
 
-        $existing = TicketScan::with('scanner')
+        $existing = TicketScan::with(['scanner', 'lines'])
             ->where('code_hash', TicketScan::hashCode($validated['raw_code']))
             ->first();
 
@@ -47,7 +51,7 @@ class TicketScanController extends Controller
 
         return response()->json([
             'status' => 'duplicate',
-            'scan' => $this->presentScan($existing->fresh('scanner')),
+            'scan' => $this->presentScan($existing->fresh(['scanner', 'lines'])),
         ]);
     }
 
@@ -58,16 +62,53 @@ class TicketScanController extends Controller
     {
         $validated = $request->validate([
             'raw_code' => ['required', 'string', 'max:2048'],
-            'party_size' => ['required', 'integer', 'min:1', 'max:200'],
-            'origin' => ['required', 'in:domestic,foreign'],
             'visitor_name' => ['nullable', 'string', 'max:255'],
+            'lines' => ['required', 'array', 'min:1'],
+            'lines.*.rate_id' => ['required', 'integer', 'exists:ticket_rates,id'],
+            'lines.*.quantity' => ['required', 'integer', 'min:1', 'max:200'],
         ]);
+
+        // Harga diambil ulang dari DB, tidak dari payload: form petugas berjalan
+        // di browser yang bisa diubah siapa saja, dan nilai kunjungan ikut masuk
+        // laporan pendapatan.
+        $rates = TicketRate::whereIn('id', array_column($validated['lines'], 'rate_id'))
+            ->get()
+            ->keyBy('id');
+
+        $lines = [];
+        $partySize = 0;
+        $total = 0;
+
+        foreach ($validated['lines'] as $line) {
+            $rate = $rates->get($line['rate_id']);
+            $quantity = (int) $line['quantity'];
+            $subtotal = $rate->price * $quantity;
+
+            $lines[] = [
+                'ticket_rate_id' => $rate->id,
+                'origin' => $rate->origin,
+                'label' => $rate->name,
+                'unit_price' => $rate->price,
+                'unit_fee' => $rate->service_fee,
+                'quantity' => $quantity,
+                'subtotal' => $subtotal,
+            ];
+
+            $partySize += $quantity;
+            $total += $subtotal + ($rate->service_fee * $quantity);
+        }
+
+        if ($partySize > 200) {
+            throw ValidationException::withMessages([
+                'lines' => 'Satu tiket maksimal 200 orang.',
+            ]);
+        }
 
         $codeHash = TicketScan::hashCode($validated['raw_code']);
 
         try {
-            return DB::transaction(function () use ($validated, $codeHash) {
-                $existing = TicketScan::with('scanner')
+            return DB::transaction(function () use ($validated, $codeHash, $lines, $partySize, $total) {
+                $existing = TicketScan::with(['scanner', 'lines'])
                     ->where('code_hash', $codeHash)
                     ->lockForUpdate()
                     ->first();
@@ -80,21 +121,23 @@ class TicketScanController extends Controller
                     'code_hash' => $codeHash,
                     'raw_code' => trim($validated['raw_code']),
                     'visitor_name' => $validated['visitor_name'] ?? null,
-                    'party_size' => $validated['party_size'],
-                    'origin' => $validated['origin'],
+                    'party_size' => $partySize,
+                    'total_price' => $total,
                     'scanned_at' => now(),
                     'scanned_by' => auth()->id(),
                 ]);
 
+                $scan->lines()->createMany($lines);
+
                 return response()->json([
                     'success' => true,
-                    'scan' => $this->presentScan($scan->load('scanner')),
+                    'scan' => $this->presentScan($scan->load('scanner', 'lines')),
                 ]);
             });
         } catch (UniqueConstraintViolationException) {
             // Petugas lain menang balapan setelah lock kita lepas: perlakukan
             // sama seperti duplikat biasa, bukan kegagalan server.
-            $winner = TicketScan::with('scanner')->where('code_hash', $codeHash)->first();
+            $winner = TicketScan::with(['scanner', 'lines'])->where('code_hash', $codeHash)->first();
 
             if (! $winner) {
                 throw new \RuntimeException('Tiket dobel terdeteksi tetapi barisnya tidak ditemukan.');
@@ -115,7 +158,7 @@ class TicketScanController extends Controller
         return response()->json([
             'success' => false,
             'status' => 'duplicate',
-            'scan' => $this->presentScan($existing->fresh('scanner')),
+            'scan' => $this->presentScan($existing->fresh(['scanner', 'lines'])),
         ], 409);
     }
 
@@ -164,16 +207,28 @@ class TicketScanController extends Controller
 
         // Agregat dihitung di SQL supaya rentang panjang (mis. 30 hari) tidak
         // perlu menghidrasi seluruh baris ke PHP hanya untuk dijumlahkan.
-        $originTotals = TicketScan::whereBetween('scanned_at', [$from, $to])
-            ->selectRaw('origin, sum(party_size) as visitors, count(*) as tickets')
-            ->groupBy('origin')
-            ->get()
-            ->keyBy('origin');
+        $totalVisitors = (int) TicketScan::whereBetween('scanned_at', [$from, $to])->sum('party_size');
+        $totalTickets = TicketScan::whereBetween('scanned_at', [$from, $to])->count();
+        $totalRevenue = (int) TicketScan::whereBetween('scanned_at', [$from, $to])->sum('total_price');
 
-        $totalVisitors = (int) $originTotals->sum('visitors');
-        $totalTickets = (int) $originTotals->sum('tickets');
-        $domesticVisitors = (int) (optional($originTotals->get('domestic'))->visitors ?? 0);
-        $foreignVisitors = (int) (optional($originTotals->get('foreign'))->visitors ?? 0);
+        // Satu tiket boleh berisi campuran WNI dan WNA, jadi asal pengunjung
+        // dijumlah dari rincian golongan, bukan dari satu kolom di tiket.
+        $categoryTotals = TicketScanLine::query()
+            ->whereHas('scan', fn ($query) => $query->whereBetween('scanned_at', [$from, $to]))
+            ->selectRaw('origin, label, sum(quantity) as visitors, sum(subtotal) as revenue')
+            ->groupBy('origin', 'label')
+            ->orderByRaw("case when origin = 'domestic' then 0 else 1 end")
+            ->orderByDesc('visitors')
+            ->get();
+
+        $domesticVisitors = (int) $categoryTotals->where('origin', 'domestic')->sum('visitors');
+        $foreignVisitors = (int) $categoryTotals->where('origin', 'foreign')->sum('visitors');
+
+        $categories = $categoryTotals->map(fn ($row) => [
+            'label' => TicketRate::ORIGIN_LABELS[$row->origin].' — '.$row->label,
+            'visitors' => (int) $row->visitors,
+            'revenue' => (int) $row->revenue,
+        ])->all();
 
         // Proyeksi sempit (hanya kolom yang dipakai) untuk sebaran per jam,
         // tetap menghidrasi semua baris di rentang tapi tanpa relasi/kolom lain.
@@ -187,7 +242,7 @@ class TicketScanController extends Controller
             });
 
         // Tabel riwayat dibatasi ke baris terbaru saja agar halaman tetap ringan.
-        $scanRecords = TicketScan::with('scanner')
+        $scanRecords = TicketScan::with(['scanner', 'lines'])
             ->whereBetween('scanned_at', [$from, $to])
             ->orderByDesc('scanned_at')
             ->limit(self::HISTORY_LIMIT)
@@ -198,7 +253,10 @@ class TicketScanController extends Controller
         $scans = $scanRecords->map(fn (TicketScan $record) => [
             'visitor_name' => $record->visitor_name ?: 'Pengunjung',
             'party_size' => $record->party_size,
-            'origin' => $record->origin === 'foreign' ? 'Asing' : 'Domestik',
+            'total_price' => $record->total_price,
+            'breakdown' => $record->lines
+                ->map(fn ($line) => $line->quantity.' '.TicketRate::ORIGIN_LABELS[$line->origin].' '.$line->label)
+                ->implode(', '),
             'scanned_at' => $record->scanned_at->format('d/m/Y H:i'),
             'scanner_name' => $record->scanner->name ?? 'Petugas',
             'duplicate_attempts' => $record->duplicate_attempts,
@@ -206,7 +264,8 @@ class TicketScanController extends Controller
 
         return view('staff.ticketing.stats', compact(
             'preset', 'startDate', 'endDate',
-            'totalVisitors', 'totalTickets', 'domesticVisitors', 'foreignVisitors',
+            'totalVisitors', 'totalTickets', 'totalRevenue',
+            'domesticVisitors', 'foreignVisitors', 'categories',
             'hourly', 'scans', 'historyTruncated'
         ));
     }
@@ -219,7 +278,12 @@ class TicketScanController extends Controller
         return [
             'visitor_name' => $scan->visitor_name ?: 'Pengunjung',
             'party_size' => $scan->party_size,
-            'origin' => $scan->origin,
+            'total_price' => $scan->total_price,
+            'breakdown' => $scan->lines->map(fn ($line) => [
+                'label' => TicketRate::ORIGIN_LABELS[$line->origin].' '.$line->label,
+                'quantity' => $line->quantity,
+                'subtotal' => $line->subtotal,
+            ])->values()->all(),
             'scanned_at' => $scan->scanned_at->format('H:i'),
             'scanned_at_date' => $scan->scanned_at->format('d/m/Y'),
             'scanner_name' => $scan->scanner->name ?? 'Petugas',

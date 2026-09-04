@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Feedback;
 use App\Models\TicketScan;
+use App\Models\TicketScanLine;
 use App\Models\VisitorLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -130,11 +131,16 @@ class ReportController extends Controller
                 ->count();
         }
 
-        // Komposisi asal pengunjung
-        $domestic = (int) TicketScan::whereBetween('scanned_at', [$startDate, $endDate])
-            ->where('origin', 'domestic')->sum('party_size');
-        $foreign = (int) TicketScan::whereBetween('scanned_at', [$startDate, $endDate])
-            ->where('origin', 'foreign')->sum('party_size');
+        // Komposisi asal pengunjung. Dijumlah dari rincian golongan karena satu
+        // tiket bisa berisi campuran WNI dan WNA.
+        $originVisitors = TicketScanLine::query()
+            ->whereHas('scan', fn ($query) => $query->whereBetween('scanned_at', [$startDate, $endDate]))
+            ->selectRaw('origin, sum(quantity) as visitors')
+            ->groupBy('origin')
+            ->pluck('visitors', 'origin');
+
+        $domestic = (int) ($originVisitors['domestic'] ?? 0);
+        $foreign = (int) ($originVisitors['foreign'] ?? 0);
         $originTotal = $domestic + $foreign;
 
         $originBreakdown = [];
