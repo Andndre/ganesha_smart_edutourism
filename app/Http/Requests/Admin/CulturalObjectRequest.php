@@ -57,5 +57,11 @@ class CulturalObjectRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->normalizeLocaleField('accessibility_notes');
+
+        // Browser tidak mengirim checkbox yang tidak dicentang, sehingga `is_detail`
+        // hilang dari input dan update() tidak menyentuh kolomnya — centangnya jadi
+        // mustahil dicabut. Disetel eksplisit di sini supaya berlaku untuk store
+        // maupun update sekaligus.
+        $this->merge(['is_detail' => $this->boolean('is_detail')]);
     }
 }
