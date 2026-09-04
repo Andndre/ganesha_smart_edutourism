@@ -6,6 +6,10 @@
     };
 
     function initMapStyleSwitcher(map) {
+        // "Leaflet | " di depan atribusi tidak diwajibkan lisensi dan bikin baris ini
+        // kepanjangan di layar HP.
+        map.attributionControl.setPrefix('');
+
         var currentStyle = null;
         var styleLayer = null;
         var initialLayer = null;
@@ -31,7 +35,7 @@
                 var opts = { maxZoom: 22, maxNativeZoom: 19, attribution: '&copy; OpenStreetMap contributors' };
                 if (style === 'satellite') {
                     opts.subdomains = ['mt0', 'mt1', 'mt2', 'mt3'];
-                    opts.attribution = '';
+                    opts.attribution = 'Imagery &copy; Google';
                     opts.maxNativeZoom = 21;
                 }
                 styleLayer = L.tileLayer(MAP_STYLE_TILE_URLS[style], opts).addTo(map);

@@ -13,7 +13,9 @@
         @include('user.explore.components.map-fab')
     </div>
 
-    <x-map-style-modal />
+    <x-map-style-modal>
+        @include('user.explore.components.map-layers')
+    </x-map-style-modal>
     @include('user.explore.components.location-sheet')
 
 

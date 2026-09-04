@@ -4,7 +4,9 @@
         <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
+        {{-- aria-label, bukan cuma placeholder: placeholder hilang begitu diketik. --}}
         <input type="text" id="search-input" placeholder="{{ __('Cari objek budaya atau UMKM...') }}"
+            aria-label="{{ __('Cari objek budaya atau UMKM') }}"
             class="text-charcoal flex-1 bg-transparent text-sm font-medium placeholder-gray-500 outline-none" />
         <button type="button" id="btn-search-clear" aria-label="{{ __('Hapus pencarian') }}"
             class="hidden shrink-0 rounded-full p-1 text-gray-500 transition-transform duration-150 active:scale-90">
