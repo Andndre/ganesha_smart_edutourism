@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
+use App\Models\UmkmProfile;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -40,6 +43,14 @@ class AuthController extends Controller
                 return redirect()->intended('/admin/dashboard');
             }
 
+            if (Auth::user()->isUmkmOwner()) {
+                return redirect()->intended(route('owner.dashboard'));
+            }
+
+            if (Auth::user()->isTicketOfficer()) {
+                return redirect()->intended(route('staff.ticketing'));
+            }
+
             return redirect()->intended('/');
         }
 
@@ -57,6 +68,14 @@ class AuthController extends Controller
     }
 
     /**
+     * Show the UMKM partner registration form.
+     */
+    public function showUmkmRegister(): View
+    {
+        return view('auth.register-mitra');
+    }
+
+    /**
      * Show the forgot password form.
      */
     public function showForgotPassword(): View
@@ -65,7 +84,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Handle a registration request.
+     * Handle a tourist registration request.
      */
     public function register(Request $request)
     {
@@ -88,6 +107,55 @@ class AuthController extends Controller
     }
 
     /**
+     * Handle a UMKM partner registration request.
+     */
+    public function registerUmkm(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'business_name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:25'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'password' => Hash::make($validated['password']),
+            'role' => UserRole::UmkmOwner,
+            'email_verified_at' => now(),
+        ]);
+
+        $businessName = trim($validated['business_name']);
+        $businessTranslations = [
+            'id' => $businessName,
+            'en' => $businessName,
+        ];
+
+        $slug = (new UmkmProfile)->generateCollisionFreeSlug(slugFromTranslatable($businessTranslations));
+
+        UmkmProfile::create([
+            'user_id' => $user->id,
+            'owner_name' => $user->name,
+            'business_name' => $businessTranslations,
+            'slug' => $slug,
+            'description' => [
+                'id' => 'Profil usaha Desa Penglipuran.',
+                'en' => 'Penglipuran Village business profile.',
+            ],
+            'rating' => 5.0,
+            'is_active' => true,
+        ]);
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route('owner.dashboard')->with('success', __('Selamat datang! Akun Mitra UMKM Anda telah berhasil didaftarkan.'));
+    }
+
+    /**
      * Log the user out of the application.
      */
     public function logout(Request $request)
@@ -103,16 +171,25 @@ class AuthController extends Controller
     /**
      * Redirect to Google OAuth provider.
      */
-    public function redirectToGoogle()
+    public function redirectToGoogle(Request $request)
     {
+        if ($request->query('intent') === 'umkm') {
+            session(['auth_intent' => 'umkm']);
+        } else {
+            session()->forget('auth_intent');
+        }
+
         return Socialite::driver('google')->redirect();
     }
 
     /**
-     * Handle Google OAuth callback with auto-linking.
+     * Handle Google OAuth callback with auto-linking and UMKM intent.
      */
     public function handleGoogleCallback()
     {
+        $isUmkmIntent = session('auth_intent') === 'umkm';
+        session()->forget('auth_intent');
+
         try {
             $googleUser = Socialite::driver('google')->user();
 
@@ -126,6 +203,11 @@ class AuthController extends Controller
                 if (! $user->avatar_path && $googleUser->getAvatar()) {
                     $updateData['avatar_path'] = $googleUser->getAvatar();
                 }
+
+                if ($isUmkmIntent && ! $user->isUmkmOwner() && ! $user->isAdminOrViewer() && ! $user->isTicketOfficer()) {
+                    $updateData['role'] = UserRole::UmkmOwner;
+                }
+
                 $user->update($updateData);
             } else {
                 // Create new user
@@ -133,18 +215,58 @@ class AuthController extends Controller
                     'name' => $googleUser->getName(),
                     'email' => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
+                    'role' => $isUmkmIntent ? UserRole::UmkmOwner : UserRole::Tourist,
                     'email_verified_at' => now(),
                     'password' => null,
                     'avatar_path' => $googleUser->getAvatar(),
                 ]);
             }
 
+            // Ensure UMKM owner has a profile initialized
+            if ($user->isUmkmOwner() && ! $user->umkmProfile) {
+                $ownerName = $user->name ?: 'Mitra Penglipuran';
+                $businessName = 'Usaha '.$ownerName;
+                $businessTranslations = [
+                    'id' => $businessName,
+                    'en' => $businessName,
+                ];
+
+                $slug = (new UmkmProfile)->generateCollisionFreeSlug(slugFromTranslatable($businessTranslations));
+
+                UmkmProfile::create([
+                    'user_id' => $user->id,
+                    'owner_name' => $ownerName,
+                    'business_name' => $businessTranslations,
+                    'slug' => $slug,
+                    'description' => [
+                        'id' => 'Profil usaha Desa Penglipuran.',
+                        'en' => 'Penglipuran Village business profile.',
+                    ],
+                    'rating' => 5.0,
+                    'is_active' => true,
+                ]);
+            }
+
             Auth::login($user);
+
+            if ($user->isUmkmOwner()) {
+                return redirect()->intended(route('owner.dashboard'))->with('success', __('Selamat datang di Dashboard Mitra UMKM!'));
+            }
+
+            if ($user->isAdminOrViewer()) {
+                return redirect()->intended('/admin/dashboard');
+            }
+
+            if ($user->isTicketOfficer()) {
+                return redirect()->intended(route('staff.ticketing'));
+            }
 
             return redirect()->intended('/');
 
         } catch (\Exception $e) {
-            return redirect('/login')->withErrors(['email' => __('Gagal login dengan Google. Silakan coba lagi.')]);
+            $redirectUrl = $isUmkmIntent ? route('mitra.register') : route('login');
+
+            return redirect($redirectUrl)->withErrors(['email' => __('Gagal login dengan Google. Silakan coba lagi.')]);
         }
     }
 }
