@@ -59,4 +59,18 @@ class ExploreLocationIdTest extends TestCase
         $response->assertOk();
         $response->assertSee("typeof L !== 'undefined' && typeof window.Swal !== 'undefined'", false);
     }
+
+    /**
+     * Klik di luar sheet harus lewat closeSheet(), bukan sekadar membalik isOpen milik
+     * Alpine — kalau tidak, sheet tertutup tapi highlight marker tertinggal di peta.
+     */
+    public function test_location_sheet_outside_click_routes_through_close_sheet(): void
+    {
+        $response = $this->get('/explore');
+
+        $response->assertOk();
+        // Atribut Alpine di-escape saat dirender, isi <script> tidak.
+        $response->assertSee('window[&#039;locationSheetCloseAttempt&#039;]', false);
+        $response->assertSee('window.locationSheetCloseAttempt = () => closeSheet();', false);
+    }
 }
