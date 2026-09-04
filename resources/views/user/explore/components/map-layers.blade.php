@@ -5,8 +5,8 @@
     <p class="mb-3 text-[11px] font-bold uppercase tracking-wider text-gray-500">{{ __('Lapisan Peta') }}</p>
 
     <div class="flex flex-col gap-2">
-        <button type="button" id="btn-layer-map" aria-pressed="false"
-            class="map-layer-toggle flex w-full items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all active:scale-[0.98]">
+        <button type="button" id="btn-layer-map" aria-pressed="true"
+            class="map-layer-toggle fab-btn-active flex w-full items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all active:scale-[0.98]">
             <span
                 class="map-layer-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -18,11 +18,11 @@
                 <span class="text-charcoal block text-xs font-bold">{{ __('Wisatawan Live') }}</span>
                 <span class="block text-[11px] text-gray-500">{{ __('Posisi pengunjung lain saat ini') }}</span>
             </span>
-            <span class="map-layer-state text-[11px] font-extrabold text-gray-400">{{ __('Mati') }}</span>
+            <span class="map-layer-state text-[11px] font-extrabold text-gray-400">{{ __('Hidup') }}</span>
         </button>
 
-        <button type="button" id="btn-real-heatmap" aria-pressed="false"
-            class="map-layer-toggle flex w-full items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all active:scale-[0.98]">
+        <button type="button" id="btn-real-heatmap" aria-pressed="true"
+            class="map-layer-toggle fab-btn-active flex w-full items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all active:scale-[0.98]">
             <span
                 class="map-layer-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -36,7 +36,7 @@
                 <span class="text-charcoal block text-xs font-bold">{{ __('Kepadatan Panas (Heatmap)') }}</span>
                 <span class="block text-[11px] text-gray-500">{{ __('Area yang sedang ramai') }}</span>
             </span>
-            <span class="map-layer-state text-[11px] font-extrabold text-gray-400">{{ __('Mati') }}</span>
+            <span class="map-layer-state text-[11px] font-extrabold text-gray-400">{{ __('Hidup') }}</span>
         </button>
     </div>
 </div>
