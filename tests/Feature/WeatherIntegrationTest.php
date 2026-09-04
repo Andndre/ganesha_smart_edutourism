@@ -157,4 +157,77 @@ class WeatherIntegrationTest extends TestCase
         // Clean up test time
         Carbon::setTestNow();
     }
+
+    /**
+     * Test weather report condition text is aware of day and night.
+     */
+    public function test_weather_condition_text_is_day_and_night_aware(): void
+    {
+        $timezone = config('services.penglipuran.timezone', 'Asia/Makassar');
+
+        $report = new WeatherReport([
+            'weather_code' => 0,
+            'temperature' => 20.0,
+            'condition' => 'Cerah',
+        ]);
+
+        // 1. Day time in English: should be "Sunny"
+        Carbon::setTestNow(Carbon::create(2026, 6, 11, 12, 0, 0, $timezone));
+        app()->setLocale('en');
+        $this->assertEquals('Sunny', $report->getConditionText());
+
+        // 2. Night time in English: should be "Clear" (NOT "Sunny")
+        Carbon::setTestNow(Carbon::create(2026, 6, 11, 21, 0, 0, $timezone));
+        app()->setLocale('en');
+        $this->assertEquals('Clear', $report->getConditionText());
+
+        // 3. Day time in Indonesian: should be "Cerah"
+        Carbon::setTestNow(Carbon::create(2026, 6, 11, 12, 0, 0, $timezone));
+        app()->setLocale('id');
+        $this->assertEquals('Cerah', $report->getConditionText());
+
+        // 4. Night time in Indonesian: should be "Cerah"
+        Carbon::setTestNow(Carbon::create(2026, 6, 11, 21, 0, 0, $timezone));
+        app()->setLocale('id');
+        $this->assertEquals('Cerah', $report->getConditionText());
+
+        // Clean up
+        Carbon::setTestNow();
+        app()->setLocale('id');
+    }
+
+    /**
+     * Test home page renders clear night condition and proper recommendation at night.
+     */
+    public function test_home_renders_clear_night_and_no_sunscreen_recommendation_at_night(): void
+    {
+        $timezone = config('services.penglipuran.timezone', 'Asia/Makassar');
+        Carbon::setTestNow(Carbon::create(2026, 6, 11, 22, 0, 0, $timezone));
+
+        WeatherReport::create([
+            'id' => 1,
+            'temperature' => 18.0,
+            'condition' => 'Cerah',
+            'weather_code' => 0,
+            'humidity' => 99,
+            'wind_speed' => 2.9,
+        ]);
+
+        // In English: should say "Clear" and not "Sunny", and should not recommend sunscreen
+        $responseEn = $this->get('/?locale=en');
+        $responseEn->assertStatus(200);
+        $responseEn->assertSee('Clear');
+        $responseEn->assertDontSee('Sunny');
+        $responseEn->assertDontSee('sunscreen');
+        $responseEn->assertSee('Clear and cool night weather');
+
+        // In Indonesian: should say "Cerah" and not recommend tabir surya
+        $responseId = $this->get('/?locale=id');
+        $responseId->assertStatus(200);
+        $responseId->assertSee('Cerah');
+        $responseId->assertDontSee('tabir surya');
+        $responseId->assertSee('Cuaca malam cerah dan sejuk');
+
+        Carbon::setTestNow();
+    }
 }

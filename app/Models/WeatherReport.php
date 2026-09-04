@@ -43,14 +43,35 @@ class WeatherReport extends Model
     }
 
     /**
-     * Get the beautiful Tailwind-styled SVG icon for this weather report.
+     * Check if the weather report is currently representing nighttime (18:00 - 06:00 WITA).
      */
-    public function getIconHtml(): string
+    public function isNight(): bool
     {
         $timezone = config('services.penglipuran.timezone', 'Asia/Makassar');
         $time = $this->updated_at ?? now();
         $hour = $time->timezone($timezone)->hour;
-        $isNight = $hour >= 18 || $hour < 6;
+
+        return $hour >= 18 || $hour < 6;
+    }
+
+    /**
+     * Get the human-readable localized condition string, considering time of day.
+     */
+    public function getConditionText(): string
+    {
+        if ($this->weather_code === 0 && $this->isNight()) {
+            return __('Cerah (Malam)');
+        }
+
+        return __($this->condition);
+    }
+
+    /**
+     * Get the beautiful Tailwind-styled SVG icon for this weather report.
+     */
+    public function getIconHtml(): string
+    {
+        $isNight = $this->isNight();
 
         return match ($this->weather_code) {
             0 => $isNight ? '

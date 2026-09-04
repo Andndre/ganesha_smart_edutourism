@@ -69,7 +69,7 @@
                             <span
                                 class="mt-1 text-xl font-black leading-none text-gray-800">{{ round($weather->temperature) }}°</span>
                             <span
-                                class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ __($weather->condition) }}</span>
+                                class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ $weather->getConditionText() }}</span>
                         </div>
                     @else
                         <div class="flex shrink-0 items-center justify-center rounded-2xl bg-gray-50 p-2.5 text-gray-500">
@@ -202,8 +202,7 @@
                                 <path d="M5 6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5Z"
                                     fill="#42A5F5" />
                                 <path d="M3 11h18V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3Z" fill="#E53935" />
-                                <path d="M8 3.2v3M16 3.2v3" stroke="#B71C1C" stroke-width="1.8"
-                                    stroke-linecap="round" />
+                                <path d="M8 3.2v3M16 3.2v3" stroke="#B71C1C" stroke-width="1.8" stroke-linecap="round" />
                                 <circle cx="8.8" cy="14.5" r="1.2" fill="#fff" />
                                 <circle cx="12.8" cy="14.5" r="1.2" fill="#fff" opacity="0.85" />
                                 <circle cx="8.8" cy="18" r="1.2" fill="#fff" opacity="0.85" />
@@ -245,13 +244,13 @@
                     <h3 class="text-base font-bold text-gray-800">{{ __('UMKM Desa') }}</h3>
                     {{-- -me-3 supaya teks tetap rata kanan meski area sentuhnya diperlebar --}}
                     <a href="{{ route('umkm') }}"
-                        class="tap-target -me-3 flex min-h-11 items-center px-3 text-xs font-bold text-primary">{{ __('Lihat semua') }}</a>
+                        class="tap-target text-primary -me-3 flex min-h-11 items-center px-3 text-xs font-bold">{{ __('Lihat semua') }}</a>
                 </div>
 
                 {{-- Padding ditaruh di item (first:ms-*/last:me-*), bukan di container.
                      Padding akhir pada container overflow-x yang juga flex sering diabaikan
                      mesin render, sehingga kartu terakhir menempel ke tepi layar. --}}
-                <div class="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 scroll-px-4 md:scroll-px-8">
+                <div class="no-scrollbar flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto pb-1 md:scroll-px-8">
                     @foreach ($featuredUmkm as $item)
                         <a href="{{ route('umkm.store', $item['id']) }}"
                             class="w-40 shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-transform first:ms-4 last:me-4 active:scale-[0.98] md:first:ms-8 md:last:me-8">
@@ -312,7 +311,8 @@
                         </div>
                         <div>
                             <p class="text-2xl font-black leading-none text-gray-800">{{ round($weather->temperature) }}°C</p>
-                            <p class="mt-1.5 text-xs font-black leading-none text-gray-700">{{ __($weather->condition) }}</p>
+                            <p class="mt-1.5 text-xs font-black leading-none text-gray-700">{{ $weather->getConditionText() }}
+                            </p>
                         </div>
                     </div>
 
@@ -358,7 +358,11 @@
                         </h4>
                         <p class="text-xs leading-relaxed text-gray-500">
                             @if (\in_array($weather->weather_code, [0, 1, 2]))
-                                {{ __('Cuaca sangat bersahabat untuk berjalan-jalan menjelajahi desa. Jangan lupa menggunakan tabir surya dan membawa air minum!') }}
+                                @if ($weather->isNight())
+                                    {{ __('Cuaca malam cerah dan sejuk, sangat nyaman untuk menikmati suasana malam desa yang tenang.') }}
+                                @else
+                                    {{ __('Cuaca sangat bersahabat untuk berjalan-jalan menjelajahi desa. Jangan lupa menggunakan tabir surya dan membawa air minum!') }}
+                                @endif
                             @elseif(\in_array($weather->weather_code, [3, 45, 48]))
                                 {{ __('Cuaca sejuk dan berawan, sangat ideal untuk berkeliling santai tanpa sengatan matahari.') }}
                             @elseif(\in_array($weather->weather_code, [51, 53, 55, 61, 63]))
@@ -436,23 +440,24 @@
 
                 <!-- Legend -->
                 <div class="grid grid-cols-3 gap-3">
-                    <div class="rounded-xl bg-primary/10 p-3 text-center">
-                        <p class="text-xs font-bold text-primary">{{ __('Aman') }}</p>
-                        <p class="text-[11px] text-primary">&lt; {{ $warningThreshold }}%</p>
+                    <div class="bg-primary/10 rounded-xl p-3 text-center">
+                        <p class="text-primary text-xs font-bold">{{ __('Aman') }}</p>
+                        <p class="text-primary text-[11px]">&lt; {{ $warningThreshold }}%</p>
                     </div>
                     {{-- Teks pakai amber-800/orange-800, bukan token secondary/warning: token aslinya
                          hanya 1,87:1 dan 3,42:1 di atas latar tint-nya sendiri --}}
-                    <div class="rounded-xl bg-secondary/15 p-3 text-center">
+                    <div class="bg-secondary/15 rounded-xl p-3 text-center">
                         <p class="text-xs font-bold text-amber-800">{{ __('Sedang') }}</p>
                         <p class="text-[11px] text-amber-800">{{ $warningThreshold }}-{{ $criticalThreshold }}%</p>
                     </div>
-                    <div class="rounded-xl bg-warning/10 p-3 text-center">
+                    <div class="bg-warning/10 rounded-xl p-3 text-center">
                         <p class="text-xs font-bold text-orange-800">{{ __('Penuh') }}</p>
                         <p class="text-[11px] text-orange-800">&gt; {{ $criticalThreshold }}%</p>
                     </div>
                 </div>
 
-                <p class="border-t border-gray-50 pt-3 text-center text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                <p
+                    class="border-t border-gray-50 pt-3 text-center text-[11px] font-bold uppercase tracking-wider text-gray-500">
                     {{ __('Data diperbarui setiap kali halaman dimuat ulang') }}
                 </p>
             </div>
