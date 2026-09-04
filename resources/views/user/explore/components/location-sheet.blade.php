@@ -1,5 +1,8 @@
+{{-- onCloseAttempt: tanpa ini klik di luar sheet (dan tombol X bawaan modal di
+     desktop) cuma membalik isOpen milik Alpine, jadi sheet tertutup tapi highlight
+     marker-nya tertinggal di peta. --}}
 <x-modal name="location-sheet" maxWidth="md" :hasBackdrop="false" desktopLayout="drawer"
-    panelId="location-sheet-panel">
+    panelId="location-sheet-panel" onCloseAttempt="locationSheetCloseAttempt">
     <div class="flex h-full flex-col px-1 py-1">
         <!-- Dynamic Cover Image Slider -->
         <div id="sheet-image-container" class="relative mb-4 hidden h-40 w-full overflow-hidden rounded-2xl bg-gray-100"

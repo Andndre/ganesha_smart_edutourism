@@ -692,7 +692,13 @@
 
                         btn.appendChild(dot);
                         btn.appendChild(info);
-                        btn.addEventListener('click', () => selectSearchResult(loc));
+                        // stopPropagation seperti pada klik marker: kalau sheet sedang
+                        // terbuka, klik ini akan lolos ke handler click.outside milik
+                        // sheet dan langsung membatalkan lokasi yang baru saja dipilih.
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            selectSearchResult(loc);
+                        });
                         li.appendChild(btn);
                         list.appendChild(li);
                     });
@@ -1548,6 +1554,13 @@
             window.openSheet = openSheet;
             window.closeSheet = closeSheet;
 
+            // x-modal memanggil ini alih-alih menutup dirinya sendiri, jadi klik di luar
+            // sheet dan tombol X bawaan modal lewat jalur yang sama dengan tombol X mobile
+            // — kalau tidak, marker-nya tetap ter-highlight setelah sheet tertutup.
+            // `proceed` tidak dipakai: closeSheet() sendiri yang mengirim
+            // close-location-sheet yang ditunggu modal.
+            window.locationSheetCloseAttempt = () => closeSheet();
+
             // Execute when Leaflet is ready (handles async loading via Livewire).
             //
             // Swal ikut ditunggu, bukan cuma L. Leaflet datang dari <script> klasik di
@@ -1581,6 +1594,7 @@
                 window.removeEventListener('filter-change', onFilterChange);
                 delete window.openSheet;
                 delete window.closeSheet;
+                delete window.locationSheetCloseAttempt;
                 document.removeEventListener('livewire:navigating', cleanupMap);
             });
         })();
