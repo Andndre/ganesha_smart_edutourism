@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['code_hash', 'raw_code', 'visitor_name', 'party_size', 'origin', 'scanned_at', 'scanned_by', 'duplicate_attempts', 'last_attempt_at'])]
+#[Fillable(['code_hash', 'raw_code', 'visitor_name', 'party_size', 'total_price', 'scanned_at', 'scanned_by', 'duplicate_attempts', 'last_attempt_at'])]
 class TicketScan extends Model
 {
     use HasFactory;
@@ -32,8 +33,19 @@ class TicketScan extends Model
             'scanned_at' => 'datetime',
             'last_attempt_at' => 'datetime',
             'party_size' => 'integer',
+            'total_price' => 'integer',
             'duplicate_attempts' => 'integer',
         ];
+    }
+
+    /**
+     * Rincian golongan (WNI/WNA × dewasa/anak/lansia) di dalam tiket ini.
+     *
+     * @return HasMany<TicketScanLine, TicketScan>
+     */
+    public function lines(): HasMany
+    {
+        return $this->hasMany(TicketScanLine::class);
     }
 
     /**

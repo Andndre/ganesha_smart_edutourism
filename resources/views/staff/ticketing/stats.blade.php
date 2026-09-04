@@ -31,20 +31,41 @@
     @endif
 </form>
 
-<div class="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+<div class="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-5">
     @foreach ([
-        ['label' => 'Total Pengunjung', 'value' => $totalVisitors, 'unit' => 'orang'],
-        ['label' => 'Tiket Dipindai', 'value' => $totalTickets, 'unit' => 'tiket'],
-        ['label' => 'Domestik', 'value' => $domesticVisitors, 'unit' => 'orang'],
-        ['label' => 'Mancanegara', 'value' => $foreignVisitors, 'unit' => 'orang'],
+        ['label' => 'Total Pengunjung', 'value' => number_format($totalVisitors, 0, ',', '.'), 'unit' => 'orang'],
+        ['label' => 'Tiket Dipindai', 'value' => number_format($totalTickets, 0, ',', '.'), 'unit' => 'tiket'],
+        ['label' => 'WNI', 'value' => number_format($domesticVisitors, 0, ',', '.'), 'unit' => 'orang'],
+        ['label' => 'WNA', 'value' => number_format($foreignVisitors, 0, ',', '.'), 'unit' => 'orang'],
+        ['label' => 'Nilai Tiket', 'value' => 'Rp '.number_format($totalRevenue, 0, ',', '.'), 'unit' => 'retribusi + layanan'],
     ] as $card)
         <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">{{ $card['label'] }}</p>
-            <p class="mt-2 text-2xl font-bold text-charcoal">{{ number_format($card['value']) }}</p>
+            <p class="mt-2 text-2xl font-bold text-charcoal tabular-nums">{{ $card['value'] }}</p>
             <p class="mt-1 text-xs text-gray-500">{{ $card['unit'] }}</p>
         </div>
     @endforeach
 </div>
+
+@if (! empty($categories))
+    <div class="mb-6 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <h3 class="border-b border-gray-100 px-5 py-3.5 font-semibold text-charcoal">Rincian per Golongan</h3>
+        <div class="divide-y divide-gray-50">
+            @foreach ($categories as $category)
+                <div class="flex items-baseline justify-between gap-4 px-5 py-3 text-sm">
+                    <span class="text-charcoal">{{ $category['label'] }}</span>
+                    <span class="shrink-0 text-gray-500 tabular-nums">
+                        {{ number_format($category['visitors'], 0, ',', '.') }} orang
+                        <span class="ml-3 font-semibold text-charcoal">Rp {{ number_format($category['revenue'], 0, ',', '.') }}</span>
+                    </span>
+                </div>
+            @endforeach
+        </div>
+        <p class="border-t border-gray-100 px-5 py-2.5 text-xs text-gray-500">
+            Nominal di sini retribusi saja, belum termasuk biaya layanan.
+        </p>
+    </div>
+@endif
 
 <div class="mb-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
     <h3 class="mb-4 font-semibold text-charcoal">Sebaran per Jam</h3>
@@ -71,7 +92,8 @@
                 <th class="px-4 py-3">Waktu</th>
                 <th class="px-4 py-3">Pengunjung</th>
                 <th class="px-4 py-3">Orang</th>
-                <th class="px-4 py-3">Asal</th>
+                <th class="px-4 py-3">Golongan</th>
+                <th class="px-4 py-3">Nilai</th>
                 <th class="px-4 py-3">Petugas</th>
                 <th class="px-4 py-3">Dobel</th>
             </tr>
@@ -81,13 +103,14 @@
                 <tr>
                     <td class="px-4 py-3 whitespace-nowrap">{{ $scan['scanned_at'] }}</td>
                     <td class="px-4 py-3">{{ $scan['visitor_name'] }}</td>
-                    <td class="px-4 py-3">{{ $scan['party_size'] }}</td>
-                    <td class="px-4 py-3">{{ $scan['origin'] }}</td>
+                    <td class="px-4 py-3 tabular-nums">{{ $scan['party_size'] }}</td>
+                    <td class="px-4 py-3">{{ $scan['breakdown'] ?: '-' }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap tabular-nums">Rp {{ number_format($scan['total_price'], 0, ',', '.') }}</td>
                     <td class="px-4 py-3">{{ $scan['scanner_name'] }}</td>
                     <td class="px-4 py-3">{{ $scan['duplicate_attempts'] > 0 ? $scan['duplicate_attempts'].'x' : '-' }}</td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">Belum ada tiket yang dipindai pada rentang ini.</td></tr>
+                <tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">Belum ada tiket yang dipindai pada rentang ini.</td></tr>
             @endforelse
         </tbody>
     </table>
