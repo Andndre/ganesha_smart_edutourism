@@ -149,9 +149,6 @@
                 });
                 markerCluster.addLayers(clusteredMarkers);
 
-                updateMarkerLabels();
-                map.on('zoomend', updateMarkerLabels);
-
                 // ==========================================
                 // HEATMAP OVERLAY DATA (from controller)
                 // ==========================================
@@ -1293,29 +1290,11 @@
             // the pin sitting half its height too high. 42px tall, hence 21.
             const PIN_HALF_HEIGHT = 21;
 
-            // Nama lokasi baru ditampilkan setelah cukup dekat — sama dengan ambang
-            // disableClusteringAtZoom, jadi label hanya muncul saat pin sudah tidak
-            // menggerombol dan tidak saling tumpuk.
-            const LABEL_MIN_ZOOM = 18;
-
-            function updateMarkerLabels() {
-                const show = map.getZoom() >= LABEL_MIN_ZOOM;
-
-                markerLayers.forEach(item => {
-                    const hasLabel = !!item.marker.getTooltip();
-
-                    if (show && !hasLabel) {
-                        item.marker.bindTooltip(item.loc.name, {
-                            permanent: true,
-                            direction: 'top',
-                            offset: [0, -40],
-                            className: 'map-label'
-                        });
-                    } else if (!show && hasLabel) {
-                        item.marker.unbindTooltip();
-                    }
-                });
-            }
+            // Sengaja tidak ada label nama permanen di marker. Pernah dicoba muncul di
+            // zoom >= 18 dan hasilnya peta tertutup penuh: Penglipuran satu koridor padat
+            // dengan puluhan objek bernama sama ("Merajan Rumah Tradisional"), jadi justru
+            // di zoom itu jumlah pin di layar paling banyak. Nama sudah tampil di bottom
+            // sheet saat pin diketuk, kategori sudah dikodekan lewat bentuk & warna pin.
 
             // Centre the map on a location, offset so nothing covers it: the sheet eats
             // into the right edge (desktop drawer) or the bottom edge (mobile sheet), and
