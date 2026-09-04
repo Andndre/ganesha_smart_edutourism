@@ -3,6 +3,7 @@
 namespace App\Models\Concerns;
 
 use App\Models\MapLocation;
+use App\Models\TourRoutePoint;
 
 trait HasMapLocation
 {
@@ -13,6 +14,14 @@ trait HasMapLocation
     {
         static::deleted(function (self $model) {
             $model->mapLocation()->delete();
+
+            // Titik rute menunjuk ke model ini secara polymorphic, tanpa foreign key, jadi
+            // menghapus objeknya meninggalkan titik hantu: tanpa nama (jatuh ke "Titik
+            // Perhentian"), tanpa koordinat, sehingga tidak pernah bisa dicapai GPS — dan
+            // form edit rute di admin ikut menyembunyikannya, jadi tidak bisa dihapus dari sana.
+            TourRoutePoint::where('locationable_type', $model->getMorphClass())
+                ->where('locationable_id', $model->getKey())
+                ->delete();
         });
     }
 

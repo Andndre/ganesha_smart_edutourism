@@ -359,4 +359,43 @@ class EdutourismTest extends TestCase
             return count($targetPoints) === 2 && $lats === [-8.222, -8.111];
         });
     }
+
+    /**
+     * Menghapus objek budaya harus ikut menghapus titik rute yang menunjuk padanya. Tanpa itu
+     * titik tersebut jadi "Titik Perhentian" tanpa koordinat: GPS tidak pernah bisa membuka
+     * tombol kedatangan, dan form edit rute di admin menyembunyikannya, jadi sesi mentok.
+     */
+    public function test_deleting_a_locationable_removes_its_route_points(): void
+    {
+        // Arrange
+        $route = TourRoute::create([
+            'name' => ['en' => 'Heritage Quest', 'id' => 'Jelajah Warisan'],
+            'description' => ['en' => 'Village heritage walk.', 'id' => 'Jelajah warisan desa.'],
+            'difficulty' => 'easy',
+            'estimated_duration_minutes' => 30,
+            'distance_meters' => 400,
+            'is_active' => true,
+        ]);
+
+        $object = CulturalObject::create([
+            'name' => ['en' => 'History Relief', 'id' => 'Relief Sejarah'],
+            'description' => ['en' => 'A relief telling the village history.', 'id' => 'Relief yang menceritakan sejarah desa.'],
+            'slug' => 'relief-sejarah',
+            'category' => 'monument',
+            'is_active' => true,
+        ]);
+
+        $point = TourRoutePoint::create([
+            'tour_route_id' => $route->id,
+            'locationable_type' => CulturalObject::class,
+            'locationable_id' => $object->id,
+            'order' => 1,
+        ]);
+
+        // Act
+        $object->delete();
+
+        // Assert
+        $this->assertDatabaseMissing('tour_route_points', ['id' => $point->id]);
+    }
 }
