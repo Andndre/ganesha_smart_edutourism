@@ -26,6 +26,21 @@ class MapStyleSwitcherTest extends TestCase
     }
 
     /**
+     * Marker map-manager memakai window.gseMapPin, tapi layout dashboard tidak memuat
+     * map-pin-script seperti layouts/app — halamannya harus meng-include sendiri.
+     * Tanpa itu gseMapPin undefined dan seluruh peta admin gagal dirender.
+     */
+    public function test_map_manager_loads_the_shared_pin_script(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.map-manager'))
+            ->assertOk()
+            ->assertSee('window.gseMapPin = function', false);
+    }
+
+    /**
      * Change-detector, disengaja: ini mencocokkan teks, bukan menjalankan JS-nya.
      * Penjaga sesungguhnya adalah optional chaining di skripnya; assertion ini hanya
      * memastikan penjaga itu tidak terhapus tanpa sengaja.

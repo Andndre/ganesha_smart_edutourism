@@ -45,67 +45,50 @@
         });
     }
 
-    // Dynamic marker icon helper
-    function getMarkerIcon(category, type = null) {
-        let color = categoryColors[category] || '#1E5128';
-        if (category === 'facility' && type === 'toilet') {
-            color = categoryColors.toilet;
-        }
+    // Peta editor memakai pin yang sama persis dengan /explore lewat window.gseMapPin,
+    // supaya admin melihat apa yang dilihat turis — termasuk glyph jenis tempat yang
+    // baru dipilih. Menggantikan tiga pembuat ikon bespoke plus salinan palet warna.
+    //
+    // Tiga state di bawah memetakan satu-satu ke tampilan lama:
+    //   normal   solid berwarna      -> tetap solid berwarna
+    //   sibling  lingkaran bercincin -> outline (badan putih, cincin kategori)
+    //   selected cincin berdenyut    -> highlight (outline + halo emas + diperbesar)
+    // Sibling sengaja bukan `dimmed`: titik-titik itu sedang ditonjolkan, bukan
+    // diredupkan.
 
-        return L.divIcon({
-            className: 'custom-pin',
-            html: `
-                <div class="flex items-center justify-center rounded-full border-2 border-white shadow-md hover:scale-110 transition-transform duration-200" 
-                     style="background-color: ${color}; width: 22px; height: 22px;">
-                </div>
-            `,
-            iconSize: [22, 22],
-            iconAnchor: [11, 11]
-        });
+    // map_locations menyimpan enum mentah, gseMapPin memakai kunci lain. Pemetaan yang
+    // sama sudah ada di sisi PHP pada ExploreController::index().
+    function pinCategory(loc) {
+        const category = loc.category;
+        const type = loc.locationable ? loc.locationable.type : null;
+
+        if (category === 'facility') {
+            return type === 'toilet' ? 'toilets' : 'facilities';
+        }
+        if (category === 'toilet') return 'toilets';
+        if (category === 'emergency') return 'facilities';
+
+        return category;
     }
 
-    // Dynamic icon for selected/draggable marker
-    function getSelectedMarkerIcon(category, type = null) {
-        let color = categoryColors[category] || '#1E5128';
-        if (category === 'facility' && type === 'toilet') {
-            color = categoryColors.toilet;
-        }
+    function pinOptions(loc, extra) {
+        const details = loc.locationable;
 
-        return L.divIcon({
-            className: 'custom-pin-selected',
-            html: `
-                <div class="relative flex items-center justify-center marker-selected-glow" style="width: 32px; height: 32px;">
-                    <span class="absolute inline-flex h-6 w-6 animate-ping rounded-full opacity-40" style="background-color: ${color};"></span>
-                    <div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white shadow-lg text-white" style="background-color: ${color}; z-index: 10;">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        </svg>
-                    </div>
-                </div>
-            `,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
-        });
+        return Object.assign({
+            placeType: details ? details.place_type : null
+        }, extra || {});
     }
 
-    // Icon for markers that share an owner with the clicked/selected marker
-    function getSiblingMarkerIcon(category, type = null) {
-        let color = categoryColors[category] || '#1E5128';
-        if (category === 'facility' && type === 'toilet') {
-            color = categoryColors.toilet;
-        }
+    function getMarkerIcon(loc) {
+        return window.gseMapPin(pinCategory(loc), pinOptions(loc));
+    }
 
-        return L.divIcon({
-            className: 'custom-pin-sibling',
-            html: `
-                <div class="flex items-center justify-center rounded-full border-2 shadow-md"
-                     style="background-color: white; border-color: ${color}; width: 24px; height: 24px;">
-                    <div class="rounded-full" style="background-color: ${color}; width: 12px; height: 12px;"></div>
-                </div>
-            `,
-            iconSize: [24, 24],
-            iconAnchor: [12, 12]
-        });
+    function getSelectedMarkerIcon(loc) {
+        return window.gseMapPin(pinCategory(loc), pinOptions(loc, { highlight: true }));
+    }
+
+    function getSiblingMarkerIcon(loc) {
+        return window.gseMapPin(pinCategory(loc), pinOptions(loc, { outline: true }));
     }
 
     // Other markers belonging to the same owner (locationable_type + locationable_id)
@@ -122,18 +105,14 @@
         const siblings = getSiblingMarkers(marker);
         siblingMarkers = siblings;
         siblings.forEach(m => {
-            const loc = m.locationData;
-            const details = loc.locationable;
-            m.setIcon(getSiblingMarkerIcon(loc.category, details ? details.type : null));
+            m.setIcon(getSiblingMarkerIcon(m.locationData));
         });
         return siblings;
     }
 
     function clearSiblingHighlight() {
         siblingMarkers.forEach(m => {
-            const loc = m.locationData;
-            const details = loc.locationable;
-            m.setIcon(getMarkerIcon(loc.category, details ? details.type : null));
+            m.setIcon(getMarkerIcon(m.locationData));
         });
         siblingMarkers = [];
     }
@@ -149,7 +128,7 @@
             if (!loc.latitude || !loc.longitude) return;
 
             const marker = L.marker([loc.latitude, loc.longitude], {
-                icon: getMarkerIcon(loc.category, loc.locationable ? loc.locationable.type : null)
+                icon: getMarkerIcon(loc)
             });
 
             // Store custom info

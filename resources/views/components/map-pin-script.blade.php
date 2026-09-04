@@ -88,10 +88,16 @@
             // Atap lebar bertumpu dua tiang, tanpa dinding: itu yang membedakan bale
             bale: '<path d="M12 2 22 9H2zM5 11h2.5v8H5zM16.5 11H19v8h-2.5zM3 20h18v1.8H3z"/>',
             monumen: '<path d="M10 2h4v14h-4zM7 17h10v2H7zM5 20h14v1.8H5z"/>',
-            // Dua tepi jalan dengan garis putus di tengah
-            kawasan: '<path d="M4 2h3l-1.5 20H2zM17 2h3l1.5 20H19zM10.8 3h2.4v4h-2.4zM10.8 10h2.4v4h-2.4zM10.8 17h2.4v4h-2.4z"/>',
-            // Ruas bambu bersekat plus satu daun
-            alam: '<path d="M9 2.5h3.2v5.2H9zM9 9h3.2v5.2H9zM9 15.5h3.2v6H9zM13.5 5.5c3.5 0 5.5 2 5.5 2s-2.5 2-5.5 1.2z"/>',
+            // Jalan yang menjauh: trapesium melebar ke bawah, garis tengahnya dilubangi
+            // (evenodd) karena glyph hanya punya satu warna — garis "putih" mustahil.
+            koridor: '<path fill-rule="evenodd" d="M9 2h6l5 20H4zM11 5h2v3h-2zM10.4 11h3.2v3.5h-3.2zM9.6 17.5h4.8v4H9.6z"/>',
+            // Tembok keliling dengan celah gerbang di bawah — siluet Karang Memadu.
+            // Bukan glyph jalan: "karang" berarti pekarangan, cirinya justru tertutup.
+            pekarangan: '<path fill-rule="evenodd" d="M2.5 4.5h19v15h-19zM6 8h12v7.5H6zM10.2 15.5h3.6v4h-3.6z"/>',
+            // Ruas bambu bersekat plus satu daun. Celah antar-ruas 2 unit: di bawah itu
+            // (versi pertama memakai 1,3) celahnya jadi ~1px saat dirender dan ruasnya
+            // menyatu jadi satu batang polos.
+            alam: '<path d="M7.5 2.5h5v5h-5zM7.5 9.5h5v5h-5zM7.5 16.5h5v5h-5zM13.5 5.4c3.8 0 6 2.2 6 2.2s-2.7 2.2-6 1.3z"/>',
             rumah: '<path d="M12 2 22.5 9.5H1.5zM4.5 11h15v10.5h-5v-6h-5v6h-5z"/>'
         };
 
@@ -106,6 +112,11 @@
          *   number    {number}  render this digit instead of the category glyph (route stops)
          *   color     {string}  override the category colour
          *   dimmed    {boolean} grey out (a completed route stop)
+         *   outline   {boolean} inverted like `highlight` but without the halo or the
+         *                       enlargement. Marks a pin as notable-but-not-current —
+         *                       the map manager uses it for the other points belonging
+         *                       to the object being edited. Deliberately not `dimmed`:
+         *                       those siblings are being called out, not de-emphasised.
          *   placeType {string}  key of PLACE_GLYPHS; overrides the category glyph for
          *                       cultural objects. Unknown or null falls back to the
          *                       category glyph, so untagged objects keep working.
@@ -114,6 +125,7 @@
             const opts = options || {};
             const color = opts.dimmed ? '#9CA3AF' : (opts.color || CATEGORY_COLORS[category] || CATEGORY_COLORS.cultural);
             const highlight = !!opts.highlight;
+            const inverted = highlight || !!opts.outline;
             const scale = highlight ? 1.35 : 1;
             const w = Math.round(32 * scale);
             const h = Math.round(42 * scale);
@@ -123,8 +135,8 @@
             // 1.2:1 and on amber 1.0:1, so "selected" was invisible on 4 of 5
             // categories. Inverting reuses the category colour, which is already
             // guaranteed >= 3:1 against white.
-            const body = highlight ? '#FFFFFF' : color;
-            const ink = highlight ? color : '#FFFFFF';
+            const body = inverted ? '#FFFFFF' : color;
+            const ink = inverted ? color : '#FFFFFF';
 
             let inner;
             if (opts.number != null) {
@@ -142,7 +154,7 @@
             }
 
             const svg = `<svg width="${w}" height="${h}" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))">
-                    <path d="${PIN_PATH}" fill="${body}" stroke="${ink}" stroke-width="${highlight ? 3 : 2}"/>
+                    <path d="${PIN_PATH}" fill="${body}" stroke="${ink}" stroke-width="${inverted ? 3 : 2}"/>
                     ${inner}
                 </svg>`;
 
