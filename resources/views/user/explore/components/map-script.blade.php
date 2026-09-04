@@ -1373,6 +1373,10 @@
                 const bounds = L.latLngBounds(multiRouteStops.map(item => [item.loc.lat, item.loc.lng]));
                 map.fitBounds(bounds, { padding: [50, 50] });
 
+                document.getElementById('multi-route-banner')?.classList.remove('hidden');
+                document.getElementById('btn-stop-multi-route')?.addEventListener('click', stopMultiRoute);
+                updateMultiRouteBanner();
+
                 // Wait briefly for GPS, then draw (same pattern as single-destination routing)
                 setTimeout(() => {
                     Swal.fire({
@@ -1395,6 +1399,47 @@
                         }
                     }, 500);
                 }, 800);
+            }
+
+            function updateMultiRouteBanner() {
+                const el = document.getElementById('multi-route-progress');
+                if (!el) return;
+
+                const done = getMultiRouteDone();
+                const doneCount = multiRouteStops.filter(item => done[item.loc.id]).length;
+
+                el.textContent = doneCount === multiRouteStops.length ?
+                    @js(__('Semua tujuan selesai')) :
+                    @js(__(':done dari :total tujuan selesai'))
+                    .replace(':done', doneCount)
+                    .replace(':total', multiRouteStops.length);
+            }
+
+            // Leaves route mode by dropping the URL params — a reload is the only way to
+            // be sure nothing (pins, polyline, sheet buttons) is left in route state.
+            function stopMultiRoute() {
+                const done = getMultiRouteDone();
+                const allDone = multiRouteStops.every(item => done[item.loc.id]);
+
+                const leave = () => {
+                    localStorage.removeItem(multiRouteDoneKey);
+                    window.location.href = @js(route('explore'));
+                };
+
+                if (allDone) return leave();
+
+                Swal.fire({
+                    title: @js(__('Berhenti dari Rute?')),
+                    text: @js(__('Progres tujuan yang sudah Anda tandai selesai akan dihapus.')),
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#1E5128',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: @js(__('Ya, Berhenti')),
+                    cancelButtonText: @js(__('Batal'))
+                }).then(result => {
+                    if (result.isConfirmed) leave();
+                });
             }
 
             function redrawMultiRoute() {
@@ -1429,6 +1474,7 @@
                     stop.marker.setIcon(iconFor(stop, false));
                 }
                 closeSheet();
+                updateMultiRouteBanner();
 
                 const allDone = multiRouteStops.every(item => done[item.loc.id]);
                 if (allDone) {

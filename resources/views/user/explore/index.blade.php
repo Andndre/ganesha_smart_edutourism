@@ -9,6 +9,7 @@
         <!-- Heatmap Overlay Container -->
 
         @include('user.explore.components.map-search')
+        @include('user.explore.components.multi-route-banner')
         @include('user.explore.components.map-fab')
     </div>
 

@@ -37,4 +37,13 @@ class ExploreLocationIdTest extends TestCase
         $locations = $response->viewData('locations');
         $this->assertContains($loc->id, array_column($locations, 'id'));
     }
+
+    public function test_explore_renders_multi_route_stop_control(): void
+    {
+        $response = $this->get('/explore');
+
+        $response->assertOk();
+        $response->assertSee('btn-stop-multi-route', false);
+        $response->assertSee('multi-route-progress', false);
+    }
 }
