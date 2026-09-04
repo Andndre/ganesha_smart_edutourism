@@ -51,6 +51,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
 
+    Route::get('/mitra/register', [AuthController::class, 'showUmkmRegister'])->name('mitra.register');
+    Route::post('/mitra/register', [AuthController::class, 'registerUmkm'])->name('mitra.register.store');
+
     Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
     Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
