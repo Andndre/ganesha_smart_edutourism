@@ -8,7 +8,12 @@
     function initMapStyleSwitcher(map) {
         // "Leaflet | " di depan atribusi tidak diwajibkan lisensi dan bikin baris ini
         // kepanjangan di layar HP.
-        map.attributionControl.setPrefix('');
+        //
+        // Opsional: peta editor di admin & owner dibuat dengan `attributionControl: false`
+        // (map-manager, tour-routes, events, capacity, owner/location), jadi kontrolnya
+        // memang tidak ada di sana. Tanpa penjaga ini fungsi tersebut melempar dan
+        // initMap ikut gagal — seluruh peta admin jadi kosong.
+        map.attributionControl?.setPrefix('');
 
         var currentStyle = null;
         var styleLayer = null;
