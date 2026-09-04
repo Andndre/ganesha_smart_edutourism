@@ -19,7 +19,7 @@ class ExploreController extends Controller
     public function index(): View
     {
         $locale = app()->getLocale();
-        $locations = Cache::tags(['explore'])->flexible("explore_map_locations_array_v2_{$locale}", [86400, 172800], function () {
+        $locations = Cache::tags(['explore'])->flexible("explore_map_locations_array_v3_{$locale}", [86400, 172800], function () {
             return MapLocation::with(['locationable' => function ($morphTo) {
                 $morphTo->morphWith([CulturalObject::class => ['arModel']]);
             }])->get()->map(function ($loc) {
@@ -39,11 +39,15 @@ class ExploreController extends Controller
                 $detailUrl = null;
                 $hasAr = false;
                 $images = [];
+                $placeType = null;
+                $isDetail = false;
 
                 if ($loc->locationable) {
                     $description = $loc->locationable->description ?? '';
                     if ($loc->locationable_type === CulturalObject::class) {
                         $detailUrl = route('cultural-object', ['slug' => $loc->locationable->slug]);
+                        $placeType = $loc->locationable->place_type;
+                        $isDetail = (bool) $loc->locationable->is_detail;
                         $hasAr = $loc->locationable->arModel !== null && $loc->locationable->arModel->model_3d_path !== null;
                         if ($loc->locationable->historical_images && \is_array($loc->locationable->historical_images)) {
                             foreach ($loc->locationable->historical_images as $img) {
@@ -64,6 +68,10 @@ class ExploreController extends Controller
                     'lng' => (float) $loc->longitude,
                     'name' => $loc->name,
                     'cat' => $category,
+                    // Memilih glyph pin; null jatuh balik ke candi bentar
+                    'place_type' => $placeType,
+                    // Objek tingkat 2 (komponen pekarangan rumah): pinnya hanya dirender saat zoom dekat
+                    'is_detail' => $isDetail,
                     // Plain text only: the client searches this string and the sheet shows a 120-char preview
                     'desc' => Str::of(strip_tags((string) $description))->squish()->limit(160)->toString(),
                     'is_accessible' => (bool) $loc->is_accessible,

@@ -354,6 +354,12 @@ function handleMarkerClick(marker) {
             form.querySelector('input[name="short_description[en]"]').value = details.short_description?.en || details.short_description || '';
             form.querySelector('input[name="short_description[id]"]').value = details.short_description?.id || details.short_description || '';
             form.querySelector('select[name="category"]').value = details.category;
+            // resetForms() memanggil form.reset() tepat sebelum ini, jadi dua kontrol
+            // berikut kembali kosong. Tanpa diisi ulang, membuka objek yang sudah punya
+            // jenis tempat akan menampilkannya kosong — dan karena select tetap ikut
+            // terkirim saat simpan, nilai yang tersimpan malah terhapus jadi null.
+            form.querySelector('select[name="place_type"]').value = details.place_type || '';
+            form.querySelector('input[type="checkbox"][name="is_detail"]').checked = !!details.is_detail;
             setTiptapContent(form.querySelector('textarea[name="description[en]"]'), details.description?.en || details.description || '');
             setTiptapContent(form.querySelector('textarea[name="description[id]"]'), details.description?.id || details.description || '');
             // Select active model via custom event to Alpine component

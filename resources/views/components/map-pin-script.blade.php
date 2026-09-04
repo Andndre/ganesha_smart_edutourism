@@ -70,6 +70,31 @@
             check: '<path d="M9.6 18.6 3.9 12.9 6 10.8l3.6 3.6L18 6l2.1 2.1z"/>'
         };
 
+        // Jenis tempat untuk objek budaya, menimpa glyph kategori `cultural`. Tanpa ini
+        // semua objek budaya memakai candi bentar yang sama, sehingga puluhan pin di
+        // sepanjang koridor desa tidak bisa dibedakan.
+        //
+        // Aturan gambar sama dengan CATEGORY_GLYPHS: siluet padat dalam kotak 24x24,
+        // tanpa garis tipis — pada 18px sebuah outline 2px hancur jadi noda.
+        // Daftar kuncinya harus sinkron dengan CulturalObject::PLACE_TYPES.
+        const PLACE_GLYPHS = {
+            // Angkul-angkul: dua tiang dengan balok atas. Sengaja berbalok supaya tidak
+            // tertukar dengan candi bentar (belah, tanpa penghubung) di CATEGORY_GLYPHS.
+            gerbang: '<path d="M2.5 21.5V9h4v12.5zM17.5 21.5V9h4v12.5zM2.5 2.5h19v4.5h-19z"/>',
+            // Meru bertingkat yang menyempit ke atas
+            pura: '<path d="M12 1.5 15.5 6h-7zM6.5 7.5h11v3h-11zM8 12h8v3H8zM4.5 16.5h15v5h-15z"/>',
+            // Kepala, badan, lalu lapik — tiga massa terpisah supaya terbaca kecil
+            patung: '<circle cx="12" cy="4.5" r="3"/><path d="M8.5 9h7l1.5 8h-10zM5.5 18.5h13v3h-13z"/>',
+            // Atap lebar bertumpu dua tiang, tanpa dinding: itu yang membedakan bale
+            bale: '<path d="M12 2 22 9H2zM5 11h2.5v8H5zM16.5 11H19v8h-2.5zM3 20h18v1.8H3z"/>',
+            monumen: '<path d="M10 2h4v14h-4zM7 17h10v2H7zM5 20h14v1.8H5z"/>',
+            // Dua tepi jalan dengan garis putus di tengah
+            kawasan: '<path d="M4 2h3l-1.5 20H2zM17 2h3l1.5 20H19zM10.8 3h2.4v4h-2.4zM10.8 10h2.4v4h-2.4zM10.8 17h2.4v4h-2.4z"/>',
+            // Ruas bambu bersekat plus satu daun
+            alam: '<path d="M9 2.5h3.2v5.2H9zM9 9h3.2v5.2H9zM9 15.5h3.2v6H9zM13.5 5.5c3.5 0 5.5 2 5.5 2s-2.5 2-5.5 1.2z"/>',
+            rumah: '<path d="M12 2 22.5 9.5H1.5zM4.5 11h15v10.5h-5v-6h-5v6h-5z"/>'
+        };
+
         const PIN_PATH = 'M16 1C8.8 1 3 6.8 3 14c0 9.2 13 27 13 27s13-17.8 13-27C29 6.8 23.2 1 16 1z';
 
         /**
@@ -81,6 +106,9 @@
          *   number    {number}  render this digit instead of the category glyph (route stops)
          *   color     {string}  override the category colour
          *   dimmed    {boolean} grey out (a completed route stop)
+         *   placeType {string}  key of PLACE_GLYPHS; overrides the category glyph for
+         *                       cultural objects. Unknown or null falls back to the
+         *                       category glyph, so untagged objects keep working.
          */
         window.gseMapPin = function(category, options) {
             const opts = options || {};
@@ -102,7 +130,7 @@
             if (opts.number != null) {
                 inner = `<text x="16" y="14" text-anchor="middle" dominant-baseline="central" fill="${ink}" font-size="15" font-weight="800" font-family="'Plus Jakarta Sans', Inter, system-ui, sans-serif">${opts.number}</text>`;
             } else {
-                const glyph = CATEGORY_GLYPHS[category] || CATEGORY_GLYPHS.cultural;
+                const glyph = PLACE_GLYPHS[opts.placeType] || CATEGORY_GLYPHS[category] || CATEGORY_GLYPHS.cultural;
                 // 0.75 not 0.6667: the glyph box grows to 18px, which is what the
                 // multi-part glyphs (wheelchair, restroom) need to stay legible. Any
                 // larger and the widest glyphs clip the pin head.

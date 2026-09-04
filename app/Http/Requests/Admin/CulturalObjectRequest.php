@@ -3,7 +3,9 @@
 namespace App\Http\Requests\Admin;
 
 use App\Http\Concerns\NormalizesMultilingualInput;
+use App\Models\CulturalObject;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CulturalObjectRequest extends FormRequest
 {
@@ -21,6 +23,8 @@ class CulturalObjectRequest extends FormRequest
             'name.en' => ['required', 'string', 'max:255'],
             'name.id' => ['required', 'string', 'max:255'],
             'category' => ['required', 'string', 'in:parahyangan,pawongan,palemahan'],
+            'place_type' => ['nullable', 'string', Rule::in(array_keys(CulturalObject::PLACE_TYPES))],
+            'is_detail' => ['nullable', 'boolean'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'short_description' => ['nullable', 'array'],
