@@ -63,9 +63,11 @@ class UmkmRecommendationService
         $lastLat = $userLat;
         $lastLng = $userLng;
 
-        // Pre-fetch all active UMKMs with active, in-stock products
+        // Pre-fetch all active UMKMs with active, in-stock products.
+        // ponytail: no withCoordinates() filter — coordinates are only a soft
+        // scoring term below, so requiring a MapLocation just silently drops
+        // every UMKM whose map pin is missing and kills the whole route.
         $allUmkms = UmkmProfile::active()
-            ->withCoordinates()
             ->with(['products' => function ($q) {
                 $q->active()->inStock();
             }, 'mapLocation'])
