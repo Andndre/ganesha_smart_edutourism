@@ -50,6 +50,21 @@ if (!window.resetMiniAudio) {
     };
 }
 
+// Marker sementara di mode create belum punya baris map_location, jadi bentuk lokasi
+// palsu dari keadaan form saat ini. Jenis Tempat ikut dibaca supaya pilihan admin
+// langsung terlihat di peta sebelum apa pun disimpan.
+function draftLoc(category, type = null) {
+    const placeTypeSelect = document.querySelector('#form-cultural select[name="place_type"]');
+
+    return {
+        category: category,
+        locationable: {
+            type: type,
+            place_type: category === 'cultural' && placeTypeSelect ? (placeTypeSelect.value || null) : null
+        }
+    };
+}
+
 // ==========================================
 // CREATE / ADD NEW LOCATION LOGIC
 // ==========================================
@@ -110,7 +125,7 @@ function handleMapClick(lat, lng) {
             tempMarker.setLatLng([lat, lng]);
         } else {
             tempMarker = L.marker([lat, lng], {
-                icon: getSelectedMarkerIcon('cultural'), // default
+                icon: getSelectedMarkerIcon(draftLoc('cultural')), // default
                 draggable: true
             }).addTo(map);
 
@@ -177,9 +192,9 @@ function switchForm(type) {
         if (type === 'facility') {
             const selectType = document.querySelector('#form-facility select[name="type"]');
             const subType = selectType ? selectType.value : 'toilet';
-            tempMarker.setIcon(getSelectedMarkerIcon('facility', subType));
+            tempMarker.setIcon(getSelectedMarkerIcon(draftLoc('facility', subType)));
         } else {
-            tempMarker.setIcon(getSelectedMarkerIcon(type));
+            tempMarker.setIcon(getSelectedMarkerIcon(draftLoc(type)));
         }
     }
 }
@@ -189,10 +204,29 @@ const facilityTypeSelect = document.querySelector('#form-facility select[name="t
 if (facilityTypeSelect) {
     facilityTypeSelect.addEventListener('change', function () {
         if (tempMarker && currentMode === 'create') {
-            tempMarker.setIcon(getSelectedMarkerIcon('facility', this.value));
+            tempMarker.setIcon(getSelectedMarkerIcon(draftLoc('facility', this.value)));
         }
         if (activeMarker && currentMode === 'edit') {
-            activeMarker.setIcon(getSelectedMarkerIcon('facility', this.value));
+            activeMarker.setIcon(getSelectedMarkerIcon(draftLoc('facility', this.value)));
+        }
+    });
+}
+
+// Preview langsung untuk Jenis Tempat: glyph marker berganti begitu pilihan diubah,
+// tanpa menunggu simpan. Cerminan dari listener tipe fasilitas di atas.
+const placeTypeSelect = document.querySelector('#form-cultural select[name="place_type"]');
+if (placeTypeSelect) {
+    placeTypeSelect.addEventListener('change', function () {
+        if (tempMarker && currentMode === 'create') {
+            tempMarker.setIcon(getSelectedMarkerIcon(draftLoc('cultural')));
+        }
+        if (activeMarker && currentMode === 'edit' && activeMarker.locationData.category === 'cultural') {
+            // Tidak mengubah locationData: pilihan yang belum disimpan tidak boleh
+            // menetap, jadi render ulang mengembalikannya ke nilai tersimpan.
+            activeMarker.setIcon(window.gseMapPin('cultural', {
+                highlight: true,
+                placeType: this.value || null
+            }));
         }
     });
 }
@@ -316,7 +350,7 @@ function handleMarkerClick(marker) {
 
         // Change marker icon to selected
         const type = details ? details.type : null;
-        marker.setIcon(getSelectedMarkerIcon(loc.category, type));
+        marker.setIcon(getSelectedMarkerIcon(loc));
 
         // Enable dragging for this marker
         marker.dragging.enable();
@@ -513,7 +547,7 @@ function resetSelectedMarkerVisuals() {
         const type = details ? details.type : null;
 
         // Revert icon to normal
-        activeMarker.setIcon(getMarkerIcon(loc.category, type));
+        activeMarker.setIcon(getMarkerIcon(loc));
 
         // Disable dragging & listeners
         activeMarker.dragging.disable();

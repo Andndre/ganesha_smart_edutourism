@@ -10,22 +10,9 @@
             display: none !important;
         }
 
-        /* Premium Selected Marker Animation */
-        @keyframes pin-breath {
-            0%, 100% {
-                transform: scale(1);
-                filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
-            }
-            50% {
-                transform: scale(1.15);
-                filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.25));
-            }
-        }
-
-        .marker-selected-glow {
-            animation: pin-breath 2s infinite ease-in-out;
-            transform-origin: center;
-        }
+        /* pin-breath / .marker-selected-glow dihapus bersama pembuat ikon bespoke:
+           marker terpilih sekarang memakai halo gseMapPin, yang animasinya sudah
+           menghormati prefers-reduced-motion. */
 
         @media (min-width: 1024px) {
             #admin-main {
@@ -76,6 +63,10 @@
 <x-map-style-modal />
 
 @push('scripts')
+    {{-- window.gseMapPin dipakai marker peta di halaman ini. Layout dashboard tidak
+         memuatnya seperti layouts/app, jadi harus di-include sendiri — dan harus
+         sebelum skrip peta yang memanggilnya. --}}
+    @include('components.map-pin-script')
     @include('admin.map-manager.partials.scripts')
     <x-tiptap-editor-script />
     <script type="module" src="{{ asset('js/model-viewer.min.js') }}"></script>

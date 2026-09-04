@@ -75,11 +75,6 @@
         });
     }
 
-    // Set up category colors
-    const categoryColors = {
-        umkm: '#8B5CF6',         // Violet
-        facility: '#3B82F6',     // Blue
-        toilet: '#0E7490',       // Cyan
-        cultural: '#1E5128'      // Green
-    };
+    // Palet kategori tidak lagi disalin di sini — marker peta memakai window.gseMapPin,
+    // yang sudah memegang warnanya (dan menjaga rasio kontrasnya) di map-pin-script.
 </script>

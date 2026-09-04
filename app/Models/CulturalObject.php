@@ -43,7 +43,8 @@ class CulturalObject extends Model
         'patung' => 'Patung',
         'bale' => 'Bale',
         'monumen' => 'Monumen / Relief',
-        'kawasan' => 'Kawasan / Koridor',
+        'koridor' => 'Koridor / Jalan Desa',
+        'pekarangan' => 'Pekarangan Bertembok',
         'alam' => 'Alam',
         'rumah' => 'Rumah Tradisional',
     ];
