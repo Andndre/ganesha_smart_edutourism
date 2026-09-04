@@ -81,6 +81,29 @@ class AdminCulturalObjectPinFieldsTest extends TestCase
         $this->assertFalse(CulturalObject::firstOrFail()->is_detail);
     }
 
+    /**
+     * Checkbox yang tidak dicentang tidak ikut terkirim browser, jadi mencabut
+     * centangnya harus tetap menurunkan nilainya ke false — kalau tidak, sebuah objek
+     * yang pernah ditandai komponen rumah selamanya tersembunyi di zoom jauh dan
+     * tidak ada cara membatalkannya lewat form.
+     */
+    public function test_unchecking_house_detail_clears_it(): void
+    {
+        $this->actingAs($this->admin)
+            ->post(route('admin.cultural-objects.store'), $this->payload(['is_detail' => '1']));
+
+        $object = CulturalObject::firstOrFail();
+        $this->assertTrue($object->is_detail);
+
+        // Payload tanpa is_detail sama persis dengan yang dikirim browser saat
+        // checkbox-nya dilepas.
+        $this->actingAs($this->admin)
+            ->put(route('admin.cultural-objects.update', $object->id), $this->payload())
+            ->assertSessionHasNoErrors();
+
+        $this->assertFalse($object->fresh()->is_detail);
+    }
+
     public function test_admin_can_change_place_type_on_an_existing_object(): void
     {
         $this->actingAs($this->admin)
