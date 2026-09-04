@@ -98,4 +98,56 @@ class ExploreCulturalPinTest extends TestCase
         $this->assertTrue($this->payloadFor($first->id)['is_detail']);
         $this->assertTrue($this->payloadFor($second->id)['is_detail']);
     }
+
+    public function test_explore_payload_translates_cultural_object_name_and_notes_according_to_locale(): void
+    {
+        $object = CulturalObject::create([
+            'name' => [
+                'id' => 'Relief Sejarah Desa Penglipuran',
+                'en' => 'Penglipuran History Relief',
+            ],
+            'slug' => 'penglipuran-history-relief',
+            'description' => [
+                'id' => 'Relief sejarah menggambarkan kronologi Desa Penglipuran.',
+                'en' => 'The history relief depicts Penglipuran chronology.',
+            ],
+            'category' => 'parahyangan',
+        ]);
+
+        $pin = MapLocation::create([
+            'locationable_type' => CulturalObject::class,
+            'locationable_id' => $object->id,
+            'name' => 'Relief Sejarah Desa Penglipuran', // Static database name
+            'category' => 'cultural',
+            'latitude' => -8.4210,
+            'longitude' => 115.3592,
+            'is_accessible' => true,
+            'accessibility_notes' => [
+                'id' => 'Akses ramah disabilitas tersedia.',
+                'en' => 'Wheelchair access is available.',
+            ],
+        ]);
+
+        // English request
+        $responseEn = $this->get('/explore?locale=en');
+        $responseEn->assertOk();
+        $locationsEn = $responseEn->viewData('locations');
+        $locEn = collect($locationsEn)->firstWhere('id', $pin->id);
+
+        $this->assertNotNull($locEn);
+        $this->assertSame('Penglipuran History Relief', $locEn['name']);
+        $this->assertStringContainsString('The history relief depicts', $locEn['desc']);
+        $this->assertSame('Wheelchair access is available.', $locEn['accessibility']);
+
+        // Indonesian request
+        $responseId = $this->get('/explore?locale=id');
+        $responseId->assertOk();
+        $locationsId = $responseId->viewData('locations');
+        $locId = collect($locationsId)->firstWhere('id', $pin->id);
+
+        $this->assertNotNull($locId);
+        $this->assertSame('Relief Sejarah Desa Penglipuran', $locId['name']);
+        $this->assertStringContainsString('Relief sejarah menggambarkan', $locId['desc']);
+        $this->assertSame('Akses ramah disabilitas tersedia.', $locId['accessibility']);
+    }
 }

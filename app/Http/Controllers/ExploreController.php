@@ -19,10 +19,10 @@ class ExploreController extends Controller
     public function index(): View
     {
         $locale = app()->getLocale();
-        $locations = Cache::tags(['explore'])->flexible("explore_map_locations_array_v3_{$locale}", [86400, 172800], function () {
+        $locations = Cache::tags(['explore'])->flexible("explore_map_locations_array_v4_{$locale}", [86400, 172800], function () use ($locale) {
             return MapLocation::with(['locationable' => function ($morphTo) {
                 $morphTo->morphWith([CulturalObject::class => ['arModel']]);
-            }])->get()->map(function ($loc) {
+            }])->get()->map(function ($loc) use ($locale) {
                 // Map category to match JavaScript filters
                 $category = $loc->category;
                 if ($loc->locationable_type === Facility::class && $loc->locationable && $loc->locationable->type === 'toilet') {
@@ -35,6 +35,7 @@ class ExploreController extends Controller
                     $category = 'facilities';
                 }
 
+                $name = $loc->name;
                 $description = '';
                 $detailUrl = null;
                 $hasAr = false;
@@ -43,8 +44,16 @@ class ExploreController extends Controller
                 $isDetail = false;
 
                 if ($loc->locationable) {
-                    $description = $loc->locationable->description ?? '';
+                    $descTranslations = method_exists($loc->locationable, 'getTranslations')
+                        ? $loc->locationable->getTranslations('description')
+                        : null;
+                    $description = translateValue($descTranslations ?: ($loc->locationable->description ?? ''), $locale);
+
                     if ($loc->locationable_type === CulturalObject::class) {
+                        $nameTranslations = method_exists($loc->locationable, 'getTranslations')
+                            ? $loc->locationable->getTranslations('name')
+                            : null;
+                        $name = translateValue($nameTranslations ?: ($loc->locationable->name ?? null), $locale) ?: $loc->name;
                         $detailUrl = route('cultural-object', ['slug' => $loc->locationable->slug]);
                         $placeType = $loc->locationable->place_type;
                         $isDetail = (bool) $loc->locationable->is_detail;
@@ -55,18 +64,38 @@ class ExploreController extends Controller
                             }
                         }
                     } elseif ($loc->locationable_type === UmkmProfile::class) {
+                        $nameTranslations = method_exists($loc->locationable, 'getTranslations')
+                            ? $loc->locationable->getTranslations('business_name')
+                            : null;
+                        $name = translateValue($nameTranslations ?: ($loc->locationable->business_name ?? null), $locale) ?: $loc->name;
                         $detailUrl = route('umkm');
                         if (! empty($loc->locationable->image)) {
                             $images[] = asset('storage/'.$loc->locationable->image);
                         }
+                    } elseif ($loc->locationable_type === Facility::class) {
+                        $nameTranslations = method_exists($loc->locationable, 'getTranslations')
+                            ? $loc->locationable->getTranslations('name')
+                            : null;
+                        $name = translateValue($nameTranslations ?: ($loc->locationable->name ?? null), $locale) ?: $loc->name;
+                    } elseif (isset($loc->locationable->name)) {
+                        $nameTranslations = method_exists($loc->locationable, 'getTranslations')
+                            ? $loc->locationable->getTranslations('name')
+                            : null;
+                        $name = translateValue($nameTranslations ?: $loc->locationable->name, $locale) ?: $loc->name;
                     }
                 }
+
+                $accTranslations = method_exists($loc, 'getTranslations')
+                    ? $loc->getTranslations('accessibility_notes')
+                    : null;
+                $accessibility = translateValue($accTranslations ?: ($loc->accessibility_notes ?? ''), $locale);
 
                 return [
                     'id' => $loc->id,
                     'lat' => (float) $loc->latitude,
                     'lng' => (float) $loc->longitude,
-                    'name' => $loc->name,
+                    'name' => $name,
+                    'raw_name' => $loc->name,
                     'cat' => $category,
                     // Memilih glyph pin; null jatuh balik ke candi bentar
                     'place_type' => $placeType,
@@ -75,7 +104,7 @@ class ExploreController extends Controller
                     // Plain text only: the client searches this string and the sheet shows a 120-char preview
                     'desc' => Str::of(strip_tags((string) $description))->squish()->limit(160)->toString(),
                     'is_accessible' => (bool) $loc->is_accessible,
-                    'accessibility' => $loc->accessibility_notes ?? '',
+                    'accessibility' => $accessibility,
                     'detail_url' => $detailUrl,
                     'has_ar' => $hasAr,
                     'image' => $images[0] ?? null,
@@ -84,10 +113,10 @@ class ExploreController extends Controller
             })->all();
         });
 
-        $formattedRoutes = Cache::tags(['explore'])->flexible("explore_map_routes_array_{$locale}", [86400, 172800], function () {
+        $formattedRoutes = Cache::tags(['explore'])->flexible("explore_map_routes_array_v2_{$locale}", [86400, 172800], function () use ($locale) {
             $routes = TourRoute::where('is_active', true)->with('routePoints.locationable')->get();
 
-            return $routes->map(function ($route) {
+            return $routes->map(function ($route) use ($locale) {
                 $points = $route->routePoints->map(function ($point) {
                     $locationable = $point->locationable;
                     if (! $locationable) {
@@ -110,9 +139,14 @@ class ExploreController extends Controller
                     return null;
                 })->filter()->values();
 
+                $nameTranslations = method_exists($route, 'getTranslations')
+                    ? $route->getTranslations('name')
+                    : null;
+                $name = translateValue($nameTranslations ?: ($route->name ?? null), $locale) ?: $route->name;
+
                 return [
                     'id' => $route->id,
-                    'name' => $route->name,
+                    'name' => $name,
                     'coordinates' => $points,
                 ];
             })->all();
@@ -130,7 +164,7 @@ class ExploreController extends Controller
                     'lng' => (float) $visitor['lng'],
                     'intensity' => 0.9, // High intensity for live users
                     'category' => 'cultural', // Map to cultural for now so it shows up in default filters, or we can make it always visible
-                    'name' => 'Pengunjung Aktif',
+                    'name' => __('Pengunjung Aktif'),
                     'is_live_user' => true,
                     'session_id' => $sessionId,
                 ];
