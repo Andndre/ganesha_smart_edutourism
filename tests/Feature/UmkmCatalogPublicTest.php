@@ -121,6 +121,63 @@ class UmkmCatalogPublicTest extends TestCase
     }
 
     /**
+     * Multi-stop route must still work when the UMKM have no map pin yet.
+     */
+    public function test_multi_stop_works_without_map_locations(): void
+    {
+        $umkm1 = UmkmProfile::create([
+            'user_id' => User::factory()->create(['role' => 'umkm_owner'])->id,
+            'owner_name' => 'A',
+            'business_name' => 'No Pin Coffee',
+            'category' => 'culinary',
+            'slug' => 'no-pin-coffee',
+            'ar_marker_id' => 'UMKM_NOPIN1',
+            'is_active' => true,
+        ]);
+        $umkm2 = UmkmProfile::create([
+            'user_id' => User::factory()->create(['role' => 'umkm_owner'])->id,
+            'owner_name' => 'B',
+            'business_name' => 'No Pin Souvenirs',
+            'category' => 'craft',
+            'slug' => 'no-pin-souvenirs',
+            'ar_marker_id' => 'UMKM_NOPIN2',
+            'is_active' => true,
+        ]);
+
+        $catFood = UmkmProductCategory::create(['name' => 'Kuliner', 'slug' => 'kuliner-nopin']);
+        $catCraft = UmkmProductCategory::create(['name' => 'Kerajinan', 'slug' => 'kerajinan-nopin']);
+
+        UmkmProduct::create([
+            'umkm_profile_id' => $umkm1->id,
+            'umkm_product_category_id' => $catFood->id,
+            'name' => 'Loloh Cemcem',
+            'slug' => 'loloh-cemcem',
+            'price' => 10000,
+            'stock' => 5,
+            'is_active' => true,
+        ]);
+        UmkmProduct::create([
+            'umkm_profile_id' => $umkm2->id,
+            'umkm_product_category_id' => $catCraft->id,
+            'name' => 'Sokasi',
+            'slug' => 'sokasi',
+            'price' => 50000,
+            'stock' => 5,
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs(User::factory()->create())->post('/umkm/recommend', [
+            'category_ids' => [$catFood->id, $catCraft->id],
+            'lat' => -8.4223,
+            'lng' => 115.3594,
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionMissing('error');
+        $response->assertSessionHas('multi_stop_recommendations');
+    }
+
+    /**
      * Test search returns proper JSON structure with non-empty results.
      */
     public function test_umkm_search_returns_json(): void
