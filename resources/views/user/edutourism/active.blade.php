@@ -113,6 +113,26 @@
         .sheet-slide-up {
             animation: sheet-slide-up 0.3s ease-out both;
         }
+
+        /* Sebagian orang mual atau pusing oleh gerakan. Animasi dimatikan, tapi elemen yang
+           bergantung padanya (centang yang digambar via stroke-dashoffset) tetap dipaksa ke
+           keadaan akhir supaya tidak hilang sama sekali. */
+        @media (prefers-reduced-motion: reduce) {
+
+            .quiz-shake,
+            .quiz-score-badge,
+            .quiz-success-icon,
+            .quiz-success-check,
+            .quiz-success-check-pin,
+            .sheet-slide-up {
+                animation: none !important;
+            }
+
+            .quiz-success-check,
+            .quiz-success-check-pin {
+                stroke-dashoffset: 0 !important;
+            }
+        }
     </style>
 @endpush
 
@@ -120,36 +140,65 @@
     <div class="fixed inset-x-0 bottom-0 top-0 z-0 bg-[#E5E3DF]">
         <div id="map" class="absolute inset-0 z-0"></div>
 
+        {{-- Ditaruh di bawah header, bukan di atas bottom sheet: tinggi sheet berubah-ubah
+             mengikuti jumlah tombol titik, jadi jangkar atas satu-satunya posisi yang tidak
+             pernah tertutup. Satelit membantu mengenali bangunan asli saat mencari titik. --}}
+        <div class="absolute right-4 top-[calc(env(safe-area-inset-top)+8.5rem)] z-20">
+            <x-map-style-fab />
+        </div>
+
         <!-- Top Overlay -->
         <div class="pointer-events-none absolute inset-x-0 top-0 z-20 p-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
             <div
                 class="pointer-events-auto flex items-center justify-between rounded-2xl bg-white/90 p-4 shadow-sm backdrop-blur-sm">
-                <div class="flex items-center gap-3">
-                    <a href="{{ route('home') }}"
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">
+                @php
+                    $totalPoints = $activeSession->tourRoute->routePoints->count();
+                    $donePoints = $activeSession->points_completed;
+                    $progressPct = $totalPoints > 0 ? round(($donePoints / $totalPoints) * 100) : 0;
+                @endphp
+                <div class="flex min-w-0 flex-1 items-center gap-3">
+                    <a href="{{ route('home') }}" aria-label="{{ __('Kembali') }}"
+                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
                     </a>
-                    <div>
-                        <h2 class="text-charcoal font-bold leading-tight">{{ $activeSession->tourRoute->name }}</h2>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="text-charcoal truncate font-bold leading-tight">
+                            {{ $activeSession->tourRoute->name }}</h2>
                         <p class="text-xs text-gray-500">
-                            {{ __('Misi: :completed / :total Selesai', ['completed' => $activeSession->points_completed, 'total' => $activeSession->tourRoute->routePoints->count()]) }}
+                            {{ __('Misi: :completed / :total Selesai', ['completed' => $donePoints, 'total' => $totalPoints]) }}
                         </p>
+                        {{-- Progres sebagai bar, bukan hanya angka: terbaca sekilas sambil berjalan
+                             di bawah matahari, saat teks kecil praktis tidak terbaca. me-3 menjaga
+                             ujungnya tidak menempel ke angka poin di sebelah kanan. --}}
+                        <div class="me-3 mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-200" role="progressbar"
+                            aria-valuenow="{{ $donePoints }}" aria-valuemin="0" aria-valuemax="{{ $totalPoints }}"
+                            aria-label="{{ __('Progres rute') }}">
+                            <div class="bg-primary h-full rounded-full transition-all duration-500"
+                                style="width: {{ $progressPct }}%"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
+                {{-- Sebaris, bukan bertumpuk: tombol berlabel sudah setinggi 44px, jadi menumpuknya
+                     di bawah skor akan menaikkan tinggi header dan memakan area peta. --}}
+                <div class="flex shrink-0 items-center gap-2">
                     <div class="text-right">
-                        <span class="text-primary text-xl font-black leading-none">{{ $activeSession->total_score }}</span>
-                        <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500">{{ __('Poin') }}</p>
+                        <span
+                            class="text-primary block text-xl font-black leading-none">{{ $activeSession->total_score }}</span>
+                        <span
+                            class="mt-0.5 block text-[10px] font-bold uppercase tracking-wider text-gray-500">{{ __('Poin') }}</span>
                     </div>
+                    {{-- Dulu ikon titik-tiga, yang menjanjikan sebuah menu padahal isinya satu aksi
+                         destruktif. Sekarang diberi label eksplisit dan warna Alert Amber, supaya
+                         tidak tertukar dengan panah kembali di kiri yang tidak menghentikan sesi. --}}
                     <button type="button" id="btn-stop-route" onclick="stopRoute()"
-                        aria-label="{{ __('Berhenti dari Rute?') }}"
-                        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-300 transition-colors hover:bg-gray-100 hover:text-gray-500">
-                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M12 6a2 2 0 100-4 2 2 0 000 4zM12 14a2 2 0 100-4 2 2 0 000 4zM12 22a2 2 0 100-4 2 2 0 000 4z" />
+                        class="tap-target text-warning border-warning/30 hover:bg-warning/10 flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors active:scale-95">
+                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            stroke-width="2.5">
+                            <rect x="6" y="6" width="12" height="12" rx="2" />
                         </svg>
+                        {{ __('Berhenti') }}
                     </button>
                 </div>
             </div>
@@ -165,9 +214,13 @@
                     <h2 class="text-charcoal mt-1 text-xl font-black">
                         {{ $activeSession->currentPoint->locationable->name ?? __('Titik Perhentian') }}</h2>
 
-                    <div class="mt-4 flex items-center gap-3 rounded-xl bg-blue-50 p-3">
-                        <div
-                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                    {{-- Kartu status GPS. Warnanya berubah per keadaan (mencari / jauh / sampai /
+                         sinyal lemah), tapi teksnya selalu ikut berubah, jadi keadaan tetap
+                         terbaca tanpa membedakan warna. --}}
+                    <div id="gps-status"
+                        class="mt-4 flex items-center gap-3 rounded-2xl border border-blue-100 bg-blue-50 p-3 transition-colors">
+                        <div id="gps-status-icon"
+                            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -175,16 +228,21 @@
                                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                         </div>
-                        <div>
-                            <p class="text-sm font-bold text-blue-900" id="distance-info">{{ __('Mencari lokasi GPS...') }}
-                            </p>
-                            <p class="text-[11px] uppercase tracking-wider text-blue-700">
+                        <div class="min-w-0">
+                            {{-- Jarak adalah satu-satunya angka yang berubah terus dan menentukan
+                                 apakah tombol terbuka, jadi ia yang dibesarkan. aria-live membuat
+                                 pembaruannya ikut diumumkan pembaca layar. --}}
+                            <p class="text-base font-bold leading-tight text-blue-900" id="distance-info"
+                                aria-live="polite">{{ __('Mencari lokasi GPS...') }}</p>
+                            <p class="mt-0.5 text-[11px] uppercase tracking-wider text-blue-700" id="gps-hint">
                                 {{ __('Arahkan ke lokasi untuk membuka kuis') }}</p>
                         </div>
                     </div>
 
+                    {{-- Nonaktif pakai warna solid, bukan opacity: teks putih di atas hijau 50%
+                         jatuh di bawah rasio kontras 4.5:1 dan hilang di bawah matahari. --}}
                     <button id="btn-arrive" disabled onclick="triggerArrive({{ $activeSession->currentPoint->id }})"
-                        class="bg-primary mt-4 w-full rounded-xl py-3 text-center text-sm font-bold text-white opacity-50 shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed">
+                        class="bg-primary mt-4 min-h-12 w-full rounded-xl py-3 text-center text-sm font-bold text-white shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-700 disabled:shadow-none">
                         {{ __('Mendekati Lokasi...') }}
                     </button>
 
@@ -493,7 +551,11 @@
         </div>
     @endif
 
+    <x-map-style-modal />
+
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    {{-- Harus dimuat sebelum skrip di bawah, yang memanggil initMapStyleSwitcher() saat peta dibuat. --}}
+    @include('components.map-style-script')
     <script>
         function missionRunner(missions, completedIds) {
             return {
@@ -563,6 +625,15 @@
         (function() {
             let mapInstance = null;
             let watchId = null;
+            let gpsTimer = null;
+
+            function clearGpsTimer() {
+                if (gpsTimer !== null) {
+                    clearTimeout(gpsTimer);
+                    gpsTimer = null;
+                }
+            }
+
             const hasCurrentPoint = @json((bool) $activeSession->currentPoint);
             // A locationable may have several map points (e.g. multiple entrances) —
             // arriving at any one of them completes the mission.
@@ -616,8 +687,15 @@
                     }).setView([-8.4223, 115.3595], 17);
                     mapInstance = map;
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        maxZoom: 19
+                        maxZoom: 22,
+                        maxNativeZoom: 19
                     }).addTo(map);
+
+                    // Pilihan standar/satelit dibagi dengan /explore lewat localStorage 'mapStyle',
+                    // jadi tampilan peta tidak berubah-ubah saat berpindah halaman.
+                    if (window.initMapStyleSwitcher) {
+                        window.initMapStyleSwitcher(map);
+                    }
 
                     targetPoints.forEach(function(point) {
                         L.marker([point.lat, point.lng], {
@@ -626,14 +704,107 @@
                     });
 
                     let userMarker = null;
+                    let manualMode = false;
+                    // Diset saat wisatawan benar-benar menaruh posisi sendiri. Setelah itu GPS
+                    // tidak boleh menimpanya: kalau GPS pulih sebentar lalu buruk lagi, posisi
+                    // akan lompat-lompat dan tombol yang sudah terbuka terkunci kembali.
+                    let manualPlaced = false;
 
-                    // FOR TESTING PURPOSES ONLY! Delete in production if actual GPS is strictly needed.
-                    // Simulasi click on map to move GPS to test arrive trigger since dev GPS might be far
-                    map.on('click', function(e) {
-                        updateUserPosition(e.latlng.lat, e.latlng.lng);
-                    });
+                    // Titik dianggap tercapai di radius ini (meter).
+                    const ARRIVE_RADIUS_M = 5;
+                    // Fix GPS dengan akurasi lebih buruk dari ini tidak dipakai untuk membuka
+                    // titik, karena ±100m akan meng-unlock apa pun. Ponsel di ruang terbuka biasanya
+                    // ±5-15m; di antara tembok/bambu bisa jauh lebih buruk.
+                    const MAX_ACCURACY_M = 50;
+                    // Belum ada satu pun fix layak dalam rentang ini -> tawarkan mode manual.
+                    const GPS_GIVE_UP_MS = 20000;
 
-                    function updateUserPosition(lat, lng) {
+                    // Satu tempat untuk seluruh tampilan kartu status, supaya tidak ada kombinasi
+                    // setengah jadi (mis. ikon hijau tapi teks amber). Kelas ditulis utuh sebagai
+                    // literal agar tetap terpindai Tailwind.
+                    const GPS_STATES = {
+                        searching: {
+                            box: 'border-blue-100 bg-blue-50',
+                            icon: 'bg-blue-100 text-blue-600',
+                            title: 'text-blue-900',
+                            hint: 'text-blue-700',
+                        },
+                        arrived: {
+                            box: 'border-primary/30 bg-primary/10',
+                            icon: 'bg-primary text-white',
+                            title: 'text-primary',
+                            hint: 'text-primary',
+                        },
+                        warning: {
+                            box: 'border-amber-200 bg-amber-50',
+                            icon: 'bg-amber-100 text-amber-700',
+                            title: 'text-amber-900',
+                            hint: 'text-amber-700',
+                        },
+                    };
+                    const GPS_STATE_CLASSES = Object.values(GPS_STATES)
+                        .flatMap(s => Object.values(s))
+                        .flatMap(v => v.split(' '));
+
+                    let gpsState = null;
+
+                    function setGpsState(state) {
+                        if (state === gpsState) return;
+
+                        const nodes = {
+                            box: document.getElementById('gps-status'),
+                            icon: document.getElementById('gps-status-icon'),
+                            title: document.getElementById('distance-info'),
+                            hint: document.getElementById('gps-hint'),
+                        };
+                        const style = GPS_STATES[state];
+                        if (!style || !nodes.box) return;
+
+                        for (const key in nodes) {
+                            if (!nodes[key]) continue;
+                            nodes[key].classList.remove(...GPS_STATE_CLASSES);
+                            nodes[key].classList.add(...style[key].split(' '));
+                        }
+
+                        // Getar sekali saat titik terbuka: wisatawan sedang berjalan dan sering
+                        // tidak menatap layar, jadi warna dan teks saja tidak cukup memberi tahu.
+                        if (state === 'arrived' && gpsState !== null && navigator.vibrate) {
+                            navigator.vibrate(50);
+                        }
+
+                        gpsState = state;
+                    }
+
+                    // Fallback: tap-di-peta hanya hidup kalau GPS benar-benar tidak bisa dipakai
+                    // (ditolak, tidak didukung, atau tak dapat fix). Selama GPS jalan, posisi
+                    // hanya boleh datang dari watchPosition.
+                    function enableManualMode(reason) {
+                        clearGpsTimer();
+                        if (manualMode) return;
+                        manualMode = true;
+
+                        map.on('click', function(e) {
+                            manualPlaced = true;
+                            updateUserPosition(e.latlng.lat, e.latlng.lng);
+                        });
+
+                        const hint = document.getElementById('gps-hint');
+                        if (hint) {
+                            hint.textContent = @js(__('GPS tidak terdeteksi. Ketuk peta untuk menandai posisi Anda'));
+                        }
+
+                        const infoText = document.getElementById('distance-info');
+                        if (infoText && !userMarker) {
+                            infoText.textContent = @js(__('Mode manual'));
+                        }
+
+                        setGpsState('warning');
+
+                        console.warn('Edutourism: manual position mode aktif:', reason);
+                    }
+
+                    // accuracy = radius error GPS dalam meter (0 untuk posisi yang ditaruh manual).
+                    function updateUserPosition(lat, lng, accuracy = 0) {
                         if (!userMarker) {
                             userMarker = L.marker([lat, lng], {
                                 icon: L.divIcon({
@@ -660,20 +831,49 @@
                                 const detailBtn = document.getElementById('btn-detail-object');
                                 const scanBtn = document.getElementById('btn-scan-qr');
 
-                                if (dist < 30) {
-                                    infoText.innerHTML =
-                                        `{{ __('Lokasi Ditemukan!') }} ({{ __('Jarak') }}: ${dist}m)`;
+                                // Radius 5m lebih ketat daripada akurasi GPS ponsel, jadi jarak
+                                // dinilai pada tepi terdekat lingkaran error, bukan titik tengahnya.
+                                // Tanpa ini wisatawan bisa berdiri persis di objek dan tetap terkunci.
+                                const usableFix = accuracy <= MAX_ACCURACY_M;
+                                const nearestDist = Math.max(0, dist - accuracy);
+                                // Akurasi ikut ditampilkan: radius 5m bergantung penuh padanya,
+                                // jadi tanpa angka ini "kenapa belum terbuka" mustahil dijawab
+                                // di lapangan, baik oleh wisatawan maupun saat uji coba.
+                                const acc = accuracy > 0 ? ` · ±${Math.round(accuracy)}m` : '';
+
+                                const hint = document.getElementById('gps-hint');
+
+                                if (usableFix && nearestDist < ARRIVE_RADIUS_M) {
+                                    infoText.textContent =
+                                        `{{ __('Lokasi Ditemukan!') }} (${dist}m${acc})`;
+                                    // Di mode manual, instruksi "ketuk peta" sudah basi begitu
+                                    // posisi ditandai. Tetap dibedakan dari GPS asli supaya tidak
+                                    // terbaca seolah kedatangannya terverifikasi satelit.
+                                    if (hint) {
+                                        hint.textContent = manualMode ?
+                                            @js(__('Posisi ditandai manual')) :
+                                            @js(__('Anda sudah sampai di titik ini'));
+                                    }
                                     arriveBtn.disabled = false;
-                                    arriveBtn.classList.remove('opacity-50');
                                     arriveBtn.textContent = @js(__('Jawab Pertanyaan & Lanjut'));
+                                    setGpsState('arrived');
 
                                     if (detailBtn) detailBtn.classList.remove('hidden');
                                     if (scanBtn) scanBtn.classList.remove('hidden');
                                 } else {
-                                    infoText.textContent = `{{ __('Jarak') }}: ${dist} {{ __('meter') }}`;
+                                    infoText.textContent = usableFix ?
+                                        `{{ __('Jarak') }}: ${dist} {{ __('meter') }}${acc}` :
+                                        `${@js(__('Sinyal GPS lemah'))} (±${Math.round(accuracy)}m)`;
+                                    if (hint) {
+                                        hint.textContent = manualMode ?
+                                            @js(__('GPS tidak terdeteksi. Ketuk peta untuk menandai posisi Anda')) :
+                                            (usableFix ?
+                                                @js(__('Arahkan ke lokasi untuk membuka kuis')) :
+                                                @js(__('Menunggu sinyal yang lebih akurat')));
+                                    }
                                     arriveBtn.disabled = true;
-                                    arriveBtn.classList.add('opacity-50');
                                     arriveBtn.textContent = "{{ __('Mendekati Lokasi...') }}";
+                                    setGpsState(usableFix && !manualMode ? 'searching' : 'warning');
 
                                     if (detailBtn) detailBtn.classList.add('hidden');
                                     if (scanBtn) scanBtn.classList.add('hidden');
@@ -682,14 +882,41 @@
                         }
                     }
 
-                    if (navigator.geolocation && targetPoints.length > 0) {
-                        watchId = navigator.geolocation.watchPosition(pos => {
-                            updateUserPosition(pos.coords.latitude, pos.coords.longitude);
-                        }, err => {
-                            console.error(err);
-                        }, {
-                            enableHighAccuracy: true
-                        });
+                    if (targetPoints.length > 0) {
+                        if (!navigator.geolocation) {
+                            enableManualMode('geolocation tidak didukung browser');
+                        } else {
+                            // GPS bisa "berhasil" tapi hanya mengirim fix ±200m selamanya
+                            // (dalam ruangan, di antara tembok). Itu bukan error, jadi
+                            // watchPosition tidak akan pernah memanggil handler error,
+                            // timer ini yang menawarkan jalan keluar.
+                            gpsTimer = setTimeout(
+                                () => enableManualMode('tidak ada fix GPS yang cukup akurat'),
+                                GPS_GIVE_UP_MS);
+
+                            watchId = navigator.geolocation.watchPosition(pos => {
+                                if (pos.coords.accuracy <= MAX_ACCURACY_M) {
+                                    clearGpsTimer();
+                                }
+                                if (manualPlaced) {
+                                    return;
+                                }
+                                updateUserPosition(pos.coords.latitude, pos.coords.longitude,
+                                    pos.coords.accuracy);
+                            }, err => {
+                                // Sengaja TANPA opsi `timeout`: pada watchPosition, timeout
+                                // berlaku per-pembaruan, jadi jeda fix biasa saat jalan kaki
+                                // (layar meredup, lewat bawah pohon) akan memicu TIMEOUT dan
+                                // membuka mode klik padahal GPS sehat. Kasus "lama tak dapat
+                                // fix" sudah ditangani gpsTimer di atas. Satu mekanisme saja.
+                                if (err.code === err.TIMEOUT) {
+                                    return;
+                                }
+                                enableManualMode(err.message || err.code);
+                            }, {
+                                enableHighAccuracy: true
+                            });
+                        }
                     }
 
                     function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -822,6 +1049,7 @@
 
             // Clean up GPS watch position and map instance when navigating away via Livewire
             document.addEventListener('livewire:navigating', function cleanup(e) {
+                clearGpsTimer();
                 if (watchId !== null) {
                     navigator.geolocation.clearWatch(watchId);
                     watchId = null;
