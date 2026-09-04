@@ -139,7 +139,7 @@
                             e.originalEvent.stopPropagation();
                         }
                         openSheet(loc);
-                        focusOnLocation(loc, 18, 0.5);
+                        focusOnLocation(loc, 0.5);
                     });
 
                     markerLayers.push({
@@ -396,7 +396,7 @@
                     setTimeout(() => {
                         // openSheet highlights the marker as the active one
                         openSheet(targetLoc);
-                        focusOnLocation(targetLoc, 18, 0.8);
+                        focusOnLocation(targetLoc, 0.8);
 
                         // Auto-trigger click on the route directions button
                         const routeBtn = document.getElementById('sheet-route-btn');
@@ -727,7 +727,7 @@
                 if (searchInput) searchInput.blur();
                 if (navigator.vibrate) navigator.vibrate(50);
                 openSheet(loc);
-                focusOnLocation(loc, 18, 0.5);
+                focusOnLocation(loc, 0.5);
             }
 
             function onFilterChange(e) {
@@ -1324,7 +1324,17 @@
             // the search bar always covers the top. We measure how much of the map each
             // one hides and shift the centre by half the difference — correct at any zoom,
             // unlike the fixed latitude nudge this replaced.
-            function focusOnLocation(loc, zoom, duration) {
+            // Zoom to settle on when a pin is picked. 18 covered ~230 m of village — too
+            // far to see which house was tapped — and for a component pin it sat below
+            // DETAIL_MIN_ZOOM, so the pin just selected vanished on arrival. Never zoom
+            // back out either: if the tourist is already closer in, stay there.
+            function focusZoomFor(loc) {
+                return Math.max(map.getZoom(), loc.is_detail ? DETAIL_MIN_ZOOM : 19);
+            }
+
+            function focusOnLocation(loc, duration) {
+                const zoom = focusZoomFor(loc);
+
                 // Wait a frame so Alpine has rendered the sheet and it can be measured.
                 // Its enter transition only translates it, so the size is already final.
                 requestAnimationFrame(() => {
