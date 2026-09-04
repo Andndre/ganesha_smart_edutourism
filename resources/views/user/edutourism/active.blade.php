@@ -1021,11 +1021,11 @@
                                 .then(res => res.json())
                                 .then(data => {
                                     if (data.success) {
-                                        if (window.history.length > 1) {
-                                            window.history.back();
-                                        } else {
-                                            window.location.href = data.redirect;
-                                        }
+                                        // Sengaja bukan history.back(): halaman sebelumnya
+                                        // dipulihkan dari bfcache, HTML-nya dirender sebelum
+                                        // sesi dibatalkan, jadi banner "Smart Edutourism Aktif"
+                                        // di layouts/app masih ikut terbawa sampai di-refresh.
+                                        window.location.href = data.redirect;
                                     }
                                 })
                                 .catch(() => {
