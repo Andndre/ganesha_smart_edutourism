@@ -88,9 +88,11 @@
                 {{-- Language Switcher --}}
                 <div class="relative" x-data="{ langOpen: false, currentLocale: '{{ app()->getLocale() }}' }">
                     <button @click="langOpen = !langOpen"
-                            class="tap-target hover:text-primary relative flex items-center justify-center p-2.5 {{ $isMainTab ? 'text-gray-500' : 'text-white/80 hover:text-white' }} transition-colors active:scale-95"
+                            class="tap-target hover:text-primary relative flex items-center justify-center gap-1.5 p-2.5 {{ $isMainTab ? 'text-gray-500' : 'text-white/80 hover:text-white' }} transition-colors active:scale-95"
                             aria-label="{{ __('Ganti Bahasa') }}">
                         <x-flag-icon :locale="app()->getLocale()" class="h-6 w-8 ring-1 ring-black/10" />
+                        {{-- ponytail: bendera itu warna doang; label teks bikin locale aktif kebaca tanpa lihat warna --}}
+                        <span class="text-xs font-bold uppercase">{{ app()->getLocale() }}</span>
                     </button>
 
                     <div x-show="langOpen"

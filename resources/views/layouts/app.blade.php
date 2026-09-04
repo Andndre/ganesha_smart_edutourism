@@ -6,6 +6,8 @@
     {{-- Pinch-zoom sengaja dibiarkan aktif: app dipakai outdoor, banyak wisatawan lansia --}}
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#FAF9F6">
+    {{-- ponytail: UI ini sengaja light-only (outdoor readability), jadi cegah browser auto-adapt setengah jalan --}}
+    <meta name="color-scheme" content="light">
     <meta name="mobile-web-app-capable" content="yes">
 
     <meta name="apple-mobile-web-app-capable" content="yes">

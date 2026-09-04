@@ -20,8 +20,10 @@
                             @endif
 
                             <!-- Checkbox Container at Top-Right -->
-                            <div class="absolute right-2 top-2 z-10" onclick="event.stopPropagation()">
-                                <label class="flex cursor-pointer items-center justify-center">
+                            {{-- ponytail: label padding, bukan checkbox lebih besar — 22px visual, 46px tap target (min 44px) --}}
+                            <div class="absolute right-0 top-0 z-10" onclick="event.stopPropagation()">
+                                <label class="flex cursor-pointer items-center justify-center p-3"
+                                    aria-label="{{ __('Pilih') }} {{ $category['name'] }}">
                                     <input type="checkbox" name="category_ids[]" value="{{ $category['id'] }}"
                                         id="checkbox-cat-{{ $category['id'] }}"
                                         class="w-5.5 h-5.5 text-primary focus:ring-primary accent-primary cursor-pointer rounded-md border-gray-300 transition-all focus:ring-offset-0"
@@ -32,7 +34,7 @@
                         <div class="flex-1 p-3">
                             <h3 class="text-charcoal text-sm font-bold">{{ $category['name'] }}</h3>
                             @if ($category['description'])
-                                <p class="mt-1 line-clamp-2 text-xs text-gray-500">{{ $category['description'] }}</p>
+                                <p class="mt-1 line-clamp-2 text-[13px] text-gray-600">{{ $category['description'] }}</p>
                             @endif
                         </div>
                     </div>
