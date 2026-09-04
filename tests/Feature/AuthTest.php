@@ -349,6 +349,10 @@ class AuthTest extends TestCase
 
     /**
      * Test users can logout.
+     *
+     * Keluar mengarah ke beranda, bukan ke halaman login — lihat commit 247e368.
+     * Bedakan dengan test_guests_cannot_logout di bawah: tamu yang menembak /logout
+     * dipental middleware `auth` ke /login, dan itu memang seharusnya begitu.
      */
     public function test_users_can_logout(): void
     {
@@ -357,7 +361,7 @@ class AuthTest extends TestCase
         $response = $this->actingAs($user)->post('/logout');
 
         $this->assertGuest();
-        $response->assertRedirect('/login');
+        $response->assertRedirect('/');
     }
 
     /**
