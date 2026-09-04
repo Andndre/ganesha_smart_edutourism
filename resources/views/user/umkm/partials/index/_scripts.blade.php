@@ -5,6 +5,8 @@
         'no_description' => __('Belum ada deskripsi untuk kategori ini.'),
         'deselect_category' => __('Batal Pilih Kategori'),
         'select_category' => __('Pilih Kategori Ini'),
+        'cta_empty' => __('Pilih kategori dulu'),
+        'cta_ready' => __('Temukan UMKM'),
     ];
 @endphp
     <script>
@@ -59,6 +61,16 @@
                 if (!container) return;
 
                 const checkedBoxes = document.querySelectorAll('input[name="category_ids[]"]:checked');
+
+                // Banner error dari pencarian sebelumnya sudah basi begitu pilihan berubah.
+                document.getElementById('recommend-error')?.remove();
+
+                const cta = document.getElementById('find-umkm-btn');
+                const ctaLabel = document.getElementById('find-umkm-label');
+                if (cta && ctaLabel) {
+                    cta.disabled = checkedBoxes.length === 0;
+                    ctaLabel.textContent = cta.disabled ? messages.cta_empty : messages.cta_ready;
+                }
 
                 if (checkedBoxes.length === 0) {
                     container.innerHTML = '';
