@@ -15,5 +15,8 @@
             </button>
         </div>
         <p class="text-xs text-gray-500 text-center mt-4">{{ __('Pilih tampilan peta yang sesuai dengan kebutuhan Anda.') }}</p>
+
+        {{-- Slot untuk toggle lapisan khusus per halaman (mis. heatmap di /explore) --}}
+        {{ $slot }}
     </div>
 </x-modal>

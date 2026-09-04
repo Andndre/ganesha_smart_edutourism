@@ -309,9 +309,37 @@ input[type="checkbox"]:focus-visible {
    LEAFLET MAP & EXPLORE PAGE STYLES
    =========================================== */
 
-/* Sembunyikan atribusi leaflet yang terlalu besar di HP */
+/* Atribusi wajib tampil — syarat lisensi ODbL OpenStreetMap. Dulu di-`display:none`
+   karena kepanjangan di HP; yang dipangkas sekarang prefix "Leaflet"-nya, bukan
+   seluruh baris. */
 .leaflet-control-attribution {
-    display: none !important;
+    font-size: 11px;
+    padding: 1px 6px;
+    background: rgba(255, 255, 255, 0.85);
+    color: #4b5563;
+}
+
+.leaflet-control-attribution a {
+    color: #1e5128;
+}
+
+/* Label nama lokasi di peta (muncul saat zoom dekat). Dibuat setipis mungkin
+   supaya tidak menutupi peta, tapi tetap kontras untuk dibaca di luar ruangan. */
+.leaflet-tooltip.map-label {
+    padding: 2px 7px;
+    border: 0;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.92);
+    color: #191a19;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.4;
+    white-space: nowrap;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+}
+
+.leaflet-tooltip.map-label::before {
+    display: none;
 }
 
 /* Hilangkan efek outline saat klik marker */
@@ -366,4 +394,21 @@ input[type="checkbox"]:focus-visible {
 .fab-btn-active {
     background: #1e5128 !important;
     color: white !important;
+}
+
+/* Toggle lapisan di modal Jenis Peta: baris lebar, jadi hijau pekat ala FAB bundar
+   terlalu berat. Statusnya ditandai ikon terisi + label teks, bukan warna saja. */
+.map-layer-toggle.fab-btn-active {
+    background: rgba(30, 81, 40, 0.06) !important;
+    color: inherit !important;
+    border-color: rgba(30, 81, 40, 0.3);
+}
+
+.map-layer-toggle[aria-pressed='true'] .map-layer-icon {
+    background: #1e5128;
+    color: #fff;
+}
+
+.map-layer-toggle[aria-pressed='true'] .map-layer-state {
+    color: #1e5128;
 }

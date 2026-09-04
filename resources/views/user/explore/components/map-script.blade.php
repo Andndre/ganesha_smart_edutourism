@@ -149,6 +149,9 @@
                 });
                 markerCluster.addLayers(clusteredMarkers);
 
+                updateMarkerLabels();
+                map.on('zoomend', updateMarkerLabels);
+
                 // ==========================================
                 // HEATMAP OVERLAY DATA (from controller)
                 // ==========================================
@@ -442,16 +445,27 @@
                 }).addTo(map);
             }
 
+            // Satu tempat untuk state toggle lapisan. aria-pressed dan label teks ada
+            // supaya state-nya tidak cuma dibedakan lewat warna.
+            function setLayerToggleState(btn, on) {
+                if (!btn) return;
+                btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                btn.classList.toggle('fab-btn-active', on);
+
+                const label = btn.querySelector('.map-layer-state');
+                if (label) label.textContent = on ? @js(__('Hidup')) : @js(__('Mati'));
+            }
+
             // Toggle Real Heatmap
             function toggleRealHeatmap() {
                 realHeatmapVisible = !realHeatmapVisible;
                 const btn = document.getElementById('btn-real-heatmap');
 
+                setLayerToggleState(btn, realHeatmapVisible);
+
                 if (realHeatmapVisible) {
-                    btn.classList.add('fab-btn-active');
                     renderRealHeatmap();
                 } else {
-                    btn.classList.remove('fab-btn-active');
                     if (realHeatmapLayer) {
                         map.removeLayer(realHeatmapLayer);
                         realHeatmapLayer = null;
@@ -497,11 +511,11 @@
                 heatmapVisible = !heatmapVisible;
                 const btn = document.getElementById('btn-layer-map');
 
+                setLayerToggleState(btn, heatmapVisible);
+
                 if (heatmapVisible) {
-                    btn.classList.add('fab-btn-active');
                     renderInitialLiveMarkers();
                 } else {
-                    btn.classList.remove('fab-btn-active');
                     // Remove all live user markers from map
                     Object.values(liveUserMarkers).forEach(marker => map.removeLayer(marker));
                 }
@@ -1273,6 +1287,30 @@
             // the pin sitting half its height too high. 42px tall, hence 21.
             const PIN_HALF_HEIGHT = 21;
 
+            // Nama lokasi baru ditampilkan setelah cukup dekat — sama dengan ambang
+            // disableClusteringAtZoom, jadi label hanya muncul saat pin sudah tidak
+            // menggerombol dan tidak saling tumpuk.
+            const LABEL_MIN_ZOOM = 18;
+
+            function updateMarkerLabels() {
+                const show = map.getZoom() >= LABEL_MIN_ZOOM;
+
+                markerLayers.forEach(item => {
+                    const hasLabel = !!item.marker.getTooltip();
+
+                    if (show && !hasLabel) {
+                        item.marker.bindTooltip(item.loc.name, {
+                            permanent: true,
+                            direction: 'top',
+                            offset: [0, -40],
+                            className: 'map-label'
+                        });
+                    } else if (!show && hasLabel) {
+                        item.marker.unbindTooltip();
+                    }
+                });
+            }
+
             // Centre the map on a location, offset so nothing covers it: the sheet eats
             // into the right edge (desktop drawer) or the bottom edge (mobile sheet), and
             // the search bar always covers the top. We measure how much of the map each
@@ -1408,11 +1446,20 @@
                 const done = getMultiRouteDone();
                 const doneCount = multiRouteStops.filter(item => done[item.loc.id]).length;
 
-                el.textContent = doneCount === multiRouteStops.length ?
-                    @js(__('Semua tujuan selesai')) :
-                    @js(__(':done dari :total tujuan selesai'))
+                if (doneCount === multiRouteStops.length) {
+                    el.textContent = @js(__('Semua tujuan selesai'));
+                    return;
+                }
+
+                const progress = @js(__(':done dari :total tujuan selesai'))
                     .replace(':done', doneCount)
                     .replace(':total', multiRouteStops.length);
+
+                // Tanpa GPS rute digambar mulai dari tujuan 1, bukan dari posisi user.
+                // Tanpa keterangan ini garisnya terlihat berawal dari tempat acak.
+                el.textContent = lastPosition ?
+                    progress :
+                    progress + ' · ' + @js(__('lokasi Anda belum terdeteksi'));
             }
 
             // Leaves route mode by dropping the URL params — a reload is the only way to
@@ -1443,6 +1490,8 @@
             }
 
             function redrawMultiRoute() {
+                updateMultiRouteBanner(); // GPS mungkin baru masuk sejak banner terakhir digambar
+
                 const done = getMultiRouteDone();
                 const remaining = multiRouteStops.filter(item => !done[item.loc.id]);
 
@@ -1499,9 +1548,20 @@
             window.openSheet = openSheet;
             window.closeSheet = closeSheet;
 
-            // Execute when Leaflet is ready (handles async loading via Livewire)
+            // Execute when Leaflet is ready (handles async loading via Livewire).
+            //
+            // Swal ikut ditunggu, bukan cuma L. Leaflet datang dari <script> klasik di
+            // <head> sehingga sudah ada saat skrip inline ini diparse, tapi window.Swal
+            // dipasang oleh resources/js/app.js yang dimuat Vite sebagai type="module"
+            // — selalu deferred, dan saat `npm run dev` di-load per-modul. Tanpa syarat
+            // ini initMap() jalan duluan dan initMultiRoute memanggil Swal yang belum ada
+            // ("Swal is not defined"); setTimeout 800ms di sana bukan jaminan apa pun.
+            //
+            // Menunggu tanpa batas aman: app.js juga yang membawa Alpine, Livewire, dan
+            // Echo, jadi kalau bundel itu gagal termuat halaman ini memang sudah mati —
+            // sama seperti perlakuan terhadap L yang sudah ada sebelumnya.
             const checkAndInitMap = () => {
-                if (typeof L !== 'undefined') {
+                if (typeof L !== 'undefined' && typeof window.Swal !== 'undefined') {
                     initMap();
                 } else {
                     setTimeout(checkAndInitMap, 50);

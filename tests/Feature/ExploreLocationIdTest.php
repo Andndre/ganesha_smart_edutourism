@@ -46,4 +46,17 @@ class ExploreLocationIdTest extends TestCase
         $response->assertSee('btn-stop-multi-route', false);
         $response->assertSee('multi-route-progress', false);
     }
+
+    /**
+     * Leaflet ada saat parse, tapi window.Swal baru dipasang oleh bundel module yang
+     * deferred — kalau gate ini cuma menunggu L, initMap() jalan duluan dan
+     * initMultiRoute meledak dengan "Swal is not defined".
+     */
+    public function test_map_init_waits_for_both_leaflet_and_swal(): void
+    {
+        $response = $this->get('/explore');
+
+        $response->assertOk();
+        $response->assertSee("typeof L !== 'undefined' && typeof window.Swal !== 'undefined'", false);
+    }
 }
