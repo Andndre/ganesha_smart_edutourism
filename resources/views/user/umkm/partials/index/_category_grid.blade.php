@@ -27,6 +27,7 @@
                                     <input type="checkbox" name="category_ids[]" value="{{ $category['id'] }}"
                                         id="checkbox-cat-{{ $category['id'] }}"
                                         class="w-5.5 h-5.5 text-primary focus:ring-primary accent-primary cursor-pointer rounded-md border-gray-300 transition-all focus:ring-offset-0"
+                                        @checked(in_array($category['id'], (array) old('category_ids', [])))
                                         onchange="updateCardHighlight({{ $category['id'] }})">
                                 </label>
                             </div>
