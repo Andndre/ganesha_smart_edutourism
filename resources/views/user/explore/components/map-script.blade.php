@@ -27,6 +27,11 @@
             const markerLayers = [];
             let markerCluster = null;
             let activeMarkerItem = null; // markerLayers entry whose sheet is open
+            // Sekali hasil pencarian dipilih, dropdown + auto-fit harus diam. Tanpa ini
+            // zoomend dari focusOnLocation memanggil updateVisibleMarkers lagi, dropdown
+            // muncul kembali dan peta ditarik balik ke bounds semua hasil — bikin
+            // "Arahkan" terlihat tidak bekerja karena rutenya langsung tergeser.
+            let searchDismissed = false;
 
             const activeFilters = {
                 cultural: true,
@@ -211,11 +216,13 @@
                     let searchDebounce = null;
                     searchInput.addEventListener('input', function() {
                         if (searchClearBtn) searchClearBtn.classList.toggle('hidden', this.value === '');
+                        searchDismissed = false;
                         clearTimeout(searchDebounce);
                         searchDebounce = setTimeout(updateVisibleMarkers, 250);
                     });
                     // Re-show results when refocusing with an existing query
                     searchInput.addEventListener('focus', function() {
+                        searchDismissed = false;
                         if (this.value.trim() !== '') updateVisibleMarkers();
                     });
                 }
@@ -227,6 +234,7 @@
                             searchInput.focus();
                         }
                         searchClearBtn.classList.add('hidden');
+                        searchDismissed = false;
                         updateVisibleMarkers();
                     });
                 }
@@ -680,6 +688,8 @@
                     }
                 });
 
+                if (searchDismissed) return;
+
                 renderSearchResults(query, matches);
 
                 // Auto-fit map to search matches so results are never off-screen
@@ -755,6 +765,7 @@
             }
 
             function hideSearchResults() {
+                searchDismissed = true;
                 const panel = document.getElementById('search-results');
                 if (panel) panel.classList.add('hidden');
             }
