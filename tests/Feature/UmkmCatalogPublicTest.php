@@ -660,14 +660,71 @@ class UmkmCatalogPublicTest extends TestCase
     }
 
     /**
-     * Test that guest is redirected to login when trying to recommend.
+     * Guest boleh mencari UMKM dan sesi rute multi-stop-nya tetap hidup tanpa login.
      */
-    public function test_guest_redirected_to_login_on_recommend(): void
+    public function test_guest_can_recommend_and_keep_multi_stop_session(): void
     {
-        $response = $this->post('/umkm/recommend', [
-            'category_ids' => [1],
+        $owner1 = User::factory()->create(['role' => 'umkm_owner']);
+        $owner2 = User::factory()->create(['role' => 'umkm_owner']);
+        $umkm1 = UmkmProfile::create([
+            'user_id' => $owner1->id,
+            'owner_name' => $owner1->name,
+            'business_name' => 'Wayan Coffee',
+            'slug' => 'wayan-coffee-guest',
+            'is_active' => true,
         ]);
-        $response->assertRedirect('/login');
+        $umkm2 = UmkmProfile::create([
+            'user_id' => $owner2->id,
+            'owner_name' => $owner2->name,
+            'business_name' => 'Kadek Souvenirs',
+            'slug' => 'kadek-souvenirs-guest',
+            'is_active' => true,
+        ]);
+        foreach ([[$umkm1, -8.4223, 115.3594], [$umkm2, -8.4225, 115.3596]] as [$umkm, $lat, $lng]) {
+            MapLocation::create([
+                'locationable_id' => $umkm->id,
+                'locationable_type' => UmkmProfile::class,
+                'latitude' => $lat,
+                'longitude' => $lng,
+                'name' => 'x',
+                'category' => 'umkm',
+                'is_accessible' => true,
+            ]);
+        }
+
+        $catFood = UmkmProductCategory::create(['name' => ['id' => 'Kuliner', 'en' => 'Culinary'], 'slug' => 'kuliner-guest']);
+        $catCraft = UmkmProductCategory::create(['name' => ['id' => 'Kerajinan', 'en' => 'Crafts'], 'slug' => 'kerajinan-guest']);
+
+        UmkmProduct::create([
+            'umkm_profile_id' => $umkm1->id,
+            'umkm_product_category_id' => $catFood->id,
+            'name' => 'Kopi Luwak',
+            'slug' => 'kopi-luwak-guest',
+            'price' => 25000,
+            'stock' => 10,
+            'is_active' => true,
+        ]);
+        UmkmProduct::create([
+            'umkm_profile_id' => $umkm2->id,
+            'umkm_product_category_id' => $catCraft->id,
+            'name' => 'Kipas Bali',
+            'slug' => 'kipas-bali-guest',
+            'price' => 15000,
+            'stock' => 10,
+            'is_active' => true,
+        ]);
+
+        // Tanpa actingAs: tidak boleh dilempar ke /login.
+        $response = $this->post('/umkm/recommend', [
+            'category_ids' => [$catFood->id, $catCraft->id],
+        ]);
+        $response->assertRedirect();
+        $this->assertStringNotContainsString('/login', $response->headers->get('Location'));
+        $response->assertSessionHas('multi_stop_recommendations');
+
+        // Sesi perjalanan multi-route tetap terbaca di halaman peta.
+        $this->get('/umkm')->assertStatus(200);
+        $this->get('/umkm/multi-route')->assertStatus(200);
     }
 
     /**
