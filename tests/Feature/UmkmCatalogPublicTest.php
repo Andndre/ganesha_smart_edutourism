@@ -626,6 +626,40 @@ class UmkmCatalogPublicTest extends TestCase
     }
 
     /**
+     * Pencarian gagal harus terlihat: banner error tampil DAN centang kategori
+     * bertahan, bukan halaman yang seolah cuma di-refresh.
+     */
+    public function test_failed_recommend_shows_error_and_keeps_selection(): void
+    {
+        $category = UmkmProductCategory::create([
+            'name' => ['id' => 'Kopi', 'en' => 'Coffee'],
+            'slug' => 'kopi',
+        ]);
+        UmkmProductCategory::create([
+            'name' => ['id' => 'Kerajinan', 'en' => 'Crafts'],
+            'slug' => 'kerajinan',
+        ]);
+
+        // Tidak ada UMKM sama sekali → pencarian pasti gagal.
+        $this->actingAs(User::factory()->create());
+        $response = $this->post('/umkm/recommend', ['category_ids' => [$category->id]]);
+
+        $response->assertSessionHas('error');
+        $response->assertSessionHasInput('category_ids', [$category->id]);
+
+        // Ikuti redirect: banner error harus terlihat dan pilihan harus kembali.
+        $page = $this->get('/umkm');
+        $page->assertSee('id="recommend-error"', false);
+        // Hanya kategori yang tadi dipilih yang tercentang kembali.
+        preg_match_all('/<input[^>]*name="category_ids\[\]"[^>]*>/', $page->getContent(), $inputs);
+        $checked = array_filter($inputs[0], fn ($tag) => preg_match('/\schecked\s/', $tag));
+        $this->assertNotEmpty($checked);
+        foreach ($checked as $tag) {
+            $this->assertStringContainsString('value="'.$category->id.'"', $tag);
+        }
+    }
+
+    /**
      * Test that guest is redirected to login when trying to recommend.
      */
     public function test_guest_redirected_to_login_on_recommend(): void

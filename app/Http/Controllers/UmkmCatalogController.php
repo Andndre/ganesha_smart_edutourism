@@ -98,7 +98,9 @@ class UmkmCatalogController extends Controller
             return back()->with('show_multi_stop_modal', true);
         }
 
-        return back()->with('error', __('Maaf, tidak ada UMKM yang saat ini memiliki stok untuk barang pilihan Anda.'));
+        // withInput: tanpa ini centang kategori ikut hilang saat kembali, sehingga
+        // kegagalan pencarian terlihat seperti halaman sekadar di-refresh.
+        return back()->withInput()->with('error', __('Maaf, tidak ada UMKM yang saat ini memiliki stok untuk barang pilihan Anda.'));
     }
 
     public function recommended(Request $request, $id)

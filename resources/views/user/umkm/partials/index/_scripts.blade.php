@@ -13,6 +13,10 @@
         (function() {
             let activeModalCategoryId = null;
             let currentModalTab = 'image';
+            // ponytail: initUmkm() memanggil updateSelectedPills() untuk tiap checkbox,
+            // yang menghapus banner error — jadi error hasil pencarian tidak pernah
+            // sempat terlihat. Flag ini menahannya sampai user benar-benar mengubah pilihan.
+            let booting = true;
             const messages = @json($umkmMessages);
 
             // Silently grab GPS so the recommendation can start from the user's position.
@@ -63,7 +67,7 @@
                 const checkedBoxes = document.querySelectorAll('input[name="category_ids[]"]:checked');
 
                 // Banner error dari pencarian sebelumnya sudah basi begitu pilihan berubah.
-                document.getElementById('recommend-error')?.remove();
+                if (!booting) document.getElementById('recommend-error')?.remove();
 
                 const cta = document.getElementById('find-umkm-btn');
                 const ctaLabel = document.getElementById('find-umkm-label');
@@ -357,6 +361,7 @@
 
             // Run immediately
             initUmkm();
+            booting = false;
 
             document.addEventListener('livewire:navigating', function cleanupUmkm(e) {
                 delete window.updateCardHighlight;

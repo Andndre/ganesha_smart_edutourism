@@ -356,4 +356,21 @@ class UmkmRecommendationServiceTest extends TestCase
         $this->assertCount(2, $result['route']);
         $this->assertEmpty($result['missing']);
     }
+
+    public function test_recommend_multiple_still_works_when_user_is_far_away(): void
+    {
+        // User di luar Bali (~1000 km): distancePenalty besar, dulu bikin rute kosong.
+        $cat1 = $this->makeCategory('Kopi');
+
+        $owner = $this->makeOwner();
+        $umkm = $this->makeUmkm($owner);
+        $this->attachLocation($umkm, -8.4210, 115.3592);
+        $this->makeProduct($umkm, $cat1);
+
+        $result = $this->service->recommendMultipleForCategories([$cat1->id], -6.2088, 106.8456);
+
+        $this->assertNotNull($result);
+        $this->assertCount(1, $result['route']);
+        $this->assertEquals($umkm->id, $result['route'][0]['umkm_id']);
+    }
 }

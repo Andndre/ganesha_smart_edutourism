@@ -80,7 +80,11 @@ class UmkmRecommendationService
         while ($remainingCategories->isNotEmpty()) {
             $bestUmkm = null;
             $bestCover = collect();
-            $bestScore = -1; // Higher is better
+            // ponytail: -INF, not -1 — distancePenalty is unbounded (jarak km × 0.1),
+            // jadi user yang jauh dari Penglipuran bikin SEMUA kandidat skor < -1 dan
+            // rute gagal total. Dengan -INF, kandidat terbaik selalu terpilih; jarak
+            // tetap jadi pembanding relatif antar-kandidat.
+            $bestScore = -INF; // Higher is better
 
             foreach ($allUmkms as $umkm) {
                 if (\in_array($umkm->id, array_column($route, 'umkm_id'))) {
