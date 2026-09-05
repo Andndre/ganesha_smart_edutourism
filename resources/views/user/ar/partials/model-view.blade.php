@@ -94,7 +94,7 @@
                     </svg>
                 </div>
                 <div class="flex w-full flex-col items-center justify-center">
-                    <h2 id="model-title" class="truncate text-xl font-bold text-gray-900">{{ __('Memuat...') }}</h2>
+                    <h2 id="model-title" class="w-full text-balance text-center text-xl font-bold text-gray-900">{{ __('Memuat...') }}</h2>
                 </div>
             </div>
 
