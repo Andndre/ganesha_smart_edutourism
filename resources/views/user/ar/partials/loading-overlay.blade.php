@@ -18,4 +18,12 @@
     </div>
     <h3 class="mb-2 text-xl font-bold text-white">{{ __('Mengunduh Model 3D') }}</h3>
     <p class="max-w-xs text-center text-sm text-gray-300">{{ __('Mohon tunggu sebentar, kami sedang menyiapkan pengalaman AR untuk Anda...') }}</p>
+
+    {{-- ponytail: progress bar sendiri, menggantikan progress bar bawaan model-viewer --}}
+    <div class="mt-6 w-56">
+        <div class="h-1.5 w-full overflow-hidden rounded-full bg-white/20">
+            <div id="loading-progress-bar" class="h-full w-0 rounded-full bg-[#E28F1B] transition-[width] duration-200"></div>
+        </div>
+        <p id="loading-progress-text" class="mt-2 text-center text-xs font-semibold text-gray-300"></p>
+    </div>
 </div>

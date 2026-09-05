@@ -26,6 +26,9 @@
         ar-placement="floor" bounds="tight" ar-modes="scene-viewer quick-look webxr" quick-look-browsers="safari chrome"
         environment-image="neutral" exposure="1" shadow-intensity="1" class="h-full w-full outline-none">
 
+        {{-- ponytail: slot kosong untuk mematikan progress bar bawaan (dipakai #loading-overlay) --}}
+        <div slot="progress-bar" style="display:none"></div>
+
         <!-- Error State for AR -->
         <div id="ar-error"
             class="absolute inset-0 z-50 hidden items-center justify-center bg-black/80 p-6 text-center text-white">
