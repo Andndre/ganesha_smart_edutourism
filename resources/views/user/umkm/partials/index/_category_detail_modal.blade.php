@@ -40,7 +40,24 @@
                 ar-placement="floor" ar-modes="scene-viewer quick-look webxr" quick-look-browsers="safari chrome"
                 shadow-intensity="1" touch-action="pan-y"
                 draco-decoder-location="https://www.gstatic.com/draco/versioned/decoders/1.5.6/">
+                {{-- ponytail: slot kosong mematikan progress bar bawaan, diganti overlay di bawah --}}
+                <div slot="progress-bar" style="display:none"></div>
             </model-viewer>
+
+            {{-- Overlay pemuatan: menutupi model sebelumnya sampai model baru siap --}}
+            <div id="modal-category-3d-loading"
+                class="absolute inset-0 z-10 hidden flex-col items-center justify-center gap-3 bg-gray-100">
+                <svg class="text-primary/40 h-10 w-10 animate-pulse" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <div class="h-1.5 w-32 overflow-hidden rounded-full bg-gray-200">
+                    <div id="modal-category-3d-progress"
+                        class="bg-primary h-full w-0 rounded-full transition-[width] duration-200"></div>
+                </div>
+                <p class="text-xs font-semibold text-gray-500">{{ __('Memuat model 3D...') }}</p>
+            </div>
         </div>
 
         <!-- Content -->

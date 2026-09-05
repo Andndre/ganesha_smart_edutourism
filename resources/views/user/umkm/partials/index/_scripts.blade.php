@@ -107,6 +107,16 @@
                 container.innerHTML = html;
             }
 
+            function toggleModelLoading(show, percent) {
+                const overlay = document.getElementById('modal-category-3d-loading');
+                if (!overlay) return;
+                overlay.classList.toggle('hidden', !show);
+                overlay.classList.toggle('flex', show);
+
+                const bar = document.getElementById('modal-category-3d-progress');
+                if (bar && typeof percent === 'number') bar.style.width = `${percent}%`;
+            }
+
             function switchModalTab(tab) {
                 currentModalTab = tab;
 
@@ -171,6 +181,8 @@
                 arBtn.classList.add('hidden');
 
                 if (category.model_3d_path) {
+                    // Tutup model sebelumnya selama model baru diunduh
+                    toggleModelLoading(true, 0);
                     modelViewer.src = `/storage/${category.model_3d_path}`;
                     if (category.model_3d_usdz_path) {
                         let usdzPath = category.model_3d_usdz_path;
@@ -186,6 +198,7 @@
                 } else {
                     modelViewer.src = '';
                     modelViewer.removeAttribute('ios-src');
+                    toggleModelLoading(false);
                     tabsContainer.classList.remove('flex');
                     tabsContainer.classList.add('hidden');
                 }
@@ -260,6 +273,14 @@
                 // Show AR button only when device supports AR
                 const modelViewer = document.getElementById('modal-category-3d');
                 if (modelViewer) {
+                    modelViewer.addEventListener('progress', function(e) {
+                        if (!modelViewer.src) return;
+                        const progress = e.detail.totalProgress;
+                        toggleModelLoading(progress < 1, Math.round(progress * 100));
+                    });
+                    modelViewer.addEventListener('load', () => toggleModelLoading(false));
+                    modelViewer.addEventListener('error', () => toggleModelLoading(false));
+
                     modelViewer.addEventListener('ar-status', function(e) {
                         const arBtn = document.getElementById('modal-ar-btn');
                         if (!arBtn) return;

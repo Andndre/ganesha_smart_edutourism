@@ -555,6 +555,7 @@
             })
             .catch((err) => {
                 console.error("fetchModel error:", err);
+                hideLoadingOverlay();
                 Swal.fire({
                     icon: "error",
                     title: "Oops...",
@@ -563,13 +564,8 @@
                 }).then(() => {
                     showScanner();
                 });
-            })
-            .finally(() => {
-                if (loadingOverlay) {
-                    loadingOverlay.classList.add("hidden");
-                    loadingOverlay.classList.remove("flex");
-                }
             });
+        // ponytail: overlay tetap tampil sampai model-viewer selesai mengunduh (lihat bindViewerLoading)
     }
 
     function checkIOSInAppBrowser() {
@@ -734,6 +730,43 @@
         }, 1500);
     }
 
+    function hideLoadingOverlay() {
+        const overlay = document.getElementById("loading-overlay");
+        if (!overlay) return;
+        overlay.classList.add("hidden");
+        overlay.classList.remove("flex");
+    }
+
+    // Overlay unduhan model tetap tampil sampai model-viewer benar-benar selesai memuat,
+    // supaya tidak jatuh ke progress bar tipis bawaan model-viewer di bagian atas layar.
+    function bindViewerLoading() {
+        const viewer = document.getElementById("ar-model-viewer");
+        const overlay = document.getElementById("loading-overlay");
+        if (!viewer || !overlay) return;
+
+        const bar = document.getElementById("loading-progress-bar");
+        const text = document.getElementById("loading-progress-text");
+
+        viewer.addEventListener("progress", (event) => {
+            const progress = event.detail.totalProgress;
+            if (!viewer.src) return;
+
+            if (progress < 1) {
+                overlay.classList.remove("hidden");
+                overlay.classList.add("flex");
+            } else {
+                hideLoadingOverlay();
+            }
+
+            const percent = Math.round(progress * 100);
+            if (bar) bar.style.width = percent + "%";
+            if (text) text.innerText = percent + "%";
+        });
+
+        viewer.addEventListener("load", hideLoadingOverlay);
+        viewer.addEventListener("error", hideLoadingOverlay);
+    }
+
     function getUrlParam(name) {
         return new URLSearchParams(window.location.search).get(name) || null;
     }
@@ -793,23 +826,20 @@
             })
             .catch(function (err) {
                 console.error("fetchModelById error:", err);
+                hideLoadingOverlay();
                 Swal.fire({
                     icon: "error",
                     title: "Oops...",
                     text: err.message,
                     confirmButtonColor: "#1E5128",
                 });
-            })
-            .finally(function () {
-                if (loadingOverlay) {
-                    loadingOverlay.classList.add("hidden");
-                    loadingOverlay.classList.remove("flex");
-                }
             });
+        // ponytail: overlay tetap tampil sampai model-viewer selesai mengunduh (lihat bindViewerLoading)
     }
 
     // Eksekusi AR Scanner saat DOM Ready
     document.addEventListener("DOMContentLoaded", function () {
+        bindViewerLoading();
         var marker = getUrlParam("marker");
         if (marker) {
             loadModelDirect(marker);
