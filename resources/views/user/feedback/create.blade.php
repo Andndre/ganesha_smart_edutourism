@@ -259,7 +259,9 @@
 
                 if (res.ok) {
                     const data = await res.json();
-                    window.location.href = `/feedback/thank-you/${data.data.id}`;
+                    // replace, bukan push: form yang sudah terkirim dibuang dari history
+                    // supaya Back tidak mendarat di form berisi ulasan yang sudah masuk.
+                    window.location.replace(`/feedback/thank-you/${data.data.id}`);
                 } else {
                     const err = await res.json();
                     const msg = err.message || Object.values(err.errors || {}).flat().join(', ') || '{{ __('Terjadi kesalahan.') }}';

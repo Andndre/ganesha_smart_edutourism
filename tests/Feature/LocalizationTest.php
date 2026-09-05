@@ -55,4 +55,17 @@ class LocalizationTest extends TestCase
         $response->assertDontSee('Nama Lengkap');
         $response->assertDontSee('Informasi Profil');
     }
+
+    /**
+     * Sidik jari state sesi harus ikut berubah saat bahasa diganti, karena itu
+     * satu-satunya penanda yang dipakai halaman bfcache untuk tahu dirinya basi.
+     */
+    public function test_session_state_fingerprint_follows_active_locale(): void
+    {
+        $this->get('/lang/id');
+        $this->get('/login')->assertSee('data-state="id|guest|"', false);
+
+        $this->get('/lang/en');
+        $this->get('/login')->assertSee('data-state="en|guest|"', false);
+    }
 }

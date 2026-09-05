@@ -1543,7 +1543,9 @@
 
                 const leave = () => {
                     localStorage.removeItem(multiRouteDoneKey);
-                    window.location.href = @js(route('explore'));
+                    // replace, bukan push: entri /explore?action=multi_route... dibuang supaya
+                    // Back tidak menghidupkan lagi mode rute yang barusan dihentikan.
+                    window.location.replace(@js(route('explore')));
                 };
 
                 if (allDone) return leave();

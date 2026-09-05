@@ -145,7 +145,9 @@
             var scanAgainBtn = document.getElementById('btn-scan-again');
             if (scanAgainBtn) {
                 scanAgainBtn.addEventListener('click', function() {
-                    window.location.href = arScanUrl;
+                    // replace, bukan push: viewer dibuang dari history supaya Back dari
+                    // halaman scan tidak balik ke model 3D yang barusan ditinggalkan.
+                    window.location.replace(arScanUrl);
                 });
             }
 
