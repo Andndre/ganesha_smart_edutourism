@@ -725,6 +725,8 @@
 
     </div>
 
+    @include('components.session-state-sync')
+
     @include('components.cookie-consent')
 
     @livewireScripts

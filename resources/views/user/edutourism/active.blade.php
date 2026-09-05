@@ -1021,11 +1021,11 @@
                                 .then(res => res.json())
                                 .then(data => {
                                     if (data.success) {
-                                        // Sengaja bukan history.back(): halaman sebelumnya
-                                        // dipulihkan dari bfcache, HTML-nya dirender sebelum
-                                        // sesi dibatalkan, jadi banner "Smart Edutourism Aktif"
-                                        // di layouts/app masih ikut terbawa sampai di-refresh.
-                                        window.location.href = data.redirect;
+                                        // replace, bukan push: entri /edutourism/active dibuang
+                                        // supaya Back tidak mendarat di sesi yang sudah dihentikan.
+                                        // Banner "Smart Edutourism Aktif" pada halaman lama yang
+                                        // dipulihkan ditangani components/session-state-sync.
+                                        window.location.replace(data.redirect);
                                     }
                                 })
                                 .catch(() => {

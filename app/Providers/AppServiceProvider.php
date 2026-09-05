@@ -46,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
             return $user && $user->isAdmin();
         });
 
-        View::composer(['layouts.app', 'user.umkm.index'], function ($view) {
+        View::composer(['layouts.app', 'user.umkm.index', 'components.session-state-sync'], function ($view) {
             $userId = auth()->id();
             $guestToken = session('guest_token') ?? request()->cookie('visitor_token');
 

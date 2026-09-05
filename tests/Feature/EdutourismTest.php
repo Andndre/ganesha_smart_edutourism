@@ -267,6 +267,28 @@ class EdutourismTest extends TestCase
     }
 
     /**
+     * Sidik jari state sesi harus ikut kosong setelah rute dihentikan -- itulah
+     * penanda yang dipakai halaman bfcache/snapshot Livewire untuk tahu dirinya
+     * basi dan memuat ulang, supaya banner "Smart Edutourism Aktif" tidak nempel.
+     */
+    public function test_session_state_fingerprint_drops_active_route_after_stop(): void
+    {
+        $user = User::factory()->create(['preferred_language' => 'id']);
+        $session = RouteSession::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($user)->get('/')
+            ->assertSee('data-state="id|'.$user->id.'|'.$session->id.'"', false);
+
+        $this->actingAs($user)->postJson(route('edutourism.stop'));
+
+        $this->actingAs($user)->get('/')
+            ->assertSee('data-state="id|'.$user->id.'|"', false);
+    }
+
+    /**
      * Test guest can stop their active route session via guest_token.
      */
     public function test_guest_can_stop_active_session(): void

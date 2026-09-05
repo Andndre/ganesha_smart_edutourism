@@ -68,6 +68,8 @@
         @yield('content')
     </div>
 
+    @include('components.session-state-sync')
+
     @livewireScripts
     @stack('scripts')
 </body>
