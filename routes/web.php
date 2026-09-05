@@ -80,9 +80,8 @@ Route::middleware(['redirect.admin', 'track.visit'])->group(function () {
 
     // UMKM Catalog & Recommendation
     Route::get('/umkm', [UmkmCatalogController::class, 'index'])->name('umkm');
-    Route::post('/umkm/recommend', [UmkmCatalogController::class, 'recommend'])
-        ->middleware('auth')
-        ->name('umkm.recommend');
+    // Publik: pencarian & sesi rute multi-stop cuma pakai session, tidak butuh akun.
+    Route::post('/umkm/recommend', [UmkmCatalogController::class, 'recommend'])->name('umkm.recommend');
     Route::get('/umkm/recommended/{id}', [UmkmCatalogController::class, 'recommended'])->name('umkm.recommended');
     Route::get('/umkm/multi-route', [UmkmCatalogController::class, 'multiRecommended'])->name('umkm.multi_recommended');
     Route::get('/umkm/store/{id}', [UmkmCatalogController::class, 'show'])->name('umkm.store');
