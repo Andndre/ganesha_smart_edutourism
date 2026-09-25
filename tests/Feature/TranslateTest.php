@@ -51,4 +51,17 @@ class TranslateTest extends TestCase
         $this->postJson('/translate', ['q' => 'x', 'source' => 'id', 'target' => 'en'])
             ->assertStatus(401);
     }
+
+    public function test_glossary_json_exists_and_is_valid(): void
+    {
+        $glossaryPath = resource_path('data/i18n-glossary.json');
+        $this->assertFileExists($glossaryPath);
+
+        $content = json_decode(file_get_contents($glossaryPath), true);
+        $this->assertIsArray($content);
+        $this->assertArrayHasKey('protected_terms', $content);
+        $this->assertArrayHasKey('directional_transforms', $content);
+        $this->assertContains('Penglipuran', $content['protected_terms']);
+        $this->assertContains('Subak', $content['protected_terms']);
+    }
 }

@@ -30,4 +30,17 @@ class SlugFromTranslatableTest extends TestCase
 
         $this->assertSame('Temple FR', slugFromTranslatable(['fr' => 'Temple FR']));
     }
+
+    public function test_falls_back_when_fallback_locale_is_empty_or_whitespace(): void
+    {
+        config(['app.fallback_locale' => 'id']);
+
+        $this->assertSame('Temple', slugFromTranslatable(['id' => '', 'en' => 'Temple']));
+        $this->assertSame('Temple', slugFromTranslatable(['id' => "  \t ", 'en' => 'Temple']));
+    }
+
+    public function test_returns_empty_string_when_all_translations_empty(): void
+    {
+        $this->assertSame('', slugFromTranslatable(['id' => '', 'en' => '  ']));
+    }
 }

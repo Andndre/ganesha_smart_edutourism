@@ -9,7 +9,7 @@
  */
 
 import { execSync } from 'child_process';
-import { readFileSync, writeFileSync, readdirSync } from 'fs';
+import { readFileSync, writeFileSync, readdirSync, existsSync } from 'fs';
 import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -17,17 +17,62 @@ const __dir = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dir, '..');
 const ID_JSON = resolve(ROOT, 'lang/id.json');
 const EN_JSON = resolve(ROOT, 'lang/en.json');
+const GLOSSARY_FILE = resolve(ROOT, 'resources/data/i18n-glossary.json');
 const SEARCH_DIRS = ['resources', 'app', 'routes'];
-// ponytail: resolve container IP dynamically — no curl/wget inside container, but IP is reachable from host
-const LT_URL = (() => {
+
+function resolveLtUrl() {
+  return process.env.LIBRETRANSLATE_URL || 'http://localhost:5000';
+}
+
+let LT_URL = resolveLtUrl();
+
+async function isLibreTranslateReady(url) {
   try {
-    const ip = execSync(
-      `docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps --filter "name=libretranslate" --format "{{.ID}}" | head -1)`,
-      { encoding: 'utf8', shell: '/bin/bash' }
-    ).trim();
-    return ip ? `http://${ip}:5000` : null;
-  } catch { return null; }
-})();
+    const res = await fetch(`${url}/languages`, { method: 'GET', signal: AbortSignal.timeout(2000) });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+async function ensureLibreTranslate() {
+  const url = resolveLtUrl();
+  if (await isLibreTranslateReady(url)) {
+    return { url, startedContainer: false };
+  }
+
+  console.log('⏳ LibreTranslate is not running. Starting container via docker compose...');
+  try {
+    execSync('docker compose up -d penglipuran-libretranslate', { stdio: 'inherit', cwd: ROOT });
+  } catch (err) {
+    throw new Error('Gagal menyalakan LibreTranslate. Pastikan Docker Desktop sedang aktif: ' + err.message);
+  }
+
+  process.stdout.write('⏳ Waiting for LibreTranslate models to load');
+  const maxWaitMs = 60000;
+  const start = Date.now();
+  while (Date.now() - start < maxWaitMs) {
+    if (await isLibreTranslateReady(url)) {
+      console.log('\n✓ LibreTranslate is ready!\n');
+      return { url, startedContainer: true };
+    }
+    process.stdout.write('.');
+    await new Promise(r => setTimeout(r, 2000));
+  }
+
+  throw new Error('\n✗ Timeout (60s) menunggu LibreTranslate siap.');
+}
+
+function stopLibreTranslate() {
+  console.log('\n⏳ Stopping LibreTranslate container to free system resources...');
+  try {
+    execSync('docker compose stop penglipuran-libretranslate', { stdio: 'inherit', cwd: ROOT });
+    console.log('✓ LibreTranslate stopped successfully.\n');
+  } catch (err) {
+    console.warn('⚠ Could not stop LibreTranslate automatically:', err.message);
+  }
+}
+
 const WRITE = process.argv.includes('--write');
 const CLEANUP_ORPHANS = process.argv.includes('--cleanup-orphans');
 
@@ -62,6 +107,48 @@ function loadJson(path) {
 
 // ── 3. Translate via LibreTranslate (direct HTTP to container IP) ─────────
 
+const glossaryConfig = existsSync(GLOSSARY_FILE)
+  ? loadJson(GLOSSARY_FILE)
+  : { protected_terms: [], directional_transforms: {} };
+
+const PROTECTED_TERMS = (glossaryConfig.protected_terms || []).sort((a, b) => b.length - a.length);
+const DIRECTIONAL_TRANSFORMS = glossaryConfig.directional_transforms || {};
+
+function glossaryProtect(text, src, tgt) {
+  const map = [];
+  let out = text;
+
+  const key = `${src}->${tgt}`;
+  const rules = DIRECTIONAL_TRANSFORMS[key] || [];
+  rules.forEach(({ pattern, flags, replacement }) => {
+    const re = new RegExp(pattern, flags);
+    out = out.replace(re, (match, ...groups) => {
+      let transformed = replacement;
+      groups.slice(0, -2).forEach((g, idx) => {
+        transformed = transformed.replaceAll(`$${idx + 1}`, g ? g.trim() : '');
+      });
+      const token = `xgloss${map.length}x`;
+      map.push({ token, original: transformed });
+      return token;
+    });
+  });
+
+  PROTECTED_TERMS.forEach(term => {
+    const re = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    out = out.replace(re, match => {
+      const token = `xgloss${map.length}x`;
+      map.push({ token, original: match });
+      return token;
+    });
+  });
+
+  return { text: out, map };
+}
+
+function glossaryRestore(text, map) {
+  return map.reduce((s, { token, original }) => s.replaceAll(token, original), text);
+}
+
 // Laravel placeholders (:count, :owner, ...) must survive translation untouched.
 // Swap them for tokens LibreTranslate won't translate/re-case, then swap back.
 const PLACEHOLDER_RE = /:[a-zA-Z_]+/g;
@@ -69,17 +156,20 @@ const PLACEHOLDER_RE = /:[a-zA-Z_]+/g;
 async function translate(text, source, target) {
   const placeholders = text.match(PLACEHOLDER_RE) || [];
   let i = 0;
-  const protectedText = text.replace(PLACEHOLDER_RE, () => `xph${i++}x`);
+  let protectedText = text.replace(PLACEHOLDER_RE, () => `xph${i++}x`);
+
+  const { text: textWithGlossary, map: glossaryMap } = glossaryProtect(protectedText, source, target);
 
   const res = await fetch(`${LT_URL}/translate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ q: protectedText, source, target, format: 'text' }),
+    body: JSON.stringify({ q: textWithGlossary, source, target, format: 'text' }),
   });
   const data = await res.json();
   if (!data.translatedText) throw new Error(`LibreTranslate error: ${JSON.stringify(data)}`);
 
-  return data.translatedText.replace(/xph(\d+)x/gi, (_, i) => placeholders[Number(i)]);
+  let restored = glossaryRestore(data.translatedText, glossaryMap);
+  return restored.replace(/xph(\d+)x/gi, (_, i) => placeholders[Number(i)]);
 }
 
 // ── 4. Write sorted JSON ─────────────────────────────────────────────────────
@@ -166,34 +256,48 @@ if (!WRITE) {
   process.exit(0);
 }
 
-if (!LT_URL) {
-  console.error(`\n✗ LibreTranslate container not found. Start it with: docker compose up -d libretranslate\n`);
-  process.exit(1);
+if (missing.length === 0) {
+  console.log('✓ All keys are already translated. Nothing to write.\n');
+  process.exit(0);
 }
 
-console.log(`\nTranslating via ${LT_URL}...\n`);
+let startedContainer = false;
+try {
+  const ready = await ensureLibreTranslate();
+  startedContainer = ready.startedContainer;
+  LT_URL = ready.url;
 
-let added = 0;
-for (const key of missing) {
-  try {
-    if (!(key in idMap)) {
-      idMap[key] = key;
-      console.log(`  [id] + "${key}"`);
+  console.log(`\nTranslating ${missing.length} missing key(s) via ${LT_URL}...\n`);
+
+  let added = 0;
+  for (const key of missing) {
+    try {
+      if (!(key in idMap)) {
+        idMap[key] = key;
+        console.log(`  [id] + "${key}"`);
+      }
+
+      if (!(key in enMap)) {
+        const translated = await translate(key, 'id', 'en');
+        enMap[key] = translated;
+        console.log(`  [en] + "${key}" → "${translated}"`);
+      }
+
+      added++;
+    } catch (err) {
+      console.error(`  ✗ Failed "${key}": ${err.message}`);
     }
+  }
 
-    if (!(key in enMap)) {
-      const translated = await translate(key, 'id', 'en');
-      enMap[key] = translated;
-      console.log(`  [en] + "${key}" → "${translated}"`);
-    }
+  writeSorted(ID_JSON, idMap);
+  writeSorted(EN_JSON, enMap);
 
-    added++;
-  } catch (err) {
-    console.error(`  ✗ Failed "${key}": ${err.message}`);
+  console.log(`\n✓ Added ${added} key(s). Both lang files updated and sorted.\n`);
+} catch (err) {
+  console.error(`\n✗ Error: ${err.message}\n`);
+  process.exit(1);
+} finally {
+  if (startedContainer) {
+    stopLibreTranslate();
   }
 }
-
-writeSorted(ID_JSON, idMap);
-writeSorted(EN_JSON, enMap);
-
-console.log(`\n✓ Added ${added} key(s). Both lang files updated and sorted.\n`);
