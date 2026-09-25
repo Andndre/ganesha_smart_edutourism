@@ -88,6 +88,12 @@ class UmkmProfile extends Model
         return $this->hasMany(Feedback::class)->where('feedback_type', 'umkm');
     }
 
+    /** @return HasMany<UmkmReview> */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(UmkmReview::class);
+    }
+
     /**
      * Returns ['min' => float, 'max' => float] from active products' effective prices,
      * or null when no product has a price set. Requires activeProducts.category eager-loaded.
@@ -97,8 +103,9 @@ class UmkmProfile extends Model
     public function getPriceRangeAttribute(): ?array
     {
         $prices = $this->activeProducts
-            ->map(fn ($p) => (float) ($p->category?->price ?? $p->getRawOriginal('price')))
+            ->map(fn (UmkmProduct $product) => $product->price_range)
             ->filter()
+            ->flatMap(fn (array $range) => [$range['min'], $range['max']])
             ->sort()
             ->values();
 

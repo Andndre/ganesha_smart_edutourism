@@ -42,7 +42,7 @@ class CulturalObjectRequest extends FormRequest
             'new_model_description' => ['nullable', 'array'],
             'new_model_description.en' => ['nullable', 'string'],
             'new_model_description.id' => ['nullable', 'string'],
-            'model_3d_file' => ['nullable', 'file', 'max:20480'],
+            'model_3d_file' => ['nullable', 'file', 'max:10240'],
             'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
             // mimetypes (content-sniffed) + extensions (filename) instead of `mimes`: .m4a
             // is frequently sniffed as audio/mp4 or video/mp4, which `mimes:m4a` rejects.

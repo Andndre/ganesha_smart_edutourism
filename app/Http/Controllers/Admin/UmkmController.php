@@ -31,7 +31,7 @@ class UmkmController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = UmkmProduct::with('umkmProfile');
+        $query = UmkmProduct::with(['umkmProfile', 'variants']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -87,7 +87,10 @@ class UmkmController extends Controller
             $validated['unit'] = 'pcs';
         }
 
-        UmkmProduct::create($validated);
+        $variants = $validated['variants'] ?? [];
+        unset($validated['variants']);
+        $product = UmkmProduct::create($validated);
+        $this->syncVariants($product, $variants);
 
         return redirect()->route('admin.umkm')->with('success', __('Produk UMKM berhasil ditambahkan.'));
     }
@@ -114,7 +117,10 @@ class UmkmController extends Controller
         $validated['slug'] = $product->generateUniqueSlug(slugFromTranslatable($validated['name']));
         $validated['is_active'] = $request->has('is_active') ? true : false;
 
+        $variants = $validated['variants'] ?? [];
+        unset($validated['variants']);
         $product->update($validated);
+        $this->syncVariants($product, $variants);
 
         return redirect()->route('admin.umkm')->with('success', __('Produk UMKM berhasil diperbarui.'));
     }
@@ -128,6 +134,20 @@ class UmkmController extends Controller
         $product->delete();
 
         return redirect()->route('admin.umkm')->with('success', __('Produk UMKM berhasil dihapus.'));
+    }
+
+    /** @param array<int, array<string, mixed>> $variants */
+    private function syncVariants(UmkmProduct $product, array $variants): void
+    {
+        $product->variants()->delete();
+        foreach ($variants as $index => $variant) {
+            $product->variants()->create([
+                'label' => $variant['label'], 'price' => $variant['price'],
+                'stock' => $variant['stock'] ?? null,
+                'is_active' => (bool) ($variant['is_active'] ?? false),
+                'sort_order' => $variant['sort_order'] ?? $index,
+            ]);
+        }
     }
 
     /**

@@ -42,6 +42,7 @@ use App\Http\Controllers\SmartEdutourismController;
 use App\Http\Controllers\Staff\TicketScanController;
 use App\Http\Controllers\TranslateController;
 use App\Http\Controllers\UmkmCatalogController;
+use App\Http\Controllers\UmkmReviewController;
 use Illuminate\Support\Facades\Route;
 
 // Auth Routes (Guest Only)
@@ -129,6 +130,7 @@ Route::middleware('auth')->group(function () {
 
         // Cultural Object Rating
         Route::post('/cultural/{slug}/rating', [CulturalObjectRatingController::class, 'store'])->name('cultural-object.rating.store');
+        Route::post('/umkm/store/{umkm}/review', [UmkmReviewController::class, 'store'])->middleware('throttle:10,1')->name('umkm.review.store');
 
         // Profile & E-Ticket
         Route::get('/profile', [ProfileController::class, 'show'])->name('profile');

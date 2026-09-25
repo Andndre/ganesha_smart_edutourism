@@ -90,7 +90,7 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">File Model 3D (.glb) <span
                             class="text-warning" id="glb-required-asterisk">*</span></label>
-                    <span class="mb-1 block text-[11px] text-gray-500">Maksimal 20MB.</span>
+                    <span class="mb-1 block text-[11px] text-gray-500">Maksimal 10MB. Optimalkan dengan Draco sebelum mengunggah.</span>
                     <input type="file" name="model_3d_file" id="model-field-glb-file" accept=".glb"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:outline-none">
                     @error('model_3d_file')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror

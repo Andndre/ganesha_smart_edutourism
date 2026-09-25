@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Translatable\HasTranslations;
 
 // ponytail: owner controller only writes the first 4 fields; legacy admin form
@@ -51,6 +52,19 @@ class UmkmProduct extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(UmkmProductCategory::class, 'umkm_product_category_id');
+    }
+
+    /** @return HasMany<UmkmProductVariant> */
+    public function variants(): HasMany
+    {
+        return $this->hasMany(UmkmProductVariant::class)->orderBy('sort_order');
+    }
+
+    /** @return HasMany<UmkmProductVariant> */
+    public function activeVariants(): HasMany
+    {
+        return $this->variants()->where('is_active', true)
+            ->where(fn (Builder $query) => $query->whereNull('stock')->orWhere('stock', '>', 0));
     }
 
     /**
@@ -97,11 +111,23 @@ class UmkmProduct extends Model
 
     public function getDisplayImageAttribute(): ?string
     {
-        if ($this->category?->image_path) {
-            return $this->category->image_path;
-        }
         $images = $this->getAttribute('images');
 
-        return \is_array($images) && ! empty($images) ? $images[0] : null;
+        return \is_array($images) && ! empty($images) ? $images[0] : $this->category?->image_path;
+    }
+
+    /** @return array{min: float, max: float}|null */
+    public function getPriceRangeAttribute(): ?array
+    {
+        $variants = $this->relationLoaded('activeVariants') ? $this->activeVariants : $this->activeVariants()->get();
+        $prices = $variants->pluck('price')->filter(fn ($price) => $price !== null)->map(fn ($price) => (float) $price);
+
+        if ($prices->isNotEmpty()) {
+            return ['min' => $prices->min(), 'max' => $prices->max()];
+        }
+
+        $price = $this->display_price;
+
+        return $price === null ? null : ['min' => (float) $price, 'max' => (float) $price];
     }
 }

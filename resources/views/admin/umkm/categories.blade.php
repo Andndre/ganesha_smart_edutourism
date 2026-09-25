@@ -84,6 +84,11 @@
                         {{ $cat->description ? $cat->description : 'Tidak ada deskripsi.' }}</p>
                 </div>
 
+                <label class="flex items-center gap-2 rounded-xl border border-gray-200 p-3 text-sm text-gray-700">
+                    <input type="checkbox" name="is_culinary" id="field-is-culinary" value="1" class="rounded border-gray-300 text-primary">
+                    Tandai sebagai kategori kuliner (muncul pada direktori Kuliner publik)
+                </label>
+
                 <div>
                     <div class="flex items-center justify-between border-t border-gray-50 pt-3">
                         <div>
@@ -245,7 +250,7 @@
                     <input type="file" name="model_3d_file" id="field-model-3d" accept=".glb"
                         class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
                     <span class="mt-1 block text-[11px] text-gray-500">Format model GLB (kompresi Draco didukung), maks
-                        20MB.</span>
+                        10MB.</span>
                     @error('model_3d_file')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
@@ -340,6 +345,7 @@
             fieldDescriptionId.value = "";
             document.getElementById('field-price').value = "";
             document.getElementById('field-unit').value = "";
+            document.getElementById('field-is-culinary').checked = false;
             fieldImage.value = "";
             fieldModel3d.value = "";
             fieldModel3dUsdz.value = "";
@@ -369,6 +375,7 @@
                 .description || "");
             document.getElementById('field-price').value = cat.price !== null ? cat.price : "";
             document.getElementById('field-unit').value = cat.unit ?? "";
+            document.getElementById('field-is-culinary').checked = Boolean(cat.is_culinary);
 
             fieldImage.value = "";
             fieldModel3d.value = "";
@@ -404,7 +411,7 @@
         function previewModelGLB(input) {
             // Delegate to ChunkedUploader's preview (via onStart callback)
             // This function is kept for backward compat with other callers.
-            const maxSize = 20 * 1024 * 1024;
+            const maxSize = 10 * 1024 * 1024;
             const file = input.files[0];
             if (file && file.size > maxSize) {
                 Swal.fire({
@@ -494,7 +501,7 @@
             }
 
             // GLB
-            initChunkedUpload('field-model-3d', 'field-tmp-model-3d', 'model-3d-progress', 20 * 1024 * 1024, [
+            initChunkedUpload('field-model-3d', 'field-tmp-model-3d', 'model-3d-progress', 10 * 1024 * 1024, [
                 '.glb']);
             // USDZ
             initChunkedUpload('field-model-3d-usdz', 'field-tmp-model-3d-usdz', 'model-usdz-progress', 50 * 1024 *

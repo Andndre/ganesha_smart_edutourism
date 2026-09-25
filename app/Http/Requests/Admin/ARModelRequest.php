@@ -37,8 +37,8 @@ class ARModelRequest extends FormRequest
         // Store: require model_3d_file unless tmp path provided
         // Update: optional
         $rules['model_3d_file'] = $modelId
-            ? ['nullable', 'file', 'max:20480']
-            : ['required_without:tmp_model_3d_path', 'file', 'max:20480'];
+            ? ['nullable', 'file', 'max:10240']
+            : ['required_without:tmp_model_3d_path', 'file', 'max:10240'];
 
         // Unique ar_marker_id — exclude current model on update
         $rules['ar_marker_id'] = $modelId

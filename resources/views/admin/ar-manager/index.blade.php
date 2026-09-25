@@ -436,7 +436,7 @@
             }
 
             // GLB
-            initChunkedUpload('model-field-glb-file', 'model-field-tmp-glb', 'model-glb-progress', 20 * 1024 * 1024,
+            initChunkedUpload('model-field-glb-file', 'model-field-tmp-glb', 'model-glb-progress', 10 * 1024 * 1024,
                 ['.glb']);
             // USDZ
             initChunkedUpload('model-field-usdz-file', 'model-field-tmp-usdz', 'model-usdz-progress', 50 * 1024 *

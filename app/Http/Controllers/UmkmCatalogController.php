@@ -20,6 +20,7 @@ class UmkmCatalogController extends Controller
             ? $request->query('tab')
             : 'smart-route';
         $q = trim((string) $request->query('q'));
+        $culinaryOnly = $request->boolean('culinary');
 
         $categories = Cache::tags(['umkm'])->flexible("umkm_categories_array_{$locale}", [86400, 172800], function () {
             $models = UmkmProductCategory::all();
@@ -38,7 +39,12 @@ class UmkmCatalogController extends Controller
         });
 
         $umkmListQuery = UmkmProfile::active()
-            ->with(['mapLocation', 'activeProducts.category', 'user']);
+            ->with(['mapLocation', 'activeProducts.category', 'activeProducts.activeVariants', 'user'])
+            ->withCount('reviews')->withAvg('reviews', 'rating');
+
+        if ($culinaryOnly) {
+            $umkmListQuery->whereHas('activeProducts.category', fn ($query) => $query->where('is_culinary', true));
+        }
 
         if (mb_strlen($q) >= 2) {
             $likePattern = '%'.addcslashes($q, '%_').'%';
@@ -53,7 +59,7 @@ class UmkmCatalogController extends Controller
 
         $umkmList = $umkmListQuery->paginate(12)->withQueryString();
 
-        return view('user.umkm.index', compact('categories', 'umkmList', 'activeTab', 'q'));
+        return view('user.umkm.index', compact('categories', 'umkmList', 'activeTab', 'q', 'culinaryOnly'));
     }
 
     public function recommend(Request $request, UmkmRecommendationService $recommendationService)
@@ -105,7 +111,7 @@ class UmkmCatalogController extends Controller
 
     public function recommended(Request $request, $id)
     {
-        $umkm = UmkmProfile::with(['user', 'activeProducts.category', 'mapLocation'])->findOrFail($id);
+        $umkm = UmkmProfile::with(['user', 'activeProducts.category', 'activeProducts.activeVariants', 'mapLocation'])->findOrFail($id);
 
         return view('user.umkm.recommended', compact('umkm'));
     }
@@ -123,9 +129,11 @@ class UmkmCatalogController extends Controller
 
     public function show($id): View
     {
-        $umkm = UmkmProfile::with(['user', 'activeProducts.category', 'mapLocation'])->findOrFail($id);
+        $umkm = UmkmProfile::with(['user', 'activeProducts.category', 'activeProducts.activeVariants', 'mapLocation'])
+            ->withCount('reviews')->withAvg('reviews', 'rating')->findOrFail($id);
+        $reviews = $umkm->reviews()->with('user')->latest()->take(5)->get();
 
-        return view('user.umkm.show', compact('umkm'));
+        return view('user.umkm.show', compact('umkm', 'reviews'));
     }
 
     public function search(Request $request): JsonResponse

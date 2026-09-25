@@ -1,6 +1,7 @@
 {{-- UMKM directory server-side filter --}}
 <form method="GET" action="{{ route('umkm') }}" class="relative mb-6">
     <input type="hidden" name="tab" value="direktori">
+    @if ($culinaryOnly ?? false)<input type="hidden" name="culinary" value="1">@endif
 
     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
         <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,3 +30,7 @@
         {{ __('Cari') }}
     </button>
 </form>
+<div class="mb-5 flex items-center gap-2">
+    <a href="{{ route('umkm', ['tab' => 'direktori', 'culinary' => 1]) }}" class="rounded-full px-3 py-2 text-xs font-bold {{ ($culinaryOnly ?? false) ? 'bg-primary text-white' : 'bg-primary/10 text-primary' }}">{{ __('Kuliner') }}</a>
+    @if ($culinaryOnly ?? false)<a href="{{ route('umkm', ['tab' => 'direktori']) }}" class="text-xs font-semibold text-gray-500 underline">{{ __('Semua UMKM') }}</a>@endif
+</div>

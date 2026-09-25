@@ -146,6 +146,10 @@
                                 'unit'                     => $p->unit,
                                 'stock'                    => $p->stock,
                                 'is_active'                => $p->is_active,
+                                'variants'                 => $p->variants->map(fn ($variant) => [
+                                    'label' => $variant->getTranslations('label'), 'price' => $variant->getRawOriginal('price'),
+                                    'stock' => $variant->stock, 'is_active' => $variant->is_active, 'sort_order' => $variant->sort_order,
+                                ])->values(),
                             ]) }})"
                                 class="border-primary/20 bg-primary/5 text-primary hover:bg-primary inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border py-2.5 text-xs font-bold transition-all hover:text-white">
                                 <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -216,7 +220,7 @@
         <div class="mb-4">
             <h3 id="modal-title" class="font-display text-charcoal text-lg font-bold">{{ 'Tambah Produk UMKM' }}</h3>
         </div>
-        <form id="modal-form" method="POST" action="" x-data="categoryPicker(@js($categoryPayload->all()))">
+        <form id="modal-form" method="POST" enctype="multipart/form-data" action="" x-data="categoryPicker(@js($categoryPayload->all()))">
             @csrf
             <div id="method-container"></div>
             <input type="hidden" name="product_id" id="field-product-id" value="">
@@ -300,6 +304,30 @@
                             class="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300">
                         <label for="field-active" class="text-sm font-semibold text-gray-700">{{ 'Produk Aktif / Tampil' }}</label>
                     </div>
+                </div>
+
+                <div id="tour-product-images">
+                    <label class="block text-sm font-semibold text-gray-700">Foto Produk</label>
+                    <input type="file" name="images[]" accept="image/jpeg,image/png,image/webp,image/gif" multiple
+                        class="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm">
+                    <p class="mt-1 text-xs text-gray-500">Unggah hingga 5 foto (maks. 5 MB per foto). Foto produk diprioritaskan; gambar kategori hanya dipakai bila belum ada foto.</p>
+                </div>
+
+                <div class="rounded-xl border border-gray-200 p-3">
+                    <div class="flex items-center justify-between gap-3">
+                        <div><p class="text-sm font-semibold text-gray-700">Varian produk</p><p class="text-xs text-gray-500">Opsional. Harga katalog akan menjadi rentang dari varian aktif.</p></div>
+                        <button type="button" @click="addVariant()" class="rounded-lg bg-primary/10 px-3 py-2 text-xs font-bold text-primary">+ Tambah</button>
+                    </div>
+                    <template x-for="(variant, index) in variants" :key="index">
+                        <div class="mt-3 grid grid-cols-2 gap-2 border-t border-gray-100 pt-3 sm:grid-cols-5">
+                            <input :name="`variants[${index}][label][id]`" x-model="variant.label.id" placeholder="Label ID" class="rounded-lg border border-gray-200 px-2 py-2 text-xs">
+                            <input :name="`variants[${index}][label][en]`" x-model="variant.label.en" placeholder="Label EN" class="rounded-lg border border-gray-200 px-2 py-2 text-xs">
+                            <input :name="`variants[${index}][price]`" x-model="variant.price" type="number" min="0" placeholder="Harga" class="rounded-lg border border-gray-200 px-2 py-2 text-xs">
+                            <input :name="`variants[${index}][stock]`" x-model="variant.stock" type="number" min="0" placeholder="Stok" class="rounded-lg border border-gray-200 px-2 py-2 text-xs">
+                            <div class="flex items-center justify-between gap-2"><label class="text-xs"><input :name="`variants[${index}][is_active]`" x-model="variant.is_active" type="checkbox" value="1"> Aktif</label><button type="button" @click="variants.splice(index, 1)" class="text-xs font-bold text-warning">Hapus</button></div>
+                            <input type="hidden" :name="`variants[${index}][sort_order]`" :value="index">
+                        </div>
+                    </template>
                 </div>
             </div>
 
@@ -438,6 +466,8 @@
                 open: false,
                 selectedId: '',
                 selected: null,
+                variants: [],
+                addVariant() { this.variants.push({ label: { id: '', en: '' }, price: '', stock: '', is_active: true }); },
                 filtered() {
                     const q = (this.query || '').toLowerCase().trim();
                     if (!q) return this.items;
@@ -472,7 +502,7 @@
             fieldProductId.value = "";
 
             const root = Alpine.$data(productForm);
-            root.selected = null; root.selectedId = ''; root.query = '';
+            root.selected = null; root.selectedId = ''; root.query = ''; root.variants = [];
 
             window.dispatchEvent(new CustomEvent('open-product-modal'));
         }
@@ -489,6 +519,10 @@
 
             const root = Alpine.$data(productForm);
             root.selectById(product.umkm_product_category_id);
+            root.variants = (product.variants || []).map((variant) => ({
+                label: { id: variant.label?.id || '', en: variant.label?.en || '' }, price: variant.price ?? '',
+                stock: variant.stock ?? '', is_active: !!variant.is_active,
+            }));
 
             window.dispatchEvent(new CustomEvent('open-product-modal'));
         }
