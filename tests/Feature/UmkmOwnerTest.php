@@ -218,6 +218,7 @@ class UmkmOwnerTest extends TestCase
         $response = $this->actingAs($admin)->post('/admin/umkm/categories', [
             'name' => ['en' => 'Light Snacks', 'id' => 'Makanan Ringan'],
             'description' => ['en' => 'Various Balinese snacks.', 'id' => 'Aneka camilan khas Bali.'],
+            'is_culinary' => '1',
             'image' => $image,
             'model_3d_file' => $model3d,
             'model_3d_usdz_file' => $model3dUsdz,
@@ -229,6 +230,7 @@ class UmkmOwnerTest extends TestCase
         $this->assertNotNull($category);
         $this->assertEquals('Light Snacks', $category->name);
         $this->assertEquals('Various Balinese snacks.', $category->description);
+        $this->assertTrue($category->is_culinary);
         $this->assertNotNull($category->image_path);
         $this->assertNotNull($category->model_3d_path);
         $this->assertNotNull($category->model_3d_usdz_path);
@@ -257,6 +259,7 @@ class UmkmOwnerTest extends TestCase
         $category = $category->fresh();
         $this->assertEquals('Balinese Traditional Snacks', $category->name);
         $this->assertEquals('Traditional wet snacks.', $category->description);
+        $this->assertFalse($category->is_culinary);
         Storage::disk('public')->assertExists($category->image_path);
         Storage::disk('public')->assertExists($category->model_3d_path);
         Storage::disk('public')->assertExists($category->model_3d_usdz_path);

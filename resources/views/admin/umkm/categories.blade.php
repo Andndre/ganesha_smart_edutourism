@@ -84,11 +84,6 @@
                         {{ $cat->description ? $cat->description : 'Tidak ada deskripsi.' }}</p>
                 </div>
 
-                <label class="flex items-center gap-2 rounded-xl border border-gray-200 p-3 text-sm text-gray-700">
-                    <input type="checkbox" name="is_culinary" id="field-is-culinary" value="1" class="rounded border-gray-300 text-primary">
-                    Tandai sebagai kategori kuliner (muncul pada direktori Kuliner publik)
-                </label>
-
                 <div>
                     <div class="flex items-center justify-between border-t border-gray-50 pt-3">
                         <div>
@@ -227,6 +222,12 @@
                         @error('unit')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
                 </div>
+
+                <label class="flex items-center gap-2 rounded-xl border border-gray-200 p-3 text-sm text-gray-700">
+                    <input type="checkbox" name="is_culinary" id="field-is-culinary" value="1"
+                        class="rounded border-gray-300 text-primary">
+                    Tandai kategori ini sebagai kuliner agar toko yang menjualnya muncul di filter Kuliner publik.
+                </label>
 
                 <div>
                     <label class="font-display block text-sm font-semibold text-gray-700">Gambar Kategori</label>
