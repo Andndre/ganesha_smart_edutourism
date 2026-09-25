@@ -25,19 +25,32 @@ if (! function_exists('qrSvgDataUri')) {
 if (! function_exists('slugFromTranslatable')) {
     /**
      * Extract a slug-safe string from a translatable array field.
-     * Falls back through: fallback locale → 'en' → first available value.
+     * Falls back through: fallback locale → 'en' → first available non-empty value.
      */
     function slugFromTranslatable(array $translations): string
     {
-        $locale = config('app.fallback_locale', 'en');
+        $fallback = config('app.fallback_locale', 'en');
 
-        return $translations[$locale] ?? $translations['en'] ?? reset($translations) ?? '';
+        foreach ([$fallback, 'en'] as $l) {
+            if (isset($translations[$l]) && is_scalar($translations[$l]) && trim((string) $translations[$l]) !== '') {
+                return (string) $translations[$l];
+            }
+        }
+
+        foreach ($translations as $val) {
+            if (is_scalar($val) && trim((string) $val) !== '') {
+                return (string) $val;
+            }
+        }
+
+        return '';
     }
 }
 
 if (! function_exists('translateValue')) {
     /**
      * Get the translated string from a value (which can be a JSON string, array, or plain string).
+     * Robustly skips empty and whitespace-only strings during fallback traversal.
      */
     function translateValue(array|string|null $value, ?string $locale = null): string
     {
@@ -62,6 +75,20 @@ if (! function_exists('translateValue')) {
         $locale = $locale ?: app()->getLocale();
         $fallback = config('app.fallback_locale', 'en');
 
-        return $value[$locale] ?? $value[$fallback] ?? $value['en'] ?? reset($value) ?? '';
+        // Traverse priority candidates: requested locale → fallback locale → 'en'
+        foreach ([$locale, $fallback, 'en'] as $l) {
+            if (isset($value[$l]) && is_scalar($value[$l]) && trim((string) $value[$l]) !== '') {
+                return (string) $value[$l];
+            }
+        }
+
+        // Fall back to first non-empty scalar value
+        foreach ($value as $val) {
+            if (is_scalar($val) && trim((string) $val) !== '') {
+                return (string) $val;
+            }
+        }
+
+        return '';
     }
 }

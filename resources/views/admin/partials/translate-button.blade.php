@@ -9,50 +9,37 @@
     translation and restored after, so LibreTranslate never mangles them.
     Edit the list below to add/remove terms. Longer phrases first (handled by sort).
 --}}
+@php
+    $glossaryPath = resource_path('data/i18n-glossary.json');
+    $glossaryConfig = file_exists($glossaryPath)
+        ? json_decode(file_get_contents($glossaryPath), true)
+        : ['protected_terms' => [], 'directional_transforms' => []];
+@endphp
 <script>
 (function () {
     const URL = '{{ route('translate') }}';
     const CSRF = document.querySelector('meta[name="csrf-token"]')?.content;
 
-    // --- Glossary: terms that must NOT be translated ---
-    // Note: "Desa X" and "Pura X" are handled by TRANSFORM_RULES below, not here.
-    const PROTECTED_TERMS = [
-        // Place names that should stay verbatim (no prefix swap needed)
-        'Penglipuran',
-        // Cultural terms
-        'Dadia', 'Banjar', 'Subak', 'Pecalang', 'Ngaben', 'Melasti', 'Ogoh-ogoh',
-        'Bale Agung', 'Bale Banjar', 'Bale', 'Paon', 'Aling-aling',
-    ];
-
-    // Sort longest first so "Desa Wisata Penglipuran" is protected before "Penglipuran"
+    // --- Centralized Glossary & Transform Rules ---
+    const GLOSSARY_CONFIG = @json($glossaryConfig);
+    const PROTECTED_TERMS = GLOSSARY_CONFIG.protected_terms || [];
     const SORTED_TERMS = [...PROTECTED_TERMS].sort((a, b) => b.length - a.length);
-
-    // --- Directional transforms: rewrite and protect in one step ---
-    // Static terms run first (longest-first) so e.g. "Desa Wisata Penglipuran" is
-    // tokenised before the generic "Desa [Name]" rule can touch it.
-    const TRANSFORM_RULES = {
-        'id→en': [
-            // Specific phrases before generic patterns
-            { re: /\bDesa Wisata Penglipuran\b/gi,                fn: () => 'Penglipuran Tourism Village' },
-            { re: /\bPura\s+([A-Z]\w*(?:\s+[A-Z]\w*)*)/g,       fn: (_, n) => n.trim() + ' Temple' },
-            { re: /\bDesa\s+([A-Z]\w*(?:\s+[A-Z]\w*)*)/g,       fn: (_, n) => n.trim() + ' Village' },
-        ],
-        'en→id': [
-            { re: /\bPenglipuran Tourism Village\b/gi,            fn: () => 'Desa Wisata Penglipuran' },
-            { re: /\b([A-Z]\w*(?:\s+[A-Z]\w*)*)\s+Temple\b/g,   fn: (_, n) => 'Pura ' + n.trim() },
-            { re: /\b([A-Z]\w*(?:\s+[A-Z]\w*)*)\s+Village\b/g,  fn: (_, n) => 'Desa ' + n.trim() },
-        ],
-    };
+    const DIRECTIONAL_TRANSFORMS = GLOSSARY_CONFIG.directional_transforms || {};
 
     function glossaryProtect(text, src, tgt) {
         const map = [];
         let out = text;
 
-        // 1. Transforms first — specific rules listed before generic ones, so
-        //    "Desa Wisata Penglipuran" is consumed before "Desa [Name]" can run.
-        (TRANSFORM_RULES[`${src}→${tgt}`] || []).forEach(({ re, fn }) => {
-            out = out.replace(re, (...args) => {
-                const transformed = fn(...args);
+        // 1. Directional transforms first (e.g. "id->en" or "en->id")
+        const key = `${src}->${tgt}`;
+        const rules = DIRECTIONAL_TRANSFORMS[key] || [];
+        rules.forEach(({ pattern, flags, replacement }) => {
+            const re = new RegExp(pattern, flags);
+            out = out.replace(re, (match, ...groups) => {
+                let transformed = replacement;
+                groups.slice(0, -2).forEach((g, idx) => {
+                    transformed = transformed.replaceAll(`$${idx + 1}`, g ? g.trim() : '');
+                });
                 const token = `GLOSS${map.length}Z`;
                 map.push({ token, original: transformed });
                 return token;

@@ -1,0 +1,72 @@
+{
+    "protected_terms": [
+        "Penglipuran",
+        "Dadia",
+        "Banjar",
+        "Subak",
+        "Pecalang",
+        "Ngaben",
+        "Melasti",
+        "Ogoh-ogoh",
+        "Bale Agung",
+        "Bale Banjar",
+        "Bale",
+        "Paon",
+        "Aling-aling",
+        "Loloh Cemcem",
+        "Tri Mandala",
+        "Tri Hita Karana",
+        "Angkul-angkul",
+        "Karang Memadu",
+        "Sanggah Kemulan",
+        "Sanggah",
+        "Padmasana",
+        "Piyasan",
+        "Parahyangan",
+        "Pawongan",
+        "Palemahan",
+        "Purnama",
+        "Tilem",
+        "Rerainan",
+        "Saka",
+        "Sasih",
+        "Wewaran",
+        "Wuku"
+    ],
+    "directional_transforms": {
+        "id->en": [
+            {
+                "pattern": "\\bDesa Wisata Penglipuran\\b",
+                "flags": "gi",
+                "replacement": "Penglipuran Tourism Village"
+            },
+            {
+                "pattern": "\\bPura\\s+([A-Z]\\w*(?:\\s+[A-Z]\\w*)*)",
+                "flags": "g",
+                "replacement": "$1 Temple"
+            },
+            {
+                "pattern": "\\bDesa\\s+([A-Z]\\w*(?:\\s+[A-Z]\\w*)*)",
+                "flags": "g",
+                "replacement": "$1 Village"
+            }
+        ],
+        "en->id": [
+            {
+                "pattern": "\\bPenglipuran Tourism Village\\b",
+                "flags": "gi",
+                "replacement": "Desa Wisata Penglipuran"
+            },
+            {
+                "pattern": "\\b([A-Z]\\w*(?:\\s+[A-Z]\\w*)*)\\s+Temple\\b",
+                "flags": "g",
+                "replacement": "Pura $1"
+            },
+            {
+                "pattern": "\\b([A-Z]\\w*(?:\\s+[A-Z]\\w*)*)\\s+Village\\b",
+                "flags": "g",
+                "replacement": "Desa $1"
+            }
+        ]
+    }
+}
