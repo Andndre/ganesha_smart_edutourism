@@ -24,6 +24,28 @@ class UmkmCatalogPublicTest extends TestCase
         $response->assertSee('Jelajah UMKM');
     }
 
+    public function test_culinary_directory_filter_only_returns_merchants_with_culinary_products(): void
+    {
+        $culinaryProfile = UmkmProfile::factory()->create([
+            'business_name' => ['id' => 'Warung Kuliner', 'en' => 'Culinary Stall'],
+            'is_active' => true,
+        ]);
+        $craftProfile = UmkmProfile::factory()->create([
+            'business_name' => ['id' => 'Toko Kerajinan', 'en' => 'Craft Store'],
+            'is_active' => true,
+        ]);
+        $culinaryCategory = UmkmProductCategory::factory()->create(['is_culinary' => true]);
+        $craftCategory = UmkmProductCategory::factory()->create(['is_culinary' => false]);
+
+        UmkmProduct::factory()->create(['umkm_profile_id' => $culinaryProfile->id, 'umkm_product_category_id' => $culinaryCategory->id, 'is_active' => true]);
+        UmkmProduct::factory()->create(['umkm_profile_id' => $craftProfile->id, 'umkm_product_category_id' => $craftCategory->id, 'is_active' => true]);
+
+        $this->get(route('umkm', ['tab' => 'direktori', 'culinary' => 1]))
+            ->assertOk()
+            ->assertSee('Warung Kuliner')
+            ->assertDontSee('Toko Kerajinan');
+    }
+
     /**
      * Test that the session keeps multi-stop recommendations when loading index.
      */
