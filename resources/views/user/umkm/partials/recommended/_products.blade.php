@@ -7,7 +7,7 @@
                     <div @click="$dispatch('open-product-modal', {{ json_encode([
                         'name' => $product->display_name,
                         'category' => translateValue($product->category?->name) ?? 'Produk',
-                        'price' => $product->display_price !== null ? 'Rp ' . number_format($product->display_price, 0, ',', '.') : '',
+                        'price' => $product->price_range ? ($product->price_range['min'] === $product->price_range['max'] ? 'Rp ' . number_format($product->price_range['min'], 0, ',', '.') : 'Rp ' . number_format($product->price_range['min'], 0, ',', '.') . '–' . number_format($product->price_range['max'], 0, ',', '.')) : '',
                         'image' => $product->display_image ? asset('storage/' . $product->display_image) : '',
                         'description' => $product->display_description ?? __('Tidak ada deskripsi.'),
                     ]) }})"
@@ -29,8 +29,8 @@
                             <p class="mt-0.5 text-xs text-gray-500">{{ translateValue($product->category?->name) ?? __('Produk') }}</p>
                         </div>
                         <div class="text-primary text-sm font-bold">
-                            @if ($product->display_price !== null)
-                                Rp {{ number_format($product->display_price, 0, ',', '.') }}
+                            @if ($product->price_range)
+                                Rp {{ number_format($product->price_range['min'], 0, ',', '.') }}@if ($product->price_range['min'] !== $product->price_range['max'])–{{ number_format($product->price_range['max'], 0, ',', '.') }}@endif
                             @endif
                         </div>
                     </div>

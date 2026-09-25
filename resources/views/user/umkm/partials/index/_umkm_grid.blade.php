@@ -4,10 +4,15 @@
         @foreach ($umkmList as $umkm)
             <a href="{{ route('umkm.store', $umkm->id) }}"
                 class="relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:border-gray-200 hover:shadow-md active:scale-[0.98]">
-                <div class="relative aspect-video bg-gray-100">
+                <div class="relative aspect-video bg-gray-100" x-data="{ loaded: false, failed: false }">
                     @if (optional($umkm)->image_path)
                         <img src="{{ asset('storage/' . $umkm->image_path) }}" alt="{{ $umkm->business_name }}"
+                            loading="lazy" x-on:load="loaded = true" x-on:error="failed = true; loaded = true"
                             class="h-full w-full object-cover">
+                        <div x-show="!loaded" class="absolute inset-0 animate-pulse bg-gray-200"></div>
+                        <div x-show="failed" x-cloak
+                            class="text-primary absolute inset-0 flex items-center justify-center bg-gray-100 text-xs">
+                            {{ __('Gambar tidak tersedia') }}</div>
                     @else
                         <div class="text-primary absolute inset-0 flex items-center justify-center opacity-50">
                             <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -19,9 +24,14 @@
                 </div>
 
                 <div class="flex-1 p-3">
-                    <h3 class="text-charcoal line-clamp-1 text-sm font-bold">{{ $umkm->business_name }}</h3>
+                    <h3 class="text-charcoal wrap-break-word line-clamp-2 text-sm font-bold">{{ $umkm->business_name }}
+                    </h3>
                     @if ($umkm->user)
                         <p class="mt-0.5 line-clamp-1 text-xs text-gray-500">{{ $umkm->user->name }}</p>
+                    @endif
+                    @if ($umkm->reviews_count)
+                        <p class="mt-1 text-xs text-gray-500">★
+                            {{ number_format((float) $umkm->reviews_avg_rating, 1) }} ({{ $umkm->reviews_count }})</p>
                     @endif
                 </div>
             </a>

@@ -8,6 +8,7 @@
         <!-- Hero Image Area / Carousel -->
         <div class="relative h-[40dvh] w-full overflow-hidden bg-gray-200" x-data="{
             currentIndex: 0,
+            loaded: false,
             images: {{ json_encode(array_map(fn($img) => asset('storage/' . $img), $object['historical_images'] ?? [])) }},
             next() {
                 this.currentIndex = (this.currentIndex + 1) % this.images.length;
@@ -23,7 +24,7 @@
                     <div x-show="currentIndex === index" x-transition:enter="transition ease-out duration-300"
                         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                         class="absolute inset-0 h-full w-full">
-                        <img :src="img" alt="{{ $object['name'] }}" class="h-full w-full object-cover">
+                        <img :src="img" :loading="index === 0 ? 'eager' : 'lazy'" x-on:load="loaded = true" x-on:error="loaded = true" alt="{{ $object['name'] }}" class="h-full w-full object-cover">
                     </div>
                 </template>
 
@@ -63,6 +64,7 @@
                     </svg>
                 </div>
             @endif
+            <div x-show="!loaded && images.length" class="absolute inset-0 animate-pulse bg-gray-300"></div>
 
             <div class="bg-linear-to-t from-charcoal/90 via-charcoal/20 absolute inset-0 z-10 to-transparent"></div>
 

@@ -17,7 +17,8 @@
 
         <div class="mb-4 md:mb-6">
             <h2 class="font-playfair text-charcoal text-xl font-bold md:text-3xl">{{ __('Jelajah Warisan Budaya') }}</h2>
-            <p class="mt-1 text-sm text-gray-500 md:mt-2 md:text-base">{{ __('Temukan kisah di balik setiap sudut desa') }}</p>
+            <p class="mt-1 text-sm text-gray-500 md:mt-2 md:text-base">{{ __('Temukan kisah di balik setiap sudut desa') }}
+            </p>
         </div>
 
         @if (count($categories) > 1)
@@ -29,7 +30,8 @@
                 </button>
                 @foreach ($categories as $category)
                     <button type="button" @click="cat = '{{ $category }}'"
-                        :class="cat === '{{ $category }}' ? 'bg-primary text-white' : 'bg-white text-gray-600 ring-1 ring-gray-200'"
+                        :class="cat === '{{ $category }}' ? 'bg-primary text-white' :
+                            'bg-white text-gray-600 ring-1 ring-gray-200'"
                         class="shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors">
                         {{ $categoryLabels[$category] }}
                     </button>
@@ -47,7 +49,8 @@
                             <div class="bg-linear-to-t absolute inset-0 z-10 from-black/60 to-transparent"></div>
 
                             @if (!empty($object['historical_images']))
-                                <img src="{{ asset('storage/' . $object['historical_images'][0]) }}" alt="{{ $object['name'] }}"
+                                <img src="{{ asset('storage/' . $object['historical_images'][0]) }}"
+                                    alt="{{ $object['name'] }}" loading="lazy" onerror="this.classList.add('opacity-0')"
                                     class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
                             @else
                                 <div class="absolute inset-0 flex items-center justify-center text-gray-500">
@@ -60,11 +63,14 @@
 
                             <div class="absolute bottom-2 left-2 right-2 z-20 text-white">
                                 @if (!empty($object['ar_marker_id']) || !empty($object['model_3d_path']))
-                                    <span class="text-primary inline-flex items-center rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-medium shadow-sm backdrop-blur-sm">
+                                    <span
+                                        class="text-primary inline-flex items-center rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-medium shadow-sm backdrop-blur-sm">
                                         {{ __('AR Tersedia') }}
                                     </span>
                                 @endif
-                                <h3 class="font-playfair line-clamp-2 text-sm font-bold leading-tight md:text-base">{{ $object['name'] }}</h3>
+                                <h3
+                                    class="font-playfair wrap-break-word line-clamp-2 text-balance text-sm font-bold leading-tight md:text-base">
+                                    {{ $object['name'] }}</h3>
                             </div>
                         </div>
                         <div class="p-3">

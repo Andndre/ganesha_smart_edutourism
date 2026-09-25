@@ -29,6 +29,7 @@ class UmkmCategoryController extends Controller
     public function store(UmkmCategoryRequest $request): RedirectResponse
     {
         $validated = $request->validated();
+        $validated['is_culinary'] = $request->boolean('is_culinary');
 
         $validated['slug'] = (new UmkmProductCategory)->generateSlug(slugFromTranslatable($validated['name']));
 
@@ -63,6 +64,7 @@ class UmkmCategoryController extends Controller
         $category = UmkmProductCategory::findOrFail($id);
 
         $validated = $request->validated();
+        $validated['is_culinary'] = $request->boolean('is_culinary');
 
         $validated['slug'] = $category->generateSlug(slugFromTranslatable($validated['name']));
 

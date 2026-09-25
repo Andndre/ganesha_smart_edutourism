@@ -7,6 +7,7 @@ use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class OwnerProductController extends BaseOwnerController
@@ -22,7 +23,7 @@ class OwnerProductController extends BaseOwnerController
             ]);
         }
 
-        $query = UmkmProduct::where('umkm_profile_id', $this->profile->id)->with('category');
+        $query = UmkmProduct::where('umkm_profile_id', $this->profile->id)->with(['category', 'variants']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -56,7 +57,12 @@ class OwnerProductController extends BaseOwnerController
         $validated['umkm_profile_id'] = $profile->id;
         $validated['is_active'] = $request->boolean('is_active', true);
 
-        UmkmProduct::create($validated);
+        $validated['images'] = $this->storeImages($request);
+        $variants = $validated['variants'] ?? [];
+        unset($validated['variants']);
+
+        $product = UmkmProduct::create($validated);
+        $this->syncVariants($product, $variants);
 
         return redirect()->route('owner.products')->with('success', __('Produk berhasil ditambahkan.'));
     }
@@ -70,7 +76,17 @@ class OwnerProductController extends BaseOwnerController
         $validated = $request->validated();
         $validated['is_active'] = $request->boolean('is_active');
 
+        if ($request->hasFile('images')) {
+            foreach ($product->images ?? [] as $image) {
+                Storage::disk('public')->delete($image);
+            }
+            $validated['images'] = $this->storeImages($request);
+        }
+        $variants = $validated['variants'] ?? [];
+        unset($validated['variants']);
+
         $product->update($validated);
+        $this->syncVariants($product, $variants);
 
         return redirect()->route('owner.products')->with('success', __('Produk berhasil diperbarui.'));
     }
@@ -83,5 +99,27 @@ class OwnerProductController extends BaseOwnerController
         $product->delete();
 
         return redirect()->route('owner.products')->with('success', __('Produk berhasil dihapus.'));
+    }
+
+    private function storeImages(OwnerProductRequest $request): array
+    {
+        return collect($request->file('images', []))
+            ->map(fn ($file) => $file->store('umkm_products', 'public'))
+            ->all();
+    }
+
+    /** @param array<int, array<string, mixed>> $variants */
+    private function syncVariants(UmkmProduct $product, array $variants): void
+    {
+        $product->variants()->delete();
+        foreach ($variants as $index => $variant) {
+            $product->variants()->create([
+                'label' => $variant['label'],
+                'price' => $variant['price'],
+                'stock' => $variant['stock'] ?? null,
+                'is_active' => (bool) ($variant['is_active'] ?? false),
+                'sort_order' => $variant['sort_order'] ?? $index,
+            ]);
+        }
     }
 }

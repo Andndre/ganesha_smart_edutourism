@@ -379,22 +379,10 @@
 
         html5QrCode = new Html5Qrcode("reader");
 
-        Html5Qrcode.getCameras().then(devices => {
-            if (devices && devices.length) {
-                const backCamera = devices.find(device => device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('environment') || device.label.toLowerCase().includes('rear'));
-                const cameraId = backCamera ? backCamera.id : devices[0].id;
-
-                html5QrCode.start(cameraId, { fps: 10, qrbox: { width: 220, height: 220 } }, onScanSuccess, onScanFailure)
-                    .catch(() => fallbackFacingMode());
-            } else {
-                fallbackFacingMode();
-            }
-        }).catch(() => fallbackFacingMode());
-
-        function fallbackFacingMode() {
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 220, height: 220 } }, onScanSuccess, onScanFailure)
-                .catch(() => showCameraError("Izin akses kamera ditolak atau kamera tidak tersedia."));
-        }
+        // Never fall back to the first detected device: it may be the front camera.
+        // If a rear camera is unavailable, staff can still use the manual code input.
+        html5QrCode.start({ facingMode: { exact: 'environment' } }, { fps: 10, qrbox: { width: 220, height: 220 } }, onScanSuccess, onScanFailure)
+            .catch(() => showCameraError('Kamera belakang tidak tersedia atau izinnya ditolak. Gunakan input kode tiket manual di bawah.'));
 
         function showCameraError(msg) {
             document.getElementById('reader').innerHTML = `

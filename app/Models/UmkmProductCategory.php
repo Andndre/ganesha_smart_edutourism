@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Translatable\HasTranslations;
 
-#[Fillable(['name', 'slug', 'description', 'price', 'unit', 'image_path', 'model_3d_path', 'model_3d_usdz_path'])]
+#[Fillable(['name', 'slug', 'description', 'price', 'unit', 'is_culinary', 'image_path', 'model_3d_path', 'model_3d_usdz_path'])]
 class UmkmProductCategory extends Model
 {
     use HasFactory;
@@ -23,7 +23,7 @@ class UmkmProductCategory extends Model
     protected function casts(): array
     {
         return [
-            'price' => 'decimal:2',
+            'price' => 'decimal:2', 'is_culinary' => 'boolean',
         ];
     }
 

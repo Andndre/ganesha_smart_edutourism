@@ -22,8 +22,9 @@ class UmkmCategoryRequest extends FormRequest
             'description.id' => ['nullable', 'string'],
             'price' => ['nullable', 'numeric', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
+            'is_culinary' => ['nullable', 'boolean'],
             'image' => ['nullable', 'image', 'max:2048'],
-            'model_3d_file' => ['nullable', 'file', 'max:20480'],
+            'model_3d_file' => ['nullable', 'file', 'max:10240'],
             'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
         ];
     }

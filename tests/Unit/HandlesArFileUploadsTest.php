@@ -52,6 +52,17 @@ class HandlesArFileUploadsTest extends TestCase
         Storage::disk('public')->assertExists($newPath);
     }
 
+    public function test_same_original_filename_produces_different_random_paths(): void
+    {
+        Storage::fake('public');
+
+        $first = $this->subject()->replace(UploadedFile::fake()->create('model.glb', 10), 'models', null);
+        $second = $this->subject()->replace(UploadedFile::fake()->create('model.glb', 10), 'models', null);
+
+        $this->assertNotSame($first, $second);
+        Storage::disk('public')->assertExists([$first, $second]);
+    }
+
     public function test_replace_localized_audio_only_touches_uploaded_locales(): void
     {
         Storage::fake('public');

@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
+use App\Models\UmkmProductVariant;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -103,5 +104,17 @@ class UmkmProfilePriceRangeTest extends TestCase
         $range = $profile->price_range;
         $this->assertEquals(10000.0, $range['min']);
         $this->assertEquals(75000.0, $range['max']);
+    }
+
+    public function test_active_variants_determine_product_price_range(): void
+    {
+        $profile = $this->makeProfile();
+        $product = $this->makeProduct($profile, $this->makeCategory(50000), 10000);
+        UmkmProductVariant::create(['umkm_product_id' => $product->id, 'label' => ['id' => 'Kecil', 'en' => 'Small'], 'price' => 12000, 'is_active' => true, 'sort_order' => 1]);
+        UmkmProductVariant::create(['umkm_product_id' => $product->id, 'label' => ['id' => 'Besar', 'en' => 'Large'], 'price' => 25000, 'is_active' => true, 'sort_order' => 2]);
+        UmkmProductVariant::create(['umkm_product_id' => $product->id, 'label' => ['id' => 'Arsip', 'en' => 'Archived'], 'price' => 99999, 'is_active' => false, 'sort_order' => 3]);
+        $profile->load('activeProducts.category', 'activeProducts.activeVariants');
+
+        $this->assertSame(['min' => 12000.0, 'max' => 25000.0], $profile->price_range);
     }
 }
