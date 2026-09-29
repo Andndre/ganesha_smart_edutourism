@@ -57,7 +57,12 @@ class UmkmCatalogController extends Controller
             });
         }
 
-        $umkmList = $umkmListQuery->paginate(12)->withQueryString();
+        $umkmList = $umkmListQuery->orderBy('id')->paginate(12)
+            ->withQueryString()->appends(['tab' => 'direktori']);
+
+        if ($request->header('X-UMKM-Fragment') === 'directory-page') {
+            return view('user.umkm.partials.index._umkm_grid', compact('umkmList', 'q', 'culinaryOnly'));
+        }
 
         return view('user.umkm.index', compact('categories', 'umkmList', 'activeTab', 'q', 'culinaryOnly'));
     }

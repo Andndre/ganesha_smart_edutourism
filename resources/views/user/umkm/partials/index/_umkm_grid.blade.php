@@ -1,6 +1,6 @@
 {{-- ponytail: partial dipecah untuk keterbacaan --}}
 @if ($umkmList->isNotEmpty())
-    <div class="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
+    <div data-umkm-grid class="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
         @foreach ($umkmList as $umkm)
             <a href="{{ route('umkm.store', $umkm->id) }}"
                 class="relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:border-gray-200 hover:shadow-md active:scale-[0.98]">
@@ -40,8 +40,8 @@
 
     {{-- Load More --}}
     @if ($umkmList->hasMorePages())
-        <div class="mt-8 text-center" x-data="{ page: {{ $umkmList->currentPage() }} }">
-            <a href="{{ $umkmList->nextPageUrl() }}"
+        <div data-umkm-pagination class="mt-8 text-center">
+            <a data-umkm-next href="{{ $umkmList->nextPageUrl() }}"
                 class="inline-block rounded-xl border border-gray-200 bg-white px-8 py-3 text-sm font-bold text-gray-700 shadow-sm transition-all hover:border-gray-300 active:scale-[0.98]">
                 {{ __('Muat Lebih Banyak') }}
             </a>

@@ -42,6 +42,13 @@
                 @endforeach
             </div>
 
+            <div id="category-load-more" class="mt-8 hidden text-center">
+                <button type="button" id="category-load-more-button"
+                    class="min-h-11 rounded-xl border border-gray-200 bg-white px-8 py-3 text-sm font-bold text-gray-700 shadow-sm transition-all hover:border-gray-300 active:scale-[0.98]">
+                    {{ __('Muat Lebih Banyak') }}
+                </button>
+            </div>
+
             <!-- Empty State for Search -->
             <div id="empty-state" class="hidden flex-col items-center justify-center py-12 text-center">
                 <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 text-gray-500">
