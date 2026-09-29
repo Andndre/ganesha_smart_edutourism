@@ -17,6 +17,9 @@
             // yang menghapus banner error — jadi error hasil pencarian tidak pernah
             // sempat terlihat. Flag ini menahannya sampai user benar-benar mengubah pilihan.
             let booting = true;
+            let categoryObserver = null;
+            let categoriesDisposed = false;
+            let revealCategoryCard = () => {};
             const messages = @json($umkmMessages);
 
             // Silently grab GPS so the recommendation can start from the user's position.
@@ -294,45 +297,78 @@
 
                 const searchInput = document.getElementById('category-search-input');
                 const clearBtn = document.getElementById('category-clear-search-btn');
+                const cards = Array.from(document.querySelectorAll('.category-card'));
+                const categoryMore = document.getElementById('category-load-more');
+                const categoryMoreButton = document.getElementById('category-load-more-button');
+                const emptyState = document.getElementById('empty-state');
+                let visibleCategoryCount = cards.reduce((count, card, index) =>
+                    card.querySelector('input[name="category_ids[]"]:checked') ? index + 1 : count, 12);
+                let categoryQuery = '';
+
+                function renderCategoryCards() {
+                    let visibleCount = 0;
+
+                    cards.forEach((card, index) => {
+                        const matches = !categoryQuery || card.dataset.name.includes(categoryQuery) || card.dataset.description.includes(categoryQuery);
+                        const show = matches && (categoryQuery !== '' || index < visibleCategoryCount);
+                        card.classList.toggle('hidden', !show);
+                        if (show) visibleCount++;
+                    });
+
+                    if (categoryMore) {
+                        categoryMore.classList.toggle('hidden', categoryQuery !== '' || visibleCategoryCount >= cards.length);
+                    }
+                    if (emptyState) {
+                        emptyState.classList.toggle('hidden', visibleCount !== 0);
+                        emptyState.classList.toggle('flex', visibleCount === 0);
+                    }
+                }
+
+                revealCategoryCard = id => {
+                    const index = cards.findIndex(card => card.id === `card-cat-${id}`);
+                    if (index >= visibleCategoryCount) {
+                        visibleCategoryCount = index + 1;
+                        renderCategoryCards();
+                    }
+                };
+
+                function showNextCategories() {
+                    if (categoriesDisposed || categoryQuery || visibleCategoryCount >= cards.length || categoryMore?.closest('[x-show]')?.style.display === 'none') return;
+
+                    categoryObserver?.unobserve(categoryMore);
+                    visibleCategoryCount += 12;
+                    renderCategoryCards();
+                    if (categoryMore && !categoryMore.classList.contains('hidden')) {
+                        requestAnimationFrame(() => {
+                            if (!categoriesDisposed && categoryMore.isConnected) categoryObserver?.observe(categoryMore);
+                        });
+                    }
+                }
+
+                categoryMoreButton?.addEventListener('click', showNextCategories);
+                if (categoryMore && 'IntersectionObserver' in window) {
+                    categoryObserver = new IntersectionObserver(entries => {
+                        if (entries.some(entry => entry.isIntersecting)) showNextCategories();
+                    }, { rootMargin: '300px 0px' });
+                    categoryObserver.observe(categoryMore);
+                }
+
+                renderCategoryCards();
 
                 if (searchInput) {
                     searchInput.addEventListener('input', function() {
-                        const query = this.value.toLowerCase().trim();
+                        categoryQuery = this.value.toLowerCase().trim();
 
                         // Show or hide clear button
                         if (clearBtn) {
-                            if (query.length > 0) {
+                            if (categoryQuery.length > 0) {
                                 clearBtn.classList.remove('hidden');
                             } else {
                                 clearBtn.classList.add('hidden');
                             }
                         }
 
-                        // Filter cards
-                        let visibleCount = 0;
-                        const cards = document.querySelectorAll('.category-card');
-                        cards.forEach(card => {
-                            const name = card.getAttribute('data-name');
-                            const description = card.getAttribute('data-description');
-                            if (!query || name.includes(query) || description.includes(query)) {
-                                card.classList.remove('hidden');
-                                visibleCount++;
-                            } else {
-                                card.classList.add('hidden');
-                            }
-                        });
-
-                        // Toggle empty state
-                        const emptyState = document.getElementById('empty-state');
-                        if (emptyState) {
-                            if (visibleCount === 0) {
-                                emptyState.classList.remove('hidden');
-                                emptyState.classList.add('flex');
-                            } else {
-                                emptyState.classList.add('hidden');
-                                emptyState.classList.remove('flex');
-                            }
-                        }
+                        renderCategoryCards();
                     });
 
                     if (clearBtn) {
@@ -356,6 +392,12 @@
                 // Select category in the grid
                 const checkbox = document.getElementById(`checkbox-cat-${catId}`);
                 if (checkbox) {
+                    const categorySearch = document.getElementById('category-search-input');
+                    if (categorySearch?.value) {
+                        categorySearch.value = '';
+                        categorySearch.dispatchEvent(new Event('input'));
+                    }
+                    revealCategoryCard(catId);
                     if (!checkbox.checked) {
                         checkbox.checked = true;
                         checkbox.dispatchEvent(new Event('change'));
@@ -385,6 +427,8 @@
             booting = false;
 
             document.addEventListener('livewire:navigating', function cleanupUmkm(e) {
+                categoriesDisposed = true;
+                categoryObserver?.disconnect();
                 delete window.updateCardHighlight;
                 delete window.deselectCategory;
                 delete window.switchModalTab;

@@ -56,4 +56,5 @@
     @include('user.umkm.partials.index._multi_stop_modal')
     @include('user.umkm.partials.index._category_detail_modal')
     @include('user.umkm.partials.index._scripts')
+    @include('user.umkm.partials.index._directory_pagination_script')
 @endsection

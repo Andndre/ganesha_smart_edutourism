@@ -663,8 +663,23 @@ class UmkmCatalogPublicTest extends TestCase
         $response->assertDontSee('UMKM Test 13');
         $response->assertDontSee('UMKM Test 15');
 
-        // Load More link present since hasMorePages() is true
+        // The fallback link keeps the directory tab after a normal navigation.
         $response->assertSee('Muat Lebih Banyak');
+        $this->assertSame(1, preg_match('/data-umkm-next href="([^"]+)"/', $response->getContent(), $nextLink));
+        parse_str(parse_url(html_entity_decode($nextLink[1]), PHP_URL_QUERY), $nextQuery);
+        $this->assertSame('direktori', $nextQuery['tab'] ?? null);
+
+        $this->get('/umkm?tab=direktori&page=2')
+            ->assertOk()
+            ->assertSee("tab: 'direktori'", false)
+            ->assertSee('UMKM Test 13');
+
+        $this->withHeader('X-UMKM-Fragment', 'directory-page')
+            ->get('/umkm?tab=direktori&page=2')
+            ->assertOk()
+            ->assertSee('data-umkm-grid', false)
+            ->assertSee('UMKM Test 13')
+            ->assertDontSee('Smart Route');
     }
 
     /**
