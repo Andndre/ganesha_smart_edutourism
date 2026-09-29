@@ -17,6 +17,46 @@ class UmkmOwnerTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_owner_management_identifies_shops_without_pins_and_can_delete_one_without_deleting_its_owner(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $owner = User::factory()->create(['role' => 'umkm_owner', 'name' => 'Wayan Owner', 'email' => 'wayan@example.com']);
+        $unmapped = UmkmProfile::factory()->create([
+            'user_id' => $owner->id,
+            'business_name' => ['en' => 'Unmapped Coffee', 'id' => 'Kopi Tanpa Pin'],
+        ]);
+        $unlinked = UmkmProfile::factory()->create([
+            'user_id' => null,
+            'business_name' => ['en' => 'Unlinked Shop', 'id' => 'Toko Tanpa Pemilik'],
+        ]);
+        $mapped = UmkmProfile::factory()->create([
+            'user_id' => null,
+            'business_name' => ['en' => 'Mapped Shop', 'id' => 'Toko Dengan Pin'],
+        ]);
+        $mapped->mapLocation()->create([
+            'name' => 'Mapped Shop', 'category' => 'umkm', 'latitude' => -8.1, 'longitude' => 115.1,
+        ]);
+
+        $this->actingAs($admin)->get(route('admin.umkm.owners'))
+            ->assertOk()
+            ->assertViewHas('unmappedProfiles', fn ($profiles) => $profiles->modelKeys() === [$unmapped->id, $unlinked->id])
+            ->assertSee('Shops missing map pins')
+            ->assertSee('Missing map pin')
+            ->assertSee('wayan@example.com')
+            ->assertSee('No linked account')
+            ->assertSee(route('admin.umkm.profile.destroy', $unmapped->id), false);
+
+        $this->deleteJson(route('admin.map-manager.points.destroy', $mapped->mapLocation))->assertOk();
+        $this->get(route('admin.umkm.owners'))
+            ->assertOk()
+            ->assertViewHas('unmappedProfiles', fn ($profiles) => $profiles->modelKeys() === [$unmapped->id, $unlinked->id, $mapped->id]);
+
+        $this->delete(route('admin.umkm.profile.destroy', $unmapped->id), ['redirect_to' => 'owners'])
+            ->assertRedirect(route('admin.umkm.owners'));
+        $this->assertDatabaseMissing('umkm_profiles', ['id' => $unmapped->id]);
+        $this->assertDatabaseHas('users', ['id' => $owner->id]);
+    }
+
     /**
      * Test guest cannot access owner dashboard.
      */

@@ -45,10 +45,14 @@
                             <td class="px-5 py-4 text-gray-600">{{ $owner->phone ?? '-' }}</td>
                             <td class="px-5 py-4">
                                 @if ($owner->umkmProfile)
-                                    <span
-                                        class="bg-primary/10 text-primary-800 rounded-lg px-2.5 py-1 text-xs font-semibold">
-                                        {{ $owner->umkmProfile->business_name }}
-                                    </span>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="bg-primary/10 text-primary-800 rounded-lg px-2.5 py-1 text-xs font-semibold">
+                                            {{ $owner->umkmProfile->business_name }}
+                                        </span>
+                                        <span class="text-xs font-medium {{ $owner->umkmProfile->has_map_pin ? 'text-green-700' : 'text-amber-700' }}">
+                                            {{ $owner->umkmProfile->has_map_pin ? 'On map' : 'Missing map pin' }}
+                                        </span>
+                                    </div>
                                 @else
                                     <span class="text-xs italic text-gray-500">Belum ditautkan ke Toko</span>
                                 @endif
@@ -91,6 +95,60 @@
             </table>
         </div>
     </div>
+
+    @if ($unmappedProfiles->isNotEmpty())
+        <section class="mt-8 max-w-5xl" aria-labelledby="unmapped-umkm-title">
+            <div class="mb-3 flex flex-wrap items-end justify-between gap-2">
+                <div>
+                    <h2 id="unmapped-umkm-title" class="text-charcoal text-lg font-bold">Shops missing map pins</h2>
+                    <p class="mt-1 text-sm text-gray-500">These profiles still exist. Deleting a shop leaves its owner account intact.</p>
+                </div>
+                <span class="text-sm font-semibold text-gray-600">{{ $unmappedProfiles->count() }} shops</span>
+            </div>
+            <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-100 bg-gray-50/50">
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Shop</th>
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Owner account</th>
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Products</th>
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            @foreach ($unmappedProfiles as $profile)
+                                <tr class="hover:bg-gray-50/50">
+                                    <td class="px-5 py-4">
+                                        <p class="text-charcoal font-semibold">{{ translateValue($profile->business_name) }}</p>
+                                        <p class="mt-1 text-xs text-gray-500">{{ $profile->is_active ? 'Active' : 'Inactive' }}</p>
+                                    </td>
+                                    <td class="px-5 py-4">
+                                        <p class="text-gray-700">{{ $profile->user?->name ?? $profile->owner_name }}</p>
+                                        <p class="mt-1 text-xs text-gray-500">{{ $profile->user?->email ?? 'No linked account' }}</p>
+                                    </td>
+                                    <td class="px-5 py-4 text-gray-600">{{ $profile->products_count }}</td>
+                                    <td class="px-5 py-4">
+                                        <form action="{{ route('admin.umkm.profile.destroy', $profile->id) }}" method="POST"
+                                            class="delete-form"
+                                            data-confirm="Delete this shop and its products? The owner account will remain.">
+                                            @csrf
+                                            @method('DELETE')
+                                            <input type="hidden" name="redirect_to" value="owners">
+                                            <button type="submit"
+                                                class="inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold text-red-700 transition-colors hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700">
+                                                Delete shop
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    @endif
 
     {{-- Owner Modal Form --}}
     <x-modal name="owner-modal" maxWidth="md" desktopLayout="drawer">

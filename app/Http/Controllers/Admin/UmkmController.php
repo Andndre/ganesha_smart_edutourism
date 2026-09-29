@@ -239,12 +239,14 @@ class UmkmController extends Controller
     /**
      * Remove the specified UMKM profile from storage.
      */
-    public function destroyProfile(int $id): RedirectResponse
+    public function destroyProfile(Request $request, int $id): RedirectResponse
     {
         $profile = UmkmProfile::findOrFail($id);
         $profile->delete();
 
-        return redirect()->route('admin.map-manager')->with('success', __('Profil UMKM berhasil dihapus.'));
+        $route = $request->input('redirect_to') === 'owners' ? 'admin.umkm.owners' : 'admin.map-manager';
+
+        return redirect()->route($route)->with('success', __('Profil UMKM berhasil dihapus.'));
     }
 
     /**
@@ -252,9 +254,17 @@ class UmkmController extends Controller
      */
     public function ownersList(): View
     {
-        $owners = User::where('role', 'umkm_owner')->with('umkmProfile')->orderBy('name')->get();
+        $owners = User::where('role', 'umkm_owner')
+            ->with(['umkmProfile' => fn ($query) => $query->withExists(['mapLocation as has_map_pin'])])
+            ->orderBy('name')
+            ->get();
+        $unmappedProfiles = UmkmProfile::whereDoesntHave('mapLocation')
+            ->with('user:id,name,email')
+            ->withCount('products')
+            ->orderBy('id')
+            ->get(['id', 'user_id', 'owner_name', 'business_name', 'is_active']);
 
-        return view('admin.umkm.owners', compact('owners'));
+        return view('admin.umkm.owners', compact('owners', 'unmappedProfiles'));
     }
 
     /**
