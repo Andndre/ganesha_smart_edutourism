@@ -42,13 +42,12 @@
         </div>
 
         {{-- Direktori UMKM Tab --}}
-        <div x-show="tab === 'direktori'" x-cloak>
+        <div id="umkm-directory-panel" x-show="tab === 'direktori'" x-cloak>
             <div class="mb-6">
                 <h2 class="text-charcoal text-xl font-bold">{{ __('Direktori UMKM') }}</h2>
                 <p class="mt-1 text-sm text-gray-500">{{ __('Jelajahi semua UMKM di Desa Penglipuran') }}</p>
             </div>
-                @include('user.umkm.partials.index._directory_search')
-                @include('user.umkm.partials.index._umkm_grid')
+            @include('user.umkm.partials.index._directory_content')
         </div>
     </div>
 

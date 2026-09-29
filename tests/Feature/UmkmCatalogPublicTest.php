@@ -49,6 +49,14 @@ class UmkmCatalogPublicTest extends TestCase
             ->assertOk()
             ->assertSee(route('umkm', ['tab' => 'direktori', 'q' => 'Kuliner']))
             ->assertSee(route('umkm', ['tab' => 'direktori', 'culinary' => 1]));
+
+        $this->withHeader('X-UMKM-Fragment', 'directory-content')
+            ->get(route('umkm', ['tab' => 'direktori', 'culinary' => 1, 'q' => 'Kuliner']))
+            ->assertOk()
+            ->assertSee('data-umkm-directory-content', false)
+            ->assertSee('Warung Kuliner')
+            ->assertDontSee('Toko Kerajinan')
+            ->assertDontSee('<html', false);
     }
 
     public function test_culinary_directory_labels_follow_guest_locale(): void
