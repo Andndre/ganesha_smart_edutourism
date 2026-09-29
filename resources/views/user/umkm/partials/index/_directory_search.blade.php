@@ -31,10 +31,10 @@
     </button>
 </form>
 <div class="mb-5 flex items-center gap-2" role="group" aria-label="{{ __('Filter UMKM') }}">
-    <a href="{{ route('umkm', ['tab' => 'direktori'] + (!empty($q) ? ['q' => $q] : [])) }}"
+    <a data-umkm-filter href="{{ route('umkm', ['tab' => 'direktori'] + (!empty($q) ? ['q' => $q] : [])) }}"
         @if (!($culinaryOnly ?? false)) aria-current="true" @endif
         class="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold transition-colors {{ ($culinaryOnly ?? false) ? 'border border-gray-200 bg-white text-gray-600' : 'bg-primary text-white' }}">{{ __('Semua') }}</a>
-    <a href="{{ route('umkm', ['tab' => 'direktori', 'culinary' => 1] + (!empty($q) ? ['q' => $q] : [])) }}"
+    <a data-umkm-filter href="{{ route('umkm', ['tab' => 'direktori', 'culinary' => 1] + (!empty($q) ? ['q' => $q] : [])) }}"
         @if ($culinaryOnly ?? false) aria-current="true" @endif
         class="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold transition-colors {{ ($culinaryOnly ?? false) ? 'bg-primary text-white' : 'border border-gray-200 bg-white text-gray-600' }}">{{ __('Kuliner') }}</a>
 </div>

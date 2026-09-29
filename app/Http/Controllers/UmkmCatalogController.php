@@ -22,22 +22,6 @@ class UmkmCatalogController extends Controller
         $q = trim((string) $request->query('q'));
         $culinaryOnly = $request->boolean('culinary');
 
-        $categories = Cache::tags(['umkm'])->flexible("umkm_categories_array_{$locale}", [86400, 172800], function () {
-            $models = UmkmProductCategory::all();
-
-            return $models->map(function ($model) {
-                $data = $model->toArray();
-                $locale = app()->getLocale();
-                foreach (['name', 'description'] as $field) {
-                    if (isset($data[$field]) && \is_array($data[$field])) {
-                        $data[$field] = $data[$field][$locale] ?? $data[$field][config('app.fallback_locale')] ?? reset($data[$field]) ?? '';
-                    }
-                }
-
-                return $data;
-            })->values()->toArray();
-        });
-
         $umkmListQuery = UmkmProfile::active()
             ->with(['mapLocation', 'activeProducts.category', 'activeProducts.activeVariants', 'user'])
             ->withCount('reviews')->withAvg('reviews', 'rating');
@@ -63,6 +47,26 @@ class UmkmCatalogController extends Controller
         if ($request->header('X-UMKM-Fragment') === 'directory-page') {
             return view('user.umkm.partials.index._umkm_grid', compact('umkmList', 'q', 'culinaryOnly'));
         }
+
+        if ($request->header('X-UMKM-Fragment') === 'directory-content') {
+            return view('user.umkm.partials.index._directory_content', compact('umkmList', 'q', 'culinaryOnly'));
+        }
+
+        $categories = Cache::tags(['umkm'])->flexible("umkm_categories_array_{$locale}", [86400, 172800], function () {
+            $models = UmkmProductCategory::all();
+
+            return $models->map(function ($model) {
+                $data = $model->toArray();
+                $locale = app()->getLocale();
+                foreach (['name', 'description'] as $field) {
+                    if (isset($data[$field]) && \is_array($data[$field])) {
+                        $data[$field] = $data[$field][$locale] ?? $data[$field][config('app.fallback_locale')] ?? reset($data[$field]) ?? '';
+                    }
+                }
+
+                return $data;
+            })->values()->toArray();
+        });
 
         return view('user.umkm.index', compact('categories', 'umkmList', 'activeTab', 'q', 'culinaryOnly'));
     }
