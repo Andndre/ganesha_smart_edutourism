@@ -115,6 +115,7 @@
                                 'description' => $cat->getTranslations('description'),
                                 'price' => $cat->price,
                                 'unit' => $cat->unit,
+                                'is_culinary' => $cat->is_culinary,
                                 'image_path' => $cat->image_path,
                                 'model_3d_path' => $cat->model_3d_path,
                                 'model_3d_usdz_path' => $cat->model_3d_usdz_path,
@@ -223,10 +224,11 @@
                     </div>
                 </div>
 
-                <label class="flex items-center gap-2 rounded-xl border border-gray-200 p-3 text-sm text-gray-700">
+                <label class="flex items-start gap-3 rounded-xl border border-gray-200 p-3 text-sm text-gray-700">
                     <input type="checkbox" name="is_culinary" id="field-is-culinary" value="1"
-                        class="rounded border-gray-300 text-primary">
-                    Tandai kategori ini sebagai kuliner agar toko yang menjualnya muncul di filter Kuliner publik.
+                        class="mt-0.5 shrink-0 rounded-full border-gray-300 text-primary">
+                    <span><span class="block font-semibold text-gray-800">Kategori kuliner</span>
+                        <span class="mt-0.5 block text-xs leading-5 text-gray-500">Toko dengan produk aktif dalam kategori ini tampil di filter Kuliner.</span></span>
                 </label>
 
                 <div>
@@ -625,6 +627,7 @@
                 fieldNameId.value = @json(old('name.id', ''));
                 fieldDescriptionEn.value = @json(old('description.en', ''));
                 fieldDescriptionId.value = @json(old('description.id', ''));
+                document.getElementById('field-is-culinary').checked = @json((bool) old('is_culinary', false));
             });
         </script>
     @endif

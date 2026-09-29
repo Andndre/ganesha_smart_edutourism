@@ -59,9 +59,13 @@
         @if (!empty($q))
             <h3 class="text-charcoal text-base font-bold">{{ __('UMKM tidak ditemukan') }}</h3>
             <p class="mt-1 text-xs text-gray-500">{{ __('Coba gunakan kata kunci lain.') }}</p>
-            <a href="{{ route('umkm', ['tab' => 'direktori']) }}" class="text-primary mt-4 text-xs font-bold">
+            <a href="{{ route('umkm', ['tab' => 'direktori'] + (($culinaryOnly ?? false) ? ['culinary' => 1] : [])) }}" class="text-primary mt-4 text-xs font-bold">
                 {{ __('Hapus pencarian') }}
             </a>
+        @elseif ($culinaryOnly ?? false)
+            <h3 class="text-charcoal text-base font-bold">{{ __('Belum ada UMKM kuliner') }}</h3>
+            <p class="mt-1 text-xs text-gray-500">{{ __('Coba lihat semua UMKM.') }}</p>
+            <a href="{{ route('umkm', ['tab' => 'direktori']) }}" class="text-primary mt-4 text-xs font-bold">{{ __('Lihat semua UMKM') }}</a>
         @else
             <h3 class="text-charcoal text-base font-bold">{{ __('Belum ada UMKM terdaftar') }}</h3>
             <p class="mt-1 text-xs text-gray-500">{{ __('Belum ada UMKM yang terdaftar di kawasan ini.') }}</p>

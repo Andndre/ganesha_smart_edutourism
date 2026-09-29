@@ -16,7 +16,7 @@
         autocomplete="off">
 
     @if (!empty($q))
-        <a href="{{ route('umkm', ['tab' => 'direktori']) }}"
+        <a href="{{ route('umkm', ['tab' => 'direktori'] + (($culinaryOnly ?? false) ? ['culinary' => 1] : [])) }}"
             class="absolute inset-y-0 right-12 z-10 flex items-center text-gray-500 hover:text-gray-600 focus:outline-none"
             aria-label="{{ __('Hapus pencarian') }}">
             <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -30,7 +30,11 @@
         {{ __('Cari') }}
     </button>
 </form>
-<div class="mb-5 flex items-center gap-2">
-    <a href="{{ route('umkm', ['tab' => 'direktori', 'culinary' => 1]) }}" class="rounded-full px-3 py-2 text-xs font-bold {{ ($culinaryOnly ?? false) ? 'bg-primary text-white' : 'bg-primary/10 text-primary' }}">{{ __('Kuliner') }}</a>
-    @if ($culinaryOnly ?? false)<a href="{{ route('umkm', ['tab' => 'direktori']) }}" class="text-xs font-semibold text-gray-500 underline">{{ __('Semua UMKM') }}</a>@endif
+<div class="mb-5 flex items-center gap-2" role="group" aria-label="{{ __('Filter UMKM') }}">
+    <a href="{{ route('umkm', ['tab' => 'direktori'] + (!empty($q) ? ['q' => $q] : [])) }}"
+        @if (!($culinaryOnly ?? false)) aria-current="true" @endif
+        class="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold transition-colors {{ ($culinaryOnly ?? false) ? 'border border-gray-200 bg-white text-gray-600' : 'bg-primary text-white' }}">{{ __('Semua') }}</a>
+    <a href="{{ route('umkm', ['tab' => 'direktori', 'culinary' => 1] + (!empty($q) ? ['q' => $q] : [])) }}"
+        @if ($culinaryOnly ?? false) aria-current="true" @endif
+        class="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold transition-colors {{ ($culinaryOnly ?? false) ? 'bg-primary text-white' : 'border border-gray-200 bg-white text-gray-600' }}">{{ __('Kuliner') }}</a>
 </div>

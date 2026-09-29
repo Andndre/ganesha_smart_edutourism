@@ -231,6 +231,9 @@ class UmkmOwnerTest extends TestCase
         $this->assertEquals('Light Snacks', $category->name);
         $this->assertEquals('Various Balinese snacks.', $category->description);
         $this->assertTrue($category->is_culinary);
+        $this->get('/admin/umkm/categories')
+            ->assertOk()
+            ->assertSee('"is_culinary":true');
         $this->assertNotNull($category->image_path);
         $this->assertNotNull($category->model_3d_path);
         $this->assertNotNull($category->model_3d_usdz_path);
@@ -260,6 +263,9 @@ class UmkmOwnerTest extends TestCase
         $this->assertEquals('Balinese Traditional Snacks', $category->name);
         $this->assertEquals('Traditional wet snacks.', $category->description);
         $this->assertFalse($category->is_culinary);
+        $this->get('/admin/umkm/categories')
+            ->assertOk()
+            ->assertSee('"is_culinary":false');
         Storage::disk('public')->assertExists($category->image_path);
         Storage::disk('public')->assertExists($category->model_3d_path);
         Storage::disk('public')->assertExists($category->model_3d_usdz_path);
