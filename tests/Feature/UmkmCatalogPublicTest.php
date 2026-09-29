@@ -44,6 +44,26 @@ class UmkmCatalogPublicTest extends TestCase
             ->assertOk()
             ->assertSee('Warung Kuliner')
             ->assertDontSee('Toko Kerajinan');
+
+        $this->get(route('umkm', ['tab' => 'direktori', 'culinary' => 1, 'q' => 'Kuliner']))
+            ->assertOk()
+            ->assertSee(route('umkm', ['tab' => 'direktori', 'q' => 'Kuliner']))
+            ->assertSee(route('umkm', ['tab' => 'direktori', 'culinary' => 1]));
+    }
+
+    public function test_culinary_directory_labels_follow_guest_locale(): void
+    {
+        $this->get(route('umkm', ['tab' => 'direktori', 'culinary' => 1, 'locale' => 'id']))
+            ->assertOk()
+            ->assertSee('Belum ada UMKM kuliner')
+            ->assertSee('Coba lihat semua UMKM.')
+            ->assertSee('>Kuliner</a>', false);
+
+        $this->get(route('umkm', ['tab' => 'direktori', 'culinary' => 1, 'locale' => 'en']))
+            ->assertOk()
+            ->assertSee('No culinary merchants yet')
+            ->assertSee('Try browsing all merchants.')
+            ->assertSee('>Culinary</a>', false);
     }
 
     /**
