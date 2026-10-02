@@ -38,11 +38,19 @@
                         <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Tri Hita Karana</th>
                         <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Titik Peta</th>
                         <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">AR</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Images</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Audio</th>
                         <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
                     @forelse ($objects as $object)
+                        @php
+                            $hasImages = collect($object->historical_images ?? [])->contains(fn ($path) => filled($path));
+                            $hasIndonesianAudio = filled($object->audio_narration_paths['id'] ?? null);
+                            $hasEnglishAudio = filled($object->audio_narration_paths['en'] ?? null);
+                            $audioCount = (int) $hasIndonesianAudio + (int) $hasEnglishAudio;
+                        @endphp
                         <tr class="hover:bg-gray-50/50">
                             <td class="text-charcoal px-5 py-4 font-medium">{{ translateValue($object->name) }}</td>
                             <td class="px-5 py-4">
@@ -64,6 +72,27 @@
                                 @endif
                             </td>
                             <td class="px-5 py-4">
+                                <span @class([
+                                    'inline-flex whitespace-nowrap rounded-lg px-2.5 py-1 text-xs font-semibold',
+                                    'bg-green-50 text-green-700' => $hasImages,
+                                    'bg-gray-100 text-gray-600' => ! $hasImages,
+                                ])>{{ $hasImages ? 'Uploaded' : 'Missing' }}</span>
+                            </td>
+                            <td class="px-5 py-4">
+                                <div class="flex flex-col items-start gap-1.5">
+                                    <span @class([
+                                        'inline-flex rounded-lg px-2.5 py-1 text-xs font-semibold',
+                                        'bg-green-50 text-green-700' => $audioCount === 2,
+                                        'bg-amber-50 text-amber-700' => $audioCount === 1,
+                                        'bg-gray-100 text-gray-600' => $audioCount === 0,
+                                    ])>{{ $audioCount }}/2</span>
+                                    <div class="flex flex-col gap-0.5 whitespace-nowrap text-xs text-gray-500">
+                                        <span>ID: {{ $hasIndonesianAudio ? 'Uploaded' : 'Missing' }}</span>
+                                        <span>EN: {{ $hasEnglishAudio ? 'Uploaded' : 'Missing' }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-5 py-4">
                                 <div class="flex items-center gap-3">
                                     <a href="{{ route('admin.cultural-objects.edit', $object->id) }}" class="text-primary font-semibold hover:underline">Edit</a>
                                     <form action="{{ route('admin.cultural-objects.destroy', $object->id) }}" method="POST" class="delete-form"
@@ -78,7 +107,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-5 py-10 text-center text-gray-500">Belum ada objek budaya.</td>
+                            <td colspan="7" class="px-5 py-10 text-center text-gray-500">Belum ada objek budaya.</td>
                         </tr>
                     @endforelse
                 </tbody>
