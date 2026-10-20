@@ -14,8 +14,9 @@ class CulturalController extends Controller
     public function index(): View
     {
         $locale = app()->getLocale();
-        $objects = Cache::tags(['cultural'])->flexible("cultural_objects_all_array_$locale", [3600, 7200], function () {
+        $objects = Cache::tags(['cultural'])->flexible("cultural_objects_all_array_v2_$locale", [3600, 7200], function () {
             $models = CulturalObject::with('arModel')
+                ->roots()
                 ->orderBy('name->'.app()->getLocale())
                 ->get()
                 ->append(['ar_marker_id', 'model_3d_path', 'audio_narration_path']);
@@ -36,8 +37,9 @@ class CulturalController extends Controller
     public function show(string $slug): View
     {
         $locale = app()->getLocale();
-        $object = Cache::tags(['cultural'])->flexible("cultural_object_array_{$slug}_$locale", [3600, 7200], function () use ($slug, $locale) {
-            $model = CulturalObject::with('arModel')
+        $object = Cache::tags(['cultural'])->flexible("cultural_object_array_v2_{$slug}_$locale", [3600, 7200], function () use ($slug, $locale) {
+            $model = CulturalObject::with(['arModel', 'parent'])
+                ->with(['children' => fn ($query) => $query->with('arModel')])
                 ->where('slug', $slug)
                 ->firstOrFail()
                 ->append(['ar_marker_id', 'model_3d_path', 'audio_narration_path', 'model_3d_usdz_path', 'ar_marker_patt_path']);
@@ -53,6 +55,17 @@ class CulturalController extends Controller
                     $data['audio_narration_path'] = $localePath;
                 }
             }
+
+            // Anak-anak diserialisasi di dalam cache yang sama: halaman induk butuh
+            // kartunya, dan locale sudah jadi bagian dari cache key.
+            $data['children'] = $model->children->map(function (CulturalObject $child) {
+                $child->append(['ar_marker_id', 'model_3d_path']);
+
+                return $this->resolveTrans($child)[0];
+            })->values()->all();
+
+            // Induk untuk breadcrumb "kembali ke ...".
+            $data['parent'] = $model->parent ? $this->resolveTrans($model->parent)[0] : null;
 
             return $data;
         });

@@ -73,6 +73,20 @@
                     ikon candi bentar.</p>
             </div>
 
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Objek Induk</label>
+                <select name="parent_id" id="cultural_parent_id"
+                    class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    @php $currentParent = old('parent_id', $isEdit ? $object->parent_id : null); @endphp
+                    <option value="">— Objek utama (tanpa induk) —</option>
+                    @foreach ($parentOptions as $parentId => $parentName)
+                        <option value="{{ $parentId }}" @selected((string) $currentParent === (string) $parentId)>{{ $parentName }}</option>
+                    @endforeach
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Untuk objek yang berada di dalam objek lain, misalnya tungku di dalam
+                    Paon. Objek anak tetap punya halaman, audio, AR, dan titik peta sendiri.</p>
+            </div>
+
             <div class="rounded-xl border border-gray-200 bg-gray-50/60 px-4 py-3">
                 @php $currentIsDetail = (bool) old('is_detail', $isEdit ? $object->is_detail : false); @endphp
                 <div class="flex items-start gap-2">
@@ -86,6 +100,14 @@
                     (angkul-angkul, paon, merajan, saka enam). Pinnya baru muncul saat peta di-zoom dekat, supaya
                     puluhan pin kembar tidak menutupi peta. Tidak memengaruhi rute edutourism.</p>
             </div>
+
+            <script>
+                // Objek anak hampir selalu komponen pekarangan, jadi centang detail ikut
+                // terisi saat induk dipilih — tapi tetap bisa dicabut manual.
+                document.getElementById('cultural_parent_id')?.addEventListener('change', function() {
+                    if (this.value) document.getElementById('cultural_is_detail').checked = true;
+                });
+            </script>
 
             {{-- Description --}}
             <div x-show="locale === 'en'">

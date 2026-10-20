@@ -42,7 +42,7 @@ class CulturalObjectController extends Controller
             });
         }
 
-        $objects = $query->with('arModel')->withCount('mapLocations')->orderBy('name->'.app()->getLocale())->paginate(15)->withQueryString();
+        $objects = $query->with(['arModel', 'parent'])->withCount('mapLocations')->orderBy('name->'.app()->getLocale())->paginate(15)->withQueryString();
 
         return view('admin.cultural-objects.index', compact('objects'));
     }
@@ -55,7 +55,10 @@ class CulturalObjectController extends Controller
         $modelsJson = ArModel::whereNull('cultural_object_id')->orderBy('name')->get()
             ->map(fn ($m) => $this->modelToJson($m));
 
-        return view('admin.cultural-objects.create', compact('modelsJson'));
+        return view('admin.cultural-objects.create', [
+            'modelsJson' => $modelsJson,
+            'parentOptions' => $this->parentOptions(),
+        ]);
     }
 
     /**
@@ -69,7 +72,32 @@ class CulturalObjectController extends Controller
             ->orderBy('name')->get()
             ->map(fn ($m) => $this->modelToJson($m));
 
-        return view('admin.cultural-objects.edit', compact('object', 'modelsJson'));
+        // Diri sendiri dan turunannya tidak boleh jadi induk — itu siklus.
+        return view('admin.cultural-objects.edit', [
+            'object' => $object,
+            'modelsJson' => $modelsJson,
+            'parentOptions' => $this->parentOptions($object),
+        ]);
+    }
+
+    /**
+     * Root objects usable as a parent, minus the edited object and its descendants.
+     *
+     * ponytail: hierarki dua level saja — anak dari anak tetap bisa dibuat lewat DB,
+     * tapi UI menganggap semua induk adalah objek root. Naikkan kalau butuh lebih dalam.
+     */
+    private function parentOptions(?CulturalObject $except = null): array
+    {
+        $excluded = $except
+            ? array_merge([$except->id], $except->children()->pluck('id')->all())
+            : [];
+
+        return CulturalObject::roots()
+            ->when($excluded, fn ($q) => $q->whereNotIn('id', $excluded))
+            ->orderBy('name->'.app()->getLocale())
+            ->get()
+            ->mapWithKeys(fn ($o) => [$o->id => $o->getTranslation('name', app()->getLocale())])
+            ->all();
     }
 
     private function modelToJson(ArModel $m): array
@@ -404,6 +432,17 @@ class CulturalObjectController extends Controller
     public function destroy(Request $request, int $id): RedirectResponse
     {
         $object = CulturalObject::findOrFail($id);
+
+        // FK-nya nullOnDelete, jadi tanpa penjagaan ini anak-anaknya jadi objek root
+        // tanpa peringatan. Tolak dulu supaya admin sadar memindahkan atau menghapusnya.
+        if ($childCount = $object->children()->count()) {
+            $route = $request->input('redirect_to') === 'cultural-objects' ? 'admin.cultural-objects' : 'admin.map-manager';
+
+            return redirect()->route($route)->withErrors([
+                'destroy' => "Objek ini masih berisi {$childCount} objek. Pindahkan atau hapus objek di dalamnya dulu.",
+            ]);
+        }
+
         $object->delete();
 
         return $this->redirectAfterSave($request, __('Objek budaya berhasil dihapus.'));

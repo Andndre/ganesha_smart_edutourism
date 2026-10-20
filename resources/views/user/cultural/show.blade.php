@@ -69,6 +69,15 @@
             <div class="bg-linear-to-t from-charcoal/90 via-charcoal/20 absolute inset-0 z-10 to-transparent"></div>
 
             <div class="bottom-18 pointer-events-none absolute left-6 right-6 z-20 text-white">
+                @if (!empty($object['parent']))
+                    <a href="{{ route('cultural-object', ['slug' => $object['parent']['slug']]) }}"
+                        class="pointer-events-auto mb-2 inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold backdrop-blur-sm transition-colors hover:bg-white/30">
+                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        {{ $object['parent']['name'] }}
+                    </a>
+                @endif
                 <h1 class="font-playfair mb-2 text-3xl font-bold leading-tight">{{ $object['name'] }}</h1>
                 @if (!empty($object['short_description']))
                     <p class="text-sm font-medium tracking-wide text-gray-200">{{ $object['short_description'] }}</p>
@@ -194,6 +203,46 @@
                 {!! $object['description'] !!}
             @endif
         </div>
+
+        @if (!empty($object['children']))
+            <section class="px-6 pb-6 pt-2">
+                <h2 class="font-playfair text-charcoal mb-3 text-xl font-bold">
+                    {{ __('Isi :name', ['name' => $object['name']]) }} ({{ count($object['children']) }})
+                </h2>
+                <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
+                    @foreach ($object['children'] as $child)
+                        <a href="{{ route('cultural-object', ['slug' => $child['slug']]) }}"
+                            class="group block overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-100 transition-all hover:-translate-y-1 hover:shadow-md active:scale-[0.98]">
+                            <div class="relative h-28 overflow-hidden bg-gray-200">
+                                @if (!empty($child['historical_images']))
+                                    <img src="{{ asset('storage/' . $child['historical_images'][0]) }}"
+                                        alt="{{ $child['name'] }}" loading="lazy"
+                                        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
+                                @else
+                                    <div class="absolute inset-0 flex items-center justify-center text-gray-400">
+                                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                @endif
+                                @if (!empty($child['ar_marker_id']) || !empty($child['model_3d_path']))
+                                    <span
+                                        class="text-primary absolute right-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold shadow-sm backdrop-blur-sm">{{ __('AR') }}</span>
+                                @endif
+                            </div>
+                            <div class="p-3">
+                                <h3 class="font-playfair text-charcoal line-clamp-2 text-sm font-bold leading-tight">
+                                    {{ $child['name'] }}</h3>
+                                @if (!empty($child['short_description']))
+                                    <p class="mt-1 line-clamp-2 text-xs text-gray-600">{{ $child['short_description'] }}</p>
+                                @endif
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </section>
+        @endif
 
         @auth
             @if ($canRate)

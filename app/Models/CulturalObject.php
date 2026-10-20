@@ -10,13 +10,14 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\Translatable\HasTranslations;
 
-#[Fillable(['name', 'slug', 'short_description', 'description', 'category', 'place_type', 'is_detail', 'historical_images', 'audio_narration_paths'])]
+#[Fillable(['name', 'slug', 'parent_id', 'short_description', 'description', 'category', 'place_type', 'is_detail', 'historical_images', 'audio_narration_paths'])]
 class CulturalObject extends Model
 {
     use HasFactory;
@@ -61,6 +62,37 @@ class CulturalObject extends Model
             'audio_narration_paths' => 'array',
             'is_detail' => 'boolean',
         ];
+    }
+
+    /**
+     * The parent object this one belongs to (e.g. a tungku inside a paon).
+     *
+     * @return BelongsTo<CulturalObject, $this>
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    /**
+     * Objects contained within this one.
+     *
+     * @return HasMany<CulturalObject, $this>
+     */
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id')->orderBy('name->'.app()->getLocale());
+    }
+
+    /**
+     * Scope to top-level objects, excluding contained ones.
+     *
+     * @param  Builder<CulturalObject>  $query
+     * @return Builder<CulturalObject>
+     */
+    public function scopeRoots(Builder $query): Builder
+    {
+        return $query->whereNull('parent_id');
     }
 
     /**

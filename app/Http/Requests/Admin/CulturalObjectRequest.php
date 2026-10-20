@@ -23,6 +23,13 @@ class CulturalObjectRequest extends FormRequest
             'name.en' => ['required', 'string', 'max:255'],
             'name.id' => ['required', 'string', 'max:255'],
             'category' => ['required', 'string', 'in:parahyangan,pawongan,palemahan'],
+            'parent_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('cultural_objects', 'id')->whereNull('parent_id'),
+                // Induk harus objek root: hierarki sengaja dua level (lihat parentOptions()).
+                Rule::notIn([$this->route('id')]),
+            ],
             'place_type' => ['nullable', 'string', Rule::in(array_keys(CulturalObject::PLACE_TYPES))],
             'is_detail' => ['nullable', 'boolean'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
@@ -63,5 +70,10 @@ class CulturalObjectRequest extends FormRequest
         // mustahil dicabut. Disetel eksplisit di sini supaya berlaku untuk store
         // maupun update sekaligus.
         $this->merge(['is_detail' => $this->boolean('is_detail')]);
+
+        // Select kosong mengirim string "", bukan null, dan FK akan menolaknya.
+        if ($this->input('parent_id') === '') {
+            $this->merge(['parent_id' => null]);
+        }
     }
 }
