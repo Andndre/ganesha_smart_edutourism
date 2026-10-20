@@ -9,14 +9,30 @@
         <div class="bg-linear-to-br from-charcoal via-charcoal to-primary/50 relative h-[40dvh] w-full overflow-hidden md:max-h-100" x-data="{
             currentIndex: 0,
             loaded: false,
+            touchStartX: 0,
             images: {{ json_encode(array_map(fn($img) => asset('storage/' . $img), $object['historical_images'] ?? [])) }},
             next() {
                 this.currentIndex = (this.currentIndex + 1) % this.images.length;
             },
             prev() {
                 this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+            },
+            touchStart(e) {
+                if (e.changedTouches && e.changedTouches[0]) {
+                    this.touchStartX = e.changedTouches[0].clientX;
+                }
+            },
+            touchEnd(e) {
+                if (!e.changedTouches || !e.changedTouches[0]) return;
+                const diff = this.touchStartX - e.changedTouches[0].clientX;
+                if (Math.abs(diff) > 40) {
+                    if (diff > 0) this.next();
+                    else this.prev();
+                }
             }
-        }">
+        }"
+        @touchstart.passive="touchStart($event)"
+        @touchend.passive="touchEnd($event)">
 
             @if (!empty($object['historical_images']) && count($object['historical_images']) > 0)
                 <!-- Slides -->
@@ -34,29 +50,48 @@
                     </div>
                 </template>
 
-                <!-- Navigation Chevrons -->
+                <!-- Navigation Controls Pill (Mobile & Desktop quick nav) -->
                 <template x-if="images.length > 1">
-                    <div class="relative z-30">
-                        <button @click="prev()"
-                            class="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white transition-all hover:bg-black/60 active:scale-90">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                    <div
+                        class="absolute right-3 top-3 z-30 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-xs font-semibold text-white shadow-md backdrop-blur-sm">
+                        <button type="button" @click="prev()" aria-label="Previous"
+                            class="flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:bg-white/20 active:scale-90">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                             </svg>
                         </button>
-                        <button @click="next()"
-                            class="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white transition-all hover:bg-black/60 active:scale-90">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                        <span class="tabular-nums px-1 text-[11px]"
+                            x-text="(currentIndex + 1) + ' / ' + images.length"></span>
+                        <button type="button" @click="next()" aria-label="Next"
+                            class="flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:bg-white/20 active:scale-90">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                             </svg>
                         </button>
                     </div>
                 </template>
 
-                <!-- Slide Counter -->
+                <!-- Desktop Side Chevrons (Only on md+ screen, avoiding mobile text overlap) -->
                 <template x-if="images.length > 1">
-                    <span
-                        class="absolute right-3 top-3 z-30 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white"
-                        x-text="(currentIndex + 1) + ' / ' + images.length"></span>
+                    <div
+                        class="pointer-events-none absolute inset-0 z-30 hidden items-center justify-between px-4 md:flex lg:px-6">
+                        <button type="button" @click="prev()" aria-label="Previous"
+                            class="pointer-events-auto tap-target rounded-full bg-black/40 text-white shadow-sm backdrop-blur-xs transition-all hover:bg-black/60 active:scale-90">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button type="button" @click="next()" aria-label="Next"
+                            class="pointer-events-auto tap-target rounded-full bg-black/40 text-white shadow-sm backdrop-blur-xs transition-all hover:bg-black/60 active:scale-90">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
                 </template>
             @else
                 <div class="absolute inset-0 flex items-center justify-center text-white/40">
@@ -71,7 +106,8 @@
 
             <div class="bg-linear-to-t from-charcoal/90 via-charcoal/40 absolute inset-0 z-10 to-transparent"></div>
 
-            <div class="bottom-18 pointer-events-none absolute left-6 right-6 z-20 text-white">
+            <div
+                class="{{ !empty($object['audio_narration_path']) ? 'bottom-16 md:bottom-18' : 'bottom-6 md:bottom-8' }} pointer-events-none absolute left-6 right-6 z-20 text-white">
                 @if (!empty($object['parent']))
                     <a href="{{ route('cultural-object', ['slug' => $object['parent']['slug']]) }}"
                         class="pointer-events-auto mb-2 inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold backdrop-blur-sm transition-colors hover:bg-white/30">
@@ -215,11 +251,11 @@
                     @foreach ($object['children'] as $child)
                         <a href="{{ route('cultural-object', ['slug' => $child['slug']]) }}"
                             class="group block overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-100 transition-all hover:-translate-y-1 hover:shadow-md active:scale-[0.98]">
-                            <div class="relative h-28 overflow-hidden bg-gray-200">
+                            <div class="relative aspect-[4/3] overflow-hidden bg-gray-200">
                                 @if (!empty($child['historical_images']))
                                     <img src="{{ asset('storage/' . $child['historical_images'][0]) }}"
                                         alt="{{ $child['name'] }}" loading="lazy"
-                                        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
+                                        class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105">
                                 @else
                                     <div class="absolute inset-0 flex items-center justify-center text-gray-400">
                                         <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
