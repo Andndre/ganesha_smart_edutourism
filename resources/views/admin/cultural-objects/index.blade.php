@@ -52,7 +52,13 @@
                             $audioCount = (int) $hasIndonesianAudio + (int) $hasEnglishAudio;
                         @endphp
                         <tr class="hover:bg-gray-50/50">
-                            <td class="text-charcoal px-5 py-4 font-medium">{{ translateValue($object->name) }}</td>
+                            <td class="text-charcoal px-5 py-4 font-medium">
+                                @if ($object->parent)
+                                    <span class="text-xs font-normal text-gray-400">{{ translateValue($object->parent->name) }}
+                                        &rsaquo;</span>
+                                @endif
+                                {{ translateValue($object->name) }}
+                            </td>
                             <td class="px-5 py-4">
                                 <span class="bg-primary/10 text-primary-800 rounded-lg px-2.5 py-1 text-xs font-semibold capitalize">{{ $object->category }}</span>
                             </td>
