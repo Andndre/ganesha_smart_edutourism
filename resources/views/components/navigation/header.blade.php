@@ -21,7 +21,7 @@
     <nav
         class="{{ $isMainTab ? 'bg-white/90 backdrop-blur-md rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] px-5 text-charcoal border border-white pointer-events-auto' : '' }} flex h-14 items-center justify-between">
 
-            <div class="flex items-center gap-3">
+            <div class="flex min-w-0 items-center gap-3">
                 @if ($showBack && !$isMainTab)
                     <button
                         onclick="if (window.history.length > 1 && document.referrer && document.referrer.includes(window.location.host) && !document.referrer.includes('/login') && !document.referrer.includes('/auth')) { history.back(); } else { window.location.href = '{{ $fallbackUrl }}'; }"
@@ -46,11 +46,11 @@
                     </span>
                 @else
                     {{-- Detail pages: show back arrow + title from yield --}}
-                    <h1 class="text-label font-semibold">@yield('header_title', $headerTitle)</h1>
+                    <h1 class="text-label truncate font-semibold">@yield('header_title', $headerTitle)</h1>
                 @endif
             </div>
 
-            <div class="flex items-center gap-1">
+            <div class="flex shrink-0 items-center gap-1">
                 <span id="offline-indicator" class="bg-warning hidden rounded-full px-2 py-1 text-xs font-medium">
                     Offline
                 </span>

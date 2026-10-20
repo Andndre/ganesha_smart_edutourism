@@ -24,14 +24,14 @@
         @if (count($categories) > 1)
             <div class="no-scrollbar -mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:mb-6 md:px-0">
                 <button type="button" @click="cat = 'all'"
-                    :class="cat === 'all' ? 'bg-primary text-white' : 'bg-white text-gray-600 ring-1 ring-gray-200'"
+                    :class="cat === 'all' ? 'bg-primary text-white' : 'bg-white text-charcoal ring-1 ring-gray-300'"
                     class="shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors">
                     {{ __('Semua') }}
                 </button>
                 @foreach ($categories as $category)
                     <button type="button" @click="cat = '{{ $category }}'"
                         :class="cat === '{{ $category }}' ? 'bg-primary text-white' :
-                            'bg-white text-gray-600 ring-1 ring-gray-200'"
+                            'bg-white text-charcoal ring-1 ring-gray-300'"
                         class="shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors">
                         {{ $categoryLabels[$category] }}
                     </button>
@@ -45,15 +45,17 @@
                     <a href="{{ route('cultural-object', ['slug' => $object['slug']]) }}"
                         x-show="cat === 'all' || cat === '{{ $object['category'] ?? '' }}'"
                         class="group block h-full overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-100 transition-all hover:-translate-y-1 hover:shadow-md active:scale-[0.98]">
-                        <div class="relative h-32 overflow-hidden bg-gray-200 md:h-40">
-                            <div class="bg-linear-to-t absolute inset-0 z-10 from-black/60 to-transparent"></div>
+                        <div
+                            class="relative aspect-[4/3] overflow-hidden bg-linear-to-br from-charcoal via-charcoal to-primary/50">
+                            <div class="absolute inset-0 z-10 bg-linear-to-t from-charcoal/90 via-charcoal/20 to-transparent">
+                            </div>
 
                             @if (!empty($object['historical_images']))
                                 <img src="{{ asset('storage/' . $object['historical_images'][0]) }}"
                                     alt="{{ $object['name'] }}" loading="lazy" onerror="this.classList.add('opacity-0')"
-                                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
+                                    class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105">
                             @else
-                                <div class="absolute inset-0 flex items-center justify-center text-gray-500">
+                                <div class="absolute inset-0 flex items-center justify-center text-white/25">
                                     <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                             d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -61,20 +63,20 @@
                                 </div>
                             @endif
 
-                            <div class="absolute bottom-2 left-2 right-2 z-20 text-white">
-                                @if (!empty($object['ar_marker_id']) || !empty($object['model_3d_path']))
-                                    <span
-                                        class="text-primary inline-flex items-center rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-medium shadow-sm backdrop-blur-sm">
-                                        {{ __('AR Tersedia') }}
-                                    </span>
-                                @endif
+                            @if (!empty($object['ar_marker_id']) || !empty($object['model_3d_path']))
+                                <span
+                                    class="text-primary absolute right-2 top-2 z-20 rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-medium shadow-sm backdrop-blur-sm">
+                                    {{ __('AR Tersedia') }}
+                                </span>
+                            @endif
+                            <div class="absolute bottom-2 left-3 right-3 z-20 text-white">
                                 <h3
                                     class="font-playfair wrap-break-word line-clamp-2 text-balance text-sm font-bold leading-tight md:text-base">
                                     {{ $object['name'] }}</h3>
                             </div>
                         </div>
                         <div class="p-3">
-                            <p class="line-clamp-2 text-xs text-gray-600 md:text-sm">{!! $object['short_description'] !!}</p>
+                            <p class="line-clamp-2 min-h-8 text-xs text-gray-600 md:min-h-10 md:text-sm">{!! $object['short_description'] !!}</p>
                         </div>
                     </a>
                 @endforeach
