@@ -318,19 +318,179 @@
                     <p class="mt-1 text-xs text-gray-500">Unggah hingga 5 foto (maks. 5 MB per foto). Foto produk diprioritaskan; gambar kategori hanya dipakai bila belum ada foto.</p>
                 </div>
 
-                <div class="rounded-xl border border-gray-200 p-3">
-                    <div class="flex items-center justify-between gap-3">
-                        <div><p class="text-sm font-semibold text-gray-700">Varian produk</p><p class="text-xs text-gray-500">Opsional. Harga katalog akan menjadi rentang dari varian aktif.</p></div>
-                        <button type="button" @click="addVariant()" class="rounded-lg bg-primary/10 px-3 py-2 text-xs font-bold text-primary">+ Tambah</button>
+                {{-- Pilihan Varian Produk --}}
+                <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-xs space-y-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                    </svg>
+                                </span>
+                                <h4 class="font-display text-sm font-bold text-charcoal">Pilihan Varian Produk</h4>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500 leading-relaxed">
+                                Tambahkan jika produk ini punya beberapa pilihan rasa, ukuran, atau kemasan yang harganya berbeda.
+                            </p>
+                        </div>
+                        <template x-if="variants.length > 0">
+                            <button type="button" @click="addVariant()"
+                                class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-primary-600 transition-all active:scale-95">
+                                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>+ Tambah Varian</span>
+                            </button>
+                        </template>
                     </div>
-                    <template x-for="(variant, index) in variants" :key="index">
-                        <div class="mt-3 grid grid-cols-2 gap-2 border-t border-gray-100 pt-3 sm:grid-cols-5">
-                            <input :name="`variants[${index}][label][id]`" x-model="variant.label.id" placeholder="Label ID" class="rounded-lg border border-gray-200 px-2 py-2 text-xs">
-                            <input :name="`variants[${index}][label][en]`" x-model="variant.label.en" placeholder="Label EN" class="rounded-lg border border-gray-200 px-2 py-2 text-xs">
-                            <input :name="`variants[${index}][price]`" x-model="variant.price" type="number" min="0" placeholder="Harga" class="rounded-lg border border-gray-200 px-2 py-2 text-xs">
-                            <input :name="`variants[${index}][stock]`" x-model="variant.stock" type="number" min="0" placeholder="Stok" class="rounded-lg border border-gray-200 px-2 py-2 text-xs">
-                            <div class="flex items-center justify-between gap-2"><label class="text-xs"><input :name="`variants[${index}][is_active]`" x-model="variant.is_active" type="checkbox" value="1"> Aktif</label><button type="button" @click="variants.splice(index, 1)" class="text-xs font-bold text-warning">Hapus</button></div>
-                            <input type="hidden" :name="`variants[${index}][sort_order]`" :value="index">
+
+                    {{-- Empty State jika belum ada varian --}}
+                    <template x-if="variants.length === 0">
+                        <div class="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/70 p-4 text-center">
+                            <p class="text-xs text-gray-600 font-medium">
+                                Belum ada varian ditambahkan.
+                            </p>
+                            <p class="mt-0.5 text-[11px] text-gray-400">
+                                Produk ini akan memakai satu harga utama dan stok yang Anda atur di atas.
+                            </p>
+                            <button type="button" @click="addVariant()"
+                                class="mt-3 inline-flex items-center gap-2 rounded-xl bg-primary/10 px-4 py-2.5 text-xs font-bold text-primary hover:bg-primary/20 transition-all active:scale-95">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Buat Pilihan Varian Pertama</span>
+                            </button>
+                        </div>
+                    </template>
+
+                    {{-- Daftar Kartu Varian --}}
+                    <template x-if="variants.length > 0">
+                        <div class="space-y-3">
+                            <div class="flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50/80 p-3 text-xs text-blue-800 leading-relaxed">
+                                <svg class="h-4 w-4 shrink-0 text-blue-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span><strong>Tips:</strong> Karena produk memiliki varian aktif, harga di katalog toko akan otomatis menampilkan rentang harga dari varian Anda.</span>
+                            </div>
+
+                            <template x-for="(variant, index) in variants" :key="index">
+                                <div class="rounded-2xl border border-gray-200 bg-gray-50/60 p-4 space-y-3 transition-all hover:border-primary/40 hover:bg-gray-50">
+                                    {{-- Header Kartu Varian --}}
+                                    <div class="flex items-center justify-between gap-3 border-b border-gray-200/80 pb-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-extrabold text-primary" x-text="index + 1"></span>
+                                            <span class="text-xs font-bold text-charcoal" x-text="variant.label.id ? variant.label.id : 'Pilihan Varian #' + (index + 1)"></span>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <label class="inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-gray-700">
+                                                <input type="checkbox"
+                                                    :name="`variants[${index}][is_active]`"
+                                                    x-model="variant.is_active"
+                                                    value="1"
+                                                    class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4">
+                                                <span>Aktif</span>
+                                            </label>
+                                            <button type="button"
+                                                @click="variants.splice(index, 1)"
+                                                class="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors"
+                                                title="Hapus varian ini">
+                                                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                <span>Hapus</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {{-- Field Nama Varian --}}
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700">
+                                            Nama Varian <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text"
+                                            :name="`variants[${index}][label][id]`"
+                                            x-model="variant.label.id"
+                                            required
+                                            placeholder="Contoh: Rasa Pedas, Ukuran L, Isi 10 Pcs, 250gr"
+                                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-semibold focus:outline-none shadow-xs">
+                                    </div>
+
+                                    {{-- Terjemahan Bahasa Inggris (Opsional) --}}
+                                    <div>
+                                        <template x-if="!variant.show_en">
+                                            <button type="button"
+                                                @click="variant.show_en = true"
+                                                class="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                                                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                                                </svg>
+                                                <span>+ Tambah terjemahan Bahasa Inggris (opsional)</span>
+                                            </button>
+                                        </template>
+                                        <template x-if="variant.show_en">
+                                            <div class="rounded-xl border border-gray-200 bg-white p-3 space-y-1.5">
+                                                <div class="flex items-center justify-between">
+                                                    <label class="block text-xs font-semibold text-gray-700">
+                                                        Nama Varian (Bahasa Inggris)
+                                                    </label>
+                                                    <button type="button" @click="variant.show_en = false; variant.label.en = ''" class="text-[11px] font-semibold text-gray-400 hover:text-gray-600">
+                                                        Sembunyikan
+                                                    </button>
+                                                </div>
+                                                <input type="text"
+                                                    :name="`variants[${index}][label][en]`"
+                                                    x-model="variant.label.en"
+                                                    placeholder="Contoh: Spicy Flavor, Size L, Pack of 10"
+                                                    class="focus:border-primary w-full rounded-lg border border-gray-200 px-3 py-2 text-xs focus:outline-none">
+                                                <p class="text-[11px] text-gray-400">Jika dibiarkan kosong, otomatis memakai nama bahasa Indonesia.</p>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    {{-- Grid: Harga & Stok --}}
+                                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-700">
+                                                Harga Varian <span class="text-red-500">*</span>
+                                            </label>
+                                            <div class="relative mt-1">
+                                                <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">Rp</span>
+                                                <input type="number"
+                                                    :name="`variants[${index}][price]`"
+                                                    x-model="variant.price"
+                                                    required
+                                                    min="0"
+                                                    step="500"
+                                                    placeholder="0"
+                                                    class="focus:border-primary w-full rounded-xl border border-gray-200 bg-white pl-9 pr-3.5 py-2.5 text-sm font-bold text-charcoal focus:outline-none shadow-xs">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-700">
+                                                Stok Varian
+                                            </label>
+                                            <input type="number"
+                                                :name="`variants[${index}][stock]`"
+                                                x-model="variant.stock"
+                                                min="0"
+                                                placeholder="Kosongkan jika selalu ada"
+                                                class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm focus:outline-none shadow-xs">
+                                        </div>
+                                    </div>
+
+                                    <input type="hidden" :name="`variants[${index}][sort_order]`" :value="index">
+                                </div>
+                            </template>
+
+                            <button type="button"
+                                @click="addVariant()"
+                                class="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 py-3 text-xs font-bold text-primary hover:bg-primary/10 transition-colors active:scale-[0.99]">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>+ Tambah Pilihan Varian Lainnya</span>
+                            </button>
                         </div>
                     </template>
                 </div>
@@ -521,7 +681,15 @@
                 selectedId: '',
                 selected: null,
                 variants: [],
-                addVariant() { this.variants.push({ label: { id: '', en: '' }, price: '', stock: '', is_active: true }); },
+                addVariant() {
+                    this.variants.push({
+                        label: { id: '', en: '' },
+                        price: '',
+                        stock: '',
+                        is_active: true,
+                        show_en: false,
+                    });
+                },
                 filtered() {
                     const q = (this.query || '').toLowerCase().trim();
                     if (!q) return this.items;
@@ -575,8 +743,11 @@
             const root = Alpine.$data(productForm);
             root.selectById(product.umkm_product_category_id);
             root.variants = (product.variants || []).map((variant) => ({
-                label: { id: variant.label?.id || '', en: variant.label?.en || '' }, price: variant.price ?? '',
-                stock: variant.stock ?? '', is_active: !!variant.is_active,
+                label: { id: variant.label?.id || '', en: variant.label?.en || '' },
+                price: variant.price !== null ? variant.price : '',
+                stock: variant.stock !== null ? variant.stock : '',
+                is_active: variant.is_active !== undefined ? !!variant.is_active : true,
+                show_en: Boolean(variant.label?.en && variant.label?.en !== variant.label?.id),
             }));
 
             window.dispatchEvent(new CustomEvent('open-product-modal'));

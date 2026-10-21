@@ -141,8 +141,15 @@ class UmkmController extends Controller
     {
         $product->variants()->delete();
         foreach ($variants as $index => $variant) {
+            $labelId = trim((string) ($variant['label']['id'] ?? ''));
+            $labelEn = trim((string) ($variant['label']['en'] ?? '')) ?: $labelId;
+
             $product->variants()->create([
-                'label' => $variant['label'], 'price' => $variant['price'],
+                'label' => [
+                    'id' => $labelId,
+                    'en' => $labelEn,
+                ],
+                'price' => $variant['price'],
                 'stock' => $variant['stock'] ?? null,
                 'is_active' => (bool) ($variant['is_active'] ?? false),
                 'sort_order' => $variant['sort_order'] ?? $index,
