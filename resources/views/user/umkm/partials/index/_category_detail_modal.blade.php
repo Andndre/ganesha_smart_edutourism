@@ -63,6 +63,11 @@
         <!-- Content -->
         <div class="mt-4">
             <h3 id="modal-category-name" class="font-display text-charcoal text-xl font-bold">{{ __('Nama Kategori') }}</h3>
+            <div id="modal-category-price-container" class="mt-1.5 hidden items-baseline gap-1">
+                <span class="text-xs font-medium text-gray-500">{{ __('Mulai') }}</span>
+                <span id="modal-category-price" class="text-primary text-lg font-bold"></span>
+                <span id="modal-category-unit" class="text-xs text-gray-500"></span>
+            </div>
             <p id="modal-category-description" class="mt-2 min-h-12.5 text-sm leading-relaxed text-gray-500">{{ __('Deskripsi kategori...') }}</p>
         </div>
 

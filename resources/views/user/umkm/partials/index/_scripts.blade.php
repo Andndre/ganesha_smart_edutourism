@@ -160,6 +160,23 @@
                 document.getElementById('modal-category-description').innerText = category.description ||
                     messages.no_description;
 
+                const priceContainer = document.getElementById('modal-category-price-container');
+                const priceEl = document.getElementById('modal-category-price');
+                const unitEl = document.getElementById('modal-category-unit');
+
+                if (priceContainer && priceEl && unitEl) {
+                    const priceNum = parseFloat(category.price);
+                    if (category.price && !isNaN(priceNum) && priceNum > 0) {
+                        priceEl.innerText = `Rp ${new Intl.NumberFormat('id-ID').format(Math.round(priceNum))}`;
+                        unitEl.innerText = category.unit ? `/ ${category.unit}` : '';
+                        priceContainer.classList.remove('hidden');
+                        priceContainer.classList.add('flex');
+                    } else {
+                        priceContainer.classList.remove('flex');
+                        priceContainer.classList.add('hidden');
+                    }
+                }
+
                 const imgEl = document.getElementById('modal-category-image');
                 const fallbackEl = document.getElementById('modal-category-fallback');
 

@@ -32,10 +32,23 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="flex-1 p-3">
-                            <h3 class="text-charcoal text-sm font-bold">{{ $category['name'] }}</h3>
-                            @if ($category['description'])
-                                <p class="mt-1 line-clamp-2 text-[13px] text-gray-600">{{ $category['description'] }}</p>
+                        <div class="flex flex-1 flex-col justify-between p-3">
+                            <div>
+                                <h3 class="text-charcoal text-sm font-bold">{{ $category['name'] }}</h3>
+                                @if ($category['description'])
+                                    <p class="mt-1 line-clamp-2 text-[13px] text-gray-600">{{ $category['description'] }}</p>
+                                @endif
+                            </div>
+                            @if (!empty($category['price']) && (float) $category['price'] > 0)
+                                <div class="mt-2.5 flex items-baseline gap-1 border-t border-gray-50 pt-2">
+                                    <span class="text-[11px] font-medium text-gray-500">{{ __('Mulai') }}</span>
+                                    <span class="text-primary text-sm font-bold">
+                                        Rp {{ number_format((float) $category['price'], 0, ',', '.') }}
+                                    </span>
+                                    @if (!empty($category['unit']))
+                                        <span class="text-[11px] text-gray-500">/ {{ $category['unit'] }}</span>
+                                    @endif
+                                </div>
                             @endif
                         </div>
                     </div>
