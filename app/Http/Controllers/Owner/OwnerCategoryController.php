@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Owner;
 
+use App\Enums\ProductUnit;
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Models\UmkmProductCategory;
 use App\Models\User;
@@ -44,6 +45,12 @@ class OwnerCategoryController extends BaseOwnerController
             'id' => $category->id,
             'name' => translateValue($category->name),
             'name_translations' => $category->getTranslations('name'),
+            'price' => $category->price,
+            'unit' => $category->unit,
+            'unit_label' => ProductUnit::labelFor($category->unit, app()->getLocale()),
+            'price' => $category->price,
+            'unit' => $category->unit,
+            'unit_label' => ProductUnit::labelFor($category->unit, app()->getLocale()),
         ]);
     }
 

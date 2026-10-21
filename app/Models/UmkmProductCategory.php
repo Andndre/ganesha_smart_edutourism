@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProductUnit;
 use App\Models\Concerns\HasSlug;
 use App\Models\Concerns\HasTranslatableArrayOutput;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -25,6 +26,16 @@ class UmkmProductCategory extends Model
         return [
             'price' => 'decimal:2', 'is_culinary' => 'boolean',
         ];
+    }
+
+    public function getDisplayUnitAttribute(): ?string
+    {
+        return ProductUnit::labelFor($this->unit, app()->getLocale());
+    }
+
+    public function setUnitAttribute(?string $value): void
+    {
+        $this->attributes['unit'] = ProductUnit::normalize($value) ?? $value;
     }
 
     /**

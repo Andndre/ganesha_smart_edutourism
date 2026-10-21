@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ProductUnit;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
@@ -62,6 +63,14 @@ class UmkmCatalogController extends Controller
                     if (isset($data[$field]) && \is_array($data[$field])) {
                         $data[$field] = $data[$field][$locale] ?? $data[$field][config('app.fallback_locale')] ?? reset($data[$field]) ?? '';
                     }
+                }
+
+                if (! empty($data['unit'])) {
+                    $data['unit'] = ProductUnit::labelFor($data['unit'], $locale);
+                }
+
+                if (! empty($data['unit'])) {
+                    $data['unit'] = ProductUnit::labelFor($data['unit'], $locale);
                 }
 
                 return $data;

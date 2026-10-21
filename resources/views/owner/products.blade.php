@@ -12,6 +12,7 @@
         'description_translations' => $c->getTranslations('description'),
         'price' => $c->price,
         'unit' => $c->unit,
+        'unit_label' => \App\Enums\ProductUnit::labelFor($c->unit, app()->getLocale()),
         'image_path' => $c->image_path,
         'model_3d_path' => $c->model_3d_path,
         'model_3d_usdz_path' => $c->model_3d_usdz_path,
@@ -273,7 +274,7 @@
                             <p class="font-bold text-charcoal" x-text="selected?.name"></p>
                             <p class="text-[11px] text-gray-500">
                                 Rp <span x-text="selected?.price !== null ? Number(selected?.price).toLocaleString('id-ID') : '—'"></span>
-                                · <span x-text="selected?.unit || 'pcs'"></span>
+                                · <span x-text="selected?.unit_label || selected?.unit || 'pcs'"></span>
                             </p>
                         </div>
                     </div>
@@ -288,9 +289,13 @@
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">{{ 'Satuan' }}</label>
-                    <input type="text" name="unit" id="field-unit"
-                        placeholder="pcs / kg / porsi"
-                        class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                    <select name="unit" id="field-unit"
+                        class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:outline-none">
+                        <option value="">{{ 'Sama seperti kategori (atau pilih satuan)' }}</option>
+                        @foreach (\App\Enums\ProductUnit::cases() as $u)
+                            <option value="{{ $u->value }}">{{ $u->dropdownLabel() }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -384,8 +389,13 @@
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700">{{ 'Satuan' }}</label>
-                            <input type="text" name="unit" id="cat-unit" placeholder="pcs, kg"
-                                class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                            <select name="unit" id="cat-unit"
+                                class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:outline-none">
+                                <option value="">{{ 'Pilih Satuan (Default: pcs)' }}</option>
+                                @foreach (\App\Enums\ProductUnit::cases() as $u)
+                                    <option value="{{ $u->value }}">{{ $u->dropdownLabel() }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                     <div>
@@ -459,6 +469,50 @@
         const fieldProductId = document.getElementById('field-product-id');
 
         // -------- Alpine component: searchable category picker --------
+        function normalizeProductUnit(unit) {
+            if (!unit) return '';
+            const map = {
+                'pcs': 'pcs', 'pc': 'pcs', 'buah': 'pcs', 'piece': 'pcs', 'pieces': 'pcs', 'item': 'pcs',
+                'porsi': 'portion', 'portion': 'portion', 'portions': 'portion',
+                'bungkus': 'pack', 'pack': 'pack', 'paket': 'pack', 'packet': 'pack',
+                'kotak': 'box', 'box': 'box', 'boxes': 'box', 'dus': 'box',
+                'botol': 'bottle', 'bottle': 'bottle', 'bottles': 'bottle',
+                'cup': 'cup', 'cups': 'cup', 'cangkir': 'cup',
+                'gelas': 'glass', 'glass': 'glass', 'glasses': 'glass',
+                'piring': 'plate', 'plate': 'plate',
+                'mangkuk': 'bowl', 'mangkok': 'bowl', 'bowl': 'bowl',
+                'ikat': 'bundle', 'bundle': 'bundle',
+                'pasang': 'pair', 'pair': 'pair', 'pairs': 'pair',
+                'set': 'set', 'sets': 'set',
+                'lembar': 'sheet', 'sheet': 'sheet', 'sheets': 'sheet',
+                'gulung': 'roll', 'roll': 'roll',
+                'butir': 'piece', 'biji': 'piece',
+                'toples': 'jar', 'jar': 'jar', 'jars': 'jar',
+                'kaleng': 'can', 'can': 'can', 'cans': 'can',
+                'kg': 'kg', 'kilogram': 'kg',
+                'gram': 'gram', 'g': 'gram',
+                'liter': 'liter', 'l': 'liter'
+            };
+            return map[String(unit).toLowerCase().trim()] || String(unit).trim();
+        }
+
+        function setUnitSelectValue(selectId, rawUnit) {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            if (!rawUnit) {
+                select.value = "";
+                return;
+            }
+            const normalized = normalizeProductUnit(rawUnit);
+            if (normalized && !select.querySelector(`option[value="${normalized}"]`)) {
+                const opt = document.createElement('option');
+                opt.value = normalized;
+                opt.textContent = normalized;
+                select.appendChild(opt);
+            }
+            select.value = normalized || rawUnit;
+        }
+
         function categoryPicker(initialList) {
             return {
                 items: initialList,
@@ -500,6 +554,7 @@
             methodContainer.innerHTML = "";
             productForm.reset();
             fieldProductId.value = "";
+            fieldUnit.value = "";
 
             const root = Alpine.$data(productForm);
             root.selected = null; root.selectedId = ''; root.query = ''; root.variants = [];
@@ -513,7 +568,7 @@
             methodContainer.innerHTML = `@method('PUT')`;
             fieldProductId.value = product.id;
             fieldPrice.value  = product.price !== null ? product.price : '';
-            fieldUnit.value   = product.unit ?? '';
+            setUnitSelectValue('field-unit', product.unit);
             fieldStock.value  = product.stock !== null ? product.stock : '';
             fieldActive.checked = product.is_active;
 
@@ -542,6 +597,7 @@
             categoryForm.reset();
             categoryForm.action = "{{ route('owner.categories.store') }}";
             categoryFormId.value = "";
+            document.getElementById('cat-unit').value = "";
             categoryFormError.classList.add('hidden');
             window.dispatchEvent(new CustomEvent('open-category-form-modal'));
         }
@@ -558,7 +614,7 @@
             document.getElementById('cat-desc-en').value = cat.description_translations?.en || '';
             document.getElementById('cat-desc-id').value = cat.description_translations?.id || '';
             document.getElementById('cat-price').value = cat.price !== null ? cat.price : '';
-            document.getElementById('cat-unit').value = cat.unit || '';
+            setUnitSelectValue('cat-unit', cat.unit);
             categoryFormError.classList.add('hidden');
             window.dispatchEvent(new CustomEvent('open-category-form-modal'));
         }
@@ -595,8 +651,9 @@
                         name: data.name,
                         name_translations: data.name_translations,
                         description_translations: {},
-                        price: null,
-                        unit: null,
+                        price: data.price ?? null,
+                        unit: data.unit ?? null,
+                        unit_label: data.unit_label ?? (data.unit || 'pcs'),
                         image_path: null,
                         editable_by_me: true,
                     });

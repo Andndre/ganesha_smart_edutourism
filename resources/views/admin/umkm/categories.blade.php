@@ -218,8 +218,13 @@
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700">Satuan</label>
-                        <input type="text" name="unit" id="field-unit" placeholder="pcs / kg / porsi"
-                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                        <select name="unit" id="field-unit"
+                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:outline-none">
+                            <option value="">Pilih Satuan (Default: pcs)</option>
+                            @foreach (\App\Enums\ProductUnit::cases() as $unit)
+                                <option value="{{ $unit->value }}">{{ $unit->dropdownLabel() }}</option>
+                            @endforeach
+                        </select>
                         @error('unit')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
                 </div>
@@ -363,6 +368,50 @@
             window.dispatchEvent(new CustomEvent('open-category-modal'));
         }
 
+        function normalizeProductUnit(unit) {
+            if (!unit) return '';
+            const map = {
+                'pcs': 'pcs', 'pc': 'pcs', 'buah': 'pcs', 'piece': 'pcs', 'pieces': 'pcs', 'item': 'pcs',
+                'porsi': 'portion', 'portion': 'portion', 'portions': 'portion',
+                'bungkus': 'pack', 'pack': 'pack', 'paket': 'pack', 'packet': 'pack',
+                'kotak': 'box', 'box': 'box', 'boxes': 'box', 'dus': 'box',
+                'botol': 'bottle', 'bottle': 'bottle', 'bottles': 'bottle',
+                'cup': 'cup', 'cups': 'cup', 'cangkir': 'cup',
+                'gelas': 'glass', 'glass': 'glass', 'glasses': 'glass',
+                'piring': 'plate', 'plate': 'plate',
+                'mangkuk': 'bowl', 'mangkok': 'bowl', 'bowl': 'bowl',
+                'ikat': 'bundle', 'bundle': 'bundle',
+                'pasang': 'pair', 'pair': 'pair', 'pairs': 'pair',
+                'set': 'set', 'sets': 'set',
+                'lembar': 'sheet', 'sheet': 'sheet', 'sheets': 'sheet',
+                'gulung': 'roll', 'roll': 'roll',
+                'butir': 'piece', 'biji': 'piece',
+                'toples': 'jar', 'jar': 'jar', 'jars': 'jar',
+                'kaleng': 'can', 'can': 'can', 'cans': 'can',
+                'kg': 'kg', 'kilogram': 'kg',
+                'gram': 'gram', 'g': 'gram',
+                'liter': 'liter', 'l': 'liter'
+            };
+            return map[String(unit).toLowerCase().trim()] || String(unit).trim();
+        }
+
+        function setUnitSelectValue(selectId, rawUnit) {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            if (!rawUnit) {
+                select.value = "";
+                return;
+            }
+            const normalized = normalizeProductUnit(rawUnit);
+            if (normalized && !select.querySelector(`option[value="${normalized}"]`)) {
+                const opt = document.createElement('option');
+                opt.value = normalized;
+                opt.textContent = normalized;
+                select.appendChild(opt);
+            }
+            select.value = normalized || rawUnit;
+        }
+
         function openEditModal(cat) {
             modalTitle.innerText = "Edit Kategori Produk";
             form.action = `/admin/umkm/categories/${cat.id}`;
@@ -377,7 +426,7 @@
             fieldDescriptionId.value = (typeof cat.description === 'object') ? (cat.description?.id || "") : (cat
                 .description || "");
             document.getElementById('field-price').value = cat.price !== null ? cat.price : "";
-            document.getElementById('field-unit').value = cat.unit ?? "";
+            setUnitSelectValue('field-unit', cat.unit);
             document.getElementById('field-is-culinary').checked = Boolean(cat.is_culinary);
 
             fieldImage.value = "";

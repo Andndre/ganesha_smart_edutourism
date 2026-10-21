@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProductUnit;
 use App\Models\Concerns\HasSlug;
 use App\Models\Concerns\HasTranslatableArrayOutput;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -106,7 +107,14 @@ class UmkmProduct extends Model
 
     public function getDisplayUnitAttribute(): ?string
     {
-        return $this->category?->unit ?: ($this->getAttribute('unit') ?: 'pcs');
+        $unit = $this->category?->unit ?: ($this->getAttribute('unit') ?: 'pcs');
+
+        return ProductUnit::labelFor($unit, app()->getLocale());
+    }
+
+    public function setUnitAttribute(?string $value): void
+    {
+        $this->attributes['unit'] = ProductUnit::normalize($value) ?? $value;
     }
 
     public function getDisplayImageAttribute(): ?string
