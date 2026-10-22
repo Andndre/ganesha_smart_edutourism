@@ -38,8 +38,9 @@ else
 fi
 
 # 3. Pull/Build and start docker containers
-echo "Starting Docker Compose services..."
-docker compose -f docker-compose.yml up -d --build
+echo "Building and updating Docker Compose services (pulling latest base images)..."
+docker compose -f docker-compose.yml build --pull
+docker compose -f docker-compose.yml up -d
 
 # 4. Wait for MySQL to be ready
 echo "Waiting for database connection to be established..."
