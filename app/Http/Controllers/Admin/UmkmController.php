@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Concerns\ExtractsGeoFields;
+use App\Http\Concerns\HandlesFileUploads;
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUmkmOwnerJsonRequest;
@@ -24,6 +25,7 @@ use Illuminate\View\View;
 class UmkmController extends Controller
 {
     use ExtractsGeoFields;
+    use HandlesFileUploads;
     use NormalizesMultilingualInput;
 
     /**
@@ -73,11 +75,7 @@ class UmkmController extends Controller
         $validated = $request->validated();
 
         if ($request->hasFile('images')) {
-            $imagePaths = [];
-            foreach ($request->file('images') as $file) {
-                $imagePaths[] = $file->store('images', 'public');
-            }
-            $validated['images'] = $imagePaths;
+            $validated['images'] = $this->handleUploadedImages($request, 'images', 'images');
         }
 
         $validated['slug'] = (new UmkmProduct)->generateUniqueSlug(slugFromTranslatable($validated['name']));
@@ -105,11 +103,7 @@ class UmkmController extends Controller
         $validated = $request->validated();
 
         if ($request->hasFile('images')) {
-            $imagePaths = [];
-            foreach ($request->file('images') as $file) {
-                $imagePaths[] = $file->store('images', 'public');
-            }
-            $validated['images'] = $imagePaths;
+            $validated['images'] = $this->handleUploadedImages($request, 'images', 'images');
         } else {
             $validated['images'] = $product->images;
         }

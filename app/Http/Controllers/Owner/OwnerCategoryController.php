@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Enums\ProductUnit;
+use App\Http\Concerns\HandlesFileUploads;
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Models\UmkmProductCategory;
 use App\Models\User;
 use App\Notifications\NewUmkmCategoryCreated;
 use App\Notifications\UmkmCategoryEditRequested;
+use App\Services\ImageOptimizerService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
@@ -15,6 +17,7 @@ use Illuminate\Support\Facades\Storage;
 
 class OwnerCategoryController extends BaseOwnerController
 {
+    use HandlesFileUploads;
     use NormalizesMultilingualInput;
 
     public function store(Request $request): JsonResponse
@@ -28,7 +31,13 @@ class OwnerCategoryController extends BaseOwnerController
         $validated['slug'] = (new UmkmProductCategory)->generateSlug(slugFromTranslatable($validated['name']));
 
         if ($request->hasFile('image')) {
-            $validated['image_path'] = $request->file('image')->store('categories', 'public');
+            $validated['image_path'] = $this->handleUploadedImage(
+                $request,
+                'image',
+                'categories',
+                maxWidth: ImageOptimizerService::AVATAR_MAX_WIDTH,
+                maxHeight: ImageOptimizerService::AVATAR_MAX_HEIGHT,
+            );
         }
         if ($request->hasFile('model_3d_file')) {
             $validated['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
@@ -67,10 +76,14 @@ class OwnerCategoryController extends BaseOwnerController
         $validated['slug'] = $category->generateSlug(slugFromTranslatable($validated['name']));
 
         if ($request->hasFile('image')) {
-            if ($category->image_path) {
-                Storage::disk('public')->delete($category->image_path);
-            }
-            $validated['image_path'] = $request->file('image')->store('categories', 'public');
+            $validated['image_path'] = $this->handleUploadedImage(
+                $request,
+                'image',
+                'categories',
+                oldPath: $category->image_path,
+                maxWidth: ImageOptimizerService::AVATAR_MAX_WIDTH,
+                maxHeight: ImageOptimizerService::AVATAR_MAX_HEIGHT,
+            );
         }
         if ($request->hasFile('model_3d_file')) {
             if ($category->model_3d_path) {

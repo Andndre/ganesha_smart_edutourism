@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Concerns\HandlesArFileUploads;
+use App\Http\Concerns\HandlesFileUploads;
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CulturalObjectRequest;
@@ -10,6 +11,7 @@ use App\Http\Requests\Admin\ImportXlsxRequest;
 use App\Http\Requests\Admin\UploadEditorImageRequest;
 use App\Models\ArModel;
 use App\Models\CulturalObject;
+use App\Services\ImageOptimizerService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,6 +27,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class CulturalObjectController extends Controller
 {
     use HandlesArFileUploads;
+    use HandlesFileUploads;
     use NormalizesMultilingualInput;
 
     /**
@@ -123,11 +126,11 @@ class CulturalObjectController extends Controller
         $validated = $request->validated();
 
         if ($request->hasFile('historical_images')) {
-            $images = [];
-            foreach ($request->file('historical_images') as $file) {
-                $images[] = $file->store('images', 'public');
-            }
-            $validated['historical_images'] = $images;
+            $validated['historical_images'] = $this->handleUploadedImages(
+                $request,
+                'historical_images',
+                'images',
+            );
         }
 
         $slugValue = slugFromTranslatable($validated['name']);
@@ -282,11 +285,11 @@ class CulturalObjectController extends Controller
         $validated = $request->validated();
 
         if ($request->hasFile('historical_images')) {
-            $images = [];
-            foreach ($request->file('historical_images') as $file) {
-                $images[] = $file->store('images', 'public');
-            }
-            $validated['historical_images'] = $images;
+            $validated['historical_images'] = $this->handleUploadedImages(
+                $request,
+                'historical_images',
+                'images',
+            );
         } else {
             $validated['historical_images'] = $object->historical_images;
         }
@@ -456,7 +459,13 @@ class CulturalObjectController extends Controller
         $request->validated();
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('editor-images', 'public');
+            $path = app(ImageOptimizerService::class)->optimizeAndStore(
+                $request->file('image'),
+                'editor-images',
+                1200,
+                1200,
+                80,
+            );
 
             return response()->json([
                 'url' => asset('storage/'.$path),
