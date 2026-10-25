@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\ImageOptimizerService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -88,7 +89,13 @@ class ProfileController extends Controller
             Storage::disk('public')->delete($user->avatar_path);
         }
 
-        $path = $request->file('avatar')->store('avatars', 'public');
+        $path = app(ImageOptimizerService::class)->optimizeAndStore(
+            $request->file('avatar'),
+            'avatars',
+            ImageOptimizerService::AVATAR_MAX_WIDTH,
+            ImageOptimizerService::AVATAR_MAX_HEIGHT,
+            ImageOptimizerService::AVATAR_QUALITY,
+        );
         $user->avatar_path = $path;
         $user->save();
 

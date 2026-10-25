@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Requests\Owner\OwnerProductRequest;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
+use App\Services\ImageOptimizerService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -103,8 +104,10 @@ class OwnerProductController extends BaseOwnerController
 
     private function storeImages(OwnerProductRequest $request): array
     {
+        $optimizer = app(ImageOptimizerService::class);
+
         return collect($request->file('images', []))
-            ->map(fn ($file) => $file->store('umkm_products', 'public'))
+            ->map(fn ($file) => $optimizer->optimizeAndStore($file, 'umkm_products'))
             ->all();
     }
 

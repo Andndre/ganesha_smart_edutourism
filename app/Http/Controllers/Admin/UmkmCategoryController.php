@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Concerns\HandlesFileUploads;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UmkmCategoryRequest;
 use App\Models\UmkmProductCategory;
+use App\Services\ImageOptimizerService;
 use App\Services\TusService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
@@ -13,6 +15,8 @@ use Illuminate\View\View;
 
 class UmkmCategoryController extends Controller
 {
+    use HandlesFileUploads;
+
     /**
      * Display a listing of the product categories.
      */
@@ -34,7 +38,13 @@ class UmkmCategoryController extends Controller
         $validated['slug'] = (new UmkmProductCategory)->generateSlug(slugFromTranslatable($validated['name']));
 
         if ($request->hasFile('image')) {
-            $validated['image_path'] = $request->file('image')->store('categories', 'public');
+            $validated['image_path'] = $this->handleUploadedImage(
+                $request,
+                'image',
+                'categories',
+                maxWidth: ImageOptimizerService::AVATAR_MAX_WIDTH,
+                maxHeight: ImageOptimizerService::AVATAR_MAX_HEIGHT,
+            );
         }
 
         if ($tmpUuid = $request->input('tmp_model_3d_path')) {
@@ -69,10 +79,14 @@ class UmkmCategoryController extends Controller
         $validated['slug'] = $category->generateSlug(slugFromTranslatable($validated['name']));
 
         if ($request->hasFile('image')) {
-            if ($category->image_path) {
-                Storage::disk('public')->delete($category->image_path);
-            }
-            $validated['image_path'] = $request->file('image')->store('categories', 'public');
+            $validated['image_path'] = $this->handleUploadedImage(
+                $request,
+                'image',
+                'categories',
+                oldPath: $category->image_path,
+                maxWidth: ImageOptimizerService::AVATAR_MAX_WIDTH,
+                maxHeight: ImageOptimizerService::AVATAR_MAX_HEIGHT,
+            );
         }
 
         if ($tmpUuid = $request->input('tmp_model_3d_path')) {
