@@ -4,14 +4,13 @@
         @foreach ($umkmList as $umkm)
             <a href="{{ route('umkm.store', $umkm->id) }}"
                 class="relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:border-gray-200 hover:shadow-md active:scale-[0.98]">
-                <div class="relative aspect-video bg-gray-100" x-data="{ loaded: false, failed: false }">
+                <div class="relative aspect-video bg-gray-100">
                     @if (optional($umkm)->image_path)
                         <img src="{{ asset('storage/' . $umkm->image_path) }}" alt="{{ $umkm->business_name }}"
-                            loading="lazy" decoding="async" x-on:load="loaded = true" x-on:error="failed = true; loaded = true"
-                            class="h-full w-full object-cover">
-                        <div x-show="!loaded" class="absolute inset-0 animate-pulse bg-gray-200"></div>
-                        <div x-show="failed" x-cloak
-                            class="text-primary absolute inset-0 flex items-center justify-center bg-gray-100 text-xs">
+                            loading="lazy" decoding="async"
+                            class="h-full w-full object-cover"
+                            onerror="this.classList.add('hidden'); this.nextElementSibling?.classList.remove('hidden')">
+                        <div class="text-primary absolute inset-0 hidden items-center justify-center bg-gray-100 text-xs">
                             {{ __('Gambar tidak tersedia') }}</div>
                     @else
                         <div class="text-primary absolute inset-0 flex items-center justify-center opacity-50">

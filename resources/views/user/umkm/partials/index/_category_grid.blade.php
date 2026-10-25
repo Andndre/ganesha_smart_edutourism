@@ -13,7 +13,7 @@
             data-name="{{ strtolower($category['name']) }}"
             data-description="{{ strtolower($category['description'] ?? '') }}"
             onclick="openCategoryModal({{ json_encode($category) }}, event)">
-            <div class="relative aspect-video bg-gray-100" x-data="{ loaded: false, failed: false }">
+            <div class="relative aspect-video bg-gray-100">
                 @if ($category['image_path'])
                     <img src="{{ asset('storage/' . $category['image_path']) }}" alt="{{ $category['name'] }}"
                         @if ($loop->index < 4)
@@ -21,11 +21,9 @@
                         @else
                             loading="lazy" decoding="async"
                         @endif
-                        x-on:load="loaded = true" x-on:error="failed = true; loaded = true"
-                        class="h-full w-full object-cover">
-                    <div x-show="!loaded" class="absolute inset-0 animate-pulse bg-gray-200"></div>
-                    <div x-show="failed" x-cloak
-                        class="text-primary absolute inset-0 flex items-center justify-center bg-gray-100 text-xs">
+                        class="h-full w-full object-cover"
+                        onerror="this.classList.add('hidden'); this.nextElementSibling?.classList.remove('hidden')">
+                    <div class="text-primary absolute inset-0 hidden items-center justify-center bg-gray-100 text-xs">
                         {{ __('Gambar tidak tersedia') }}
                     </div>
                 @else
