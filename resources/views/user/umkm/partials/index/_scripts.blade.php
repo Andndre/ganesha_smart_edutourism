@@ -21,6 +21,35 @@
             let categoriesDisposed = false;
             let revealCategoryCard = () => {};
             const messages = @json($umkmMessages);
+            let modelViewerPromise = null;
+
+            function ensureModelViewerLoaded() {
+                if (window.customElements && customElements.get('model-viewer')) {
+                    return Promise.resolve();
+                }
+                if (modelViewerPromise) {
+                    return modelViewerPromise;
+                }
+                modelViewerPromise = new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.type = 'module';
+                    script.src = "{{ asset('js/model-viewer.min.js') }}";
+                    script.onload = () => {
+                        const ModelViewerElement = customElements.get('model-viewer');
+                        if (ModelViewerElement) {
+                            ModelViewerElement.meshoptDecoderLocation =
+                                'https://unpkg.com/meshoptimizer@0.17.0/meshopt_decoder.js';
+                        }
+                        resolve();
+                    };
+                    script.onerror = (err) => {
+                        modelViewerPromise = null;
+                        reject(err);
+                    };
+                    document.head.appendChild(script);
+                });
+                return modelViewerPromise;
+            }
 
             // Silently grab GPS so the recommendation can start from the user's position.
             // Denied/unavailable → inputs stay empty → server falls back to old behavior.
@@ -203,16 +232,22 @@
                 if (category.model_3d_path) {
                     // Tutup model sebelumnya selama model baru diunduh
                     toggleModelLoading(true, 0);
-                    modelViewer.src = `/storage/${category.model_3d_path}`;
-                    if (category.model_3d_usdz_path) {
-                        let usdzPath = category.model_3d_usdz_path;
-                        if (!usdzPath.endsWith('.usdz')) {
-                            usdzPath += '.usdz';
+                    ensureModelViewerLoaded().then(() => {
+                        const mv = document.getElementById('modal-category-3d');
+                        if (!mv) return;
+                        mv.src = `/storage/${category.model_3d_path}`;
+                        if (category.model_3d_usdz_path) {
+                            let usdzPath = category.model_3d_usdz_path;
+                            if (!usdzPath.endsWith('.usdz')) {
+                                usdzPath += '.usdz';
+                            }
+                            mv.setAttribute('ios-src', `/usdz-file/${usdzPath}`);
+                        } else {
+                            mv.removeAttribute('ios-src');
                         }
-                        modelViewer.setAttribute('ios-src', `/usdz-file/${usdzPath}`);
-                    } else {
-                        modelViewer.removeAttribute('ios-src');
-                    }
+                    }).catch(() => {
+                        toggleModelLoading(false);
+                    });
                     tabsContainer.classList.remove('hidden');
                     tabsContainer.classList.add('flex');
                 } else {
@@ -283,11 +318,20 @@
                     updateCardHighlight(id);
                 });
 
-                // Configure Meshopt Decoder before model-viewer renders
-                const ModelViewerElement = customElements.get('model-viewer');
-                if (ModelViewerElement) {
-                    ModelViewerElement.meshoptDecoderLocation =
-                        'https://unpkg.com/meshoptimizer@0.17.0/meshopt_decoder.js';
+                // Configure Meshopt Decoder if model-viewer is already defined
+                if (window.customElements && customElements.get('model-viewer')) {
+                    const ModelViewerElement = customElements.get('model-viewer');
+                    if (ModelViewerElement) {
+                        ModelViewerElement.meshoptDecoderLocation =
+                            'https://unpkg.com/meshoptimizer@0.17.0/meshopt_decoder.js';
+                    }
+                }
+
+                // Preload model-viewer lazily when browser is idle
+                if ('requestIdleCallback' in window) {
+                    requestIdleCallback(() => {
+                        ensureModelViewerLoaded();
+                    }, { timeout: 4000 });
                 }
 
                 // Show AR button only when device supports AR
@@ -457,5 +501,3 @@
             });
         })();
     </script>
-
-    <script type="module" src="{{ asset('js/model-viewer.min.js') }}"></script>

@@ -7,7 +7,7 @@
                 <div class="relative aspect-video bg-gray-100" x-data="{ loaded: false, failed: false }">
                     @if (optional($umkm)->image_path)
                         <img src="{{ asset('storage/' . $umkm->image_path) }}" alt="{{ $umkm->business_name }}"
-                            loading="lazy" x-on:load="loaded = true" x-on:error="failed = true; loaded = true"
+                            loading="lazy" decoding="async" x-on:load="loaded = true" x-on:error="failed = true; loaded = true"
                             class="h-full w-full object-cover">
                         <div x-show="!loaded" class="absolute inset-0 animate-pulse bg-gray-200"></div>
                         <div x-show="failed" x-cloak
