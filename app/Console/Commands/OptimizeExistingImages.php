@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ArModel;
 use App\Models\CulturalObject;
 use App\Models\Feedback;
+use App\Models\RouteMission;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use App\Models\User;
@@ -51,6 +53,17 @@ class OptimizeExistingImages extends Command
         $files = $this->collectEligibleImages();
         if (empty($files)) {
             $this->info('No unoptimized JPG/PNG images found in public storage.');
+
+            $healedCount = $this->healMissingRasterReferences($isDryRun);
+            if ($healedCount > 0) {
+                $this->info("Healed {$healedCount} dangling database reference(s) to WebP.");
+                if (! $isDryRun) {
+                    try {
+                        Cache::tags(['cultural_objects', 'umkm', 'explore', 'map'])->flush();
+                    } catch (\Throwable) {
+                    }
+                }
+            }
 
             return self::SUCCESS;
         }
@@ -312,7 +325,356 @@ class OptimizeExistingImages extends Command
             }
         }
 
+        // F. ArModel - thumbnail_path
+        $arModels = ArModel::whereNotNull('thumbnail_path')->get();
+        foreach ($arModels as $arModel) {
+            if (isset($convertedMap[$arModel->thumbnail_path])) {
+                $totalUpdated++;
+                if (! $isDryRun) {
+                    $arModel->thumbnail_path = $convertedMap[$arModel->thumbnail_path];
+                    $arModel->saveQuietly();
+                }
+                $this->line(" - Updated ArModel #{$arModel->id} thumbnail ({$arModel->name})");
+            }
+        }
+
+        // Run self-healing for any leftover references that were already converted
+        $totalUpdated += $this->healMissingRasterReferences($isDryRun);
+
         return $totalUpdated;
+    }
+
+    /**
+     * Self-healing: Check models where the database points to .png or .jpg,
+     * but the file on disk is actually .webp.
+     */
+    protected function healMissingRasterReferences(bool $isDryRun): int
+    {
+        $healed = 0;
+        $disk = Storage::disk('public');
+
+        // 1. ArModel - thumbnail_path
+        $arModels = ArModel::whereNotNull('thumbnail_path')->get();
+        foreach ($arModels as $m) {
+            $path = $m->thumbnail_path;
+            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+            if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+                $dirname = pathinfo($path, PATHINFO_DIRNAME);
+                $filename = pathinfo($path, PATHINFO_FILENAME);
+                $webpPath = ($dirname === '.' ? '' : $dirname.'/').$filename.'.webp';
+                if ($disk->exists($webpPath) && $webpPath !== $path) {
+                    $healed++;
+                    if (! $isDryRun) {
+                        $m->thumbnail_path = $webpPath;
+                        $m->saveQuietly();
+                    }
+                    $this->line(" - Healed ArModel #{$m->id} thumbnail to {$webpPath}");
+                }
+            }
+        }
+
+        // 2. UmkmProductCategory - image_path
+        $categories = UmkmProductCategory::whereNotNull('image_path')->get();
+        foreach ($categories as $cat) {
+            $path = $cat->image_path;
+            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+            if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+                $dirname = pathinfo($path, PATHINFO_DIRNAME);
+                $filename = pathinfo($path, PATHINFO_FILENAME);
+                $webpPath = ($dirname === '.' ? '' : $dirname.'/').$filename.'.webp';
+                if ($disk->exists($webpPath) && $webpPath !== $path) {
+                    $healed++;
+                    if (! $isDryRun) {
+                        $cat->image_path = $webpPath;
+                        $cat->saveQuietly();
+                    }
+                    $this->line(" - Healed UmkmProductCategory #{$cat->id} image to {$webpPath}");
+                }
+            }
+        }
+
+        // 3. User - avatar_path
+        $users = User::whereNotNull('avatar_path')->get();
+        foreach ($users as $u) {
+            $path = $u->avatar_path;
+            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+            if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+                $dirname = pathinfo($path, PATHINFO_DIRNAME);
+                $filename = pathinfo($path, PATHINFO_FILENAME);
+                $webpPath = ($dirname === '.' ? '' : $dirname.'/').$filename.'.webp';
+                if ($disk->exists($webpPath) && $webpPath !== $path) {
+                    $healed++;
+                    if (! $isDryRun) {
+                        $u->avatar_path = $webpPath;
+                        $u->saveQuietly();
+                    }
+                    $this->line(" - Healed User #{$u->id} avatar to {$webpPath}");
+                }
+            }
+        }
+
+        // 4. CulturalObject - historical_images
+        $culturalObjects = CulturalObject::all();
+        foreach ($culturalObjects as $co) {
+            if (is_array($co->historical_images)) {
+                $newImages = [];
+                $changed = false;
+                foreach ($co->historical_images as $img) {
+                    $ext = strtolower(pathinfo($img, PATHINFO_EXTENSION));
+                    if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+                        $dirname = pathinfo($img, PATHINFO_DIRNAME);
+                        $filename = pathinfo($img, PATHINFO_FILENAME);
+                        $webpPath = ($dirname === '.' ? '' : $dirname.'/').$filename.'.webp';
+                        if ($disk->exists($webpPath) && $webpPath !== $img) {
+                            $newImages[] = $webpPath;
+                            $changed = true;
+
+                            continue;
+                        }
+                    }
+                    $newImages[] = $img;
+                }
+                if ($changed) {
+                    $healed++;
+                    if (! $isDryRun) {
+                        $co->historical_images = $newImages;
+                        $co->saveQuietly();
+                    }
+                    $this->line(" - Healed CulturalObject #{$co->id} historical_images");
+                }
+            }
+        }
+
+        // 5. UmkmProduct - images
+        $products = UmkmProduct::all();
+        foreach ($products as $p) {
+            if (is_array($p->images)) {
+                $newImages = [];
+                $changed = false;
+                foreach ($p->images as $img) {
+                    $ext = strtolower(pathinfo($img, PATHINFO_EXTENSION));
+                    if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+                        $dirname = pathinfo($img, PATHINFO_DIRNAME);
+                        $filename = pathinfo($img, PATHINFO_FILENAME);
+                        $webpPath = ($dirname === '.' ? '' : $dirname.'/').$filename.'.webp';
+                        if ($disk->exists($webpPath) && $webpPath !== $img) {
+                            $newImages[] = $webpPath;
+                            $changed = true;
+
+                            continue;
+                        }
+                    }
+                    $newImages[] = $img;
+                }
+                if ($changed) {
+                    $healed++;
+                    if (! $isDryRun) {
+                        $p->images = $newImages;
+                        $p->saveQuietly();
+                    }
+                    $this->line(" - Healed UmkmProduct #{$p->id} images");
+                }
+            }
+        }
+
+        // 6. Feedback - photos
+        $feedbacks = Feedback::whereNotNull('photos')->get();
+        foreach ($feedbacks as $fb) {
+            if (is_array($fb->photos)) {
+                $newPhotos = [];
+                $changed = false;
+                foreach ($fb->photos as $ph) {
+                    $ext = strtolower(pathinfo($ph, PATHINFO_EXTENSION));
+                    if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+                        $dirname = pathinfo($ph, PATHINFO_DIRNAME);
+                        $filename = pathinfo($ph, PATHINFO_FILENAME);
+                        $webpPath = ($dirname === '.' ? '' : $dirname.'/').$filename.'.webp';
+                        if ($disk->exists($webpPath) && $webpPath !== $ph) {
+                            $newPhotos[] = $webpPath;
+                            $changed = true;
+
+                            continue;
+                        }
+                    }
+                    $newPhotos[] = $ph;
+                }
+                if ($changed) {
+                    $healed++;
+                    if (! $isDryRun) {
+                        $fb->photos = $newPhotos;
+                        $fb->saveQuietly();
+                    }
+                    $this->line(" - Healed Feedback #{$fb->id} photos");
+                }
+            }
+        }
+
+        return $healed;
+    }
+
+    /**
+     * Self-healing: Check models where the database points to .png or .jpg,
+     * but the file on disk is actually .webp.
+     */
+    protected function healMissingRasterReferences(bool $isDryRun): int
+    {
+        $healed = 0;
+        $disk = Storage::disk('public');
+
+        // 1. ArModel - thumbnail_path
+        $arModels = ArModel::whereNotNull('thumbnail_path')->get();
+        foreach ($arModels as $m) {
+            $path = $m->thumbnail_path;
+            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+            if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+                $dirname = pathinfo($path, PATHINFO_DIRNAME);
+                $filename = pathinfo($path, PATHINFO_FILENAME);
+                $webpPath = ($dirname === '.' ? '' : $dirname.'/').$filename.'.webp';
+                if ($disk->exists($webpPath) && $webpPath !== $path) {
+                    $healed++;
+                    if (! $isDryRun) {
+                        $m->thumbnail_path = $webpPath;
+                        $m->saveQuietly();
+                    }
+                    $this->line(" - Healed ArModel #{$m->id} thumbnail to {$webpPath}");
+                }
+            }
+        }
+
+        // 2. UmkmProductCategory - image_path
+        $categories = UmkmProductCategory::whereNotNull('image_path')->get();
+        foreach ($categories as $cat) {
+            $path = $cat->image_path;
+            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+            if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+                $dirname = pathinfo($path, PATHINFO_DIRNAME);
+                $filename = pathinfo($path, PATHINFO_FILENAME);
+                $webpPath = ($dirname === '.' ? '' : $dirname.'/').$filename.'.webp';
+                if ($disk->exists($webpPath) && $webpPath !== $path) {
+                    $healed++;
+                    if (! $isDryRun) {
+                        $cat->image_path = $webpPath;
+                        $cat->saveQuietly();
+                    }
+                    $this->line(" - Healed UmkmProductCategory #{$cat->id} image to {$webpPath}");
+                }
+            }
+        }
+
+        // 3. User - avatar_path
+        $users = User::whereNotNull('avatar_path')->get();
+        foreach ($users as $u) {
+            $path = $u->avatar_path;
+            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+            if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+                $dirname = pathinfo($path, PATHINFO_DIRNAME);
+                $filename = pathinfo($path, PATHINFO_FILENAME);
+                $webpPath = ($dirname === '.' ? '' : $dirname.'/').$filename.'.webp';
+                if ($disk->exists($webpPath) && $webpPath !== $path) {
+                    $healed++;
+                    if (! $isDryRun) {
+                        $u->avatar_path = $webpPath;
+                        $u->saveQuietly();
+                    }
+                    $this->line(" - Healed User #{$u->id} avatar to {$webpPath}");
+                }
+            }
+        }
+
+        // 4. CulturalObject - historical_images
+        $culturalObjects = CulturalObject::all();
+        foreach ($culturalObjects as $co) {
+            if (is_array($co->historical_images)) {
+                $newImages = [];
+                $changed = false;
+                foreach ($co->historical_images as $img) {
+                    $ext = strtolower(pathinfo($img, PATHINFO_EXTENSION));
+                    if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+                        $dirname = pathinfo($img, PATHINFO_DIRNAME);
+                        $filename = pathinfo($img, PATHINFO_FILENAME);
+                        $webpPath = ($dirname === '.' ? '' : $dirname.'/').$filename.'.webp';
+                        if ($disk->exists($webpPath) && $webpPath !== $img) {
+                            $newImages[] = $webpPath;
+                            $changed = true;
+                            continue;
+                        }
+                    }
+                    $newImages[] = $img;
+                }
+                if ($changed) {
+                    $healed++;
+                    if (! $isDryRun) {
+                        $co->historical_images = $newImages;
+                        $co->saveQuietly();
+                    }
+                    $this->line(" - Healed CulturalObject #{$co->id} historical_images");
+                }
+            }
+        }
+
+        // 5. UmkmProduct - images
+        $products = UmkmProduct::all();
+        foreach ($products as $p) {
+            if (is_array($p->images)) {
+                $newImages = [];
+                $changed = false;
+                foreach ($p->images as $img) {
+                    $ext = strtolower(pathinfo($img, PATHINFO_EXTENSION));
+                    if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+                        $dirname = pathinfo($img, PATHINFO_DIRNAME);
+                        $filename = pathinfo($img, PATHINFO_FILENAME);
+                        $webpPath = ($dirname === '.' ? '' : $dirname.'/').$filename.'.webp';
+                        if ($disk->exists($webpPath) && $webpPath !== $img) {
+                            $newImages[] = $webpPath;
+                            $changed = true;
+                            continue;
+                        }
+                    }
+                    $newImages[] = $img;
+                }
+                if ($changed) {
+                    $healed++;
+                    if (! $isDryRun) {
+                        $p->images = $newImages;
+                        $p->saveQuietly();
+                    }
+                    $this->line(" - Healed UmkmProduct #{$p->id} images");
+                }
+            }
+        }
+
+        // 6. Feedback - photos
+        $feedbacks = Feedback::whereNotNull('photos')->get();
+        foreach ($feedbacks as $fb) {
+            if (is_array($fb->photos)) {
+                $newPhotos = [];
+                $changed = false;
+                foreach ($fb->photos as $ph) {
+                    $ext = strtolower(pathinfo($ph, PATHINFO_EXTENSION));
+                    if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+                        $dirname = pathinfo($ph, PATHINFO_DIRNAME);
+                        $filename = pathinfo($ph, PATHINFO_FILENAME);
+                        $webpPath = ($dirname === '.' ? '' : $dirname.'/').$filename.'.webp';
+                        if ($disk->exists($webpPath) && $webpPath !== $ph) {
+                            $newPhotos[] = $webpPath;
+                            $changed = true;
+                            continue;
+                        }
+                    }
+                    $newPhotos[] = $ph;
+                }
+                if ($changed) {
+                    $healed++;
+                    if (! $isDryRun) {
+                        $fb->photos = $newPhotos;
+                        $fb->saveQuietly();
+                    }
+                    $this->line(" - Healed Feedback #{$fb->id} photos");
+                }
+            }
+        }
+
+        return $healed;
     }
 
     protected function formatBytes(int $bytes): string

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ArModel;
 use App\Models\CulturalObject;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -67,5 +68,46 @@ class OptimizeExistingImagesCommandTest extends TestCase
         Storage::disk('public')->assertMissing('images/real.png');
 
         $this->assertSame(['images/real.webp'], $object->fresh()->historical_images);
+    }
+
+    public function test_it_converts_ar_model_thumbnail_and_updates_database(): void
+    {
+        $manager = new ImageManager(new Driver);
+        $initialImage = $manager->createImage(200, 200);
+        $initialPng = (string) $initialImage->encodeUsingFileExtension('png');
+
+        Storage::disk('public')->put('thumbnails/1-123.png', $initialPng);
+
+        $arModel = ArModel::create([
+            'name' => ['en' => 'Test 3D Model', 'id' => 'Model 3D Uji'],
+            'model_3d_path' => 'models/test.glb',
+            'thumbnail_path' => 'thumbnails/1-123.png',
+        ]);
+
+        $this->artisan('images:optimize-existing --force')
+            ->assertSuccessful();
+
+        Storage::disk('public')->assertExists('thumbnails/1-123.webp');
+        Storage::disk('public')->assertMissing('thumbnails/1-123.png');
+
+        $this->assertSame('thumbnails/1-123.webp', $arModel->fresh()->thumbnail_path);
+    }
+
+    public function test_it_heals_dangling_database_references_when_file_was_already_converted(): void
+    {
+        // Simulate scenario where .webp exists on disk, but database still points to old .png
+        Storage::disk('public')->put('thumbnails/existing.webp', 'fake-webp-content');
+
+        $arModel = ArModel::create([
+            'name' => ['en' => 'Dangling Model', 'id' => 'Model Menggantung'],
+            'model_3d_path' => 'models/test.glb',
+            'thumbnail_path' => 'thumbnails/existing.png',
+        ]);
+
+        // Run command: no JPG/PNG exist to convert, so healing should kick in
+        $this->artisan('images:optimize-existing --force')
+            ->assertSuccessful();
+
+        $this->assertSame('thumbnails/existing.webp', $arModel->fresh()->thumbnail_path);
     }
 }

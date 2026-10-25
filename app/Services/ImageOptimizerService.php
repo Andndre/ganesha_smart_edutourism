@@ -67,6 +67,44 @@ class ImageOptimizerService
     }
 
     /**
+     * Optimize binary image data (e.g. from base64 canvas capture): auto-rotate, scale down, and encode as WebP.
+     * Returns the relative path on the target disk.
+     */
+    public function optimizeBinary(
+        string $binaryData,
+        string $directory = 'images',
+        int $maxWidth = self::DEFAULT_MAX_WIDTH,
+        int $maxHeight = self::DEFAULT_MAX_HEIGHT,
+        int $quality = self::DEFAULT_QUALITY,
+        string $disk = 'public',
+        ?string $customFilename = null,
+    ): string {
+        try {
+            $image = $this->manager->decodeBinary($binaryData);
+            $image->orient();
+            $image->scaleDown(width: $maxWidth, height: $maxHeight);
+            $encoded = $image->encode(new WebpEncoder(quality: $quality));
+
+            $filename = $customFilename
+                ? (pathinfo($customFilename, PATHINFO_FILENAME).'.webp')
+                : (Str::random(40).'.webp');
+
+            $targetPath = trim($directory, '/').'/'.$filename;
+            Storage::disk($disk)->put($targetPath, (string) $encoded);
+
+            return $targetPath;
+        } catch (Throwable $e) {
+            Log::warning('Binary image optimization failed, falling back to raw save: '.$e->getMessage());
+
+            $filename = $customFilename ?: (Str::random(40).'.png');
+            $targetPath = trim($directory, '/').'/'.$filename;
+            Storage::disk($disk)->put($targetPath, $binaryData);
+
+            return $targetPath;
+        }
+    }
+
+    /**
      * Optimize an existing image file on disk.
      * Optionally backs up original file before converting.
      * Returns the new relative path (or null on failure).

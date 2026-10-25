@@ -64,7 +64,11 @@
                 <div @if ($loop->first) id="tour-viewer-wrapper" @endif class="model-viewer-wrapper mb-3">
                     @if ($m->thumbnail_path)
                         <img src="{{ asset('storage/' . $m->thumbnail_path) }}" alt="{{ $m->name }}"
+                            onerror="if (!this.dataset.retried) { this.dataset.retried = 1; this.src = this.src.replace(/\.(png|jpe?g)$/i, '.webp'); } else { this.style.display = 'none'; this.nextElementSibling?.classList.remove('hidden'); }"
                             class="h-full w-full object-cover">
+                        <div class="hidden flex h-full w-full items-center justify-center p-4 text-center">
+                            <span class="text-xs text-gray-400">Pratinjau tidak tersedia</span>
+                        </div>
                     @else
                         <div class="flex h-full w-full items-center justify-center p-4 text-center">
                             <span class="text-xs text-gray-500">Tidak ada pratinjau</span>
@@ -245,7 +249,10 @@
             try {
                 const canvas = viewer.shadowRoot?.querySelector('canvas');
                 if (canvas) {
-                    pendingThumbnailData = canvas.toDataURL('image/png');
+                    pendingThumbnailData = canvas.toDataURL('image/webp');
+                    if (!pendingThumbnailData.startsWith('data:image/webp')) {
+                        pendingThumbnailData = canvas.toDataURL('image/png');
+                    }
                 }
             } catch (e) {
                 console.warn('Thumbnail capture failed:', e);

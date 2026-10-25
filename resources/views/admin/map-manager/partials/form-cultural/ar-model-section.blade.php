@@ -25,6 +25,7 @@
     <div x-show="selectedId" x-cloak class="mt-2 flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 p-3">
         <template x-if="selectedModel?.thumbnail_path">
             <img :src="'{{ asset('storage') }}/' + selectedModel.thumbnail_path"
+                x-on:error="if (!$el.dataset.retried) { $el.dataset.retried = 1; $el.src = $el.src.replace(/\.(png|jpe?g)$/i, '.webp'); }"
                 class="h-10 w-10 shrink-0 rounded-lg border border-gray-100 object-cover">
         </template>
         <template x-if="!selectedModel?.thumbnail_path && selectedModel?.model_3d_path">
@@ -88,7 +89,9 @@
                             {{-- Thumbnail --}}
                             <div class="h-32 w-full overflow-hidden bg-gray-100">
                                 <template x-if="model.thumbnail_path">
-                                    <img :src="'{{ asset('storage') }}/' + model.thumbnail_path" class="h-full w-full object-cover">
+                                    <img :src="'{{ asset('storage') }}/' + model.thumbnail_path"
+                                        x-on:error="if (!$el.dataset.retried) { $el.dataset.retried = 1; $el.src = $el.src.replace(/\.(png|jpe?g)$/i, '.webp'); }"
+                                        class="h-full w-full object-cover">
                                 </template>
                                 <template x-if="!model.thumbnail_path">
                                     <div class="flex h-full w-full items-center justify-center">

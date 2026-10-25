@@ -7,6 +7,7 @@ use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ARModelRequest;
 use App\Models\ArModel;
+use App\Services\ImageOptimizerService;
 use App\Services\TusService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -176,8 +177,22 @@ class ARManagerController extends Controller
 
         $data = $request->input('thumbnail_data');
         $data = substr($data, strpos($data, ',') + 1);
-        $path = 'thumbnails/'.$model->id.'-'.time().'.png';
-        Storage::disk('public')->put($path, base64_decode($data));
+        $binary = base64_decode($data);
+        if (! $binary) {
+            return;
+        }
+
+        $filename = $model->id.'-'.time().'.webp';
+        $optimizer = app(ImageOptimizerService::class);
+        $path = $optimizer->optimizeBinary(
+            binaryData: $binary,
+            directory: 'thumbnails',
+            maxWidth: 600,
+            maxHeight: 600,
+            quality: 80,
+            customFilename: $filename,
+        );
+
         $model->thumbnail_path = $path;
         $model->save();
     }

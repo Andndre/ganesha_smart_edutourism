@@ -90,4 +90,30 @@ class ImageOptimizerServiceTest extends TestCase
         $this->assertSame('markers/pattern.patt', $result);
         Storage::disk('public')->assertExists('markers/pattern.patt');
     }
+
+    public function test_it_optimizes_binary_image_data_to_webp(): void
+    {
+        $optimizer = new ImageOptimizerService;
+
+        $manager = new ImageManager(new Driver);
+        $initialImage = $manager->createImage(800, 600);
+        $rawPng = (string) $initialImage->encodeUsingFileExtension('png');
+
+        $storedPath = $optimizer->optimizeBinary(
+            binaryData: $rawPng,
+            directory: 'thumbnails',
+            maxWidth: 400,
+            maxHeight: 400,
+            quality: 80,
+            disk: 'public',
+            customFilename: 'model-1.png',
+        );
+
+        $this->assertSame('thumbnails/model-1.webp', $storedPath);
+        Storage::disk('public')->assertExists('thumbnails/model-1.webp');
+
+        $savedImage = $manager->decodeBinary(Storage::disk('public')->get($storedPath));
+        $this->assertLessThanOrEqual(400, $savedImage->width());
+        $this->assertLessThanOrEqual(400, $savedImage->height());
+    }
 }
