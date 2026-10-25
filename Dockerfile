@@ -52,6 +52,8 @@ COPY . .
 COPY --from=node-builder /app/public/build /var/www/public/build
 
 # Install PHP dependencies (retry up to 3x for transient GitHub CDN failures)
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    COMPOSER_MEMORY_LIMIT=-1
 RUN composer install --no-dev --optimize-autoloader --no-interaction \
     || composer install --no-dev --optimize-autoloader --no-interaction \
     || composer install --no-dev --optimize-autoloader --no-interaction
