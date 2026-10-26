@@ -23,7 +23,7 @@
     </div>
 
     <model-viewer id="ar-model-viewer" src="" alt="3D Model" camera-controls auto-rotate ar ar-scale="auto"
-        ar-placement="floor" bounds="tight" ar-modes="scene-viewer quick-look webxr" quick-look-browsers="safari chrome"
+        ar-placement="floor" bounds="tight" ar-modes="webxr scene-viewer quick-look" quick-look-browsers="safari chrome"
         environment-image="neutral" exposure="1" shadow-intensity="1" class="h-full w-full outline-none">
 
         {{-- ponytail: slot kosong untuk mematikan progress bar bawaan (dipakai #loading-overlay) --}}

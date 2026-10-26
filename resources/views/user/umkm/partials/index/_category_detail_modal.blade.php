@@ -37,7 +37,7 @@
         <div class="relative hidden aspect-video w-full overflow-hidden rounded-2xl border border-gray-100 bg-gray-100"
             id="modal-category-3d-container">
             <model-viewer id="modal-category-3d" class="h-full w-full" camera-controls auto-rotate ar ar-scale="auto"
-                ar-placement="floor" ar-modes="scene-viewer quick-look webxr" quick-look-browsers="safari chrome"
+                ar-placement="floor" ar-modes="webxr scene-viewer quick-look" quick-look-browsers="safari chrome"
                 shadow-intensity="1" touch-action="pan-y"
                 draco-decoder-location="https://www.gstatic.com/draco/versioned/decoders/1.5.6/">
                 {{-- ponytail: slot kosong mematikan progress bar bawaan, diganti overlay di bawah --}}
