@@ -49,7 +49,7 @@
         'drawer' => $drawerFromSide === 'right'
             ? 'max-h-sheet overflow-y-auto md:h-full md:!max-h-none md:rounded-none md:rounded-t-none md:border-l md:border-gray-200'
             : 'max-h-sheet overflow-y-auto md:h-full md:!max-h-none md:rounded-none md:rounded-t-none md:border-r md:border-gray-200',
-        default => 'overflow-y-auto md:rounded-3xl md:overflow-hidden md:max-h-[85vh]',
+        default => 'max-h-sheet overflow-hidden md:rounded-3xl md:max-h-[85vh]',
     };
 
     $desktopTransitionStart = match ($desktopLayout) {
