@@ -252,29 +252,16 @@
                      mesin render, sehingga kartu terakhir menempel ke tepi layar. --}}
                 <div class="no-scrollbar flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto pb-1 md:scroll-px-8">
                     @foreach ($featuredUmkm as $item)
-                        @php
-                            $thumbImage = !empty($item['image_path'])
-                                ? $item['image_path']
-                                : (!empty($item['active_products'][0]['images'][0])
-                                    ? $item['active_products'][0]['images'][0]
-                                    : (!empty($item['active_products'][0]['category']['image_path'])
-                                        ? $item['active_products'][0]['category']['image_path']
-                                        : null));
-
-                            $productHighlights = collect($item['active_products'] ?? [])
-                                ->map(fn ($p) => translateValue($p['category']['name'] ?? $p['name'] ?? null))
-                                ->filter()
-                                ->unique()
-                                ->take(2)
-                                ->implode(', ');
-                        @endphp
                         <a href="{{ route('umkm.store', $item['id']) }}"
                             class="w-44 shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-transform first:ms-4 active:scale-[0.98] md:first:ms-8">
                             <div class="relative aspect-video bg-gray-100">
-                                @if (!empty($thumbImage))
-                                    <img src="{{ asset('storage/' . $thumbImage) }}"
-                                        alt="{{ translateValue($item['business_name']) }}" loading="lazy"
-                                        class="h-full w-full object-cover">
+                                @if (!empty($item['image_path']))
+                                    <img src="{{ asset('storage/' . $item['image_path']) }}"
+                                        alt="{{ translateValue($item['business_name']) }}" loading="lazy" decoding="async"
+                                        class="h-full w-full object-cover"
+                                        onerror="this.classList.add('hidden'); this.nextElementSibling?.classList.remove('hidden')">
+                                    <div class="text-primary absolute inset-0 hidden items-center justify-center bg-gray-100 text-xs">
+                                        {{ __('Gambar tidak tersedia') }}</div>
                                 @else
                                     <div class="text-primary absolute inset-0 flex items-center justify-center opacity-50">
                                         <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -296,9 +283,11 @@
                             <div class="p-3">
                                 <h4 class="line-clamp-1 text-sm font-bold text-gray-800">
                                     {{ translateValue($item['business_name']) }}</h4>
-                                <p class="mt-0.5 line-clamp-1 text-xs text-gray-500">
-                                    {{ !empty($productHighlights) ? $productHighlights : ($item['user']['name'] ?? '') }}
-                                </p>
+                                @if (!empty($item['user']['name']))
+                                    <p class="mt-0.5 line-clamp-1 text-xs text-gray-500">
+                                        {{ $item['user']['name'] }}
+                                    </p>
+                                @endif
                             </div>
                         </a>
                     @endforeach

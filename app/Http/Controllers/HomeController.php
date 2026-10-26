@@ -59,13 +59,7 @@ class HomeController extends Controller
             "home_featured_umkm_array_{$locale}",
             [600, 1800],
             fn () => UmkmProfile::active()
-                ->with([
-                    'user:id,name',
-                    'activeProducts' => fn ($q) => $q->select('id', 'umkm_profile_id', 'umkm_product_category_id', 'name', 'images')
-                        ->with('category:id,name,image_path')
-                        ->where('is_active', true)
-                        ->limit(2),
-                ])
+                ->with(['user:id,name'])
                 ->inRandomOrder()
                 ->limit(8)
                 ->get()
