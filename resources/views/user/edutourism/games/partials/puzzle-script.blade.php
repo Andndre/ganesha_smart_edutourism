@@ -74,7 +74,21 @@
                             this.aspect = `${img.naturalWidth} / ${img.naturalHeight}`;
                         }
                     } catch {
-                        // Undecodable photo — keep the square default rather than a collapsed board.
+                        // Undecodable photo — check if image was converted from jpg/png to webp
+                        if (this.imageUrl && !this.imageUrl.endsWith('.webp') && this.imageUrl.match(/\.(jpg|jpeg|png)($|\?)/i)) {
+                            const webpUrl = this.imageUrl.replace(/\.(jpg|jpeg|png)($|\?)/i, '.webp$2');
+                            try {
+                                const img2 = new Image();
+                                img2.src = webpUrl;
+                                await img2.decode();
+                                if (img2.naturalWidth && img2.naturalHeight) {
+                                    this.aspect = `${img2.naturalWidth} / ${img2.naturalHeight}`;
+                                    this.imageUrl = webpUrl;
+                                }
+                            } catch {
+                                // Undecodable photo — keep the square default rather than a collapsed board.
+                            }
+                        }
                     }
                 },
 

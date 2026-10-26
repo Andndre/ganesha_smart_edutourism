@@ -18,7 +18,7 @@
     $fallback = $mission->tourRoutePoint?->locationable;
     $puzzleImage =
         $cfg['image'] ??
-        (!empty($fallback?->historical_images) ? asset('storage/' . $fallback->historical_images[0]) : null);
+        (!empty($fallback?->historical_images) ? \App\Models\RouteMission::resolveAssetUrl($fallback->historical_images[0]) : null);
 @endphp
 
 @if (!$puzzleImage)
@@ -86,7 +86,8 @@
 
             <figure class="overflow-hidden rounded-2xl bg-white p-2 shadow-sm ring-1 ring-gray-100 sm:min-w-0 sm:flex-1 sm:basis-0">
                 {{-- No forced ratio: the img keeps its natural one, which is exactly the board's. --}}
-                <img :src="imageUrl" alt="{{ __('Contoh') }}" class="block w-full rounded-xl">
+                <img :src="imageUrl" alt="{{ __('Contoh') }}" class="block w-full rounded-xl"
+                    x-on:error="if (imageUrl && !imageUrl.endsWith('.webp') && imageUrl.match(/\.(jpg|jpeg|png)($|\?)/i)) { imageUrl = imageUrl.replace(/\.(jpg|jpeg|png)($|\?)/i, '.webp$2'); }">
                 <figcaption class="pb-1 pt-2 text-center text-[11px] font-bold uppercase tracking-wider text-gray-500">
                     {{ __('Contoh') }}
                 </figcaption>

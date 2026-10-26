@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\ImageOptimizerService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -21,7 +22,18 @@ class RouteMissionAssetController extends Controller
             ],
         ]);
 
-        $path = $request->file('file')->store('mission_assets', 'public');
+        $file = $request->file('file');
+        $mime = $file->getMimeType();
+
+        if (str_starts_with($mime, 'image/') && $mime !== 'image/svg+xml') {
+            $path = app(ImageOptimizerService::class)->optimizeAndStore(
+                $file,
+                'mission_assets',
+                disk: 'public'
+            );
+        } else {
+            $path = $file->store('mission_assets', 'public');
+        }
 
         return response()->json(['url' => Storage::disk('public')->url($path), 'path' => $path]);
     }
