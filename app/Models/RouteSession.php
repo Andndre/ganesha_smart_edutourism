@@ -20,7 +20,6 @@ class RouteSession extends Model
         'missions_completed',
         'collectibles_earned',
         'badge_awarded',
-        'selected_avatar',
         'status',
     ];
 

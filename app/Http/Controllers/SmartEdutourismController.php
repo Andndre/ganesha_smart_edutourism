@@ -87,53 +87,24 @@ class SmartEdutourismController extends Controller
         return response()->json([
             'route' => $routeData,
             'points' => $points,
-            'avatar_options' => $this->avatarOptionsForRoute($route),
         ]);
     }
 
     /**
-     * Single source of truth for route-type detection, reused by the avatar picker,
-     * badge finalization, and per-point collectible logic. Reads the stable
-     * gamification_key column (set by seeder / admin form), NOT the editable name —
-     * so renaming a route in admin can't silently break its rewards.
+     * Single source of truth for route-type detection, reused by badge finalization
+     * and per-point collectible logic. Reads the stable gamification_key column
+     * (set by seeder / admin form), NOT the editable name — so renaming a route
+     * in admin can't silently break its rewards.
      */
     private function routeTypeKey(TourRoute $route): ?string
     {
         return $route->gamification_key;
     }
 
-    /**
-     * Avatar picker shown in the route preview modal before starting (replaces the PDF's
-     * "Spin the Wheel" with a tap-picker — a RouteMission on point 1 would disable the
-     * quiz flow there, see arrive()). Purely cosmetic: score/badges never depend on it.
-     */
-    private function avatarOptionsForRoute(TourRoute $route): array
-    {
-        return match ($this->routeTypeKey($route)) {
-            'cultural_adventure' => [
-                ['key' => 'explorer', 'label' => __('Penjelajah'), 'icon' => '🧭'],
-                ['key' => 'archaeologist', 'label' => __('Arkeolog'), 'icon' => '🏺'],
-                ['key' => 'elder', 'label' => __('Tetua Desa'), 'icon' => '🧓'],
-                ['key' => 'forest_keeper', 'label' => __('Penjaga Hutan'), 'icon' => '🌲'],
-            ],
-            'eco_quest' => [
-                ['key' => 'eco_ranger', 'label' => __('Eco Ranger'), 'icon' => '🌿'],
-                ['key' => 'forest_guardian', 'label' => __('Forest Guardian'), 'icon' => '🌳'],
-                ['key' => 'bamboo_scientist', 'label' => __('Bamboo Scientist'), 'icon' => '🔬'],
-                ['key' => 'village_explorer', 'label' => __('Village Explorer'), 'icon' => '🧭'],
-            ],
-            default => [],
-        };
-    }
-
     public function start(Request $request, $id)
     {
         $route = TourRoute::with('routePoints')->findOrFail($id);
         $firstPoint = $route->routePoints->first();
-
-        $request->validate(['avatar' => 'nullable|string|max:32']);
-        $avatarKeys = collect($this->avatarOptionsForRoute($route))->pluck('key');
-        $avatar = $avatarKeys->contains($request->string('avatar')) ? $request->string('avatar')->toString() : null;
 
         $userId = auth()->id();
 
@@ -157,7 +128,6 @@ class SmartEdutourismController extends Controller
                 'user_id' => $userId,
                 'tour_route_id' => $route->id,
                 'current_point_id' => $firstPoint ? $firstPoint->id : null,
-                'selected_avatar' => $avatar,
                 'status' => 'active',
             ]);
         } else {
@@ -166,7 +136,6 @@ class SmartEdutourismController extends Controller
                 'guest_token' => $guestToken,
                 'tour_route_id' => $route->id,
                 'current_point_id' => $firstPoint ? $firstPoint->id : null,
-                'selected_avatar' => $avatar,
                 'status' => 'active',
             ]);
         }

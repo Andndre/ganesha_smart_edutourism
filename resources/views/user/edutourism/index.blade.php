@@ -182,12 +182,6 @@
                     </ul>
                 </div>
 
-                <div id="preview-avatar-picker" class="hidden">
-                    <h4 class="mb-3 text-xs font-bold uppercase tracking-wide text-gray-500">{{ __('Pilih Avatarmu') }}
-                    </h4>
-                    <div id="preview-avatar-options" class="grid grid-cols-2 gap-3"></div>
-                </div>
-
                 <form id="start-route-form" method="POST" action="">
                     @csrf
                     <button type="button" onclick="startRoute()" id="btn-start-route" disabled
@@ -233,18 +227,6 @@
 
     @push('scripts')
         <script>
-            window.selectedAvatar = null;
-
-            function selectAvatar(key) {
-                window.selectedAvatar = key;
-                document.querySelectorAll('#preview-avatar-options button').forEach(btn => {
-                    const isSelected = btn.dataset.avatar === key;
-                    btn.className = isSelected
-                        ? 'rounded-2xl border-2 border-[#1E5128] bg-emerald-50 p-3 text-center text-xs font-bold text-[#1E5128] transition-all active:scale-95'
-                        : 'rounded-2xl border-2 border-gray-200 bg-white p-3 text-center text-xs font-semibold text-gray-700 transition-all hover:border-gray-300 active:scale-95';
-                });
-            }
-
             function fetchRoutePreview(id) {
                 document.getElementById('preview-title').textContent = '{{ __('Memuat...') }}';
                 document.getElementById('preview-desc').textContent = '';
@@ -255,9 +237,6 @@
                     </li>`;
                 document.getElementById('btn-start-route').disabled = true;
                 document.getElementById('start-route-form').action = `/edutourism/routes/${id}/start`;
-                window.selectedAvatar = null;
-                document.getElementById('preview-avatar-picker').classList.add('hidden');
-                document.getElementById('preview-avatar-options').innerHTML = '';
 
                 fetch(`/edutourism/routes/${id}/preview`)
                     .then(res => res.json())
@@ -282,20 +261,6 @@
                             ul.innerHTML = '<li class="text-sm text-gray-500">{{ __('Tidak ada titik perhentian.') }}</li>';
                         }
 
-                        if (data.avatar_options && data.avatar_options.length > 0) {
-                            const wrap = document.getElementById('preview-avatar-options');
-                            data.avatar_options.forEach(av => {
-                                const btn = document.createElement('button');
-                                btn.type = 'button';
-                                btn.dataset.avatar = av.key;
-                                btn.className = 'rounded-2xl border-2 border-gray-200 bg-white p-3 text-center text-xs font-semibold text-gray-700 transition-all hover:border-gray-300 active:scale-95';
-                                btn.innerHTML = `<span class="mb-1 block text-2xl">${av.icon}</span>${av.label}`;
-                                btn.onclick = () => selectAvatar(av.key);
-                                wrap.appendChild(btn);
-                            });
-                            document.getElementById('preview-avatar-picker').classList.remove('hidden');
-                        }
-
                         document.getElementById('btn-start-route').disabled = false;
                     })
                     .catch(err => {
@@ -317,10 +282,7 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
                             'Accept': 'application/json',
                             'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            avatar: window.selectedAvatar
-                        })
+                        }
                     })
                     .then(res => res.json())
                     .then(data => {

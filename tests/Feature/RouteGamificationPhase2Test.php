@@ -12,7 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * Hari 4 Fase 2: avatar picker, per-point collectibles (heritage_key/eco_crystal),
+ * Hari 4 Fase 2: per-point collectibles (heritage_key/eco_crystal),
  * and Route 2/3 badge tiers. Route 1's own badge/collectible tests already live in
  * RouteMissionTest — this file only covers what Phase 2 added.
  */
@@ -51,39 +51,28 @@ class RouteGamificationPhase2Test extends TestCase
         ]);
     }
 
-    public function test_preview_returns_avatar_options_for_cultural_adventure_and_eco_quest(): void
+    public function test_preview_returns_route_and_points_without_avatar_options(): void
     {
         $cultural = $this->makeRoute('Penglipuran Cultural Adventure: Mystery of the Living Tradition');
-        $eco = $this->makeRoute('Penglipuran Eco Quest: The Secret of the Bamboo Village');
-        $heritage = $this->makeRoute('Penglipuran Heritage Quest');
 
         $this->actingAs($this->user)->getJson("/edutourism/routes/{$cultural->id}/preview")
-            ->assertOk()->assertJsonCount(4, 'avatar_options');
-
-        $this->actingAs($this->user)->getJson("/edutourism/routes/{$eco->id}/preview")
-            ->assertOk()->assertJsonCount(4, 'avatar_options');
-
-        $this->actingAs($this->user)->getJson("/edutourism/routes/{$heritage->id}/preview")
-            ->assertOk()->assertJsonCount(0, 'avatar_options');
+            ->assertOk()
+            ->assertJsonStructure(['route', 'points'])
+            ->assertJsonMissing(['avatar_options']);
     }
 
-    public function test_start_stores_valid_avatar_and_ignores_unknown_one(): void
+    public function test_start_creates_active_route_session(): void
     {
         $route = $this->makeRoute('Penglipuran Eco Quest: The Secret of the Bamboo Village');
 
         $this->actingAs($this->user)
-            ->postJson("/edutourism/routes/{$route->id}/start", ['avatar' => 'eco_ranger'])
-            ->assertOk();
+            ->postJson("/edutourism/routes/{$route->id}/start")
+            ->assertOk()
+            ->assertJson(['success' => true]);
 
-        $this->assertEquals('eco_ranger', RouteSession::where('user_id', $this->user->id)->first()->selected_avatar);
-
-        RouteSession::query()->delete();
-
-        $this->actingAs($this->user)
-            ->postJson("/edutourism/routes/{$route->id}/start", ['avatar' => 'not_a_real_avatar'])
-            ->assertOk();
-
-        $this->assertNull(RouteSession::where('user_id', $this->user->id)->first()->selected_avatar);
+        $session = RouteSession::where('user_id', $this->user->id)->first();
+        $this->assertNotNull($session);
+        $this->assertEquals('active', $session->status);
     }
 
     public function test_mission_completion_awards_sequential_heritage_key(): void
@@ -252,10 +241,6 @@ class RouteGamificationPhase2Test extends TestCase
         $fresh = $session->fresh();
         $this->assertContains('eco_crystal_1', $fresh->collectibles_earned);
         $this->assertEquals('Eco Guardian of Penglipuran', $fresh->badge_awarded);
-
-        // And the avatar picker still resolves off the column, not the name.
-        $this->actingAs($this->user)->getJson("/edutourism/routes/{$route->id}/preview")
-            ->assertOk()->assertJsonCount(4, 'avatar_options');
     }
 
     public function test_cultural_adventure_badge_tiers_by_score_percentage(): void
