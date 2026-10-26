@@ -243,7 +243,7 @@
                 <div class="mb-1 flex items-center justify-between px-4 md:px-8">
                     <h3 class="text-base font-bold text-gray-800">{{ __('UMKM Desa') }}</h3>
                     {{-- -me-3 supaya teks tetap rata kanan meski area sentuhnya diperlebar --}}
-                    <a href="{{ route('umkm') }}"
+                    <a href="{{ route('umkm', ['tab' => 'direktori']) }}"
                         class="tap-target text-primary -me-3 flex min-h-11 items-center px-3 text-xs font-bold">{{ __('Lihat semua') }}</a>
                 </div>
 
@@ -252,32 +252,68 @@
                      mesin render, sehingga kartu terakhir menempel ke tepi layar. --}}
                 <div class="no-scrollbar flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto pb-1 md:scroll-px-8">
                     @foreach ($featuredUmkm as $item)
+                        @php
+                            $thumbImage = !empty($item['image_path'])
+                                ? $item['image_path']
+                                : (!empty($item['active_products'][0]['images'][0])
+                                    ? $item['active_products'][0]['images'][0]
+                                    : (!empty($item['active_products'][0]['category']['image_path'])
+                                        ? $item['active_products'][0]['category']['image_path']
+                                        : null));
+
+                            $productHighlights = collect($item['active_products'] ?? [])
+                                ->map(fn ($p) => translateValue($p['category']['name'] ?? $p['name'] ?? null))
+                                ->filter()
+                                ->unique()
+                                ->take(2)
+                                ->implode(', ');
+                        @endphp
                         <a href="{{ route('umkm.store', $item['id']) }}"
-                            class="w-40 shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-transform first:ms-4 last:me-4 active:scale-[0.98] md:first:ms-8 md:last:me-8">
+                            class="w-44 shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-transform first:ms-4 active:scale-[0.98] md:first:ms-8">
                             <div class="relative aspect-video bg-gray-100">
-                                @if (!empty($item['image_path']))
-                                    <img src="{{ asset('storage/' . $item['image_path']) }}"
+                                @if (!empty($thumbImage))
+                                    <img src="{{ asset('storage/' . $thumbImage) }}"
                                         alt="{{ translateValue($item['business_name']) }}" loading="lazy"
                                         class="h-full w-full object-cover">
                                 @else
                                     <div class="text-primary absolute inset-0 flex items-center justify-center opacity-50">
-                                        <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                            stroke-width="1.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M4 9h16l-1 11a1 1 0 01-1 1H6a1 1 0 01-1-1L4 9zm4 0V6a4 4 0 018 0v3" />
+                                        <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z" />
                                         </svg>
+                                    </div>
+                                @endif
+
+                                @if (!empty($item['rating']) && $item['rating'] > 0)
+                                    <div class="absolute bottom-2 left-2 flex items-center gap-1 rounded-md bg-white/90 px-1.5 py-0.5 text-[10px] font-bold text-gray-800 shadow-xs backdrop-blur-xs">
+                                        <svg class="h-3 w-3 fill-amber-500 text-amber-500" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                        </svg>
+                                        <span>{{ number_format((float) $item['rating'], 1) }}</span>
                                     </div>
                                 @endif
                             </div>
                             <div class="p-3">
                                 <h4 class="line-clamp-1 text-sm font-bold text-gray-800">
                                     {{ translateValue($item['business_name']) }}</h4>
-                                @if (!empty($item['user']['name']))
-                                    <p class="mt-0.5 line-clamp-1 text-xs text-gray-500">{{ $item['user']['name'] }}</p>
-                                @endif
+                                <p class="mt-0.5 line-clamp-1 text-xs text-gray-500">
+                                    {{ !empty($productHighlights) ? $productHighlights : ($item['user']['name'] ?? '') }}
+                                </p>
                             </div>
                         </a>
                     @endforeach
+
+                    {{-- Kartu Penutup di Ujung Kanan (End-of-feed View All Card) --}}
+                    <a href="{{ route('umkm', ['tab' => 'direktori']) }}"
+                        class="me-4 flex w-36 shrink-0 snap-start flex-col items-center justify-center rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 p-4 text-center transition-all hover:bg-emerald-50 active:scale-95 md:me-8">
+                        <div class="mb-2 flex h-11 w-11 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xs">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </div>
+                        <span class="text-xs font-bold text-gray-800">{{ __('Lihat Semua') }}</span>
+                        <span class="mt-0.5 text-[10px] text-gray-500">{{ __('Direktori UMKM') }}</span>
+                    </a>
                 </div>
             </section>
         @endif

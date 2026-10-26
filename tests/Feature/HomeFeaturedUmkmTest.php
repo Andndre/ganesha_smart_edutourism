@@ -27,13 +27,31 @@ class HomeFeaturedUmkmTest extends TestCase
         $umkm = UmkmProfile::factory()->create([
             'business_name' => ['en' => 'Bamboo Craft House', 'id' => 'Warung Kerajinan Bambu'],
             'is_active' => true,
+            'rating' => 4.8,
         ]);
 
         $this->get(route('home'))
             ->assertOk()
             ->assertSee('Warung Kerajinan Bambu')
             ->assertDontSee('{"en"', false)
-            ->assertSee(route('umkm.store', $umkm->id), false);
+            ->assertSee(route('umkm.store', $umkm->id), false)
+            ->assertSee(route('umkm', ['tab' => 'direktori']), false)
+            ->assertSee('Direktori UMKM');
+    }
+
+    public function test_home_page_renders_featured_umkm_in_english_locale(): void
+    {
+        $umkm = UmkmProfile::factory()->create([
+            'business_name' => ['en' => 'Bamboo Craft House', 'id' => 'Warung Kerajinan Bambu'],
+            'is_active' => true,
+        ]);
+
+        $this->get('/?locale=en')
+            ->assertOk()
+            ->assertSee('Bamboo Craft House')
+            ->assertSee('See all')
+            ->assertSee('See All')
+            ->assertSee('Merchant Directory');
     }
 
     public function test_home_page_hides_umkm_section_when_none_are_active(): void
