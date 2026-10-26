@@ -24,21 +24,21 @@ class WeatherReport extends Model
     }
 
     /**
-     * Map WMO weather code to user-friendly Indonesian condition text.
+     * Map WMO weather code to user-friendly canonical condition key.
      */
     public static function mapCodeToCondition(int $code): string
     {
         return match ($code) {
-            0 => __('Cerah'),
-            1, 2 => __('Cerah Berawan'),
-            3 => __('Berawan'),
-            45, 48 => __('Berkabut'),
-            51, 53, 55 => __('Gerimis'),
-            61, 63 => __('Hujan Ringan'),
-            65 => __('Hujan Lebat'),
-            80, 81, 82 => __('Hujan Deras'),
-            95, 96, 99 => __('Hujan Badai'),
-            default => __('Hujan'),
+            0 => 'Cerah',
+            1, 2 => 'Cerah Berawan',
+            3 => 'Berawan',
+            45, 48 => 'Berkabut',
+            51, 53, 55 => 'Gerimis',
+            61, 63 => 'Hujan Ringan',
+            65 => 'Hujan Lebat',
+            80, 81, 82 => 'Hujan Deras',
+            95, 96, 99 => 'Hujan Badai',
+            default => 'Hujan',
         };
     }
 
@@ -59,8 +59,12 @@ class WeatherReport extends Model
      */
     public function getConditionText(): string
     {
-        if ($this->weather_code === 0 && $this->isNight()) {
-            return __('Cerah (Malam)');
+        if ($this->weather_code !== null) {
+            if ((int) $this->weather_code === 0 && $this->isNight()) {
+                return __('Cerah (Malam)');
+            }
+
+            return __(static::mapCodeToCondition((int) $this->weather_code));
         }
 
         return __($this->condition);

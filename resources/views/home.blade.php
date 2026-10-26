@@ -102,7 +102,7 @@
                     <div class="flex min-w-0 flex-col">
                         <span
                             class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">{{ __('Kepadatan') }}</span>
-                        <span class="{{ $densityClass }} mt-1 text-xl font-black leading-none">{{ $densityMain }}</span>
+                        <span class="{{ $densityClass }} mt-1 text-xl font-black leading-none">{{ __($densityMain) }}</span>
                         <span
                             class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ $densitySub }}</span>
                     </div>
@@ -470,7 +470,7 @@
                     </div>
                     <p class="mt-1.5 text-xs text-gray-500">
                         {{ $modalDensityPercent }}% —
-                        <span class="{{ $densityStatus['color'] }} font-semibold">{{ $densityStatus['label'] }}</span>
+                        <span class="{{ $densityStatus['color'] }} font-semibold">{{ __($densityStatus['label']) }}</span>
                     </p>
                 </div>
 
