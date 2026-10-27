@@ -30,8 +30,8 @@ class ARModelRequest extends FormRequest
             // mimetypes (content-sniffed) + extensions (filename) instead of `mimes`: .m4a
             // is frequently sniffed as audio/mp4 or video/mp4, which `mimes:m4a` rejects.
             'audio_narration_file' => ['nullable', 'array'],
-            'audio_narration_file.en' => ['nullable', 'file', 'mimetypes:audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,video/mp4', 'extensions:mp3,ogg,wav,m4a', 'max:10240'],
-            'audio_narration_file.id' => ['nullable', 'file', 'mimetypes:audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,video/mp4', 'extensions:mp3,ogg,wav,m4a', 'max:10240'],
+            'audio_narration_file.en' => ['nullable', 'file', 'mimetypes:audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,video/mp4,video/3gpp,audio/3gpp', 'extensions:mp3,ogg,wav,m4a,3gp,3gpp', 'max:10240'],
+            'audio_narration_file.id' => ['nullable', 'file', 'mimetypes:audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,video/mp4,video/3gpp,audio/3gpp', 'extensions:mp3,ogg,wav,m4a,3gp,3gpp', 'max:10240'],
         ];
 
         // Store: require model_3d_file unless tmp path provided

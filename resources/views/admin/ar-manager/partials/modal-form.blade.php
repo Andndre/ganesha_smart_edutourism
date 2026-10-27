@@ -138,16 +138,16 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <span class="mb-1 block text-[11px] font-semibold text-gray-500">Audio (ID)</span>
-                        <input type="file" name="audio_narration_file[id]" id="model-field-audio-file-id" accept=".mp3,.ogg,.wav,.m4a,audio/*"
+                        <input type="file" name="audio_narration_file[id]" id="model-field-audio-file-id" accept=".mp3,.ogg,.wav,.m4a,.3gp,.3gpp,audio/*,video/3gpp,audio/3gpp"
                             class="focus:border-primary w-full rounded-xl border border-gray-200 px-3 py-2 text-xs focus:outline-none"
-                            onchange="var maxSize=10*1024*1024;if(this.files[0]&&this.files[0].size>maxSize){Swal.fire({title:'File Terlalu Besar',text:'Maksimal 10MB per file audio.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value=''}">
+                            onchange="var maxSize=10*1024*1024;if(this.files[0]&&this.files[0].size>maxSize){Swal.fire({title:'File Terlalu Besar',text:'Maksimal 10MB per file audio.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value='';return;}window.previewLocalAudio('edit-current-audio-id', this)">
                         @include('admin.partials.mini-audio-player', ['playerId' => 'edit-current-audio-id'])
                     </div>
                     <div>
                         <span class="mb-1 block text-[11px] font-semibold text-gray-500">Audio (EN)</span>
-                        <input type="file" name="audio_narration_file[en]" id="model-field-audio-file-en" accept=".mp3,.ogg,.wav,.m4a,audio/*"
+                        <input type="file" name="audio_narration_file[en]" id="model-field-audio-file-en" accept=".mp3,.ogg,.wav,.m4a,.3gp,.3gpp,audio/*,video/3gpp,audio/3gpp"
                             class="focus:border-primary w-full rounded-xl border border-gray-200 px-3 py-2 text-xs focus:outline-none"
-                            onchange="var maxSize=10*1024*1024;if(this.files[0]&&this.files[0].size>maxSize){Swal.fire({title:'File Terlalu Besar',text:'Maksimal 10MB per file audio.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value=''}">
+                            onchange="var maxSize=10*1024*1024;if(this.files[0]&&this.files[0].size>maxSize){Swal.fire({title:'File Terlalu Besar',text:'Maksimal 10MB per file audio.',icon:'warning',confirmButtonColor:'#1E5128',confirmButtonText:'Mengerti',background:'#ffffff'});this.value='';return;}window.previewLocalAudio('edit-current-audio-en', this)">
                         @include('admin.partials.mini-audio-player', ['playerId' => 'edit-current-audio-en'])
                     </div>
                 </div>

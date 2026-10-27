@@ -53,9 +53,10 @@ class CulturalObjectRequest extends FormRequest
             'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
             // mimetypes (content-sniffed) + extensions (filename) instead of `mimes`: .m4a
             // is frequently sniffed as audio/mp4 or video/mp4, which `mimes:m4a` rejects.
+            // video/3gpp and audio/3gpp supported for mobile phone/voice recordings.
             'cultural_audio_file' => ['nullable', 'array'],
-            'cultural_audio_file.en' => ['nullable', 'file', 'mimetypes:audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,video/mp4', 'extensions:mp3,ogg,wav,m4a', 'max:10240'],
-            'cultural_audio_file.id' => ['nullable', 'file', 'mimetypes:audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,video/mp4', 'extensions:mp3,ogg,wav,m4a', 'max:10240'],
+            'cultural_audio_file.en' => ['nullable', 'file', 'mimetypes:audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,video/mp4,video/3gpp,audio/3gpp', 'extensions:mp3,ogg,wav,m4a,3gp,3gpp', 'max:10240'],
+            'cultural_audio_file.id' => ['nullable', 'file', 'mimetypes:audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,video/mp4,video/3gpp,audio/3gpp', 'extensions:mp3,ogg,wav,m4a,3gp,3gpp', 'max:10240'],
             'historical_images' => ['nullable', 'array'],
             'historical_images.*' => ['image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
         ];

@@ -133,18 +133,20 @@
         {{-- Audio Narasi --}}
         <div>
             <label class="mb-1 block text-sm font-semibold text-gray-700">Audio Narasi (ID) / (EN)</label>
-            <span class="mb-2 block text-xs text-gray-500">MP3/OGG/WAV/M4A, maks. 10 MB per bahasa</span>
+            <span class="mb-2 block text-xs text-gray-500">MP3/OGG/WAV/M4A/3GP, maks. 10 MB per bahasa</span>
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <span class="mb-1 block text-[11px] font-semibold text-gray-500">Audio (ID)</span>
                     @include('admin.partials.mini-audio-player', ['playerId' => 'current-audio-id'])
-                    <input type="file" name="cultural_audio_file[id]" accept=".mp3,.ogg,.wav,.m4a,audio/*"
+                    <input type="file" name="cultural_audio_file[id]" accept=".mp3,.ogg,.wav,.m4a,.3gp,.3gpp,audio/*,video/3gpp,audio/3gpp"
+                        onchange="window.previewLocalAudio('current-audio-id', this)"
                         class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
                 </div>
                 <div>
                     <span class="mb-1 block text-[11px] font-semibold text-gray-500">Audio (EN)</span>
                     @include('admin.partials.mini-audio-player', ['playerId' => 'current-audio-en'])
-                    <input type="file" name="cultural_audio_file[en]" accept=".mp3,.ogg,.wav,.m4a,audio/*"
+                    <input type="file" name="cultural_audio_file[en]" accept=".mp3,.ogg,.wav,.m4a,.3gp,.3gpp,audio/*,video/3gpp,audio/3gpp"
+                        onchange="window.previewLocalAudio('current-audio-en', this)"
                         class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
                 </div>
             </div>

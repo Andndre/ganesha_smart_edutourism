@@ -37,6 +37,13 @@
                     detail: { modelId: '{{ $object->arModel->id }}' }
                 }));
             @endif
+
+            @if (!empty($object->audio_narration_paths['id']))
+                window.setMiniAudio('current-audio-id', @json($object->audio_narration_paths['id']));
+            @endif
+            @if (!empty($object->audio_narration_paths['en']))
+                window.setMiniAudio('current-audio-en', @json($object->audio_narration_paths['en']));
+            @endif
         });
     </script>
 @endpush
