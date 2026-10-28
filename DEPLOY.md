@@ -38,9 +38,8 @@ nano .env
 Sesuaikan beberapa konfigurasi penting berikut agar kompatibel dengan Docker:
 
 ```env
-# 1. Port Web Aplikasi, phpMyAdmin, & WebSocket
+# 1. Port Web Aplikasi & WebSocket
 APP_PORT=80
-PMA_PORT=8082
 REVERB_PORT=8081
 
 # 2. Pengaturan Database (WAJIB menggunakan nama container db: penglipuran-db)
@@ -225,9 +224,8 @@ Docker Compose akan secara otomatis memisahkan container, network, dan volume be
    # Identitas Project Compose (Menentukan prefix nama container & volume)
    COMPOSE_PROJECT_NAME=penglipuran-prod
 
-   # Domain Utama & phpMyAdmin
+   # Domain Utama
    APP_DOMAIN=penglipuran.digowave.com
-   PMA_DOMAIN=pma-penglipuran.digowave.com
 
    # Port Binding Host (Gunakan port default)
    REVERB_PORT=8081
@@ -247,9 +245,8 @@ Docker Compose akan secara otomatis memisahkan container, network, dan volume be
    # Identitas Project Compose (PENTING: Harus berbeda dari production!)
    COMPOSE_PROJECT_NAME=penglipuran-dev
 
-   # Subdomain Dev & phpMyAdmin Dev
+   # Subdomain Dev
    APP_DOMAIN=dev.penglipuran.digowave.com
-   PMA_DOMAIN=pma-dev.penglipuran.digowave.com
 
    # Port Binding Host (PENTING: Gunakan port unik agar tidak bentrok di host VPS!)
    REVERB_PORT=8083

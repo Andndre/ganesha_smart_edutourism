@@ -26,9 +26,6 @@ services:
     profiles:
       - optional
 
-  penglipuran-pma:
-    profiles:
-      - optional
 
   penglipuran-queue:
     profiles:

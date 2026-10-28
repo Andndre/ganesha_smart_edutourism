@@ -178,28 +178,6 @@ services:
     networks:
       - penglipuran-network
 
-  penglipuran-pma:
-    image: phpmyadmin:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-penglipuran}-pma
-    restart: unless-stopped
-    # Ports dinonaktifkan agar port 8081 tidak terekspos secara publik di luar Traefik:
-    # ports:
-    #   - "${PMA_PORT:-8081}:80"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:-penglipuran}-pma.rule=Host(`${PMA_DOMAIN:-pma-penglipuran.digowave.com}`)"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:-penglipuran}-pma.entrypoints=websecure"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:-penglipuran}-pma.tls.certresolver=letsencrypt"
-      - "traefik.http.services.${COMPOSE_PROJECT_NAME:-penglipuran}-pma.loadbalancer.server.port=80"
-    environment:
-      PMA_HOST: ${COMPOSE_PROJECT_NAME:-penglipuran}-db
-      UPLOAD_LIMIT: 64M
-    depends_on:
-      - penglipuran-db
-    mem_limit: 128m
-    cpus: 0.25
-    networks:
-      - penglipuran-network
 
 
 networks:

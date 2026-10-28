@@ -20,3 +20,8 @@ docker compose exec -T -e MYSQL_PWD="$DB_PASS" penglipuran-db \
     mysqldump -u root "$DB_NAME" | gzip > "$OUT_FILE"
 
 echo "Done: $OUT_FILE"
+
+# Clean up backups older than 14 days to prevent disk bloat
+echo "Cleaning up backups older than 14 days in $BACKUP_DIR ..."
+find "$BACKUP_DIR" -type f -name "backup_*.sql.gz" -mtime +14 -delete
+
