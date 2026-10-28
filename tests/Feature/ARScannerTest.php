@@ -143,6 +143,17 @@ class ARScannerTest extends TestCase
         $response->assertStatus(404);
     }
 
+    public function test_serve_usdz_aborts_on_path_traversal_attempt(): void
+    {
+        Storage::disk('public')->put('outside-model.usdz', 'outside content');
+
+        $response = $this->get('/usdz-file/../outside-model.usdz');
+
+        $response->assertStatus(404);
+
+        Storage::disk('public')->delete('outside-model.usdz');
+    }
+
     public function test_serve_usdz_resolves_zip_stored_file()
     {
         Storage::disk('public')->put('models_usdz/test-model.zip', 'zip content');

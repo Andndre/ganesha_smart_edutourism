@@ -219,6 +219,34 @@ class TicketScanTest extends TestCase
         $this->get('/staff/ticketing')->assertRedirect('/login');
     }
 
+    public function test_admin_viewer_can_view_ticketing_pages_but_cannot_mutate(): void
+    {
+        $viewer = User::factory()->create(['role' => 'admin_viewer']);
+        $rate = $this->rate('domestic', 'Tes Dewasa', 25000);
+
+        // Read-only GET access allowed
+        $this->actingAs($viewer)->get('/staff/ticketing')->assertOk();
+        $this->actingAs($viewer)->get('/staff/ticketing/history')->assertOk();
+
+        // Mutating POST blocked
+        $this->actingAs($viewer)
+            ->postJson('/staff/ticketing/check', ['raw_code' => 'TEST-123'])
+            ->assertForbidden();
+
+        $this->actingAs($viewer)
+            ->postJson('/staff/ticketing/store', [
+                'raw_code' => 'TEST-123',
+                'lines' => [
+                    ['rate_id' => $rate->id, 'quantity' => 1],
+                ],
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('ticket_scans', [
+            'raw_code' => 'TEST-123',
+        ]);
+    }
+
     public function test_stats_counts_people_not_rows(): void
     {
         $officer = User::factory()->create(['role' => 'ticket_officer']);
