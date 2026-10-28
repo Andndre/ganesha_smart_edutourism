@@ -151,8 +151,8 @@ Route::get('/terms', [PageController::class, 'terms'])->name('terms');
 Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
 
 // Staff Routes (Admin & Ticket Officer)
-// Catatan: middleware `staff` juga mengizinkan peran `admin_viewer`, sehingga
-// peran yang read-only di area admin tetap bisa POST ke check/store di sini.
+// Catatan: middleware `staff` mengizinkan peran `admin` & `ticket_officer` penuh,
+// serta peran `admin_viewer` hanya untuk melihat (read-only: GET/HEAD).
 Route::prefix('staff')->middleware(['auth', 'staff'])->group(function () {
     Route::get('/ticketing', [TicketScanController::class, 'index'])->name('staff.ticketing');
     Route::post('/ticketing/check', [TicketScanController::class, 'check'])->name('staff.ticketing.check');

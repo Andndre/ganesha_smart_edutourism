@@ -78,17 +78,19 @@ class ARController extends Controller
      */
     public function serveUsdz(string $path)
     {
-        $fullPath = storage_path('app/public/models_usdz/'.$path);
+        $baseDir = storage_path('app/public/models_usdz');
+        $root = realpath($baseDir);
 
-        if (! file_exists($fullPath)) {
+        $targetPath = $baseDir.'/'.$path;
+        if (! file_exists($targetPath) && str_ends_with($path, '.zip.usdz')) {
             // Support serving legacy/incorrectly named .zip USDZ files
-            if (str_ends_with($path, '.zip.usdz')) {
-                $strippedPath = substr($path, 0, -5);
-                $fullPath = storage_path('app/public/models_usdz/'.$strippedPath);
-            }
+            $strippedPath = substr($path, 0, -5);
+            $targetPath = $baseDir.'/'.$strippedPath;
         }
 
-        if (! file_exists($fullPath)) {
+        $fullPath = realpath($targetPath);
+
+        if ($root === false || $fullPath === false || ! str_starts_with($fullPath, $root.\DIRECTORY_SEPARATOR)) {
             abort(404);
         }
 

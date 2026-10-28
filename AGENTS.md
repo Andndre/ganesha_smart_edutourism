@@ -297,7 +297,7 @@ Reusable traits in `app/Models/Concerns/`:
 - No online booking or payment gateway. Tickets are sold via OTAs (e.g. Traveloka); staff scan the QR at the gate.
 - `Staff\TicketScanController` (`index`, `check`, `store`, `stats`) records each scan in `TicketScan`, using a unique `code_hash` to detect duplicate/repeat scans.
 - Routes: `staff.ticketing`, `staff.ticketing.check`, `staff.ticketing.store`, `staff.ticketing.stats`.
-- **Access:** `StaffMiddleware` admits `admin`, `ticket_officer`, **and `admin_viewer`**. `admin_viewer` is read-only everywhere else (`AdminOrViewerMiddleware`), but on `/staff/*` it can POST to `staff.ticketing.check` and `staff.ticketing.store` — i.e. record visits and bump `duplicate_attempts`. Pre-existing behaviour, kept deliberately; tighten `StaffMiddleware` if that role must stay read-only.
+- **Access:** `StaffMiddleware` admits `admin` and `ticket_officer` with full access, and `admin_viewer` strictly with read-only access (GET/HEAD only). `admin_viewer` cannot mutate ticketing data via POST (`staff.ticketing.check` and `staff.ticketing.store` return 403 Forbidden).
 
 ---
 
