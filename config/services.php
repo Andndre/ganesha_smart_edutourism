@@ -37,6 +37,8 @@ return [
 
     'ors' => [
         'base_url' => env('ORS_BASE_URL', 'http://localhost:8080'),
+        'cache_ttl' => (int) env('ORS_CACHE_TTL', 604800),
+        'timeout' => (int) env('ORS_TIMEOUT', 3),
     ],
 
     'libretranslate' => [
