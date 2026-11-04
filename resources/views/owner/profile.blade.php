@@ -20,7 +20,7 @@
     </div>
 
     <div class="max-w-2xl rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <form method="POST" action="{{ route('owner.profile.update') }}" x-data="{ locale: 'en' }">
+        <form method="POST" action="{{ route('owner.profile.update') }}" enctype="multipart/form-data" x-data="{ locale: 'en' }">
             @csrf
             @method('PUT')
 
@@ -74,6 +74,29 @@
                     @error('description.id')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
+                </div>
+
+                {{-- Store Cover Image --}}
+                <div id="tour-cover-image">
+                    <label class="block text-sm font-semibold text-gray-700">Store Cover Image</label>
+                    <p class="mt-0.5 text-xs text-gray-500">This image represents your store on the village map and directories. Recommended: 16:9 ratio, max 5MB.</p>
+                    <div class="mt-2.5 flex items-center gap-4">
+                        <div class="relative h-20 w-32 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
+                            @php
+                                $currentCover = $profile?->image_path ?: 'images/packages/kuliner-paon.webp';
+                                $currentCoverUrl = \Illuminate\Support\Str::startsWith($currentCover, 'images/') ? asset($currentCover) : asset('storage/' . $currentCover);
+                            @endphp
+                            <img id="cover-preview" src="{{ $currentCoverUrl }}" alt="Cover preview" class="h-full w-full object-cover">
+                        </div>
+                        <div class="flex-1">
+                            <input type="file" name="image" id="cover-input" accept="image/jpeg,image/png,image/webp"
+                                onchange="if (this.files && this.files[0]) { document.getElementById('cover-preview').src = URL.createObjectURL(this.files[0]); }"
+                                class="w-full text-xs text-gray-500 file:mr-3 file:rounded-xl file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-primary hover:file:bg-primary/20">
+                            @error('image')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
 
                 @if ($profile)

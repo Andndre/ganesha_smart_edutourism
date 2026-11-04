@@ -6,7 +6,10 @@ use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Requests\Owner\OwnerLocationRequest;
 use App\Http\Requests\Owner\OwnerProfileRequest;
 use App\Models\UmkmProfile;
+use App\Services\ImageOptimizerService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class OwnerDashboardController extends BaseOwnerController
@@ -39,6 +42,18 @@ class OwnerDashboardController extends BaseOwnerController
     public function updateProfile(OwnerProfileRequest $request): RedirectResponse
     {
         $validated = $request->validated();
+        unset($validated['image']);
+
+        if ($request->hasFile('image')) {
+            $optimizer = app(ImageOptimizerService::class);
+            $newPath = $optimizer->optimizeAndStore($request->file('image'), 'umkm_profiles');
+
+            if ($this->profile && $this->profile->image_path && str_starts_with($this->profile->image_path, 'umkm_profiles/')) {
+                Storage::disk('public')->delete($this->profile->image_path);
+            }
+
+            $validated['image_path'] = $newPath;
+        }
 
         $defaultLocale = config('app.fallback_locale', 'en');
 
@@ -61,6 +76,8 @@ class OwnerDashboardController extends BaseOwnerController
 
             $this->profile->update($validated);
         }
+
+        Cache::tags(['explore', 'umkm'])->flush();
 
         return redirect()->route('owner.profile')->with('success', __('Informasi toko Anda berhasil diperbarui.'));
     }

@@ -59,6 +59,7 @@ class PenglipuranHouseUmkmSeeder extends Seeder
                         'en' => "House No. {$number}",
                     ],
                     'slug' => $slug,
+                    'image_path' => 'images/packages/kuliner-paon.webp',
                     'is_active' => true,
                 ]);
 

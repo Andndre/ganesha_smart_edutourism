@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\Translatable\HasTranslations;
 
-#[Fillable(['user_id', 'owner_name', 'business_name', 'slug', 'description', 'rating', 'is_active', 'recommendation_count'])]
+#[Fillable(['user_id', 'owner_name', 'business_name', 'slug', 'description', 'image_path', 'rating', 'is_active', 'recommendation_count'])]
 class UmkmProfile extends Model
 {
     use HasFactory;
