@@ -218,10 +218,24 @@
                         <div
                             class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
                             <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
-                                <circle cx="12" cy="12.8" r="9.2" fill="#1E5128" />
-                                <circle cx="12" cy="12" r="9.2" fill="#2E7D32" />
-                                <path d="M12 4.5l2.4 5.3 5.6.8-4 4 1 5.7L12 17.5l-5 2.8 1-5.7-4-4 5.6-.8L12 4.5Z" fill="#FDD835" />
-                                <circle cx="12" cy="12" r="2.2" fill="#FFFFFF" />
+                                <!-- Gulungan Ijazah / Diploma di bawah -->
+                                <path d="M4 18.8h11a1.2 1.2 0 0 1 1.2 1.2v.2a1.2 1.2 0 0 1-1.2 1.2H4a1.2 1.2 0 0 1-1.2-1.2v-.2A1.2 1.2 0 0 1 4 18.8Z" fill="#CFD8DC" />
+                                <path d="M4 18h11a1.2 1.2 0 0 1 1.2 1.2v.2a1.2 1.2 0 0 1-1.2 1.2H4a1.2 1.2 0 0 1-1.2-1.2v-.2A1.2 1.2 0 0 1 4 18Z" fill="#FFF9C4" />
+                                <rect x="8.5" y="17.5" width="2" height="3" rx="0.5" fill="#E53935" />
+                                <!-- Dudukan Kepala Topi (Cap Base) -->
+                                <path d="M6.5 11v3.5c0 1.8 2.5 3.2 5.5 3.2s5.5-1.4 5.5-3.2V11" fill="#1B5E20" />
+                                <path d="M7 10.5v3.3c0 1.6 2.2 2.9 5 2.9s5-1.3 5-2.9v-3.3" fill="#2E7D32" />
+                                <!-- Bidang Belah Ketupat Toga (Mortarboard) -->
+                                <polygon points="12,4.8 22,8.8 12,12.8 2,8.8" fill="#1B5E20" />
+                                <polygon points="12,4 22,8 12,12 2,8" fill="#43A047" />
+                                <!-- Kancing Tengah & Rumbai Emas (Tassel) -->
+                                <ellipse cx="12" cy="8" rx="1.1" ry="0.7" fill="#FBC02D" />
+                                <path d="M12 8c3.5 1 6 2.5 7 5" stroke="#F57F17" stroke-width="1.3" stroke-linecap="round" />
+                                <path d="M12 7.7c3.5 1 6 2.5 7 5" stroke="#FDD835" stroke-width="1.1" stroke-linecap="round" />
+                                <circle cx="19.2" cy="13.2" r="1.3" fill="#FBC02D" />
+                                <circle cx="19.2" cy="13" r="1.1" fill="#FDD835" />
+                                <!-- Kilauan Permukaan (Highlight) -->
+                                <polygon points="12,4.8 15.5,6.2 12,7.6 8.5,6.2" fill="#fff" opacity="0.3" />
                             </svg>
                         </div>
                         <span
