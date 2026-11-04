@@ -40,6 +40,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\SmartEdutourismController;
 use App\Http\Controllers\Staff\TicketScanController;
+use App\Http\Controllers\TicketPackageController;
 use App\Http\Controllers\TranslateController;
 use App\Http\Controllers\UmkmCatalogController;
 use App\Http\Controllers\UmkmReviewController;
@@ -105,6 +106,9 @@ Route::middleware(['redirect.admin', 'track.visit'])->group(function () {
     Route::post('/edutourism/mission/{missionId}/complete', [SmartEdutourismController::class, 'completeMission'])->name('edutourism.mission.complete');
     Route::post('/edutourism/qr/resolve', [SmartEdutourismController::class, 'resolveQr'])->name('edutourism.qr.resolve');
     Route::post('/edutourism/stop', [SmartEdutourismController::class, 'stop'])->name('edutourism.stop');
+
+    // Paket Eduwisata & Loket Tiket Resmi
+    Route::get('/paket-tiket', [TicketPackageController::class, 'index'])->name('packages-tickets');
 
     // Routing API (public — used by /explore which is also public)
     Route::post('/api/routing/directions', [RoutingController::class, 'directions'])->name('routing.directions');

@@ -213,6 +213,53 @@
                             class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Event') }}</span>
                     </a>
 
+                    <a href="{{ route('edutourism.index') }}"
+                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12.8" r="9.2" fill="#1E5128" />
+                                <circle cx="12" cy="12" r="9.2" fill="#2E7D32" />
+                                <path d="M12 4.5l2.4 5.3 5.6.8-4 4 1 5.7L12 17.5l-5 2.8 1-5.7-4-4 5.6-.8L12 4.5Z" fill="#FDD835" />
+                                <circle cx="12" cy="12" r="2.2" fill="#FFFFFF" />
+                            </svg>
+                        </div>
+                        <span
+                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Edutourism') }}</span>
+                    </a>
+
+                    <a href="{{ route('umkm', ['tab' => 'direktori']) }}"
+                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 10.8 12 3.8l9 7v10.4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10.8Z" fill="#B45309" />
+                                <path d="M3 10 12 3l9 7v10.4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10Z" fill="#D97706" />
+                                <path d="M9 21.4V12.8a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v8.6" fill="#78350F" />
+                                <path d="M9 20.6V12a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v8.6" fill="#92400E" />
+                                <path d="M2 9.5 12 2l10 7.5-1.5 1.5L12 4.5 3.5 11 2 9.5Z" fill="#F59E0B" />
+                            </svg>
+                        </div>
+                        <span
+                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Rumah Adat') }}</span>
+                    </a>
+
+                    <a href="{{ route('packages-tickets') }}"
+                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
+                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 9.3a2.5 2.5 0 0 1 2.5-2.5h13A2.5 2.5 0 0 1 21 9.3v1a2 2 0 0 0 0 4v1a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 15.3v-1a2 2 0 0 0 0-4v-1Z" fill="#B45309" />
+                                <path d="M3 8.5a2.5 2.5 0 0 1 2.5-2.5h13A2.5 2.5 0 0 1 21 8.5v1a2 2 0 0 0 0 4v1a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 14.5v-1a2 2 0 0 0 0-4v-1Z" fill="#F59E0B" />
+                                <line x1="9" y1="7" x2="9" y2="17" stroke="#FFFFFF" stroke-width="1.8" stroke-dasharray="2 2" />
+                                <circle cx="15" cy="12" r="2.4" fill="#1E5128" />
+                                <path d="m14 12 1 1 2-2" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <span
+                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Paket & Tiket') }}</span>
+                    </a>
+
                     @if (Auth::check() && Auth::user()->isUmkmOwner())
                         <a href="{{ route('owner.dashboard') }}"
                             class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
