@@ -32,7 +32,7 @@ class TicketPackageController extends Controller
                 'duration' => '7 Jam',
                 'badge' => 'PALING LENGKAP • 7 JAM',
                 'badge_color' => 'bg-amber-500 text-white',
-                'image' => 'images/penglipuran-hero.jpeg',
+                'image' => 'images/packages/living-experience.jpeg',
                 'tagline' => 'Tinggal, berinteraksi, dan beraktivitas langsung bersama keluarga warga adat Penglipuran.',
                 'highlights' => [
                     'Workshop Tari Bali & Pembuatan Canang Sari',
@@ -64,7 +64,7 @@ class TicketPackageController extends Controller
                 'duration' => '3.5 Jam',
                 'badge' => 'STUDI ARSITEKTUR • 3.5 JAM',
                 'badge_color' => 'bg-blue-600 text-white',
-                'image' => 'images/sc0LPyyCFLChdRSjUj8RN94J8p0cL4Qy74PabS1N.webp',
+                'image' => 'images/packages/arsitektur-bambu.webp',
                 'tagline' => 'Bedah anatomi arsitektur tradisional Bali dan konservasi bambu terencana.',
                 'highlights' => [
                     'Kosmologi Tata Ruang Sanga Mandala',
@@ -94,7 +94,7 @@ class TicketPackageController extends Controller
                 'duration' => '4 Jam',
                 'badge' => 'LIVING KITCHEN • 4 JAM',
                 'badge_color' => 'bg-pink-600 text-white',
-                'image' => 'images/uCPzPNcwJOOpyLyu93o6mgpek8uuvcwN978rdzyD.webp',
+                'image' => 'images/packages/kuliner-paon.webp',
                 'tagline' => 'Meracik resep warisan leluhur dan bersantap bersama di perapian dapur tradisional.',
                 'highlights' => [
                     'Meracik Minuman Herbal Loloh Cemcem Asli',

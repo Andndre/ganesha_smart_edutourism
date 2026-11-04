@@ -86,7 +86,7 @@
                         <div>
                             {{-- Image Thumbnail with Duration Badge --}}
                             <div class="relative mb-3.5 aspect-video w-full overflow-hidden rounded-xl bg-gray-100">
-                                <img src="{{ asset('storage/' . $pkg['image']) }}"
+                                <img src="{{ asset($pkg['image']) }}"
                                     onerror="this.classList.add('hidden'); this.nextElementSibling?.classList.remove('hidden')"
                                     alt="{{ $pkg['title'] }}"
                                     class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
