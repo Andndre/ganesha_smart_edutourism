@@ -71,11 +71,13 @@ if [[ "$1" == "--seed" ]]; then
     docker compose -f docker-compose.yml exec -T penglipuran-app php artisan db:seed --force
 fi
 
-# 8. Optimize Laravel
-echo "Optimizing Laravel configurations and routes..."
+# 8. Optimize Laravel & reload Octane workers
+echo "Optimizing Laravel configurations, routes, views, and events..."
 docker compose -f docker-compose.yml exec -T penglipuran-app php artisan config:cache
 docker compose -f docker-compose.yml exec -T penglipuran-app php artisan route:cache
 docker compose -f docker-compose.yml exec -T penglipuran-app php artisan view:cache
+docker compose -f docker-compose.yml exec -T penglipuran-app php artisan event:cache
+docker compose -f docker-compose.yml exec -T penglipuran-app php artisan octane:reload || true
 
 echo "=========================================================="
 echo " Deployment Successful!"

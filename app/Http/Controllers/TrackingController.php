@@ -34,7 +34,7 @@ class TrackingController extends Controller
 
         if ($inBounds) {
             // Store active visitor in Cache
-            $activeVisitors = Cache::get('active_visitors', []);
+            $activeVisitors = Cache::get('active_visitors', []) ?? [];
 
             $activeVisitors[$request->session_id] = [
                 'lat' => $lat,
@@ -43,24 +43,32 @@ class TrackingController extends Controller
                 'user_name' => $userName,
             ];
 
-            // Clean up stale visitors (no ping for 30s — covers force-close browser)
-            // Ping interval is 10s, so active users always stay; force-close = gone in ~30s
-            $beforeIds = array_keys($activeVisitors);
-            $activeVisitors = array_filter($activeVisitors, function ($visitor) {
-                return (now()->timestamp - $visitor['last_seen']) < 30;
-            });
+            // Under high concurrency (>25 active visitors), throttle O(Z*N) polygon math & stale sweep to once per 3s
+            $shouldRunFullCheck = count($activeVisitors) <= 25
+                || (bool) Cache::add('tracking_crowd_check_lock', 1, 3);
 
-            // Broadcast removal for stale sessions that just got cleaned up
-            foreach (array_diff($beforeIds, array_keys($activeVisitors)) as $removedId) {
-                broadcast(new VisitorLocationRemoved($removedId));
+            if ($shouldRunFullCheck) {
+                // Clean up stale visitors (no ping for 30s — covers force-close browser)
+                $beforeIds = array_keys($activeVisitors);
+                $nowTs = now()->timestamp;
+                $activeVisitors = array_filter($activeVisitors, function ($visitor) use ($nowTs) {
+                    return ($nowTs - $visitor['last_seen']) < 30;
+                });
+
+                // Broadcast removal for stale sessions that just got cleaned up
+                foreach (array_diff($beforeIds, array_keys($activeVisitors)) as $removedId) {
+                    broadcast(new VisitorLocationRemoved($removedId));
+                }
             }
 
             Cache::put('active_visitors', $activeVisitors, now()->addMinutes(1));
 
             broadcast(new VisitorLocationUpdated($lat, $lng, $request->session_id, $userName));
 
-            // Check capacity zones for crowd alerts
-            $this->checkCrowdAlerts($activeVisitors);
+            if ($shouldRunFullCheck) {
+                // Check capacity zones for crowd alerts
+                $this->checkCrowdAlerts($activeVisitors);
+            }
 
             return response()->json(['status' => 'tracked']);
         }
@@ -97,11 +105,20 @@ class TrackingController extends Controller
      */
     private function checkCrowdAlerts(array $activeVisitors): void
     {
-        $zones = CapacityZone::where('is_active', true)
-            ->whereNotNull('polygon_coordinates')
-            ->get();
+        $taggedCache = Cache::tags(['capacity']);
+        $zonesData = $taggedCache
+            ? $taggedCache->remember('active_capacity_zones_with_polygons_array', 300, fn () => CapacityZone::where('is_active', true)
+                ->whereNotNull('polygon_coordinates')
+                ->get()
+                ->toArray())
+            : CapacityZone::where('is_active', true)
+                ->whereNotNull('polygon_coordinates')
+                ->get()
+                ->toArray();
 
-        foreach ($zones as $zone) {
+        foreach ($zonesData as $zoneData) {
+            $zone = new CapacityZone($zoneData);
+            $zone->id = $zoneData['id'];
             $countInZone = 0;
 
             foreach ($activeVisitors as $visitor) {

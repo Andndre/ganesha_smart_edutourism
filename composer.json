@@ -16,6 +16,7 @@
         "intervention/image": "^4.4",
         "laravel-notification-channels/webpush": "^11.0",
         "laravel/framework": "^13.8",
+        "laravel/octane": "^2.23",
         "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.3",
         "laravel/socialite": "^5.28",

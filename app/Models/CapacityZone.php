@@ -76,17 +76,57 @@ class CapacityZone extends Model
      */
     public static function withLiveCounts(array $zones): array
     {
+        $activeVisitors = Cache::get('active_visitors', []) ?? [];
+        $visitorCount = count($activeVisitors);
+
+        // Under high load (>25 active visitors), reuse 3-second precomputed counts to avoid O(Z*N) ray-casting per page view
+        $cachedCounts = null;
+        if ($visitorCount > 25) {
+            $cachedCounts = Cache::tags(['capacity'])->remember(
+                'capacity_zone_live_counts_array',
+                3,
+                fn () => self::computeLiveCountsByZoneId($zones, $activeVisitors)
+            );
+        }
+
+        $countsById = $cachedCounts ?? self::computeLiveCountsByZoneId($zones, $activeVisitors);
+
+        foreach ($zones as &$zone) {
+            $zoneId = $zone['id'] ?? $zone['zone_identifier'] ?? null;
+            $zone['current_count'] = $zoneId !== null && isset($countsById[$zoneId])
+                ? $countsById[$zoneId]
+                : 0;
+        }
+        unset($zone);
+
+        return $zones;
+    }
+
+    /**
+     * Compute live visitor counts keyed by zone id/identifier.
+     *
+     * @param  array<int, array<string, mixed>>  $zones
+     * @param  array<string, array{lat: float, lng: float, last_seen: int}>  $activeVisitors
+     * @return array<int|string, int>
+     */
+    private static function computeLiveCountsByZoneId(array $zones, array $activeVisitors): array
+    {
         $now = now()->timestamp;
         $locations = [];
 
-        foreach (Cache::get('active_visitors', []) as $visitor) {
+        foreach ($activeVisitors as $visitor) {
             if (($now - $visitor['last_seen']) < 300) {
                 $locations[] = ['lat' => (float) $visitor['lat'], 'lng' => (float) $visitor['lng']];
             }
         }
 
-        foreach ($zones as &$zone) {
-            $zone['current_count'] = 0;
+        $counts = [];
+        foreach ($zones as $zone) {
+            $zoneKey = $zone['id'] ?? $zone['zone_identifier'] ?? null;
+            if ($zoneKey === null) {
+                continue;
+            }
+            $counts[$zoneKey] = 0;
 
             if (empty($zone['polygon_coordinates'])) {
                 continue;
@@ -97,13 +137,12 @@ class CapacityZone extends Model
 
             foreach ($locations as $location) {
                 if ($tempZone->containsPoint($location['lat'], $location['lng'])) {
-                    $zone['current_count']++;
+                    $counts[$zoneKey]++;
                 }
             }
         }
-        unset($zone);
 
-        return $zones;
+        return $counts;
     }
 
     /**
