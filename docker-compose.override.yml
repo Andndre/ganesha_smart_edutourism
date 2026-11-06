@@ -1,5 +1,6 @@
 services:
   penglipuran-app:
+    cpus: 2
     ports:
       - "${APP_PORT:-8000}:80"
     volumes:

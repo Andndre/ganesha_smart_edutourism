@@ -1,0 +1,98 @@
+{
+	{$CADDY_GLOBAL_OPTIONS:auto_https off}
+
+	admin {$CADDY_SERVER_ADMIN_HOST:localhost}:{$CADDY_SERVER_ADMIN_PORT:2019}
+
+	frankenphp {
+		worker {
+			file "{$APP_PUBLIC_PATH:/var/www/public}/frankenphp-worker.php"
+			{$CADDY_SERVER_WORKER_DIRECTIVE:num 8}
+			{$CADDY_SERVER_WATCH_DIRECTIVES}
+		}
+	}
+}
+
+{$CADDY_EXTRA_CONFIG}
+
+{$CADDY_SERVER_SERVER_NAME:http://:80} {
+	log {
+		level {$CADDY_SERVER_LOG_LEVEL:WARN}
+
+		format filter {
+			wrap {$CADDY_SERVER_LOGGER:json}
+			fields {
+				request>uri query {
+					replace authorization REDACTED
+				}
+			}
+		}
+	}
+
+	request_body {
+		max_size 200MB
+	}
+
+	header -X-Powered-By
+
+	route {
+		root * "{$APP_PUBLIC_PATH:/var/www/public}"
+
+		# Block hidden files/directories (e.g. /.env, /.git) except /.well-known/*
+		@hidden {
+			path /.* */.*
+			not path /.well-known/*
+		}
+		respond @hidden 403
+
+		# Reverb WebSocket reverse proxy (/app/* and /apps/*)
+		@reverb path /app/* /apps/*
+		handle @reverb {
+			reverse_proxy penglipuran-reverb:8081
+		}
+
+		# OpenRouteService reverse proxy (/ors/*)
+		@ors path /ors/*
+		handle @ors {
+			reverse_proxy penglipuran-ors:8082
+		}
+
+		@compressible not path /.well-known/mercure *.glb *.usdz *.mp3 *.m4a *.ogg *.wav
+		encode @compressible zstd br gzip
+
+		# Static 3D model assets: caching, CORS & MIME types
+		@models path *.glb *.gltf *.usdz
+		header @models Cache-Control "public, max-age=2592000, no-transform"
+		header @models Access-Control-Allow-Origin "*"
+
+		@glb path *.glb
+		header @glb Content-Type "model/gltf-binary"
+
+		@gltf path *.gltf
+		header @gltf Content-Type "model/gltf+json"
+
+		@usdz path *.usdz
+		header @usdz Content-Type "model/vnd.usdz+zip"
+
+		# Static media assets caching (30 days)
+		@media path *.webp *.gif *.svg *.ico *.jpg *.jpeg *.png
+		header @media Cache-Control "public, max-age=2592000, no-transform"
+
+		# Fallback to .webp if the requested raster image (.jpg, .jpeg, .png) was converted to WebP
+		@raster path_regexp raster ^(.*)\.(jpe?g|png)$
+		handle @raster {
+			try_files {path} {re.raster.1}.webp frankenphp-worker.php
+			php_server {
+				index frankenphp-worker.php
+				resolve_root_symlink
+			}
+		}
+
+		{$CADDY_SERVER_EXTRA_DIRECTIVES}
+
+		php_server {
+			index frankenphp-worker.php
+			try_files {path} frankenphp-worker.php
+			resolve_root_symlink
+		}
+	}
+}
