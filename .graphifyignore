@@ -1,0 +1,6 @@
+# Bundled / minified third-party assets: parsing these buries real code
+# in the god-node ranking (e.g. model-viewer.min.js produced 700+ junk edges).
+public/js/model-viewer.min.js
+public/vendor/
+public/build/
+*.min.js

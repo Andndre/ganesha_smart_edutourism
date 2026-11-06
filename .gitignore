@@ -49,3 +49,6 @@ docs/superpowers/
 **/caddy
 frankenphp
 frankenphp-worker.php
+
+# graphify generated output
+graphify-out/
