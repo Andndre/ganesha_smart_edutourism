@@ -33,35 +33,47 @@ class TrackingController extends Controller
         $inBounds = true; // ($lat < -8.410 && $lat > -8.435) && ($lng > 115.350 && $lng < 115.370);
 
         if ($inBounds) {
-            // Store active visitor in Cache
-            $activeVisitors = Cache::get('active_visitors', []) ?? [];
+            $shouldRunFullCheck = false;
+            $activeVisitors = [];
 
-            $activeVisitors[$request->session_id] = [
-                'lat' => $lat,
-                'lng' => $lng,
-                'last_seen' => now()->timestamp,
-                'user_name' => $userName,
-            ];
+            $updateActiveVisitors = function () use ($request, $lat, $lng, $userName, &$shouldRunFullCheck, &$activeVisitors) {
+                // Store active visitor in Cache
+                $activeVisitors = Cache::get('active_visitors', []) ?? [];
 
-            // Under high concurrency (>25 active visitors), throttle O(Z*N) polygon math & stale sweep to once per 3s
-            $shouldRunFullCheck = count($activeVisitors) <= 25
-                || (bool) Cache::add('tracking_crowd_check_lock', 1, 3);
+                $activeVisitors[$request->session_id] = [
+                    'lat' => $lat,
+                    'lng' => $lng,
+                    'last_seen' => now()->timestamp,
+                    'user_name' => $userName,
+                ];
 
-            if ($shouldRunFullCheck) {
-                // Clean up stale visitors (no ping for 30s — covers force-close browser)
-                $beforeIds = array_keys($activeVisitors);
-                $nowTs = now()->timestamp;
-                $activeVisitors = array_filter($activeVisitors, function ($visitor) use ($nowTs) {
-                    return ($nowTs - $visitor['last_seen']) < 30;
-                });
+                // Under high concurrency (>25 active visitors), throttle O(Z*N) polygon math & stale sweep to once per 3s
+                $shouldRunFullCheck = count($activeVisitors) <= 25
+                    || (bool) Cache::add('tracking_crowd_check_lock', 1, 3);
 
-                // Broadcast removal for stale sessions that just got cleaned up
-                foreach (array_diff($beforeIds, array_keys($activeVisitors)) as $removedId) {
-                    broadcast(new VisitorLocationRemoved($removedId));
+                if ($shouldRunFullCheck) {
+                    // Clean up stale visitors (no ping for 30s — covers force-close browser)
+                    $beforeIds = array_keys($activeVisitors);
+                    $nowTs = now()->timestamp;
+                    $activeVisitors = array_filter($activeVisitors, function ($visitor) use ($nowTs) {
+                        return ($nowTs - $visitor['last_seen']) < 30;
+                    });
+
+                    // Broadcast removal for stale sessions that just got cleaned up
+                    foreach (array_diff($beforeIds, array_keys($activeVisitors)) as $removedId) {
+                        broadcast(new VisitorLocationRemoved($removedId));
+                    }
                 }
-            }
 
-            Cache::put('active_visitors', $activeVisitors, now()->addMinutes(1));
+                Cache::put('active_visitors', $activeVisitors, now()->addMinutes(1));
+            };
+
+            $lock = rescue(fn () => Cache::lock('active_visitors_lock', 2), rescue: null, report: false);
+            if ($lock) {
+                rescue(fn () => $lock->block(1, $updateActiveVisitors), $updateActiveVisitors, false);
+            } else {
+                $updateActiveVisitors();
+            }
 
             broadcast(new VisitorLocationUpdated($lat, $lng, $request->session_id, $userName));
 
@@ -85,14 +97,23 @@ class TrackingController extends Controller
             'session_id' => 'required|string',
         ]);
 
-        $activeVisitors = Cache::get('active_visitors', []);
+        $removeVisitor = function () use ($request) {
+            $activeVisitors = Cache::get('active_visitors', []);
 
-        if (isset($activeVisitors[$request->session_id])) {
-            unset($activeVisitors[$request->session_id]);
-            Cache::put('active_visitors', $activeVisitors, now()->addMinutes(5));
+            if (isset($activeVisitors[$request->session_id])) {
+                unset($activeVisitors[$request->session_id]);
+                Cache::put('active_visitors', $activeVisitors, now()->addMinutes(5));
 
-            broadcast(new VisitorLocationRemoved($request->session_id));
-            $this->checkCrowdAlerts($activeVisitors);
+                broadcast(new VisitorLocationRemoved($request->session_id));
+                $this->checkCrowdAlerts($activeVisitors);
+            }
+        };
+
+        $lock = rescue(fn () => Cache::lock('active_visitors_lock', 2), rescue: null, report: false);
+        if ($lock) {
+            rescue(fn () => $lock->block(1, $removeVisitor), $removeVisitor, false);
+        } else {
+            $removeVisitor();
         }
 
         return response()->json(['status' => 'removed']);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use TusPhp\Cache\FileStore;
+use TusPhp\Cache\RedisStore;
 use TusPhp\Tus\Server;
 
 class TusController extends Controller
@@ -23,10 +24,23 @@ class TusController extends Controller
         $server->setApiPath('/admin/api/tus/upload');
         $server->setUploadDir($tempDir);
 
-        // Trailing slash required — FileStore joins dir + filename without separator
-        $cache = new FileStore($cacheDir.'/');
-        $cache->setTtl(86400);
-        $server->setCache($cache);
+        try {
+            $redisConfig = config('database.redis.default');
+            $redisOptions = [
+                'host' => $redisConfig['host'] ?? '127.0.0.1',
+                'port' => (int) ($redisConfig['port'] ?? 6379),
+                'password' => $redisConfig['password'] ?? null,
+                'database' => (int) ($redisConfig['database'] ?? 0),
+            ];
+            $cache = new RedisStore($redisOptions);
+            $cache->setTtl(86400);
+            $server->setCache($cache);
+        } catch (\Throwable) {
+            // Trailing slash required — FileStore joins dir + filename without separator
+            $cache = new FileStore($cacheDir.'/');
+            $cache->setTtl(86400);
+            $server->setCache($cache);
+        }
 
         $server->setMaxUploadSize(209715200); // 200 MB — covers intro videos, not just AR models
 

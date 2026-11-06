@@ -45,3 +45,7 @@ Thumbs.db
 docs/superpowers/
 .superpowers/
 /storage/framework/lsp-*.php
+
+**/caddy
+frankenphp
+frankenphp-worker.php

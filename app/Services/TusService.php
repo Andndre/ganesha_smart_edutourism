@@ -4,16 +4,17 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Predis\Client;
 
 class TusService
 {
     /**
      * Move file from tus temp to final storage.
      *
-     * @param string $tempKey  e.g. "be937902-6239-4b87-a4cd-4ab561334701.glb" (uuid.extension)
-     * @param string $destDir  e.g. "models" or "models_usdz"
-     * @param string|null $customFilename  optional override (e.g. Str::random(40).'.usdz')
-     * @return string  relative path from public disk root
+     * @param  string  $tempKey  e.g. "be937902-6239-4b87-a4cd-4ab561334701.glb" (uuid.extension)
+     * @param  string  $destDir  e.g. "models" or "models_usdz"
+     * @param  string|null  $customFilename  optional override (e.g. Str::random(40).'.usdz')
+     * @return string relative path from public disk root
      */
     public static function moveFromTemp(string $tempKey, string $destDir, ?string $customFilename = null): string
     {
@@ -24,8 +25,8 @@ class TusService
         // We need the cache JSON to find the actual file path from the UUID.
         $actualPath = self::resolveTempPath($uuid);
 
-        $finalName = $customFilename ?: Str::random(40) . '.' . $ext;
-        $destPath = $destDir . '/' . $finalName;
+        $finalName = $customFilename ?: Str::random(40).'.'.$ext;
+        $destPath = $destDir.'/'.$finalName;
 
         $storage = Storage::disk('public');
         $stream = fopen($actualPath, 'r');
@@ -52,6 +53,52 @@ class TusService
      */
     private static function resolveTempPath(string $uuid): string
     {
+        // 1. Try resolving via Redis if RedisStore was used
+        try {
+            $redisConfig = config('database.redis.default');
+            if ($redisConfig && class_exists(Client::class)) {
+                $redis = new Client([
+                    'host' => $redisConfig['host'] ?? '127.0.0.1',
+                    'port' => (int) ($redisConfig['port'] ?? 6379),
+                    'password' => $redisConfig['password'] ?? null,
+                    'database' => (int) ($redisConfig['database'] ?? 0),
+                ]);
+                $cacheData = $redis->get('tus:server:'.$uuid);
+                if ($cacheData) {
+                    $entry = json_decode($cacheData, true);
+                    if (isset($entry['file_path']) && file_exists($entry['file_path'])) {
+                        return $entry['file_path'];
+                    }
+                }
+            }
+        } catch (\Throwable) {
+            // Fall through to file store
+        }
+
+        // 2. Check file cache paths
+        // 1. Try resolving via Redis if RedisStore was used
+        try {
+            $redisConfig = config('database.redis.default');
+            if ($redisConfig && class_exists(Client::class)) {
+                $redis = new Client([
+                    'host' => $redisConfig['host'] ?? '127.0.0.1',
+                    'port' => (int) ($redisConfig['port'] ?? 6379),
+                    'password' => $redisConfig['password'] ?? null,
+                    'database' => (int) ($redisConfig['database'] ?? 0),
+                ]);
+                $cacheData = $redis->get('tus:server:'.$uuid);
+                if ($cacheData) {
+                    $entry = json_decode($cacheData, true);
+                    if (isset($entry['file_path']) && file_exists($entry['file_path'])) {
+                        return $entry['file_path'];
+                    }
+                }
+            }
+        } catch (\Throwable) {
+            // Fall through to file store
+        }
+
+        // 2. Check file cache paths
         // Tus-php FileStore join dir + filename without separator if dir lacks trailing slash.
         // Check both possible cache file paths.
         $cachePaths = [
@@ -64,14 +111,14 @@ class TusService
                 continue;
             }
             $cache = json_decode(file_get_contents($cacheFilePath), true);
-            $key = 'tus:server:' . $uuid;
+            $key = 'tus:server:'.$uuid;
             if (isset($cache[$key]['file_path']) && file_exists($cache[$key]['file_path'])) {
                 return $cache[$key]['file_path'];
             }
         }
 
         // Fallback: try direct filename = UUID (for non-dev-main behavior)
-        $fallback = storage_path('app/tus/temp/' . $uuid);
+        $fallback = storage_path('app/tus/temp/'.$uuid);
         if (file_exists($fallback)) {
             return $fallback;
         }
@@ -84,13 +131,43 @@ class TusService
      */
     private static function removeCacheEntry(string $uuid): void
     {
+        try {
+            $redisConfig = config('database.redis.default');
+            if ($redisConfig && class_exists(Client::class)) {
+                $redis = new Client([
+                    'host' => $redisConfig['host'] ?? '127.0.0.1',
+                    'port' => (int) ($redisConfig['port'] ?? 6379),
+                    'password' => $redisConfig['password'] ?? null,
+                    'database' => (int) ($redisConfig['database'] ?? 0),
+                ]);
+                $redis->del(['tus:server:'.$uuid]);
+            }
+        } catch (\Throwable) {
+            // Fall through to file cache removal
+        }
+
+        try {
+            $redisConfig = config('database.redis.default');
+            if ($redisConfig && class_exists(Client::class)) {
+                $redis = new Client([
+                    'host' => $redisConfig['host'] ?? '127.0.0.1',
+                    'port' => (int) ($redisConfig['port'] ?? 6379),
+                    'password' => $redisConfig['password'] ?? null,
+                    'database' => (int) ($redisConfig['database'] ?? 0),
+                ]);
+                $redis->del(['tus:server:'.$uuid]);
+            }
+        } catch (\Throwable) {
+            // Fall through to file cache removal
+        }
+
         $cacheFilePath = storage_path('app/tus/cache/tus_php.server.cache');
         if (! file_exists($cacheFilePath)) {
             return;
         }
 
         $cache = json_decode(file_get_contents($cacheFilePath), true);
-        $key = 'tus:server:' . $uuid;
+        $key = 'tus:server:'.$uuid;
         if (isset($cache[$key])) {
             unset($cache[$key]);
             file_put_contents($cacheFilePath, json_encode($cache));
@@ -127,7 +204,7 @@ class TusService
             if ($file === '.' || $file === '..' || $file === '.gitkeep') {
                 continue;
             }
-            $tempFilesOnDisk[$file] = $dir . '/' . $file;
+            $tempFilesOnDisk[$file] = $dir.'/'.$file;
         }
 
         // Check cache entries for expiry

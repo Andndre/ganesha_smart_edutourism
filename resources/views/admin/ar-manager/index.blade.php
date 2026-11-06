@@ -272,6 +272,9 @@
         // Form ini submit native, jadi ChunkedUploader yang men-disable file input mentahnya.
         document.addEventListener('DOMContentLoaded', () => {
             modelForm?.addEventListener('submit', function() {
+                if (!pendingThumbnailData) {
+                    captureModelThumbnail();
+                }
                 if (pendingThumbnailData) {
                     let input = document.getElementById('thumbnail-data-input');
                     if (!input) {

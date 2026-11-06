@@ -10,9 +10,13 @@
         const viewer = document.getElementById('modal-viewer-3d');
         if (!viewer || viewer.classList.contains('hidden') || !viewer.src) return;
         try {
-            const canvas = viewer.shadowRoot?.querySelector('canvas');
-            if (canvas) {
-                pendingThumbnailDataMap = canvas.toDataURL('image/png');
+            if (typeof viewer.toDataURL === 'function') {
+                pendingThumbnailDataMap = viewer.toDataURL('image/webp', 0.8) || viewer.toDataURL('image/png');
+            } else {
+                const canvas = viewer.shadowRoot?.querySelector('canvas');
+                if (canvas) {
+                    pendingThumbnailDataMap = canvas.toDataURL('image/png');
+                }
             }
         } catch (e) {
             console.warn('Thumbnail capture failed:', e);
@@ -34,6 +38,11 @@
         // jadi onsubmit="return ..." tidak bisa mencegah submit.
         e.preventDefault();
         console.log('[AR-MODEL] submitModelForm called, preventDefault done');
+
+        // Fallback capture right before submission if not yet triggered by load event
+        if (!pendingThumbnailDataMap) {
+            captureModelThumbnailMap();
+        }
 
         // Inject thumbnail data if captured
         if (pendingThumbnailDataMap) {
