@@ -27,6 +27,7 @@
             const markerLayers = [];
             let markerCluster = null;
             let activeMarkerItem = null; // markerLayers entry whose sheet is open
+            let detailMarkersVisible = false;
             // Sekali hasil pencarian dipilih, dropdown + auto-fit harus diam. Tanpa ini
             // zoomend dari focusOnLocation memanggil updateVisibleMarkers lagi, dropdown
             // muncul kembali dan peta ditarik balik ke bounds semua hasil — bikin
@@ -124,12 +125,28 @@
 
                 // 3. Data from ExploreController
                 const locations = @json($locations);
+                const urlParams = new URLSearchParams(window.location.search);
+                const targetRouteId = urlParams.get('route');
+                const targetCategory = urlParams.get('category');
+
+                if (targetCategory === 'fasilitas') {
+                    activeFilters.cultural = false;
+                    activeFilters.umkm = false;
+                }
 
                 // 4. Cluster group — collapses dense marker groups when zoomed out.
                 // Clustering stops at zoom 18 so individual pins are always tappable up close.
                 markerCluster = L.markerClusterGroup({
                     maxClusterRadius: 50,
                     disableClusteringAtZoom: 18,
+                    chunkedLoading: true,
+                    chunkProgress: function(processed, total) {
+                        if (processed === total) {
+                            queueMicrotask(() => {
+                                if (window.mapInstance === map) updateVisibleMarkers(true, false);
+                            });
+                        }
+                    },
                     spiderfyOnMaxZoom: false,
                     zoomToBoundsOnClick: false, // handled below, so we control the zoom floor
                     showCoverageOnHover: false,
@@ -150,60 +167,39 @@
                     });
                 });
 
-                // 5. Render Marker
+                // 5. Render the ordinary pins first; detail pins are created on demand.
                 const clusteredMarkers = [];
                 locations.forEach(loc => {
-                    const marker = L.marker([loc.lat, loc.lng], {
-                        icon: getMarkerIcon(loc)
-                    });
-                    clusteredMarkers.push(marker);
-
-                    marker.on('click', function(e) {
-                        if (e && e.originalEvent) {
-                            e.originalEvent.stopPropagation();
-                        }
-                        openSheet(loc);
-                        focusOnLocation(loc, 0.5);
-                    });
-
-                    markerLayers.push({
-                        marker: marker,
-                        loc: loc
-                    });
+                    const item = { marker: null, loc, inCluster: false };
+                    markerLayers.push(item);
+                    if (!loc.is_detail && activeFilters[loc.cat] !== false) {
+                        clusteredMarkers.push(createMarker(item));
+                        item.inCluster = true;
+                    }
                 });
                 markerCluster.addLayers(clusteredMarkers);
 
-                // Pin komponen pekarangan disaring per level zoom, jadi keanggotaan cluster
-                // harus dihitung ulang setiap kali zoom berubah — dan sekali di awal,
-                // karena addLayers di atas memasukkan semuanya tanpa pandang bulu.
-                updateVisibleMarkers();
-                map.on('zoomend', updateVisibleMarkers);
+                map.on('zoomend', function() {
+                    const showDetails = map.getZoom() >= DETAIL_MIN_ZOOM;
+                    if (showDetails !== detailMarkersVisible) {
+                        detailMarkersVisible = showDetails;
+                        updateVisibleMarkers();
+                    }
+                });
 
                 // ==========================================
                 // HEATMAP OVERLAY DATA (from controller)
                 // ==========================================
                 heatmapData = @json($heatmapData);
 
-                const urlParams = new URLSearchParams(window.location.search);
-                const targetRouteId = urlParams.get('route');
-                const targetCategory = urlParams.get('category');
-
                 if (targetCategory === 'fasilitas') {
-                    activeFilters.cultural = false;
-                    activeFilters.umkm = false;
-
-                    // Sync UI Checkboxes in map-search
-                    setTimeout(() => {
-                        document.querySelectorAll('.filter-toggle').forEach(toggle => {
-                            const filterName = toggle.dataset.filter;
-                            if (!activeFilters[filterName]) {
-                                const checkbox = toggle.querySelector('.filter-checkbox');
-                                const input = toggle.querySelector('input');
-                                if (checkbox) checkbox.classList.remove('checked');
-                                if (input) input.checked = false;
-                            }
-                        });
-                    }, 100);
+                    document.querySelectorAll('.filter-card').forEach(card => {
+                        if (activeFilters[card.dataset.filter] === false) {
+                            card.classList.remove('active');
+                            card.setAttribute('aria-pressed', 'false');
+                        }
+                    });
+                    document.getElementById('filter-active-indicator')?.classList.remove('hidden');
                 }
 
                 // Real-time GPS Tracking updates via Laravel Reverb
@@ -367,7 +363,7 @@
                     // Focus bounds only on visible markers. POIs live in the cluster
                     // group; multi-route stops are pulled out onto the map directly.
                     const visibleCoords = markerLayers
-                        .filter(item => markerCluster.hasLayer(item.marker) || map.hasLayer(item.marker))
+                        .filter(item => item.inCluster || (item.marker && map.hasLayer(item.marker)))
                         .map(item => [item.loc.lat, item.loc.lng]);
 
                     if (visibleCoords.length > 0) {
@@ -649,21 +645,42 @@
                 }
             }
 
+            function createMarker(item) {
+                if (item.marker) return item.marker;
+
+                const marker = L.marker([item.loc.lat, item.loc.lng], {
+                    icon: getMarkerIcon(item.loc)
+                });
+                marker.on('click', function(e) {
+                    if (e && e.originalEvent) e.originalEvent.stopPropagation();
+                    openSheet(item.loc);
+                    focusOnLocation(item.loc, 0.5);
+                });
+                item.marker = marker;
+
+                return marker;
+            }
+
             // Update marker visibility based on active filters and search query
-            function updateVisibleMarkers() {
+            function updateVisibleMarkers(checkClusterState = false, updateSearch = true) {
                 const searchInput = document.getElementById('search-input');
                 const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
                 const matches = [];
-                const zoom = map.getZoom();
+                const toAdd = [];
+                const toRemove = [];
+                const routeStopIds = new Set(multiRouteStops.map(stop => stop.loc.id));
 
                 markerLayers.forEach(item => {
+                    if (checkClusterState && item.marker) {
+                        item.inCluster = markerCluster.hasLayer(item.marker);
+                    }
                     const isFilterActive = activeFilters[item.loc.cat] !== false;
 
                     // Objek komponen pekarangan (merajan, paon, saka enam) dipin di tiap
                     // rumah, jadi di zoom jauh puluhan pin kembar menutupi peta. Tahan
                     // sampai cukup dekat — kecuali turis mengetik namanya, karena
                     // pencarian eksplisit menang atas penyembunyian bertahap.
-                    const isZoomVisible = !item.loc.is_detail || !!query || zoom >= DETAIL_MIN_ZOOM;
+                    const isZoomVisible = !item.loc.is_detail || !!query || detailMarkersVisible;
 
                     const matchesSearch = !query ||
                         item.loc.name.toLowerCase().includes(query) ||
@@ -672,24 +689,31 @@
 
                     // Numbered multi-route stops live outside the cluster; leave them alone
                     // so filtering never hides or re-clusters an active shopping route.
-                    if (multiRouteStops.some(stop => stop.loc.id === item.loc.id)) {
+                    if (routeStopIds.has(item.loc.id)) {
+                        if (item.inCluster) {
+                            toRemove.push(item.marker);
+                            item.inCluster = false;
+                        }
                         if (isFilterActive && matchesSearch) matches.push(item.loc);
                         return;
                     }
 
                     if (isFilterActive && matchesSearch && isZoomVisible) {
-                        if (!markerCluster.hasLayer(item.marker)) {
-                            markerCluster.addLayer(item.marker);
+                        if (!item.inCluster) {
+                            toAdd.push(createMarker(item));
+                            item.inCluster = true;
                         }
                         matches.push(item.loc);
-                    } else {
-                        if (markerCluster.hasLayer(item.marker)) {
-                            markerCluster.removeLayer(item.marker);
-                        }
+                    } else if (item.inCluster) {
+                        toRemove.push(item.marker);
+                        item.inCluster = false;
                     }
                 });
 
-                if (searchDismissed) return;
+                if (toRemove.length) markerCluster.removeLayers(toRemove);
+                if (toAdd.length) markerCluster.addLayers(toAdd);
+
+                if (!updateSearch || searchDismissed) return;
 
                 renderSearchResults(query, matches);
 
@@ -709,9 +733,8 @@
                 const list = document.getElementById('search-results-list');
                 if (!panel || !list) return;
 
-                list.innerHTML = '';
-
                 if (!query) {
+                    list.replaceChildren();
                     panel.classList.add('hidden');
                     return;
                 }
@@ -721,11 +744,12 @@
                 if (filterPanel) filterPanel.classList.add('hidden');
                 document.getElementById('btn-filter-toggle')?.setAttribute('aria-expanded', 'false');
 
+                const results = document.createDocumentFragment();
                 if (matches.length === 0) {
                     const li = document.createElement('li');
                     li.className = 'px-5 py-4 text-center text-sm text-gray-500';
                     li.textContent = @js(__('Hasil tidak ditemukan'));
-                    list.appendChild(li);
+                    results.appendChild(li);
                 } else {
                     matches.forEach(loc => {
                         const li = document.createElement('li');
@@ -759,10 +783,11 @@
                             selectSearchResult(loc);
                         });
                         li.appendChild(btn);
-                        list.appendChild(li);
+                        results.appendChild(li);
                     });
                 }
 
+                list.replaceChildren(results);
                 panel.classList.remove('hidden');
             }
 
@@ -1434,6 +1459,7 @@
                 const item = markerLayers.find(entry => entry.loc.id === loc.id);
                 if (!item) return;
 
+                createMarker(item);
                 item.marker.setIcon(iconFor(item, true));
                 item.marker.setZIndexOffset(1000); // draw above neighbouring pins
                 activeMarkerItem = item;
@@ -1468,15 +1494,19 @@
 
                 if (multiRouteStops.length === 0) return;
 
+                const clusteredStops = [];
                 multiRouteStops.forEach(item => {
+                    createMarker(item);
                     item.marker.setIcon(iconFor(item, item === activeMarkerItem));
 
                     // Pull stops out of the cluster so the 1-2-3 order stays readable at any zoom
-                    if (markerCluster.hasLayer(item.marker)) {
-                        markerCluster.removeLayer(item.marker);
+                    if (item.inCluster) {
+                        clusteredStops.push(item.marker);
+                        item.inCluster = false;
                     }
                     item.marker.addTo(map);
                 });
+                if (clusteredStops.length) markerCluster.removeLayers(clusteredStops);
 
                 const bounds = L.latLngBounds(multiRouteStops.map(item => [item.loc.lat, item.loc.lng]));
                 map.fitBounds(bounds, {

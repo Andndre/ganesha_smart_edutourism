@@ -9,7 +9,7 @@
             aria-label="{{ __('Cari objek budaya atau UMKM') }}"
             autocomplete="off" class="h-11 min-w-0 flex-1 bg-transparent text-base font-medium leading-6 text-charcoal placeholder:text-gray-500 focus:outline-none" />
         <button type="button" id="btn-search-clear" aria-label="{{ __('Hapus pencarian') }}"
-            class="hidden min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl text-gray-600 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary">
+            class="hidden flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl text-gray-600 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
