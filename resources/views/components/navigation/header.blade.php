@@ -81,13 +81,31 @@
                         <span class="hidden lg:inline xl:hidden">{{ $sharedWeather ? round($sharedWeather->temperature).'°C' : '—' }}</span>
                         <span class="hidden xl:inline">{{ $sharedWeather ? round($sharedWeather->temperature).'°C' : '—' }} {{ $sharedWeather?->getConditionText() ?? __('Cuaca belum tersedia') }}</span>
                     </button>
-                <button type="button" @click="$dispatch('open-density-modal')" @class([
-                    'hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[11px] font-semibold transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 md:flex lg:w-auto lg:gap-1.5 lg:rounded-full lg:px-2 xl:h-11 xl:gap-1.5 xl:px-3',
-                    $densityButtonTone,
-                ]) aria-label="{{ __('Kepadatan Pengunjung') }}: {{ __($sharedDensityStatus['label']) }}, {{ round($sharedDensityPercent) }}%">
+                <button type="button"
+                    x-data="villageDensity({
+                        totalCurrent: {{ (int) ($sharedTotalCurrent ?? 0) }},
+                        totalMax: {{ (int) ($sharedTotalMax ?? 0) }},
+                        percent: {{ (int) round($sharedDensityPercent ?? 0) }},
+                        statusKey: '{{ $sharedDensityStatus['key'] ?? 'safe' }}',
+                        labels: {
+                            safe: '{{ __('Aman') }}',
+                            medium: '{{ __('Sedang') }}',
+                            full: '{{ __('Penuh') }}'
+                        },
+                        ariaPrefix: '{{ __('Kepadatan Pengunjung') }}'
+                    })"
+                    @density-updated.window="onDensityUpdated($event.detail)"
+                    @click="$dispatch('open-density-modal')"
+                    @class([
+                        'hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[11px] font-semibold transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 md:flex lg:w-auto lg:gap-1.5 lg:rounded-full lg:px-2 xl:h-11 xl:gap-1.5 xl:px-3',
+                        $densityButtonTone,
+                    ])
+                    :class="headerButtonTone"
+                    aria-label="{{ __('Kepadatan Pengunjung') }}: {{ __($sharedDensityStatus['label']) }}, {{ round($sharedDensityPercent) }}%"
+                    :aria-label="ariaLabel">
                     <x-density-status-icon :status="$sharedDensityStatus['key']" class="h-5 w-5" />
-                    <span class="hidden lg:inline xl:hidden">{{ round($sharedDensityPercent) }}%</span>
-                    <span class="hidden xl:inline">{{ __($sharedDensityStatus['label']) }} ({{ round($sharedDensityPercent) }}%)</span>
+                    <span class="hidden lg:inline xl:hidden" x-text="percent + '%'">{{ round($sharedDensityPercent) }}%</span>
+                    <span class="hidden xl:inline" x-text="label + ' (' + percent + '%)'">{{ __($sharedDensityStatus['label']) }} ({{ round($sharedDensityPercent) }}%)</span>
                 </button>
 
                 <div class="static sm:relative" x-data="notificationBell()" @notification-received.window="onNewNotification($event.detail)">

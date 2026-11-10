@@ -10,24 +10,39 @@
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700">{!! $weather?->getIconHtml() ?? '<i class="fa-solid fa-sun" aria-hidden="true"></i>' !!}</span>
             <span class="min-w-0"><strong class="block text-sm text-charcoal">{{ $weather ? round($weather->temperature).'°C' : '—' }}</strong><span class="block truncate text-xs text-gray-500">{{ $weather?->getConditionText() ?? __('Cuaca belum tersedia') }}</span></span>
         </button>
-        <button type="button" @click="$dispatch('open-density-modal')" @class([
-            'tap-target flex min-w-0 items-center gap-2 rounded-2xl border border-[#ebe9e4] bg-white p-3 text-left shadow-sm transition',
-            'hover:border-emerald-200' => $densityStatus['key'] === 'safe',
-            'hover:border-amber-200' => $densityStatus['key'] === 'medium',
-            'hover:border-rose-200' => $densityStatus['key'] === 'full',
-        ])>
+        <button type="button"
+            x-data="villageDensity({
+                totalCurrent: {{ (int) $totalCurrent }},
+                totalMax: {{ (int) $totalMax }},
+                percent: {{ (int) round($densityPercent) }},
+                statusKey: '{{ $densityStatus['key'] ?? 'safe' }}',
+                labels: {
+                    safe: '{{ __('Aman') }}',
+                    medium: '{{ __('Sedang') }}',
+                    full: '{{ __('Penuh') }}'
+                }
+            })"
+            @density-updated.window="onDensityUpdated($event.detail)"
+            @click="$dispatch('open-density-modal')"
+            @class([
+                'tap-target flex min-w-0 items-center gap-2 rounded-2xl border border-[#ebe9e4] bg-white p-3 text-left shadow-sm transition',
+                'hover:border-emerald-200' => $densityStatus['key'] === 'safe',
+                'hover:border-amber-200' => $densityStatus['key'] === 'medium',
+                'hover:border-rose-200' => $densityStatus['key'] === 'full',
+            ])
+            :class="cardHoverBorder">
             <span @class([
                 'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl',
                 'bg-emerald-50 text-emerald-700' => $densityStatus['key'] === 'safe',
                 'bg-amber-50 text-amber-700' => $densityStatus['key'] === 'medium',
                 'bg-rose-50 text-rose-700' => $densityStatus['key'] === 'full',
-            ])><x-density-status-icon :status="$densityStatus['key']" class="h-5 w-5" /></span>
+            ]) :class="cardIconBoxTone"><x-density-status-icon :status="$densityStatus['key']" class="h-5 w-5" /></span>
             <span class="min-w-0"><strong @class([
                 'block text-sm',
                 'text-emerald-800' => $densityStatus['key'] === 'safe',
                 'text-amber-800' => $densityStatus['key'] === 'medium',
                 'text-rose-800' => $densityStatus['key'] === 'full',
-            ])>{{ __($densityStatus['label']) }} ({{ round($densityPercent) }}%)</strong><span class="block truncate text-xs text-gray-500">{{ $totalCurrent }} {{ __('Pengunjung Aktif') }}</span></span>
+            ]) :class="cardTitleTone" x-text="label + ' (' + percent + '%)'">{{ __($densityStatus['label']) }} ({{ round($densityPercent) }}%)</strong><span class="block truncate text-xs text-gray-500"><span x-text="totalCurrent">{{ $totalCurrent }}</span> {{ __('Pengunjung Aktif') }}</span></span>
         </button>
     </div>
 

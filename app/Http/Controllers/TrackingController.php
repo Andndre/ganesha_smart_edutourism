@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\CrowdAlertSent;
+use App\Events\VillageDensityUpdated;
 use App\Events\VisitorLocationRemoved;
 use App\Events\VisitorLocationUpdated;
 use App\Events\ZoneOccupancyUpdated;
@@ -120,7 +121,8 @@ class TrackingController extends Controller
     }
 
     /**
-     * Check all active capacity zones and broadcast crowd alerts when thresholds are exceeded.
+     * Check all active capacity zones, broadcast deduplicated occupancy updates,
+     * and trigger crowd alerts when thresholds are exceeded.
      *
      * @param  array<string, array{lat: float, lng: float, last_seen: int}>  $activeVisitors
      */
@@ -128,38 +130,71 @@ class TrackingController extends Controller
     {
         $taggedCache = Cache::tags(['capacity']);
         $zonesData = $taggedCache
-            ? $taggedCache->remember('active_capacity_zones_with_polygons_array', 300, fn () => CapacityZone::where('is_active', true)
-                ->whereNotNull('polygon_coordinates')
+            ? $taggedCache->flexible('capacity_zones_active_array', [60, 300], fn (): array => CapacityZone::where('is_active', true)
                 ->get()
+                ->append('occupancy_percentage')
                 ->toArray())
             : CapacityZone::where('is_active', true)
-                ->whereNotNull('polygon_coordinates')
                 ->get()
+                ->append('occupancy_percentage')
                 ->toArray();
 
+        if ($zonesData === []) {
+            return;
+        }
+
+        $previousZoneState = Cache::get('capacity_zone_last_broadcast_state_array', []) ?? [];
+        $nextZoneState = $previousZoneState;
+        $zoneStateChanged = false;
+        $countsByZoneId = [];
+
+        $totalCurrent = 0;
+        $totalMax = 0;
+        $masterZone = null;
+
         foreach ($zonesData as $zoneData) {
+            if (($zoneData['zone_identifier'] ?? null) === 'desa_penglipuran') {
+                $masterZone = $zoneData;
+            }
+
             $zone = new CapacityZone($zoneData);
             $zone->id = $zoneData['id'];
             $countInZone = 0;
 
-            foreach ($activeVisitors as $visitor) {
-                if ($zone->containsPoint($visitor['lat'], $visitor['lng'])) {
-                    $countInZone++;
+            if (! empty($zone->polygon_coordinates)) {
+                foreach ($activeVisitors as $visitor) {
+                    if ($zone->containsPoint((float) $visitor['lat'], (float) $visitor['lng'])) {
+                        $countInZone++;
+                    }
                 }
+            }
+
+            $countsByZoneId[$zone->id] = $countInZone;
+            $totalCurrent += $countInZone;
+            $totalMax += (int) $zone->max_capacity;
+
+            if (empty($zone->polygon_coordinates)) {
+                continue;
             }
 
             $occupancy = ($zone->max_capacity > 0)
                 ? (int) round(($countInZone / $zone->max_capacity) * 100)
                 : 0;
 
-            broadcast(new ZoneOccupancyUpdated(
-                $zone->id,
-                $zone->zone_identifier,
-                $countInZone,
-                $zone->max_capacity,
-                $occupancy,
-                CapacityZone::statusFor($occupancy, $zone->warning_threshold, $zone->critical_threshold),
-            ));
+            $zoneSignature = "{$countInZone}:{$zone->max_capacity}";
+            if (($previousZoneState[$zone->id] ?? null) !== $zoneSignature) {
+                $nextZoneState[$zone->id] = $zoneSignature;
+                $zoneStateChanged = true;
+
+                broadcast(new ZoneOccupancyUpdated(
+                    $zone->id,
+                    $zone->zone_identifier,
+                    $countInZone,
+                    $zone->max_capacity,
+                    $occupancy,
+                    CapacityZone::statusFor($occupancy, $zone->warning_threshold, $zone->critical_threshold),
+                ));
+            }
 
             $cacheKey = "crowd_alert_sent:{$zone->id}";
 
@@ -189,6 +224,31 @@ class TrackingController extends Controller
                 ));
                 Cache::put($cacheKey, true, now()->addMinutes(5));
             }
+        }
+
+        if ($taggedCache && count($activeVisitors) > 25) {
+            $taggedCache->put('capacity_zone_live_counts_array', $countsByZoneId, 3);
+        }
+
+        if ($zoneStateChanged) {
+            Cache::put('capacity_zone_last_broadcast_state_array', $nextZoneState, now()->addMinutes(10));
+        }
+
+        $densityPercent = $totalMax > 0 ? (int) round(($totalCurrent / $totalMax) * 100) : 0;
+        $warningThreshold = (int) ($masterZone['warning_threshold'] ?? 60);
+        $criticalThreshold = (int) ($masterZone['critical_threshold'] ?? 80);
+        $densityStatus = CapacityZone::statusFor($densityPercent, $warningThreshold, $criticalThreshold);
+
+        $villageSignature = "{$totalCurrent}:{$totalMax}:{$densityStatus['key']}";
+        if (Cache::get('village_density_last_broadcast_signature') !== $villageSignature) {
+            Cache::put('village_density_last_broadcast_signature', $villageSignature, now()->addMinutes(10));
+
+            broadcast(new VillageDensityUpdated(
+                $totalCurrent,
+                $totalMax,
+                $densityPercent,
+                $densityStatus,
+            ));
         }
     }
 }
