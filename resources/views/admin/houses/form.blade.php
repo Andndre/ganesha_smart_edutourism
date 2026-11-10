@@ -9,7 +9,10 @@
     $description = $house?->getTranslations('description') ?? [];
 @endphp
 <div class="mb-6">
-    <a href="{{ route('admin.houses.index') }}" class="text-sm font-semibold text-primary">← Back to houses</a>
+    <a href="{{ route('admin.houses.index') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        <span>Back to houses</span>
+    </a>
     <h1 class="mt-2 font-display text-3xl font-bold text-charcoal">{{ $house ? 'Edit courtyard No. '.$house->number : 'Add traditional house' }}</h1>
     <p class="mt-1 text-sm text-gray-600">Only publish a house after its location and at least one active UMKM are verified.</p>
 </div>

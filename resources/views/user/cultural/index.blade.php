@@ -52,7 +52,10 @@
                     <h3 class="mt-1 line-clamp-2 font-display text-base font-bold text-charcoal md:text-lg">{{ $object['name'] }}</h3>
                     <p class="mt-2 line-clamp-2 text-xs leading-relaxed text-gray-600 md:text-sm">{{ strip_tags($object['short_description'] ?? '') }}</p>
                     @if(($object['children_count'] ?? 0) > 0)<p class="mt-2 text-xs font-semibold text-gray-500">{{ $object['children_count'] }} {{ __('ruang budaya') }}</p>@endif
-                    <span class="mt-4 inline-block text-xs font-bold text-primary">{{ __('Baca kisahnya') }} →</span>
+                    <span class="mt-4 inline-flex items-center gap-1 text-xs font-bold text-primary">
+                        <span>{{ __('Baca kisahnya') }}</span>
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                    </span>
                 </div>
             </a>
         @empty

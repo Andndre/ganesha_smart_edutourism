@@ -35,7 +35,10 @@
                     <h3 class="mt-4 font-display text-xl font-bold text-charcoal">{{ $house->head_name }}</h3>
                     <p class="mt-1 line-clamp-2 text-sm text-gray-600">{{ translateValue($house->description) }}</p>
                     <p class="mt-3 text-xs text-gray-500">{{ $house->umkm_profiles_count }} UMKM · {{ $house->male_count + $house->female_count }} {{ __('penghuni') }}</p>
-                    <a href="{{ route('houses.show', ['number' => $house->number]) }}" class="tap-target mt-4 inline-flex rounded-full bg-primary px-5 text-sm font-bold text-white">{{ __('Kunjungi Profil Pekarangan') }} →</a>
+                    <a href="{{ route('houses.show', ['number' => $house->number]) }}" class="tap-target mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 text-sm font-bold text-white transition active:scale-95">
+                        <span>{{ __('Kunjungi Profil Pekarangan') }}</span>
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                    </a>
                 </div>
             </article>
         @empty

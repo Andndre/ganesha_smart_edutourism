@@ -162,7 +162,7 @@
                         </div>
                     </div>
                     <p class="mt-1.5 text-xs text-gray-500">
-                        <span x-text="percent">{{ $modalDensityPercent }}</span>% —
+                        <span x-text="percent">{{ $modalDensityPercent }}</span>% ·
                         <span class="{{ $densityStatus['color'] }} font-semibold" :class="modalTextColor" x-text="label">{{ __($densityStatus['label']) }}</span>
                     </p>
                 </div>

@@ -26,7 +26,7 @@
 
             {{-- Form cepat: muncul saat kode belum pernah tercatat --}}
             <div id="scan-form" class="mt-6 hidden rounded-2xl border border-primary/20 bg-primary/5 p-5">
-                <p class="text-sm font-semibold text-charcoal">Tiket baru — catat kunjungan</p>
+                <p class="text-sm font-semibold text-charcoal">Tiket baru: catat kunjungan</p>
                 <p class="mt-1 truncate text-xs text-gray-500" id="scan-form-code"></p>
 
                 @forelse ($rates->groupBy('origin') as $origin => $group)
@@ -34,7 +34,7 @@
                         <legend class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
                             {{ \App\Models\TicketRate::ORIGIN_LABELS[$origin] }}
                             <span class="normal-case tracking-normal text-gray-400">
-                                — {{ $origin === 'domestic' ? 'Warga Negara Indonesia' : 'Warga Negara Asing' }}
+                                ({{ $origin === 'domestic' ? 'Warga Negara Indonesia' : 'Warga Negara Asing' }})
                             </span>
                         </legend>
 

@@ -138,7 +138,7 @@
                 element: '#tour-header',
                 popover: {
                     title: '👋 Selamat Datang!',
-                    description: 'Panduan ini akan menunjukkan cara mengelola Rute Wisata — jalur dan titik kunjungan yang direkomendasikan kepada wisatawan.',
+                    description: 'Panduan ini akan menunjukkan cara mengelola Rute Wisata: jalur dan titik kunjungan yang direkomendasikan kepada wisatawan.',
                     side: 'bottom',
                     align: 'start'
                 }

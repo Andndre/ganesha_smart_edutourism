@@ -18,7 +18,18 @@
 
             <section class="mt-10"><h2 class="font-display text-2xl font-bold text-charcoal">{{ __('Ruang Budaya di Pekarangan') }}</h2><div class="mt-4 grid gap-4 sm:grid-cols-2">
                 @forelse($house->culturalObjects as $object)
-                    <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"><a href="{{ route('cultural-object', ['slug' => $object->slug]) }}" class="block"><h3 class="font-display text-lg font-bold">{{ translateValue($object->name) }}</h3><p class="mt-1 line-clamp-2 text-sm text-gray-600">{{ translateValue($object->short_description) }}</p></a>@if($object->arModel?->model_3d_path)<a href="{{ route('ar-scan', ['model_id' => $object->arModel->id]) }}" class="tap-target mt-3 inline-flex rounded-full bg-[#eaf3ec] px-4 text-xs font-bold text-primary">{{ __('Lihat model 3D') }} →</a>@endif</div>
+                    <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                        <a href="{{ route('cultural-object', ['slug' => $object->slug]) }}" class="block">
+                            <h3 class="font-display text-lg font-bold">{{ translateValue($object->name) }}</h3>
+                            <p class="mt-1 line-clamp-2 text-sm text-gray-600">{{ translateValue($object->short_description) }}</p>
+                        </a>
+                        @if($object->arModel?->model_3d_path)
+                            <a href="{{ route('ar-scan', ['model_id' => $object->arModel->id]) }}" class="tap-target mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#eaf3ec] px-4 text-xs font-bold text-primary">
+                                <span>{{ __('Lihat model 3D') }}</span>
+                                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                            </a>
+                        @endif
+                    </div>
                 @empty
                     <p class="col-span-full rounded-2xl bg-white p-5 text-sm text-gray-600">{{ __('Informasi ruang budaya sedang dilengkapi.') }}</p>
                 @endforelse
@@ -39,7 +50,10 @@
                                 <p class="text-xs text-gray-500">{{ __('UMKM ini tidak memiliki produk aktif saat ini.') }}</p>
                             @endforelse
                         </div>
-                        <a href="{{ route('umkm.store', ['id' => $profile->id]) }}" class="tap-target mt-3 inline-flex rounded-full bg-[#eaf3ec] px-4 text-xs font-bold text-primary">{{ __('Kunjungi Warung') }} →</a>
+                        <a href="{{ route('umkm.store', ['id' => $profile->id]) }}" class="tap-target mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#eaf3ec] px-4 text-xs font-bold text-primary">
+                            <span>{{ __('Kunjungi Warung') }}</span>
+                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </a>
                     </div>
                 @endforeach
             </div></section>
@@ -47,7 +61,10 @@
         <aside class="space-y-4">
             <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"><h2 class="font-display text-xl font-bold">{{ __('Penghuni Pekarangan') }}</h2><p class="mt-4 text-sm text-gray-500">{{ __('Kepala keluarga') }}</p><p class="font-semibold text-charcoal">{{ $house->head_name }}</p><div class="mt-5 grid grid-cols-2 gap-3"><div class="rounded-xl bg-surface p-3"><strong class="text-2xl text-primary">{{ $house->male_count }}</strong><p class="text-xs text-gray-600">{{ __('Laki-laki') }}</p></div><div class="rounded-xl bg-surface p-3"><strong class="text-2xl text-primary">{{ $house->female_count }}</strong><p class="text-xs text-gray-600">{{ __('Perempuan') }}</p></div></div></div>
             @if($house->mapLocation)
-                <a href="{{ route('explore', ['action' => 'route', 'id' => $house->mapLocation->id, 'lat' => $house->mapLocation->latitude, 'lng' => $house->mapLocation->longitude, 'name' => $house->getMapDisplayName()]) }}" class="tap-target flex w-full rounded-full bg-primary px-5 text-center text-sm font-bold text-white">{{ __('Lihat Lokasi di Peta') }} →</a>
+                <a href="{{ route('explore', ['action' => 'route', 'id' => $house->mapLocation->id, 'lat' => $house->mapLocation->latitude, 'lng' => $house->mapLocation->longitude, 'name' => $house->getMapDisplayName()]) }}" class="tap-target flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 text-center text-sm font-bold text-white transition active:scale-95">
+                    <span>{{ __('Lihat Lokasi di Peta') }}</span>
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
             @endif
             @if($house->ar_marker_id)<div class="rounded-2xl border border-gray-200 bg-white p-5 text-center"><img src="{{ qrSvgDataUri(route('ar-scan-redirect', ['arMarkerId' => $house->ar_marker_id])) }}" alt="{{ __('Marker pekarangan') }} {{ $house->number }}" class="mx-auto h-32 w-32"><p class="mt-3 text-xs text-gray-600">{{ __('Satu marker untuk seluruh pekarangan ini.') }}</p></div>@endif
         </aside>

@@ -24,7 +24,7 @@
                     <span class="bg-primary absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"></span>
                     <span class="bg-primary relative inline-flex h-2 w-2 rounded-full"></span>
                 </span>
-                Live — Diperbarui tiap menit
+                Live · Diperbarui tiap menit
             </span>
         </div>
     </div>
@@ -535,7 +535,7 @@
                             statsEl.querySelector('[data-stats-bar]').style.width = `${Math.min(100, overallPct)}%`;
                             statsEl.querySelector('[data-stats-status] span').className = `${overallMeta.bar.replace('bg-', 'text-')} font-semibold`;
                             statsEl.querySelector('[data-stats-status] span').textContent = `Kapasitas ${overallMeta.overallLabel}`;
-                            statsEl.querySelector('[data-stats-status]').firstChild.textContent = `${overallPct}% — `;
+                            statsEl.querySelector('[data-stats-status]').firstChild.textContent = `${overallPct}% · `;
                         }
                     });
             } else {

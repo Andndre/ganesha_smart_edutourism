@@ -136,13 +136,15 @@
                                 {{ $profile->mapLocation->longitude }}</span>
                             <a href="{{ route('owner.location') }}"
                                 class="mt-1 inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
-                                Kustomisasi di Peta →
+                                <span>Kustomisasi di Peta</span>
+                                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                             </a>
                         @else
                             <span class="text-sm italic text-warning font-semibold block">Lokasi belum diatur di peta!</span>
                             <a href="{{ route('owner.location') }}"
                                 class="mt-1 inline-flex items-center gap-1 text-xs font-bold text-warning hover:underline">
-                                Atur Lokasi Sekarang →
+                                <span>Atur Lokasi Sekarang</span>
+                                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                             </a>
                         @endif
                     </div>

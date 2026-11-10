@@ -52,7 +52,7 @@
                 <h1 class="text-label truncate font-semibold text-charcoal lg:hidden">@yield('header_title', $headerTitle)</h1>
             @endif
 
-            <a href="{{ route('home') }}" class="hidden h-full shrink-0 items-center gap-3 lg:flex" aria-label="{{ __('Beranda') }} — Smart Edutourism">
+            <a href="{{ route('home') }}" class="hidden h-full shrink-0 items-center gap-3 lg:flex" aria-label="{{ __('Beranda') }} · Smart Edutourism">
                 <img src="{{ asset('icons/logo-penglipuran.png') }}" alt="Penglipuran Logo" width="40" height="40" class="h-10 w-10 object-contain">
                 <span class="leading-tight">
                     <span class="block text-sm font-bold tracking-tight text-charcoal">Smart Edutourism</span>
@@ -78,8 +78,8 @@
                     'hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-[11px] font-semibold text-amber-800 transition hover:bg-amber-100 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 md:flex lg:w-auto lg:gap-1.5 lg:rounded-full lg:px-2 xl:h-11 xl:gap-1.5 xl:px-3',
                 ]) aria-label="{{ __('Cuaca Desa Penglipuran') }}: {{ $sharedWeather?->getConditionText() ?? __('Cuaca belum tersedia') }}">
                         {!! $sharedWeather?->getIconHtml() ?? '<i class="fa-solid fa-sun" aria-hidden="true"></i>' !!}
-                        <span class="hidden lg:inline xl:hidden">{{ $sharedWeather ? round($sharedWeather->temperature).'°C' : '—' }}</span>
-                        <span class="hidden xl:inline">{{ $sharedWeather ? round($sharedWeather->temperature).'°C' : '—' }} {{ $sharedWeather?->getConditionText() ?? __('Cuaca belum tersedia') }}</span>
+                        <span class="hidden lg:inline xl:hidden">{{ $sharedWeather ? round($sharedWeather->temperature).'°C' : '-' }}</span>
+                        <span class="hidden xl:inline">{{ $sharedWeather ? round($sharedWeather->temperature).'°C' : '-' }} {{ $sharedWeather?->getConditionText() ?? __('Cuaca belum tersedia') }}</span>
                     </button>
                 <button type="button"
                     x-data="villageDensity({

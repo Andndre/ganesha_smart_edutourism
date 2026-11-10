@@ -29,7 +29,7 @@
                 </div>
             </div>
             <div class="mt-1.5 flex justify-between items-center text-sm text-gray-500">
-                <p data-stats-status>{{ $overallPct }}% — <span class="{{ $overallColor }} font-semibold">{{ $overallStatus }}</span></p>
+                <p data-stats-status>{{ $overallPct }}% · <span class="{{ $overallColor }} font-semibold">{{ $overallStatus }}</span></p>
                 @if($desaZone)
                     <button type="button" 
                             onclick="openThresholdModal({{ json_encode([

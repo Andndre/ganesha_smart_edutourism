@@ -190,7 +190,7 @@
                     <p class="mt-2 text-sm font-medium text-gray-500" x-show="solved">
                         {{ $cfg['success_text'] ?? __('Tepat sekali!') }}</p>
                     <p class="mt-2 text-sm font-medium text-gray-500" x-show="!solved">
-                        {{ __('Tidak apa-apa — teka-teki ini memang berat.') }}</p>
+                        {{ __('Tidak apa-apa, teka-teki ini memang berat.') }}</p>
 
                     <p class="text-primary mt-3 text-3xl font-black tabular-nums">
                         +<span x-text="earned"></span>

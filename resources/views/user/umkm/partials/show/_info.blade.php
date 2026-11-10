@@ -25,7 +25,10 @@
     @endif
 
     @if($umkm->traditionalHouse)
-        <a href="{{ route('houses.show', ['number' => $umkm->traditionalHouse->number]) }}" class="tap-target mt-5 inline-flex rounded-full bg-[#eaf3ec] px-4 text-xs font-bold text-primary">{{ __('Bagian dari Pekarangan No.') }} {{ $umkm->traditionalHouse->number }} →</a>
+        <a href="{{ route('houses.show', ['number' => $umkm->traditionalHouse->number]) }}" class="tap-target mt-5 inline-flex items-center gap-1.5 rounded-full bg-[#eaf3ec] px-4 text-xs font-bold text-primary">
+            <span>{{ __('Bagian dari Pekarangan No.') }} {{ $umkm->traditionalHouse->number }}</span>
+            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </a>
     @endif
 
     <!-- Inline CTA (desktop only) -->

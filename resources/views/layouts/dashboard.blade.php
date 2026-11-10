@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#293518">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'Dashboard') — Penglipuran</title>
+    <title>@yield('title', 'Dashboard') | Penglipuran</title>
 
     {{-- Google Fonts: Inter (Secondary Typography for UI, Body & Caption; Libertinus Sans is bundled via Vite) --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -521,8 +521,9 @@
                         <strong>Admin Mode:</strong> You are managing this shop as an Administrator.
                     </span>
                 </div>
-                <a href="{{ route('admin.map-manager') }}" class="font-semibold text-blue-600 hover:text-blue-800 hover:underline">
-                    Back to Map Manager &rarr;
+                <a href="{{ route('admin.map-manager') }}" class="inline-flex items-center gap-1 font-semibold text-blue-600 hover:text-blue-800 hover:underline">
+                    <span>Back to Map Manager</span>
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                 </a>
             </div>
         @endif

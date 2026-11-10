@@ -74,7 +74,7 @@
                                 @if ($object->arModel)
                                     <span class="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">Ada</span>
                                 @else
-                                    <span class="text-xs italic text-gray-500">—</span>
+                                    <span class="text-xs italic text-gray-500">-</span>
                                 @endif
                             </td>
                             <td class="px-5 py-4">
