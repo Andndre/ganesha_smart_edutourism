@@ -24,6 +24,7 @@ class UmkmCategoryRequest extends FormRequest
             'unit' => ['nullable', 'string', 'max:50'],
             'is_culinary' => ['nullable', 'boolean'],
             'image' => ['nullable', 'image', 'max:2048'],
+            'remove_image' => ['nullable', 'boolean'],
             'model_3d_file' => ['nullable', 'file', 'max:10240'],
             'model_3d_usdz_file' => ['nullable', 'file', 'max:51200'],
         ];

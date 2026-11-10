@@ -3,7 +3,7 @@
     <div class="mb-4">
         <h3 id="model-modal-title" class="font-display text-charcoal text-lg font-bold">Tambah Model 3D</h3>
     </div>
-    <form id="model-form" method="POST" action="" enctype="multipart/form-data" x-data="{ locale: 'id' }">
+    <form id="model-form" method="POST" action="" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="redirect_to" id="model-field-redirect-to" value="">
         <div id="model-method-container"></div>
@@ -11,49 +11,37 @@
         <input type="hidden" name="model_id" id="model-field-id" value="">
 
         <div class="space-y-4">
-            {{-- Locale tabs --}}
-            <div class="sticky top-0 z-10 bg-white py-2.5 border-b border-gray-100 mb-4 flex gap-2">
-                <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-                    class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">Indonesia</button>
-                <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-                    class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">English</button>
-            </div>
-
-            {{-- English Tab Section --}}
-            <div x-show="locale === 'en'" class="space-y-4">
+            <x-dashboard.localized-field id="model-name" label="Nama model" field-name="name" required>
+                <x-slot:english>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700">Model Name (EN) <span
-                            class="text-warning">*</span></label>
+                    <label for="model-field-name-en" class="sr-only">Nama model bahasa Inggris</label>
                     <input type="text" name="name[en]" id="model-field-name-en"
                         placeholder="e.g. Traditional Temple Model"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                     @error('name.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
-
+                </x-slot:english>
+                <x-slot:indonesian>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700">Description (EN)</label>
-                    <x-tiptap-editor name="description[en]" id="model-field-desc-en" placeholder="e.g. Traditional Temple Model" has-image="true" />
-                    @error('description.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
-                </div>
-            </div>
-
-            {{-- Indonesian Tab Section --}}
-            <div x-show="locale === 'id'" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Nama Model (ID) <span
-                            class="text-warning">*</span></label>
+                    <label for="model-field-name-id" class="sr-only">Nama model bahasa Indonesia</label>
                     <input type="text" name="name[id]" id="model-field-name-id"
                         placeholder="Contoh: Model Pura Tradisional"
                         class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                     @error('name.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
+                </x-slot:indonesian>
+            </x-dashboard.localized-field>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Deskripsi Model (ID)</label>
+            <x-dashboard.localized-field id="model-description" label="Deskripsi model" field-name="description">
+                <x-slot:indonesian>
                     <x-tiptap-editor name="description[id]" id="model-field-desc-id" placeholder="Contoh: Model Pura Tradisional" has-image="true" />
                     @error('description.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
-                </div>
-            </div>
+                </x-slot:indonesian>
+                <x-slot:english>
+                    <x-tiptap-editor name="description[en]" id="model-field-desc-en" placeholder="Contoh teks Inggris: Traditional Temple Model" has-image="true" />
+                    @error('description.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                </x-slot:english>
+            </x-dashboard.localized-field>
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700">ID Marker QR AR</label>
@@ -133,26 +121,28 @@
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-gray-700">Audio Narasi (ID) / (EN)</label>
-                <span class="mb-2 block text-[11px] text-gray-500">Maksimal 10MB per file. Diputar otomatis di web viewer.</span>
-                <div class="grid grid-cols-2 gap-3">
+                <x-dashboard.localized-field id="model-audio" label="Audio narasi" help="Maksimal 10 MB per bahasa. Diputar otomatis di penampil web.">
+                    <x-slot:indonesian>
                     <div>
-                        <span class="mb-1 block text-[11px] font-semibold text-gray-500">Audio (ID)</span>
+                        <label for="model-field-audio-file-id" class="sr-only">Audio narasi bahasa Indonesia</label>
                         <input type="file" name="audio_narration_file[id]" id="model-field-audio-file-id" accept=".mp3,.ogg,.wav,.m4a,.3gp,.3gpp,audio/*,video/3gpp,audio/3gpp"
                             class="focus:border-primary w-full rounded-xl border border-gray-200 px-3 py-2 text-xs focus:outline-none"
                             onchange="var maxSize=10*1024*1024;if(this.files[0]&&this.files[0].size>maxSize){Swal.fire({title:'File Terlalu Besar',text:'Maksimal 10MB per file audio.',icon:'warning',confirmButtonText:'Mengerti',background:'#ffffff'});this.value='';return;}window.previewLocalAudio('edit-current-audio-id', this)">
                         @include('admin.partials.mini-audio-player', ['playerId' => 'edit-current-audio-id'])
+                        @error('audio_narration_file.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
+                    </x-slot:indonesian>
+                    <x-slot:english>
                     <div>
-                        <span class="mb-1 block text-[11px] font-semibold text-gray-500">Audio (EN)</span>
+                        <label for="model-field-audio-file-en" class="sr-only">Audio narasi bahasa Inggris</label>
                         <input type="file" name="audio_narration_file[en]" id="model-field-audio-file-en" accept=".mp3,.ogg,.wav,.m4a,.3gp,.3gpp,audio/*,video/3gpp,audio/3gpp"
                             class="focus:border-primary w-full rounded-xl border border-gray-200 px-3 py-2 text-xs focus:outline-none"
                             onchange="var maxSize=10*1024*1024;if(this.files[0]&&this.files[0].size>maxSize){Swal.fire({title:'File Terlalu Besar',text:'Maksimal 10MB per file audio.',icon:'warning',confirmButtonText:'Mengerti',background:'#ffffff'});this.value='';return;}window.previewLocalAudio('edit-current-audio-en', this)">
                         @include('admin.partials.mini-audio-player', ['playerId' => 'edit-current-audio-en'])
+                        @error('audio_narration_file.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
-                </div>
-                @error('audio_narration_file.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
-                @error('audio_narration_file.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    </x-slot:english>
+                </x-dashboard.localized-field>
                 <div class="mt-2 flex gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3">
                     <svg class="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2">

@@ -27,6 +27,7 @@ class OwnerCategoryController extends BaseOwnerController
         $this->normalizeLocaleFields(['name', 'description'], $request);
 
         $validated = $request->validate($this->categoryRules());
+        unset($validated['remove_image']);
 
         $validated['slug'] = (new UmkmProductCategory)->generateSlug(slugFromTranslatable($validated['name']));
 
@@ -54,9 +55,7 @@ class OwnerCategoryController extends BaseOwnerController
             'id' => $category->id,
             'name' => translateValue($category->name),
             'name_translations' => $category->getTranslations('name'),
-            'price' => $category->price,
-            'unit' => $category->unit,
-            'unit_label' => ProductUnit::labelFor($category->unit, app()->getLocale()),
+            'image_path' => $category->image_path,
             'price' => $category->price,
             'unit' => $category->unit,
             'unit_label' => ProductUnit::labelFor($category->unit, app()->getLocale()),
@@ -72,6 +71,7 @@ class OwnerCategoryController extends BaseOwnerController
         $this->normalizeLocaleFields(['name', 'description'], $request);
 
         $validated = $request->validate($this->categoryRules());
+        unset($validated['remove_image']);
 
         $validated['slug'] = $category->generateSlug(slugFromTranslatable($validated['name']));
 
@@ -84,6 +84,11 @@ class OwnerCategoryController extends BaseOwnerController
                 maxWidth: ImageOptimizerService::AVATAR_MAX_WIDTH,
                 maxHeight: ImageOptimizerService::AVATAR_MAX_HEIGHT,
             );
+        } elseif ($request->boolean('remove_image')) {
+            if ($category->image_path) {
+                Storage::disk('public')->delete($category->image_path);
+            }
+            $validated['image_path'] = null;
         }
         if ($request->hasFile('model_3d_file')) {
             if ($category->model_3d_path) {
@@ -103,6 +108,7 @@ class OwnerCategoryController extends BaseOwnerController
         return response()->json([
             'id' => $category->id,
             'name' => translateValue($category->name),
+            'image_path' => $category->image_path,
         ]);
     }
 
@@ -134,6 +140,7 @@ class OwnerCategoryController extends BaseOwnerController
             'price' => ['nullable', 'numeric', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            'remove_image' => ['nullable', 'boolean'],
             'model_3d_file' => ['nullable', 'file', 'mimes:glb,gltf', 'max:20480'],
             'model_3d_usdz_file' => ['nullable', 'file', 'mimetypes:model/vnd.usdz+zip,application/octet-stream', 'max:51200'],
         ];

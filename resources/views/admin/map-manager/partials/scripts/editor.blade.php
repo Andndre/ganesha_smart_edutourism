@@ -419,16 +419,8 @@ function handleMarkerClick(marker) {
             }
 
             const arModel = details.ar_model || null;
-            const imgContainer = document.getElementById('current-images');
-            imgContainer.innerHTML = '';
-            if (details.historical_images && details.historical_images.length > 0) {
-                details.historical_images.forEach(img => {
-                    const imgEl = document.createElement('img');
-                    imgEl.src = `${storageUrl}/${img}`;
-                    imgEl.className = "w-10 h-10 object-cover rounded border border-gray-100";
-                    imgContainer.appendChild(imgEl);
-                });
-            }
+            document.getElementById('map-cultural-historical-images').closest('[data-image-upload]')
+                .setExistingImages((details.historical_images || []).map(img => `${storageUrl}/${img}`));
 
             // Populate existing audio narration indicators
             ['en', 'id'].forEach(function(locale) {
@@ -575,7 +567,7 @@ function resetForms() {
 
         window.dispatchEvent(new CustomEvent('ar-model-reset'));
 
-        document.getElementById('current-images').innerHTML = '';
+        document.getElementById('map-cultural-historical-images').closest('[data-image-upload]').setExistingImages([]);
         ['current-audio-en', 'current-audio-id'].forEach(window.resetMiniAudio);
 
         updateAccessibilityNotesVisibility(culturalForm);

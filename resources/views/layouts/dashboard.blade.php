@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}" class="h-full">
+<html lang="id" class="h-full">
 
 <head>
     <meta charset="utf-8">
@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#293518">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'Dashboard') | Penglipuran</title>
+    <title>@yield('title', 'Dasbor') | Penglipuran</title>
 
     {{-- Google Fonts: Inter (Secondary Typography for UI, Body & Caption; Libertinus Sans is bundled via Vite) --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -176,7 +176,7 @@
             <div>
                 <p class="font-display text-sm font-bold leading-tight tracking-wide text-white">Penglipuran</p>
                 <p class="text-[11px] font-medium uppercase tracking-widest text-white/40">
-                    {{ (auth()->user()->isAdmin() && session()->has('admin_view_umkm_profile_id') && request()->is('owner/*')) ? 'Owner Panel (Preview)' : (auth()->user()->isAdminOrViewer() ? 'Admin Panel' : (auth()->user()->isTicketOfficer() ? 'Staff Panel' : 'Owner Panel')) }}
+                    {{ (auth()->user()->isAdmin() && session()->has('admin_view_umkm_profile_id') && request()->is('owner/*')) ? 'Panel Pemilik (Pratinjau)' : (auth()->user()->isAdminOrViewer() ? 'Panel Admin' : (auth()->user()->isTicketOfficer() ? 'Panel Petugas' : 'Panel Pemilik')) }}
                 </p>
             </div>
         </div>
@@ -199,7 +199,7 @@
                             'url' => route('owner.dashboard'),
                             'route' => 'owner.dashboard',
                             'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
-                            'label' => 'Dashboard Ringkasan'
+                            'label' => 'Ringkasan Dasbor'
                         ],
                         [
                             'type' => 'header',
@@ -236,7 +236,7 @@
                             'url' => route('admin.dashboard'),
                             'route' => 'admin.dashboard',
                             'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
-                            'label' => 'Dashboard'
+                            'label' => 'Dasbor'
                         ],
                         [
                             'url' => route('admin.capacity'),
@@ -260,7 +260,7 @@
                             'url' => route('admin.houses.index'),
                             'route' => 'admin.houses.*',
                             'icon' => 'M3 10 12 3l9 7v10H3V10Zm6 10v-7h6v7',
-                            'label' => 'Traditional Houses'
+                            'label' => 'Rumah Adat'
                         ],
                         [
                             'url' => route('admin.facilities'),
@@ -272,11 +272,11 @@
                             'url' => route('admin.ar-manager'),
                             'route' => 'admin.ar-manager',
                             'icon' => 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
-                            'label' => 'Aset AR & Marker'
+                            'label' => 'Aset AR & Penanda'
                         ],
                         [
                             'type' => 'header',
-                            'label' => 'Manajemen Staff'
+                            'label' => 'Manajemen Petugas'
                         ],
                         [
                             'url' => route('admin.ticket-officers'),
@@ -295,7 +295,7 @@
                             'route' => 'staff.ticketing',
                             'exact' => true,
                             'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01',
-                            'label' => 'Scan Tiket'
+                            'label' => 'Pindai Tiket'
                         ],
                         [
                             'url' => route('staff.ticketing.stats'),
@@ -321,13 +321,13 @@
                         ],
                         [
                             'type' => 'header',
-                            'label' => 'Wisata & Event'
+                            'label' => 'Wisata & Acara'
                         ],
                         [
                             'url' => route('admin.events'),
                             'route' => 'admin.events',
                             'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
-                            'label' => 'Event & Kalender'
+                            'label' => 'Acara & Kalender'
                         ],
                         [
                             'url' => route('admin.tour-routes'),
@@ -339,13 +339,13 @@
                             'url' => route('admin.feedback'),
                             'route' => 'admin.feedback',
                             'icon' => 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z',
-                            'label' => 'Ulasan & Feedback'
+                            'label' => 'Ulasan & Masukan'
                         ],
                         [
                             'url' => route('admin.cultural-object-ratings'),
                             'route' => 'admin.cultural-object-ratings',
                             'icon' => 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
-                            'label' => 'Rating Objek Budaya'
+                            'label' => 'Penilaian Objek Budaya'
                         ],
                         [
                             'url' => route('admin.reports'),
@@ -370,7 +370,7 @@
                             'url' => route('owner.dashboard'),
                             'route' => 'owner.dashboard',
                             'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
-                            'label' => 'Dashboard Ringkasan'
+                            'label' => 'Ringkasan Dasbor'
                         ],
                         [
                             'type' => 'header',
@@ -489,7 +489,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
         </button>
-        <h1 class="text-sm font-bold text-charcoal">@yield('title', 'Dashboard')</h1>
+        <h1 class="text-sm font-bold text-charcoal">@yield('title', 'Dasbor')</h1>
         <div class="flex items-center gap-2">
             @if (auth()->user()?->isAdminOrViewer())
                 @include('layouts.partials.admin-bell')
@@ -518,11 +518,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                     <span>
-                        <strong>Admin Mode:</strong> You are managing this shop as an Administrator.
+                        <strong>Mode Admin:</strong> Anda sedang mengelola toko ini sebagai administrator.
                     </span>
                 </div>
                 <a href="{{ route('admin.map-manager') }}" class="inline-flex items-center gap-1 font-semibold text-blue-600 hover:text-blue-800 hover:underline">
-                    <span>Back to Map Manager</span>
+                    <span>Kembali ke Pengelola Peta</span>
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                 </a>
             </div>

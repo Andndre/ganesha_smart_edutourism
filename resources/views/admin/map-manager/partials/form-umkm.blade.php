@@ -3,30 +3,26 @@
     x-data="{ locale: 'id' }">
     @csrf
     <div id="method-umkm"></div>
-
-    {{-- Locale tabs --}}
-    <div class="sticky top-0 z-10 -mx-6 mb-4 flex gap-2 border-b border-gray-100 bg-white px-6 py-3">
-        <button @click="locale = 'id'"
-            :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-            class="rounded-xl px-4 py-2 text-sm font-semibold transition-all" type="button">Indonesia</button>
-        <button @click="locale = 'en'"
-            :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-            class="rounded-xl px-4 py-2 text-sm font-semibold transition-all" type="button">English</button>
-    </div>
-
     {{-- Business Name --}}
-    <div x-show="locale === 'en'">
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Toko (EN) <span
-                class="text-warning">*</span></label>
-        <input type="text" name="business_name[en]" required placeholder="e.g. Dedari Shop"
-            class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-    </div>
-    <div x-show="locale === 'id'">
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Toko (ID) <span
-                class="text-warning">*</span></label>
-        <input type="text" name="business_name[id]" required placeholder="Contoh: Warung Dedari"
-            class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-    </div>
+    <x-dashboard.localized-field id="localized-map-manager-form-umkm-business-name" label="Nama toko" field-name="business_name" required>
+        <x-slot:indonesian>
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Toko (ID) <span
+                        class="text-warning">*</span></label>
+                <input type="text" name="business_name[id]" required placeholder="Contoh: Warung Dedari"
+                    class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+            </div>
+        </x-slot:indonesian>
+        <x-slot:english>
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Toko (EN) <span
+                        class="text-warning">*</span></label>
+                <input type="text" name="business_name[en]" required placeholder="e.g. Dedari Shop"
+                    class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+            </div>
+        </x-slot:english>
+    </x-dashboard.localized-field>
+
 
     <div>
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Pilih Akun Pemilik <span
@@ -74,16 +70,23 @@
             class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-500 focus:outline-none">
     </div>
 
-    <div x-show="locale === 'en'">
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi Bisnis (EN)</label>
-        <x-tiptap-editor name="description[en]" id="umkm-desc-en"
-            placeholder="Describe the products or services offered..." />
-    </div>
-    <div x-show="locale === 'id'">
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi Bisnis (ID)</label>
-        <x-tiptap-editor name="description[id]" id="umkm-desc-id"
-            placeholder="Jelaskan mengenai menu atau layanan yang ditawarkan..." />
-    </div>
+    <x-dashboard.localized-field id="localized-map-manager-form-umkm-description" label="Deskripsi toko" field-name="description">
+        <x-slot:indonesian>
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi Bisnis (ID)</label>
+                <x-tiptap-editor name="description[id]" id="umkm-desc-id"
+                    placeholder="Jelaskan mengenai menu atau layanan yang ditawarkan..." />
+            </div>
+        </x-slot:indonesian>
+        <x-slot:english>
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi Bisnis (EN)</label>
+                <x-tiptap-editor name="description[en]" id="umkm-desc-en"
+                    placeholder="Describe the products or services offered..." />
+            </div>
+        </x-slot:english>
+    </x-dashboard.localized-field>
+
 
     <div>
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Rating Awal</label>
@@ -118,18 +121,25 @@
     </div>
 
     <div class="accessibility-notes-container">
-        <div x-show="locale === 'en'">
-            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (EN)</label>
-            <textarea name="accessibility_notes[en]" id="umkm-accessibility-notes-en" rows="2"
-                placeholder="e.g. Ramp entrance, staff ready to help..."
-                class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 px-4 py-2 text-sm focus:outline-none">Ramp entrance, staff ready to help with accessibility.</textarea>
-        </div>
-        <div x-show="locale === 'id'">
-            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (ID)</label>
-            <textarea name="accessibility_notes[id]" id="umkm-accessibility-notes-id" rows="2"
-                placeholder="Contoh: Pintu masuk ramah kursi roda..."
-                class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 px-4 py-2 text-sm focus:outline-none">Pintu masuk landai, staf siap membantu akses disabilitas.</textarea>
-        </div>
+        <x-dashboard.localized-field id="localized-map-manager-form-umkm-accessibility-notes" label="Catatan aksesibilitas" field-name="accessibility_notes">
+            <x-slot:indonesian>
+                <div>
+                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (ID)</label>
+                    <textarea name="accessibility_notes[id]" id="umkm-accessibility-notes-id" rows="2"
+                        placeholder="Contoh: Pintu masuk ramah kursi roda..."
+                        class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 px-4 py-2 text-sm focus:outline-none">Pintu masuk landai, staf siap membantu akses disabilitas.</textarea>
+                </div>
+            </x-slot:indonesian>
+            <x-slot:english>
+                <div>
+                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (EN)</label>
+                    <textarea name="accessibility_notes[en]" id="umkm-accessibility-notes-en" rows="2"
+                        placeholder="e.g. Ramp entrance, staff ready to help..."
+                        class="focus:border-primary w-full resize-none rounded-xl border border-gray-200 px-4 py-2 text-sm focus:outline-none">Ramp entrance, staff ready to help with accessibility.</textarea>
+                </div>
+            </x-slot:english>
+        </x-dashboard.localized-field>
+
     </div>
 
 </form>

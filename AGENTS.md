@@ -321,7 +321,7 @@ This project uses **two independent i18n layers**:
 **Hard rules:**
 
 - Public-facing views (`/`) use `__()` and the i18n-sync script manages them.
-- **Dashboard views (`resources/views/admin/*`, `owner/*`, `staff/*`) must use hardcoded English strings.** Do **not** use `__()` there.
+- **Dashboard views (`resources/views/admin/*`, `owner/*`, `staff/*`) must use hardcoded Indonesian strings.** Do **not** use `__()` there. Locale names (Indonesia/English) may identify multilingual content fields, but dashboard instructions, labels, and feedback remain Indonesian.
 - When writing translatable fields programmatically (seeders, factories, imports, tinker), always pass a locale-keyed array:
 
 ```php

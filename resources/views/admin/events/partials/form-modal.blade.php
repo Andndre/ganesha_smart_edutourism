@@ -21,41 +21,41 @@
             <input type="hidden" name="_method" value="PUT">
         </template>
         <input type="hidden" name="id" x-model="formFields.id">
-
-        {{-- Locale Tabs --}}
         <div x-data="{ locale: 'id' }">
-            <div class="sticky top-0 z-10 bg-white py-3 border-b border-gray-100 mb-4 flex gap-2">
-                <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-                    class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" type="button">Indonesia</button>
-                <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-                    class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" type="button">English</button>
-            </div>
+
 
             {{-- Row 1: Nama Event & Kategori --}}
             <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div id="tour-form-name" class="md:col-span-2">
-                    <div x-show="locale === 'en'">
-                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Name
-                            (EN) <span class="text-red-500">*</span></label>
-                        <input type="text" name="name[en]" x-model="formFields['name[en]']"
-                            placeholder="e.g. Penglipuran Bamboo Festival 2026"
-                            class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
-                            required>
-                        @error('name.en')
-                            <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                        @enderror
-                    </div>
-                    <div x-show="locale === 'id'">
-                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Nama
-                            Event (ID) <span class="text-red-500">*</span></label>
-                        <input type="text" name="name[id]" x-model="formFields['name[id]']"
-                            placeholder="Contoh: Festival Bambu Penglipuran 2026"
-                            class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
-                            required>
-                        @error('name.id')
-                            <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                        @enderror
-                    </div>
+                    <x-dashboard.localized-field id="localized-events-form-modal-name" label="Nama acara" field-name="name" required>
+                        <x-slot:indonesian>
+                            <div>
+                                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Nama
+                                    Event (ID) <span class="text-red-500">*</span></label>
+                                <input type="text" name="name[id]" x-model="formFields['name[id]']"
+                                    placeholder="Contoh: Festival Bambu Penglipuran 2026"
+                                    class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
+                                    required>
+                                @error('name.id')
+                                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </x-slot:indonesian>
+                        <x-slot:english>
+                            <div>
+                                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Name
+                                    (EN) <span class="text-red-500">*</span></label>
+                                <input type="text" name="name[en]" x-model="formFields['name[en]']"
+                                    placeholder="e.g. Penglipuran Bamboo Festival 2026"
+                                    class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
+                                    required>
+                                @error('name.en')
+                                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </x-slot:english>
+                    </x-dashboard.localized-field>
+
                 </div>
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Kategori
@@ -73,26 +73,33 @@
             </div>
 
             {{-- Row 2: Deskripsi --}}
-            <div x-show="locale === 'en'">
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Description
-                    (EN)</label>
-                <textarea name="description[en]" rows="3" x-model="formFields['description[en]']"
-                    placeholder="Describe the background and activities of this event..."
-                    class="focus:border-primary focus:ring-primary/30 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"></textarea>
-                @error('description.en')
-                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                @enderror
-            </div>
-            <div x-show="locale === 'id'">
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Deskripsi
-                    Event (ID)</label>
-                <textarea name="description[id]" rows="3" x-model="formFields['description[id]']"
-                    placeholder="Jelaskan latar belakang dan kegiatan dalam event ini..."
-                    class="focus:border-primary focus:ring-primary/30 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"></textarea>
-                @error('description.id')
-                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                @enderror
-            </div>
+            <x-dashboard.localized-field id="localized-events-form-modal-description" label="Deskripsi acara" field-name="description">
+                <x-slot:indonesian>
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Deskripsi
+                            Event (ID)</label>
+                        <textarea name="description[id]" rows="3" x-model="formFields['description[id]']"
+                            placeholder="Jelaskan latar belakang dan kegiatan dalam event ini..."
+                            class="focus:border-primary focus:ring-primary/30 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"></textarea>
+                        @error('description.id')
+                            <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </x-slot:indonesian>
+                <x-slot:english>
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Description
+                            (EN)</label>
+                        <textarea name="description[en]" rows="3" x-model="formFields['description[en]']"
+                            placeholder="Describe the background and activities of this event..."
+                            class="focus:border-primary focus:ring-primary/30 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"></textarea>
+                        @error('description.en')
+                            <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </x-slot:english>
+            </x-dashboard.localized-field>
+
 
         {{-- Row 3: Waktu Mulai & Waktu Selesai --}}
         <div id="tour-form-dates" class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-100 bg-gray-50/50 p-4 md:grid-cols-2">
@@ -160,28 +167,35 @@
 
         {{-- Row 4: Lokasi Tempat --}}
         <div id="tour-form-location" class="space-y-3">
-            <div x-show="locale === 'en'">
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Location
-                    Name (EN) <span class="text-red-500">*</span></label>
-                <input type="text" name="location_name[en]" x-model="formFields['location_name[en]']"
-                    placeholder="e.g. Bale Banjar or Penataran Agung Temple"
-                    class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
-                    required>
-                @error('location_name.en')
-                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                @enderror
-            </div>
-            <div x-show="locale === 'id'">
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Lokasi
-                    Tempat (ID) <span class="text-red-500">*</span></label>
-                <input type="text" name="location_name[id]" x-model="formFields['location_name[id]']"
-                    placeholder="Contoh: Bale Banjar atau Pura Penataran Agung"
-                    class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
-                    required>
-                @error('location_name.id')
-                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
-                @enderror
-            </div>
+            <x-dashboard.localized-field id="localized-events-form-modal-location-name" label="Nama lokasi" field-name="location_name" required>
+                <x-slot:indonesian>
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Lokasi
+                            Tempat (ID) <span class="text-red-500">*</span></label>
+                        <input type="text" name="location_name[id]" x-model="formFields['location_name[id]']"
+                            placeholder="Contoh: Bale Banjar atau Pura Penataran Agung"
+                            class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
+                            required>
+                        @error('location_name.id')
+                            <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </x-slot:indonesian>
+                <x-slot:english>
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Location
+                            Name (EN) <span class="text-red-500">*</span></label>
+                        <input type="text" name="location_name[en]" x-model="formFields['location_name[en]']"
+                            placeholder="e.g. Bale Banjar or Penataran Agung Temple"
+                            class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
+                            required>
+                        @error('location_name.en')
+                            <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </x-slot:english>
+            </x-dashboard.localized-field>
+
             {{-- Map Selection --}}
             <div>
                 <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-700">Pilih Lokasi Peta <span class="text-[11px] font-normal text-gray-500">(Klik pada peta untuk menentukan koordinat)</span></label>
@@ -196,7 +210,7 @@
                 @error('longitude')
                     <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
                 @enderror
-                
+
                 {{-- Coordinate Badge --}}
                 <div class="mt-2 flex items-center justify-between text-xs text-gray-500">
                     <div>

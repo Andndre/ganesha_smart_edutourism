@@ -147,6 +147,7 @@
                                 'unit'                     => $p->unit,
                                 'stock'                    => $p->stock,
                                 'is_active'                => $p->is_active,
+                                'images'                   => $p->images,
                                 'variants'                 => $p->variants->map(fn ($variant) => [
                                     'label' => $variant->getTranslations('label'), 'price' => $variant->getRawOriginal('price'),
                                     'stock' => $variant->stock, 'is_active' => $variant->is_active, 'sort_order' => $variant->sort_order,
@@ -312,9 +313,7 @@
                 </div>
 
                 <div id="tour-product-images">
-                    <label class="block text-sm font-semibold text-gray-700">Foto Produk</label>
-                    <input type="file" name="images[]" accept="image/jpeg,image/png,image/webp,image/gif" multiple
-                        class="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm">
+                    <x-dashboard.image-upload id="owner-product-images" name="images[]" label="Foto produk" :multiple="true" :max-files="5" accept="image/jpeg,image/png,image/webp,image/gif" />
                     <p class="mt-1 text-xs text-gray-500">Unggah hingga 5 foto (maks. 5 MB per foto). Foto produk diprioritaskan; gambar kategori hanya dipakai bila belum ada foto.</p>
                 </div>
 
@@ -518,26 +517,30 @@
 
             <div class="grid gap-6 md:grid-cols-2">
                 <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Nama (EN) <span class="text-warning">*</span></label>
-                        <input type="text" name="name[en]" id="cat-name-en" required
-                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Nama (ID) <span class="text-warning">*</span></label>
-                        <input type="text" name="name[id]" id="cat-name-id" required
-                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Deskripsi (EN)</label>
-                        <textarea name="description[en]" id="cat-desc-en" rows="3"
-                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Deskripsi (ID)</label>
-                        <textarea name="description[id]" id="cat-desc-id" rows="3"
-                            class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
-                    </div>
+                    <x-dashboard.localized-field id="owner-category-name" label="Nama kategori" field-name="name" required>
+                        <x-slot:indonesian>
+                            <label for="cat-name-id" class="sr-only">Nama kategori bahasa Indonesia</label>
+                            <input type="text" name="name[id]" id="cat-name-id" required
+                                class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                        </x-slot:indonesian>
+                        <x-slot:english>
+                            <label for="cat-name-en" class="sr-only">Nama kategori bahasa Inggris</label>
+                            <input type="text" name="name[en]" id="cat-name-en" required
+                                class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                        </x-slot:english>
+                    </x-dashboard.localized-field>
+                    <x-dashboard.localized-field id="owner-category-description" label="Deskripsi kategori" field-name="description">
+                        <x-slot:indonesian>
+                            <label for="cat-desc-id" class="sr-only">Deskripsi kategori bahasa Indonesia</label>
+                            <textarea name="description[id]" id="cat-desc-id" rows="3"
+                                class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
+                        </x-slot:indonesian>
+                        <x-slot:english>
+                            <label for="cat-desc-en" class="sr-only">Deskripsi kategori bahasa Inggris</label>
+                            <textarea name="description[en]" id="cat-desc-en" rows="3"
+                                class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
+                        </x-slot:english>
+                    </x-dashboard.localized-field>
                 </div>
 
                 <div class="space-y-4">
@@ -558,11 +561,7 @@
                             </select>
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">{{ 'Gambar Kategori' }}</label>
-                        <input type="file" name="image" id="cat-image" accept="image/*"
-                            class="file:bg-primary/10 file:text-primary mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
-                    </div>
+                    <x-dashboard.image-upload id="cat-image" name="image" label="Gambar kategori" :max-size-mb="2" remove-name="remove_image" />
 
                     <details class="rounded-xl border border-gray-100 bg-gray-50 p-3">
                         <summary class="cursor-pointer text-sm font-semibold text-gray-700">{{ 'Tingkat lanjut (Model 3D, opsional)' }}</summary>
@@ -721,6 +720,7 @@
             productForm.action = "{{ route('owner.products.store') }}";
             methodContainer.innerHTML = "";
             productForm.reset();
+            document.getElementById('owner-product-images').closest('[data-image-upload]').setExistingImages([]);
             fieldProductId.value = "";
             fieldUnit.value = "";
 
@@ -739,6 +739,7 @@
             setUnitSelectValue('field-unit', product.unit);
             fieldStock.value  = product.stock !== null ? product.stock : '';
             fieldActive.checked = product.is_active;
+            document.getElementById('owner-product-images').closest('[data-image-upload]').setExistingImages((product.images || []).map(path => `/storage/${path}`));
 
             const root = Alpine.$data(productForm);
             root.selectById(product.umkm_product_category_id);
@@ -766,6 +767,7 @@
         function openCategoryCreate() {
             categoryModalTitle.innerText = "{{ 'Tambah Kategori Baru' }}";
             categoryForm.reset();
+            document.getElementById('cat-image').closest('[data-image-upload]').setExistingImages([]);
             categoryForm.action = "{{ route('owner.categories.store') }}";
             categoryFormId.value = "";
             document.getElementById('cat-unit').value = "";
@@ -786,6 +788,7 @@
             document.getElementById('cat-desc-id').value = cat.description_translations?.id || '';
             document.getElementById('cat-price').value = cat.price !== null ? cat.price : '';
             setUnitSelectValue('cat-unit', cat.unit);
+            document.getElementById('cat-image').closest('[data-image-upload]').setExistingImages(cat.image_path ? [`/storage/${cat.image_path}`] : []);
             categoryFormError.classList.add('hidden');
             window.dispatchEvent(new CustomEvent('open-category-form-modal'));
         }
@@ -825,7 +828,7 @@
                         price: data.price ?? null,
                         unit: data.unit ?? null,
                         unit_label: data.unit_label ?? (data.unit || 'pcs'),
-                        image_path: null,
+                        image_path: data.image_path,
                         editable_by_me: true,
                     });
                 }

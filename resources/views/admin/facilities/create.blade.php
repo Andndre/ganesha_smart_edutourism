@@ -15,3 +15,5 @@
     @include('admin.facilities.partials.form')
 
 @endsection
+
+<x-tiptap-editor-script />

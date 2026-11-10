@@ -3,27 +3,25 @@
     class="hidden space-y-4" x-data="{ locale: 'id' }">
     @csrf
     <div id="method-facility"></div>
+    <x-dashboard.localized-field id="localized-map-manager-form-facility-name" label="Nama fasilitas" field-name="name" required>
+        <x-slot:indonesian>
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Fasilitas (ID) <span
+                        class="text-warning">*</span></label>
+                <input type="text" name="name[id]" required placeholder="Contoh: Toilet Umum Pura"
+                    class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+            </div>
+        </x-slot:indonesian>
+        <x-slot:english>
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Fasilitas (EN) <span
+                        class="text-warning">*</span></label>
+                <input type="text" name="name[en]" required placeholder="e.g. Public Toilet at Temple"
+                    class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+            </div>
+        </x-slot:english>
+    </x-dashboard.localized-field>
 
-    {{-- Locale tabs --}}
-    <div class="sticky top-0 z-10 bg-white py-3 -mx-6 px-6 border-b border-gray-100 mb-4 flex gap-2">
-        <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-            class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" type="button">Indonesia</button>
-        <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-            class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" type="button">English</button>
-    </div>
-
-    <div x-show="locale === 'en'">
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Fasilitas (EN) <span
-                class="text-warning">*</span></label>
-        <input type="text" name="name[en]" required placeholder="e.g. Public Toilet at Temple"
-            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-    </div>
-    <div x-show="locale === 'id'">
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Fasilitas (ID) <span
-                class="text-warning">*</span></label>
-        <input type="text" name="name[id]" required placeholder="Contoh: Toilet Umum Pura"
-            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-    </div>
 
     <div>
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Tipe Fasilitas <span
@@ -38,14 +36,21 @@
         </select>
     </div>
 
-    <div x-show="locale === 'en'">
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Description (EN)</label>
-        <x-tiptap-editor name="description[en]" id="facility-desc-en" placeholder="Add complementary information about this facility..." />
-    </div>
-    <div x-show="locale === 'id'">
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi (ID)</label>
-        <x-tiptap-editor name="description[id]" id="facility-desc-id" placeholder="Tambahkan informasi pelengkap untuk fasilitas ini..." />
-    </div>
+    <x-dashboard.localized-field id="localized-map-manager-form-facility-description" label="Deskripsi fasilitas" field-name="description">
+        <x-slot:indonesian>
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi (ID)</label>
+                <x-tiptap-editor name="description[id]" id="facility-desc-id" placeholder="Tambahkan informasi pelengkap untuk fasilitas ini..." />
+            </div>
+        </x-slot:indonesian>
+        <x-slot:english>
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Description (EN)</label>
+                <x-tiptap-editor name="description[en]" id="facility-desc-en" placeholder="Add complementary information about this facility..." />
+            </div>
+        </x-slot:english>
+    </x-dashboard.localized-field>
+
 
     <div class="grid grid-cols-2 gap-3">
         <div>
@@ -74,16 +79,23 @@
     </div>
 
     <div class="accessibility-notes-container">
-        <div x-show="locale === 'en'">
-            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (EN)</label>
-            <textarea name="accessibility_notes[en]" id="facility-accessibility-notes-en" rows="2" placeholder="e.g. Toilet is equipped with handrails..."
-                class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none">Flat road access, friendly for wheelchairs.</textarea>
-        </div>
-        <div x-show="locale === 'id'">
-            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (ID)</label>
-            <textarea name="accessibility_notes[id]" id="facility-accessibility-notes-id" rows="2" placeholder="Contoh: Toilet dilengkapi dengan pegangan besi..."
-                class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none">Akses jalan datar ramah kursi roda.</textarea>
-        </div>
+        <x-dashboard.localized-field id="localized-map-manager-form-facility-accessibility-notes" label="Catatan aksesibilitas" field-name="accessibility_notes">
+            <x-slot:indonesian>
+                <div>
+                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (ID)</label>
+                    <textarea name="accessibility_notes[id]" id="facility-accessibility-notes-id" rows="2" placeholder="Contoh: Toilet dilengkapi dengan pegangan besi..."
+                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none">Akses jalan datar ramah kursi roda.</textarea>
+                </div>
+            </x-slot:indonesian>
+            <x-slot:english>
+                <div>
+                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (EN)</label>
+                    <textarea name="accessibility_notes[en]" id="facility-accessibility-notes-en" rows="2" placeholder="e.g. Toilet is equipped with handrails..."
+                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none resize-none">Flat road access, friendly for wheelchairs.</textarea>
+                </div>
+            </x-slot:english>
+        </x-dashboard.localized-field>
+
     </div>
 
 </form>

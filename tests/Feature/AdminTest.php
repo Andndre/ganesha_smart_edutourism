@@ -165,7 +165,7 @@ class AdminTest extends TestCase
         $responseCreateSuccess->assertRedirect();
 
         $object = CulturalObject::where('slug', 'pura-luhur')->firstOrFail();
-        $this->assertEquals('Spiritual heart of Pura Luhur', $object->short_description);
+        $this->assertEquals('Spiritual heart of Pura Luhur', $object->getTranslation('short_description', 'en'));
         $this->assertNotNull($object->model_3d_path);
         $this->assertNotNull($object->audio_narration_path);
 
@@ -237,7 +237,7 @@ class AdminTest extends TestCase
 
         $object->refresh();
         $this->assertEquals('Pura Luhur Updated', $object->name);
-        $this->assertEquals('Spiritual heart Updated', $object->short_description);
+        $this->assertEquals('Spiritual heart Updated', $object->getTranslation('short_description', 'en'));
         Storage::disk('public')->assertExists($object->model_3d_path);
         Storage::disk('public')->assertExists($object->audio_narration_path);
         $this->assertCount(1, $object->historical_images);
@@ -324,7 +324,7 @@ class AdminTest extends TestCase
 
         // Assert MapLocation was created and synchronized
         $this->assertNotNull($facility->mapLocation);
-        $this->assertEquals('Main Toilet', $facility->mapLocation->name);
+        $this->assertEquals('Toilet Utama', $facility->mapLocation->name);
         $this->assertEquals(-8.123, $facility->mapLocation->latitude);
         $this->assertEquals(115.123, $facility->mapLocation->longitude);
         $this->assertTrue($facility->mapLocation->is_accessible);
@@ -344,12 +344,12 @@ class AdminTest extends TestCase
         $responseUpdate->assertRedirect();
 
         $facility->refresh();
-        $this->assertEquals('Main Toilet Updated', $facility->name);
-        $this->assertEquals('Very clean public toilet', $facility->description);
+        $this->assertEquals('Main Toilet Updated', $facility->getTranslation('name', 'en'));
+        $this->assertEquals('Very clean public toilet', $facility->getTranslation('description', 'en'));
 
         // Assert MapLocation was updated and synchronized
         $this->assertNotNull($facility->mapLocation);
-        $this->assertEquals('Main Toilet Updated', $facility->mapLocation->name);
+        $this->assertEquals('Toilet Utama Updated', $facility->mapLocation->name);
         $this->assertEquals(-8.456, $facility->mapLocation->latitude);
         $this->assertEquals(115.456, $facility->mapLocation->longitude);
 
@@ -424,7 +424,7 @@ class AdminTest extends TestCase
 
         $profile->refresh();
         $this->assertEquals('Warung Luwak Premium', $profile->business_name);
-        $this->assertEquals('Premium civet coffee', $profile->description);
+        $this->assertEquals('Premium civet coffee', $profile->getTranslation('description', 'en'));
 
         // Assert MapLocation was updated and synchronized
         $this->assertNotNull($profile->mapLocation);
@@ -575,7 +575,7 @@ class AdminTest extends TestCase
         $responseCreateSuccess->assertRedirect();
 
         $event = Event::where('name->en', 'Valid Cultural Festival')->firstOrFail();
-        $this->assertEquals('Banjar Hall', $event->location_name);
+        $this->assertEquals('Banjar Hall', $event->getTranslation('location_name', 'en'));
 
         // 3. Edit view renders
         $responseEdit = $this->actingAs($this->adminUser)
@@ -597,8 +597,8 @@ class AdminTest extends TestCase
             ]);
         $responseUpdate->assertRedirect();
         $event->refresh();
-        $this->assertEquals('Cultural Festival Updated', $event->name);
-        $this->assertEquals('Temple Grounds', $event->location_name);
+        $this->assertEquals('Cultural Festival Updated', $event->getTranslation('name', 'en'));
+        $this->assertEquals('Temple Grounds', $event->getTranslation('location_name', 'en'));
 
         // 5. Delete event
         $responseDelete = $this->actingAs($this->adminUser)
@@ -693,10 +693,10 @@ class AdminTest extends TestCase
         $responseUpdate->assertRedirect();
 
         $route->refresh();
-        $this->assertEquals('Nature Education Route Mod', $route->name);
+        $this->assertEquals('Nature Education Route Mod', $route->getTranslation('name', 'en'));
         $this->assertCount(1, $route->routePoints);
         $this->assertEquals(30, $route->routePoints->first()->estimated_visit_minutes);
-        $this->assertEquals('Updated narrative.', $route->routePoints->first()->storytelling_content);
+        $this->assertEquals('Updated narrative.', $route->routePoints->first()->getTranslation('storytelling_content', 'en'));
 
         // 3. Toggle active
         $this->assertTrue($route->is_active);

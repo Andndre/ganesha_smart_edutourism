@@ -154,58 +154,61 @@
             <div id="method-container"></div>
             <input type="hidden" name="category_id" id="field-category-id" value="">
             <div class="space-y-4">
-                {{-- Locale tabs --}}
-                <div class="sticky top-0 z-10 mb-4 flex gap-2 border-b border-gray-100 bg-white py-2.5">
-                    <button @click="locale = 'id'"
-                        :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-                        class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
-                        type="button">Indonesia</button>
-                    <button @click="locale = 'en'"
-                        :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-                        class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all" type="button">English</button>
-                </div>
-
                 {{-- Name --}}
-                <div x-show="locale === 'en'">
-                    <label class="block text-sm font-semibold text-gray-700">Category Name (EN) <span
-                            class="text-warning">*</span></label>
-                    <input type="text" name="name[en]" id="field-name-en" required
-                        placeholder="e.g. Traditional Clothes, Snacks"
-                        class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-                    @error('name.en')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div x-show="locale === 'id'">
-                    <label class="block text-sm font-semibold text-gray-700">Nama Kategori (ID) <span
-                            class="text-warning">*</span></label>
-                    <input type="text" name="name[id]" id="field-name-id" required
-                        placeholder="Contoh: Pakaian Adat, Makanan Ringan"
-                        class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-                    @error('name.id')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
-                </div>
+                <x-dashboard.localized-field id="localized-umkm-categories-name" label="Nama kategori" field-name="name" required>
+                    <x-slot:indonesian>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Nama Kategori (ID) <span
+                                    class="text-warning">*</span></label>
+                            <input type="text" name="name[id]" id="field-name-id" required
+                                placeholder="Contoh: Pakaian Adat, Makanan Ringan"
+                                class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                            @error('name.id')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </x-slot:indonesian>
+                    <x-slot:english>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Category Name (EN) <span
+                                    class="text-warning">*</span></label>
+                            <input type="text" name="name[en]" id="field-name-en" required
+                                placeholder="e.g. Traditional Clothes, Snacks"
+                                class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                            @error('name.en')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </x-slot:english>
+                </x-dashboard.localized-field>
+
 
                 {{-- Description --}}
-                <div x-show="locale === 'en'">
-                    <label class="font-display block text-sm font-semibold text-gray-700">Description (EN)</label>
-                    <textarea name="description[en]" id="field-description-en" placeholder="Short description in English..."
-                        rows="3"
-                        class="focus:border-primary mt-1 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
-                    @error('description.en')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div x-show="locale === 'id'">
-                    <label class="font-display block text-sm font-semibold text-gray-700">Deskripsi (ID)</label>
-                    <textarea name="description[id]" id="field-description-id" placeholder="Deskripsi singkat tentang kategori..."
-                        rows="3"
-                        class="focus:border-primary mt-1 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
-                    @error('description.id')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
-                </div>
+                <x-dashboard.localized-field id="localized-umkm-categories-description" label="Deskripsi kategori" field-name="description">
+                    <x-slot:indonesian>
+                        <div>
+                            <label class="font-display block text-sm font-semibold text-gray-700">Deskripsi (ID)</label>
+                            <textarea name="description[id]" id="field-description-id" placeholder="Deskripsi singkat tentang kategori..."
+                                rows="3"
+                                class="focus:border-primary mt-1 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
+                            @error('description.id')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </x-slot:indonesian>
+                    <x-slot:english>
+                        <div>
+                            <label class="font-display block text-sm font-semibold text-gray-700">Description (EN)</label>
+                            <textarea name="description[en]" id="field-description-en" placeholder="Short description in English..."
+                                rows="3"
+                                class="focus:border-primary mt-1 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
+                            @error('description.en')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </x-slot:english>
+                </x-dashboard.localized-field>
+
 
                 {{-- Harga & Satuan --}}
                 <div class="grid grid-cols-2 gap-4">
@@ -236,23 +239,7 @@
                         <span class="mt-0.5 block text-xs leading-5 text-gray-500">Toko dengan produk aktif dalam kategori ini tampil di filter Kuliner.</span></span>
                 </label>
 
-                <div>
-                    <label class="font-display block text-sm font-semibold text-gray-700">Gambar Kategori</label>
-                    <input type="file" name="image" id="field-image" accept="image/*"
-                        onchange="previewCategoryImage(this)"
-                        class="file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mt-1 w-full text-xs text-gray-500 file:mr-4 file:rounded-xl file:border-0 file:px-4 file:py-2 file:text-xs file:font-semibold">
-                    <span class="mt-1 block text-[11px] text-gray-500">Format gambar (jpg, jpeg, png), maks 2MB.</span>
-                    @error('image')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
-                    <div id="image-preview-container" class="mt-2.5 hidden">
-                        <span class="text-primary block text-[11px] font-bold uppercase tracking-wider">Gambar Saat
-                            Ini:</span>
-                        <div class="relative mt-1 h-20 w-32 overflow-hidden rounded-lg border border-gray-200">
-                            <img id="image-preview" src="" alt="Pratinjau" class="h-full w-full object-cover">
-                        </div>
-                    </div>
-                </div>
+                <x-dashboard.image-upload id="field-image" name="image" label="Gambar kategori" :max-size-mb="2" remove-name="remove_image" />
                 <div>
                     <label class="font-display block text-sm font-semibold text-gray-700">Model 3D (.glb)</label>
                     <input type="file" name="model_3d_file" id="field-model-3d" accept=".glb"
@@ -333,8 +320,6 @@
         const fieldDescriptionEn = document.getElementById('field-description-en');
         const fieldDescriptionId = document.getElementById('field-description-id');
         const fieldImage = document.getElementById('field-image');
-        const imagePreviewContainer = document.getElementById('image-preview-container');
-        const imagePreview = document.getElementById('image-preview');
         const fieldModel3d = document.getElementById('field-model-3d');
         const fieldModel3dUsdz = document.getElementById('field-model-3d-usdz');
         const currentModel3d = document.getElementById('current-model-3d');
@@ -359,8 +344,7 @@
             fieldModel3dUsdz.value = "";
             document.getElementById('field-tmp-model-3d').value = '';
             document.getElementById('field-tmp-model-3d-usdz').value = '';
-            imagePreviewContainer.classList.add('hidden');
-            imagePreview.src = "";
+            fieldImage.closest('[data-image-upload]').setExistingImages([]);
             currentModel3d.innerText = "";
             currentModel3dUsdz.innerText = "";
             resetModal3DViewer();
@@ -438,13 +422,7 @@
             currentModel3dUsdz.innerText = cat.model_3d_usdz_path ? "File aktif: " + cat.model_3d_usdz_path.split('/')
                 .pop() : "";
 
-            if (cat.image_path) {
-                imagePreview.src = `/storage/${cat.image_path}`;
-                imagePreviewContainer.classList.remove('hidden');
-            } else {
-                imagePreviewContainer.classList.add('hidden');
-                imagePreview.src = "";
-            }
+            fieldImage.closest('[data-image-upload]').setExistingImages(cat.image_path ? [`/storage/${cat.image_path}`] : []);
 
             if (cat.model_3d_path) {
                 setupModal3DViewer(`/storage/${cat.model_3d_path}`);
@@ -478,21 +456,6 @@
                 return;
             }
             if (file) setupModal3DViewer(URL.createObjectURL(file));
-        }
-
-        function previewCategoryImage(input) {
-            const maxSize = 2 * 1024 * 1024;
-            const file = input.files[0];
-            if (file && file.size > maxSize) {
-                Swal.fire({
-                    title: 'Ukuran File Terlalu Besar',
-                    text: 'Maksimal 2MB.',
-                    icon: 'warning',
-                    confirmButtonText: 'Mengerti',
-                    background: '#ffffff'
-                });
-                input.value = '';
-            }
         }
 
         function previewCategoryUSDZ(input) {

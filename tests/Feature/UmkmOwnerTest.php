@@ -122,6 +122,55 @@ class UmkmOwnerTest extends TestCase
         $this->assertEquals('Wayan Coffee & Craft', $profile->business_name);
     }
 
+    public function test_owner_can_remove_a_saved_store_cover(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('umkm_profiles/cover.jpg', 'image');
+        $owner = User::factory()->create(['role' => 'umkm_owner']);
+        $profile = UmkmProfile::factory()->create(['user_id' => $owner->id, 'image_path' => 'umkm_profiles/cover.jpg']);
+
+        $this->actingAs($owner)->put(route('owner.profile.update'), [
+            'business_name' => $profile->getTranslations('business_name'),
+            'remove_image' => '1',
+        ])->assertRedirect();
+
+        $this->assertNull($profile->fresh()->image_path);
+        Storage::disk('public')->assertMissing('umkm_profiles/cover.jpg');
+    }
+
+    public function test_admin_can_remove_a_saved_category_image(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('categories/image.jpg', 'image');
+        $admin = User::factory()->create(['role' => 'admin']);
+        $category = UmkmProductCategory::factory()->create(['image_path' => 'categories/image.jpg']);
+
+        $this->actingAs($admin)->put(route('admin.umkm.categories.update', $category), [
+            'name' => $category->getTranslations('name'),
+            'remove_image' => '1',
+        ])->assertRedirect();
+
+        $this->assertNull($category->fresh()->image_path);
+        Storage::disk('public')->assertMissing('categories/image.jpg');
+    }
+
+    public function test_owner_can_remove_an_editable_category_image(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('categories/owner-image.jpg', 'image');
+        $owner = User::factory()->create(['role' => 'umkm_owner']);
+        UmkmProfile::factory()->create(['user_id' => $owner->id]);
+        $category = UmkmProductCategory::factory()->create(['image_path' => 'categories/owner-image.jpg']);
+
+        $this->actingAs($owner)->postJson(route('owner.categories.update', $category), [
+            'name' => $category->getTranslations('name'),
+            'remove_image' => '1',
+        ])->assertOk();
+
+        $this->assertNull($category->fresh()->image_path);
+        Storage::disk('public')->assertMissing('categories/owner-image.jpg');
+    }
+
     /**
      * Test owner can update their store location coordinates.
      */
@@ -264,12 +313,12 @@ class UmkmOwnerTest extends TestCase
             'model_3d_usdz_file' => $model3dUsdz,
         ]);
         $response->assertRedirect('/admin/umkm/categories');
-        $response->assertSessionHas('success', 'Product category added successfully.');
+        $response->assertSessionHas('success', 'Kategori produk berhasil ditambahkan.');
 
         $category = UmkmProductCategory::first();
         $this->assertNotNull($category);
-        $this->assertEquals('Light Snacks', $category->name);
-        $this->assertEquals('Various Balinese snacks.', $category->description);
+        $this->assertEquals('Light Snacks', $category->getTranslation('name', 'en'));
+        $this->assertEquals('Various Balinese snacks.', $category->getTranslation('description', 'en'));
         $this->assertTrue($category->is_culinary);
         $this->get('/admin/umkm/categories')
             ->assertOk()
@@ -297,11 +346,11 @@ class UmkmOwnerTest extends TestCase
             'model_3d_usdz_file' => $newModel3dUsdz,
         ]);
         $response->assertRedirect('/admin/umkm/categories');
-        $response->assertSessionHas('success', 'Product category updated successfully.');
+        $response->assertSessionHas('success', 'Kategori produk berhasil diperbarui.');
 
         $category = $category->fresh();
-        $this->assertEquals('Balinese Traditional Snacks', $category->name);
-        $this->assertEquals('Traditional wet snacks.', $category->description);
+        $this->assertEquals('Balinese Traditional Snacks', $category->getTranslation('name', 'en'));
+        $this->assertEquals('Traditional wet snacks.', $category->getTranslation('description', 'en'));
         $this->assertFalse($category->is_culinary);
         $this->get('/admin/umkm/categories')
             ->assertOk()
@@ -319,7 +368,7 @@ class UmkmOwnerTest extends TestCase
         $deletedModelUsdzPath = $category->model_3d_usdz_path;
         $response = $this->actingAs($admin)->delete('/admin/umkm/categories/'.$category->id);
         $response->assertRedirect('/admin/umkm/categories');
-        $response->assertSessionHas('success', 'Product category deleted successfully.');
+        $response->assertSessionHas('success', 'Kategori produk berhasil dihapus.');
         $this->assertDatabaseMissing('umkm_product_categories', ['id' => $category->id]);
         Storage::disk('public')->assertMissing($deletedImagePath);
         Storage::disk('public')->assertMissing($deletedModelPath);
@@ -349,7 +398,7 @@ class UmkmOwnerTest extends TestCase
         ]);
 
         $response->assertRedirect('/admin/umkm/owners');
-        $response->assertSessionHas('success', 'Merchant owner account created successfully.');
+        $response->assertSessionHas('success', 'Akun pemilik UMKM berhasil dibuat.');
 
         $owner = User::where('email', 'ketut@example.com')->first();
         $this->assertNotNull($owner);
@@ -365,7 +414,7 @@ class UmkmOwnerTest extends TestCase
         ]);
 
         $response->assertRedirect('/admin/umkm/owners');
-        $response->assertSessionHas('success', 'Merchant owner account updated successfully.');
+        $response->assertSessionHas('success', 'Akun pemilik UMKM berhasil diperbarui.');
 
         $owner = $owner->fresh();
         $this->assertEquals('Ketut Sukra Update', $owner->name);
@@ -375,7 +424,7 @@ class UmkmOwnerTest extends TestCase
         // Delete owner
         $response = $this->actingAs($admin)->delete('/admin/umkm/owners/'.$owner->id);
         $response->assertRedirect('/admin/umkm/owners');
-        $response->assertSessionHas('success', 'Merchant owner account deleted successfully.');
+        $response->assertSessionHas('success', 'Akun pemilik UMKM berhasil dihapus.');
         $this->assertDatabaseMissing('users', ['id' => $owner->id]);
     }
 }

@@ -84,7 +84,7 @@
 
                     <div class="space-y-4">
                         {{-- Locale tabs --}}
-                        <x-locale-toggle />
+
 
                         {{-- Latitude --}}
                         <div id="tour-coords">
@@ -119,16 +119,23 @@
                         {{-- Accessibility Notes --}}
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mt-2">Catatan Aksesibilitas</label>
-                            <div x-show="locale === 'en'">
-                                <textarea name="accessibility_notes[en]" rows="3"
-                                    placeholder="e.g. Ramp entrance at the main gate."
-                                    class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">{{ old('accessibility_notes.en', $location ? ($location->getTranslation('accessibility_notes', 'en', false) ?? '') : '') }}</textarea>
-                            </div>
-                            <div x-show="locale === 'id'">
-                                <textarea name="accessibility_notes[id]" rows="3"
-                                    placeholder="Contoh: Tersedia ramp landai di pintu masuk utama."
-                                    class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">{{ old('accessibility_notes.id', $location ? ($location->getTranslation('accessibility_notes', 'id', false) ?? '') : '') }}</textarea>
-                            </div>
+                            <x-dashboard.localized-field id="localized-owner-location-accessibility-notes" label="Catatan aksesibilitas" field-name="accessibility_notes">
+                                <x-slot:indonesian>
+                                    <div>
+                                        <textarea name="accessibility_notes[id]" rows="3"
+                                            placeholder="Contoh: Tersedia ramp landai di pintu masuk utama."
+                                            class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">{{ old('accessibility_notes.id', $location ? ($location->getTranslation('accessibility_notes', 'id', false) ?? '') : '') }}</textarea>
+                                    </div>
+                                </x-slot:indonesian>
+                                <x-slot:english>
+                                    <div>
+                                        <textarea name="accessibility_notes[en]" rows="3"
+                                            placeholder="e.g. Ramp entrance at the main gate."
+                                            class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">{{ old('accessibility_notes.en', $location ? ($location->getTranslation('accessibility_notes', 'en', false) ?? '') : '') }}</textarea>
+                                    </div>
+                                </x-slot:english>
+                            </x-dashboard.localized-field>
+
                         </div>
                     </div>
 

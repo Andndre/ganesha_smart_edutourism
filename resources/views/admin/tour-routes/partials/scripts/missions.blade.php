@@ -114,19 +114,13 @@ function addMissionField(mission = null) {
                 </div>
             </button>
             <div class="flex shrink-0 items-center gap-1.5">
-                <button @click="locale='id'" :class="locale==='id'?'bg-primary text-white':'bg-gray-100 text-gray-500'" class="px-2 py-0.5 rounded text-[11px] font-semibold" type="button">ID</button>
-                <button @click="locale='en'" :class="locale==='en'?'bg-primary text-white':'bg-gray-100 text-gray-500'" class="px-2 py-0.5 rounded text-[11px] font-semibold" type="button">EN</button>
-                <button type="button" onclick="translateMissionTitle(this)" class="px-1.5 py-0.5 rounded text-[11px] font-bold bg-secondary/20 hover:bg-secondary/30 text-charcoal flex items-center gap-0.5 transition-all">
-                    <svg class="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.05 9.5A18 18 0 016.4 9m6.1 9h7M11 21l5-10 5 10M12.75 5C11.78 10.77 8.07 15.61 3 18.13"/></svg>
-                    <span>Terjemahkan</span>
-                </button>
                 <button type="button" onclick="this.closest('.mission-item').remove(); markMissionDirty();" class="p-1 text-gray-500 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>
             </div>
         </div>
         <div class="mission-body hidden mt-3">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
                 <div>
                     <label class="mb-1 block text-xs font-semibold text-gray-600">Tipe Misi</label>
                     <select class="m-type w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" onchange="onMissionTypeChange(this)">
@@ -137,13 +131,23 @@ function addMissionField(mission = null) {
                     <label class="mb-1 block text-xs font-semibold text-gray-600">Poin</label>
                     <input type="number" class="m-points w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${m.points ?? 100}" oninput="markMissionDirty()">
                 </div>
-                <div>
-                    <div x-show="locale==='id'">
-                        <label class="mb-1 block text-xs font-semibold text-gray-600">Judul (ID)</label>
+                <div class="md:col-span-2 space-y-2">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="text-sm font-bold text-charcoal">Judul misi</span>
+                        <div class="inline-flex flex-wrap items-center gap-1 rounded-xl border border-gray-200 bg-surface p-1" role="tablist" aria-label="Bahasa judul misi">
+                            <button @click="locale='id'" :aria-selected="locale==='id'" :class="locale==='id'?'bg-primary text-white shadow-sm':'text-gray-600 hover:text-charcoal'" class="min-h-11 rounded-lg px-3 text-xs font-bold" type="button" role="tab">Indonesia</button>
+                            <button @click="locale='en'" :aria-selected="locale==='en'" :class="locale==='en'?'bg-primary text-white shadow-sm':'text-gray-600 hover:text-charcoal'" class="min-h-11 rounded-lg px-3 text-xs font-bold" type="button" role="tab">Inggris</button>
+                            <button type="button" onclick="translateMissionTitle(this)" class="inline-flex min-h-11 items-center gap-1 rounded-xl bg-secondary/20 px-3 text-xs font-bold text-charcoal hover:bg-secondary/30">
+                                <span>Terjemahkan</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div x-show="locale==='id'" role="tabpanel">
+                        <label class="sr-only">Judul misi bahasa Indonesia</label>
                         <input type="text" class="m-title-id w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${escapeHtml(m.title?.id)}" oninput="markMissionDirty(); updateMissionSummary(this)">
                     </div>
-                    <div x-show="locale==='en'">
-                        <label class="mb-1 block text-xs font-semibold text-gray-600">Judul (EN)</label>
+                    <div x-show="locale==='en'" role="tabpanel" x-cloak>
+                        <label class="sr-only">Judul misi bahasa Inggris</label>
                         <input type="text" class="m-title-en w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" value="${escapeHtml(m.title?.en)}" oninput="markMissionDirty(); updateMissionSummary(this)">
                     </div>
                 </div>

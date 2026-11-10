@@ -11,27 +11,25 @@
         @method('PUT')
     @endif
     <input type="hidden" name="redirect_to" value="facilities">
+    <x-dashboard.localized-field id="localized-facilities-form-name" label="Nama fasilitas" field-name="name" required>
+        <x-slot:indonesian>
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Fasilitas (ID) <span class="text-warning">*</span></label>
+                <input type="text" name="name[id]" required placeholder="Contoh: Toilet Umum Pura"
+                    class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
+                    value="{{ old('name.id', $isEdit ? ($facility->getTranslation('name', 'id') ?? '') : '') }}">
+            </div>
+        </x-slot:indonesian>
+        <x-slot:english>
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Fasilitas (EN) <span class="text-warning">*</span></label>
+                <input type="text" name="name[en]" required placeholder="e.g. Public Toilet at Temple"
+                    class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
+                    value="{{ old('name.en', $isEdit ? ($facility->getTranslation('name', 'en') ?? '') : '') }}">
+            </div>
+        </x-slot:english>
+    </x-dashboard.localized-field>
 
-    {{-- Locale tabs --}}
-    <div class="sticky top-0 z-10 -mx-6 mb-4 flex gap-2 border-b border-gray-100 bg-white px-6 py-3">
-        <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-            class="rounded-xl px-4 py-2 text-sm font-semibold transition-all" type="button">Indonesia</button>
-        <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-            class="rounded-xl px-4 py-2 text-sm font-semibold transition-all" type="button">English</button>
-    </div>
-
-    <div x-show="locale === 'en'">
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Fasilitas (EN) <span class="text-warning">*</span></label>
-        <input type="text" name="name[en]" required placeholder="e.g. Public Toilet at Temple"
-            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
-            value="{{ old('name.en', $isEdit ? ($facility->getTranslation('name', 'en') ?? '') : '') }}">
-    </div>
-    <div x-show="locale === 'id'">
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Nama Fasilitas (ID) <span class="text-warning">*</span></label>
-        <input type="text" name="name[id]" required placeholder="Contoh: Toilet Umum Pura"
-            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
-            value="{{ old('name.id', $isEdit ? ($facility->getTranslation('name', 'id') ?? '') : '') }}">
-    </div>
 
     <div>
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Tipe Fasilitas <span class="text-warning">*</span></label>
@@ -46,35 +44,31 @@
         </select>
     </div>
 
-    <div x-show="locale === 'en'">
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Description (EN)</label>
-        <x-tiptap-editor name="description[en]" id="facility-desc-en"
-            :value="old('description.en', $isEdit ? ($facility->getTranslation('description', 'en') ?? '') : '')"
-            placeholder="Add complementary information about this facility..." />
-    </div>
-    <div x-show="locale === 'id'">
-        <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi (ID)</label>
-        <x-tiptap-editor name="description[id]" id="facility-desc-id"
-            :value="old('description.id', $isEdit ? ($facility->getTranslation('description', 'id') ?? '') : '')"
-            placeholder="Tambahkan informasi pelengkap untuk fasilitas ini..." />
-    </div>
+    <x-dashboard.localized-field id="localized-facilities-form-description" label="Deskripsi fasilitas" field-name="description">
+        <x-slot:indonesian>
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Deskripsi (ID)</label>
+                <x-tiptap-editor name="description[id]" id="facility-desc-id"
+                    :value="old('description.id', $isEdit ? ($facility->getTranslation('description', 'id') ?? '') : '')"
+                    placeholder="Tambahkan informasi pelengkap untuk fasilitas ini..." />
+            </div>
+        </x-slot:indonesian>
+        <x-slot:english>
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700">Description (EN)</label>
+                <x-tiptap-editor name="description[en]" id="facility-desc-en"
+                    :value="old('description.en', $isEdit ? ($facility->getTranslation('description', 'en') ?? '') : '')"
+                    placeholder="Add complementary information about this facility..." />
+            </div>
+        </x-slot:english>
+    </x-dashboard.localized-field>
+
 
     <div class="rounded-xl border border-dashed border-gray-200 bg-gray-50/50 p-4">
-        <p class="mb-3 text-xs text-gray-500">Titik utama fasilitas ini. Untuk menambah titik lain (mis. pintu masuk kedua), gunakan <a href="{{ route('admin.map-manager') }}" class="text-primary underline">Peta Lokasi & Titik</a> setelah menyimpan.</p>
-        <div class="grid grid-cols-2 gap-3">
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase text-gray-500">Latitude</label>
-                <input type="text" name="latitude" required
-                    value="{{ old('latitude', $point?->latitude ?? config('services.penglipuran.latitude')) }}"
-                    class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none">
-            </div>
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase text-gray-500">Longitude</label>
-                <input type="text" name="longitude" required
-                    value="{{ old('longitude', $point?->longitude ?? config('services.penglipuran.longitude')) }}"
-                    class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none">
-            </div>
-        </div>
+        <p class="mb-3 text-xs text-gray-500">Pilih titik utama fasilitas di peta. Untuk menambah titik lain, gunakan <a href="{{ route('admin.map-manager') }}" class="text-primary underline">Peta Lokasi & Titik</a> setelah menyimpan.</p>
+        <x-dashboard.location-picker id="facility-location"
+            :latitude="old('latitude', $point?->latitude ?? config('services.penglipuran.latitude'))"
+            :longitude="old('longitude', $point?->longitude ?? config('services.penglipuran.longitude'))" />
     </div>
 
     <div class="flex flex-wrap gap-4 py-1">
@@ -91,16 +85,23 @@
     </div>
 
     <div>
-        <div x-show="locale === 'en'">
-            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (EN)</label>
-            <textarea name="accessibility_notes[en]" rows="2" placeholder="e.g. Toilet is equipped with handrails..."
-                class="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">{{ old('accessibility_notes.en', is_array($point?->accessibility_notes) ? ($point->accessibility_notes['en'] ?? '') : '') }}</textarea>
-        </div>
-        <div x-show="locale === 'id'">
-            <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (ID)</label>
-            <textarea name="accessibility_notes[id]" rows="2" placeholder="Contoh: Toilet dilengkapi dengan pegangan besi..."
-                class="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">{{ old('accessibility_notes.id', is_array($point?->accessibility_notes) ? ($point->accessibility_notes['id'] ?? '') : '') }}</textarea>
-        </div>
+        <x-dashboard.localized-field id="localized-facilities-form-accessibility-notes" label="Catatan aksesibilitas" field-name="accessibility_notes">
+            <x-slot:indonesian>
+                <div>
+                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (ID)</label>
+                    <textarea name="accessibility_notes[id]" rows="2" placeholder="Contoh: Toilet dilengkapi dengan pegangan besi..."
+                        class="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">{{ old('accessibility_notes.id', is_array($point?->accessibility_notes) ? ($point->accessibility_notes['id'] ?? '') : '') }}</textarea>
+                </div>
+            </x-slot:indonesian>
+            <x-slot:english>
+                <div>
+                    <label class="mb-1.5 block text-sm font-semibold text-gray-700">Catatan Aksesibilitas (EN)</label>
+                    <textarea name="accessibility_notes[en]" rows="2" placeholder="e.g. Toilet is equipped with handrails..."
+                        class="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none">{{ old('accessibility_notes.en', is_array($point?->accessibility_notes) ? ($point->accessibility_notes['en'] ?? '') : '') }}</textarea>
+                </div>
+            </x-slot:english>
+        </x-dashboard.localized-field>
+
     </div>
 
     <div class="flex gap-2 border-t border-gray-100 pt-4">

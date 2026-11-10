@@ -48,14 +48,14 @@ class TraditionalHouseController extends Controller
     {
         $house = $this->save($request, new TraditionalHouse);
 
-        return redirect()->route('admin.houses.edit', $house)->with('success', 'House saved.');
+        return redirect()->route('admin.houses.edit', $house)->with('success', 'Rumah adat berhasil disimpan.');
     }
 
     public function update(TraditionalHouseRequest $request, TraditionalHouse $house): RedirectResponse
     {
         $this->save($request, $house);
 
-        return redirect()->route('admin.houses.edit', $house)->with('success', 'House updated.');
+        return redirect()->route('admin.houses.edit', $house)->with('success', 'Rumah adat berhasil diperbarui.');
     }
 
     public function destroy(TraditionalHouse $house): RedirectResponse
@@ -64,7 +64,7 @@ class TraditionalHouseController extends Controller
         $house->delete();
         Storage::disk('public')->delete($paths);
 
-        return redirect()->route('admin.houses.index')->with('success', 'House deleted.');
+        return redirect()->route('admin.houses.index')->with('success', 'Rumah adat berhasil dihapus.');
     }
 
     private function form(?TraditionalHouse $house): View
@@ -81,7 +81,7 @@ class TraditionalHouseController extends Controller
         $data = $request->validated();
         $umkmIds = $data['umkm_profile_ids'] ?? [];
         $objectIds = $data['cultural_object_ids'] ?? [];
-        unset($data['umkm_profile_ids'], $data['cultural_object_ids'], $data['latitude'], $data['longitude'], $data['cover_image'], $data['gallery_images']);
+        unset($data['umkm_profile_ids'], $data['cultural_object_ids'], $data['latitude'], $data['longitude'], $data['cover_image'], $data['gallery_images'], $data['remove_cover_image']);
 
         $data['is_open_to_visitors'] = $request->boolean('is_open_to_visitors');
         $data['is_published'] = $request->boolean('is_published');
@@ -92,6 +92,8 @@ class TraditionalHouseController extends Controller
         if ($request->hasFile('cover_image')) {
             $newCover = $request->file('cover_image')->store('traditional_houses', 'public');
             $data['cover_image_path'] = $newCover;
+        } elseif ($request->boolean('remove_cover_image')) {
+            $data['cover_image_path'] = null;
         }
 
         $gallery = $house->gallery ?? [];
@@ -120,7 +122,7 @@ class TraditionalHouseController extends Controller
             return $house;
         });
 
-        if ($request->hasFile('cover_image') && $oldCover) {
+        if (($request->hasFile('cover_image') || $request->boolean('remove_cover_image')) && $oldCover) {
             Storage::disk('public')->delete($oldCover);
         }
 
