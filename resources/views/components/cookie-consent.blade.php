@@ -4,15 +4,15 @@
     <div class="mx-auto max-w-lg border-t border-gray-100 bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
         <p class="mb-3 text-xs leading-relaxed text-gray-600">
             {{ __('Dengan menggunakan aplikasi ini, Anda menyetujui') }}
-            <a href="{{ route('terms') }}" class="font-semibold text-[#1E5128] underline underline-offset-2">{{ __('persyaratan dan ketentuan') }}</a>
+            <a href="{{ route('terms') }}" class="text-primary font-semibold underline underline-offset-2">{{ __('persyaratan dan ketentuan') }}</a>
             {{ __('serta') }}
-            <a href="{{ route('privacy') }}" class="font-semibold text-[#1E5128] underline underline-offset-2">{{ __('kebijakan privasi') }}</a>
+            <a href="{{ route('privacy') }}" class="text-primary font-semibold underline underline-offset-2">{{ __('kebijakan privasi') }}</a>
             {{ __('dan penggunaan') }}
-            <span class="font-semibold text-[#191A19]">cookie</span>
+            <span class="text-charcoal font-semibold">cookie</span>
             {{ __('yang diperlukan untuk menjalankan layanan ini.') }}
         </p>
         <button id="accept-cookie-btn"
-            class="w-full rounded-xl bg-[#1E5128] px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 active:scale-95 active:shadow-inner">
+            class="bg-primary w-full rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 active:scale-95 active:shadow-inner">
             {{ __('Setuju & Lanjutkan') }}
         </button>
     </div>

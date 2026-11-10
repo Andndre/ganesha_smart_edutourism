@@ -38,7 +38,7 @@
                 'name' => $umkm->business_name,
                 'action' => 'route',
             ]) }}"
-                class="bg-primary shadow-primary/30 flex h-14 w-full items-center justify-center gap-2 rounded-2xl font-bold text-white shadow-lg transition-all hover:bg-[#152E1D] active:scale-[0.98]"
+                class="bg-primary shadow-primary/30 hover:bg-primary-hover flex h-14 w-full items-center justify-center gap-2 rounded-2xl font-bold text-white shadow-lg transition-all active:scale-[0.98]"
                 onclick="if(navigator.vibrate) navigator.vibrate(50)">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

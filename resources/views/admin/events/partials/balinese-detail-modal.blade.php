@@ -32,7 +32,7 @@
                         <span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-100 bg-gray-50 px-2.5 py-0.5 text-[11px] font-bold text-gray-700"><span class="h-1.5 w-1.5 rounded-full bg-red-600"></span>Purnama</span>
                     </template>
                     <template x-if="selectedBalineseDate.isTilem">
-                        <span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-100 bg-gray-50 px-2.5 py-0.5 text-[11px] font-bold text-gray-700"><span class="h-1.5 w-1.5 rounded-full bg-[#191A19]"></span>Tilem</span>
+                        <span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-100 bg-gray-50 px-2.5 py-0.5 text-[11px] font-bold text-gray-700"><span class="bg-charcoal h-1.5 w-1.5 rounded-full"></span>Tilem</span>
                     </template>
                     <template x-for="name in (selectedBalineseDate.rahinan || [])" :key="name">
                         <span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-100 bg-gray-50 px-2.5 py-0.5 text-[11px] font-bold text-gray-700"><span class="h-1.5 w-1.5 rounded-full bg-red-600"></span><span x-text="name"></span></span>

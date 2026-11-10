@@ -36,8 +36,8 @@
             font-weight: 900;
             letter-spacing: 0.16em;
             text-transform: uppercase;
-            background: rgba(30, 81, 40, .08);
-            color: rgba(30, 81, 40, .9);
+            background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+            color: var(--color-primary);
         }
 
         .sq-chip-plain {
@@ -46,8 +46,8 @@
         }
 
         .sq-chip-gold {
-            background: rgba(212, 175, 55, .18);
-            color: #8a6a10;
+            background: color-mix(in srgb, var(--color-secondary) 18%, transparent);
+            color: var(--color-primary);
         }
 
         /* ---- reveal progress meter ------------------------------------------------------ */
@@ -56,7 +56,7 @@
             overflow: hidden;
             height: 6px;
             border-radius: 9999px;
-            background: rgba(30, 81, 40, .1);
+            background: color-mix(in srgb, var(--color-primary) 10%, transparent);
         }
 
         /* Grows by scaleX rather than width, so the fill stays on the compositor like every
@@ -67,7 +67,7 @@
             height: 100%;
             border-radius: inherit;
             transform-origin: left center;
-            background: linear-gradient(90deg, #1E5128, #2f8f52 55%, #D4AF37);
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary) 55%, var(--color-accent));
             transition: transform .45s cubic-bezier(.34, 1.4, .64, 1);
         }
 
@@ -86,7 +86,7 @@
             bottom: 1.25rem;
             width: 2px;
             border-radius: 2px;
-            background: linear-gradient(to bottom, rgba(30, 81, 40, .35), rgba(30, 81, 40, .18) 70%, rgba(212, 175, 55, .35));
+            background: linear-gradient(to bottom, color-mix(in srgb, var(--color-primary) 35%, transparent), color-mix(in srgb, var(--color-primary) 18%, transparent) 70%, color-mix(in srgb, var(--color-secondary) 35%, transparent));
             transition: background .4s ease;
         }
 
@@ -123,7 +123,7 @@
             margin-left: -4px;
             border-radius: 9999px;
             background: currentColor;
-            color: rgba(30, 81, 40, .35);
+            color: color-mix(in srgb, var(--color-primary) 35%, transparent);
         }
 
         .sq-rail::before {
@@ -132,7 +132,7 @@
 
         .sq-rail::after {
             bottom: -4px;
-            color: rgba(212, 175, 55, .55);
+            color: color-mix(in srgb, var(--color-secondary) 55%, transparent);
         }
 
         /* ---- rows & dragging ----------------------------------------------------------- */
@@ -160,8 +160,8 @@
         }
 
         .sq-row.is-dragging .sq-card {
-            border-color: #1E5128;
-            box-shadow: 0 18px 35px -10px rgba(25, 26, 25, .38), 0 0 0 4px rgba(30, 81, 40, .16);
+            border-color: var(--color-primary);
+            box-shadow: 0 18px 35px -10px rgba(25, 26, 25, .38), 0 0 0 4px color-mix(in srgb, var(--color-primary) 16%, transparent);
         }
 
         /* Settle after the finger lifts: the transform drops to none and this eases it home. */
@@ -206,7 +206,7 @@
          * and text colour all stay with the utilities in the markup.
          */
         .sq-node {
-            box-shadow: 0 3px 10px -2px rgba(30, 81, 40, .5);
+            box-shadow: 0 3px 10px -2px color-mix(in srgb, var(--color-primary) 50%, transparent);
         }
 
         .sq-node-ok {
@@ -335,11 +335,11 @@
 
             0%,
             100% {
-                box-shadow: 0 0 0 0 rgba(212, 175, 55, .5);
+                box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 50%, transparent);
             }
 
             70% {
-                box-shadow: 0 0 0 10px rgba(212, 175, 55, 0);
+                box-shadow: 0 0 0 10px color-mix(in srgb, var(--color-accent) 0%, transparent);
             }
         }
 
@@ -775,7 +775,6 @@
                         text: @js(__('Urutan dinilai sekali saja dan langsung dikunci, jadi pastikan dulu susunanmu.')),
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonColor: '#1E5128',
                         cancelButtonColor: '#6b7280',
                         confirmButtonText: @js(__('Periksa')),
                         cancelButtonText: @js(__('Batal')),
@@ -807,7 +806,7 @@
                 celebrate(earned) {
                     setTimeout(() => {
                         if (typeof confetti === 'function') {
-                            const shared = { spread: 70, colors: ['#1E5128', '#D4AF37', '#FAF9F6'] };
+                            const shared = { spread: 70, colors: ['#293518', '#989A4B', '#E3C994', '#FAF9F6'] };
                             confetti({ ...shared, particleCount: 90, origin: { x: 0.3, y: 0.7 } });
                             setTimeout(() => confetti({ ...shared, particleCount: 70, origin: { x: 0.7, y: 0.66 } }), 180);
                         }

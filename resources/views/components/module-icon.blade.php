@@ -39,7 +39,7 @@
                                 <path d="M3 9.3a2.5 2.5 0 0 1 2.5-2.5h13A2.5 2.5 0 0 1 21 9.3v1a2 2 0 0 0 0 4v1a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 15.3v-1a2 2 0 0 0 0-4v-1Z" fill="#B45309" />
                                 <path d="M3 8.5a2.5 2.5 0 0 1 2.5-2.5h13A2.5 2.5 0 0 1 21 8.5v1a2 2 0 0 0 0 4v1a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 14.5v-1a2 2 0 0 0 0-4v-1Z" fill="#F59E0B" />
                                 <line x1="9" y1="7" x2="9" y2="17" stroke="#FFFFFF" stroke-width="1.8" stroke-dasharray="2 2" />
-                                <circle cx="15" cy="12" r="2.4" fill="#1E5128" />
+                                <circle cx="15" cy="12" r="2.4" fill="var(--color-primary)" />
                                 <path d="m14 12 1 1 2-2" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
         @break

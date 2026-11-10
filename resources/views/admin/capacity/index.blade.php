@@ -241,8 +241,8 @@
             ctx.lineTo(padL, padT + chartH);
             ctx.closePath();
             const grad = ctx.createLinearGradient(0, padT, 0, padT + chartH);
-            grad.addColorStop(0, '#1e512825');
-            grad.addColorStop(1, '#1e512800');
+            grad.addColorStop(0, '#29351825');
+            grad.addColorStop(1, '#29351800');
             ctx.fillStyle = grad;
             ctx.fill();
 
@@ -253,14 +253,14 @@
                 const y = padT + chartH - (v / max) * chartH;
                 i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
             });
-            ctx.strokeStyle = '#1e5128';
+            ctx.strokeStyle = '#293518';
             ctx.lineWidth = 2;
             ctx.stroke();
 
             // Hour labels (every 4h)
             const labels = {!! json_encode($hourlyLabels) !!};
             ctx.fillStyle = '#9ca3af';
-            ctx.font = '10px Plus Jakarta Sans, sans-serif';
+            ctx.font = '10px Inter, sans-serif';
             ctx.textAlign = 'center';
             labels.forEach((label, i) => {
                 if (i % 4 === 0 || i === labels.length - 1) {
@@ -424,7 +424,7 @@
             const btn = document.getElementById('btn-admin-heatmap');
             
             if (realHeatmapVisible) {
-                btn.style.backgroundColor = '#1E5128';
+                btn.style.backgroundColor = 'var(--color-primary)';
                 btn.style.color = 'white';
                 renderRealHeatmap();
             } else {

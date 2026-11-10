@@ -89,10 +89,10 @@ function handleMapClick(lat, lng) {
                 // Drops any ?place= so the page doesn't re-arm add-point mode.
                 window.location.href = '{{ route('admin.map-manager') }}';
             } else {
-                Swal.fire({ title: 'Gagal', text: 'Titik baru gagal disimpan.', icon: 'error', confirmButtonColor: '#1E5128' });
+                Swal.fire({ title: 'Gagal', text: 'Titik baru gagal disimpan.', icon: 'error' });
             }
         }).catch(() => {
-            Swal.fire({ title: 'Gagal', text: 'Terjadi kesalahan jaringan saat menyimpan titik baru.', icon: 'error', confirmButtonColor: '#1E5128' });
+            Swal.fire({ title: 'Gagal', text: 'Terjadi kesalahan jaringan saat menyimpan titik baru.', icon: 'error' });
         });
         return;
     }
@@ -286,7 +286,7 @@ function deletePointOnly(marker) {
             headers: { 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' }
         }).then(r => r.json()).then(data => {
             if (!data.success) {
-                Swal.fire({ title: 'Gagal', text: 'Titik gagal dihapus.', icon: 'error', confirmButtonColor: '#1E5128' });
+                Swal.fire({ title: 'Gagal', text: 'Titik gagal dihapus.', icon: 'error' });
                 return;
             }
 
@@ -300,7 +300,7 @@ function deletePointOnly(marker) {
                 cancelEditor();
             }
         }).catch(() => {
-            Swal.fire({ title: 'Gagal', text: 'Terjadi kesalahan jaringan saat menghapus titik.', icon: 'error', confirmButtonColor: '#1E5128' });
+            Swal.fire({ title: 'Gagal', text: 'Terjadi kesalahan jaringan saat menghapus titik.', icon: 'error' });
         });
     });
 }

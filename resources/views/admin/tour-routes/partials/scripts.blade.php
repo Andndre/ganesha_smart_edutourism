@@ -151,9 +151,9 @@
             facilities: '#3B82F6',   // Blue
             toilets: '#0E7490',      // Cyan
             accessibility: '#B45309',// Amber
-            cultural: '#1E5128'      // Green (Default)
+            cultural: 'var(--color-primary)'      // Hijau Bambu (Default)
         };
-        const color = categoryColors[category] || '#1E5128';
+        const color = categoryColors[category] || 'var(--color-primary)';
         
         if (seqNumber !== null) {
             return L.divIcon({
@@ -480,7 +480,7 @@
 
         const maxSize = 10 * 1024 * 1024; // 10 MB, matches RouteMissionAssetController
         if (file.size > maxSize) {
-            Swal.fire({ icon: 'error', title: 'Ukuran file maksimal 10MB.', confirmButtonColor: '#1E5128' });
+            Swal.fire({ icon: 'error', title: 'Ukuran file maksimal 10MB.' });
             fileInput.value = '';
             return;
         }
@@ -508,7 +508,7 @@
                     }
                 }
             })
-            .catch(err => Swal.fire({ icon: 'error', title: 'Upload audio gagal', text: err.message, confirmButtonColor: '#1E5128' }))
+            .catch(err => Swal.fire({ icon: 'error', title: 'Upload audio gagal', text: err.message }))
             .finally(() => {
                 fileInput.disabled = false;
             });

@@ -17,11 +17,11 @@
     <title>@yield('title', 'Penglipuran Smart Tour')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- Google Fonts: Plus Jakarta Sans (UI) + Playfair Display (editorial) --}}
+    {{-- Google Fonts: Inter (Secondary Typography for UI, Body & Caption; Libertinus Sans is bundled via Vite) --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
     {{-- Shortcut icon --}}
@@ -52,7 +52,7 @@
             top: 0;
             left: 0;
             height: 3px;
-            background-color: #1E5128;
+            background-color: var(--color-primary);
             z-index: 9999;
             width: 0;
             opacity: 1;
@@ -132,7 +132,7 @@
 
                     <!-- Action Button -->
                     <button id="close-offline-coaching-btn"
-                        class="bg-primary w-full rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-[#152E1D] active:scale-95">
+                        class="bg-primary hover:bg-primary-hover w-full rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 active:scale-95">
                         {{ __('Baik, Saya Mengerti') }}
                     </button>
                 </div>
@@ -172,7 +172,7 @@
                 <div class="{{ $isMainTab ? 'bottom-[calc(env(safe-area-inset-bottom)+4rem)] md:bottom-0' : 'bottom-0' }} fixed left-0 right-0 z-40 border-t border-gray-200 bg-white/80 px-4 py-3 backdrop-blur-md md:absolute"
                     id="floating-route-banner">
                     <a href="{{ route('edutourism.active') }}"
-                        class="pointer-events-auto flex items-center justify-between overflow-hidden rounded-2xl bg-[#1E5128] shadow-lg shadow-[#1E5128]/30 transition-transform active:scale-95">
+                        class="bg-primary shadow-primary/30 pointer-events-auto flex items-center justify-between overflow-hidden rounded-2xl shadow-lg transition-transform active:scale-95">
                         <div class="flex items-center gap-3 p-3">
                             <div
                                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur-sm">

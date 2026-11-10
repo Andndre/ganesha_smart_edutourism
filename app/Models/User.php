@@ -188,6 +188,6 @@ class User extends Authenticatable
             return Storage::disk('public')->url($this->avatar_path);
         }
 
-        return 'https://ui-avatars.com/api/?name='.\urlencode($this->name).'&background=D4AF37&color=fff&bold=true';
+        return 'https://ui-avatars.com/api/?name='.\urlencode($this->name).'&background=293518&color=E3C994&bold=true';
     }
 }

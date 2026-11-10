@@ -18,7 +18,7 @@
                 <span class="mx-1.5">/</span>
                 <span class="text-charcoal font-semibold">{{ __('Paket Eduwisata & Tiket Gerbang') }}</span>
             </nav>
-            <h1 class="font-playfair text-charcoal text-2xl font-bold md:text-3xl lg:text-4xl">
+            <h1 class="font-display text-charcoal text-2xl font-bold md:text-3xl lg:text-4xl">
                 {{ __('Katalog Paket Eduwisata & Tiket Resmi') }}
             </h1>
             <p class="mt-1 text-xs text-gray-600 md:text-sm">
@@ -70,7 +70,7 @@
         {{-- 3 Package Cards Grid --}}
         <div>
             <div class="mb-3 flex items-center justify-between">
-                <h2 class="font-playfair text-charcoal text-lg font-bold md:text-xl">
+                <h2 class="font-display text-charcoal text-lg font-bold md:text-xl">
                     {{ __('Pilihan Pengalaman Eduwisata Otentik') }}
                 </h2>
                 <span class="text-xs text-gray-500">
@@ -101,7 +101,7 @@
                             </div>
 
                             {{-- Title & Price --}}
-                            <h3 class="font-playfair text-charcoal text-base font-bold leading-snug md:text-lg">
+                            <h3 class="font-display text-charcoal text-base font-bold leading-snug md:text-lg">
                                 {{ $pkg['title'] }}
                             </h3>
                             <div class="mt-2 flex items-baseline gap-1.5">
@@ -148,7 +148,7 @@
                             <span class="text-primary text-[11px] font-bold tracking-wider uppercase">
                                 {{ __('RUNDOWN LENGKAP & FASILITAS TERPILIH') }}
                             </span>
-                            <h2 class="font-playfair text-charcoal text-xl font-bold md:text-2xl" x-text="packages[selectedPkgIndex].title + ' (' + packages[selectedPkgIndex].duration + ')'"></h2>
+                            <h2 class="font-display text-charcoal text-xl font-bold md:text-2xl" x-text="packages[selectedPkgIndex].title + ' (' + packages[selectedPkgIndex].duration + ')'"></h2>
                         </div>
                         <div class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-semibold text-emerald-800 border border-emerald-200/60">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -253,7 +253,7 @@
             {{-- Ticket 1: Domestik --}}
             <div class="flex flex-col justify-between rounded-2xl border border-gray-200 bg-white p-5 shadow-xs">
                 <div>
-                    <h3 class="font-playfair text-charcoal text-lg font-bold">
+                    <h3 class="font-display text-charcoal text-lg font-bold">
                         {{ __('Tiket Masuk Wisatawan Domestik') }}
                     </h3>
                     <div class="mt-2 flex items-baseline gap-1.5">
@@ -277,7 +277,7 @@
             {{-- Ticket 2: Mancanegara --}}
             <div class="flex flex-col justify-between rounded-2xl border border-gray-200 bg-white p-5 shadow-xs">
                 <div>
-                    <h3 class="font-playfair text-charcoal text-lg font-bold">
+                    <h3 class="font-display text-charcoal text-lg font-bold">
                         {{ __('Tiket Masuk Wisatawan Mancanegara') }}
                     </h3>
                     <div class="mt-2 flex items-baseline gap-1.5">
@@ -304,7 +304,7 @@
                     <span class="inline-block rounded-md bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
                         {{ __('Rekomendasi Eduwisata') }}
                     </span>
-                    <h3 class="font-playfair text-charcoal mt-1 text-lg font-bold">
+                    <h3 class="font-display text-charcoal mt-1 text-lg font-bold">
                         {{ __('Tiket Masuk + Pemandu Lokal Adat') }}
                     </h3>
                     <div class="mt-2 flex items-baseline gap-1.5">
@@ -332,7 +332,7 @@
         <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-xs md:p-8">
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                    <h3 class="font-playfair text-charcoal text-base font-bold md:text-lg">
+                    <h3 class="font-display text-charcoal text-base font-bold md:text-lg">
                         {{ __('Jam Operasional & Akses Pos Gerbang') }}
                     </h3>
                     <ul class="mt-3 space-y-2 text-xs leading-relaxed text-gray-600 md:text-sm">
@@ -352,7 +352,7 @@
                 </div>
 
                 <div>
-                    <h3 class="font-playfair text-charcoal text-base font-bold md:text-lg">
+                    <h3 class="font-display text-charcoal text-base font-bold md:text-lg">
                         {{ __('Panduan Pembelian Tiket') }}
                     </h3>
                     <ul class="mt-3 space-y-2 text-xs leading-relaxed text-gray-600 md:text-sm">

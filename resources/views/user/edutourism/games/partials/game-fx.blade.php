@@ -94,11 +94,11 @@
 
             0%,
             100% {
-                box-shadow: 0 0 0 0 rgba(30, 81, 40, 0.45);
+                box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 45%, transparent);
             }
 
             50% {
-                box-shadow: 0 0 0 7px rgba(30, 81, 40, 0);
+                box-shadow: 0 0 0 7px color-mix(in srgb, var(--color-primary) 0%, transparent);
             }
         }
 
@@ -214,13 +214,13 @@
             font-weight: 900;
             letter-spacing: 0.16em;
             text-transform: uppercase;
-            background: rgba(30, 81, 40, .08);
-            color: rgba(30, 81, 40, .9);
+            background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+            color: var(--color-primary);
         }
 
         .edu-chip-gold {
-            background: rgba(212, 175, 55, .18);
-            color: #8a6a10;
+            background: color-mix(in srgb, var(--color-secondary) 18%, transparent);
+            color: var(--color-primary);
         }
 
         .edu-chip-plain {
@@ -253,7 +253,7 @@
             border-radius: inherit;
             transform: scaleX(0);
             transform-origin: left center;
-            background: linear-gradient(90deg, #1E5128, #2f8f52);
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
             transition: transform .55s cubic-bezier(.34, 1.4, .64, 1), background .3s ease;
         }
 
@@ -261,7 +261,7 @@
            verdict lands. */
         .edu-seg-live {
             transform: scaleX(.34);
-            background: linear-gradient(90deg, rgba(30, 81, 40, .45), rgba(47, 143, 82, .35));
+            background: linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 45%, transparent), color-mix(in srgb, var(--color-secondary) 35%, transparent));
         }
 
         .edu-seg-done {
@@ -355,7 +355,7 @@
             padding: 0.75rem 1.25rem;
             /* Clears the iOS home indicator without adding a gap on Android. */
             padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
-            background: #FAF9F6;
+            background: var(--color-surface);
             /* Centring lives on the bar, not on the button. See below. */
             display: flex;
             flex-direction: column;
@@ -381,7 +381,7 @@
             bottom: 100%;
             height: 1.25rem;
             pointer-events: none;
-            background: linear-gradient(to top, #FAF9F6, rgba(250, 249, 246, 0));
+            background: linear-gradient(to top, var(--color-surface), transparent);
         }
 
         /* Room for the docked bar: button (2.75rem) + its padding + the safe-area inset. */

@@ -142,7 +142,7 @@
             {{-- Countdown: sticks to the top of the mission scrollport so it stays visible while
             the player works down a long list. --}}
             <template x-if="timeLeft !== null">
-                <div class="sticky top-0 z-30 -mx-1 flex justify-center bg-[#FAF9F6] py-1.5">
+                <div class="bg-surface sticky top-0 z-30 -mx-1 flex justify-center py-1.5">
                     <div class="flex items-center gap-2.5 rounded-full border bg-gradient-to-r from-white to-gray-50 py-1.5 pl-1.5 pr-4 shadow-md transition-colors"
                         :class="timeCritical ? 'border-red-200 sq-throb' : 'border-gray-200'">
                         <span class="relative flex h-9 w-9 items-center justify-center">

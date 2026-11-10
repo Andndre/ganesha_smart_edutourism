@@ -5,7 +5,7 @@
 @section('content')
     <div class="mx-auto max-w-2xl px-5 py-6">
         <div class="mb-6 text-center">
-            <h2 class="text-charcoal mb-2 text-2xl font-bold" style="font-family: 'Playfair Display', serif;">
+            <h2 class="font-display text-charcoal mb-2 text-2xl font-bold">
                 {{ isset($feedback) ? __('Edit Ulasan Anda') : (isset($umkm) && $umkm ? __('Kirim Masukan') : __('Bagaimana Pengalaman Anda?')) }}
             </h2>
             <p class="text-sm text-gray-500">
@@ -183,12 +183,12 @@
                 const maxSize = 2 * 1024 * 1024;
                 const oversized = files.find(f => f.size > maxSize);
                 if (oversized) {
-                    Swal.fire({ title: '{{ __('Ukuran File Terlalu Besar') }}', text: '{{ __('Maksimal 2MB per foto.') }}', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
+                    Swal.fire({ title: '{{ __('Ukuran File Terlalu Besar') }}', text: '{{ __('Maksimal 2MB per foto.') }}', icon: 'warning', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
                     photoInput.value = '';
                     return;
                 }
                 if (selectedFiles.length + files.length > 5) {
-                    Swal.fire({ title: '{{ __('Maksimal 5 Foto') }}', text: '{{ __('Anda hanya dapat mengunggah maksimal 5 foto.') }}', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
+                    Swal.fire({ title: '{{ __('Maksimal 5 Foto') }}', text: '{{ __('Anda hanya dapat mengunggah maksimal 5 foto.') }}', icon: 'warning', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
                     return;
                 }
                 selectedFiles = selectedFiles.concat(files);
@@ -228,7 +228,7 @@
             const comment = document.getElementById('comment-textarea').value;
 
             if (rating === '0') {
-                Swal.fire({ title: '{{ __('Rating Belum Dipilih') }}', text: '{{ __('Silakan pilih rating terlebih dahulu.') }}', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
+                Swal.fire({ title: '{{ __('Rating Belum Dipilih') }}', text: '{{ __('Silakan pilih rating terlebih dahulu.') }}', icon: 'warning', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
                 return;
             }
 
@@ -265,10 +265,10 @@
                 } else {
                     const err = await res.json();
                     const msg = err.message || Object.values(err.errors || {}).flat().join(', ') || '{{ __('Terjadi kesalahan.') }}';
-                    Swal.fire({ title: '{{ __('Gagal') }}', text: msg, icon: 'error', confirmButtonColor: '#1E5128', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
+                    Swal.fire({ title: '{{ __('Gagal') }}', text: msg, icon: 'error', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
                 }
             } catch (e) {
-                Swal.fire({ title: '{{ __('Koneksi Terputus') }}', text: '{{ __('Periksa koneksi internet Anda dan coba lagi.') }}', icon: 'error', confirmButtonColor: '#1E5128', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
+                Swal.fire({ title: '{{ __('Koneksi Terputus') }}', text: '{{ __('Periksa koneksi internet Anda dan coba lagi.') }}', icon: 'error', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
             }
         }
     </script>

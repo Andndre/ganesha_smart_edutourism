@@ -77,7 +77,7 @@
                 this.formFields.latitude = lat;
                 this.formFields.longitude = lng;
 
-                const color = '#1E5128';
+                const color = 'var(--color-primary)';
                 const formPinIcon = L.divIcon({
                     className: 'custom-pin-selected',
                     html: `

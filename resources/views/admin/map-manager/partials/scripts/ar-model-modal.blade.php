@@ -109,7 +109,6 @@
                 title: 'Gagal',
                 text: err.message || 'Terjadi kesalahan saat menyimpan model.',
                 icon: 'error',
-                confirmButtonColor: '#1E5128',
                 background: '#ffffff',
             });
         } finally {

@@ -875,7 +875,6 @@
                     title: '{{ 'Permintaan terkirim' }}',
                     text: '{{ 'Admin akan menerima notifikasi dan menindaklanjuti permintaan Anda.' }}',
                     icon: 'success',
-                    confirmButtonColor: '#1E5128',
                 });
             } catch (err) {
                 requestEditError.innerText = '{{ 'Terjadi kesalahan jaringan.' }}';

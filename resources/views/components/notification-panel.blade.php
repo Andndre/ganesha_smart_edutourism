@@ -37,7 +37,7 @@
                     :class="{
                         'bg-red-50 text-red-600': notif.level === 'critical',
                         'bg-amber-50 text-amber-600': notif.level === 'warning',
-                        'bg-green-50 text-[#1E5128]': notif.level === 'info'
+                        'bg-primary-50 text-primary': notif.level === 'info'
                     }">
                     <template x-if="notif.type === 'crowd'">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

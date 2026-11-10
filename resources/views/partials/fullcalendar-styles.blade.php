@@ -6,19 +6,20 @@
         --fc-button-bg-color: #ffffff;
         --fc-button-border-color: #e5e7eb;
         --fc-button-text-color: #4b5563;
-        --fc-button-active-bg-color: #1E5128;
-        --fc-button-active-border-color: #1E5128;
+        --fc-button-active-bg-color: var(--color-primary);
+        --fc-button-active-border-color: var(--color-primary);
         --fc-button-hover-bg-color: #f9fafb;
         --fc-button-hover-border-color: #d1d5db;
-        --fc-today-bg-color: rgba(30, 81, 40, 0.04);
+        --fc-today-bg-color: color-mix(in srgb, var(--color-primary) 5%, transparent);
         --fc-event-border-color: transparent;
-        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-family: var(--font-sans);
     }
 
     .fc .fc-toolbar-title {
+        font-family: var(--font-display);
         font-size: 1.125rem !important;
         font-weight: 700;
-        color: #191A19;
+        color: var(--color-charcoal);
         letter-spacing: -0.02em;
     }
 
@@ -40,13 +41,13 @@
 
     .fc .fc-button-primary:not(:disabled).fc-button-active,
     .fc .fc-button-primary:not(:disabled):active {
-        background-color: #1E5128 !important;
-        border-color: #1E5128 !important;
+        background-color: var(--color-primary) !important;
+        border-color: var(--color-primary) !important;
         color: #ffffff !important;
     }
 
     .fc .fc-button:focus {
-        box-shadow: 0 0 0 3px rgba(30, 81, 40, 0.2) !important;
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 20%, transparent) !important;
     }
 
     .fc .fc-button-group {
@@ -206,6 +207,6 @@
     }
 
     .bali-dot-tilem {
-        background-color: #191A19;
+        background-color: var(--color-charcoal);
     }
 </style>

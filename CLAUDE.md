@@ -238,17 +238,18 @@ Routes at `/edutourism/*`. Users follow `TourRoute` → `TourRoutePoint` sequenc
 
 ### Color Palette
 
-- **Penglipuran Green** (`#1E5128`) - Primary CTA, active states, progress bars
-- **Bali Gold** (`#D4AF37`) - Accent, premium labels, ratings
-- **Clean Off-White** (`#FAF9F6`) - Body background
-- **Solid White** (`#FFFFFF`) - Card/modal surfaces
-- **Charcoal Dark** (`#191A19`) - Primary text
-- **Alert Amber** (`#E65100`) - Crowd warnings, emergency routes
+- **Hijau Bambu / Primary (60%)** (`#293518`, `--color-primary`) - Primary CTA, active states, progress bars, admin sidebar
+- **Hijau Olive / Secondary (30%)** (`#989A4B`, `--color-secondary`) - Secondary accents, ceremony badges, supporting elements
+- **Bilah Bambu / Accent (10%)** (`#E3C994`, `--color-accent`) - Warm highlights, badges, decorative accents (always pair with dark `#191A19` or `#293518` text, never white)
+- **Clean Off-White** (`#FAF9F6`, `--color-surface`) - Body background
+- **Solid White** (`#FFFFFF`, `--color-card`) - Card/modal surfaces
+- **Abu Batu / Charcoal Dark** (`#191A19`, `--color-charcoal`) - Primary text
+- **Alert Amber** (`#E65100`, `--color-warning`) - Crowd warnings, emergency routes
 
 ### Typography
 
-- **UI Text:** Plus Jakarta Sans or Inter
-- **Cultural Content ONLY:** Playfair Display (headlines, storytelling sections) — never use for buttons/labels
+- **Headline & Sub-Headline (`font-display`):** Libertinus Sans (Bold 700 for Headline, Regular 400 for Sub-Headline; bundled via `@fontsource/libertinus-sans`)
+- **Body Text, Caption & UI (`font-sans`):** Inter (Regular 400 for Body, Light 300 / Regular 400 for Caption)
 
 ### UI Patterns
 

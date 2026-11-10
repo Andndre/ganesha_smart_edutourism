@@ -734,7 +734,7 @@
 
                         const dot = document.createElement('span');
                         dot.className = 'h-2.5 w-2.5 shrink-0 rounded-full';
-                        dot.style.backgroundColor = categoryColors[loc.cat] || '#1E5128';
+                        dot.style.backgroundColor = categoryColors[loc.cat] || '#293518';
 
                         const info = document.createElement('div');
                         info.className = 'min-w-0 flex-1';
@@ -868,9 +868,9 @@
                             <svg class="absolute pointer-events-none" style="transform: rotate(${heading}deg); transform-origin: 40px 40px; width: 80px; height: 80px; top: -20px; left: -20px; opacity: 0.5; z-index: 1;" viewBox="0 0 80 80">
                                 <defs>
                                     <radialGradient id="beam-gradient" cx="50%" cy="50%" r="50%">
-                                        <stop offset="0%" stop-color="#1E5128" stop-opacity="0.8"/>
-                                        <stop offset="35%" stop-color="#1E5128" stop-opacity="0.4"/>
-                                        <stop offset="100%" stop-color="#1E5128" stop-opacity="0"/>
+                                        <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.8"/>
+                                        <stop offset="35%" stop-color="var(--color-primary)" stop-opacity="0.4"/>
+                                        <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0"/>
                                     </radialGradient>
                                 </defs>
                                 <path d="M40 40 L17 0 A 40 40 0 0 1 63 0 Z" fill="url(#beam-gradient)" />
@@ -880,7 +880,7 @@
 
                 // Central Solid Pin
                 html += `
-                            <div class="absolute" style="background: #1E5128; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 2;"></div>
+                            <div class="absolute" style="background: var(--color-primary); width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 2;"></div>
                         </div>
                     `;
 
@@ -897,7 +897,6 @@
                         title: @js(__('Akses Lokasi Gagal')),
                         text: @js(__('Tidak dapat mendapatkan lokasi Anda. Pastikan GPS aktif dan izin lokasi telah diberikan.')),
                         icon: 'warning',
-                        confirmButtonColor: '#1E5128',
                         confirmButtonText: @js(__('Baik, Saya Mengerti'))
                     });
                 }
@@ -915,7 +914,6 @@
                             title: 'Fitur Tidak Didukung',
                             text: 'Perangkat atau peramban Anda tidak mendukung deteksi lokasi.',
                             icon: 'error',
-                            confirmButtonColor: '#1E5128',
                             confirmButtonText: 'Baik'
                         });
                     }
@@ -983,7 +981,6 @@
                     text: @js(__('Lokasi Anda belum terdeteksi di peta ini. Apakah Anda ingin membuka Google Maps untuk petunjuk arah luar?')),
                     icon: 'question',
                     showCancelButton: true,
-                    confirmButtonColor: '#1E5128',
                     cancelButtonColor: '#d33',
                     confirmButtonText: @js(__('Ya, Buka Google Maps')),
                     cancelButtonText: @js(__('Batal'))
@@ -1014,7 +1011,7 @@
                 }
 
                 const label = categoryLabels[loc.cat] || @js(__('Lokasi'));
-                const color = categoryColors[loc.cat] || '#1E5128';
+                const color = categoryColors[loc.cat] || '#293518';
 
                 // Style category badge dynamically
                 const badge = document.getElementById('sheet-category-badge');
@@ -1187,7 +1184,7 @@
                             // Background shadow path
                             L.geoJSON(routeFeature.geometry, {
                                 style: {
-                                    color: '#1E5128',
+                                    color: '#293518',
                                     weight: 8,
                                     opacity: 0.2
                                 }
@@ -1196,7 +1193,7 @@
                             // Foreground dashed path
                             L.geoJSON(routeFeature.geometry, {
                                 style: {
-                                    color: '#1E5128',
+                                    color: '#293518',
                                     weight: 4.5,
                                     dashArray: '6, 8',
                                     opacity: 0.95
@@ -1223,7 +1220,7 @@
                     [fromLoc.lat, fromLoc.lng],
                     [toLoc.lat, toLoc.lng]
                 ], {
-                    color: '#1E5128',
+                    color: '#293518',
                     weight: 4.5,
                     dashArray: '6, 8',
                     opacity: 0.95
@@ -1448,7 +1445,7 @@
 
                 return L.divIcon({
                     className: 'custom-cluster',
-                    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:#fff;border:3px solid #1E5128;color:#1E5128;font-weight:800;font-size:${fontSize}px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.35);">${count}</div>`,
+                    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:#fff;border:3px solid var(--color-primary);color:var(--color-primary);font-weight:800;font-size:${fontSize}px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.35);">${count}</div>`,
                     iconSize: [size, size],
                     iconAnchor: [size / 2, size / 2]
                 });
@@ -1555,7 +1552,6 @@
                     text: @js(__('Progres tujuan yang sudah Anda tandai selesai akan dihapus.')),
                     icon: 'question',
                     showCancelButton: true,
-                    confirmButtonColor: '#1E5128',
                     cancelButtonColor: '#6b7280',
                     confirmButtonText: @js(__('Ya, Berhenti')),
                     cancelButtonText: @js(__('Batal'))

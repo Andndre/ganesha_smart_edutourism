@@ -44,14 +44,14 @@
             <button type="button"
                 class="filter-card active active:scale-98 flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-left transition-all duration-200"
                 data-filter="cultural">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-50 text-[#1E5128]">
+                <span class="bg-primary-50 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M3.5 21.5V10L6.5 4H10v17.5zM20.5 21.5V10L17.5 4H14v17.5z" />
                     </svg>
                 </span>
                 <div>
                     <p class="text-xs font-bold leading-tight text-gray-800">{{ __('Objek Budaya') }}</p>
-                    <span class="mt-0.5 inline-block h-1 w-6 rounded-full" style="background: #1E5128;"></span>
+                    <span class="bg-primary mt-0.5 inline-block h-1 w-6 rounded-full"></span>
                 </div>
             </button>
 
@@ -138,8 +138,8 @@
 
     /* Active States */
     .filter-card.active[data-filter="cultural"] {
-        border-color: rgba(30, 81, 40, 0.25);
-        background-color: rgba(30, 81, 40, 0.04);
+        border-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
+        background-color: color-mix(in srgb, var(--color-primary) 4%, transparent);
     }
 
     .filter-card.active[data-filter="umkm"] {

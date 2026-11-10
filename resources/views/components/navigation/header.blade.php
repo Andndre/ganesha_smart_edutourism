@@ -143,7 +143,7 @@
                         <div class="py-1">
                             <a href="{{ route('lang.switch', 'id') }}"
                                class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-gray-50 whitespace-nowrap"
-                               :class="currentLocale === 'id' ? 'text-[#1E5128]' : 'text-gray-700'">
+                               :class="currentLocale === 'id' ? 'text-primary' : 'text-gray-700'">
                                 <x-flag-icon locale="id" class="h-4 w-5 ring-1 ring-black/10" />
                                 <span>Bahasa Indonesia</span>
                                 <span x-show="currentLocale === 'id'" class="ml-auto">
@@ -154,7 +154,7 @@
                             </a>
                             <a href="{{ route('lang.switch', 'en') }}"
                                class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-gray-50 whitespace-nowrap"
-                               :class="currentLocale === 'en' ? 'text-[#1E5128]' : 'text-gray-700'">
+                               :class="currentLocale === 'en' ? 'text-primary' : 'text-gray-700'">
                                 <x-flag-icon locale="en" class="h-4 w-5 ring-1 ring-black/10" />
                                 <span>English</span>
                                 <span x-show="currentLocale === 'en'" class="ml-auto">
@@ -167,7 +167,7 @@
                     </div>
                 </div>
 
-                <a href="{{ auth()->check() ? route('profile') : route('login') }}" class="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#d4af37] bg-[#f8f1db] text-sm font-bold text-[#987716] transition hover:bg-[#f3e8c4] lg:flex" aria-label="{{ auth()->check() ? __('Profil') : __('Masuk') }}">
+                <a href="{{ auth()->check() ? route('profile') : route('login') }}" class="border-secondary bg-accent/35 text-primary hover:bg-accent/55 hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition lg:flex" aria-label="{{ auth()->check() ? __('Profil') : __('Masuk') }}">
                     @auth
                         {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}
                     @else

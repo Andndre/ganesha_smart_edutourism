@@ -16,27 +16,41 @@ Gaya desain difokuskan pada **Efisiensi Navigasi, _Progressive Disclosure_ (meny
 
 ## **2\. Palet Warna (Color System)**
 
-Berbeda dengan aplikasi konservasi biasa yang penuh dengan gradasi hijau, aplikasi ini menggunakan warna dasar yang bersih dengan "Hijau Penglipuran" murni digunakan sebagai **warna aksi** (_Call-to-Action / CTA_).
+Sistem warna mengacu pada **Guideline Visual Desa Wisata Penglipuran (Bab 3: Sistem Warna)** dengan komposisi **60% Dominan – 30% Sekunder – 10% Aksen**, dipadukan dengan kanvas terang untuk keterbacaan luar ruangan (_outdoor mobile-first_).
 
-| Kategori        | Nama Warna        | Kode Hex | Penggunaan Utama                                                                |
-| :-------------- | :---------------- | :------- | :------------------------------------------------------------------------------ |
-| **Brand / CTA** | Penglipuran Green | \#1E5128 | Tombol utama, _toggle_ aktif, ikon menu terpilih, _progress bar_.               |
-| **Accent**      | Bali Gold         | \#D4AF37 | Label premium, bintang rating UMKM, elemen dekoratif (garis bawah/ikon khusus). |
-| **Background**  | Clean Off-White   | \#FAF9F6 | Latar belakang kanvas aplikasi (_body background_).                             |
-| **Surface**     | Solid White       | \#FFFFFF | Latar belakang _cards_, _bottom sheet_, dan _navbar_.                           |
-| **Typography**  | Charcoal Dark     | \#191A19 | Teks judul (_Headline_) dan teks tubuh (_Body_) untuk kontras maksimal.         |
-| **Utility**     | Alert Amber       | \#E65100 | Peringatan keramaian (_Heatmap/Crowd Warning_), rute darurat (SOS).             |
+> **Aturan Teknis:** Jangan pernah menulis kode hex secara _hardcode_ di file Blade. Selalu gunakan _utility class_ Tailwind v4 (`bg-primary`, `text-primary`, `bg-secondary`, `bg-accent`, `text-charcoal`, `bg-surface`) atau _CSS Custom Properties_ (`var(--color-primary)`, `var(--color-secondary)`, `var(--color-accent)`) yang didefinisikan secara terpusat di `resources/css/app.css`.
+
+| Kategori                 | Nama Warna      | Kode Hex  | Token CSS / Tailwind               | Penggunaan Utama                                                                                  |
+| :----------------------- | :-------------- | :-------- | :--------------------------------- | :------------------------------------------------------------------------------------------------ |
+| **Primary (60% Brand)**  | Hijau Bambu     | `#293518` | `--color-primary` / `primary`      | Warna dominan identitas, tombol utama (CTA), _toggle_ aktif, ikon menu terpilih, _sidebar_ admin. |
+| **Primary Hover**        | Deep Bamboo     | `#1B2410` | `--color-primary-hover`            | _Hover_ & _active state_ pada tombol utama.                                                       |
+| **Secondary (30%)**      | Hijau Olive     | `#989A4B` | `--color-secondary` / `secondary`  | Warna sekunder pendukung, kategori upacara/budaya, _badge_ sekunder, aksen visual natural.        |
+| **Accent (10%)**         | Bilah Bambu     | `#E3C994` | `--color-accent` / `accent`        | _Highlight_ hangat, _badge_ unggulan, _border_ dekoratif, aksen di atas latar Hijau Bambu.        |
+| **Background (Canvas)**  | Clean Off-White | `#FAF9F6` | `--color-surface` / `surface`      | Latar belakang kanvas aplikasi (_body background_) agar kontras di bawah terik matahari.          |
+| **Surface (Card)**       | Solid White     | `#FFFFFF` | `--color-card` / `white`           | Latar belakang _cards_, _bottom sheet_, dan _navbar_.                                             |
+| **Typography / Dark**    | Abu Batu        | `#191A19` | `--color-charcoal` / `charcoal`    | Teks judul (_Headline_), teks tubuh (_Body_), dan elemen gelap untuk kontras maksimal.            |
+| **Utility / Alert**      | Alert Amber     | `#E65100` | `--color-warning` / `warning`      | Peringatan keramaian (_Heatmap/Crowd Warning_), rute darurat (SOS).                               |
+
+### **Aturan Kombinasi & Kontras Warna (Sesuai Guideline Bab 3.2–3.6):**
+
+1. **Di atas latar Hijau Bambu (`#293518`):** Gunakan teks/ikon berwarna **Putih (`#FFFFFF`)**, **Bilah Bambu (`#E3C994`)**, atau **Hijau Olive (`#989A4B`)**.
+2. **Di atas latar Hijau Olive (`#989A4B`):** Gunakan teks/ikon berwarna **Hijau Bambu (`#293518`)** atau **Putih (`#FFFFFF`)**.
+3. **Di atas latar Bilah Bambu (`#E3C994`):** **WAJIB** menggunakan teks/ikon gelap **Abu Batu (`#191A19`)** atau **Hijau Bambu (`#293518`)**. Dilarang menggunakan teks putih di atas `#E3C994` karena rasio kontrasnya rendah (gagal standar keterbacaan WCAG).
 
 ## **3\. Tipografi**
 
-Sistem tipografi dirancang untuk keterbacaan instan (_glanceability_) di layar kecil.
+Sistem tipografi mengacu pada **Guideline Visual Desa Wisata Penglipuran (Bab 4: Tipografi)** yang mengombinasikan karakter humanis-klasik untuk _headline_ dan keterbacaan bersih untuk _body text_.
 
-- **Primary Font (UI & Data):** Plus Jakarta Sans atau Inter.
-    - _Kenapa?_ Karakter hurufnya tegak, tinggi (_large x-height_), sangat mudah dibaca walau ukurannya kecil (seperti pada label bawah ikon).
-    - _Penggunaan:_ Label navigasi, harga UMKM, deskripsi rute, status cuaca.
-- **Secondary Font (Editorial/Budaya):** Playfair Display.
-    - _Kenapa?_ Memberikan sentuhan klasik Bali tanpa membuat UI terlihat kuno.
-    - _Penggunaan:_ **HANYA** digunakan untuk judul _Digital Storytelling_, _headline_ halaman budaya, dan nama-nama objek wisata.
+- **Primary Font (Headline & Sub-Headline — `--font-display` / `font-display`):** **Libertinus Sans** (dibundel secara lokal melalui `@fontsource/libertinus-sans`).
+    - _Karakter:_ Sans-serif humanis dengan proporsi klasik dan elegan yang merepresentasikan wibawa budaya desa adat tanpa mengorbankan keterbacaan di layar digital.
+    - _Penggunaan:_
+        - **Headline:** **Libertinus Sans Bold (700)** — skala referensi `35pt` (`--text-display: 2.1875rem`, `line-height: 1.15`). Digunakan untuk judul utama halaman, _hero banner_, dan judul objek budaya.
+        - **Sub-Headline:** **Libertinus Sans Regular (400)** — skala referensi `24pt` (`1.5rem`, `line-height: 1.25`). Digunakan untuk sub-judul seksi dan pengantar naratif.
+- **Secondary Font (UI, Body Text & Caption — `--font-sans` / `font-sans`):** **Inter**.
+    - _Karakter:_ Karakter huruf tegak dengan _x-height_ besar, netral, dan sangat mudah dibaca pada ukuran kecil di layar ponsel.
+    - _Penggunaan:_
+        - **Body Text:** **Inter Regular (400)** — skala referensi `16pt` (`1rem`, `line-height: 1.5`). Digunakan untuk paragraf cerita budaya, deskripsi UMKM/rute, dan kontrol formulir.
+        - **Caption & UI Label:** **Inter Light (300) / Regular (400)** — skala referensi `12pt` (`0.75rem`, `line-height: 1.4`). Digunakan untuk keterangan foto, label navigasi bawah, _badge_, dan metadata.
 
 ## **4\. Arsitektur Komponen UI Kunci**
 
@@ -76,5 +90,5 @@ Aplikasi ini tidak dipakai di kamar yang nyaman, melainkan di jalanan desa wisat
 Untuk mempermudah penulisan deskripsi naratif objek budaya yang dinamis dan terstruktur, aplikasi mengintegrasikan editor **TipTap** (WYSIWYG/Markdown editor) yang elegan.
 
 - **Integrasi ESM Tanpa Bundler:** TipTap diimpor menggunakan ES Modules langsung dari `esm.sh` dalam `<script type="module">` guna performa pemuatan yang cepat dan menghindari penambahan depedensi NPM lokal yang membengkak.
-- **Visual Toolbar:** Menggunakan desain minimalis dengan garis batas halus (`border-gray-200`) dan latar belakang netral (`bg-gray-50`). Tombol aksi memiliki feedback visual dengan transisi lembut; tombol aktif disorot dengan warna brand (*Penglipuran Green* super halus: `rgba(30, 81, 40, 0.1)`).
+- **Visual Toolbar:** Menggunakan desain minimalis dengan garis batas halus (`border-gray-200`) dan latar belakang netral (`bg-gray-50`). Tombol aksi memiliki feedback visual dengan transisi lembut; tombol aktif disorot dengan warna brand (*Hijau Bambu* super halus: `color-mix(in srgb, var(--color-primary) 10%, transparent)`).
 - **Prose Mirror Styling:** Konten editor dibatasi secara visual menggunakan elemen scroll dengan tinggi maksimal (`max-h-[300px]`) dan didesain ramah keterbacaan dengan spasi antar paragraf yang lega serta gaya list bullet/decimal yang rapi.

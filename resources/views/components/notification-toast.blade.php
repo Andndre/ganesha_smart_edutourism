@@ -51,11 +51,11 @@
 
     /* Info level */
     .notification-toast.toast-info .toast-icon {
-        background-color: #DCFCE7;
-        color: #1E5128;
+        background-color: var(--color-primary-50);
+        color: var(--color-primary);
     }
     .notification-toast.toast-info > div {
-        border-color: rgba(30, 81, 40, 0.2);
+        border-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
         background-color: rgba(255, 255, 255, 0.95);
     }
 </style>

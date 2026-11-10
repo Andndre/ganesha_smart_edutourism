@@ -125,7 +125,7 @@
                             </svg>
                         </a>
                     @endif
-                    <h1 class="font-playfair mb-2 text-3xl font-bold leading-tight md:text-4xl">{{ $object['name'] }}</h1>
+                    <h1 class="font-display mb-2 text-3xl font-bold leading-tight md:text-4xl">{{ $object['name'] }}</h1>
                     @if (!empty($object['short_description']))
                         <p class="text-sm font-medium tracking-wide text-gray-200 md:text-base">
                             {{ $object['short_description'] }}</p>
@@ -183,7 +183,7 @@
 
                 <div class="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
                     <button @click="togglePlay()"
-                        class="bg-primary flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white shadow-[0_4px_10px_rgba(30,81,40,0.3)] transition-all active:scale-95">
+                        class="bg-primary shadow-primary/30 flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-all active:scale-95">
                         <!-- Play Icon (Centered Play Triangle) -->
                         <svg x-show="!playing" class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M8 5v14l11-7z" />
@@ -244,7 +244,7 @@
 
         <!-- Article Content -->
         <div
-            class="prose prose-p:text-gray-600 prose-p:leading-relaxed prose-h2:font-playfair prose-h2:text-charcoal prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 {{ empty($object['audio_narration_path']) ? 'pt-8' : '' }} mx-auto max-w-3xl px-6">
+            class="prose prose-p:text-gray-600 prose-p:leading-relaxed prose-h2:font-display prose-h2:text-charcoal prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 {{ empty($object['audio_narration_path']) ? 'pt-8' : '' }} mx-auto max-w-3xl px-6">
 
             @if (!empty($object['description']))
                 {!! $object['description'] !!}
@@ -253,7 +253,7 @@
 
         @if (!empty($object['children']))
             <section class="mx-auto max-w-3xl px-6 pb-6 pt-2">
-                <h2 class="font-playfair text-charcoal mb-3 flex items-baseline gap-2 text-xl font-bold">
+                <h2 class="font-display text-charcoal mb-3 flex items-baseline gap-2 text-xl font-bold">
                     {{ __('Bagian dari :name', ['name' => $object['name']]) }}
                     <span class="text-sm font-semibold text-gray-500">{{ count($object['children']) }}</span>
                 </h2>
@@ -280,7 +280,7 @@
                                 @endif
                             </div>
                             <div class="p-3">
-                                <h3 class="font-playfair text-charcoal line-clamp-2 text-sm font-bold leading-tight">
+                                <h3 class="font-display text-charcoal line-clamp-2 text-sm font-bold leading-tight">
                                     {{ $child['name'] }}</h3>
                                 @if (!empty($child['short_description']))
                                     <p class="mt-1 line-clamp-2 text-xs text-gray-600">{{ $child['short_description'] }}
@@ -297,7 +297,7 @@
             @if ($canRate)
                 <div id="cultural-object-rating-form" class="mx-auto max-w-3xl px-6 pb-6">
                     <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                        <h3 class="font-playfair text-charcoal mb-3 text-lg font-bold">{{ __('Beri Rating Objek Ini') }}</h3>
+                        <h3 class="font-display text-charcoal mb-3 text-lg font-bold">{{ __('Beri Rating Objek Ini') }}</h3>
                         @if (session('status'))
                             <p class="mb-3 text-sm text-green-700">{{ session('status') }}</p>
                         @endif
@@ -315,7 +315,7 @@
                                     <button type="button" @click="rating = {{ $i }}"
                                         aria-label="{{ __('Beri :n bintang', ['n' => $i]) }}"
                                         class="flex h-11 w-11 items-center justify-center text-2xl"
-                                        :class="rating >= {{ $i }} ? 'text-[#D4AF37]' : 'text-gray-300'">★</button>
+                                        :class="rating >= {{ $i }} ? 'text-secondary' : 'text-gray-300'">★</button>
                                 @endfor
                             </div>
                             <input type="hidden" name="rating" x-model="rating">
@@ -335,7 +335,7 @@
             <div
                 class="bottom-(--route-banner-h,0px) fixed inset-x-0 z-30 border-t border-gray-100 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
                 <a href="{{ route('ar-scan', empty($object['ar_marker_id']) ? [] : ['marker' => $object['ar_marker_id']]) }}"
-                    class="bg-primary flex w-full items-center justify-center gap-2 rounded-xl py-4 font-bold text-white shadow-[0_4px_14px_rgba(30,81,40,0.3)] transition-all active:scale-[0.98]">
+                    class="bg-primary shadow-primary/30 flex w-full items-center justify-center gap-2 rounded-xl py-4 font-bold text-white shadow-lg transition-all active:scale-[0.98]">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 9a2 2 0 012-2h.93a2 2 0 011.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -363,7 +363,7 @@
         .audio-seek::-webkit-slider-runnable-track {
             height: 4px;
             border-radius: 9999px;
-            background: linear-gradient(to right, #1E5128 var(--seek-progress, 0%), #f3f4f6 var(--seek-progress, 0%));
+            background: linear-gradient(to right, var(--color-primary) var(--seek-progress, 0%), #f3f4f6 var(--seek-progress, 0%));
         }
 
         .audio-seek::-webkit-slider-thumb {
@@ -374,14 +374,14 @@
             margin-top: -7px;
             border: 0;
             border-radius: 9999px;
-            background: #1E5128;
+            background: var(--color-primary);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
         .audio-seek::-moz-range-track {
             height: 4px;
             border-radius: 9999px;
-            background: linear-gradient(to right, #1E5128 var(--seek-progress, 0%), #f3f4f6 var(--seek-progress, 0%));
+            background: linear-gradient(to right, var(--color-primary) var(--seek-progress, 0%), #f3f4f6 var(--seek-progress, 0%));
         }
 
         .audio-seek::-moz-range-thumb {
@@ -389,7 +389,7 @@
             width: 18px;
             border: 0;
             border-radius: 9999px;
-            background: #1E5128;
+            background: var(--color-primary);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 

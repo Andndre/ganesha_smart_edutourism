@@ -31,8 +31,8 @@
         .rd-parchment {
             background-color: #fdfaf1;
             background-image:
-                radial-gradient(120% 90% at 100% 0%, rgba(30, 81, 40, .08), transparent 62%),
-                radial-gradient(95% 75% at 0% 100%, rgba(212, 175, 55, .20), transparent 68%),
+                radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--color-primary) 8%, transparent), transparent 62%),
+                radial-gradient(95% 75% at 0% 100%, color-mix(in srgb, var(--color-secondary) 20%, transparent), transparent 68%),
                 repeating-linear-gradient(115deg, rgba(150, 115, 45, .05) 0 2px, transparent 2px 8px);
         }
 
@@ -48,7 +48,7 @@
             font-size: 11rem;
             line-height: 1;
             font-weight: 900;
-            color: rgba(212, 175, 55, .16);
+            color: color-mix(in srgb, var(--color-secondary) 16%, transparent);
         }
 
         /* Gold hairline down the reading edge, the same accent the result panel closes on. */
@@ -57,7 +57,7 @@
             inset-block: 0;
             left: 0;
             width: 3px;
-            background: linear-gradient(to bottom, #D4AF37, rgba(212, 175, 55, .15) 55%, #1E5128);
+            background: linear-gradient(to bottom, var(--color-secondary), color-mix(in srgb, var(--color-secondary) 15%, transparent) 55%, var(--color-primary));
         }
 
         /* ---- hint ------------------------------------------------------------------------ */
@@ -154,13 +154,13 @@
 
         .rd-answer {
             background-image: linear-gradient(100deg,
-                    #1E5128 0%, #1E5128 34%, #D4AF37 45%, #f5e2a0 50%, #D4AF37 55%, #1E5128 66%, #1E5128 100%);
+                    var(--color-primary) 0%, var(--color-primary) 34%, var(--color-secondary) 45%, var(--color-accent) 50%, var(--color-secondary) 55%, var(--color-primary) 66%, var(--color-primary) 100%);
             background-size: 250% 100%;
             background-position: 180% 0;
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            filter: drop-shadow(0 2px 12px rgba(212, 175, 55, .45));
+            filter: drop-shadow(0 2px 12px color-mix(in srgb, var(--color-secondary) 45%, transparent));
             animation: rd-gold-sweep 2.6s ease-in-out .5s 2 both;
         }
 
@@ -309,7 +309,7 @@
                 /** Gold first, then a wider, slower second puff so the burst has a tail. */
                 burst() {
                     if (window.eduReducedMotion?.() || typeof window.confetti !== 'function') return;
-                    const colors = ['#D4AF37', '#f0d97d', '#1E5128', '#4e9c6b', '#ffffff'];
+                    const colors = ['#293518', '#989A4B', '#E3C994', '#ffffff'];
                     window.confetti({ particleCount: 90, spread: 75, startVelocity: 42, scalar: .95, origin: { y: 0.62 }, colors });
                     setTimeout(() => window.confetti?.({ particleCount: 45, spread: 115, decay: .92, scalar: .8, origin: { y: 0.55 }, colors }), 220);
                 },

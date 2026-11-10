@@ -5,7 +5,7 @@
 @section('content')
 <div class="mx-auto max-w-2xl px-5 py-6">
     <div class="mb-6 text-center">
-        <h2 class="text-charcoal mb-2 text-2xl font-bold" style="font-family: 'Playfair Display', serif;">{{ __('Perbarui Penilaian Anda') }}</h2>
+        <h2 class="font-display text-charcoal mb-2 text-2xl font-bold">{{ __('Perbarui Penilaian Anda') }}</h2>
         <p class="text-sm text-gray-500">{{ __('Ubah rating, komentar, atau foto ulasan Anda.') }}</p>
     </div>
 
@@ -107,7 +107,7 @@
             const maxSize = 2 * 1024 * 1024;
             const oversized = Array.from(this.files || []).find(f => f.size > maxSize);
             if (oversized) {
-                Swal.fire({ title: '{{ __('Ukuran File Terlalu Besar') }}', text: '{{ __('Maksimal 2MB per foto.') }}', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
+                Swal.fire({ title: '{{ __('Ukuran File Terlalu Besar') }}', text: '{{ __('Maksimal 2MB per foto.') }}', icon: 'warning', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
                 this.value = '';
             }
         });

@@ -9,7 +9,7 @@
     {{-- Legend --}}
     <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-gray-500 shrink-0">
         <div class="flex items-center gap-1.5">
-            <span class="h-3 w-3 rounded-full" style="background-color: #1E5128"></span> Objek Budaya
+            <span class="bg-primary h-3 w-3 rounded-full"></span> Objek Budaya
         </div>
         <div class="flex items-center gap-1.5">
             <span class="h-3 w-3 rounded-full" style="background-color: #8B5CF6"></span> UMKM / Toko
