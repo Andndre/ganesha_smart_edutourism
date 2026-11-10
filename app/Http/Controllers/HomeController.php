@@ -8,12 +8,15 @@ use App\Models\TourRoute;
 use App\Models\TraditionalHouse;
 use App\Models\UmkmProfile;
 use App\Models\WeatherReport;
+use App\Services\TourPackageCatalog;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
+    public function __construct(private readonly TourPackageCatalog $packageCatalog) {}
+
     /**
      * Display the tourist homepage dashboard.
      */
@@ -59,25 +62,47 @@ class HomeController extends Controller
         // dijalankan pada setiap kunjungan beranda.
         $locale = app()->getLocale();
         $featuredUmkm = Cache::tags(['explore', 'umkm'])->flexible(
-            "home_featured_umkm_array_{$locale}",
+            "home_featured_umkm_cards_array_v2_{$locale}",
             [600, 1800],
             fn () => UmkmProfile::active()
-                ->with(['user:id,name'])
+                ->with([
+                    'activeProducts.category',
+                    'activeProducts.activeVariants',
+                    'traditionalHouse:id,number',
+                ])
                 ->inRandomOrder()
                 ->limit(8)
                 ->get()
-                ->toArray()
+                ->map(function (UmkmProfile $profile): array {
+                    $product = $profile->activeProducts->first();
+                    $priceRange = $product?->price_range;
+
+                    return [
+                        'id' => $profile->id,
+                        'business_name' => $profile->getTranslations('business_name'),
+                        'owner_name' => $profile->owner_name,
+                        'image_path' => $profile->image_path,
+                        'product_name' => $product?->display_name,
+                        'product_image_path' => $product?->display_image,
+                        'product_price' => $priceRange['min'] ?? null,
+                        'house_number' => $profile->traditionalHouse?->number,
+                    ];
+                })
+                ->all()
         );
 
         $houseCount = TraditionalHouse::published()->count();
         $culturalCount = CulturalObject::roots()->count();
         $routeCount = TourRoute::where('is_active', true)->count();
         $featuredCultural = CulturalObject::roots()->with('children')->first();
+        $featuredPackages = $this->packageCatalog->homepageSlides();
+        $umkmCount = UmkmProfile::active()->count();
 
         return view('home', \compact(
             'densityText', 'densityClass', 'densityBg', 'weather',
-            'totalCurrent', 'totalMax', 'densityStatus', 'warningThreshold', 'criticalThreshold',
-            'featuredUmkm', 'houseCount', 'culturalCount', 'routeCount', 'featuredCultural'
+            'totalCurrent', 'totalMax', 'densityStatus', 'densityPercent', 'warningThreshold', 'criticalThreshold',
+            'featuredUmkm', 'houseCount', 'culturalCount', 'routeCount', 'featuredCultural',
+            'featuredPackages', 'umkmCount'
         ));
     }
 }

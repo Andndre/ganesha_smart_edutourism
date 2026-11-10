@@ -14,56 +14,81 @@
     $currentRouteName = Route::currentRouteName();
     $isMainTab = in_array($currentRouteName, $mainTabRoutes);
     $isVisited = Route::is('visited');
+    $densityButtonTone = match ($sharedDensityStatus['key'] ?? 'safe') {
+        'medium' => 'bg-amber-50 text-amber-800 hover:bg-amber-100 focus-visible:ring-amber-700',
+        'full' => 'bg-rose-50 text-rose-800 hover:bg-rose-100 focus-visible:ring-rose-700',
+        default => 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 focus-visible:ring-emerald-700',
+    };
 @endphp
 
-<header class="pt-sat relative z-50 shrink-0 border-b border-[#ebe9e4] bg-white px-4 text-charcoal md:px-8">
-    <nav class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4">
+<header class="pt-sat relative z-50 shrink-0 border-b border-[#ebe9e4] bg-white px-4 text-charcoal md:px-8 lg:px-0" x-data>
+    <div class="mx-auto flex h-16 max-w-7xl items-stretch justify-between gap-3 lg:h-[72px] lg:gap-4 lg:px-2">
+        <div class="flex min-w-0 shrink-0 items-center gap-3 lg:h-full">
+            @if ($showBack && !$isMainTab)
+                <button
+                    onclick="if (window.history.length > 1 && document.referrer && document.referrer.includes(window.location.host) && !document.referrer.includes('/login') && !document.referrer.includes('/auth')) { history.back(); } else { window.location.href = '{{ $fallbackUrl }}'; }"
+                    class="-ml-2 flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-charcoal transition-all active:scale-95 lg:hidden"
+                    aria-label="{{ __('Kembali') }}">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+            @endif
 
-            <div class="flex min-w-0 items-center gap-3">
-                @if ($showBack && !$isMainTab)
-                    <button
-                        onclick="if (window.history.length > 1 && document.referrer && document.referrer.includes(window.location.host) && !document.referrer.includes('/login') && !document.referrer.includes('/auth')) { history.back(); } else { window.location.href = '{{ $fallbackUrl }}'; }"
-                        class="-ml-2 flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-charcoal transition-all active:scale-95 lg:hidden"
-                        aria-label="{{ __('Kembali') }}">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                @endif
-
-                @if ($isMainTab)
-                    {{-- Main tabs: show logo (dark variant for pill) --}}
-                    <img src="{{ asset('icons/logo-penglipuran.png') }}" alt="Penglipuran Logo"
-                        width="32" height="32" fetchpriority="high"
-                        class="h-8 w-auto object-contain opacity-90">
-                    <span class="text-label text-charcoal max-w-37.5 truncate font-bold tracking-tight">
-                        @hasSection('header_title')
-                            @yield('header_title')
-                        @elseif ($headerTitle)
-                            {{ $headerTitle }}
-                        @endif
-                    </span>
+            @if ($isMainTab)
+                @if (Route::is('home'))
+                    <span class="leading-tight lg:hidden"><span class="block text-base font-bold tracking-tight">Smart Edutourism</span><span class="mt-1 block text-xs font-normal text-gray-600">{{ __('Desa Penglipuran, Bali') }}</span></span>
                 @else
-                    {{-- Detail pages: show back arrow + title from yield --}}
-                    <h1 class="text-label truncate font-semibold lg:hidden">@yield('header_title', $headerTitle)</h1>
-                    <a href="{{ route('home') }}" class="hidden items-center gap-3 lg:flex"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21V9l9-6 9 6v12H3Zm4-11h10M9 15h6m-6 3h6"/></svg></span><span class="text-sm font-bold">Smart Edutourism</span></a>
+                <img src="{{ asset('icons/logo-penglipuran.png') }}" alt="Penglipuran Logo" width="32" height="32" fetchpriority="high" class="h-8 w-auto object-contain opacity-90 lg:hidden">
+                <span class="text-label max-w-37.5 truncate font-bold tracking-tight text-charcoal lg:hidden">
+                    @hasSection('header_title')
+                        @yield('header_title')
+                    @elseif ($headerTitle)
+                        {{ $headerTitle }}
+                    @endif
+                </span>
                 @endif
-            </div>
+            @else
+                <h1 class="text-label truncate font-semibold text-charcoal lg:hidden">@yield('header_title', $headerTitle)</h1>
+            @endif
 
-            <div class="hidden min-w-0 items-center gap-5 lg:flex" aria-label="{{ __('Navigasi utama') }}">
-                <a href="{{ route('home') }}" class="text-sm {{ Route::is('home') ? 'font-bold text-primary' : 'text-gray-600 hover:text-primary' }}">{{ __('Beranda') }}</a>
-                <a href="{{ route('cultural-objects') }}" class="text-sm {{ Route::is('cultural-*') ? 'font-bold text-primary' : 'text-gray-600 hover:text-primary' }}">{{ __('Warisan Budaya') }}</a>
-                <a href="{{ route('explore') }}" class="text-sm {{ Route::is('explore') ? 'font-bold text-primary' : 'text-gray-600 hover:text-primary' }}">{{ __('Peta Interaktif') }}</a>
-                <a href="{{ route('houses.index') }}" class="text-sm {{ Route::is('houses.*') ? 'font-bold text-primary' : 'text-gray-600 hover:text-primary' }}">{{ __('Rumah Adat') }}</a>
-                <a href="{{ route('umkm') }}" class="text-sm {{ Route::is('umkm*') ? 'font-bold text-primary' : 'text-gray-600 hover:text-primary' }}">{{ __('Direktori UMKM') }}</a>
-                <a href="{{ route('packages-tickets') }}" class="text-sm {{ Route::is('packages-tickets') ? 'font-bold text-primary' : 'text-gray-600 hover:text-primary' }}">{{ __('Paket & Tiket') }}</a>
-                <a href="{{ route('events') }}" class="text-sm {{ Route::is('events') ? 'font-bold text-primary' : 'text-gray-600 hover:text-primary' }}">{{ __('Kalender Acara') }}</a>
-            </div>
+            <a href="{{ route('home') }}" class="hidden h-full shrink-0 items-center gap-3 lg:flex" aria-label="{{ __('Beranda') }} — Smart Edutourism">
+                <img src="{{ asset('icons/logo-penglipuran.png') }}" alt="Penglipuran Logo" width="40" height="40" class="h-10 w-10 object-contain">
+                <span class="leading-tight">
+                    <span class="block text-sm font-bold tracking-tight text-charcoal">Smart Edutourism</span>
+                    <span class="mt-0.5 block text-[11px] text-gray-500">{{ __('Desa Penglipuran, Bali') }}</span>
+                </span>
+            </a>
+        </div>
 
-            <div class="flex shrink-0 items-center gap-1">
+        <nav class="hidden h-full min-w-0 items-stretch justify-center gap-0.5 lg:flex" aria-label="{{ __('Navigasi utama') }}">
+            <a href="{{ route('home') }}" @if (Route::is('home')) aria-current="page" @endif class="flex h-full shrink-0 items-center border-b-2 px-1 text-xs whitespace-nowrap transition-colors xl:px-3 xl:text-[13px] {{ Route::is('home') ? 'border-primary font-bold text-primary' : 'border-transparent font-medium text-gray-600 hover:text-primary' }}">{{ __('Beranda') }}</a>
+            <a href="{{ route('cultural-objects') }}" @if (Route::is('cultural-*')) aria-current="page" @endif class="flex h-full shrink-0 items-center border-b-2 px-1 text-xs whitespace-nowrap transition-colors xl:px-3 xl:text-[13px] {{ Route::is('cultural-*') ? 'border-primary font-bold text-primary' : 'border-transparent font-medium text-gray-600 hover:text-primary' }}">{{ __('Warisan Budaya') }}</a>
+            <a href="{{ route('explore') }}" @if (Route::is('explore')) aria-current="page" @endif class="flex h-full shrink-0 items-center border-b-2 px-1 text-xs whitespace-nowrap transition-colors xl:px-3 xl:text-[13px] {{ Route::is('explore') ? 'border-primary font-bold text-primary' : 'border-transparent font-medium text-gray-600 hover:text-primary' }}">{{ __('Peta Interaktif') }}</a>
+            <a href="{{ route('umkm') }}" @if (Route::is('umkm*')) aria-current="page" @endif class="flex h-full shrink-0 items-center border-b-2 px-1 text-xs whitespace-nowrap transition-colors xl:px-3 xl:text-[13px] {{ Route::is('umkm*') ? 'border-primary font-bold text-primary' : 'border-transparent font-medium text-gray-600 hover:text-primary' }}">{{ __('Direktori UMKM') }}</a>
+            <a href="{{ route('events') }}" @if (Route::is('events')) aria-current="page" @endif class="flex h-full shrink-0 items-center border-b-2 px-1 text-xs whitespace-nowrap transition-colors xl:px-3 xl:text-[13px] {{ Route::is('events') ? 'border-primary font-bold text-primary' : 'border-transparent font-medium text-gray-600 hover:text-primary' }}">{{ __('Kalender Acara') }}</a>
+        </nav>
+
+        <div class="flex h-full shrink-0 items-center gap-1 md:gap-2">
                 <span id="offline-indicator" class="bg-warning hidden rounded-full px-2 py-1 text-xs font-medium">
                     Offline
                 </span>
+
+                <button type="button" @click="$dispatch('open-weather-modal')" @class([
+                    'hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-[11px] font-semibold text-amber-800 transition hover:bg-amber-100 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 md:flex lg:w-auto lg:gap-1.5 lg:rounded-full lg:px-2 xl:h-11 xl:gap-1.5 xl:px-3',
+                ]) aria-label="{{ __('Cuaca Desa Penglipuran') }}: {{ $sharedWeather?->getConditionText() ?? __('Cuaca belum tersedia') }}">
+                        {!! $sharedWeather?->getIconHtml() ?? '<i class="fa-solid fa-sun" aria-hidden="true"></i>' !!}
+                        <span class="hidden lg:inline xl:hidden">{{ $sharedWeather ? round($sharedWeather->temperature).'°C' : '—' }}</span>
+                        <span class="hidden xl:inline">{{ $sharedWeather ? round($sharedWeather->temperature).'°C' : '—' }} {{ $sharedWeather?->getConditionText() ?? __('Cuaca belum tersedia') }}</span>
+                    </button>
+                <button type="button" @click="$dispatch('open-density-modal')" @class([
+                    'hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[11px] font-semibold transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 md:flex lg:w-auto lg:gap-1.5 lg:rounded-full lg:px-2 xl:h-11 xl:gap-1.5 xl:px-3',
+                    $densityButtonTone,
+                ]) aria-label="{{ __('Kepadatan Pengunjung') }}: {{ __($sharedDensityStatus['label']) }}, {{ round($sharedDensityPercent) }}%">
+                    <x-density-status-icon :status="$sharedDensityStatus['key']" class="h-5 w-5" />
+                    <span class="hidden lg:inline xl:hidden">{{ round($sharedDensityPercent) }}%</span>
+                    <span class="hidden xl:inline">{{ __($sharedDensityStatus['label']) }} ({{ round($sharedDensityPercent) }}%)</span>
+                </button>
 
                 @if ($isMainTab)
                     <div class="static sm:relative" x-data="notificationBell()" @notification-received.window="onNewNotification($event.detail)">
@@ -141,6 +166,14 @@
                         </div>
                     </div>
                 </div>
+
+                <a href="{{ auth()->check() ? route('profile') : route('login') }}" class="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#d4af37] bg-[#f8f1db] text-sm font-bold text-[#987716] transition hover:bg-[#f3e8c4] lg:flex" aria-label="{{ auth()->check() ? __('Profil') : __('Masuk') }}">
+                    @auth
+                        {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}
+                    @else
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 0 0-16 0m8-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
+                    @endauth
+                </a>
             </div>
-    </nav>
+    </div>
 </header>

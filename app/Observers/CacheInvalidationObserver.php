@@ -11,6 +11,7 @@ use App\Models\MapLocation;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
 use App\Models\TraditionalHouse;
+use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use Illuminate\Database\Eloquent\Model;
@@ -47,7 +48,7 @@ class CacheInvalidationObserver
             Cache::tags(['events'])->flush();
         } elseif ($model instanceof TourRoute || $model instanceof TourRoutePoint) {
             Cache::tags(['explore', 'edutourism'])->flush();
-        } elseif ($model instanceof UmkmProductCategory) {
+        } elseif ($model instanceof UmkmProduct || $model instanceof UmkmProductCategory) {
             Cache::tags(['umkm'])->flush();
         } elseif ($model instanceof MapLocation || $model instanceof Facility || $model instanceof UmkmProfile || $model instanceof ArModel) {
             Cache::tags(['explore'])->flush();

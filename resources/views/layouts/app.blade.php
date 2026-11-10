@@ -138,13 +138,21 @@
                 </div>
             </div>
 
-            @unless (Route::is('explore') || Route::is('edutourism.active'))
+            @if (Route::is('explore'))
+                <div class="hidden md:block">
+                    @include('components.navigation.header', [
+                        'showBack' => true,
+                        'headerTitle' => null,
+                        'fallbackUrl' => route('home'),
+                    ])
+                </div>
+            @elseif (!Route::is('edutourism.active'))
                 @include('components.navigation.header', [
                     'showBack' => true,
                     'headerTitle' => null,
                     'fallbackUrl' => isset($activeEdutourismSession) ? route('edutourism.active') : route('home'),
                 ])
-            @endunless
+            @endif
 
             @php
                 $mainTabRoutes = ['home', 'explore', 'umkm', 'profile'];
@@ -367,6 +375,15 @@
         </script>
 
         @include('components.notification-toast')
+
+        @include('home-modals', [
+            'weather' => $sharedWeather,
+            'totalCurrent' => $sharedTotalCurrent,
+            'totalMax' => $sharedTotalMax,
+            'densityStatus' => $sharedDensityStatus,
+            'warningThreshold' => $sharedWarningThreshold,
+            'criticalThreshold' => $sharedCriticalThreshold,
+        ])
 
         @stack('modals')
         @stack('scripts')
