@@ -196,10 +196,28 @@
                         aria-label="{{ __('Cuaca Desa Penglipuran') }}: {{ $activeWeather?->getConditionText() ?? __('Cuaca belum tersedia') }}">
                         {!! $activeWeather?->getIconHtml() ?? '<i class="fa-solid fa-sun" aria-hidden="true"></i>' !!}
                     </button>
-                    <button type="button" @click="$dispatch('open-density-modal')" @class([
-                        'hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 md:flex',
-                        $activeDensityButtonTone,
-                    ]) aria-label="{{ __('Kepadatan Pengunjung') }}: {{ __($activeDensityStatus['label'] ?? 'Aman') }}, {{ round($activeDensityPercent) }}%">
+                    <button type="button"
+                        x-data="villageDensity({
+                            totalCurrent: {{ (int) ($sharedTotalCurrent ?? 0) }},
+                            totalMax: {{ (int) ($sharedTotalMax ?? 0) }},
+                            percent: {{ (int) round($activeDensityPercent) }},
+                            statusKey: '{{ $activeDensityStatus['key'] ?? 'safe' }}',
+                            labels: {
+                                safe: '{{ __('Aman') }}',
+                                medium: '{{ __('Sedang') }}',
+                                full: '{{ __('Penuh') }}'
+                            },
+                            ariaPrefix: '{{ __('Kepadatan Pengunjung') }}'
+                        })"
+                        @density-updated.window="onDensityUpdated($event.detail)"
+                        @click="$dispatch('open-density-modal')"
+                        @class([
+                            'hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 md:flex',
+                            $activeDensityButtonTone,
+                        ])
+                        :class="headerButtonTone"
+                        aria-label="{{ __('Kepadatan Pengunjung') }}: {{ __($activeDensityStatus['label'] ?? 'Aman') }}, {{ round($activeDensityPercent) }}%"
+                        :aria-label="ariaLabel">
                         <x-density-status-icon :status="$activeDensityStatus['key'] ?? 'safe'" class="h-5 w-5" />
                     </button>
                     <div class="text-right">

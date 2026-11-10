@@ -14,6 +14,7 @@ use App\Models\TraditionalHouse;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
+use App\Models\WeatherReport;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
@@ -52,6 +53,8 @@ class CacheInvalidationObserver
             Cache::tags(['umkm'])->flush();
         } elseif ($model instanceof MapLocation || $model instanceof Facility || $model instanceof UmkmProfile || $model instanceof ArModel) {
             Cache::tags(['explore'])->flush();
+        } elseif ($model instanceof WeatherReport) {
+            Cache::tags(['weather'])->flush();
         }
     }
 }

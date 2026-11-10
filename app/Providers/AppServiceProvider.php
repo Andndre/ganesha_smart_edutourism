@@ -52,8 +52,15 @@ class AppServiceProvider extends ServiceProvider
         });
 
         View::composer(['layouts.app', 'user.umkm.index', 'components.session-state-sync'], function ($view) {
+            $req = request();
+            if ($req->attributes->has('_shared_active_edutourism_session')) {
+                $view->with('activeEdutourismSession', $req->attributes->get('_shared_active_edutourism_session'));
+
+                return;
+            }
+
             $userId = auth()->id();
-            $guestToken = session('guest_token') ?? request()->cookie('visitor_token');
+            $guestToken = session('guest_token') ?? $req->cookie('visitor_token');
 
             // Sync session if cookie exists but session is empty
             if (! $userId && $guestToken && ! session()->has('guest_token')) {
@@ -70,12 +77,21 @@ class AppServiceProvider extends ServiceProvider
                 }
                 $activeSession = $query->first();
             }
+
+            $req->attributes->set('_shared_active_edutourism_session', $activeSession);
             $view->with('activeEdutourismSession', $activeSession);
         });
 
         View::composer(['layouts.app', 'user.edutourism.active'], function (ViewInstance $view): void {
+            $req = request();
+            if ($req->attributes->has('_shared_navbar_snapshot')) {
+                $view->with($req->attributes->get('_shared_navbar_snapshot'));
+
+                return;
+            }
+
             $pageData = $view->getData();
-            $weather = $pageData['weather'] ?? WeatherReport::query()->first();
+            $weather = $pageData['weather'] ?? WeatherReport::cached();
 
             $hasDensitySnapshot = isset(
                 $pageData['totalCurrent'],
@@ -113,7 +129,7 @@ class AppServiceProvider extends ServiceProvider
                 $densityStatus = CapacityZone::statusFor($densityPercent, $warningThreshold, $criticalThreshold);
             }
 
-            $view->with([
+            $snapshot = [
                 'sharedWeather' => $weather,
                 'sharedTotalCurrent' => $totalCurrent,
                 'sharedTotalMax' => $totalMax,
@@ -121,7 +137,10 @@ class AppServiceProvider extends ServiceProvider
                 'sharedDensityPercent' => $densityPercent,
                 'sharedWarningThreshold' => $warningThreshold,
                 'sharedCriticalThreshold' => $criticalThreshold,
-            ]);
+            ];
+
+            $req->attributes->set('_shared_navbar_snapshot', $snapshot);
+            $view->with($snapshot);
         });
 
         // Register Cache Invalidation Observer
@@ -138,5 +157,6 @@ class AppServiceProvider extends ServiceProvider
         UmkmProduct::observe($observer);
         UmkmProductCategory::observe($observer);
         UmkmProfile::observe($observer);
+        WeatherReport::observe($observer);
     }
 }

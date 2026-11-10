@@ -208,12 +208,14 @@
         @endif
 
         <script data-navigate-once>
-            // Hapus Service Worker jika sebelumnya pernah terinstall agar tidak ada cache nyangkut
+            // Hapus Service Worker lama (selain /sw.js WebPush) agar tidak ada cache nyangkut
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(function(registrations) {
                     for (let registration of registrations) {
-                        registration.unregister();
-                        console.log('Service Worker dihapus');
+                        const scriptUrl = registration.active?.scriptURL || registration.installing?.scriptURL || '';
+                        if (!scriptUrl.endsWith('/sw.js')) {
+                            registration.unregister();
+                        }
                     }
                 });
             }
@@ -497,6 +499,92 @@
                 };
             }
 
+            // Alpine.js component for realtime village visitor density (navbar, home card, modal)
+            function villageDensity(initial = {}) {
+                return {
+                    totalCurrent: initial.totalCurrent ?? 0,
+                    totalMax: initial.totalMax ?? 0,
+                    percent: initial.percent ?? 0,
+                    statusKey: initial.statusKey || 'safe',
+                    labels: initial.labels || {
+                        safe: 'Aman',
+                        medium: 'Sedang',
+                        full: 'Penuh'
+                    },
+                    ariaPrefix: initial.ariaPrefix || 'Kepadatan Pengunjung',
+                    init() {
+                        if (window.__latestRealtimeDensity) {
+                            this.onDensityUpdated(window.__latestRealtimeDensity);
+                        }
+                    },
+                    onDensityUpdated(data) {
+                        if (!data) return;
+                        if (typeof data.total_current === 'number') this.totalCurrent = data.total_current;
+                        if (typeof data.total_max === 'number') this.totalMax = data.total_max;
+                        if (typeof data.density_percent === 'number') this.percent = Math.round(data.density_percent);
+                        if (data.status && data.status.key) this.statusKey = data.status.key;
+                    },
+                    get label() {
+                        return this.labels[this.statusKey] || this.labels.safe;
+                    },
+                    get clampedPercent() {
+                        return Math.min(100, Math.max(0, this.percent));
+                    },
+                    get ariaLabel() {
+                        return `${this.ariaPrefix}: ${this.label}, ${this.percent}%`;
+                    },
+                    get headerButtonTone() {
+                        return {
+                            'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 focus-visible:ring-emerald-700': this.statusKey === 'safe',
+                            'bg-amber-50 text-amber-800 hover:bg-amber-100 focus-visible:ring-amber-700': this.statusKey === 'medium',
+                            'bg-rose-50 text-rose-800 hover:bg-rose-100 focus-visible:ring-rose-700': this.statusKey === 'full',
+                        };
+                    },
+                    get iconColor() {
+                        return {
+                            'text-emerald-700': this.statusKey === 'safe',
+                            'text-amber-700': this.statusKey === 'medium',
+                            'text-rose-700': this.statusKey === 'full',
+                        };
+                    },
+                    get cardHoverBorder() {
+                        return {
+                            'hover:border-emerald-200': this.statusKey === 'safe',
+                            'hover:border-amber-200': this.statusKey === 'medium',
+                            'hover:border-rose-200': this.statusKey === 'full',
+                        };
+                    },
+                    get cardIconBoxTone() {
+                        return {
+                            'bg-emerald-50 text-emerald-700': this.statusKey === 'safe',
+                            'bg-amber-50 text-amber-700': this.statusKey === 'medium',
+                            'bg-rose-50 text-rose-700': this.statusKey === 'full',
+                        };
+                    },
+                    get cardTitleTone() {
+                        return {
+                            'text-emerald-800': this.statusKey === 'safe',
+                            'text-amber-800': this.statusKey === 'medium',
+                            'text-rose-800': this.statusKey === 'full',
+                        };
+                    },
+                    get modalBarColor() {
+                        return {
+                            'bg-primary': this.statusKey === 'safe',
+                            'bg-secondary': this.statusKey === 'medium',
+                            'bg-warning': this.statusKey === 'full',
+                        };
+                    },
+                    get modalTextColor() {
+                        return {
+                            'text-primary': this.statusKey === 'safe',
+                            'text-secondary': this.statusKey === 'medium',
+                            'text-warning': this.statusKey === 'full',
+                        };
+                    }
+                };
+            }
+
             // Toast display system
             function showNotificationToast(notif) {
                 const container = document.getElementById('notification-toast-container');
@@ -658,6 +746,7 @@
                 );
 
                 function sendPing() {
+                    if (document.visibilityState === 'hidden') return;
                     if (lastKnownPos) {
                         fetch('/api/tracking/ping', {
                             method: 'POST',
@@ -743,6 +832,12 @@
                                 timestamp: Date.now(),
                                 read: false
                             });
+                        })
+                        .listen('.VillageDensityUpdated', (e) => {
+                            window.__latestRealtimeDensity = e;
+                            window.dispatchEvent(new CustomEvent('density-updated', {
+                                detail: e
+                            }));
                         });
                 }
 
@@ -759,7 +854,7 @@
     @livewireScripts
 
     @auth
-        <script>
+        <script data-navigate-once>
             (function() {
                 if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
 

@@ -4,10 +4,34 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 #[Fillable(['temperature', 'condition', 'weather_code', 'humidity', 'wind_speed', 'id'])]
 class WeatherReport extends Model
 {
+    /**
+     * Retrieve the latest weather report using array caching (safe for serializable_classes=false).
+     */
+    public static function cached(): ?self
+    {
+        $taggedCache = Cache::tags(['weather']);
+        $cached = $taggedCache ? $taggedCache->get('weather_report_latest_array') : null;
+
+        if (\is_array($cached)) {
+            $model = (new self)->forceFill($cached);
+            $model->exists = true;
+
+            return $model;
+        }
+
+        $report = self::query()->first();
+        if ($report && $taggedCache) {
+            $taggedCache->put('weather_report_latest_array', $report->toArray(), 600);
+        }
+
+        return $report;
+    }
+
     /**
      * The attributes that should be cast.
      *

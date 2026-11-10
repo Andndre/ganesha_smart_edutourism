@@ -47,11 +47,11 @@ class HomeController extends Controller
         $densityBg = $densityMap['bg'];
 
         // Fetch cached weather, fallback to first-time update if empty
-        $weather = WeatherReport::first();
+        $weather = WeatherReport::cached();
         if (! $weather) {
             try {
                 Artisan::call('app:update-weather');
-                $weather = WeatherReport::first();
+                $weather = WeatherReport::cached();
             } catch (\Exception $e) {
                 // Ignored fallback
             }

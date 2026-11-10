@@ -133,23 +133,37 @@
                     {{ __('Kepadatan Pengunjung') }}</h3>
 
                 <!-- Total Wisatawan Saat Ini -->
-                <div class="rounded-2xl border border-gray-100 bg-gray-50/70 p-3.5">
+                @php($modalDensityPercent = $totalMax > 0 ? round(($totalCurrent / $totalMax) * 100) : 0)
+                <div class="rounded-2xl border border-gray-100 bg-gray-50/70 p-3.5"
+                    x-data="villageDensity({
+                        totalCurrent: {{ (int) $totalCurrent }},
+                        totalMax: {{ (int) $totalMax }},
+                        percent: {{ (int) $modalDensityPercent }},
+                        statusKey: '{{ $densityStatus['key'] ?? 'safe' }}',
+                        labels: {
+                            safe: '{{ __('Aman') }}',
+                            medium: '{{ __('Sedang') }}',
+                            full: '{{ __('Penuh') }}'
+                        }
+                    })"
+                    @density-updated.window="onDensityUpdated($event.detail)">
                     <p class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">
                         {{ __('Total Wisatawan Saat Ini') }}</p>
                     <div class="mt-1.5 flex items-baseline gap-1.5">
-                        <span class="text-3xl font-black leading-none text-gray-800">{{ $totalCurrent }}</span>
-                        <span class="text-sm font-semibold text-gray-500">/ {{ $totalMax }}
+                        <span class="text-3xl font-black leading-none text-gray-800" x-text="totalCurrent">{{ $totalCurrent }}</span>
+                        <span class="text-sm font-semibold text-gray-500">/ <span x-text="totalMax">{{ $totalMax }}</span>
                             {{ __('kapasitas total') }}</span>
                     </div>
-                    @php($modalDensityPercent = $totalMax > 0 ? round(($totalCurrent / $totalMax) * 100) : 0)
                     <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-gray-100">
                         <div class="{{ $densityStatus['barColor'] }} h-full transition-all"
-                            style="width: {{ min(100, $modalDensityPercent) }}%">
+                            :class="modalBarColor"
+                            style="width: {{ min(100, $modalDensityPercent) }}%"
+                            :style="'width: ' + clampedPercent + '%'">
                         </div>
                     </div>
                     <p class="mt-1.5 text-xs text-gray-500">
-                        {{ $modalDensityPercent }}% —
-                        <span class="{{ $densityStatus['color'] }} font-semibold">{{ __($densityStatus['label']) }}</span>
+                        <span x-text="percent">{{ $modalDensityPercent }}</span>% —
+                        <span class="{{ $densityStatus['color'] }} font-semibold" :class="modalTextColor" x-text="label">{{ __($densityStatus['label']) }}</span>
                     </p>
                 </div>
 
