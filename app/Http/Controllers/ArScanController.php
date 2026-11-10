@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\ArModel;
 use App\Models\CulturalObject;
+use App\Models\TraditionalHouse;
+use Illuminate\Http\RedirectResponse;
 
 class ArScanController extends Controller
 {
@@ -14,8 +16,13 @@ class ArScanController extends Controller
      * - CulturalObject → cultural-object page
      * - Otherwise → ar-viewer page
      */
-    public function __invoke(string $arMarkerId)
+    public function __invoke(string $arMarkerId): RedirectResponse
     {
+        $house = TraditionalHouse::published()->where('ar_marker_id', $arMarkerId)->first();
+        if ($house) {
+            return redirect()->route('houses.show', ['number' => $house->number]);
+        }
+
         $arModel = ArModel::with('culturalObject')
             ->where('ar_marker_id', $arMarkerId)
             ->first();

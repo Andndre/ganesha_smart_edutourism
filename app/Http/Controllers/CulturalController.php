@@ -14,8 +14,9 @@ class CulturalController extends Controller
     public function index(): View
     {
         $locale = app()->getLocale();
-        $objects = Cache::tags(['cultural'])->flexible("cultural_objects_all_array_v2_$locale", [3600, 7200], function () {
+        $objects = Cache::tags(['cultural'])->flexible("cultural_objects_all_array_v3_$locale", [3600, 7200], function () {
             $models = CulturalObject::with('arModel')
+                ->withCount('children')
                 ->roots()
                 ->orderBy('name->'.app()->getLocale())
                 ->get()

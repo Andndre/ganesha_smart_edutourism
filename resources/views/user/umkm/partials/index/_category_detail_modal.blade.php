@@ -1,6 +1,6 @@
 {{-- ponytail: partial dipecah untuk keterbacaan --}}
     <!-- Category Detail Modal -->
-    <x-modal name="category-detail" maxWidth="sm">
+    <x-modal name="category-detail" maxWidth="2xl">
         <!-- Close Button (Mobile only, desktop has close button in x-modal) -->
         <button type="button" onclick="closeCategoryModal()"
             class="absolute right-4 top-4 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-500 transition-all hover:text-gray-600 active:scale-95 md:hidden"
@@ -22,6 +22,8 @@
             </button>
         </div>
 
+        <div class="md:grid md:grid-cols-2 md:items-start md:gap-6">
+        <div>
         <!-- Category Image Container -->
         <div class="text-primary flex aspect-video w-full items-center justify-center overflow-hidden rounded-2xl border border-gray-100 bg-gray-50"
             id="modal-category-image-container">
@@ -60,6 +62,8 @@
             </div>
         </div>
 
+        </div>
+        <div class="md:flex md:min-h-64 md:flex-col md:justify-between">
         <!-- Content -->
         <div class="mt-4">
             <h3 id="modal-category-name" class="font-display text-charcoal text-xl font-bold">{{ __('Nama Kategori') }}</h3>
@@ -85,5 +89,7 @@
                 class="bg-primary shadow-primary/20 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-semibold text-white shadow-lg transition-transform active:scale-[0.98]">
                 {{ __('Pilih Kategori Ini') }}
             </button>
+        </div>
+        </div>
         </div>
     </x-modal>

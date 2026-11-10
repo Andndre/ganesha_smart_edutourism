@@ -24,6 +24,10 @@
         </div>
     @endif
 
+    @if($umkm->traditionalHouse)
+        <a href="{{ route('houses.show', ['number' => $umkm->traditionalHouse->number]) }}" class="tap-target mt-5 inline-flex rounded-full bg-[#eaf3ec] px-4 text-xs font-bold text-primary">{{ __('Bagian dari Pekarangan No.') }} {{ $umkm->traditionalHouse->number }} →</a>
+    @endif
+
     <!-- Inline CTA (desktop only) -->
     <div class="mt-6 hidden border-t border-gray-100 pt-6 lg:block">
         @if ($umkm->mapLocation)

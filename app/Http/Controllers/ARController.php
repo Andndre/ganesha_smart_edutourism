@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ArModel;
 use App\Models\CulturalObject;
+use App\Models\TraditionalHouse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -32,6 +33,16 @@ class ARController extends Controller
         ]);
 
         $model = null;
+
+        if ($request->filled('marker')) {
+            $house = TraditionalHouse::published()->where('ar_marker_id', $request->string('marker')->toString())->first();
+            if ($house) {
+                return response()->json([
+                    'success' => true,
+                    'redirect_url' => route('houses.show', ['number' => $house->number]),
+                ]);
+            }
+        }
 
         if ($request->filled('id')) {
             $model = ArModel::with('culturalObject')

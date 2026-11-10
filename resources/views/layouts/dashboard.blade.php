@@ -159,14 +159,14 @@
     </style>
 </head>
 
-<body class="bg-surface text-charcoal antialiased">
+<body class="v7-dashboard bg-surface text-charcoal antialiased">
 
     {{-- ============================================================
     SIDEBAR — Desktop fixed, mobile overlay
     Uses charcoal (#191A19) aligned with DESIGN.md charcoal token
     ============================================================ --}}
     <aside id="admin-sidebar"
-        class="sidebar-hidden z-40 flex h-screen w-65 flex-col border-r border-gray-100 bg-charcoal text-white shadow-xl lg:flex">
+        class="sidebar-hidden z-40 flex h-screen w-65 flex-col border-r border-white/10 bg-[#173e23] text-white shadow-xl lg:flex">
 
         {{-- Brand Header --}}
         <div class="flex items-center gap-3 border-b border-white/10 px-5 py-5">
@@ -254,6 +254,12 @@
                             'route' => 'admin.cultural-objects',
                             'icon' => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0V9a2 2 0 012-2h2a2 2 0 012 2v12m-6 0h6',
                             'label' => 'Objek Budaya'
+                        ],
+                        [
+                            'url' => route('admin.houses.index'),
+                            'route' => 'admin.houses.*',
+                            'icon' => 'M3 10 12 3l9 7v10H3V10Zm6 10v-7h6v7',
+                            'label' => 'Traditional Houses'
                         ],
                         [
                             'url' => route('admin.facilities'),

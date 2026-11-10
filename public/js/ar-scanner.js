@@ -540,7 +540,9 @@
         fetch(`/api/ar/model?${query}`)
             .then((res) => res.json())
             .then((data) => {
-                if (data.success && data.model_url) {
+                if (data.success && data.redirect_url) {
+                    window.location.assign(data.redirect_url);
+                } else if (data.success && data.model_url) {
                     showModel(
                         data.model_url,
                         data.usdz_url,
@@ -771,7 +773,7 @@
         return new URLSearchParams(window.location.search).get(name) || null;
     }
 
-    function loadModelDirect(marker) {
+    function loadModelDirect(marker, isModelId = false) {
         scannerInitialized = true; // ponytail: skip scanner, direct model load
         initBottomSheet();
 
@@ -788,14 +790,14 @@
         }
 
         const routePointId = getUrlParam("route_point_id");
-        if (routePointId) {
+        if (routePointId && !isModelId) {
             resolveEdutourismQr(marker, routePointId);
         } else {
-            fetchModelByMarker(marker);
+            fetchModelByMarker(marker, isModelId);
         }
     }
 
-    function fetchModelByMarker(marker) {
+    function fetchModelByMarker(marker, isModelId = false) {
         var loadingOverlay = document.getElementById("loading-overlay");
         var statusBadge = document.getElementById("status-badge");
 
@@ -808,10 +810,12 @@
                 window.AR_MESSAGES?.downloadingModel || "Mengunduh Model...";
         }
 
-        fetch("/api/ar/model?marker=" + encodeURIComponent(marker))
+        fetch("/api/ar/model?" + (isModelId ? "id=" : "marker=") + encodeURIComponent(marker))
             .then(function (res) { return res.json(); })
             .then(function (data) {
-                if (data.success && data.model_url) {
+                if (data.success && data.redirect_url) {
+                    window.location.assign(data.redirect_url);
+                } else if (data.success && data.model_url) {
                     showModel(
                         data.model_url,
                         data.usdz_url,
@@ -841,8 +845,11 @@
     document.addEventListener("DOMContentLoaded", function () {
         bindViewerLoading();
         var marker = getUrlParam("marker");
+        var modelId = getUrlParam("model_id");
         if (marker) {
             loadModelDirect(marker);
+        } else if (modelId) {
+            loadModelDirect(modelId, true);
         } else {
             initAr();
         }
