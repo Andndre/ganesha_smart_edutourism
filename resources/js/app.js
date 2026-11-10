@@ -2,7 +2,8 @@ import Swal from 'sweetalert2';
 import { getBalineseInfo, getMonthRahinan } from './balinese-calendar';
 
 window.Swal = Swal.mixin({
-    heightAuto: false
+    heightAuto: false,
+    confirmButtonColor: '#293518',
 });
 
 window.getBalineseInfo = getBalineseInfo;

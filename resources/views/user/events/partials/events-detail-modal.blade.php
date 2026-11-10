@@ -47,7 +47,7 @@
 
         <!-- Location Widget -->
         <div class="flex items-start gap-3 rounded-2xl border border-gray-100 bg-gray-50/70 p-3.5">
-            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-[#D4AF37]">
+            <div class="bg-accent/35 text-primary flex h-12 w-12 shrink-0 items-center justify-center rounded-xl">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -102,7 +102,7 @@
         <template x-if="selectedEvent.latitude && selectedEvent.longitude">
             <a :href="'https://www.google.com/maps/search/?api=1&query=' + selectedEvent.latitude + ',' + selectedEvent.longitude"
                 target="_blank"
-                class="bg-primary shadow-primary/10 mt-6 flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[#152E1D] active:scale-[0.98]">
+                class="bg-primary shadow-primary/10 hover:bg-primary-hover mt-6 flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all duration-200 active:scale-[0.98]">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />

@@ -31,7 +31,7 @@
 
             {{-- Avatar Section --}}
             <div class="mb-6 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
-                <h2 class="text-charcoal mb-1 text-lg font-bold" style="font-family: 'Playfair Display', serif;">
+                <h2 class="font-display text-charcoal mb-1 text-lg font-bold">
                     {{ __('Foto Profil') }}</h2>
                 <p class="mb-5 text-xs text-gray-500">{{ __('JPG, PNG, atau WebP. Maks. 2MB.') }}</p>
 
@@ -43,7 +43,7 @@
                         if (!file) return;
                         const maxSize = 2 * 1024 * 1024;
                         if (file.size > maxSize) {
-                            Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 2MB.', icon: 'warning', confirmButtonColor: '#1E5128', confirmButtonText: 'Mengerti', background: '#ffffff' });
+                            Swal.fire({ title: 'Ukuran File Terlalu Besar', text: 'Maksimal 2MB.', icon: 'warning', confirmButtonText: 'Mengerti', background: '#ffffff' });
                             event.target.value = '';
                             return;
                         }
@@ -96,7 +96,7 @@
             {{-- Profile Info Form --}}
             <div class="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
                 <div class="mb-5">
-                    <h2 class="text-charcoal mb-1 text-lg font-bold" style="font-family: 'Playfair Display', serif;">
+                    <h2 class="font-display text-charcoal mb-1 text-lg font-bold">
                         {{ __('Informasi Profil') }}</h2>
                     <p class="text-xs text-gray-500">
                         {{ __('Perbarui data diri Anda untuk kenyamanan menjelajahi Desa Penglipuran.') }}</p>
@@ -180,8 +180,7 @@
                     <hr class="border-gray-100">
 
                     <div>
-                        <h3 class="text-charcoal mb-1 text-base font-bold"
-                            style="font-family: 'Playfair Display', serif;">
+                        <h3 class="font-display text-charcoal mb-1 text-base font-bold">
                             {{ __('Ubah Kata Sandi') }}</h3>
                         <p class="text-xs text-gray-500">
                             {{ __('Kosongkan jika Anda tidak ingin mengubah kata sandi Anda.') }}</p>

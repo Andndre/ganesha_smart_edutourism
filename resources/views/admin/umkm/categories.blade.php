@@ -470,7 +470,6 @@
                     title: 'Ukuran File Terlalu Besar',
                     text: 'Maksimal 20MB.',
                     icon: 'warning',
-                    confirmButtonColor: '#1E5128',
                     confirmButtonText: 'Mengerti',
                     background: '#ffffff'
                 });
@@ -489,7 +488,6 @@
                     title: 'Ukuran File Terlalu Besar',
                     text: 'Maksimal 2MB.',
                     icon: 'warning',
-                    confirmButtonColor: '#1E5128',
                     confirmButtonText: 'Mengerti',
                     background: '#ffffff'
                 });
@@ -505,7 +503,6 @@
                     title: 'Ukuran File Terlalu Besar',
                     text: 'Maksimal 50MB.',
                     icon: 'warning',
-                    confirmButtonColor: '#1E5128',
                     confirmButtonText: 'Mengerti',
                     background: '#ffffff'
                 });

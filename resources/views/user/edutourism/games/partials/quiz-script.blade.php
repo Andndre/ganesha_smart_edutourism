@@ -76,7 +76,7 @@
                     window.confetti({
                         particleCount: 48, spread: 62, startVelocity: 34, scalar: .9, ticks: 180,
                         origin: { y: 0.65 },
-                        colors: ['#D4AF37', '#f0d97d', '#1E5128', '#4e9c6b', '#ffffff'],
+                        colors: ['#293518', '#989A4B', '#E3C994', '#ffffff'],
                     });
                 },
 

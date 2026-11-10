@@ -131,7 +131,7 @@
                     window.confetti({
                         particleCount: 36, spread: 78, startVelocity: 26, gravity: .55, decay: .93,
                         drift: .5, scalar: 1.1, ticks: 260, origin: { y: 0.55 },
-                        colors: ['#1E5128', '#4e9c6b', '#8fd19e', '#D4AF37', '#e7f3ea'],
+                        colors: ['#293518', '#989A4B', '#E3C994', '#FAF9F6'],
                     });
                 },
 

@@ -213,7 +213,7 @@
 
                 celebrate() {
                     if (typeof confetti !== 'function') return;
-                    confetti({ particleCount: 80, spread: 70, origin: { y: 0.7 }, colors: ['#1E5128', '#D4AF37', '#FAF9F6'] });
+                    confetti({ particleCount: 80, spread: 70, origin: { y: 0.7 }, colors: ['#293518', '#989A4B', '#E3C994', '#FAF9F6'] });
                 },
 
                 continueMission() {

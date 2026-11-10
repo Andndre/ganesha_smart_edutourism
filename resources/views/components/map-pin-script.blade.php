@@ -12,7 +12,7 @@
         height: 46px;
         margin: -23px 0 0 -23px;
         border-radius: 50%;
-        background: rgba(212, 175, 55, 0.45);
+        background: color-mix(in srgb, var(--color-secondary) 45%, transparent);
         animation: gse-pin-pulse 1.6s ease-out infinite;
         pointer-events: none;
     }
@@ -49,7 +49,7 @@
             facilities: '#3B82F6', // Blue — 3.7:1
             toilets: '#0E7490', // Cyan 700 — 5.4:1
             accessibility: '#B45309', // Amber 700 — 5.0:1 (not #E65100: that means "crowd alert")
-            cultural: '#1E5128' // Penglipuran Green — 9.3:1 (default)
+            cultural: '#293518' // Hijau Bambu — 12.6:1 (default)
         };
 
         // Solid silhouettes, not strokes: the glyph box is 18px at pin size, where a
@@ -140,7 +140,7 @@
 
             let inner;
             if (opts.number != null) {
-                inner = `<text x="16" y="14" text-anchor="middle" dominant-baseline="central" fill="${ink}" font-size="15" font-weight="800" font-family="'Plus Jakarta Sans', Inter, system-ui, sans-serif">${opts.number}</text>`;
+                inner = `<text x="16" y="14" text-anchor="middle" dominant-baseline="central" fill="${ink}" font-size="15" font-weight="800" font-family="Inter, system-ui, sans-serif">${opts.number}</text>`;
             } else {
                 const glyph = PLACE_GLYPHS[opts.placeType] || CATEGORY_GLYPHS[category] || CATEGORY_GLYPHS.cultural;
                 // 0.75 not 0.6667: the glyph box grows to 18px, which is what the

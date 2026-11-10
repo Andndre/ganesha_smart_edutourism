@@ -267,8 +267,7 @@ async function translateBilingualField(btn, cls) {
             window.Swal.fire({
                 icon: 'info',
                 title: 'Tidak ada teks',
-                text: 'Isi dulu tab ' + sourceLocale.toUpperCase() + ' sebelum menerjemahkan.',
-                confirmButtonColor: '#1E5128'
+                text: 'Isi dulu tab ' + sourceLocale.toUpperCase() + ' sebelum menerjemahkan.'
             });
         }
         return;
@@ -291,8 +290,7 @@ async function translateBilingualField(btn, cls) {
             window.Swal.fire({
                 icon: 'error',
                 title: 'Gagal menerjemahkan',
-                text: 'Layanan terjemahan tidak merespons. Coba lagi.',
-                confirmButtonColor: '#1E5128'
+                text: 'Layanan terjemahan tidak merespons. Coba lagi.'
             });
         }
     } finally {
@@ -318,8 +316,7 @@ async function translateMissionTitle(btn) {
             window.Swal.fire({
                 icon: 'info',
                 title: 'Tidak ada teks',
-                text: 'Isi dulu tab ' + sourceLocale.toUpperCase() + ' sebelum menerjemahkan.',
-                confirmButtonColor: '#1E5128'
+                text: 'Isi dulu tab ' + sourceLocale.toUpperCase() + ' sebelum menerjemahkan.'
             });
         }
         return;
@@ -342,8 +339,7 @@ async function translateMissionTitle(btn) {
             window.Swal.fire({
                 icon: 'error',
                 title: 'Gagal menerjemahkan',
-                text: 'Layanan terjemahan tidak merespons. Coba lagi.',
-                confirmButtonColor: '#1E5128'
+                text: 'Layanan terjemahan tidak merespons. Coba lagi.'
             });
         }
     } finally {
@@ -522,7 +518,7 @@ function uploadMissionAudio(fileInput, hiddenSelector) {
                 markMissionDirty();
             }
         })
-        .catch(() => Swal.fire({ icon: 'error', title: 'Upload audio gagal', confirmButtonColor: '#1E5128' }))
+        .catch(() => Swal.fire({ icon: 'error', title: 'Upload audio gagal' }))
         .finally(() => {
             fileInput.disabled = false;
         });
@@ -572,7 +568,7 @@ function uploadMissionAsset(fileInput, hiddenSelector) {
                 markMissionDirty();
             }
         })
-        .catch(() => Swal.fire({ icon: 'error', title: 'Upload gagal', confirmButtonColor: '#1E5128' }))
+        .catch(() => Swal.fire({ icon: 'error', title: 'Upload gagal' }))
         .finally(() => {
             fileInput.disabled = false;
         });

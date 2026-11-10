@@ -274,9 +274,9 @@
                     @endif
                     <div class="mt-3 flex flex-wrap gap-2">
                         @forelse ($featuredCultural->children->take(4) as $culturalRoom)
-                            <span class="rounded-full border border-[#ebe9e4] bg-[#faf9f6] px-3 py-1 text-[11px] text-gray-600">{{ translateValue($culturalRoom->name) }}</span>
+                            <span class="bg-surface rounded-full border border-[#ebe9e4] px-3 py-1 text-[11px] text-gray-600">{{ translateValue($culturalRoom->name) }}</span>
                         @empty
-                            <span class="rounded-full border border-[#ebe9e4] bg-[#faf9f6] px-3 py-1 text-[11px] text-gray-600">{{ __('Tri Hita Karana') }}</span>
+                            <span class="bg-surface rounded-full border border-[#ebe9e4] px-3 py-1 text-[11px] text-gray-600">{{ __('Tri Hita Karana') }}</span>
                         @endforelse
                     </div>
                 @else
@@ -305,7 +305,7 @@
                             $productPrice = $umkm['product_price'] ?? null;
                             $houseNumber = $umkm['house_number'] ?? null;
                         @endphp
-                        <a href="{{ route('umkm.store', ['id' => $umkm['id']]) }}" class="group overflow-hidden rounded-2xl border border-[#ebe9e4] bg-[#faf9f6] p-2.5 transition hover:border-[#d7dfd7] hover:shadow-sm">
+                        <a href="{{ route('umkm.store', ['id' => $umkm['id']]) }}" class="bg-surface group overflow-hidden rounded-2xl border border-[#ebe9e4] p-2.5 transition hover:border-[#d7dfd7] hover:shadow-sm">
                             @if ($productImage)
                                 <img src="{{ asset('storage/'.$productImage) }}" alt="{{ $productName }}" loading="lazy" class="aspect-[4/3] w-full rounded-xl object-cover transition duration-500 group-hover:scale-[1.02] lg:aspect-[16/8]">
                             @else

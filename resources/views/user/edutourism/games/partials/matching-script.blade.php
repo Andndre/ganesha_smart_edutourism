@@ -31,7 +31,7 @@
                  * Badge/thread colours. Deliberately dark and saturated rather than pastel:
                  * these are read in direct sunlight on the walking route.
                  */
-                palette: ['#1E5128', '#D4AF37', '#0F766E', '#7C3AED', '#C2410C', '#1D4ED8'],
+                palette: ['#293518', '#989A4B', '#0F766E', '#7C3AED', '#C2410C', '#1D4ED8'],
 
                 init() {
                     // Normalised on the component's own config, not just locally: the view reads
@@ -173,7 +173,6 @@
                         text: @js(__('Pasangan yang sudah dipilih akan diperiksa.')),
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonColor: '#1E5128',
                         cancelButtonColor: '#6b7280',
                         confirmButtonText: @js(__('Periksa Jawaban')),
                         cancelButtonText: @js(__('Batal')),
@@ -220,7 +219,6 @@
                         text: @js(__('Pilihan yang sudah dipilih akan diperiksa.')),
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonColor: '#1E5128',
                         cancelButtonColor: '#6b7280',
                         confirmButtonText: @js(__('Periksa Pilihan')),
                         cancelButtonText: @js(__('Batal')),
@@ -299,7 +297,7 @@
                                 particleCount: 90,
                                 spread: 72,
                                 origin: { y: 0.7 },
-                                colors: ['#1E5128', '#D4AF37', '#FAF9F6'],
+                                colors: ['#293518', '#989A4B', '#E3C994', '#FAF9F6'],
                             });
                         }
                         this.sfx.play('win');

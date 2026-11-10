@@ -4,16 +4,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#1E5128">
+    <meta name="theme-color" content="#293518">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title', 'Dashboard') — Penglipuran</title>
 
-    {{-- Google Fonts: Plus Jakarta Sans (UI) + Playfair Display (editorial) --}}
+    {{-- Google Fonts: Inter (Secondary Typography for UI, Body & Caption; Libertinus Sans is bundled via Vite) --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
 
@@ -73,8 +73,8 @@
     <style>
         .driver-popover.driverjs-theme {
             background-color: #ffffff !important;
-            color: #191A19 !important;
-            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            color: var(--color-charcoal) !important;
+            font-family: var(--font-sans) !important;
             border-radius: 16px !important;
             padding: 22px !important;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
@@ -83,9 +83,10 @@
         }
 
         .driver-popover.driverjs-theme .driver-popover-title {
+            font-family: var(--font-display) !important;
             font-size: 16px !important;
             font-weight: 700 !important;
-            color: #191A19 !important;
+            color: var(--color-charcoal) !important;
             margin-bottom: 6px !important;
         }
 
@@ -137,13 +138,13 @@
         /* Next / Primary button styling matching Tambah Model 3D style */
         .driver-popover.driverjs-theme .driver-popover-next-btn {
             color: #ffffff !important;
-            background-color: #1E5128 !important;
-            box-shadow: 0 4px 6px -1px rgba(30, 81, 40, 0.1), 0 2px 4px -1px rgba(30, 81, 40, 0.06) !important;
+            background-color: var(--color-primary) !important;
+            box-shadow: 0 4px 6px -1px rgba(41, 53, 24, 0.1), 0 2px 4px -1px rgba(41, 53, 24, 0.06) !important;
         }
 
         .driver-popover.driverjs-theme .driver-popover-next-btn:hover {
-            background-color: #163B1D !important;
-            box-shadow: 0 4px 8px -1px rgba(30, 81, 40, 0.2) !important;
+            background-color: var(--color-primary-hover) !important;
+            box-shadow: 0 4px 8px -1px rgba(41, 53, 24, 0.2) !important;
         }
 
         /* Close button (x) */
@@ -163,10 +164,10 @@
 
     {{-- ============================================================
     SIDEBAR — Desktop fixed, mobile overlay
-    Uses charcoal (#191A19) aligned with DESIGN.md charcoal token
+    Uses primary (#293518) aligned with DESIGN.md Hijau Bambu token
     ============================================================ --}}
     <aside id="admin-sidebar"
-        class="sidebar-hidden z-40 flex h-screen w-65 flex-col border-r border-white/10 bg-[#173e23] text-white shadow-xl lg:flex">
+        class="sidebar-hidden bg-primary z-40 flex h-screen w-65 flex-col border-r border-white/10 text-white shadow-xl lg:flex">
 
         {{-- Brand Header --}}
         <div class="flex items-center gap-3 border-b border-white/10 px-5 py-5">
@@ -615,7 +616,6 @@
                         text: message,
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonColor: '#1E5128',
                         cancelButtonColor: '#d33',
                         confirmButtonText: '{{ __('Ya, Hapus!') }}',
                         cancelButtonText: '{{ __('Batal') }}',

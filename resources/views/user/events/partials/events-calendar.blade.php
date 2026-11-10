@@ -6,7 +6,7 @@
 
     <div class="mt-4 flex flex-wrap items-center gap-4 border-t border-gray-50 pt-3 text-[11px] text-gray-500">
         <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-red-600"></span>{{ __('Purnama') }}</span>
-        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-[#191A19]"></span>{{ __('Tilem') }}</span>
+        <span class="flex items-center gap-1.5"><span class="bg-charcoal h-2 w-2 rounded-full"></span>{{ __('Tilem') }}</span>
         <span class="flex items-center gap-1.5"><span class="font-black text-red-600">15</span>{{ __('Hari Libur / Hari Raya') }}</span>
         <span class="text-gray-500">{{ __('Klik tanggal untuk lihat detail') }}</span>
     </div>

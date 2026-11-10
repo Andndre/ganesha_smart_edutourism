@@ -6,13 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('code') - Penglipuran Smart Tour</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
         rel="stylesheet">
+    @vite(['resources/css/app.css'])
     <style>
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #FAF9F6;
-            color: #191A19;
+            font-family: var(--font-sans, 'Inter', sans-serif);
+            background: var(--color-surface, #FAF9F6);
+            color: var(--color-charcoal, #191A19);
             margin: 0;
             min-height: 100vh;
             display: flex;
@@ -29,13 +30,15 @@
         }
 
         .code {
+            font-family: var(--font-display, 'Libertinus Sans', sans-serif);
             font-size: 4rem;
-            font-weight: 800;
-            color: #1E5128;
+            font-weight: 700;
+            color: var(--color-primary, #293518);
             line-height: 1;
         }
 
         h1 {
+            font-family: var(--font-display, 'Libertinus Sans', sans-serif);
             font-size: 1.25rem;
             font-weight: 700;
             margin: .75rem 0 .5rem;
@@ -50,7 +53,7 @@
 
         a.btn {
             display: inline-block;
-            background: #1E5128;
+            background: var(--color-primary, #293518);
             color: #fff;
             text-decoration: none;
             font-weight: 600;

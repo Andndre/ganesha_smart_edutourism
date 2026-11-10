@@ -223,8 +223,8 @@
 
                 // Gradient fill
                 const grad = ctx.createLinearGradient(0, y, 0, padT + chartH);
-                grad.addColorStop(0, '#1e5128');
-                grad.addColorStop(1, '#1e512840');
+                grad.addColorStop(0, '#293518');
+                grad.addColorStop(1, '#29351840');
                 ctx.fillStyle = grad;
 
                 // Rounded top
@@ -242,13 +242,13 @@
 
                 // Label
                 ctx.fillStyle = '#9ca3af';
-                ctx.font = '11px Plus Jakarta Sans, sans-serif';
+                ctx.font = '11px Inter, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText(labels[i], x + barW / 2, H - 8);
 
                 // Value on top of bar
                 ctx.fillStyle = '#191a19';
-                ctx.font = 'bold 10px Plus Jakarta Sans, sans-serif';
+                ctx.font = 'bold 10px Inter, sans-serif';
                 ctx.fillText(val, x + barW / 2, y - 4);
             });
         })();

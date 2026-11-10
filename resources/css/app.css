@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "@fontsource/libertinus-sans/400.css";
+@import "@fontsource/libertinus-sans/700.css";
 @import "@fortawesome/fontawesome-free/css/all.min.css";
 @import "sweetalert2/dist/sweetalert2.min.css";
 
@@ -9,62 +11,72 @@
 
 /* ===========================================
    PENGLIPURAN SUPER APP DESIGN SYSTEM
+   (Updated per Dewi Penglipuran Visual Guideline)
    =========================================== */
 
 @theme {
-    /* Fonts */
-    --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-    --font-display: "Playfair Display", ui-serif, Georgia, serif;
+    /* Fonts — Guideline 4.1 (Primary: Libertinus Sans) & 4.2 (Secondary: Inter) */
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Libertinus Sans", ui-sans-serif, system-ui, sans-serif;
 
-    /* Base Brand Colors */
-    --color-primary: #1e5128;
-    /* Penglipuran Green */
-    --color-secondary: #d4af37;
-    /* Bali Gold */
-    --color-accent: #d4af37;
-    /* Bali Gold */
+    /* Base Brand Colors — Guideline 3.1 Color & Proportion */
+    --color-primary: #293518;
+    /* Hijau Bambu (60% Dominant Brand) */
+    --color-primary-hover: #1b2410;
+    /* Darker Hijau Bambu for hover/active states */
+    --color-secondary: #989a4b;
+    /* Hijau Olive (30% Secondary Brand) */
+    --color-accent: #e3c994;
+    /* Bilah Bambu (10% Accent Brand) */
     --color-surface: #faf9f6;
-    /* Off-White Clean */
+    /* Clean Off-White Canvas (Outdoor Readability) */
     --color-charcoal: #191a19;
-    /* High-contrast text */
+    /* Abu Batu / High-contrast text */
     --color-warning: #e65100;
     /* Alert Amber */
-    --color-success: #1e5128;
+    --color-success: #293518;
 
-    /* Primary Colors - Scale */
-    --color-primary-50: oklch(0.95 0.02 160);
-    --color-primary-100: oklch(0.9 0.05 160);
-    --color-primary-500: oklch(0.5 0.18 160);
-    --color-primary-600: oklch(0.42 0.16 160);
-    --color-primary-900: oklch(0.2 0.1 160);
+    /* Primary Colors - Scale (Hue ~115 aligned to Hijau Bambu #293518) */
+    --color-primary-50: oklch(0.96 0.02 115);
+    --color-primary-100: oklch(0.91 0.04 115);
+    --color-primary-500: oklch(0.52 0.11 115);
+    --color-primary-600: oklch(0.42 0.09 115);
+    --color-primary-900: oklch(0.25 0.05 115);
 
-    /* Typography Scale */
-    --text-display: 2rem;
+    /* Typography Scale — Guideline 4.3 Hierarchy System */
+    --text-display: 2.1875rem;
+    /* 35pt / 35px Headline */
     --text-headline: 1.5rem;
+    /* 24pt / 24px SubHeadline */
     --text-title: 1.25rem;
     --text-body-lg: 1.125rem;
     --text-body: 1rem;
+    /* 16pt / 16px Body Text */
     --text-label: 0.875rem;
     --text-caption: 0.75rem;
+    /* 12pt / 12px Caption */
 }
 
 /* FigCraft v7 shared surfaces across public and role dashboards. */
 @layer base {
     :root { color-scheme: light; }
-    body { color: #191a19; }
-    :focus-visible { outline: 3px solid #d4af37; outline-offset: 3px; }
+    body {
+        color: var(--color-charcoal);
+        font-family: var(--font-sans);
+    }
+    :focus-visible { outline: 3px solid var(--color-secondary); outline-offset: 3px; }
 }
 
 @layer components {
-    .v7-public #main-content { background: #faf9f6; }
+    .v7-public #main-content { background: var(--color-surface); }
     .v7-public :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]) {
         border-radius: 0.75rem;
     }
     .v7-public :is(button, a) { -webkit-tap-highlight-color: transparent; }
-    .v7-dashboard #admin-main { background: #faf9f6; }
+    .v7-dashboard #admin-main { background: var(--color-surface); }
     .v7-dashboard #admin-main :is(.bg-white, .bg-gray-50) { border-radius: 1rem; }
     .v7-dashboard #admin-main :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]) { border-radius: 0.75rem; }
-    .v7-auth #main-content { background: #faf9f6; }
+    .v7-auth #main-content { background: var(--color-surface); }
     .v7-auth :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]) { border-radius: 0.75rem; }
 }
 
@@ -136,6 +148,12 @@
     .swal2-actions button {
         @apply rounded-xl! px-6! py-2.5! font-semibold! text-sm!;
     }
+    .swal2-confirm {
+        background-color: var(--color-primary) !important;
+    }
+    .swal2-confirm:hover {
+        background-color: var(--color-primary-hover) !important;
+    }
 }
 
 /* ===========================================
@@ -144,7 +162,7 @@
 .prose strong,
 .prose b {
     font-weight: 700 !important;
-    color: #191a19 !important;
+    color: var(--color-charcoal) !important;
 }
 .prose em,
 .prose i {
@@ -176,6 +194,7 @@
 .prose h2,
 .prose h3,
 .prose h4 {
+    font-family: var(--font-display);
     font-weight: 700 !important;
     margin-top: 1.5rem !important;
     margin-bottom: 0.75rem !important;
@@ -183,9 +202,9 @@
 
 /* Tiptap active button styles */
 .tiptap-btn-active {
-    background-color: rgba(30, 81, 40, 0.1) !important;
-    color: #1e5128 !important;
-    border-color: rgba(30, 81, 40, 0.2) !important;
+    background-color: color-mix(in srgb, var(--color-primary) 10%, transparent) !important;
+    color: var(--color-primary) !important;
+    border-color: color-mix(in srgb, var(--color-primary) 20%, transparent) !important;
 }
 
 /* ===========================================
@@ -202,7 +221,7 @@ input[type="range"]::-webkit-slider-thumb {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #1e5128 !important; /* Brand Penglipuran Green */
+    background: var(--color-primary) !important;
     cursor: pointer;
     border: 2px solid #ffffff;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
@@ -218,14 +237,14 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 input[type="range"]::-webkit-slider-thumb:active {
     transform: scale(0.95);
-    background: #14351a !important;
+    background: var(--color-primary-hover) !important;
 }
 
 input[type="range"]::-moz-range-thumb {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #1e5128 !important;
+    background: var(--color-primary) !important;
     cursor: pointer;
     border: 2px solid #ffffff;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
@@ -240,7 +259,7 @@ input[type="range"]::-moz-range-thumb:hover {
 
 input[type="range"]::-moz-range-thumb:active {
     transform: scale(0.95);
-    background: #14351a !important;
+    background: var(--color-primary-hover) !important;
 }
 
 /* Webkit track adjustment to center the thumb */
@@ -273,8 +292,8 @@ input[type="checkbox"] {
 
 /* Checked state */
 input[type="checkbox"]:checked {
-    background-color: #1e5128 !important; /* Brand Primary: Penglipuran Green */
-    border-color: #1e5128 !important;
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
 }
 
 /* Custom CSS checkmark vector */
@@ -295,11 +314,11 @@ input[type="checkbox"]:checked::after {
 
 /* Hover & Focus states */
 input[type="checkbox"]:hover {
-    border-color: #1e5128;
+    border-color: var(--color-primary);
 }
 
 input[type="checkbox"]:focus-visible {
-    box-shadow: 0 0 0 2px rgba(30, 81, 40, 0.2);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 20%, transparent);
 }
 
 /* ===========================================
@@ -344,7 +363,7 @@ input[type="checkbox"]:focus-visible {
 }
 
 .leaflet-control-attribution a {
-    color: #1e5128;
+    color: var(--color-primary);
 }
 
 /* Hilangkan efek outline saat klik marker */
@@ -377,7 +396,7 @@ input[type="checkbox"]:focus-visible {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: rgba(30, 81, 40, 0.3);
+    background: color-mix(in srgb, var(--color-primary) 30%, transparent);
     animation: pulse 2s infinite;
     pointer-events: none;
     z-index: 499;
@@ -397,23 +416,23 @@ input[type="checkbox"]:focus-visible {
 
 /* FAB Active State */
 .fab-btn-active {
-    background: #1e5128 !important;
+    background: var(--color-primary) !important;
     color: white !important;
 }
 
 /* Toggle lapisan di modal Jenis Peta: baris lebar, jadi hijau pekat ala FAB bundar
    terlalu berat. Statusnya ditandai ikon terisi + label teks, bukan warna saja. */
 .map-layer-toggle.fab-btn-active {
-    background: rgba(30, 81, 40, 0.06) !important;
+    background: color-mix(in srgb, var(--color-primary) 6%, transparent) !important;
     color: inherit !important;
-    border-color: rgba(30, 81, 40, 0.3);
+    border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
 }
 
 .map-layer-toggle[aria-pressed='true'] .map-layer-icon {
-    background: #1e5128;
+    background: var(--color-primary);
     color: #fff;
 }
 
 .map-layer-toggle[aria-pressed='true'] .map-layer-state {
-    color: #1e5128;
+    color: var(--color-primary);
 }

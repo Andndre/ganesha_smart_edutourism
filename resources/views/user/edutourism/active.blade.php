@@ -416,15 +416,15 @@
 
                     @if ($activeSession->badge_awarded)
                         <div
-                            class="quiz-success-icon mb-6 rounded-2xl border border-[#D4AF37]/40 bg-gradient-to-b from-amber-50 to-white p-5 shadow-sm">
+                            class="quiz-success-icon border-secondary/40 from-accent/25 mb-6 rounded-2xl border bg-gradient-to-b to-white p-5 shadow-sm">
                             <div
-                                class="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-[#D4AF37]/15 text-[#B8962E]">
+                                class="bg-accent/35 text-primary mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full">
                                 <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M5 3h14v2h2v4a4 4 0 01-3.42 3.96A6.01 6.01 0 0113 16.92V19h3v2H8v-2h3v-2.08a6.01 6.01 0 01-4.58-3.96A4 4 0 013 9V5h2V3zm0 4v2a2 2 0 001.18 1.82A8.2 8.2 0 016 9V7H5zm14 0h-1v2c0 .61-.06 1.22-.18 1.82A2 2 0 0019 9V7z" />
                                 </svg>
                             </div>
-                            <p class="text-[11px] font-bold uppercase tracking-widest text-[#B8962E]">
+                            <p class="text-primary text-[11px] font-bold uppercase tracking-widest">
                                 {{ __('Predikat Diraih') }}</p>
                             <p class="font-display text-charcoal mt-1 text-xl font-black">
                                 {{ $activeSession->badge_awarded }}</p>
@@ -479,7 +479,7 @@
         @endforeach
 
         <div x-data="missionRunner(@js($pointMissions->map(fn($m) => ['id' => $m->id])->values()), @js($completedMissionIds))" x-show="open" x-cloak @open-mission-runner.window="openRunner()"
-            @mission-complete="onMissionComplete($event.detail)" class="fixed inset-0 z-[60] flex flex-col bg-[#FAF9F6]">
+            @mission-complete="onMissionComplete($event.detail)" class="bg-surface fixed inset-0 z-[60] flex flex-col">
             <div
                 class="flex items-center gap-3 border-b border-gray-100 bg-white p-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
                 <button type="button" @click="open = false; $dispatch('close-mission-runner')"
@@ -630,8 +630,7 @@
                             Swal.fire({
                                 title: "{{ __('Oops!') }}",
                                 text: "{{ __('Gagal menyimpan progres misi.') }}",
-                                icon: 'error',
-                                confirmButtonColor: '#1E5128'
+                                icon: 'error'
                             });
                         });
                 },
@@ -987,7 +986,6 @@
                                         title: "{{ __('Info') }}",
                                         text: "{{ __('Rute berlanjut...') }}",
                                         icon: 'info',
-                                        confirmButtonColor: '#1E5128',
                                         confirmButtonText: "{{ __('Lanjut') }}"
                                     }).then(() => {
                                         window.location.reload();
@@ -1002,8 +1000,7 @@
                                 Swal.fire({
                                     title: "{{ __('Oops!') }}",
                                     text: "{{ __('Gagal memuat titik.') }}",
-                                    icon: 'error',
-                                    confirmButtonColor: '#1E5128'
+                                    icon: 'error'
                                 });
                             });
                     }
@@ -1051,8 +1048,7 @@
                                     Swal.fire({
                                         title: "{{ __('Oops!') }}",
                                         text: "{{ __('Gagal menghentikan rute.') }}",
-                                        icon: 'error',
-                                        confirmButtonColor: '#1E5128'
+                                        icon: 'error'
                                     });
                                 });
                         });

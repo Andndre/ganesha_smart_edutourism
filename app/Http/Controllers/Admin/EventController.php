@@ -232,8 +232,8 @@ class EventController extends Controller
                 'edit_url' => route('admin.events.edit', $event->id),
                 'delete_action' => route('admin.events.destroy', $event->id),
                 'color' => match ($event->category) {
-                    'ceremony' => '#D4AF37',
-                    'cultural' => '#1E5128',
+                    'ceremony' => '#989A4B',
+                    'cultural' => '#293518',
                     'workshop' => '#1A365D',
                     'culinary' => '#C53030',
                     default => '#4A5568'

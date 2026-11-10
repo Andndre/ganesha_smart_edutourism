@@ -89,8 +89,8 @@ class EventController extends Controller
                         'price' => $event->is_free ? __('Gratis') : 'Rp '.number_format($event->price, 0, ',', '.'),
                         'max_participants' => $event->max_participants ?? '-',
                         'color' => match ($event->category) {
-                            'ceremony' => '#D4AF37',
-                            'cultural' => '#1E5128',
+                            'ceremony' => '#989A4B',
+                            'cultural' => '#293518',
                             'workshop' => '#1A365D',
                             'culinary' => '#C53030',
                             default => '#4A5568'

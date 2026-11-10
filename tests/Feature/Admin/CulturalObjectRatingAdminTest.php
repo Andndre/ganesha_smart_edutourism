@@ -165,7 +165,7 @@ class CulturalObjectRatingAdminTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.cultural-object-ratings'));
 
         $response->assertOk();
-        $response->assertSee('text-[#D4AF37]', false);
+        $response->assertSee('text-secondary', false);
         $response->assertDontSee('★');
     }
 }

@@ -339,8 +339,8 @@ $model->name = 'Nama Indonesia';
 ### Frontend Conventions
 
 - Mobile-first, outdoor-readable design. See `DESIGN.md` for the full visual system.
-- Tailwind v4 theme variables in `resources/css/app.css` define `--color-primary` (#1E5128), `--color-secondary` (#D4AF37), etc.
-- Use `Playfair Display` **only** for cultural/editorial headlines; UI text uses `Plus Jakarta Sans` / `Inter`.
+- Tailwind v4 theme variables in `resources/css/app.css` define `--color-primary` (#293518 Hijau Bambu), `--color-secondary` (#989A4B Hijau Olive), `--color-accent` (#E3C994 Bilah Bambu), `--color-charcoal` (#191A19 Abu Batu), and `--color-surface` (#FAF9F6). Do not hardcode hex values in Blade templates; always use Tailwind theme classes (`bg-primary`, `text-primary`, `bg-secondary`, `bg-accent`, `text-charcoal`, etc.) or CSS custom properties (`var(--color-primary)`).
+- Use `Libertinus Sans` (`font-display` / `--font-display`, bundled via `@fontsource/libertinus-sans`) for headlines & sub-headlines; UI, body text, and captions use `Inter` (`font-sans` / `--font-sans`).
 - Minimum tap target: `44px × 44px` (the project defines `.tap-target`).
 - Use skeleton loading (pulse) instead of spinners.
 - Use bottom sheets instead of full-page modals for short details.

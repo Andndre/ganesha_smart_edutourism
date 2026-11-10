@@ -175,8 +175,8 @@
         ctx.lineTo(padL, padT + chartH);
         ctx.closePath();
         const grad = ctx.createLinearGradient(0, padT, 0, padT + chartH);
-        grad.addColorStop(0, '#1e512830');
-        grad.addColorStop(1, '#1e512800');
+        grad.addColorStop(0, '#29351830');
+        grad.addColorStop(1, '#29351800');
         ctx.fillStyle = grad;
         ctx.fill();
 
@@ -187,13 +187,13 @@
             const y = padT + chartH - (v / max) * chartH;
             i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
         });
-        ctx.strokeStyle = '#1e5128';
+        ctx.strokeStyle = '#293518';
         ctx.lineWidth = 2;
         ctx.stroke();
 
         // X labels (every 7 days)
         ctx.fillStyle = '#9ca3af';
-        ctx.font = '10px Plus Jakarta Sans, sans-serif';
+        ctx.font = '10px Inter, sans-serif';
         ctx.textAlign = 'center';
         const selectedPeriod = "{{ $selectedPeriod }}";
         const labelSuffix = selectedPeriod.split(' ')[0] || 'Mei';

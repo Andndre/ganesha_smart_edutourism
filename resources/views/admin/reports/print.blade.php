@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan {{ $selectedPeriod }} — Ganesha Smart Edutourism</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css'])
     <style>
         * {
             margin: 0;
@@ -14,9 +17,9 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-            color: #191A19;
-            background: #FAF9F6;
+            font-family: var(--font-sans, 'Inter', sans-serif);
+            color: var(--color-charcoal, #191A19);
+            background: var(--color-surface, #FAF9F6);
             padding: 20px;
             line-height: 1.6;
         }
@@ -53,7 +56,7 @@
 
         .btn-secondary {
             background: #E8E8E8;
-            color: #191A19;
+            color: var(--color-charcoal, #191A19);
         }
 
         .btn-secondary:hover {
@@ -61,12 +64,12 @@
         }
 
         .btn-primary {
-            background: #1E5128;
+            background: var(--color-primary, #293518);
             color: white;
         }
 
         .btn-primary:hover {
-            background: #153d1f;
+            background: var(--color-primary-hover, #1b2410);
         }
 
         .report-content {
@@ -76,14 +79,15 @@
         .header {
             text-align: center;
             margin-bottom: 40px;
-            border-bottom: 2px solid #1E5128;
+            border-bottom: 2px solid var(--color-primary, #293518);
             padding-bottom: 24px;
         }
 
         .logo-text {
+            font-family: var(--font-display, 'Libertinus Sans', sans-serif);
             font-size: 28px;
             font-weight: 700;
-            color: #1E5128;
+            color: var(--color-primary, #293518);
             margin-bottom: 4px;
         }
 
@@ -94,9 +98,10 @@
         }
 
         .report-title {
+            font-family: var(--font-display, 'Libertinus Sans', sans-serif);
             font-size: 20px;
-            font-weight: 600;
-            color: #191A19;
+            font-weight: 700;
+            color: var(--color-charcoal, #191A19);
             margin-bottom: 8px;
         }
 
@@ -136,7 +141,7 @@
         .kpi-value {
             font-size: 32px;
             font-weight: 700;
-            color: #1E5128;
+            color: var(--color-primary, #293518);
             margin-bottom: 8px;
         }
 
@@ -158,12 +163,13 @@
         }
 
         .section-title {
+            font-family: var(--font-display, 'Libertinus Sans', sans-serif);
             font-size: 16px;
-            font-weight: 600;
-            color: #1E5128;
+            font-weight: 700;
+            color: var(--color-primary, #293518);
             margin-bottom: 16px;
             padding-bottom: 8px;
-            border-bottom: 2px solid #D4AF37;
+            border-bottom: 2px solid var(--color-secondary, #989A4B);
             display: inline-block;
         }
 
@@ -176,14 +182,14 @@
 
         .table thead {
             background: #F5F5F5;
-            border-bottom: 2px solid #1E5128;
+            border-bottom: 2px solid var(--color-primary, #293518);
         }
 
         .table th {
             padding: 12px;
             text-align: left;
             font-weight: 600;
-            color: #191A19;
+            color: var(--color-charcoal, #191A19);
         }
 
         .table td {
@@ -206,7 +212,7 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #1E5128 0%, #2A7A3F 100%);
+            background: linear-gradient(90deg, var(--color-primary, #293518) 0%, var(--color-secondary, #989A4B) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -217,7 +223,7 @@
 
         .amount-text {
             font-weight: 600;
-            color: #1E5128;
+            color: var(--color-primary, #293518);
         }
 
         .pct-text {

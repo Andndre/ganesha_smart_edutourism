@@ -25,7 +25,7 @@
                 <input type="checkbox" id="filter-cultural" checked
                     class="rounded border-gray-300 text-primary focus:ring-primary h-4.5 w-4.5"
                     onchange="filterMarkers()">
-                <span class="h-3.5 w-3.5 rounded-full" style="background-color: #1E5128"></span>
+                <span class="bg-primary h-3.5 w-3.5 rounded-full"></span>
                 <span class="text-xs font-semibold text-gray-700">Objek Budaya (<span
                         id="count-cultural">0</span>)</span>
             </label>

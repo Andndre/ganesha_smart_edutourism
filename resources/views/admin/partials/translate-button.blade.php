@@ -119,8 +119,7 @@
             await Swal.fire({
                 icon: 'info',
                 title: 'Tidak ada teks',
-                text: 'Isi dulu tab ' + source.toUpperCase() + ' sebelum menerjemahkan.',
-                confirmButtonColor: '#1E5128'
+                text: 'Isi dulu tab ' + source.toUpperCase() + ' sebelum menerjemahkan.'
             });
             return;
         }
@@ -143,8 +142,7 @@
             await Swal.fire({
                 icon: 'error',
                 title: 'Gagal menerjemahkan',
-                text: 'Layanan terjemahan tidak merespons. Coba lagi.',
-                confirmButtonColor: '#1E5128'
+                text: 'Layanan terjemahan tidak merespons. Coba lagi.'
             });
         } finally {
             btn.disabled = false;

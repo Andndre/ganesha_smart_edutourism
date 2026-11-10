@@ -116,7 +116,7 @@
                         {{-- CTA --}}
                         <button
                             @click="@auth $dispatch('open-route-preview-modal'); fetchRoutePreview({{ $route['id'] }}) @else $dispatch('open-save-progress-confirm-modal'); window.pendingRouteId = {{ $route['id'] }} @endauth; if (navigator.vibrate) navigator.vibrate(40)"
-                            class="relative mt-6 w-full rounded-2xl py-3.5 text-center text-sm font-bold shadow-sm transition-all active:scale-95 {{ $isCompleted ? 'border-2 border-emerald-600 bg-white text-emerald-700 hover:bg-emerald-50' : 'border-2 border-[#1E5128] bg-white text-[#1E5128] hover:bg-emerald-50' }}">
+                            class="relative mt-6 w-full rounded-2xl py-3.5 text-center text-sm font-bold shadow-sm transition-all active:scale-95 {{ $isCompleted ? 'border-2 border-emerald-600 bg-white text-emerald-700 hover:bg-emerald-50' : 'border-primary text-primary hover:bg-primary-50 border-2 bg-white' }}">
                             {{ $isCompleted ? __('Ulangi Eksplorasi') : __('Mulai Jelajah') }}
                         </button>
                     </article>
@@ -185,7 +185,7 @@
                 <form id="start-route-form" method="POST" action="">
                     @csrf
                     <button type="button" onclick="startRoute()" id="btn-start-route" disabled
-                        class="tap-target mt-2 w-full rounded-2xl bg-[#1E5128] py-4 text-center text-sm font-bold text-white shadow-lg shadow-emerald-900/10 transition-all active:scale-95 disabled:opacity-50">
+                        class="tap-target bg-primary shadow-primary/10 mt-2 w-full rounded-2xl py-4 text-center text-sm font-bold text-white shadow-lg transition-all active:scale-95 disabled:opacity-50">
                         {{ __('Mulai Eksplorasi') }}
                     </button>
                 </form>
@@ -213,7 +213,7 @@
 
                 <div class="space-y-3 pt-2">
                     <a href="{{ route('login') }}?redirect={{ urlencode(route('edutourism.index')) }}"
-                        class="tap-target block w-full rounded-2xl bg-[#1E5128] py-3.5 text-center text-sm font-bold text-white shadow-md transition-all hover:bg-[#152E1D] active:scale-95">
+                        class="tap-target bg-primary hover:bg-primary-hover block w-full rounded-2xl py-3.5 text-center text-sm font-bold text-white shadow-md transition-all active:scale-95">
                         {{ __('Masuk & Simpan') }}
                     </a>
                     <button type="button" onclick="continueAsGuest()"
