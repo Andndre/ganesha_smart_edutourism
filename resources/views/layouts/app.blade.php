@@ -93,9 +93,9 @@
     @stack('head-scripts')
 </head>
 
-<body class="flex h-full w-full items-center justify-center overflow-hidden bg-gray-50 antialiased">
+<body class="v7-public flex h-full w-full items-center justify-center overflow-hidden bg-surface antialiased">
 
-    <div class="text-charcoal relative flex h-full w-full flex-col overflow-hidden bg-slate-50 md:flex-row-reverse"
+    <div class="text-charcoal relative flex h-full w-full flex-col overflow-hidden bg-surface md:flex-row-reverse"
         style="transform: translateZ(0);">
 
         <!-- Content Area Wrapper -->
@@ -195,7 +195,7 @@
 
         </div> <!-- End of Content Area Wrapper -->
 
-        @if ($isMainTab)
+        @if ($isMainTab || Route::is('houses.*', 'cultural-objects', 'packages-tickets', 'events'))
             @include('components.navigation.bottom-nav')
         @endif
 

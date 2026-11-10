@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TicketOfficerController;
 use App\Http\Controllers\Admin\TicketRateController;
 use App\Http\Controllers\Admin\TourRouteController;
+use App\Http\Controllers\Admin\TraditionalHouseController as AdminTraditionalHouseController;
 use App\Http\Controllers\Admin\UmkmCategoryController;
 use App\Http\Controllers\Admin\UmkmController;
 use App\Http\Controllers\Api\RoutingController;
@@ -41,6 +42,7 @@ use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\SmartEdutourismController;
 use App\Http\Controllers\Staff\TicketScanController;
 use App\Http\Controllers\TicketPackageController;
+use App\Http\Controllers\TraditionalHouseController;
 use App\Http\Controllers\TranslateController;
 use App\Http\Controllers\UmkmCatalogController;
 use App\Http\Controllers\UmkmReviewController;
@@ -93,6 +95,9 @@ Route::middleware(['redirect.admin', 'track.visit'])->group(function () {
     // Cultural Objects
     Route::get('/cultural', [CulturalController::class, 'index'])->name('cultural-objects');
     Route::get('/cultural/{slug}', [CulturalController::class, 'show'])->name('cultural-object');
+
+    Route::get('/rumah-adat', [TraditionalHouseController::class, 'index'])->name('houses.index');
+    Route::get('/rumah-adat/{number}', [TraditionalHouseController::class, 'show'])->whereNumber('number')->name('houses.show');
 
     // Events
     Route::get('/events', [PublicEventController::class, 'index'])->name('events');
@@ -179,6 +184,7 @@ Route::prefix('admin')->middleware(['auth', 'admin.viewer'])->group(function () 
     Route::delete('/capacity/{id}', [CapacityController::class, 'destroy'])->name('admin.capacity.destroy');
 
     // Cultural Object Routes
+    Route::resource('houses', AdminTraditionalHouseController::class)->except('show')->names('admin.houses');
     Route::get('/cultural-objects', [CulturalObjectController::class, 'index'])->name('admin.cultural-objects');
     Route::get('/cultural-objects/create', [CulturalObjectController::class, 'create'])->name('admin.cultural-objects.create');
     Route::get('/cultural-objects/{id}/edit', [CulturalObjectController::class, 'edit'])->name('admin.cultural-objects.edit');

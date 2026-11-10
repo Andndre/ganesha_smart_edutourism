@@ -3,7 +3,7 @@
 @section('header_title', __('Paket & Tiket'))
 
 @section('content')
-<div class="px-4 py-6 md:px-8 md:py-8 lg:px-12" x-data="{
+<div class="mx-auto max-w-7xl px-4 py-6 md:px-8 lg:px-12" x-data="{
     tab: '{{ $activeTab === 'tickets' ? 'tickets' : 'packages' }}',
     selectedPkgIndex: 0,
     packages: {{ Js::from($packages) }}
@@ -35,7 +35,7 @@
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
-                <span>{{ __('Paket Eduwisata') }} (3)</span>
+                <span>{{ __('Paket Eduwisata') }} ({{ count($packages) }})</span>
             </button>
             <button type="button"
                 @click="tab = 'tickets'"

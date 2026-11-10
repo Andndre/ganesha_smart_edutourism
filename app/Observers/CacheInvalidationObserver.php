@@ -10,6 +10,7 @@ use App\Models\Facility;
 use App\Models\MapLocation;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
+use App\Models\TraditionalHouse;
 use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use Illuminate\Database\Eloquent\Model;
@@ -40,7 +41,7 @@ class CacheInvalidationObserver
     {
         if ($model instanceof CapacityZone) {
             Cache::tags(['capacity'])->flush();
-        } elseif ($model instanceof CulturalObject) {
+        } elseif ($model instanceof CulturalObject || $model instanceof TraditionalHouse) {
             Cache::tags(['cultural', 'explore'])->flush();
         } elseif ($model instanceof Event) {
             Cache::tags(['events'])->flush();

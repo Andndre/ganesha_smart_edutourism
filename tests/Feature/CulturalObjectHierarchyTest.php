@@ -43,6 +43,20 @@ class CulturalObjectHierarchyTest extends TestCase
         $this->assertNotContains('tungku', $slugs);
     }
 
+    public function test_cultural_index_uses_real_child_counts_for_the_complex_tab(): void
+    {
+        $paon = $this->make('Paon');
+        $this->make('Tungku', ['parent_id' => $paon->id]);
+        $this->make('Pura Desa');
+
+        $response = $this->get('/cultural')->assertOk()
+            ->assertSee('Kompleks Induk (1)')
+            ->assertSee('Tri Hita Karana');
+
+        $complex = collect($response->viewData('objects'))->firstWhere('slug', $paon->slug);
+        $this->assertSame(1, $complex['children_count']);
+    }
+
     public function test_parent_page_lists_its_children(): void
     {
         $paon = $this->make('Paon');

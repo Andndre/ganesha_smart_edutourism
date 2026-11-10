@@ -4,18 +4,15 @@
         @foreach ($umkmList as $umkm)
             <a href="{{ route('umkm.store', $umkm->id) }}"
                 class="relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:border-gray-200 hover:shadow-md active:scale-[0.98]">
-                <div class="relative aspect-video bg-gray-100">
-                    @php
-                        $coverPath = optional($umkm)->image_path ?: 'images/packages/kuliner-paon.webp';
-                        $coverUrl = \Illuminate\Support\Str::startsWith($coverPath, 'images/') ? asset($coverPath) : asset('storage/' . $coverPath);
-                    @endphp
-                    <img src="{{ $coverUrl }}" alt="{{ $umkm->business_name }}"
-                        loading="lazy" decoding="async"
-                        class="h-full w-full object-cover"
-                        onerror="this.src='{{ asset('images/packages/kuliner-paon.webp') }}'">
+                <div class="relative aspect-video bg-[#eaf3ec]">
+                    @if($umkm->image_path)
+                        <img src="{{ asset('storage/'.$umkm->image_path) }}" alt="{{ $umkm->business_name }}" loading="lazy" decoding="async" class="h-full w-full object-cover" onerror="this.classList.add('hidden'); this.nextElementSibling.style.display='flex'">
+                    @endif
+                    <div class="absolute inset-0 flex items-center justify-center text-primary/60" @if($umkm->image_path) style="display:none" @endif><svg class="h-11 w-11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 9h16l-1 11H5L4 9Zm2-5h12l2 5H4l2-5Zm4 5v4a2 2 0 0 0 4 0V9"/></svg></div>
                 </div>
 
                 <div class="flex-1 p-3">
+                    @if($umkm->traditionalHouse)<p class="mb-1 text-[10px] font-bold uppercase tracking-wider text-primary">{{ __('Pekarangan No.') }} {{ $umkm->traditionalHouse->number }}</p>@endif
                     <h3 class="text-charcoal wrap-break-word line-clamp-2 text-sm font-bold">{{ $umkm->business_name }}
                     </h3>
                     @if ($umkm->user)

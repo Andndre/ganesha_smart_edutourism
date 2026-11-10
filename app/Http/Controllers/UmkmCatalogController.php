@@ -24,21 +24,24 @@ class UmkmCatalogController extends Controller
         $culinaryOnly = $request->boolean('culinary');
 
         $umkmListQuery = UmkmProfile::active()
-            ->with(['mapLocation', 'activeProducts.category', 'activeProducts.activeVariants', 'user'])
+            ->with(['mapLocation', 'activeProducts.category', 'activeProducts.activeVariants', 'user', 'traditionalHouse' => fn ($query) => $query->published()])
             ->withCount('reviews')->withAvg('reviews', 'rating');
 
         if ($culinaryOnly) {
             $umkmListQuery->whereHas('activeProducts.category', fn ($query) => $query->where('is_culinary', true));
         }
 
-        if (mb_strlen($q) >= 2) {
+        if (mb_strlen($q) >= 2 || ctype_digit($q)) {
             $likePattern = '%'.addcslashes($q, '%_').'%';
 
-            $umkmListQuery->where(function ($query) use ($likePattern, $locale) {
+            $umkmListQuery->where(function ($query) use ($likePattern, $locale, $q) {
                 $query->whereRaw("business_name->>'$.\"{$locale}\"' LIKE ?", [$likePattern])
                     ->orWhereHas('activeProducts', function ($productQuery) use ($likePattern, $locale) {
                         $productQuery->whereRaw("name->>'$.\"{$locale}\"' LIKE ?", [$likePattern]);
                     });
+                if (ctype_digit($q)) {
+                    $query->orWhereHas('traditionalHouse', fn ($houses) => $houses->published()->where('number', 'like', $q.'%'));
+                }
             });
         }
 
@@ -147,7 +150,7 @@ class UmkmCatalogController extends Controller
 
     public function show($id): View
     {
-        $umkm = UmkmProfile::with(['user', 'activeProducts.category', 'activeProducts.activeVariants', 'mapLocation'])
+        $umkm = UmkmProfile::with(['user', 'activeProducts.category', 'activeProducts.activeVariants', 'mapLocation', 'traditionalHouse' => fn ($query) => $query->published()])
             ->withCount('reviews')->withAvg('reviews', 'rating')->findOrFail($id);
         $reviews = $umkm->reviews()->with('user')->latest()->take(5)->get();
 

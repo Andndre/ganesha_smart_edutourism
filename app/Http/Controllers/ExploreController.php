@@ -6,6 +6,7 @@ use App\Models\CulturalObject;
 use App\Models\Facility;
 use App\Models\MapLocation;
 use App\Models\TourRoute;
+use App\Models\TraditionalHouse;
 use App\Models\UmkmProfile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -20,9 +21,14 @@ class ExploreController extends Controller
     {
         $locale = app()->getLocale();
         $locations = Cache::tags(['explore'])->flexible("explore_map_locations_array_v4_{$locale}", [86400, 172800], function () use ($locale) {
+            $publishedHouseIds = TraditionalHouse::published()->pluck('id')->flip();
+
             return MapLocation::with(['locationable' => function ($morphTo) {
                 $morphTo->morphWith([CulturalObject::class => ['arModel']]);
-            }])->get()->map(function ($loc) use ($locale) {
+            }])->get()->map(function ($loc) use ($locale, $publishedHouseIds) {
+                if ($loc->locationable_type === TraditionalHouse::class && ! $publishedHouseIds->has($loc->locationable_id)) {
+                    return null;
+                }
                 // Map category to match JavaScript filters
                 $category = $loc->category;
                 if ($loc->locationable_type === Facility::class && $loc->locationable && $loc->locationable->type === 'toilet') {
@@ -62,6 +68,13 @@ class ExploreController extends Controller
                             foreach ($loc->locationable->historical_images as $img) {
                                 $images[] = asset('storage/'.$img);
                             }
+                        }
+                    } elseif ($loc->locationable_type === TraditionalHouse::class) {
+                        $name = $loc->locationable->getMapDisplayName();
+                        $detailUrl = route('houses.show', ['number' => $loc->locationable->number]);
+                        $placeType = 'rumah';
+                        if ($loc->locationable->cover_image_path) {
+                            $images[] = asset('storage/'.$loc->locationable->cover_image_path);
                         }
                     } elseif ($loc->locationable_type === UmkmProfile::class) {
                         $nameTranslations = method_exists($loc->locationable, 'getTranslations')
@@ -110,7 +123,7 @@ class ExploreController extends Controller
                     'image' => $images[0] ?? null,
                     'images' => $images,
                 ];
-            })->all();
+            })->filter()->values()->all();
         });
 
         $formattedRoutes = Cache::tags(['explore'])->flexible("explore_map_routes_array_v2_{$locale}", [86400, 172800], function () use ($locale) {

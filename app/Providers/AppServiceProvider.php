@@ -11,6 +11,7 @@ use App\Models\MapLocation;
 use App\Models\RouteSession;
 use App\Models\TourRoute;
 use App\Models\TourRoutePoint;
+use App\Models\TraditionalHouse;
 use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use App\Observers\CacheInvalidationObserver;
@@ -78,6 +79,7 @@ class AppServiceProvider extends ServiceProvider
         MapLocation::observe($observer);
         TourRoute::observe($observer);
         TourRoutePoint::observe($observer);
+        TraditionalHouse::observe($observer);
         UmkmProductCategory::observe($observer);
         UmkmProfile::observe($observer);
     }

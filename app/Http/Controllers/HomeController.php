@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\CapacityZone;
+use App\Models\CulturalObject;
+use App\Models\TourRoute;
+use App\Models\TraditionalHouse;
 use App\Models\UmkmProfile;
 use App\Models\WeatherReport;
 use Illuminate\Support\Facades\Artisan;
@@ -66,10 +69,15 @@ class HomeController extends Controller
                 ->toArray()
         );
 
+        $houseCount = TraditionalHouse::published()->count();
+        $culturalCount = CulturalObject::roots()->count();
+        $routeCount = TourRoute::where('is_active', true)->count();
+        $featuredCultural = CulturalObject::roots()->with('children')->first();
+
         return view('home', \compact(
             'densityText', 'densityClass', 'densityBg', 'weather',
             'totalCurrent', 'totalMax', 'densityStatus', 'warningThreshold', 'criticalThreshold',
-            'featuredUmkm'
+            'featuredUmkm', 'houseCount', 'culturalCount', 'routeCount', 'featuredCultural'
         ));
     }
 }

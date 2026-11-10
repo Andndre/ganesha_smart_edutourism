@@ -1,545 +1,79 @@
 @extends('layouts.app')
+
 @section('title', __('Beranda - Penglipuran'))
 @section('header_title', 'Smart Edutourism')
 
 @section('content')
-    <div x-data class="relative w-full">
-        <!-- Curved Green Header Background (Full width to top) -->
-        <div
-            class="h-62 absolute left-0 right-0 top-0 -z-10 rounded-b-[2.5rem] bg-[#1E5128] shadow-sm sm:h-64 lg:h-72 lg:rounded-b-[3rem]">
+<div class="mx-auto max-w-7xl px-4 pb-16 pt-5 md:px-8 lg:px-12 lg:pt-6" x-data>
+    <div class="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
+        <div class="order-2 flex min-h-[245px] flex-col justify-between rounded-3xl bg-[#173e23] p-6 text-white shadow-lg lg:order-1 lg:min-h-[330px] lg:p-9">
+            <div>
+                <p class="inline-flex rounded-full bg-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[.16em]">✦ {{ __('Smart Edutourism · Desa Wisata Penglipuran') }}</p>
+                <h1 class="mt-5 max-w-2xl font-display text-3xl font-bold leading-tight md:text-4xl lg:text-[2.5rem]">{{ __('Jelajahi Desa Penglipuran Berbasis Kearifan Lokal') }}</h1>
+                <p class="mt-3 max-w-2xl text-sm leading-relaxed text-white/85">{{ __('Temukan rumah adat, budaya, dan karya warga melalui rute GPS interaktif serta kisah yang hidup di setiap pekarangan.') }}</p>
+            </div>
+            <div class="mt-6 flex flex-wrap items-center gap-3">
+                <a href="{{ route('edutourism.index') }}" class="tap-target rounded-full bg-white px-5 text-sm font-bold text-[#173e23]">{{ __('Mulai Tur Mandiri') }} →</a>
+                <a href="{{ route('houses.index') }}" class="tap-target rounded-full border border-white/35 bg-white/10 px-5 text-sm font-semibold text-white">{{ __('Direktori Rumah Adat') }}</a>
+            </div>
+            <div class="mt-6 hidden flex-wrap gap-x-5 gap-y-1 border-t border-white/20 pt-3 text-xs text-white/75 lg:flex"><span>{{ $houseCount }} {{ __('pekarangan terverifikasi') }}</span><span>{{ $culturalCount }} {{ __('objek budaya') }}</span><span>{{ $routeCount }} {{ __('rute aktif') }}</span></div>
         </div>
 
-        <section class="relative px-4 pb-4 pt-[calc(env(safe-area-inset-top)+7.5rem)] md:px-8 lg:pt-28">
-
-            <div class="flex items-start justify-between">
-                <div class="pr-4">
-                    @auth
-                        <h2 class="font-display text-2xl font-bold tracking-tight text-white lg:text-3xl">
-                            {{ __('Rahajeng Rauh, :name!', ['name' => str(Auth::user()->name)->before(' ')]) }}</h2>
-                    @else
-                        <h2 class="font-display text-2xl font-bold tracking-tight text-white lg:text-3xl">
-                            {{ __('Rahajeng Rauh!') }}</h2>
-                    @endauth
-                    <p class="mt-1.5 text-sm font-medium leading-snug text-green-100">
-                        {{ __('Siap menjelajahi budaya & tradisi Penglipuran hari ini?') }}
-                    </p>
-                </div>
-
-                @auth
-                    <a href="{{ route('profile') }}" class="tap-target -mt-1 shrink-0 transition-transform active:scale-95"
-                        aria-label="{{ __('Buka Profil') }}">
-                        <div class="h-12 w-12 overflow-hidden rounded-full border-2 border-slate-200 bg-white p-0.5 shadow-sm">
-                            <img src="{{ Auth::user()->avatarUrl() }}"
-                                alt="{{ __('Profil :name', ['name' => Auth::user()->name]) }}"
-                                class="h-full w-full rounded-full object-cover">
-                        </div>
-                    </a>
-                @else
-                    <a href="{{ route('login') }}" class="tap-target -mt-1 shrink-0 transition-transform active:scale-95"
-                        aria-label="{{ __('Masuk') }}">
-                        <div
-                            class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border-2 border-slate-200 bg-white p-2 text-gray-600 shadow-sm">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                        </div>
-                    </a>
-                @endauth
-            </div>
-
-            @php
-                $densityParts = explode(' ', $densityText, 2);
-                $densityMain = $densityParts[0] ?? '';
-                $densitySub = $densityParts[1] ?? '';
-            @endphp
-
-            <div class="mt-8 grid w-full grid-cols-2 gap-3">
-                <!-- Weather Widget -->
-                <div @click="$dispatch('open-weather-modal')"
-                    class="flex cursor-pointer items-center gap-3 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm transition-transform hover:shadow-md active:scale-95 sm:p-5"
-                    title="{{ __('Lihat detail cuaca') }}">
-                    @if (isset($weather) && $weather)
-                        <div class="flex shrink-0 items-center justify-center rounded-2xl bg-sky-50 p-2.5 text-sky-500">
-                            {!! $weather->getIconHtml() !!}
-                        </div>
-                        <div class="flex min-w-0 flex-col">
-                            <span
-                                class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">{{ __('Cuaca') }}</span>
-                            <span
-                                class="mt-1 text-xl font-black leading-none text-gray-800">{{ round($weather->temperature) }}°</span>
-                            <span
-                                class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ $weather->getConditionText() }}</span>
-                        </div>
-                    @else
-                        <div class="flex shrink-0 items-center justify-center rounded-2xl bg-gray-50 p-2.5 text-gray-500">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                            </svg>
-                        </div>
-                        <div class="flex min-w-0 flex-col">
-                            <span
-                                class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">{{ __('Cuaca') }}</span>
-                            <span class="mt-1 text-xl font-black leading-none text-gray-500">--°</span>
-                            <span
-                                class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ __('Belum Ada') }}</span>
-                        </div>
-                    @endif
-                </div>
-
-                <!-- Density Widget -->
-                <div @click="$dispatch('open-density-modal')"
-                    class="flex cursor-pointer items-center gap-3 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm transition-transform hover:shadow-md active:scale-95 sm:p-5"
-                    title="{{ __('Lihat detail kepadatan') }}">
-                    <div
-                        class="{{ $densityClass }} {{ $densityBg }} flex shrink-0 items-center justify-center rounded-2xl p-2.5">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                    </div>
-                    <div class="flex min-w-0 flex-col">
-                        <span
-                            class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">{{ __('Kepadatan') }}</span>
-                        <span class="{{ $densityClass }} mt-1 text-xl font-black leading-none">{{ __($densityMain) }}</span>
-                        <span
-                            class="mt-1 truncate text-[11px] font-semibold leading-none text-gray-500">{{ $densitySub }}</span>
-                    </div>
+        <div class="order-1 grid grid-cols-2 gap-3 lg:order-2 lg:grid-cols-1 lg:gap-4">
+            <div class="col-span-2 hidden rounded-2xl border border-[#ebe9e4] bg-white p-5 shadow-sm lg:block">
+                <div class="flex items-center justify-between"><h2 class="text-sm font-bold text-charcoal">{{ __('Kondisi Desa Hari Ini') }}</h2><span class="rounded-full bg-[#eaf3ec] px-2 py-1 text-xs font-semibold text-primary">{{ __('Informasi terkini') }}</span></div>
+                <div class="mt-5 grid grid-cols-2 gap-3">
+                    <button type="button" @click="$dispatch('open-weather-modal')" class="tap-target flex min-w-0 items-center gap-3 rounded-xl bg-surface p-3 text-left"><span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-xl text-amber-700">☀</span><span class="min-w-0"><strong class="block text-sm text-charcoal">{{ $weather ? round($weather->temperature).'°C' : '—' }}</strong><span class="block truncate text-xs text-gray-600">{{ $weather?->getConditionText() ?? __('Cuaca belum tersedia') }}</span></span></button>
+                    <button type="button" @click="$dispatch('open-density-modal')" class="tap-target flex min-w-0 items-center gap-3 rounded-xl bg-surface p-3 text-left"><span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eaf3ec] text-primary"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M16 19h5v-2a4 4 0 0 0-4-4m-9 6H3v-2a4 4 0 0 1 4-4m9-2a4 4 0 1 0-8 0m8 8H8v-2a4 4 0 0 1 8 0Z"/></svg></span><span class="min-w-0"><strong class="block text-sm text-primary">{{ __($densityStatus['label']) }}</strong><span class="block truncate text-xs text-gray-600">{{ round($densityPercent ?? ($totalMax > 0 ? $totalCurrent / $totalMax * 100 : 0)) }}% {{ __('kapasitas') }}</span></span></button>
                 </div>
             </div>
-        </section>
-        {{-- Aksi utama. Peta & UMKM sengaja tidak diulang di sini: keduanya sudah
-             jadi tab di bottom nav, dan tab bar adalah navigasi primer. --}}
-        <section class="mt-5 px-4 md:px-8">
-            <a href="{{ route('edutourism.index') }}"
-                class="bg-primary shadow-primary/25 flex items-center gap-4 rounded-3xl p-5 shadow-lg transition-transform active:scale-[0.98]">
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                    </svg>
-                </div>
-                <div class="min-w-0 flex-1">
-                    <h3 class="text-base font-bold leading-tight text-white">{{ __('Mulai Edutourism') }}</h3>
-                    <p class="mt-1 text-xs leading-snug text-green-100">
-                        {{ __('Ikuti rute berpemandu keliling desa') }}</p>
-                </div>
-                <svg class="h-5 w-5 shrink-0 text-green-100" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-            </a>
-        </section>
-
-        {{-- Bento grid. 4 item = tepat satu baris penuh; Edutourism tidak diulang
-             di sini karena sudah jadi CTA utama di atas. --}}
-        <section class="mt-3 px-4 md:px-8">
-            <div class="rounded-4xl w-full border border-slate-100 bg-white p-5 shadow-sm">
-                <div class="grid grid-cols-4 gap-x-2 gap-y-6 sm:grid-cols-6 lg:flex lg:flex-wrap lg:justify-start lg:gap-8">
-                    <a href="{{ route('explore') }}"
-                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-16">
-                        <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
-                                <path d="M4 6.3 9 4.8l6 2 5-1.5v13L15 19.8l-6-2-5 1.5V6.3Z" fill="#2E7D32" />
-                                <path d="M4 5.5 9 4l6 2 5-1.5v13L15 19l-6-2-5 1.5V5.5Z" fill="#4CAF50" />
-                                <path
-                                    d="M12 3.8a4.1 4.1 0 0 0-4.1 4.1c0 3 4.1 7.3 4.1 7.3s4.1-4.3 4.1-7.3A4.1 4.1 0 0 0 12 3.8Z"
-                                    fill="#C62828" />
-                                <path
-                                    d="M12 3a4.1 4.1 0 0 0-4.1 4.1c0 3 4.1 7.3 4.1 7.3s4.1-4.3 4.1-7.3A4.1 4.1 0 0 0 12 3Z"
-                                    fill="#E53935" />
-                                <circle cx="12" cy="7.2" r="1.7" fill="#fff" />
-                            </svg>
-                        </div>
-                        <span
-                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Peta') }}</span>
-                    </a>
-
-                    <a href="{{ route('umkm') }}"
-                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                        <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
-                                <path d="M5 9.8h14l1 11.2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1L5 9.8Z" fill="#F9A825" />
-                                <path d="M5 9h14l1 11.2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1L5 9Z" fill="#FDD835" />
-                                <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#E53935" stroke-width="1.9"
-                                    stroke-linecap="round" />
-                                <circle cx="15.3" cy="14" r="1.3" fill="#fff" />
-                            </svg>
-                        </div>
-                        <span
-                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('UMKM') }}</span>
-                    </a>
-
-                    <a href="{{ route('cultural-objects') }}"
-                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                        <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
-                                <path d="M2 21.8 2 16.8 4 16.8 4 13.8 6 13.8 6 10.8 8 10.8 8 7.8 10 7.8 10 21.8Z"
-                                    fill="#C62828" />
-                                <path d="M2 21 2 16 4 16 4 13 6 13 6 10 8 10 8 7 10 7 10 21Z" fill="#E53935" />
-                                <path d="M22 21.8 22 16.8 20 16.8 20 13.8 18 13.8 18 10.8 16 10.8 16 7.8 14 7.8 14 21.8Z"
-                                    fill="#C62828" />
-                                <path d="M22 21 22 16 20 16 20 13 18 13 18 10 16 10 16 7 14 7 14 21Z" fill="#EF5350" />
-                                <circle cx="9" cy="5.6" r="1.1" fill="#F9A825" />
-                                <circle cx="15" cy="5.6" r="1.1" fill="#FDD835" />
-                            </svg>
-                        </div>
-                        <span
-                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Budaya') }}</span>
-                    </a>
-
-                    <a href="{{ route('events') }}"
-                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                        <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
-                                <path d="M5 6.8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-11a2 2 0 0 0-2-2H5Z"
-                                    fill="#1565C0" />
-                                <path d="M5 6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5Z"
-                                    fill="#42A5F5" />
-                                <path d="M3 11h18V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3Z" fill="#E53935" />
-                                <path d="M8 3.2v3M16 3.2v3" stroke="#B71C1C" stroke-width="1.8" stroke-linecap="round" />
-                                <circle cx="8.8" cy="14.5" r="1.2" fill="#fff" />
-                                <circle cx="12.8" cy="14.5" r="1.2" fill="#fff" opacity="0.85" />
-                                <circle cx="8.8" cy="18" r="1.2" fill="#fff" opacity="0.85" />
-                                <circle cx="12.8" cy="18" r="1.2" fill="#FDD835" />
-                            </svg>
-                        </div>
-                        <span
-                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Event') }}</span>
-                    </a>
-
-                    <a href="{{ route('edutourism.index') }}"
-                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                        <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
-                                <!-- Gulungan Ijazah / Diploma di bawah -->
-                                <path d="M4 18.8h11a1.2 1.2 0 0 1 1.2 1.2v.2a1.2 1.2 0 0 1-1.2 1.2H4a1.2 1.2 0 0 1-1.2-1.2v-.2A1.2 1.2 0 0 1 4 18.8Z" fill="#CFD8DC" />
-                                <path d="M4 18h11a1.2 1.2 0 0 1 1.2 1.2v.2a1.2 1.2 0 0 1-1.2 1.2H4a1.2 1.2 0 0 1-1.2-1.2v-.2A1.2 1.2 0 0 1 4 18Z" fill="#FFF9C4" />
-                                <rect x="8.5" y="17.5" width="2" height="3" rx="0.5" fill="#E53935" />
-                                <!-- Dudukan Kepala Topi (Cap Base) -->
-                                <path d="M6.5 11v3.5c0 1.8 2.5 3.2 5.5 3.2s5.5-1.4 5.5-3.2V11" fill="#1B5E20" />
-                                <path d="M7 10.5v3.3c0 1.6 2.2 2.9 5 2.9s5-1.3 5-2.9v-3.3" fill="#2E7D32" />
-                                <!-- Bidang Belah Ketupat Toga (Mortarboard) -->
-                                <polygon points="12,4.8 22,8.8 12,12.8 2,8.8" fill="#1B5E20" />
-                                <polygon points="12,4 22,8 12,12 2,8" fill="#43A047" />
-                                <!-- Kancing Tengah & Rumbai Emas (Tassel) -->
-                                <ellipse cx="12" cy="8" rx="1.1" ry="0.7" fill="#FBC02D" />
-                                <path d="M12 8c3.5 1 6 2.5 7 5" stroke="#F57F17" stroke-width="1.3" stroke-linecap="round" />
-                                <path d="M12 7.7c3.5 1 6 2.5 7 5" stroke="#FDD835" stroke-width="1.1" stroke-linecap="round" />
-                                <circle cx="19.2" cy="13.2" r="1.3" fill="#FBC02D" />
-                                <circle cx="19.2" cy="13" r="1.1" fill="#FDD835" />
-                                <!-- Kilauan Permukaan (Highlight) -->
-                                <polygon points="12,4.8 15.5,6.2 12,7.6 8.5,6.2" fill="#fff" opacity="0.3" />
-                            </svg>
-                        </div>
-                        <span
-                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Edutourism') }}</span>
-                    </a>
-
-                    <a href="{{ route('umkm', ['tab' => 'direktori']) }}"
-                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                        <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
-                                <path d="M3 10.8 12 3.8l9 7v10.4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10.8Z" fill="#B45309" />
-                                <path d="M3 10 12 3l9 7v10.4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10Z" fill="#D97706" />
-                                <path d="M9 21.4V12.8a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v8.6" fill="#78350F" />
-                                <path d="M9 20.6V12a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v8.6" fill="#92400E" />
-                                <path d="M2 9.5 12 2l10 7.5-1.5 1.5L12 4.5 3.5 11 2 9.5Z" fill="#F59E0B" />
-                            </svg>
-                        </div>
-                        <span
-                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Rumah Adat') }}</span>
-                    </a>
-
-                    <a href="{{ route('packages-tickets') }}"
-                        class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                        <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                            <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
-                                <path d="M3 9.3a2.5 2.5 0 0 1 2.5-2.5h13A2.5 2.5 0 0 1 21 9.3v1a2 2 0 0 0 0 4v1a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 15.3v-1a2 2 0 0 0 0-4v-1Z" fill="#B45309" />
-                                <path d="M3 8.5a2.5 2.5 0 0 1 2.5-2.5h13A2.5 2.5 0 0 1 21 8.5v1a2 2 0 0 0 0 4v1a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 14.5v-1a2 2 0 0 0 0-4v-1Z" fill="#F59E0B" />
-                                <line x1="9" y1="7" x2="9" y2="17" stroke="#FFFFFF" stroke-width="1.8" stroke-dasharray="2 2" />
-                                <circle cx="15" cy="12" r="2.4" fill="#1E5128" />
-                                <path d="m14 12 1 1 2-2" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </div>
-                        <span
-                            class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Paket & Tiket') }}</span>
-                    </a>
-
-                    @if (Auth::check() && Auth::user()->isUmkmOwner())
-                        <a href="{{ route('owner.dashboard') }}"
-                            class="tap-target group flex flex-col items-center gap-1.5 transition-transform active:scale-95 lg:w-20">
-                            <div
-                                class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 transition-transform duration-300 group-hover:scale-105 lg:h-16 lg:w-16">
-                                <svg class="h-8 w-8 drop-shadow-sm lg:h-9 lg:w-9" viewBox="0 0 24 24" fill="none">
-                                    <rect x="4" y="4.8" width="7" height="7" rx="2" fill="#2E7D32" />
-                                    <rect x="4" y="4" width="7" height="7" rx="2" fill="#4CAF50" />
-                                    <rect x="13" y="4.8" width="7" height="7" rx="2" fill="#1565C0" />
-                                    <rect x="13" y="4" width="7" height="7" rx="2" fill="#2979FF" />
-                                    <rect x="4" y="13.8" width="7" height="7" rx="2" fill="#F9A825" />
-                                    <rect x="4" y="13" width="7" height="7" rx="2" fill="#FDD835" />
-                                    <rect x="13" y="13.8" width="7" height="7" rx="2" fill="#C62828" />
-                                    <rect x="13" y="13" width="7" height="7" rx="2" fill="#E53935" />
-                                </svg>
-                            </div>
-                            <span
-                                class="text-center text-[11px] font-bold leading-tight text-gray-800 lg:text-xs">{{ __('Panel') }}</span>
-                        </a>
-                    @endif
-                </div>
-            </div>
-        </section>
-
-        {{-- Konten: tanpa ini beranda hanya berisi chrome navigasi --}}
-        @if (!empty($featuredUmkm))
-            <section class="mb-6 mt-6">
-                <div class="mb-1 flex items-center justify-between px-4 md:px-8">
-                    <h3 class="text-base font-bold text-gray-800">{{ __('UMKM Desa') }}</h3>
-                    {{-- -me-3 supaya teks tetap rata kanan meski area sentuhnya diperlebar --}}
-                    <a href="{{ route('umkm', ['tab' => 'direktori']) }}"
-                        class="tap-target text-primary -me-3 flex min-h-11 items-center px-3 text-xs font-bold">{{ __('Lihat semua') }}</a>
-                </div>
-
-                {{-- Padding ditaruh di item (first:ms-*/last:me-*), bukan di container.
-                     Padding akhir pada container overflow-x yang juga flex sering diabaikan
-                     mesin render, sehingga kartu terakhir menempel ke tepi layar. --}}
-                <div class="no-scrollbar flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto pb-1 md:scroll-px-8">
-                    @foreach ($featuredUmkm as $item)
-                        <a href="{{ route('umkm.store', $item['id']) }}"
-                            class="w-44 shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-transform first:ms-4 active:scale-[0.98] md:first:ms-8">
-                            <div class="relative aspect-video bg-gray-100">
-                                @php
-                                    $coverPath = !empty($item['image_path']) ? $item['image_path'] : 'images/packages/kuliner-paon.webp';
-                                    $coverUrl = \Illuminate\Support\Str::startsWith($coverPath, 'images/') ? asset($coverPath) : asset('storage/' . $coverPath);
-                                @endphp
-                                <img src="{{ $coverUrl }}"
-                                    alt="{{ translateValue($item['business_name']) }}" loading="lazy" decoding="async"
-                                    class="h-full w-full object-cover"
-                                    onerror="this.src='{{ asset('images/packages/kuliner-paon.webp') }}'">
-
-                                @if (!empty($item['rating']) && $item['rating'] > 0)
-                                    <div class="absolute bottom-2 left-2 flex items-center gap-1 rounded-md bg-white/90 px-1.5 py-0.5 text-[10px] font-bold text-gray-800 shadow-xs backdrop-blur-xs">
-                                        <svg class="h-3 w-3 fill-amber-500 text-amber-500" viewBox="0 0 20 20">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                        </svg>
-                                        <span>{{ number_format((float) $item['rating'], 1) }}</span>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="p-3">
-                                <h4 class="line-clamp-1 text-sm font-bold text-gray-800">
-                                    {{ translateValue($item['business_name']) }}</h4>
-                                @if (!empty($item['user']['name']))
-                                    <p class="mt-0.5 line-clamp-1 text-xs text-gray-500">
-                                        {{ $item['user']['name'] }}
-                                    </p>
-                                @endif
-                            </div>
-                        </a>
-                    @endforeach
-
-                    {{-- Kartu Penutup di Ujung Kanan (End-of-feed View All Card) --}}
-                    <a href="{{ route('umkm', ['tab' => 'direktori']) }}"
-                        class="me-4 flex w-36 shrink-0 snap-start flex-col items-center justify-center rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 p-4 text-center transition-all hover:bg-emerald-50 active:scale-95 md:me-8">
-                        <div class="mb-2 flex h-11 w-11 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xs">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </div>
-                        <span class="text-xs font-bold text-gray-800">{{ __('Lihat Semua') }}</span>
-                        <span class="mt-0.5 text-[10px] text-gray-500">{{ __('Direktori UMKM') }}</span>
-                    </a>
-                </div>
-            </section>
-        @endif
+            <button type="button" @click="$dispatch('open-weather-modal')" class="flex min-h-11 min-w-0 items-center gap-2 rounded-2xl border border-[#ebe9e4] bg-white p-3 text-left shadow-sm lg:hidden"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-xl text-amber-700">☀</span><span class="min-w-0"><strong class="block text-sm">{{ $weather ? round($weather->temperature).'°C' : '—' }}</strong><span class="block truncate text-xs text-gray-500">{{ $weather?->getConditionText() ?? __('Cuaca belum tersedia') }}</span></span></button>
+            <button type="button" @click="$dispatch('open-density-modal')" class="flex min-h-11 min-w-0 items-center gap-2 rounded-2xl border border-[#ebe9e4] bg-white p-3 text-left shadow-sm lg:hidden"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#eaf3ec] text-primary"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M16 19h5v-2a4 4 0 0 0-4-4m-9 6H3v-2a4 4 0 0 1 4-4m9-2a4 4 0 1 0-8 0m8 8H8v-2a4 4 0 0 1 8 0Z"/></svg></span><span class="min-w-0"><strong class="block text-sm text-primary">{{ __($densityStatus['label']) }}</strong><span class="block truncate text-xs text-gray-500">{{ round($totalMax > 0 ? $totalCurrent / $totalMax * 100 : 0) }}% {{ __('kapasitas') }}</span></span></button>
+            <a href="{{ route('packages-tickets') }}" class="col-span-2 hidden items-center gap-4 rounded-2xl border border-[#ebe9e4] bg-white p-4 shadow-sm lg:flex"><span class="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#f8f1db] text-secondary"><svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4V7Zm9 0v10"/></svg></span><span><span class="text-[10px] font-bold uppercase tracking-widest text-amber-800">{{ __('Paket dan tiket resmi') }}</span><strong class="mt-1 block font-display text-lg">{{ __('Temukan pengalaman desa') }}</strong><span class="mt-1 block text-xs font-semibold text-primary">{{ __('Lihat Semua Pilihan') }} →</span></span></a>
+        </div>
     </div>
 
-    @push('modals')
-        <!-- Premium Detail Weather Modal (Mobile Bottom-Sheet / Desktop Modal) -->
-        <x-modal name="weather-modal">
-            <div class="space-y-5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span
-                        class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-emerald-600">{{ __('Desa Penglipuran') }}</span>
-                    <button type="button" @click="isOpen = false"
-                        class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-500 transition-all hover:text-gray-600 active:scale-95 md:hidden"
-                        title="{{ __('Tutup') }}">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
+    <section class="mt-9">
+        <div class="mb-4 flex flex-wrap items-end justify-between gap-2"><h2 class="font-display text-xl font-bold text-charcoal md:text-2xl">{{ __('Akses Cepat Modul Smart Edutourism') }}</h2><p class="hidden text-xs text-gray-500 lg:block">{{ __('Pilih modul untuk menjelajahi desa') }}</p></div>
+        <div class="grid grid-cols-3 gap-3 md:grid-cols-6">
+            @foreach([
+                ['route' => 'explore', 'label' => __('Peta'), 'icon' => 'M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Zm0-8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z'],
+                ['route' => 'cultural-objects', 'label' => __('Budaya'), 'icon' => 'M3 10h18M5 10V5l7-3 7 3v5M6 10v10m4-10v10m4-10v10m4-10v10M3 21h18'],
+                ['route' => 'houses.index', 'label' => __('Rumah Adat'), 'icon' => 'm3 10 9-7 9 7v10H3V10Zm6 10v-7h6v7'],
+                ['route' => 'packages-tickets', 'label' => __('Paket & Tiket'), 'icon' => 'M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4V7Zm9 0v10'],
+                ['route' => 'umkm', 'label' => __('UMKM'), 'icon' => 'M4 9h16l-1 11H5L4 9Zm2-5h12l2 5H4l2-5Zm4 5v4a2 2 0 0 0 4 0V9'],
+                ['route' => 'events', 'label' => __('Event'), 'icon' => 'M4 5h16v16H4V5Zm4-3v6m8-6v6M4 10h16'],
+            ] as $module)
+                <a href="{{ route($module['route']) }}" class="tap-target group flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border border-[#ebe9e4] bg-white p-3 text-center shadow-sm transition-shadow hover:shadow-md"><span class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eaf3ec] text-primary"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ $module['icon'] }}"/></svg></span><span class="text-xs font-bold text-charcoal md:text-sm">{{ $module['label'] }}</span></a>
+            @endforeach
+        </div>
+    </section>
 
-                <h3 class="font-display text-charcoal text-xl font-black leading-snug tracking-tight">
-                    {{ __('Detail Cuaca Desa') }}</h3>
-
-                @if (isset($weather) && $weather)
-                    <!-- Main Status Grid -->
-                    <div class="flex items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50/70 p-3.5">
-                        <div
-                            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-gray-100 bg-white shadow-sm">
-                            {!! $weather->getIconHtml() !!}
-                        </div>
-                        <div>
-                            <p class="text-2xl font-black leading-none text-gray-800">{{ round($weather->temperature) }}°C</p>
-                            <p class="mt-1.5 text-xs font-black leading-none text-gray-700">{{ $weather->getConditionText() }}
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Weather Parameters Grid -->
-                    <div class="grid grid-cols-2 gap-3">
-                        <!-- Humidity -->
-                        <div class="flex items-center gap-2.5 rounded-xl border border-gray-100 bg-gray-50/70 p-3.5">
-                            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">
-                                    {{ __('Kelembapan') }}
-                                </p>
-                                <p class="mt-1 text-xs font-black text-gray-700">{{ $weather->humidity }}%</p>
-                            </div>
-                        </div>
-
-                        <!-- Wind -->
-                        <div class="flex items-center gap-2.5 rounded-xl border border-gray-100 bg-gray-50/70 p-3.5">
-                            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-600">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">
-                                    {{ __('Angin') }}</p>
-                                <p class="mt-1 text-xs font-black text-gray-700">{{ $weather->wind_speed }} km/h</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recommendation Box based on Weather Code -->
-                    <div class="border-t border-gray-50 pt-3">
-                        <h4 class="mb-1.5 text-[11px] font-black uppercase tracking-wider text-gray-500">
-                            {{ __('Rekomendasi Aktivitas') }}
-                        </h4>
-                        <p class="text-xs leading-relaxed text-gray-500">
-                            @if (\in_array($weather->weather_code, [0, 1, 2]))
-                                @if ($weather->isNight())
-                                    {{ __('Cuaca malam cerah dan sejuk, sangat nyaman untuk menikmati suasana malam desa yang tenang.') }}
-                                @else
-                                    {{ __('Cuaca sangat bersahabat untuk berjalan-jalan menjelajahi desa. Jangan lupa menggunakan tabir surya dan membawa air minum!') }}
-                                @endif
-                            @elseif(\in_array($weather->weather_code, [3, 45, 48]))
-                                {{ __('Cuaca sejuk dan berawan, sangat ideal untuk berkeliling santai tanpa sengatan matahari.') }}
-                            @elseif(\in_array($weather->weather_code, [51, 53, 55, 61, 63]))
-                                {{ __('Gerimis atau hujan ringan. Disarankan membawa payung atau jas hujan saat menjelajahi pekarangan desa.') }}
-                            @else
-                                {{ __('Hujan deras atau badai terdeteksi. Sebaiknya bersantai di cafe lokal, mengunjungi rumah adat (bale), atau menikmati kuliner lokal di area tertutup.') }}
-                            @endif
-                        </p>
-                    </div>
-
-                    <!-- Footer Info / Updated Time -->
-                    <div class="border-t border-gray-50 pt-3 text-center">
-                        <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500">
-                            {{ __('Pembaruan Terakhir:') }}
-                            {{ $weather->updated_at->timezone('Asia/Makassar')->format('d M Y H:i') }} WITA
-                        </p>
-                    </div>
-                @else
-                    <!-- No Weather Info State -->
-                    <div class="space-y-4 py-8 text-center">
-                        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-gray-500">
-                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                            </svg>
-                        </div>
-                        <div class="space-y-1">
-                            <h4 class="text-sm font-bold text-gray-700">{{ __('Data Cuaca Belum Tersedia') }}</h4>
-                            <p class="mx-auto max-w-60 text-xs leading-relaxed text-gray-500">
-                                {{ __('Silakan jalankan update cuaca dari sistem untuk memuat laporan cuaca terkini.') }}</p>
-                        </div>
-                    </div>
-                @endif
+    <section class="mt-9 grid gap-6 lg:grid-cols-2">
+        <div><div class="mb-3 flex items-center justify-between gap-2"><h2 class="font-display text-xl font-bold text-charcoal md:text-2xl">{{ __('Warisan Budaya Unggulan') }}</h2><a href="{{ route('cultural-objects') }}" class="text-xs font-bold text-primary">{{ __('Lihat semua') }} ({{ $culturalCount }}) →</a></div>
+            @if($featuredCultural)
+                <a href="{{ route('cultural-object', ['slug' => $featuredCultural->slug]) }}" class="block rounded-2xl border border-[#ebe9e4] bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+                    @if(($featuredCultural->historical_images ?? [])[0] ?? null)<img src="{{ asset('storage/'.$featuredCultural->historical_images[0]) }}" alt="{{ translateValue($featuredCultural->name) }}" loading="lazy" class="mb-4 aspect-[16/7] w-full rounded-xl object-cover">@endif
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800">{{ __('Kompleks budaya') }} · {{ $featuredCultural->children->count() }} {{ __('ruang') }}</span>
+                    <h3 class="mt-1 font-display text-xl font-bold text-charcoal">{{ translateValue($featuredCultural->name) }}</h3><p class="mt-1 line-clamp-2 text-sm text-gray-600">{{ translateValue($featuredCultural->short_description) }}</p>
+                </a>
+            @else
+                <div class="rounded-2xl border border-dashed border-gray-300 bg-white p-6 text-sm text-gray-600">{{ __('Cerita budaya akan tampil setelah diterbitkan.') }}</div>
+            @endif
+        </div>
+        <div><div class="mb-3 flex items-center justify-between gap-2"><h2 class="font-display text-xl font-bold text-charcoal md:text-2xl">{{ __('Karya & Kuliner Desa') }}</h2><a href="{{ route('umkm', ['tab' => 'direktori']) }}" class="text-xs font-bold text-primary">{{ __('Lihat Semua') }} →</a></div>
+            <div class="grid grid-cols-2 gap-3">
+                @forelse(array_slice($featuredUmkm, 0, 4) as $umkm)
+                    <a href="{{ route('umkm.store', ['id' => $umkm['id']]) }}" class="overflow-hidden rounded-2xl border border-[#ebe9e4] bg-white p-3 shadow-sm transition-shadow hover:shadow-md">
+                        @if(!empty($umkm['image_path']))<img src="{{ asset('storage/'.$umkm['image_path']) }}" alt="{{ translateValue($umkm['business_name']) }}" loading="lazy" class="aspect-[4/3] w-full rounded-xl object-cover">@else<div class="flex aspect-[4/3] items-center justify-center rounded-xl bg-[#eaf3ec] text-primary"><svg class="h-9 w-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 9h16l-1 11H5L4 9Zm2-5h12l2 5H4l2-5Z"/></svg></div>@endif
+                        <h3 class="mt-3 line-clamp-2 text-sm font-bold text-charcoal">{{ translateValue($umkm['business_name']) }}</h3><p class="mt-1 text-xs text-gray-600">{{ $umkm['owner_name'] ?? __('Warga Penglipuran') }}</p>
+                    </a>
+                @empty
+                    <div class="col-span-2 rounded-2xl border border-dashed border-gray-300 bg-white p-6 text-sm text-gray-600">{{ __('UMKM warga akan tampil setelah tersedia.') }}</div>
+                @endforelse
             </div>
-        </x-modal>
-
-        <!-- Premium Detail Density Modal (Mobile Bottom-Sheet / Desktop Modal) -->
-        <x-modal name="density-modal">
-            <div class="space-y-5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span
-                        class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-emerald-600">{{ __('Desa Penglipuran') }}</span>
-                    <button type="button" @click="isOpen = false"
-                        class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-500 transition-all hover:text-gray-600 active:scale-95 md:hidden"
-                        title="{{ __('Tutup') }}">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-
-                <h3 class="font-display text-charcoal text-xl font-black leading-snug tracking-tight">
-                    {{ __('Kepadatan Pengunjung') }}</h3>
-
-                <!-- Total Wisatawan Saat Ini -->
-                <div class="rounded-2xl border border-gray-100 bg-gray-50/70 p-3.5">
-                    <p class="text-[11px] font-bold uppercase leading-none tracking-wider text-gray-500">
-                        {{ __('Total Wisatawan Saat Ini') }}</p>
-                    <div class="mt-1.5 flex items-baseline gap-1.5">
-                        <span class="text-3xl font-black leading-none text-gray-800">{{ $totalCurrent }}</span>
-                        <span class="text-sm font-semibold text-gray-500">/ {{ $totalMax }}
-                            {{ __('kapasitas total') }}</span>
-                    </div>
-                    @php($modalDensityPercent = $totalMax > 0 ? round(($totalCurrent / $totalMax) * 100) : 0)
-                    <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-gray-100">
-                        <div class="{{ $densityStatus['barColor'] }} h-full transition-all"
-                            style="width: {{ min(100, $modalDensityPercent) }}%">
-                        </div>
-                    </div>
-                    <p class="mt-1.5 text-xs text-gray-500">
-                        {{ $modalDensityPercent }}% —
-                        <span class="{{ $densityStatus['color'] }} font-semibold">{{ __($densityStatus['label']) }}</span>
-                    </p>
-                </div>
-
-                <!-- Legend -->
-                <div class="grid grid-cols-3 gap-3">
-                    <div class="bg-primary/10 rounded-xl p-3 text-center">
-                        <p class="text-primary text-xs font-bold">{{ __('Aman') }}</p>
-                        <p class="text-primary text-[11px]">&lt; {{ $warningThreshold }}%</p>
-                    </div>
-                    {{-- Teks pakai amber-800/orange-800, bukan token secondary/warning: token aslinya
-                         hanya 1,87:1 dan 3,42:1 di atas latar tint-nya sendiri --}}
-                    <div class="bg-secondary/15 rounded-xl p-3 text-center">
-                        <p class="text-xs font-bold text-amber-800">{{ __('Sedang') }}</p>
-                        <p class="text-[11px] text-amber-800">{{ $warningThreshold }}-{{ $criticalThreshold }}%</p>
-                    </div>
-                    <div class="bg-warning/10 rounded-xl p-3 text-center">
-                        <p class="text-xs font-bold text-orange-800">{{ __('Penuh') }}</p>
-                        <p class="text-[11px] text-orange-800">&gt; {{ $criticalThreshold }}%</p>
-                    </div>
-                </div>
-
-                <p
-                    class="border-t border-gray-50 pt-3 text-center text-[11px] font-bold uppercase tracking-wider text-gray-500">
-                    {{ __('Data diperbarui setiap kali halaman dimuat ulang') }}
-                </p>
-            </div>
-        </x-modal>
-    @endpush
+        </div>
+    </section>
+</div>
+@include('home-modals')
 @endsection

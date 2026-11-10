@@ -48,6 +48,30 @@
     --text-caption: 0.75rem;
 }
 
+/* FigCraft v7 shared surfaces across public and role dashboards. */
+@layer base {
+    :root { color-scheme: light; }
+    body { color: #191a19; }
+    :focus-visible { outline: 3px solid #d4af37; outline-offset: 3px; }
+}
+
+@layer components {
+    .v7-public #main-content { background: #faf9f6; }
+    .v7-public :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]) {
+        border-radius: 0.75rem;
+    }
+    .v7-public :is(button, a) { -webkit-tap-highlight-color: transparent; }
+    .v7-dashboard #admin-main { background: #faf9f6; }
+    .v7-dashboard #admin-main :is(.bg-white, .bg-gray-50) { border-radius: 1rem; }
+    .v7-dashboard #admin-main :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]) { border-radius: 0.75rem; }
+    .v7-auth #main-content { background: #faf9f6; }
+    .v7-auth :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]) { border-radius: 0.75rem; }
+}
+
+@media (min-width: 1024px) {
+    .v7-public #main-content { width: 100%; }
+}
+
 @layer base {
     button,
     select {

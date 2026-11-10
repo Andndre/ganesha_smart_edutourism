@@ -16,16 +16,14 @@
     $isVisited = Route::is('visited');
 @endphp
 
-<header
-    class="{{ $isMainTab ? 'absolute top-0 left-0 right-0 z-50 pt-[env(safe-area-inset-top)] px-4 md:px-8 mt-4 pointer-events-none' : 'pt-sat bg-primary z-40 shrink-0 px-4 md:px-8 text-white' }}">
-    <nav
-        class="{{ $isMainTab ? 'bg-white/90 backdrop-blur-md rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] px-5 text-charcoal border border-white pointer-events-auto' : '' }} relative flex h-14 items-center justify-between">
+<header class="pt-sat relative z-50 shrink-0 border-b border-[#ebe9e4] bg-white px-4 text-charcoal md:px-8">
+    <nav class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4">
 
             <div class="flex min-w-0 items-center gap-3">
                 @if ($showBack && !$isMainTab)
                     <button
                         onclick="if (window.history.length > 1 && document.referrer && document.referrer.includes(window.location.host) && !document.referrer.includes('/login') && !document.referrer.includes('/auth')) { history.back(); } else { window.location.href = '{{ $fallbackUrl }}'; }"
-                        class="tap-target -ml-2 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-white transition-all active:scale-95"
+                        class="-ml-2 flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-charcoal transition-all active:scale-95 lg:hidden"
                         aria-label="{{ __('Kembali') }}">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
@@ -47,8 +45,19 @@
                     </span>
                 @else
                     {{-- Detail pages: show back arrow + title from yield --}}
-                    <h1 class="text-label truncate font-semibold">@yield('header_title', $headerTitle)</h1>
+                    <h1 class="text-label truncate font-semibold lg:hidden">@yield('header_title', $headerTitle)</h1>
+                    <a href="{{ route('home') }}" class="hidden items-center gap-3 lg:flex"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21V9l9-6 9 6v12H3Zm4-11h10M9 15h6m-6 3h6"/></svg></span><span class="text-sm font-bold">Smart Edutourism</span></a>
                 @endif
+            </div>
+
+            <div class="hidden min-w-0 items-center gap-5 lg:flex" aria-label="{{ __('Navigasi utama') }}">
+                <a href="{{ route('home') }}" class="text-sm {{ Route::is('home') ? 'font-bold text-primary' : 'text-gray-600 hover:text-primary' }}">{{ __('Beranda') }}</a>
+                <a href="{{ route('cultural-objects') }}" class="text-sm {{ Route::is('cultural-*') ? 'font-bold text-primary' : 'text-gray-600 hover:text-primary' }}">{{ __('Warisan Budaya') }}</a>
+                <a href="{{ route('explore') }}" class="text-sm {{ Route::is('explore') ? 'font-bold text-primary' : 'text-gray-600 hover:text-primary' }}">{{ __('Peta Interaktif') }}</a>
+                <a href="{{ route('houses.index') }}" class="text-sm {{ Route::is('houses.*') ? 'font-bold text-primary' : 'text-gray-600 hover:text-primary' }}">{{ __('Rumah Adat') }}</a>
+                <a href="{{ route('umkm') }}" class="text-sm {{ Route::is('umkm*') ? 'font-bold text-primary' : 'text-gray-600 hover:text-primary' }}">{{ __('Direktori UMKM') }}</a>
+                <a href="{{ route('packages-tickets') }}" class="text-sm {{ Route::is('packages-tickets') ? 'font-bold text-primary' : 'text-gray-600 hover:text-primary' }}">{{ __('Paket & Tiket') }}</a>
+                <a href="{{ route('events') }}" class="text-sm {{ Route::is('events') ? 'font-bold text-primary' : 'text-gray-600 hover:text-primary' }}">{{ __('Kalender Acara') }}</a>
             </div>
 
             <div class="flex shrink-0 items-center gap-1">
@@ -77,7 +86,7 @@
 
                 @if ($isVisited)
                     <a href="{{ route('favorites') }}"
-                        class="hover:text-white/80 relative flex items-center gap-1.5 p-2.5 text-white transition-colors active:scale-95"
+                        class="hover:text-primary relative flex items-center gap-1.5 p-2.5 text-gray-500 transition-colors active:scale-95"
                         aria-label="{{ __('Favorit Saya') }}">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
@@ -89,7 +98,7 @@
                 {{-- Language Switcher --}}
                 <div class="relative" x-data="{ langOpen: false, currentLocale: '{{ app()->getLocale() }}' }">
                     <button @click="langOpen = !langOpen"
-                            class="tap-target hover:text-primary relative flex items-center justify-center gap-1.5 p-2.5 {{ $isMainTab ? 'text-gray-500' : 'text-white/80 hover:text-white' }} transition-colors active:scale-95"
+                            class="tap-target hover:text-primary relative flex items-center justify-center gap-1.5 p-2.5 text-gray-500 transition-colors active:scale-95"
                             aria-label="{{ __('Ganti Bahasa') }}">
                         <x-flag-icon :locale="app()->getLocale()" class="h-6 w-8 ring-1 ring-black/10" />
                         {{-- ponytail: bendera itu warna doang; label teks bikin locale aktif kebaca tanpa lihat warna --}}
