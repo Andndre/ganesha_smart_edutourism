@@ -396,6 +396,7 @@
                     const panel = document.getElementById('filter-panel');
                     if (panel && !panel.classList.contains('hidden')) {
                         panel.classList.add('hidden');
+                        document.getElementById('btn-filter-toggle')?.setAttribute('aria-expanded', 'false');
                     }
                     hideSearchResults();
                 });
@@ -718,6 +719,7 @@
                 // Results dropdown and filter panel occupy the same spot — keep one visible
                 const filterPanel = document.getElementById('filter-panel');
                 if (filterPanel) filterPanel.classList.add('hidden');
+                document.getElementById('btn-filter-toggle')?.setAttribute('aria-expanded', 'false');
 
                 if (matches.length === 0) {
                     const li = document.createElement('li');
