@@ -17,6 +17,13 @@
                     selectedCategory: 'All',
                     calendarEvents: @json($calendarEvents),
                     upcomingEvents: @json($upcomingEvents),
+                    selectedDay: {
+                        date: null,
+                        dateKey: '',
+                        dateLong: '',
+                        balinese: {},
+                        events: []
+                    },
                     selectedBalineseDate: {},
                     monthRahinanList: [],
                     monthRahinanLabel: '',
@@ -24,6 +31,44 @@
                     openDetail(eventObj) {
                         this.selectedEvent = eventObj;
                         window.dispatchEvent(new CustomEvent('open-event-detail'));
+                    },
+
+                    openDayDetail(date) {
+                        const y = date.getFullYear();
+                        const m = String(date.getMonth() + 1).padStart(2, '0');
+                        const d = String(date.getDate()).padStart(2, '0');
+                        const dateKey = `${y}-${m}-${d}`;
+
+                        const balineseInfo = window.getBalineseInfo(date);
+                        this.selectedBalineseDate = balineseInfo;
+
+                        // Filter events happening on this date
+                        const dayEvents = this.calendarEvents
+                            .filter(e => {
+                                const raw = e.raw || {};
+                                const start = raw.start_date || '';
+                                const end = raw.end_date || start;
+                                if (!start) return false;
+                                return dateKey >= start && dateKey <= end;
+                            })
+                            .map(e => e.raw || e);
+
+                        this.selectedDay = {
+                            date,
+                            dateKey,
+                            dateLong: this.formatDateLong(dateKey),
+                            balinese: balineseInfo,
+                            events: dayEvents
+                        };
+
+                        window.dispatchEvent(new CustomEvent('open-balinese-detail'));
+                    },
+
+                    openEventFromDay(eventRaw) {
+                        window.dispatchEvent(new CustomEvent('close-balinese-detail'));
+                        setTimeout(() => {
+                            this.openDetail(eventRaw);
+                        }, 200);
                     },
 
                     openBalineseDate(info) {
@@ -133,11 +178,12 @@
                                         topEl.insertAdjacentHTML('beforeend', '<span class="bali-dot bali-dot-tilem"></span>');
                                     }
 
-                                    // Klik angka tanggal (bukan cuma yang bermarker) buka detail kalender Bali
-                                    numEl.addEventListener('click', (e) => {
-                                        e.stopPropagation();
-                                        this.openBalineseDate(info);
-                                        window.dispatchEvent(new CustomEvent('open-balinese-detail'));
+                                    // Klik seluruh cell (angka tanggal maupun area kosong, kecuali jika klik elemen event pill)
+                                    arg.el.addEventListener('click', (e) => {
+                                        if (e.target.closest('.fc-event')) {
+                                            return;
+                                        }
+                                        this.openDayDetail(arg.date);
                                     });
                                 },
                                 height: 'auto',

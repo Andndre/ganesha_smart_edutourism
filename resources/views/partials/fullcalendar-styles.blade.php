@@ -181,6 +181,15 @@
 
     /* Balinese calendar markers: red-letter number (Sunday/hari raya besar/libur nasional)
        plus a small Purnama (red) / Tilem (black) dot beside the date, like a physical Bali calendar */
+    .fc .fc-daygrid-day-frame {
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+    }
+
+    .fc .fc-daygrid-day-frame:hover {
+        background-color: color-mix(in srgb, var(--color-primary) 5%, transparent);
+    }
+
     .fc-daygrid-day-top {
         align-items: center !important;
     }

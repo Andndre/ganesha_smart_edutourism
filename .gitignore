@@ -52,3 +52,7 @@ frankenphp-worker.php
 
 # graphify generated output
 graphify-out/
+
+# Python-generated files
+__pycache__/
+*.py[cod]
