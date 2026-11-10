@@ -161,4 +161,27 @@ class CulturalPublicTest extends TestCase
         $enResponse = $this->get(route('cultural-object', ['slug' => $object->slug, 'locale' => 'en']));
         $enResponse->assertSee(__('Audio Bahasa Inggris', [], 'en'));
     }
+
+    /**
+     * Test navbar renders notification bell on cultural index and detail pages.
+     */
+    public function test_navbar_renders_notification_bell_on_cultural_pages(): void
+    {
+        $object = CulturalObject::create([
+            'name' => ['en' => 'Bamboo Forest', 'id' => 'Hutan Bambu'],
+            'slug' => 'bamboo-forest-navbar-test',
+            'description' => ['en' => 'Forest.', 'id' => 'Hutan.'],
+            'category' => 'pawongan',
+        ]);
+
+        $indexResponse = $this->get(route('cultural-objects'));
+        $indexResponse->assertStatus(200);
+        $indexResponse->assertSee('notificationBell()', false);
+        $indexResponse->assertSee(__('Notifikasi'));
+
+        $detailResponse = $this->get(route('cultural-object', ['slug' => $object->slug]));
+        $detailResponse->assertStatus(200);
+        $detailResponse->assertSee('notificationBell()', false);
+        $detailResponse->assertSee(__('Notifikasi'));
+    }
 }

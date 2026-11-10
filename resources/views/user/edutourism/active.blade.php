@@ -155,7 +155,10 @@
                     $totalPoints = $activeSession->tourRoute->routePoints->count();
                     $donePoints = $activeSession->points_completed;
                     $progressPct = $totalPoints > 0 ? round(($donePoints / $totalPoints) * 100) : 0;
-                    $activeDensityButtonTone = match ($sharedDensityStatus['key'] ?? 'safe') {
+                    $activeDensityStatus = $sharedDensityStatus ?? ['key' => 'safe', 'label' => 'Aman'];
+                    $activeDensityPercent = $sharedDensityPercent ?? 0;
+                    $activeWeather = $sharedWeather ?? null;
+                    $activeDensityButtonTone = match ($activeDensityStatus['key'] ?? 'safe') {
                         'medium' => 'bg-amber-50 text-amber-800 hover:bg-amber-100 focus-visible:ring-amber-700',
                         'full' => 'bg-rose-50 text-rose-800 hover:bg-rose-100 focus-visible:ring-rose-700',
                         default => 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 focus-visible:ring-emerald-700',
@@ -190,14 +193,14 @@
                 <div class="flex shrink-0 items-center gap-2">
                     <button type="button" @click="$dispatch('open-weather-modal')"
                         class="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-800 transition hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 active:scale-95 md:flex"
-                        aria-label="{{ __('Cuaca Desa Penglipuran') }}: {{ $sharedWeather?->getConditionText() ?? __('Cuaca belum tersedia') }}">
-                        {!! $sharedWeather?->getIconHtml() ?? '<i class="fa-solid fa-sun" aria-hidden="true"></i>' !!}
+                        aria-label="{{ __('Cuaca Desa Penglipuran') }}: {{ $activeWeather?->getConditionText() ?? __('Cuaca belum tersedia') }}">
+                        {!! $activeWeather?->getIconHtml() ?? '<i class="fa-solid fa-sun" aria-hidden="true"></i>' !!}
                     </button>
                     <button type="button" @click="$dispatch('open-density-modal')" @class([
                         'hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 md:flex',
                         $activeDensityButtonTone,
-                    ]) aria-label="{{ __('Kepadatan Pengunjung') }}: {{ __($sharedDensityStatus['label']) }}, {{ round($sharedDensityPercent) }}%">
-                        <x-density-status-icon :status="$sharedDensityStatus['key']" class="h-5 w-5" />
+                    ]) aria-label="{{ __('Kepadatan Pengunjung') }}: {{ __($activeDensityStatus['label'] ?? 'Aman') }}, {{ round($activeDensityPercent) }}%">
+                        <x-density-status-icon :status="$activeDensityStatus['key'] ?? 'safe'" class="h-5 w-5" />
                     </button>
                     <div class="text-right">
                         <span

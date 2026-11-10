@@ -230,7 +230,17 @@
                 const currentPath = window.location.pathname;
 
                 // Toggle visibility of bottom navigation based on main tab patterns
-                const mainTabPatterns = [/^\/$/, /^\/home$/, /^\/explore$/, /^\/umkm(\/|$)/, /^\/profile(\/|$)/];
+                const mainTabPatterns = [
+                    /^\/$/,
+                    /^\/home$/,
+                    /^\/explore$/,
+                    /^\/umkm(\/|$)/,
+                    /^\/profile(\/|$)/,
+                    /^\/cultural$/,
+                    /^\/rumah-adat(\/|$)/,
+                    /^\/paket-tiket(\/|$)/,
+                    /^\/events(\/|$)/
+                ];
                 const isMainTab = mainTabPatterns.some(pattern => pattern.test(currentPath));
 
                 if (isMainTab) {
