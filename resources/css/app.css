@@ -59,6 +59,7 @@
 
 /* FigCraft v7 shared surfaces across public and role dashboards. */
 @layer base {
+    [x-cloak] { display: none !important; }
     :root { color-scheme: light; }
     body {
         color: var(--color-charcoal);

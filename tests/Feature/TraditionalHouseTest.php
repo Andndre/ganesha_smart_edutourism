@@ -10,11 +10,33 @@ use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class TraditionalHouseTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_admin_house_pages_remain_in_indonesian_when_account_prefers_english(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'preferred_language' => 'en']);
+
+        $this->actingAs($admin)->get(route('admin.houses.index', ['locale' => 'en']))
+            ->assertOk()
+            ->assertSee('<html lang="id"', false)
+            ->assertSee('Rumah Adat')
+            ->assertSee('Tambah Rumah')
+            ->assertDontSee('Traditional houses');
+
+        $this->actingAs($admin)->get(route('admin.houses.create'))
+            ->assertOk()
+            ->assertSee('Nomor rumah')
+            ->assertSee('Bahasa Deskripsi rumah')
+            ->assertSee('Peta pemilih lokasi')
+            ->assertSee('Foto sampul');
+
+        $this->assertSame('en', $admin->fresh()->preferred_language);
+    }
 
     public function test_admin_can_publish_a_house_with_a_location_and_active_umkm(): void
     {
@@ -65,6 +87,25 @@ class TraditionalHouseTest extends TestCase
         ])->assertSessionHasErrors(['latitude', 'longitude', 'umkm_profile_ids']);
 
         $this->assertDatabaseMissing('traditional_houses', ['number' => 24]);
+    }
+
+    public function test_admin_can_remove_a_saved_house_cover(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('traditional_houses/cover.jpg', 'image');
+        $admin = User::factory()->create(['role' => 'admin']);
+        $house = TraditionalHouse::factory()->create(['cover_image_path' => 'traditional_houses/cover.jpg']);
+
+        $this->actingAs($admin)->put(route('admin.houses.update', $house), [
+            'number' => $house->number,
+            'head_name' => $house->head_name,
+            'male_count' => $house->male_count,
+            'female_count' => $house->female_count,
+            'remove_cover_image' => '1',
+        ])->assertRedirect();
+
+        $this->assertNull($house->fresh()->cover_image_path);
+        Storage::disk('public')->assertMissing('traditional_houses/cover.jpg');
     }
 
     public function test_drafts_and_houses_without_active_umkm_are_hidden(): void

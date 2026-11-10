@@ -26,77 +26,75 @@
 
             <div class="space-y-6">
                 {{-- Locale tabs --}}
-                <x-locale-toggle />
+
 
                 {{-- Business Name --}}
-                <div id="tour-business-name" x-show="locale === 'en'">
-                    <label class="block text-sm font-semibold text-gray-700">Business Name (EN) <span
-                            class="text-warning">*</span></label>
-                    <input type="text" name="business_name[en]" required
-                        value="{{ old('business_name.en', $profile ? $profile->getTranslation('business_name', 'en', false) : '') }}"
-                        placeholder="Example: Penglipuran Coffee Shop, Beautiful Knits"
-                        class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">
-                    <p class="mt-1.5 text-xs text-gray-500">Your unique business name in English.</p>
-                    @error('business_name.en')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div x-show="locale === 'id'">
-                    <label class="block text-sm font-semibold text-gray-700">Nama Toko / Bisnis (ID) <span
-                            class="text-warning">*</span></label>
-                    <input type="text" name="business_name[id]" required
-                        value="{{ old('business_name.id', $profile ? $profile->getTranslation('business_name', 'id', false) : '') }}"
-                        placeholder="Contoh: Warung Kopi Penglipuran, Rajutan Indah"
-                        class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">
-                    <p class="mt-1.5 text-xs text-gray-500">Nama toko Anda yang unik dan mudah diingat oleh wisatawan.</p>
-                    @error('business_name.id')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                {{-- Description --}}
-                <div id="tour-description" x-show="locale === 'en'">
-                    <label class="block text-sm font-semibold text-gray-700">Store Description (EN)</label>
-                    <textarea name="description[en]" rows="5"
-                        placeholder="Write a short story of your shop, featured products, or operational hours..."
-                        class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">{{ old('description.en', $profile ? $profile->getTranslation('description', 'en', false) : '') }}</textarea>
-                    <p class="mt-1.5 text-xs text-gray-500">Describe the uniqueness of your shop in English to attract tourists.</p>
-                    @error('description.en')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div x-show="locale === 'id'">
-                    <label class="block text-sm font-semibold text-gray-700">Deskripsi Toko (ID)</label>
-                    <textarea name="description[id]" rows="5"
-                        placeholder="Tuliskan cerita singkat toko Anda, produk unggulan, atau jam operasional..."
-                        class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">{{ old('description.id', $profile ? $profile->getTranslation('description', 'id', false) : '') }}</textarea>
-                    <p class="mt-1.5 text-xs text-gray-500">Gambarkan keunikan toko Anda untuk menarik minat kunjungan wisatawan.</p>
-                    @error('description.id')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                {{-- Store Cover Image --}}
-                <div id="tour-cover-image">
-                    <label class="block text-sm font-semibold text-gray-700">Store Cover Image</label>
-                    <p class="mt-0.5 text-xs text-gray-500">This image represents your store on the village map and directories. Recommended: 16:9 ratio, max 5MB.</p>
-                    <div class="mt-2.5 flex items-center gap-4">
-                        <div class="relative h-20 w-32 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
-                            @php
-                                $currentCover = $profile?->image_path ?: 'images/packages/kuliner-paon.webp';
-                                $currentCoverUrl = \Illuminate\Support\Str::startsWith($currentCover, 'images/') ? asset($currentCover) : asset('storage/' . $currentCover);
-                            @endphp
-                            <img id="cover-preview" src="{{ $currentCoverUrl }}" alt="Cover preview" class="h-full w-full object-cover">
-                        </div>
-                        <div class="flex-1">
-                            <input type="file" name="image" id="cover-input" accept="image/jpeg,image/png,image/webp"
-                                onchange="if (this.files && this.files[0]) { document.getElementById('cover-preview').src = URL.createObjectURL(this.files[0]); }"
-                                class="w-full text-xs text-gray-500 file:mr-3 file:rounded-xl file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-primary hover:file:bg-primary/20">
-                            @error('image')
+                <x-dashboard.localized-field id="localized-owner-profile-business-name" anchor-id="tour-business-name" label="Nama toko" field-name="business_name" required>
+                    <x-slot:indonesian>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Nama Toko / Bisnis (ID) <span
+                                    class="text-warning">*</span></label>
+                            <input type="text" name="business_name[id]" required
+                                value="{{ old('business_name.id', $profile ? $profile->getTranslation('business_name', 'id', false) : '') }}"
+                                placeholder="Contoh: Warung Kopi Penglipuran, Rajutan Indah"
+                                class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">
+                            <p class="mt-1.5 text-xs text-gray-500">Nama toko Anda yang unik dan mudah diingat oleh wisatawan.</p>
+                            @error('business_name.id')
                                 <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                             @enderror
                         </div>
-                    </div>
+                    </x-slot:indonesian>
+                    <x-slot:english>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Business Name (EN) <span
+                                    class="text-warning">*</span></label>
+                            <input type="text" name="business_name[en]" required
+                                value="{{ old('business_name.en', $profile ? $profile->getTranslation('business_name', 'en', false) : '') }}"
+                                placeholder="Example: Penglipuran Coffee Shop, Beautiful Knits"
+                                class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">
+                            <p class="mt-1.5 text-xs text-gray-500">Your unique business name in English.</p>
+                            @error('business_name.en')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </x-slot:english>
+                </x-dashboard.localized-field>
+
+
+                {{-- Description --}}
+                <x-dashboard.localized-field id="localized-owner-profile-description" anchor-id="tour-description" label="Deskripsi toko" field-name="description">
+                    <x-slot:indonesian>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Deskripsi Toko (ID)</label>
+                            <textarea name="description[id]" rows="5"
+                                placeholder="Tuliskan cerita singkat toko Anda, produk unggulan, atau jam operasional..."
+                                class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">{{ old('description.id', $profile ? $profile->getTranslation('description', 'id', false) : '') }}</textarea>
+                            <p class="mt-1.5 text-xs text-gray-500">Gambarkan keunikan toko Anda untuk menarik minat kunjungan wisatawan.</p>
+                            @error('description.id')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </x-slot:indonesian>
+                    <x-slot:english>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Store Description (EN)</label>
+                            <textarea name="description[en]" rows="5"
+                                placeholder="Write a short story of your shop, featured products, or operational hours..."
+                                class="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20">{{ old('description.en', $profile ? $profile->getTranslation('description', 'en', false) : '') }}</textarea>
+                            <p class="mt-1.5 text-xs text-gray-500">Describe the uniqueness of your shop in English to attract tourists.</p>
+                            @error('description.en')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </x-slot:english>
+                </x-dashboard.localized-field>
+
+
+                {{-- Store Cover Image --}}
+                <div id="tour-cover-image">
+                    <x-dashboard.image-upload id="cover-input" name="image" label="Foto sampul toko" remove-name="remove_image"
+                        :existing="$profile?->image_path ? [$profile->image_path] : []"
+                        help="Foto utama toko di peta dan direktori. Rasio 16:9 disarankan; maksimal 5 MB." />
                 </div>
 
                 @if ($profile)

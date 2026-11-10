@@ -33,6 +33,7 @@ class UmkmCategoryController extends Controller
     public function store(UmkmCategoryRequest $request): RedirectResponse
     {
         $validated = $request->validated();
+        unset($validated['remove_image']);
         $validated['is_culinary'] = $request->boolean('is_culinary');
 
         $validated['slug'] = (new UmkmProductCategory)->generateSlug(slugFromTranslatable($validated['name']));
@@ -74,6 +75,7 @@ class UmkmCategoryController extends Controller
         $category = UmkmProductCategory::findOrFail($id);
 
         $validated = $request->validated();
+        unset($validated['remove_image']);
         $validated['is_culinary'] = $request->boolean('is_culinary');
 
         $validated['slug'] = $category->generateSlug(slugFromTranslatable($validated['name']));
@@ -87,6 +89,11 @@ class UmkmCategoryController extends Controller
                 maxWidth: ImageOptimizerService::AVATAR_MAX_WIDTH,
                 maxHeight: ImageOptimizerService::AVATAR_MAX_HEIGHT,
             );
+        } elseif ($request->boolean('remove_image')) {
+            if ($category->image_path) {
+                Storage::disk('public')->delete($category->image_path);
+            }
+            $validated['image_path'] = null;
         }
 
         if ($tmpUuid = $request->input('tmp_model_3d_path')) {

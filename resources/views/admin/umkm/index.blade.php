@@ -205,31 +205,30 @@
             <div id="method-container"></div>
             <input type="hidden" name="product_id" id="field-product-id" value="">
             <div class="space-y-4">
-                {{-- Locale tabs --}}
-                <div class="sticky top-0 z-10 bg-white py-2.5 border-b border-gray-100 mb-4 flex gap-2">
-                    <button @click="locale = 'id'" :class="locale === 'id' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-                        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">Indonesia</button>
-                    <button @click="locale = 'en'" :class="locale === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'"
-                        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" type="button">English</button>
-                </div>
-
                 {{-- Name --}}
-                <div x-show="locale === 'en'">
-                    <label class="block text-sm font-semibold text-gray-700">Product Name (EN) <span
-                            class="text-warning">*</span></label>
-                    <input type="text" name="name[en]" id="field-name-en" required
-                        placeholder="e.g. Traditional Handwoven Fabric"
-                        class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-                    @error('name.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
-                </div>
-                <div x-show="locale === 'id'">
-                    <label class="block text-sm font-semibold text-gray-700">Nama Produk (ID) <span
-                            class="text-warning">*</span></label>
-                    <input type="text" name="name[id]" id="field-name-id" required
-                        placeholder="Contoh: Kain Tenun Tradisional"
-                        class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-                    @error('name.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
-                </div>
+                <x-dashboard.localized-field id="localized-umkm-index-name" label="Nama produk" field-name="name" required>
+                    <x-slot:indonesian>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Nama Produk (ID) <span
+                                    class="text-warning">*</span></label>
+                            <input type="text" name="name[id]" id="field-name-id" required
+                                placeholder="Contoh: Kain Tenun Tradisional"
+                                class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                            @error('name.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                    </x-slot:indonesian>
+                    <x-slot:english>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Product Name (EN) <span
+                                    class="text-warning">*</span></label>
+                            <input type="text" name="name[en]" id="field-name-en" required
+                                placeholder="e.g. Traditional Handwoven Fabric"
+                                class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
+                            @error('name.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                    </x-slot:english>
+                </x-dashboard.localized-field>
+
 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700">Kategori Produk <span
@@ -278,32 +277,31 @@
                     @error('unit')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700">Foto Produk (PNG, JPG, dll. - Bisa pilih
-                        banyak)</label>
-                    <input type="file" name="images[]" id="field-images" accept="image/*" multiple
-                        class="focus:border-primary mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-                    @error('images.*')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
-                    <div id="current-images-container" class="mt-2 hidden">
-                        <p class="mb-1 text-xs font-semibold text-gray-700">Foto saat ini:</p>
-                        <div id="current-images-list" class="flex flex-wrap gap-2"></div>
-                    </div>
+                    <x-dashboard.image-upload id="field-images" name="images[]" label="Foto produk" :multiple="true" :max-files="10" :max-size-mb="5" accept="image/jpeg,image/png,image/webp,image/gif" />
                 </div>
 
                 {{-- Description --}}
-                <div x-show="locale === 'en'">
-                    <label class="block text-sm font-semibold text-gray-700">Description (EN)</label>
-                    <textarea name="description[en]" id="field-desc-en" rows="3"
-                        placeholder="Product description in English..."
-                        class="focus:border-primary mt-1 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
-                    @error('description.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
-                </div>
-                <div x-show="locale === 'id'">
-                    <label class="block text-sm font-semibold text-gray-700">Deskripsi (ID)</label>
-                    <textarea name="description[id]" id="field-desc-id" rows="3"
-                        placeholder="Deskripsi produk dalam Bahasa Indonesia..."
-                        class="focus:border-primary mt-1 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
-                    @error('description.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
-                </div>
+                <x-dashboard.localized-field id="localized-umkm-index-description" label="Deskripsi produk" field-name="description">
+                    <x-slot:indonesian>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Deskripsi (ID)</label>
+                            <textarea name="description[id]" id="field-desc-id" rows="3"
+                                placeholder="Deskripsi produk dalam Bahasa Indonesia..."
+                                class="focus:border-primary mt-1 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
+                            @error('description.id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                    </x-slot:indonesian>
+                    <x-slot:english>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Description (EN)</label>
+                            <textarea name="description[en]" id="field-desc-en" rows="3"
+                                placeholder="Product description in English..."
+                                class="focus:border-primary mt-1 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none"></textarea>
+                            @error('description.en')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                    </x-slot:english>
+                </x-dashboard.localized-field>
+
                 <div class="flex items-center gap-2">
                     <input type="checkbox" name="is_active" id="field-active" value="1" checked
                         class="text-primary focus:ring-primary rounded border-gray-300">
@@ -344,11 +342,11 @@
             document.getElementById('field-stock').value = "";
             document.getElementById('field-unit').value = "pcs";
             document.getElementById('field-images').value = "";
+            document.getElementById('field-images').closest('[data-image-upload]').setExistingImages([]);
             document.getElementById('field-desc-en').value = "";
             document.getElementById('field-desc-id').value = "";
             document.getElementById('field-active').checked = true;
 
-            document.getElementById('current-images-container').classList.add('hidden');
 
             window.dispatchEvent(new CustomEvent('open-product-modal'));
         }
@@ -359,46 +357,24 @@
             methodContainer.innerHTML = `@method('PUT')`;
 
             document.getElementById('field-product-id').value = prod.id;
-            
+
             // Handle translatable object or fallback string safely
             document.getElementById('field-name-en').value = (typeof prod.name === 'object') ? (prod.name?.en || "") : prod.name;
             document.getElementById('field-name-id').value = (typeof prod.name === 'object') ? (prod.name?.id || "") : prod.name;
-            
+
             document.getElementById('field-category').value = prod.umkm_product_category_id || "";
             document.getElementById('field-profile').value = prod.umkm_profile_id;
             document.getElementById('field-price').value = Math.round(prod.price);
             document.getElementById('field-stock').value = prod.stock !== null ? prod.stock : '';
             document.getElementById('field-unit').value = prod.unit || "pcs";
-            
+
             document.getElementById('field-desc-en').value = (typeof prod.description === 'object') ? (prod.description?.en || "") : (prod.description || "");
             document.getElementById('field-desc-id').value = (typeof prod.description === 'object') ? (prod.description?.id || "") : (prod.description || "");
-            
+
             document.getElementById('field-active').checked = prod.is_active;
 
             document.getElementById('field-images').value = "";
-
-            // Images
-            const imagesContainer = document.getElementById('current-images-container');
-            const imagesList = document.getElementById('current-images-list');
-            imagesList.textContent = ''; // clear old ones using safe textContent assignment
-
-            if (prod.images && Array.isArray(prod.images) && prod.images.length > 0) {
-                prod.images.forEach(img => {
-                    const imgContainer = document.createElement('div');
-                    imgContainer.className =
-                        'relative group w-16 h-16 rounded-lg overflow-hidden border border-gray-200';
-
-                    const imgEl = document.createElement('img');
-                    imgEl.src = `/storage/${img}`;
-                    imgEl.className = 'w-full h-full object-cover';
-
-                    imgContainer.appendChild(imgEl);
-                    imagesList.appendChild(imgContainer);
-                });
-                imagesContainer.classList.remove('hidden');
-            } else {
-                imagesContainer.classList.add('hidden');
-            }
+            document.getElementById('field-images').closest('[data-image-upload]').setExistingImages((prod.images || []).map(path => `/storage/${path}`));
 
             window.dispatchEvent(new CustomEvent('open-product-modal'));
         }
@@ -406,21 +382,6 @@
         function closeModal() {
             window.dispatchEvent(new CustomEvent('close-product-modal'));
         }
-
-        document.getElementById('field-images')?.addEventListener('change', function() {
-            const maxSize = 2 * 1024 * 1024;
-            const oversized = Array.from(this.files || []).find(f => f.size > maxSize);
-            if (oversized) {
-                Swal.fire({
-                    title: 'Ukuran File Terlalu Besar',
-                    text: 'Maksimal 2MB per foto.',
-                    icon: 'warning',
-                    confirmButtonText: 'Mengerti',
-                    background: '#ffffff'
-                });
-                this.value = '';
-            }
-        });
 
         @if($errors->any())
         document.addEventListener('DOMContentLoaded', function () {

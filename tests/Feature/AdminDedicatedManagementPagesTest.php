@@ -41,7 +41,25 @@ class AdminDedicatedManagementPagesTest extends TestCase
     {
         $response = $this->actingAs($this->adminUser)->get(route('admin.cultural-objects.create'));
 
-        $response->assertOk()->assertSee('Tambah Objek Budaya');
+        $response->assertOk()
+            ->assertSee('Tambah Objek Budaya')
+            ->assertSee('localized-cultural-objects-form-name-tab-id')
+            ->assertSee('localized-cultural-objects-form-short-description-tab-en')
+            ->assertSee('localized-cultural-objects-form-description-tab-id')
+            ->assertSee('name[id]')
+            ->assertSee('name[en]');
+    }
+
+    public function test_admin_model_form_has_language_tabs_for_each_translated_field(): void
+    {
+        $this->actingAs($this->adminUser)
+            ->get(route('admin.ar-manager'))
+            ->assertOk()
+            ->assertSee('model-name-tab-id')
+            ->assertSee('model-description-tab-en')
+            ->assertSee('model-audio-tab-id')
+            ->assertSee('name[id]')
+            ->assertSee('name[en]');
     }
 
     public function test_admin_can_view_cultural_object_edit_page_with_prefilled_data(): void
@@ -127,7 +145,12 @@ class AdminDedicatedManagementPagesTest extends TestCase
     {
         $response = $this->actingAs($this->adminUser)->get(route('admin.facilities.create'));
 
-        $response->assertOk()->assertSee('Tambah Fasilitas');
+        $response->assertOk()
+            ->assertSee('Tambah Fasilitas')
+            ->assertSee('facility-desc-id-editor')
+            ->assertSee('window.initAllTiptapEditors')
+            ->assertSee('facility-location-map')
+            ->assertSee('data-zoom-in');
     }
 
     public function test_admin_can_view_facility_edit_page_with_prefilled_coordinates(): void

@@ -77,6 +77,11 @@
             });
 
             container.editorInstance = editor;
+            const localizedField = container.closest('[data-localized-field]');
+            if (localizedField) {
+                const language = container.closest('[role="tabpanel"]')?.id.endsWith('-en') ? 'Inggris' : 'Indonesia';
+                editor.view.dom.setAttribute('aria-label', localizedField.dataset.fieldLabel + ' bahasa ' + language);
+            }
 
             // Connect Toolbar buttons
             if (toolbar) {
@@ -164,7 +169,7 @@
     };
 
     // Auto-init on DOMContentLoaded
-    document.addEventListener('DOMContentLoaded', () => {
-        window.initAllTiptapEditors();
-    });
+    document.addEventListener('DOMContentLoaded', window.initAllTiptapEditors);
+    document.addEventListener('livewire:navigated', window.initAllTiptapEditors);
+    if (document.readyState !== 'loading') window.initAllTiptapEditors();
 </script>

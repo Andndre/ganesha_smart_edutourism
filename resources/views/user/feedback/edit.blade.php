@@ -63,6 +63,7 @@
         <div class="mb-8">
             <label class="text-charcoal mb-2 block text-sm font-bold">{{ __('Tambah Foto Baru (Opsional, Maks. 5)') }}</label>
             <input type="file" name="photos[]" accept="image/*" multiple class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+            <div id="new-photo-preview" class="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5" aria-live="polite"></div>
             @error('photos.*')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
         </div>
 
@@ -103,6 +104,7 @@
             });
         });
 
+        let previewUrls = [];
         document.querySelector('input[name="photos[]"]')?.addEventListener('change', function() {
             const maxSize = 2 * 1024 * 1024;
             const oversized = Array.from(this.files || []).find(f => f.size > maxSize);
@@ -110,6 +112,19 @@
                 Swal.fire({ title: '{{ __('Ukuran File Terlalu Besar') }}', text: '{{ __('Maksimal 2MB per foto.') }}', icon: 'warning', confirmButtonText: '{{ __('Mengerti') }}', background: '#ffffff' });
                 this.value = '';
             }
+            previewUrls.forEach(url => URL.revokeObjectURL(url));
+            previewUrls = [];
+            const preview = document.getElementById('new-photo-preview');
+            preview.replaceChildren();
+            [...this.files].forEach(file => {
+                const url = URL.createObjectURL(file);
+                previewUrls.push(url);
+                const image = document.createElement('img');
+                image.src = url;
+                image.alt = file.name;
+                image.className = 'aspect-square w-full rounded-xl border border-gray-200 object-cover';
+                preview.append(image);
+            });
         });
     })();
 </script>

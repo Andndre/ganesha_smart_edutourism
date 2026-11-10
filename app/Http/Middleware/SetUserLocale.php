@@ -17,12 +17,16 @@ class SetUserLocale
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure(Request): (Response) $next
-     * @return Response
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if ($request->is('admin', 'admin/*')) {
+            App::setLocale('id');
+
+            return $next($request);
+        }
+
         if ($request->has('locale')) {
             $locale = $request->query('locale');
             if (\in_array($locale, ['en', 'id'])) {

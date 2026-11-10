@@ -42,7 +42,7 @@ class OwnerDashboardController extends BaseOwnerController
     public function updateProfile(OwnerProfileRequest $request): RedirectResponse
     {
         $validated = $request->validated();
-        unset($validated['image']);
+        unset($validated['image'], $validated['remove_image']);
 
         if ($request->hasFile('image')) {
             $optimizer = app(ImageOptimizerService::class);
@@ -53,6 +53,11 @@ class OwnerDashboardController extends BaseOwnerController
             }
 
             $validated['image_path'] = $newPath;
+        } elseif ($request->boolean('remove_image') && $this->profile?->image_path) {
+            if (str_starts_with($this->profile->image_path, 'umkm_profiles/')) {
+                Storage::disk('public')->delete($this->profile->image_path);
+            }
+            $validated['image_path'] = null;
         }
 
         $defaultLocale = config('app.fallback_locale', 'en');

@@ -1,8 +1,7 @@
 {{--
     Auto-translate for multilingual forms.
-    Injects a "Terjemahkan" button next to every locale tab (the `@click="locale = 'id'"`
-    toggle), so no per-form markup is needed. On click it reads the active locale from
-    Alpine's x-show display state, grabs every `name="x[active]"` field (TipTap-aware),
+    Injects a "Terjemahkan" button into each localized-field component. On click it
+    reads that field's active locale, grabs its `name="x[active]"` value (TipTap-aware),
     sends it through /translate (LibreTranslate), and fills the matching `name="x[other]"`.
 
     GLOSSARY: proper nouns listed in PROTECTED_TERMS are swapped for tokens before
@@ -67,7 +66,7 @@
         const b = document.createElement('button');
         b.type = 'button';
         b.dataset.translateBtn = '1';
-        b.className = 'ml-auto inline-flex items-center gap-1.5 rounded-xl bg-secondary/20 px-3 py-1.5 text-xs font-bold text-charcoal transition-all hover:bg-secondary/30 disabled:opacity-50';
+        b.className = 'ml-auto inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-secondary/20 px-3 py-1.5 text-xs font-bold text-charcoal transition-all hover:bg-secondary/30 disabled:opacity-50';
         b.innerHTML = '<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.05 9.5A18 18 0 016.4 9m6.1 9h7M11 21l5-10 5 10M12.75 5C11.78 10.77 8.07 15.61 3 18.13"/></svg><span>Terjemahkan</span>';
         b.addEventListener('click', () => run(b));
         return b;
@@ -100,13 +99,13 @@
     }
 
     async function run(btn) {
-        const scope = btn.closest('[x-data]') || btn.closest('form');
+        const scope = btn.closest('[data-localized-field]');
         if (!scope) return;
         const source = activeLocale(scope);
         const target = source === 'en' ? 'id' : 'en';
 
         const jobs = [];
-        scope.querySelectorAll('[name$="[' + source + ']"]').forEach(src => {
+        scope.querySelectorAll('input:not([type=file])[name$="[' + source + ']"], textarea[name$="[' + source + ']"]').forEach(src => {
             const name = src.getAttribute('name');
             const dst = scope.querySelector('[name="' + name.slice(0, -4) + '[' + target + ']"]');
             if (!dst) return;
@@ -151,16 +150,18 @@
     }
 
     function inject() {
-        document.querySelectorAll('button').forEach(tab => {
+        document.querySelectorAll('[data-localized-field] button[role="tab"]').forEach(tab => {
             const click = tab.getAttribute('@click') || tab.getAttribute('x-on:click') || '';
             if (!/locale\s*=\s*'id'/.test(click)) return;
             const parent = tab.parentElement;
             if (!parent || parent.querySelector('[data-translate-btn]')) return;
+            if (!tab.closest('[data-localized-field]').querySelector('input:not([type=file])[name$="[id]"], textarea[name$="[id]"]')) return;
             parent.appendChild(makeBtn());
         });
     }
 
     document.addEventListener('DOMContentLoaded', inject);
+    document.addEventListener('livewire:navigated', inject);
 
     // Exposed so dynamically-inserted rows (e.g. quiz modal's addQuizField())
     // can re-run injection after DOMContentLoaded has already fired.

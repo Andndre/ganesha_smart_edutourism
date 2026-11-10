@@ -34,6 +34,7 @@ class TraditionalHouseRequest extends FormRequest
             'description.id' => ['nullable', 'string', 'max:10000'],
             'description.en' => ['nullable', 'string', 'max:10000'],
             'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'remove_cover_image' => ['nullable', 'boolean'],
             'gallery_images' => ['nullable', 'array', 'max:8'],
             'gallery_images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'ar_marker_id' => ['nullable', 'string', 'max:100', 'regex:/^[A-Za-z0-9_-]+$/', Rule::unique('traditional_houses')->ignore($this->route('house'))],
@@ -53,7 +54,7 @@ class TraditionalHouseRequest extends FormRequest
     {
         return [function (Validator $validator): void {
             if ($this->filled('ar_marker_id') && ArModel::where('ar_marker_id', $this->input('ar_marker_id'))->exists()) {
-                $validator->errors()->add('ar_marker_id', 'Marker ID is already used by a cultural object.');
+                $validator->errors()->add('ar_marker_id', 'ID penanda sudah digunakan oleh objek budaya.');
             }
 
             if (! $this->boolean('is_published') || $validator->errors()->has('umkm_profile_ids')) {
@@ -62,7 +63,7 @@ class TraditionalHouseRequest extends FormRequest
 
             $ids = $this->input('umkm_profile_ids', []);
             if (! is_array($ids) || ! UmkmProfile::active()->whereIn('id', $ids)->exists()) {
-                $validator->errors()->add('umkm_profile_ids', 'A published house needs at least one active UMKM.');
+                $validator->errors()->add('umkm_profile_ids', 'Rumah adat yang dipublikasikan harus memiliki setidaknya satu UMKM aktif.');
             }
         }];
     }

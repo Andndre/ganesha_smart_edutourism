@@ -21,6 +21,7 @@ class OwnerProfileRequest extends FormRequest
             'description.en' => ['nullable', 'string'],
             'description.id' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
+            'remove_image' => ['nullable', 'boolean'],
         ];
     }
 }
