@@ -148,13 +148,18 @@
         </div>
 
         <!-- Top Overlay -->
-        <div class="pointer-events-none absolute inset-x-0 top-0 z-20 p-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
+        <div class="pointer-events-none absolute inset-x-0 top-0 z-20 p-4 pt-[calc(env(safe-area-inset-top)+1rem)]" x-data>
             <div
                 class="pointer-events-auto flex items-center justify-between rounded-2xl bg-white/90 p-4 shadow-sm backdrop-blur-sm">
                 @php
                     $totalPoints = $activeSession->tourRoute->routePoints->count();
                     $donePoints = $activeSession->points_completed;
                     $progressPct = $totalPoints > 0 ? round(($donePoints / $totalPoints) * 100) : 0;
+                    $activeDensityButtonTone = match ($sharedDensityStatus['key'] ?? 'safe') {
+                        'medium' => 'bg-amber-50 text-amber-800 hover:bg-amber-100 focus-visible:ring-amber-700',
+                        'full' => 'bg-rose-50 text-rose-800 hover:bg-rose-100 focus-visible:ring-rose-700',
+                        default => 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 focus-visible:ring-emerald-700',
+                    };
                 @endphp
                 <div class="flex min-w-0 flex-1 items-center gap-3">
                     <a href="{{ route('home') }}" aria-label="{{ __('Kembali') }}"
@@ -183,6 +188,17 @@
                 {{-- Sebaris, bukan bertumpuk: tombol berlabel sudah setinggi 44px, jadi menumpuknya
                      di bawah skor akan menaikkan tinggi header dan memakan area peta. --}}
                 <div class="flex shrink-0 items-center gap-2">
+                    <button type="button" @click="$dispatch('open-weather-modal')"
+                        class="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-800 transition hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 active:scale-95 md:flex"
+                        aria-label="{{ __('Cuaca Desa Penglipuran') }}: {{ $sharedWeather?->getConditionText() ?? __('Cuaca belum tersedia') }}">
+                        {!! $sharedWeather?->getIconHtml() ?? '<i class="fa-solid fa-sun" aria-hidden="true"></i>' !!}
+                    </button>
+                    <button type="button" @click="$dispatch('open-density-modal')" @class([
+                        'hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 md:flex',
+                        $activeDensityButtonTone,
+                    ]) aria-label="{{ __('Kepadatan Pengunjung') }}: {{ __($sharedDensityStatus['label']) }}, {{ round($sharedDensityPercent) }}%">
+                        <x-density-status-icon :status="$sharedDensityStatus['key']" class="h-5 w-5" />
+                    </button>
                     <div class="text-right">
                         <span
                             class="text-primary block text-xl font-black leading-none">{{ $activeSession->total_score }}</span>
