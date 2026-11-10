@@ -100,7 +100,7 @@
             <div class="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
                 {{-- Tambahkan h-full dan flex flex-col --}}
                 <div class="mb-5 flex items-center justify-between">
-                    <h3 class="text-charcoal font-semibold">Tren Pengunjung — 7 Hari Terakhir</h3>
+                    <h3 class="text-charcoal font-semibold">Tren Pengunjung (7 Hari Terakhir)</h3>
                     <span class="bg-primary/8 text-primary rounded-lg px-2.5 py-1 text-xs font-semibold">Mingguan</span>
                 </div>
                 <div class="flex grow items-center justify-center">

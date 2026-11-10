@@ -64,7 +64,7 @@
                 <select name="place_type"
                     class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                     @php $currentPlaceType = old('place_type', $isEdit ? $object->place_type : null); @endphp
-                    <option value="">— Belum ditentukan —</option>
+                    <option value="">Belum ditentukan</option>
                     @foreach (\App\Models\CulturalObject::PLACE_TYPES as $value => $label)
                         <option value="{{ $value }}" @selected($currentPlaceType === $value)>{{ $label }}</option>
                     @endforeach
@@ -78,7 +78,7 @@
                 <select name="parent_id" id="cultural_parent_id"
                     class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
                     @php $currentParent = old('parent_id', $isEdit ? $object->parent_id : null); @endphp
-                    <option value="">— Objek utama (tanpa induk) —</option>
+                    <option value="">Objek utama (tanpa induk)</option>
                     @foreach ($parentOptions as $parentId => $parentName)
                         <option value="{{ $parentId }}" @selected((string) $currentParent === (string) $parentId)>{{ $parentName }}</option>
                     @endforeach

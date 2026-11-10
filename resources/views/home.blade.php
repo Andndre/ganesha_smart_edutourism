@@ -8,7 +8,7 @@
     <div class="mb-4 grid grid-cols-2 gap-3 md:hidden">
         <button type="button" @click="$dispatch('open-weather-modal')" class="tap-target flex min-w-0 items-center gap-2 rounded-2xl border border-[#ebe9e4] bg-white p-3 text-left shadow-sm transition hover:border-amber-200">
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700">{!! $weather?->getIconHtml() ?? '<i class="fa-solid fa-sun" aria-hidden="true"></i>' !!}</span>
-            <span class="min-w-0"><strong class="block text-sm text-charcoal">{{ $weather ? round($weather->temperature).'°C' : '—' }}</strong><span class="block truncate text-xs text-gray-500">{{ $weather?->getConditionText() ?? __('Cuaca belum tersedia') }}</span></span>
+            <span class="min-w-0"><strong class="block text-sm text-charcoal">{{ $weather ? round($weather->temperature).'°C' : '-' }}</strong><span class="block truncate text-xs text-gray-500">{{ $weather?->getConditionText() ?? __('Cuaca belum tersedia') }}</span></span>
         </button>
         <button type="button"
             x-data="villageDensity({
@@ -186,7 +186,10 @@
                                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
                                 </a>
                                 <div class="mt-1 flex flex-col items-center">
-                                    <a href="{{ route('packages-tickets', ['tab' => 'packages']) }}" class="inline-flex min-h-6 items-center whitespace-nowrap text-[10px] font-bold text-primary hover:underline">{{ __('Lihat seluruh paket dan tiket (:count)', ['count' => count($featuredPackages)]) }} →</a>
+                                    <a href="{{ route('packages-tickets', ['tab' => 'packages']) }}" class="inline-flex min-h-6 items-center gap-1 whitespace-nowrap text-[10px] font-bold text-primary hover:underline">
+                                        <span>{{ __('Lihat seluruh paket dan tiket (:count)', ['count' => count($featuredPackages)]) }}</span>
+                                        <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                                    </a>
                                     <div class="flex shrink-0 items-center" aria-label="{{ __('Pilih paket') }}">
                                         @foreach ($featuredPackages as $dotIndex => $dotPackage)
                                             <button type="button" @click="select({{ $dotIndex }})" class="tap-target flex h-7 items-center justify-center" :aria-current="activeIndex === {{ $dotIndex }} ? 'true' : 'false'" aria-label="{{ __('Tampilkan paket') }} {{ $dotIndex + 1 }}">
@@ -255,7 +258,10 @@
             <div class="min-w-0">
                 <div class="mb-3 flex items-center justify-between gap-2 lg:hidden">
                     <h2 class="text-sm font-bold text-charcoal">{{ __('Warisan Budaya Unggulan') }}</h2>
-                    <a href="{{ route('cultural-objects') }}" class="text-xs font-semibold text-primary">{{ __('Lihat semua') }} ({{ $culturalCount }}) →</a>
+                    <a href="{{ route('cultural-objects') }}" class="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                        <span>{{ __('Lihat semua') }} ({{ $culturalCount }})</span>
+                        <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                    </a>
                 </div>
                 @if ($featuredCultural)
                     <a href="{{ route('cultural-object', ['slug' => $featuredCultural->slug]) }}" class="flex items-center gap-3 rounded-2xl border border-[#ebe9e4] bg-white p-3 shadow-sm lg:hidden">
@@ -278,7 +284,10 @@
                             <p class="text-[10px] font-bold uppercase tracking-wider text-amber-800">{{ __('Kompleks Induk Utama') }}</p>
                             <h3 id="featured-culture-heading" class="mt-1 truncate font-display text-lg font-bold text-charcoal md:text-xl">{{ translateValue($featuredCultural->name) }}</h3>
                         </div>
-                        <a href="{{ route('cultural-object', ['slug' => $featuredCultural->slug]) }}" class="tap-target inline-flex shrink-0 items-center gap-1 text-xs font-bold text-primary hover:underline">{{ __('Eksplorasi Ruang') }} <span aria-hidden="true">→</span></a>
+                        <a href="{{ route('cultural-object', ['slug' => $featuredCultural->slug]) }}" class="tap-target inline-flex shrink-0 items-center gap-1 text-xs font-bold text-primary hover:underline">
+                            <span>{{ __('Eksplorasi Ruang') }}</span>
+                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </a>
                     </div>
                     @if (($featuredCultural->historical_images ?? [])[0] ?? null)
                         <a href="{{ route('cultural-object', ['slug' => $featuredCultural->slug]) }}" class="block overflow-hidden rounded-2xl bg-[#eaf3ec]">
@@ -309,7 +318,11 @@
                         <p class="hidden text-[10px] font-bold uppercase tracking-wider text-amber-800 lg:block">{{ __('Karya & Kuliner Khas Desa') }}</p>
                         <h3 id="featured-umkm-heading" class="text-sm font-bold text-charcoal lg:mt-1 lg:font-display lg:text-xl"><span class="lg:hidden">{{ __('Karya & Kuliner Desa') }}</span><span class="hidden lg:inline">{{ __('Produk UMKM Unggulan Warga Adat') }}</span></h3>
                     </div>
-                    <a href="{{ route('umkm', ['tab' => 'direktori']) }}" class="tap-target inline-flex shrink-0 items-center gap-1 text-xs font-bold text-primary hover:underline">{{ __('Lihat Semua') }} <span class="hidden lg:inline">({{ $umkmCount }})</span> <span aria-hidden="true">→</span></a>
+                    <a href="{{ route('umkm', ['tab' => 'direktori']) }}" class="tap-target inline-flex shrink-0 items-center gap-1 text-xs font-bold text-primary hover:underline">
+                        <span>{{ __('Lihat Semua') }}</span>
+                        <span class="hidden lg:inline">({{ $umkmCount }})</span>
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                    </a>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 lg:gap-3">

@@ -273,7 +273,7 @@
                             <p class="text-xs uppercase tracking-wider text-gray-500">{{ 'Kategori dipilih' }}</p>
                             <p class="font-bold text-charcoal" x-text="selected?.name"></p>
                             <p class="text-[11px] text-gray-500">
-                                Rp <span x-text="selected?.price !== null ? Number(selected?.price).toLocaleString('id-ID') : '—'"></span>
+                                Rp <span x-text="selected?.price !== null ? Number(selected?.price).toLocaleString('id-ID') : '-'"></span>
                                 · <span x-text="selected?.unit_label || selected?.unit || 'pcs'"></span>
                             </p>
                         </div>

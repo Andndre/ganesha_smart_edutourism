@@ -59,7 +59,7 @@
         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Jenis Tempat</label>
         <select name="place_type"
             class="focus:border-primary w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none">
-            <option value="">— Belum ditentukan —</option>
+            <option value="">Belum ditentukan</option>
             @foreach (\App\Models\CulturalObject::PLACE_TYPES as $value => $label)
                 <option value="{{ $value }}">{{ $label }}</option>
             @endforeach

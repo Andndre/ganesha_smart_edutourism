@@ -74,7 +74,7 @@
         @foreach ($hourly as $hour => $count)
             <div class="flex-1" role="img"
                 aria-label="Pukul {{ sprintf('%02d:00', $hour) }}: {{ $count }} orang"
-                title="{{ sprintf('%02d:00', $hour) }} — {{ $count }} orang">
+                title="{{ sprintf('%02d:00', $hour) }}: {{ $count }} orang">
                 <div class="rounded-t bg-primary/70" style="height: {{ (int) round($count / $peak * 110) }}px"></div>
             </div>
         @endforeach

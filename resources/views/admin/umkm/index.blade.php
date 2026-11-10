@@ -125,14 +125,14 @@
                                 @if ($p->display_price !== null)
                                     Rp {{ number_format($p->display_price, 0, ',', '.') }}
                                 @else
-                                    <span class="text-xs italic text-gray-500">—</span>
+                                    <span class="text-xs italic text-gray-500">-</span>
                                 @endif
                             </td>
                             <td class="px-5 py-4">
                                 @if ($p->stock !== null && $p->stock <= 5)
                                     <span
                                         class="bg-warning/10 text-warning rounded-full px-2.5 py-0.5 text-xs font-bold">{{ $p->stock }}
-                                        — Stok Rendah</span>
+                                        (Stok Rendah)</span>
                                 @elseif ($p->stock === null)
                                     <span class="text-gray-500 text-xs italic">{{ 'Tidak terbatas' }}</span>
                                 @else

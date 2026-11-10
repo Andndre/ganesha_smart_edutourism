@@ -26,7 +26,7 @@
                     <h2 class="text-charcoal text-sm font-bold">
                         {{ $originLabel }}
                         <span class="font-normal text-gray-500">
-                            — {{ $origin === 'domestic' ? 'Warga Negara Indonesia' : 'Warga Negara Asing' }}
+                            ({{ $origin === 'domestic' ? 'Warga Negara Indonesia' : 'Warga Negara Asing' }})
                         </span>
                     </h2>
                 </header>

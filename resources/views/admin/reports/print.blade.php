@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan {{ $selectedPeriod }} — Ganesha Smart Edutourism</title>
+    <title>Laporan {{ $selectedPeriod }} | Ganesha Smart Edutourism</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css'])
@@ -285,7 +285,10 @@
     <div class="container">
         <!-- Action Bar -->
         <div class="action-bar no-print">
-            <a href="javascript:history.back()" class="btn btn-secondary">← Kembali</a>
+            <a href="javascript:history.back()" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 6px;">
+                <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                <span>Kembali</span>
+            </a>
             <button onclick="window.print()" class="btn btn-primary">🖨️ Cetak / Simpan PDF</button>
         </div>
 
