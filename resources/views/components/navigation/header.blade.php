@@ -23,7 +23,7 @@
 
 <header class="pt-sat relative z-50 shrink-0 border-b border-[#ebe9e4] bg-white px-4 text-charcoal md:px-8 lg:px-0" x-data>
     <div class="mx-auto flex h-16 max-w-7xl items-stretch justify-between gap-3 lg:h-[72px] lg:gap-4 lg:px-2">
-        <div class="flex min-w-0 shrink-0 items-center gap-3 lg:h-full">
+        <div class="flex min-w-0 flex-1 items-center gap-3 lg:flex-initial lg:shrink-0 lg:h-full">
             @if ($showBack && !$isMainTab)
                 <button
                     onclick="if (window.history.length > 1 && document.referrer && document.referrer.includes(window.location.host) && !document.referrer.includes('/login') && !document.referrer.includes('/auth')) { history.back(); } else { window.location.href = '{{ $fallbackUrl }}'; }"
@@ -66,7 +66,7 @@
             <a href="{{ route('cultural-objects') }}" @if (Route::is('cultural-*')) aria-current="page" @endif class="flex h-full shrink-0 items-center border-b-2 px-1 text-xs whitespace-nowrap transition-colors xl:px-3 xl:text-[13px] {{ Route::is('cultural-*') ? 'border-primary font-bold text-primary' : 'border-transparent font-medium text-gray-600 hover:text-primary' }}">{{ __('Warisan Budaya') }}</a>
             <a href="{{ route('explore') }}" @if (Route::is('explore')) aria-current="page" @endif class="flex h-full shrink-0 items-center border-b-2 px-1 text-xs whitespace-nowrap transition-colors xl:px-3 xl:text-[13px] {{ Route::is('explore') ? 'border-primary font-bold text-primary' : 'border-transparent font-medium text-gray-600 hover:text-primary' }}">{{ __('Peta Interaktif') }}</a>
             <a href="{{ route('umkm') }}" @if (Route::is('umkm*')) aria-current="page" @endif class="flex h-full shrink-0 items-center border-b-2 px-1 text-xs whitespace-nowrap transition-colors xl:px-3 xl:text-[13px] {{ Route::is('umkm*') ? 'border-primary font-bold text-primary' : 'border-transparent font-medium text-gray-600 hover:text-primary' }}">{{ __('Direktori UMKM') }}</a>
-            <a href="{{ route('events') }}" @if (Route::is('events')) aria-current="page" @endif class="flex h-full shrink-0 items-center border-b-2 px-1 text-xs whitespace-nowrap transition-colors xl:px-3 xl:text-[13px] {{ Route::is('events') ? 'border-primary font-bold text-primary' : 'border-transparent font-medium text-gray-600 hover:text-primary' }}">{{ __('Kalender Acara') }}</a>
+            <a href="{{ route('events') }}" @if (Route::is('events*')) aria-current="page" @endif class="flex h-full shrink-0 items-center border-b-2 px-1 text-xs whitespace-nowrap transition-colors xl:px-3 xl:text-[13px] {{ Route::is('events*') ? 'border-primary font-bold text-primary' : 'border-transparent font-medium text-gray-600 hover:text-primary' }}">{{ __('Kalender Acara') }}</a>
         </nav>
 
         <div class="flex h-full shrink-0 items-center gap-1 md:gap-2">
@@ -90,24 +90,22 @@
                     <span class="hidden xl:inline">{{ __($sharedDensityStatus['label']) }} ({{ round($sharedDensityPercent) }}%)</span>
                 </button>
 
-                @if ($isMainTab)
-                    <div class="static sm:relative" x-data="notificationBell()" @notification-received.window="onNewNotification($event.detail)">
-                        <button @click="toggle()" class="tap-target hover:text-primary relative p-2.5 text-gray-500 transition-colors active:scale-95"
-                            aria-label="{{ __('Notifikasi') }}">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                            {{-- Notification Badge --}}
-                            <span x-show="unreadCount > 0" x-transition
-                                  class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold leading-none text-white">
-                                <span x-text="unreadCount > 9 ? '9+' : unreadCount"></span>
-                            </span>
-                        </button>
+                <div class="static sm:relative" x-data="notificationBell()" @notification-received.window="onNewNotification($event.detail)">
+                    <button @click="toggle()" class="tap-target hover:text-primary relative p-2.5 text-gray-500 transition-colors active:scale-95"
+                        aria-label="{{ __('Notifikasi') }}">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        {{-- Notification Badge --}}
+                        <span x-show="unreadCount > 0" x-transition
+                              class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold leading-none text-white">
+                            <span x-text="unreadCount > 9 ? '9+' : unreadCount"></span>
+                        </span>
+                    </button>
 
-                        @include('components.notification-panel')
-                    </div>
-                @endif
+                    @include('components.notification-panel')
+                </div>
 
                 @if ($isVisited)
                     <a href="{{ route('favorites') }}"

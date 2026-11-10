@@ -73,7 +73,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with('activeEdutourismSession', $activeSession);
         });
 
-        View::composer('layouts.app', function (ViewInstance $view): void {
+        View::composer(['layouts.app', 'user.edutourism.active'], function (ViewInstance $view): void {
             $pageData = $view->getData();
             $weather = $pageData['weather'] ?? WeatherReport::query()->first();
 
