@@ -3,7 +3,7 @@
     reads that component directly: revealDelay (wait out the staggered verdicts), displayPoints
     (count-up target), and the per-mode tallies.
 --}}
-<div class="edu-slide-up border-secondary/40 relative overflow-hidden rounded-2xl border bg-gradient-to-br from-white via-emerald-50/70 to-amber-50 p-5 text-center shadow-md"
+<div class="edu-slide-up border-secondary/40 relative overflow-hidden rounded-2xl border bg-gradient-to-br from-white via-secondary/10 to-accent/20 p-5 text-center shadow-md"
     :style="`animation-delay:${revealDelay}ms`">
 
     {{-- Soft glow behind the score; purely decorative, kept out of the accessibility tree. --}}

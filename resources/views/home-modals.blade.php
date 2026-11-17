@@ -4,7 +4,7 @@
             <div class="space-y-5">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <span
-                        class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-emerald-600">{{ __('Desa Penglipuran') }}</span>
+                        class="rounded-lg border border-secondary/30 bg-secondary/15 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-primary">{{ __('Desa Penglipuran') }}</span>
                     <button type="button" @click="isOpen = false"
                         class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-500 transition-all hover:text-gray-600 active:scale-95 md:hidden"
                         title="{{ __('Tutup') }}">
@@ -119,7 +119,7 @@
             <div class="space-y-5">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <span
-                        class="rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-emerald-600">{{ __('Desa Penglipuran') }}</span>
+                        class="rounded-lg border border-secondary/30 bg-secondary/15 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-primary">{{ __('Desa Penglipuran') }}</span>
                     <button type="button" @click="isOpen = false"
                         class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-500 transition-all hover:text-gray-600 active:scale-95 md:hidden"
                         title="{{ __('Tutup') }}">

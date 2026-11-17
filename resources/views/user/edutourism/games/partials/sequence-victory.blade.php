@@ -6,7 +6,7 @@
 --}}
 <div class="edu-slide-up relative overflow-hidden rounded-2xl border p-5 text-center shadow-md"
     :class="allCorrect
-        ? 'border-secondary/40 bg-gradient-to-br from-white via-emerald-50/70 to-amber-50'
+        ? 'border-secondary/40 bg-gradient-to-br from-white via-secondary/10 to-accent/20'
         : 'border-amber-200 bg-gradient-to-br from-white to-amber-50/60'"
     :style="`animation-delay:${revealDelay}ms`">
 
@@ -62,7 +62,7 @@
         <div class="mt-3 flex flex-wrap justify-center gap-1.5" aria-hidden="true">
             <template x-for="(item, pos) in items" :key="'tick' + item.i">
                 <span class="h-1.5 w-5 rounded-full transition-colors"
-                    :class="wrongIdx.includes(pos) ? 'bg-red-300' : 'bg-emerald-500'"></span>
+                    :class="wrongIdx.includes(pos) ? 'bg-red-400' : 'bg-secondary'"></span>
             </template>
         </div>
     </div>

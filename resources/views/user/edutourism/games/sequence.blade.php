@@ -35,7 +35,7 @@
     that closes the timeline rail and frames the result panel. --}}
     @if (!empty($cfg['prompt']))
         <div class="relative overflow-hidden rounded-2xl border border-amber-200/70 bg-gradient-to-br from-white to-amber-50/60 p-4 pl-5 shadow-sm">
-            <span class="from-secondary absolute inset-y-0 left-0 w-1 bg-gradient-to-b to-emerald-600"
+            <span class="bg-secondary absolute inset-y-0 left-0 w-1"
                 aria-hidden="true"></span>
             <p class="text-sm leading-relaxed text-gray-600">{{ $cfg['prompt'] }}</p>
         </div>
@@ -81,7 +81,7 @@
 
                                 {{-- Face down: the mystery side. --}}
                                 <span
-                                    class="sq-face sq-face-front sq-sheen sq-weave from-primary flex min-h-[92px] items-center gap-4 border-2 border-dashed border-amber-300/70 bg-gradient-to-br to-emerald-800 p-4 shadow-md"
+                                    class="sq-face sq-face-front sq-sheen sq-weave flex min-h-[92px] items-center gap-4 border-2 border-dashed border-amber-300/70 bg-gradient-to-br from-primary to-primary/80 p-4 shadow-md"
                                     :style="{ '--sq-sheen-delay': `${idx * 700}ms` }">
                                     <span
                                         class="sq-qpulse relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-amber-300/40 bg-white/15 text-lg font-black text-amber-300">?</span>
@@ -104,9 +104,9 @@
 
                                 {{-- Face up: sits in the flow, so the card is as tall as its text. --}}
                                 <span
-                                    class="sq-face sq-face-back flex min-h-[92px] items-center gap-4 border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-4 shadow-sm">
+                                    class="sq-face sq-face-back flex min-h-[92px] items-center gap-4 border-2 border-secondary/30 bg-gradient-to-br from-secondary/10 to-white p-4 shadow-sm">
                                     <span
-                                        class="sq-node sq-node-ok relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 text-white">
+                                        class="sq-node sq-node-ok relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-secondary to-primary text-white">
                                         <svg class="relative h-5 w-5" fill="none" stroke="currentColor" stroke-width="3"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -123,7 +123,7 @@
 
             <div class="edu-sticky-cta">
                 <button type="button" @click="startOrder()" :disabled="!allRevealed"
-                    class="from-primary shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r to-emerald-700 py-3.5 text-sm font-bold text-white shadow-lg transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                    class="bg-primary hover:bg-primary-hover shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
                     :class="allRevealed && 'edu-pulse-glow'">
                     {{ __('Susun Kronologi') }}
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
@@ -233,7 +233,7 @@
                                     {{-- Step badge, which becomes the verdict icon once checked. --}}
                                     <span class="sq-node relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-black transition-colors"
                                         :class="{
-                                            'from-primary bg-gradient-to-br to-emerald-600 text-white': verdictFor(pos) === null,
+                                            'bg-primary text-white': verdictFor(pos) === null,
                                             'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white sq-node-ok': verdictFor(pos) === 'correct',
                                             'bg-gradient-to-br from-red-400 to-red-600 text-white sq-node-bad': verdictFor(pos) === 'wrong',
                                         }">
@@ -295,7 +295,7 @@
 
             <div x-show="!done" class="edu-sticky-cta">
                 <button type="button" @click="check()"
-                    class="from-primary shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r to-emerald-700 py-3.5 text-sm font-bold text-white shadow-lg transition-transform active:scale-95">
+                    class="bg-primary hover:bg-primary-hover shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
                         aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M4 6h16M4 18h16" />
@@ -315,7 +315,7 @@
 
                     <div class="edu-sticky-cta">
                         <button type="button" @click="finish()" :disabled="finished"
-                            class="from-primary shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r to-emerald-700 py-3.5 text-sm font-bold text-white shadow-lg transition-transform active:scale-95 disabled:opacity-60">
+                            class="bg-primary hover:bg-primary-hover shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95 disabled:opacity-60">
                             {{ __('Lanjut') }}
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"
                                 viewBox="0 0 24 24" aria-hidden="true">
@@ -362,7 +362,7 @@
 
                     <div class="edu-sticky-cta">
                         <button type="button" @click="finish()" :disabled="finished"
-                            class="from-primary shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r to-emerald-700 py-3.5 text-sm font-bold text-white shadow-lg transition-transform active:scale-95 disabled:opacity-60">
+                            class="bg-primary hover:bg-primary-hover shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95 disabled:opacity-60">
                             {{ __('Lanjut') }}
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"
                                 viewBox="0 0 24 24" aria-hidden="true">

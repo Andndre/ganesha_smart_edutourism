@@ -1,6 +1,26 @@
-<nav class="pb-sab w-full bg-white shadow-sm border-t border-slate-200 md:static md:w-20 md:h-[calc(100vh-2rem)] md:m-4 md:rounded-3xl md:shrink-0 md:border md:border-slate-200 md:shadow-sm md:pb-0 z-50 sticky bottom-0 inset-x-0 md:top-4 md:inset-x-auto lg:hidden"
+<nav class="pb-sab w-full md:static md:w-20 md:h-[calc(100vh-2rem)] md:m-4 md:rounded-3xl md:shrink-0 md:border md:border-[#E5DFD5] md:bg-white md:shadow-sm md:pb-0 z-50 sticky bottom-0 inset-x-0 md:top-4 md:inset-x-auto lg:hidden"
     role="navigation" aria-label="{{ __('Main navigation') }}">
-    <div class="relative flex h-16 items-center justify-around px-2 md:h-full md:flex-col md:justify-start md:pt-8 md:gap-2 lg:px-4">
+
+    <!-- Mobile Notched Background Bar (Hidden on desktop/tablet) -->
+    <div class="absolute inset-0 pointer-events-none md:hidden flex flex-col drop-shadow-[0_-3px_10px_rgba(25,26,25,0.05)]" aria-hidden="true">
+        <div class="flex h-16 w-full">
+            <!-- Left Wing -->
+            <div class="flex-1 bg-white border-t border-[#E5DFD5]"></div>
+            <!-- Center Notched Cradle (96px fixed width) -->
+            <div class="w-[96px] h-16 shrink-0 relative">
+                <svg viewBox="0 0 96 64" fill="none" class="w-full h-full block" preserveAspectRatio="none">
+                    <path d="M 0 0.75 H 12 C 22 0.75 25 8 30 18 C 36 29 42 33 48 33 C 54 33 60 29 66 18 C 71 8 74 0.75 84 0.75 H 96 V 64 H 0 Z" fill="#FFFFFF" />
+                    <path d="M 0 0.75 H 12 C 22 0.75 25 8 30 18 C 36 29 42 33 48 33 C 54 33 60 29 66 18 C 71 8 74 0.75 84 0.75 H 96" stroke="#E5DFD5" stroke-width="1.5" stroke-linecap="round" fill="none" />
+                </svg>
+            </div>
+            <!-- Right Wing -->
+            <div class="flex-1 bg-white border-t border-[#E5DFD5]"></div>
+        </div>
+        <!-- Safe Area Inset Bottom Filler -->
+        <div class="flex-1 w-full bg-white"></div>
+    </div>
+
+    <div class="relative z-10 flex h-16 items-center justify-around px-2 md:h-full md:flex-col md:justify-start md:pt-8 md:gap-2 lg:px-4">
 
         @php
             $isHome = Route::is('home');
@@ -13,7 +33,7 @@
         <!-- AR Scan Button Desktop Position -->
         <div class="hidden md:flex w-full mb-6 lg:px-0">
             <a href="{{ route('ar-scan') }}"
-                class="bg-primary flex w-full flex-col lg:flex-row items-center justify-center lg:justify-start gap-2 rounded-xl py-3 text-white shadow-sm transition-all duration-300 hover:bg-primary-dark hover:-translate-y-0.5 hover:shadow-md active:scale-95 px-4 mx-2 lg:mx-0">
+                class="bg-primary flex w-full flex-col lg:flex-row items-center justify-center lg:justify-start gap-2 rounded-xl py-3 text-white shadow-sm transition-all duration-300 hover:bg-primary-hover hover:-translate-y-0.5 hover:shadow-md active:scale-95 px-4 mx-2 lg:mx-0">
                 <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M3 8V6a2 2 0 012-2h2M3 16v2a2 2 0 002 2h2M21 8V6a2 2 0 00-2-2h-2M21 16v2a2 2 0 01-2 2h-2M12 8v.01M12 12v.01M12 16v.01" />
@@ -38,7 +58,7 @@
                         d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                 </svg>
             @endif
-            <span class="text-[11px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">Home</span>
+            <span class="text-[11px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('Beranda') }}</span>
         </a>
 
         <a href="{{ route('explore') }}" wire:navigate
@@ -60,14 +80,18 @@
             <span class="text-[11px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('Peta') }}</span>
         </a>
 
-        <!-- AR Scan Button Mobile Position (Floating on mobile) -->
-        <div class="relative z-50 flex h-full w-20 shrink-0 items-center justify-center md:hidden">
+        <!-- AR Scan Button Mobile Position (Docked in Cradle) -->
+        <div class="relative z-20 flex h-full w-20 shrink-0 items-center justify-center md:hidden">
             <a href="{{ route('ar-scan') }}"
-                class="bg-primary absolute -top-6 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-sm ring-4 ring-slate-50 transition-all duration-300 hover:-translate-y-1 hover:shadow-md active:scale-95"
-                aria-label="{{ __('Buka Kamera AR') }}">
-                <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3 8V6a2 2 0 012-2h2M3 16v2a2 2 0 002 2h2M21 8V6a2 2 0 00-2-2h-2M21 16v2a2 2 0 01-2 2h-2M12 8v.01M12 12v.01M12 16v.01" />
+                class="bg-primary absolute -top-5 flex h-[52px] w-[52px] items-center justify-center rounded-full text-accent shadow-md border-2 border-white transition-all duration-300 hover:-translate-y-6 hover:shadow-lg active:scale-95"
+                aria-label="{{ __('Buka Kamera AR & Pindai QR') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-6 w-6 text-accent">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 7.5V5.25A1.5 1.5 0 0 1 5.25 3.75H7.5m9 0h2.25A1.5 1.5 0 0 1 20.25 5.25V7.5m0 9v2.25a1.5 1.5 0 0 1-1.5 1.5H16.5m-9 0H5.25a1.5 1.5 0 0 1-1.5-1.5V16.5" />
+                    <path stroke-linecap="round" d="M4.5 12h15" />
+                    <rect x="7" y="7" width="3" height="3" rx="0.5" fill="currentColor" stroke="none" />
+                    <rect x="14" y="7" width="3" height="3" rx="0.5" fill="currentColor" stroke="none" />
+                    <rect x="7" y="14" width="3" height="3" rx="0.5" fill="currentColor" stroke="none" />
+                    <rect x="14" y="14" width="3" height="3" rx="0.5" fill="currentColor" stroke="none" />
                 </svg>
             </a>
         </div>
@@ -111,11 +135,6 @@
         @else
             <a href="{{ route('login') }}" wire:navigate
                 class="tap-target {{ $isLogin ? 'text-primary lg:bg-primary/10 lg:text-primary-700' : 'text-gray-500 hover:text-gray-600 lg:hover:bg-gray-100' }} group flex h-full flex-1 flex-col items-center justify-center gap-1 md:h-14 md:w-full md:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4">
-                {{-- arrow-right-end-on-rectangle: kepala panah masuk ke dalam pintu.
-                     Sebelumnya memakai glyph keluar (arrow-right-start-on-rectangle),
-                     yang berlawanan arti dengan label "Masuk". Satu varian outline saja
-                     untuk kedua state — skrip di layouts/app.blade.php sudah menaikkan
-                     stroke-width ke 2.5 saat tab aktif. --}}
                 <svg class="h-6 w-6 shrink-0 transition-colors duration-200" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor" stroke-width="{{ $isLogin ? '2.5' : '1.5' }}">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -124,6 +143,9 @@
                 <span class="text-[11px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('Masuk') }}</span>
             </a>
         @endauth
+
+    </div>
+</nav>
 
     </div>
 </nav>

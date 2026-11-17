@@ -30,7 +30,7 @@
                 <p class="mt-1 text-sm text-gray-500">{{ __('Pilih satu atau lebih kategori yang Anda inginkan. Sistem kami akan membantu mencarikan lokasi UMKM yang memiliki produk tersebut.') }}</p>
             </div>
 
-            <button type="button" @click="$dispatch('open-fair-rotation')" class="mb-6 flex min-h-14 w-full items-center justify-between rounded-2xl border border-[#d9e6da] bg-[#eaf3ec] px-4 text-left text-sm font-bold text-[#173e23] hover:bg-[#e0eee2]"><span>{{ __('Bagaimana Smart Route membagi rekomendasi secara adil?') }}</span><svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+            <button type="button" @click="$dispatch('open-fair-rotation')" class="mb-6 flex min-h-14 w-full items-center justify-between rounded-2xl border border-primary/20 bg-primary/5 px-4 text-left text-sm font-bold text-primary transition-colors hover:bg-primary/10"><span>{{ __('Bagaimana Smart Route membagi rekomendasi secara adil?') }}</span><svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
 
             <form action="{{ route('umkm.recommend') }}" method="POST">
                 @csrf

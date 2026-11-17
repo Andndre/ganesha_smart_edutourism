@@ -102,19 +102,19 @@
         <template x-if="done">
             <div class="space-y-3">
                 <div class="rounded-2xl border p-5 text-center"
-                    :class="solved ? 'border-emerald-100 bg-emerald-50' : 'border-red-100 bg-red-50'">
+                    :class="solved ? 'border-secondary/30 bg-surface' : 'border-red-100 bg-red-50'">
                     <template x-if="solved">
                         <div>
                             <div class="flex items-center justify-center gap-1.5">
                                 <template x-for="star in 3" :key="star">
-                                    <svg class="h-7 w-7" :class="star <= stars ? 'text-secondary' : 'text-emerald-200'"
+                                    <svg class="h-7 w-7" :class="star <= stars ? 'text-secondary' : 'text-gray-200'"
                                         fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                                     </svg>
                                 </template>
                             </div>
-                            <p class="mt-2 text-lg font-black text-emerald-700">{{ __('Puzzle Tersusun!') }}</p>
-                            <p class="mt-1 text-sm text-emerald-600">
+                            <p class="mt-2 text-lg font-black text-primary">{{ __('Puzzle Tersusun!') }}</p>
+                            <p class="mt-1 text-sm text-secondary font-medium">
                                 <span x-text="moves"></span> {{ __('langkah') }} · <span x-text="timeLabel"></span>
                             </p>
                         </div>
@@ -126,13 +126,13 @@
                         </div>
                     </template>
                     <p class="mt-3 text-xs font-bold uppercase tracking-wider"
-                        :class="solved ? 'text-emerald-500' : 'text-red-500'">
+                        :class="solved ? 'text-primary' : 'text-red-500'">
                         + <span x-text="earned"></span> {{ __('poin') }}
                     </p>
                 </div>
 
                 @if (!empty($cfg['explanation']))
-                    <div class="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">
+                    <div class="rounded-xl border border-[#E5DFD5] bg-surface p-3 text-sm text-charcoal">
                         <p>{{ $cfg['explanation'] }}</p>
                     </div>
                 @endif

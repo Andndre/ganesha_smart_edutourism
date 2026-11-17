@@ -16,7 +16,7 @@
     <div class="flex flex-wrap gap-2">
         <template x-for="w in cfg.words" :key="w">
             <span class="rounded-lg border px-2 py-1 text-xs font-bold uppercase tracking-wide"
-                :class="foundWords.includes(w) ? 'border-emerald-200 bg-emerald-50 text-emerald-600 line-through' :
+                :class="foundWords.includes(w) ? 'border-secondary/30 bg-secondary/15 text-primary line-through' :
                     'border-gray-200 bg-gray-50 text-gray-500'"
                 x-text="w"></span>
         </template>
@@ -35,7 +35,7 @@
     </div>
 
     <template x-if="done && cfg.explanation">
-        <div class="rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-sm text-emerald-800">
+        <div class="rounded-xl border border-[#E5DFD5] bg-surface p-3 text-sm text-charcoal">
             <p>{{ $cfg['explanation'] }}</p>
         </div>
     </template>

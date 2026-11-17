@@ -21,7 +21,7 @@
     };
 @endphp
 
-<header class="pt-sat relative z-50 shrink-0 border-b border-[#ebe9e4] bg-white px-4 text-charcoal md:px-8 lg:px-0" x-data>
+<header class="pt-sat relative z-50 shrink-0 border-b border-[#E5DFD5] bg-white px-4 text-charcoal md:px-8 lg:px-0" x-data>
     <div class="mx-auto flex h-16 max-w-7xl items-stretch justify-between gap-3 lg:h-[72px] lg:gap-4 lg:px-2">
         <div class="flex min-w-0 flex-1 items-center gap-3 lg:flex-initial lg:shrink-0 lg:h-full">
             @if ($showBack && !$isMainTab)

@@ -6,9 +6,9 @@
 @section('content')
 <div class="mx-auto w-full max-w-[1376px] px-4 pb-20 pt-4 md:px-8 lg:px-12 lg:pb-12 lg:pt-6" x-data>
     <div class="mb-4 grid grid-cols-2 gap-3 md:hidden">
-        <button type="button" @click="$dispatch('open-weather-modal')" class="tap-target flex min-w-0 items-center gap-2 rounded-2xl border border-[#ebe9e4] bg-white p-3 text-left shadow-sm transition hover:border-amber-200">
+        <button type="button" @click="$dispatch('open-weather-modal')" class="tap-target flex min-w-0 items-center gap-2 rounded-2xl border border-[#E5DFD5] bg-white p-3 text-left shadow-xs transition hover:border-amber-200">
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700">{!! $weather?->getIconHtml() ?? '<i class="fa-solid fa-sun" aria-hidden="true"></i>' !!}</span>
-            <span class="min-w-0"><strong class="block text-sm text-charcoal">{{ $weather ? round($weather->temperature).'°C' : '-' }}</strong><span class="block truncate text-xs text-gray-500">{{ $weather?->getConditionText() ?? __('Cuaca belum tersedia') }}</span></span>
+            <span class="min-w-0"><strong class="block text-sm font-bold text-charcoal">{{ $weather ? round($weather->temperature).'°C' : '-' }}</strong><span class="block truncate text-xs text-gray-500">{{ $weather?->getConditionText() ?? __('Cuaca belum tersedia') }}</span></span>
         </button>
         <button type="button"
             x-data="villageDensity({
@@ -25,7 +25,7 @@
             @density-updated.window="onDensityUpdated($event.detail)"
             @click="$dispatch('open-density-modal')"
             @class([
-                'tap-target flex min-w-0 items-center gap-2 rounded-2xl border border-[#ebe9e4] bg-white p-3 text-left shadow-sm transition',
+                'tap-target flex min-w-0 items-center gap-2 rounded-2xl border border-[#E5DFD5] bg-white p-3 text-left shadow-xs transition',
                 'hover:border-emerald-200' => $densityStatus['key'] === 'safe',
                 'hover:border-amber-200' => $densityStatus['key'] === 'medium',
                 'hover:border-rose-200' => $densityStatus['key'] === 'full',
@@ -47,10 +47,9 @@
     </div>
 
     <section class="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]" aria-label="{{ __('Pengantar Desa Penglipuran') }}">
-        <div class="flex min-h-40 flex-col justify-between rounded-3xl bg-[#173e23] p-5 text-white shadow-[0_16px_32px_-20px_rgba(23,62,35,0.65)] md:p-6 lg:min-h-[330px] lg:p-8">
+        <div class="flex min-h-40 flex-col justify-between rounded-3xl bg-primary p-5 text-white shadow-[0_16px_32px_-20px_rgba(41,53,24,0.45)] md:p-6 lg:min-h-[330px] lg:p-8">
             <div>
-                <p class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-white">
-                    <span class="hidden text-[#f2c94c] lg:inline" aria-hidden="true">✦</span>
+                <p class="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-accent">
                     <span class="lg:hidden">{{ __('Smart Edutourism · Tur Mandiri') }}</span>
                     <span class="hidden lg:inline">{{ __('Smart Edutourism · Desa Wisata Penglipuran') }}</span>
                 </p>
@@ -65,7 +64,7 @@
             </div>
 
             <div class="mt-3 flex flex-wrap items-center gap-3 lg:mt-6">
-                <a href="{{ route('edutourism.index') }}" class="tap-target inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-bold text-[#173e23] transition hover:bg-[#f4f2ec] focus-visible:outline-white">
+                <a href="{{ route('edutourism.index') }}" class="tap-target inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-bold text-primary transition hover:bg-surface focus-visible:outline-white">
                     {{ __('Mulai Tur Mandiri') }}
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
                 </a>
@@ -138,7 +137,7 @@
             aria-roledescription="carousel"
             aria-label="{{ __('Paket Eduwisata Unggulan') }}"
             aria-live="off">
-            <div class="grid h-full min-h-[330px] grid-cols-1 grid-rows-1 overflow-hidden rounded-3xl border border-[#ebe9e4] bg-white shadow-sm">
+            <div class="grid h-full min-h-[330px] grid-cols-1 grid-rows-1 overflow-hidden rounded-3xl border border-[#E5DFD5] bg-white shadow-xs">
                 @forelse ($featuredPackages as $index => $package)
                     <article
                         x-show="activeIndex === {{ $index }}"
@@ -154,9 +153,9 @@
                         aria-roledescription="slide"
                         aria-label="{{ __('Paket') }} {{ $index + 1 }} {{ __('dari') }} {{ count($featuredPackages) }}"
                         :aria-hidden="activeIndex !== {{ $index }}">
-                        <div class="relative min-h-[160px] overflow-hidden bg-[#eaf3ec] lg:min-h-[330px]">
+                        <div class="relative min-h-[160px] overflow-hidden bg-surface lg:min-h-[330px]">
                             <img src="{{ asset($package['image']) }}" alt="{{ $package['title'] }}" class="absolute inset-0 h-full w-full object-cover" @if($index > 0) loading="lazy" @else fetchpriority="high" @endif>
-                            <span class="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-800 shadow-sm">{{ $package['badge'] }}</span>
+                            <span class="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-primary shadow-xs">{{ $package['badge'] }}</span>
                             <span class="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm">
                                 <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 2"/></svg>
                                 {{ $package['duration'] }} · {{ __('Termasuk tiket masuk') }}
@@ -164,7 +163,7 @@
                         </div>
 
                         <div class="flex min-h-[280px] min-w-0 flex-col p-4 md:p-5 lg:min-h-[330px] lg:p-5">
-                            <p class="inline-flex self-start rounded-full bg-[#f6f0dc] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-amber-800">{{ __('Paket Eduwisata Unggulan') }}</p>
+                            <p class="inline-flex self-start rounded-full bg-accent/25 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-primary">{{ __('Paket Eduwisata Unggulan') }}</p>
                             <h2 class="mt-2 font-display text-xl font-bold leading-snug text-charcoal md:text-2xl lg:text-lg xl:text-xl">{{ $package['title'] }}</h2>
                             <p class="mt-1 flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
                                 <strong class="text-base font-bold text-primary md:text-lg">{{ $package['price'] }}</strong>
@@ -181,22 +180,22 @@
                             </ul>
 
                             <div class="mt-auto pt-4">
-                                <a href="{{ route('packages-tickets', ['tab' => 'packages']) }}" class="tap-target flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-3 text-xs font-bold text-white transition hover:bg-[#173e23]">
+                                <a href="{{ route('packages-tickets', ['tab' => 'packages']) }}" class="tap-target flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-3 py-2.5 text-xs font-bold text-white transition hover:bg-primary-hover">
                                     {{ __('Lihat Detail & Reservasi') }}
                                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
                                 </a>
-                                <div class="mt-1 flex flex-col items-center">
-                                    <a href="{{ route('packages-tickets', ['tab' => 'packages']) }}" class="inline-flex min-h-6 items-center gap-1 whitespace-nowrap text-[10px] font-bold text-primary hover:underline">
-                                        <span>{{ __('Lihat seluruh paket dan tiket (:count)', ['count' => count($featuredPackages)]) }}</span>
+                                <div class="mt-2.5 flex items-center justify-between gap-2 border-t border-gray-100 pt-2">
+                                    <a href="{{ route('packages-tickets', ['tab' => 'packages']) }}" class="inline-flex min-h-6 items-center gap-1 whitespace-nowrap text-[11px] font-semibold text-primary hover:underline">
+                                        <span>{{ __('Lihat seluruh paket (:count)', ['count' => count($featuredPackages)]) }}</span>
                                         <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                                     </a>
-                                    <div class="flex shrink-0 items-center" aria-label="{{ __('Pilih paket') }}">
+                                    <div class="flex shrink-0 items-center gap-0.5" aria-label="{{ __('Pilih paket') }}">
                                         @foreach ($featuredPackages as $dotIndex => $dotPackage)
-                                            <button type="button" @click="select({{ $dotIndex }})" class="tap-target flex h-7 items-center justify-center" :aria-current="activeIndex === {{ $dotIndex }} ? 'true' : 'false'" aria-label="{{ __('Tampilkan paket') }} {{ $dotIndex + 1 }}">
+                                            <button type="button" @click="select({{ $dotIndex }})" class="tap-target flex h-6 w-6 items-center justify-center" :aria-current="activeIndex === {{ $dotIndex }} ? 'true' : 'false'" aria-label="{{ __('Tampilkan paket') }} {{ $dotIndex + 1 }}">
                                                 <span class="h-1.5 rounded-full transition-all duration-200" :class="activeIndex === {{ $dotIndex }} ? 'w-4 bg-primary' : 'w-1.5 bg-gray-300'"></span>
                                             </button>
                                         @endforeach
-                                        <button type="button" @click="toggleAutoplay()" class="tap-target flex h-7 w-7 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-primary" :aria-label="userPaused ? '{{ __('Lanjutkan putar otomatis') }}' : '{{ __('Jeda putar otomatis') }}'" :aria-pressed="userPaused.toString()">
+                                        <button type="button" @click="toggleAutoplay()" class="tap-target flex h-6 w-6 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-primary" :aria-label="userPaused ? '{{ __('Lanjutkan putar otomatis') }}' : '{{ __('Jeda putar otomatis') }}'" :aria-pressed="userPaused.toString()">
                                             <svg x-show="userPaused" x-cloak class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
                                             <svg x-show="!userPaused" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>
                                         </button>
@@ -207,7 +206,7 @@
                     </article>
                 @empty
                     <div class="col-start-1 row-start-1 flex min-h-[330px] flex-col items-center justify-center rounded-3xl border border-dashed border-gray-300 bg-white p-8 text-center">
-                        <span class="flex h-12 w-12 items-center justify-center rounded-full bg-[#f6f0dc] text-amber-800"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4V7Zm9 0v10"/></svg></span>
+                        <span class="flex h-12 w-12 items-center justify-center rounded-full bg-accent/25 text-primary"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4V7Zm9 0v10"/></svg></span>
                         <h2 class="mt-3 font-display text-lg font-bold text-charcoal">{{ __('Paket eduwisata belum tersedia') }}</h2>
                         <p class="mt-1 text-sm text-gray-600">{{ __('Jelajahi pilihan tiket dan informasi wisata desa.') }}</p>
                         <a href="{{ route('packages-tickets') }}" class="tap-target mt-4 inline-flex items-center rounded-full bg-primary px-4 text-sm font-bold text-white">{{ __('Lihat Paket & Tiket') }}</a>
@@ -240,7 +239,7 @@
                 ['route' => 'umkm', 'label' => __('Direktori UMKM'), 'subtitle' => __('Kuliner, Kriya & Kafe'), 'icon' => 'M4 9h16l-1 11H5L4 9Zm2-5h12l2 5H4l2-5Zm4 5v4a2 2 0 0 0 4 0V9'],
                 ['route' => 'events', 'label' => __('Kalender Acara'), 'subtitle' => __('Jadwal Upacara'), 'icon' => 'M4 5h16v16H4V5Zm4-3v6m8-6v6M4 10h16'],
             ] as $module)
-                <a href="{{ route($module['route']) }}" class="group flex min-h-[88px] min-w-0 flex-col items-center justify-center gap-2 rounded-2xl border border-[#ebe9e4] bg-white p-3 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md lg:min-h-[72px] lg:flex-row lg:justify-start lg:gap-3 lg:text-left">
+                <a href="{{ route($module['route']) }}" class="group flex min-h-[88px] min-w-0 flex-col items-center justify-center gap-2 rounded-2xl border border-[#E5DFD5] bg-white p-3 text-center shadow-xs transition hover:-translate-y-0.5 hover:shadow-md hover:border-primary/20 lg:min-h-[72px] lg:flex-row lg:justify-start lg:gap-3 lg:text-left">
                     <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-50"><x-module-icon :name="$module['route']" /></span>
                     <span class="min-w-0"><span class="block text-xs font-bold text-charcoal lg:hidden">{{ match ($module['route']) { 'explore' => __('Peta'), 'cultural-objects' => __('Budaya'), 'umkm' => __('UMKM'), 'events' => __('Event'), default => $module['label'] } }}</span><span class="hidden truncate text-[13px] font-bold text-charcoal lg:block">{{ $module['label'] }}</span><span class="mt-0.5 hidden truncate text-[10px] text-gray-500 lg:block">{{ $module['subtitle'] }}</span></span>
                 </a>
@@ -264,20 +263,21 @@
                     </a>
                 </div>
                 @if ($featuredCultural)
-                    <a href="{{ route('cultural-object', ['slug' => $featuredCultural->slug]) }}" class="flex items-center gap-3 rounded-2xl border border-[#ebe9e4] bg-white p-3 shadow-sm lg:hidden">
+                    <a href="{{ route('cultural-object', ['slug' => $featuredCultural->slug]) }}" class="group flex items-center gap-3 overflow-hidden rounded-2xl border border-[#E5DFD5] bg-white p-3 shadow-xs transition hover:-translate-y-0.5 hover:shadow-md lg:hidden">
                         @if (($featuredCultural->historical_images ?? [])[0] ?? null)
-                            <img src="{{ asset('storage/'.$featuredCultural->historical_images[0]) }}" alt="{{ translateValue($featuredCultural->name) }}" loading="lazy" class="h-[72px] w-[72px] shrink-0 rounded-xl object-cover">
+                            <img src="{{ asset('storage/'.$featuredCultural->historical_images[0]) }}" alt="{{ translateValue($featuredCultural->name) }}" loading="lazy" class="h-[76px] w-[76px] shrink-0 rounded-xl object-cover transition-transform duration-300 group-hover:scale-105">
                         @endif
-                        <span class="min-w-0">
-                            <span class="inline-block rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[9px] font-bold uppercase text-amber-800">{{ __('Kompleks budaya') }} · {{ $featuredCultural->children->count() }} {{ __('ruang') }}</span>
-                            <span class="mt-1 block truncate font-display text-base font-bold text-charcoal">{{ translateValue($featuredCultural->name) }}</span>
-                            <span class="mt-0.5 block truncate text-xs text-gray-600">{{ translateValue($featuredCultural->short_description) }}</span>
-                        </span>
+                        <div class="min-w-0 flex-1">
+                            <span class="inline-block rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-800">{{ __('Kompleks budaya') }} · {{ $featuredCultural->children->count() }} {{ __('ruang') }}</span>
+                            <h3 class="mt-1 truncate font-display text-base font-bold text-charcoal group-hover:text-primary transition-colors">{{ translateValue($featuredCultural->name) }}</h3>
+                            <p class="mt-0.5 truncate text-xs text-gray-600">{{ translateValue($featuredCultural->short_description) }}</p>
+                        </div>
+                        <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-hover:translate-x-1 group-hover:text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                     </a>
                 @else
                     <p class="rounded-2xl border border-dashed border-gray-300 bg-white p-4 text-sm text-gray-600 lg:hidden">{{ __('Cerita budaya akan tampil setelah diterbitkan.') }}</p>
                 @endif
-            <section class="hidden h-full rounded-3xl border border-[#ebe9e4] bg-white p-5 shadow-sm lg:block" aria-labelledby="featured-culture-heading">
+            <section class="hidden h-full rounded-3xl border border-[#E5DFD5] bg-white p-5 shadow-xs lg:block" aria-labelledby="featured-culture-heading">
                 @if ($featuredCultural)
                     <div class="mb-3 flex items-center justify-between gap-3">
                         <div class="min-w-0">
@@ -298,9 +298,9 @@
                     @endif
                     <div class="mt-3 flex flex-wrap gap-2">
                         @forelse ($featuredCultural->children->take(4) as $culturalRoom)
-                            <span class="bg-surface rounded-full border border-[#ebe9e4] px-3 py-1 text-[11px] text-gray-600">{{ translateValue($culturalRoom->name) }}</span>
+                            <span class="rounded-full border border-[#E5DFD5] bg-surface px-3 py-1 text-[11px] text-gray-600">{{ translateValue($culturalRoom->name) }}</span>
                         @empty
-                            <span class="bg-surface rounded-full border border-[#ebe9e4] px-3 py-1 text-[11px] text-gray-600">{{ __('Tri Hita Karana') }}</span>
+                            <span class="rounded-full border border-[#E5DFD5] bg-surface px-3 py-1 text-[11px] text-gray-600">{{ __('Tri Hita Karana') }}</span>
                         @endforelse
                     </div>
                 @else
@@ -312,7 +312,7 @@
             </section>
             </div>
 
-            <section class="min-w-0 lg:rounded-3xl lg:border lg:border-[#ebe9e4] lg:bg-white lg:p-5 lg:shadow-sm" aria-labelledby="featured-umkm-heading">
+            <section class="min-w-0 lg:rounded-3xl lg:border lg:border-[#E5DFD5] lg:bg-white lg:p-5 lg:shadow-xs" aria-labelledby="featured-umkm-heading">
                 <div class="mb-3 flex items-center justify-between gap-3">
                     <div class="min-w-0">
                         <p class="hidden text-[10px] font-bold uppercase tracking-wider text-amber-800 lg:block">{{ __('Karya & Kuliner Khas Desa') }}</p>
@@ -325,7 +325,7 @@
                     </a>
                 </div>
 
-                <div class="grid grid-cols-2 gap-2 lg:gap-3">
+                <div class="grid grid-cols-2 gap-3">
                     @forelse (array_slice($featuredUmkm, 0, 2) as $umkm)
                         @php
                             $productName = ($umkm['product_name'] ?? null) ?: translateValue($umkm['business_name'] ?? null);
@@ -333,21 +333,27 @@
                             $productPrice = $umkm['product_price'] ?? null;
                             $houseNumber = $umkm['house_number'] ?? null;
                         @endphp
-                        <a href="{{ route('umkm.store', ['id' => $umkm['id']]) }}" class="bg-surface group overflow-hidden rounded-2xl border border-[#ebe9e4] p-2.5 transition hover:border-[#d7dfd7] hover:shadow-sm">
+                        <a href="{{ route('umkm.store', ['id' => $umkm['id']]) }}" class="group flex flex-col overflow-hidden rounded-2xl border border-[#E5DFD5] bg-white shadow-xs transition hover:-translate-y-1 hover:shadow-md">
                             @if ($productImage)
-                                <img src="{{ asset('storage/'.$productImage) }}" alt="{{ $productName }}" loading="lazy" class="aspect-[4/3] w-full rounded-xl object-cover transition duration-500 group-hover:scale-[1.02] lg:aspect-[16/8]">
+                                <img src="{{ asset('storage/'.$productImage) }}" alt="{{ $productName }}" loading="lazy" class="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-105 lg:aspect-[16/9]">
                             @else
-                                <div class="flex aspect-[16/8] items-center justify-center rounded-xl bg-[#eaf3ec] text-primary"><svg class="h-9 w-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 9h16l-1 11H5L4 9Zm2-5h12l2 5H4l2-5Z"/></svg></div>
+                                <div class="flex aspect-[4/3] items-center justify-center bg-[#eaf3ec] text-primary lg:aspect-[16/9]"><svg class="h-9 w-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 9h16l-1 11H5L4 9Zm2-5h12l2 5H4l2-5Z"/></svg></div>
                             @endif
-                            <h4 class="mt-2 line-clamp-1 text-xs font-bold text-charcoal md:text-[13px]"><span class="lg:hidden">{{ translateValue($umkm['business_name']) }}</span><span class="hidden lg:inline">{{ $productName }}</span></h4>
-                            <p class="mt-0.5 truncate text-[11px] text-gray-500 lg:hidden">{{ $umkm['owner_name'] ?? __('Warga Penglipuran') }}</p>
-                            <div class="mt-1 hidden items-center justify-between gap-2 text-[10px] lg:flex">
-                                @if ($productPrice !== null)
-                                    <span class="font-bold text-primary">Rp {{ number_format((float) $productPrice, 0, ',', '.') }}</span>
-                                @else
-                                    <span class="font-semibold text-primary">{{ translateValue($umkm['business_name']) }}</span>
-                                @endif
-                                <span class="truncate text-right text-gray-500">{{ $houseNumber ? __('Pekarangan No.').' '.$houseNumber : __('Warga Penglipuran') }}</span>
+                            <div class="flex flex-1 flex-col p-3.5">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-secondary">{{ $houseNumber ? __('Pekarangan No.').' '.$houseNumber : ($umkm['owner_name'] ?? __('Warga Penglipuran')) }}</p>
+                                <h4 class="mt-1 line-clamp-1 font-display text-sm font-bold text-charcoal group-hover:text-primary transition-colors md:text-base"><span class="lg:hidden">{{ translateValue($umkm['business_name']) }}</span><span class="hidden lg:inline">{{ $productName }}</span></h4>
+                                <p class="mt-0.5 truncate text-[11px] text-gray-500 lg:hidden">{{ $umkm['owner_name'] ?? __('Warga Penglipuran') }}</p>
+                                <div class="mt-auto flex items-center justify-between border-t border-gray-100 pt-2.5 text-xs">
+                                    @if ($productPrice !== null)
+                                        <span class="font-bold text-primary">Rp {{ number_format((float) $productPrice, 0, ',', '.') }}</span>
+                                    @else
+                                        <span class="font-semibold text-primary truncate max-w-[100px]">{{ translateValue($umkm['business_name']) }}</span>
+                                    @endif
+                                    <span class="inline-flex items-center gap-1 font-semibold text-primary">
+                                        <span>{{ __('Lihat') }}</span>
+                                        <svg class="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                                    </span>
+                                </div>
                             </div>
                         </a>
                     @empty

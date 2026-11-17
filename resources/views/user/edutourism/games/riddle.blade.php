@@ -125,7 +125,7 @@
 
             <div class="edu-sticky-cta">
                 <button type="button" @click="submit()"
-                    class="from-primary shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r to-emerald-700 py-3.5 text-sm font-bold text-white shadow-md transition-transform hover:shadow-lg active:scale-95">
+                    class="bg-primary hover:bg-primary-hover shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold text-white shadow-md transition-all active:scale-95">
                     {{-- Sparkles rather than the obvious question mark: at 16px a `?` inside a
                     circle turns to mud, and the label already says what the button does. --}}
                     <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -158,7 +158,7 @@
                 <div class="edu-pop relative" style="animation-delay:180ms">
                     <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-full shadow-lg"
                         :class="solved
-                            ? 'bg-gradient-to-br from-emerald-500 to-primary text-white shadow-emerald-600/25'
+                            ? 'bg-gradient-to-br from-secondary to-primary text-white shadow-primary/25'
                             : 'bg-gradient-to-br from-gray-400 to-gray-500 text-white shadow-gray-500/20'">
                         {{-- Ring first, then the tick drawn inside it — both are stroke-dash
                         animations, so nothing here reflows. --}}
@@ -217,7 +217,7 @@
 
             <div class="edu-sticky-cta">
                 <button type="button" @click="continueMission()"
-                    class="from-primary shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r to-emerald-700 py-3.5 text-sm font-bold text-white shadow-lg transition-transform active:scale-95">
+                    class="bg-primary hover:bg-primary-hover shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95">
                     {{ __('Lanjut') }}
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
                         aria-hidden="true">

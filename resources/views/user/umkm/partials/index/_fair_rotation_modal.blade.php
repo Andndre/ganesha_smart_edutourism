@@ -1,6 +1,6 @@
 <x-modal name="fair-rotation" maxWidth="lg">
-    <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eaf3ec] text-primary"><svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h13m0 0-3-3m3 3-3 3m6 7H7m0 0 3-3m-3 3 3 3"/></svg></div>
-    <p class="text-xs font-bold uppercase tracking-widest text-amber-800">{{ __('Rekomendasi yang adil') }}</p>
+    <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/5 text-primary"><svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h13m0 0-3-3m3 3-3 3m6 7H7m0 0 3-3m-3 3 3 3"/></svg></div>
+    <p class="text-xs font-bold uppercase tracking-widest text-secondary">{{ __('Rekomendasi yang adil') }}</p>
     <h2 class="mt-2 font-display text-2xl font-bold text-charcoal">{{ __('Setiap UMKM mendapat kesempatan') }}</h2>
     <p class="mt-3 text-sm leading-relaxed text-gray-600">{{ __('Smart Route membantu Anda menemukan produk pilihan sekaligus membagi kunjungan secara adil kepada usaha warga yang aktif.') }}</p>
     <div class="mt-6 space-y-3">
