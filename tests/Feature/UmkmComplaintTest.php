@@ -95,6 +95,6 @@ class UmkmComplaintTest extends TestCase
 
         $response->assertOk();
         $this->assertEquals($this->umkm->id, session('admin_view_umkm_profile_id'));
-        $response->assertSee('Admin Mode:');
+        $response->assertSee('Mode Admin:');
     }
 }
