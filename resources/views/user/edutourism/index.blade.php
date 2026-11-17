@@ -34,7 +34,7 @@
                     @endphp
 
                     <article
-                        class="group relative overflow-hidden rounded-[2rem] border border-[#E5DFD5] bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg {{ $isCompleted ? 'ring-1 ring-secondary/30' : '' }}">
+                        class="group relative overflow-hidden rounded-[2rem] border border-border bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg {{ $isCompleted ? 'ring-1 ring-secondary/30' : '' }}">
 
                         {{-- Large watermark number --}}
                         <span
@@ -121,7 +121,7 @@
                         </button>
                     </article>
                 @empty
-                    <div class="relative col-span-full rounded-[2rem] border border-dashed border-[#E5DFD5] bg-surface p-10 text-center">
+                    <div class="relative col-span-full rounded-[2rem] border border-dashed border-border bg-surface p-10 text-center">
                         <div
                             class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                             <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -139,7 +139,7 @@
         </div>
 
         {{-- Footer note --}}
-        <div class="rounded-2xl border border-[#E5DFD5] bg-surface p-4 text-center">
+        <div class="rounded-2xl border border-border bg-surface p-4 text-center">
             <p class="text-xs font-medium text-secondary">
                 {{ __('Setiap langkah adalah cerita. Pilih rute dan mulai petualangan budaya Anda.') }}
             </p>

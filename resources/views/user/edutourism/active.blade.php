@@ -137,7 +137,7 @@
 @endpush
 
 @section('content')
-    <div class="fixed inset-x-0 bottom-0 top-0 z-0 bg-[#E5E3DF]">
+    <div class="fixed inset-x-0 bottom-0 top-0 z-0 bg-map-canvas">
         <div id="map" class="absolute inset-0 z-0"></div>
 
         {{-- Ditaruh di bawah header, bukan di atas bottom sheet: tinggi sheet berubah-ubah

@@ -24,16 +24,29 @@
     /* Hijau Bambu (60% Dominant Brand) */
     --color-primary-hover: #1b2410;
     /* Darker Hijau Bambu for hover/active states */
+    --color-primary-dark: #1b2410;
     --color-secondary: #989a4b;
     /* Hijau Olive (30% Secondary Brand) */
+    --color-secondary-hover: #83853f;
     --color-accent: #e3c994;
     /* Bilah Bambu (10% Accent Brand) */
+    --color-accent-hover: #d4b574;
     --color-surface: #faf9f6;
     /* Clean Off-White Canvas (Outdoor Readability) */
+    --color-map-canvas: #e5e3df;
+    /* Warm Map Canvas Tile Placeholder */
     --color-charcoal: #191a19;
     /* Abu Batu / High-contrast text */
+    --color-border: #e5dfd5;
+    /* Neutral Border / Outline */
+    --color-border-subtle: #d1c9be;
+    /* Muted Border / Inactive elements */
+    --color-line: #e5dfd5;
+    /* Neutral Line / Divider */
     --color-warning: #e65100;
     /* Alert Amber */
+    --color-amber-accent: #e28f1b;
+    /* Offline & AR Loading Amber */
     --color-success: #293518;
 
     /* Primary Colors - Scale (Hue ~115 aligned to Hijau Bambu #293518) */

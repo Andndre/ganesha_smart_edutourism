@@ -3,8 +3,8 @@
     <div data-umkm-grid class="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
         @foreach ($umkmList as $umkm)
             <a href="{{ route('umkm.store', $umkm->id) }}"
-                class="relative flex flex-col overflow-hidden rounded-2xl border border-[#E5DFD5] bg-white shadow-sm transition-all hover:shadow-md active:scale-[0.98]">
-                <div class="relative aspect-video border-b border-[#E5DFD5] bg-surface">
+                class="relative flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all hover:shadow-md active:scale-[0.98]">
+                <div class="relative aspect-video border-b border-border bg-surface">
                     @if($umkm->image_path)
                         <img src="{{ asset('storage/'.$umkm->image_path) }}" alt="{{ $umkm->business_name }}" loading="lazy" decoding="async" class="h-full w-full object-cover" onerror="this.classList.add('hidden'); this.nextElementSibling.style.display='flex'">
                     @endif

@@ -38,8 +38,8 @@
 
     <div class="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5 xl:grid-cols-4">
         @forelse($objects as $object)
-            <a href="{{ route('cultural-object', ['slug' => $object['slug']]) }}" x-show="mode === 'complexes' ? {{ ($object['children_count'] ?? 0) > 0 ? 'true' : 'false' }} : (cat === 'all' || cat === '{{ $object['category'] ?? '' }}')" class="group overflow-hidden rounded-2xl border border-[#E5DFD5] bg-white shadow-sm transition-shadow hover:shadow-md">
-                <div class="relative aspect-[4/3] border-b border-[#E5DFD5] bg-surface">
+            <a href="{{ route('cultural-object', ['slug' => $object['slug']]) }}" x-show="mode === 'complexes' ? {{ ($object['children_count'] ?? 0) > 0 ? 'true' : 'false' }} : (cat === 'all' || cat === '{{ $object['category'] ?? '' }}')" class="group overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md">
+                <div class="relative aspect-[4/3] border-b border-border bg-surface">
                     @if(!empty($object['historical_images'][0]))
                         <img src="{{ asset('storage/'.$object['historical_images'][0]) }}" alt="{{ $object['name'] }}" loading="lazy" class="h-full w-full object-cover">
                     @else
@@ -59,7 +59,7 @@
                 </div>
             </a>
         @empty
-            <div class="col-span-full rounded-2xl border border-dashed border-[#E5DFD5] bg-surface p-10 text-center text-sm text-gray-600">{{ __('Belum ada objek budaya yang terdaftar.') }}</div>
+            <div class="col-span-full rounded-2xl border border-dashed border-border bg-surface p-10 text-center text-sm text-gray-600">{{ __('Belum ada objek budaya yang terdaftar.') }}</div>
         @endforelse
     </div>
 </div>

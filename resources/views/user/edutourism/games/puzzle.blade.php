@@ -132,7 +132,7 @@
                 </div>
 
                 @if (!empty($cfg['explanation']))
-                    <div class="rounded-xl border border-[#E5DFD5] bg-surface p-3 text-sm text-charcoal">
+                    <div class="rounded-xl border border-border bg-surface p-3 text-sm text-charcoal">
                         <p>{{ $cfg['explanation'] }}</p>
                     </div>
                 @endif

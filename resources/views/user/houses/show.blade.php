@@ -9,7 +9,7 @@
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div>
             @if($house->cover_image_path)<img src="{{ asset('storage/'.$house->cover_image_path) }}" alt="{{ __('Pekarangan No.') }} {{ $house->number }}" class="aspect-[16/9] w-full rounded-3xl object-cover">@endif
-            <div class="mt-6 flex flex-wrap items-center gap-3"><span class="rounded-full border border-[#E5DFD5] bg-surface px-3 py-1 text-xs font-bold text-primary">{{ __('Pekarangan') }} #{{ $house->number }}</span><span class="text-xs font-semibold {{ $house->is_open_to_visitors ? 'text-primary' : 'text-secondary' }}">{{ $house->is_open_to_visitors ? __('Terbuka untuk Wisatawan') : __('Belum terbuka untuk kunjungan') }}</span></div>
+            <div class="mt-6 flex flex-wrap items-center gap-3"><span class="rounded-full border border-border bg-surface px-3 py-1 text-xs font-bold text-primary">{{ __('Pekarangan') }} #{{ $house->number }}</span><span class="text-xs font-semibold {{ $house->is_open_to_visitors ? 'text-primary' : 'text-secondary' }}">{{ $house->is_open_to_visitors ? __('Terbuka untuk Wisatawan') : __('Belum terbuka untuk kunjungan') }}</span></div>
             <h1 class="mt-3 font-display text-3xl font-bold text-charcoal md:text-5xl">{{ __('Rumah Adat') }} #{{ $house->number }}</h1>
             <p class="mt-3 max-w-3xl text-base leading-relaxed text-gray-700">{{ translateValue($house->description) }}</p>
             @if($house->gallery)
@@ -18,7 +18,7 @@
 
             <section class="mt-10"><h2 class="font-display text-2xl font-bold text-charcoal">{{ __('Ruang Budaya di Pekarangan') }}</h2><div class="mt-4 grid gap-4 sm:grid-cols-2">
                 @forelse($house->culturalObjects as $object)
-                    <div class="rounded-2xl border border-[#E5DFD5] bg-white p-5 shadow-sm">
+                    <div class="rounded-2xl border border-border bg-white p-5 shadow-sm">
                         <a href="{{ route('cultural-object', ['slug' => $object->slug]) }}" class="block">
                             <h3 class="font-display text-lg font-bold">{{ translateValue($object->name) }}</h3>
                             <p class="mt-1 line-clamp-2 text-sm text-gray-600">{{ translateValue($object->short_description) }}</p>
@@ -37,7 +37,7 @@
 
             <section class="mt-10"><h2 class="font-display text-2xl font-bold text-charcoal">{{ __('UMKM di Pekarangan Ini') }}</h2><div class="mt-4 grid gap-4 sm:grid-cols-2">
                 @foreach($house->umkmProfiles as $profile)
-                    <div class="rounded-2xl border border-[#E5DFD5] bg-white p-5 shadow-sm">
+                    <div class="rounded-2xl border border-border bg-white p-5 shadow-sm">
                         <a href="{{ route('umkm.store', ['id' => $profile->id]) }}" class="block"><h3 class="font-display text-lg font-bold">{{ translateValue($profile->business_name) }}</h3><p class="mt-1 text-sm text-gray-600">{{ $profile->owner_name }}</p></a>
                         <div class="mt-4 space-y-2">
                             @forelse($profile->activeProducts->take(3) as $product)
@@ -59,14 +59,14 @@
             </div></section>
         </div>
         <aside class="space-y-4">
-            <div class="rounded-2xl border border-[#E5DFD5] bg-white p-6 shadow-sm"><h2 class="font-display text-xl font-bold">{{ __('Penghuni Pekarangan') }}</h2><p class="mt-4 text-sm text-gray-500">{{ __('Kepala keluarga') }}</p><p class="font-semibold text-charcoal">{{ $house->head_name }}</p><div class="mt-5 grid grid-cols-2 gap-3"><div class="rounded-xl bg-surface p-3"><strong class="text-2xl text-primary">{{ $house->male_count }}</strong><p class="text-xs text-gray-600">{{ __('Laki-laki') }}</p></div><div class="rounded-xl bg-surface p-3"><strong class="text-2xl text-primary">{{ $house->female_count }}</strong><p class="text-xs text-gray-600">{{ __('Perempuan') }}</p></div></div></div>
+            <div class="rounded-2xl border border-border bg-white p-6 shadow-sm"><h2 class="font-display text-xl font-bold">{{ __('Penghuni Pekarangan') }}</h2><p class="mt-4 text-sm text-gray-500">{{ __('Kepala keluarga') }}</p><p class="font-semibold text-charcoal">{{ $house->head_name }}</p><div class="mt-5 grid grid-cols-2 gap-3"><div class="rounded-xl bg-surface p-3"><strong class="text-2xl text-primary">{{ $house->male_count }}</strong><p class="text-xs text-gray-600">{{ __('Laki-laki') }}</p></div><div class="rounded-xl bg-surface p-3"><strong class="text-2xl text-primary">{{ $house->female_count }}</strong><p class="text-xs text-gray-600">{{ __('Perempuan') }}</p></div></div></div>
             @if($house->mapLocation)
                 <a href="{{ route('explore', ['action' => 'route', 'id' => $house->mapLocation->id, 'lat' => $house->mapLocation->latitude, 'lng' => $house->mapLocation->longitude, 'name' => $house->getMapDisplayName()]) }}" class="tap-target flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 text-center text-sm font-bold text-white transition active:scale-95">
                     <span>{{ __('Lihat Lokasi di Peta') }}</span>
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                 </a>
             @endif
-            @if($house->ar_marker_id)<div class="rounded-2xl border border-[#E5DFD5] bg-white p-5 text-center"><img src="{{ qrSvgDataUri(route('ar-scan-redirect', ['arMarkerId' => $house->ar_marker_id])) }}" alt="{{ __('Marker pekarangan') }} {{ $house->number }}" class="mx-auto h-32 w-32"><p class="mt-3 text-xs text-gray-600">{{ __('Satu marker untuk seluruh pekarangan ini.') }}</p></div>@endif
+            @if($house->ar_marker_id)<div class="rounded-2xl border border-border bg-white p-5 text-center"><img src="{{ qrSvgDataUri(route('ar-scan-redirect', ['arMarkerId' => $house->ar_marker_id])) }}" alt="{{ __('Marker pekarangan') }} {{ $house->number }}" class="mx-auto h-32 w-32"><p class="mt-3 text-xs text-gray-600">{{ __('Satu marker untuk seluruh pekarangan ini.') }}</p></div>@endif
         </aside>
     </div>
 </div>

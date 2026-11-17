@@ -3,7 +3,7 @@
 @section('title', __('Peta Interaktif - Penglipuran Smart Tour'))
 
 @section('content')
-    <div class="absolute inset-0 z-0 overflow-hidden bg-[#E5E3DF]">
+    <div class="absolute inset-0 z-0 overflow-hidden bg-map-canvas">
         <div id="map" class="absolute inset-0 z-0"></div>
 
         <!-- Heatmap Overlay Container -->

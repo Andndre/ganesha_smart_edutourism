@@ -5,7 +5,7 @@
         <!-- Spinner rings -->
         <div class="absolute inset-0 rounded-full border-4 border-white/20"></div>
         <div
-            class="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-r-[#E28F1B] border-t-[#E28F1B]">
+            class="border-r-amber-accent border-t-amber-accent absolute inset-0 animate-spin rounded-full border-4 border-transparent">
         </div>
         <!-- Center Icon -->
         <div class="absolute inset-0 flex items-center justify-center">
@@ -17,12 +17,14 @@
         </div>
     </div>
     <h3 class="mb-2 text-xl font-bold text-white">{{ __('Mengunduh Model 3D') }}</h3>
-    <p class="max-w-xs text-center text-sm text-gray-300">{{ __('Mohon tunggu sebentar, kami sedang menyiapkan pengalaman AR untuk Anda...') }}</p>
+    <p class="max-w-xs text-center text-sm text-gray-300">
+        {{ __('Mohon tunggu sebentar, kami sedang menyiapkan pengalaman AR untuk Anda...') }}</p>
 
     {{-- ponytail: progress bar sendiri, menggantikan progress bar bawaan model-viewer --}}
     <div class="mt-6 w-56">
         <div class="h-1.5 w-full overflow-hidden rounded-full bg-white/20">
-            <div id="loading-progress-bar" class="h-full w-0 rounded-full bg-[#E28F1B] transition-[width] duration-200"></div>
+            <div id="loading-progress-bar"
+                class="bg-amber-accent h-full w-0 rounded-full transition-[width] duration-200"></div>
         </div>
         <p id="loading-progress-text" class="mt-2 text-center text-xs font-semibold text-gray-300"></p>
     </div>

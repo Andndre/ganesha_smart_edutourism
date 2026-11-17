@@ -1,5 +1,5 @@
 <!-- 2. 3D Model View (Hidden Initially) -->
-<div id="model-view" class="absolute inset-0 z-10 hidden bg-[#1a1a1a]">
+<div id="model-view" class="absolute inset-0 z-10 hidden bg-neutral-900">
 
     <!-- iOS In-App Browser Warning -->
     <div id="iab-warning"

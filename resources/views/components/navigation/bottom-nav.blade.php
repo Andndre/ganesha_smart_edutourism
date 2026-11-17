@@ -1,20 +1,20 @@
-<nav class="pb-sab w-full md:static md:w-20 md:h-[calc(100vh-2rem)] md:m-4 md:rounded-3xl md:shrink-0 md:border md:border-[#E5DFD5] md:bg-white md:shadow-sm md:pb-0 z-50 sticky bottom-0 inset-x-0 md:top-4 md:inset-x-auto lg:hidden"
+<nav class="pb-sab w-full md:static md:w-20 md:h-[calc(100vh-2rem)] md:m-4 md:rounded-3xl md:shrink-0 md:border md:border-border md:bg-white md:shadow-sm md:pb-0 z-50 sticky bottom-0 inset-x-0 md:top-4 md:inset-x-auto lg:hidden"
     role="navigation" aria-label="{{ __('Main navigation') }}">
 
     <!-- Mobile Notched Background Bar (Hidden on desktop/tablet) -->
     <div class="absolute inset-0 pointer-events-none md:hidden flex flex-col drop-shadow-[0_-3px_10px_rgba(25,26,25,0.05)]" aria-hidden="true">
         <div class="flex h-16 w-full">
             <!-- Left Wing -->
-            <div class="flex-1 bg-white border-t border-[#E5DFD5]"></div>
+            <div class="flex-1 bg-white border-t border-border"></div>
             <!-- Center Notched Cradle (96px fixed width) -->
             <div class="w-[96px] h-16 shrink-0 relative">
                 <svg viewBox="0 0 96 64" fill="none" class="w-full h-full block">
                     <path d="M 0 0.75 H 5.19 A 10 10 0 0 1 15.14 9.07 A 33 33 0 0 0 80.86 9.07 A 10 10 0 0 1 90.81 0.75 H 96 V 64 H 0 Z" fill="#FFFFFF" />
-                    <path d="M 0 0.75 H 5.19 A 10 10 0 0 1 15.14 9.07 A 33 33 0 0 0 80.86 9.07 A 10 10 0 0 1 90.81 0.75 H 96" stroke="#E5DFD5" stroke-width="1.5" stroke-linecap="round" fill="none" />
+                    <path d="M 0 0.75 H 5.19 A 10 10 0 0 1 15.14 9.07 A 33 33 0 0 0 80.86 9.07 A 10 10 0 0 1 90.81 0.75 H 96" stroke="var(--color-border)" stroke-width="1.5" stroke-linecap="round" fill="none" />
                 </svg>
             </div>
             <!-- Right Wing -->
-            <div class="flex-1 bg-white border-t border-[#E5DFD5]"></div>
+            <div class="flex-1 bg-white border-t border-border"></div>
         </div>
         <!-- Safe Area Inset Bottom Filler -->
         <div class="flex-1 w-full bg-white"></div>
