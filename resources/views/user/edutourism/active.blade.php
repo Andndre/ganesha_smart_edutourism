@@ -161,7 +161,7 @@
                     $activeDensityButtonTone = match ($activeDensityStatus['key'] ?? 'safe') {
                         'medium' => 'bg-amber-50 text-amber-800 hover:bg-amber-100 focus-visible:ring-amber-700',
                         'full' => 'bg-rose-50 text-rose-800 hover:bg-rose-100 focus-visible:ring-rose-700',
-                        default => 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 focus-visible:ring-emerald-700',
+                        default => 'bg-secondary/15 text-primary hover:bg-secondary/25 focus-visible:ring-primary',
                     };
                 @endphp
                 <div class="flex min-w-0 flex-1 items-center gap-3">
@@ -372,15 +372,15 @@
                         'button_hover' => 'hover:bg-amber-700',
                     ],
                     'emerald' => [
-                        'icon_bg' => 'bg-emerald-100',
-                        'icon_text' => 'text-emerald-600',
-                        'title' => 'text-emerald-900',
-                        'score_bg' => 'bg-emerald-50',
-                        'score_border' => 'border-emerald-100',
-                        'score_text' => 'text-emerald-600',
-                        'score_label' => 'text-emerald-400',
-                        'button_bg' => 'bg-emerald-600',
-                        'button_hover' => 'hover:bg-emerald-700',
+                        'icon_bg' => 'bg-secondary/15',
+                        'icon_text' => 'text-primary',
+                        'title' => 'text-primary',
+                        'score_bg' => 'bg-surface',
+                        'score_border' => 'border-secondary/20',
+                        'score_text' => 'text-primary',
+                        'score_label' => 'text-secondary',
+                        'button_bg' => 'bg-primary',
+                        'button_hover' => 'hover:bg-primary-hover',
                     ],
                     'blue' => [
                         'icon_bg' => 'bg-blue-100',
@@ -459,7 +459,7 @@
                             <div class="mt-2 flex flex-wrap gap-2">
                                 @foreach ($activeSession->collectibles_earned as $collectible)
                                     <span
-                                        class="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
+                                        class="inline-flex items-center gap-1.5 rounded-full border border-secondary/20 bg-secondary/10 px-3 py-1.5 text-xs font-bold text-primary">
                                         🎖️
                                         {{ $collectible === 'digital_passport' ? __('Digital Passport') : \Illuminate\Support\Str::of($collectible)->replace('_', ' ')->title() }}
                                     </span>
@@ -631,7 +631,7 @@
                             if (detail.earned > 0) {
                                 const badge = document.createElement('div');
                                 badge.className =
-                                    'quiz-score-badge fixed left-1/2 top-1/3 z-[70] text-3xl font-black text-green-600';
+                                    'quiz-score-badge fixed left-1/2 top-1/3 z-[70] text-3xl font-black text-primary';
                                 badge.textContent = `+${detail.earned}`;
                                 document.body.appendChild(badge);
                                 setTimeout(() => badge.remove(), 1500);

@@ -7,7 +7,7 @@
 
         {{-- Header --}}
         <div class="relative text-center">
-            <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 shadow-sm">
+            <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-secondary/20 bg-secondary/10 text-primary shadow-sm">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
@@ -23,7 +23,7 @@
         <div class="relative">
             {{-- Connector line: vertical on mobile, horizontal on desktop --}}
             <div
-                class="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-emerald-200 via-emerald-300 to-transparent md:left-0 md:right-0 md:top-12 md:h-px md:w-auto md:bg-gradient-to-r">
+                class="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-secondary/30 via-secondary/40 to-transparent md:left-0 md:right-0 md:top-12 md:h-px md:w-auto md:bg-gradient-to-r">
             </div>
 
             <div class="relative grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-5">
@@ -34,11 +34,11 @@
                     @endphp
 
                     <article
-                        class="group relative overflow-hidden rounded-[2rem] border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg {{ $isCompleted ? 'ring-1 ring-emerald-100' : '' }}">
+                        class="group relative overflow-hidden rounded-[2rem] border border-[#E5DFD5] bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg {{ $isCompleted ? 'ring-1 ring-secondary/30' : '' }}">
 
                         {{-- Large watermark number --}}
                         <span
-                            class="font-display pointer-events-none absolute -right-2 -top-3 text-8xl font-bold text-gray-50 transition-colors group-hover:text-emerald-50/80 md:text-7xl lg:text-8xl">
+                            class="font-display pointer-events-none absolute -right-2 -top-3 text-8xl font-bold text-gray-50 transition-colors group-hover:text-secondary/10 md:text-7xl lg:text-8xl">
                             {{ $number }}
                         </span>
 
@@ -47,7 +47,7 @@
                             <div class="flex flex-wrap items-center gap-2">
                                 @if ($isCompleted)
                                     <span
-                                        class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-700 shadow-sm">
+                                        class="inline-flex items-center gap-1 rounded-full border border-secondary/30 bg-secondary/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-primary shadow-sm">
                                         <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                             stroke-width="3">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -63,7 +63,7 @@
                             </div>
 
                             <div
-                                class="shrink-0 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 p-3 text-white shadow-md transition-transform group-hover:scale-105">
+                                class="shrink-0 rounded-2xl bg-primary p-3 text-white shadow-md transition-transform group-hover:scale-105">
                                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                     stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -116,14 +116,14 @@
                         {{-- CTA --}}
                         <button
                             @click="@auth $dispatch('open-route-preview-modal'); fetchRoutePreview({{ $route['id'] }}) @else $dispatch('open-save-progress-confirm-modal'); window.pendingRouteId = {{ $route['id'] }} @endauth; if (navigator.vibrate) navigator.vibrate(40)"
-                            class="relative mt-6 w-full rounded-2xl py-3.5 text-center text-sm font-bold shadow-sm transition-all active:scale-95 {{ $isCompleted ? 'border-2 border-emerald-600 bg-white text-emerald-700 hover:bg-emerald-50' : 'border-primary text-primary hover:bg-primary-50 border-2 bg-white' }}">
+                            class="relative mt-6 w-full rounded-2xl py-3.5 text-center text-sm font-bold shadow-sm transition-all active:scale-95 {{ $isCompleted ? 'border-2 border-secondary bg-white text-primary hover:bg-secondary/10' : 'bg-primary text-white hover:bg-primary-hover shadow-sm' }}">
                             {{ $isCompleted ? __('Ulangi Eksplorasi') : __('Mulai Jelajah') }}
                         </button>
                     </article>
                 @empty
-                    <div class="relative col-span-full rounded-[2rem] border border-dashed border-gray-300 bg-white p-10 text-center">
+                    <div class="relative col-span-full rounded-[2rem] border border-dashed border-[#E5DFD5] bg-surface p-10 text-center">
                         <div
-                            class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                            class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                             <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
@@ -139,8 +139,8 @@
         </div>
 
         {{-- Footer note --}}
-        <div class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 text-center">
-            <p class="text-xs font-medium text-emerald-800">
+        <div class="rounded-2xl border border-[#E5DFD5] bg-surface p-4 text-center">
+            <p class="text-xs font-medium text-secondary">
                 {{ __('Setiap langkah adalah cerita. Pilih rute dan mulai petualangan budaya Anda.') }}
             </p>
         </div>
@@ -150,18 +150,11 @@
         <!-- Route Preview Modal -->
         <x-modal name="route-preview-modal">
             <div class="space-y-5">
-                <div class="flex items-center justify-between">
+                <div>
                     <span
-                        class="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide text-emerald-600">
+                        class="rounded-full border border-secondary/30 bg-secondary/15 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide text-primary">
                         {{ __('Smart Edutourism') }}
                     </span>
-                    <button type="button" @click="isOpen = false"
-                        class="tap-target flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:text-gray-600 md:hidden"
-                        title="{{ __('Tutup') }}">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
                 </div>
 
                 <div>
@@ -176,7 +169,7 @@
                         {{ __('Titik Perhentian') }}</h4>
                     <ul id="preview-points" class="space-y-3">
                         <li class="flex items-center gap-3 text-sm text-gray-500">
-                            <span class="h-2 w-2 animate-pulse rounded-full bg-emerald-500"></span>
+                            <span class="h-2 w-2 animate-pulse rounded-full bg-primary"></span>
                             {{ __('Memuat rute...') }}
                         </li>
                     </ul>
@@ -196,7 +189,7 @@
         <x-modal name="save-progress-confirm-modal">
             <div class="space-y-5 py-2 text-center">
                 <div
-                    class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 shadow-sm">
+                    class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-secondary/20 bg-secondary/10 text-primary shadow-sm">
                     <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -232,7 +225,7 @@
                 document.getElementById('preview-desc').textContent = '';
                 document.getElementById('preview-points').innerHTML = `
                     <li class="flex items-center gap-3 text-sm text-gray-500">
-                        <span class="h-2 w-2 animate-pulse rounded-full bg-emerald-500"></span>
+                        <span class="h-2 w-2 animate-pulse rounded-full bg-primary"></span>
                         {{ __('Memuat rute...') }}
                     </li>`;
                 document.getElementById('btn-start-route').disabled = true;
@@ -252,7 +245,7 @@
                             data.points.forEach((pt, index) => {
                                 ul.innerHTML += `
                                 <li class="flex items-start gap-3">
-                                    <div class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-700">${index + 1}</div>
+                                    <div class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-secondary/30 bg-secondary/20 text-[11px] font-bold text-primary">${index + 1}</div>
                                     <span class="text-sm font-medium text-gray-700">${pt.name}</span>
                                 </li>
                             `;

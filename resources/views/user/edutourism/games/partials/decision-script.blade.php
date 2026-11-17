@@ -32,7 +32,7 @@
             position: relative;
             overflow: hidden;
             aspect-ratio: 16 / 10;
-            background: #eef1ee;
+            background: #FAF9F6;
         }
 
         .dc-scene-img {

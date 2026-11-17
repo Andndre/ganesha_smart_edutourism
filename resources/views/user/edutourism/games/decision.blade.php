@@ -156,7 +156,7 @@
         x-transition:enter-end="translate-y-0 opacity-100" x-transition:leave="transition duration-150 ease-in"
         x-transition:leave-start="translate-y-0 opacity-100" x-transition:leave-end="translate-y-full opacity-0">
         <button type="button" @click="check()"
-            class="from-primary shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r to-emerald-700 py-3.5 text-sm font-bold text-white shadow-md transition-transform hover:shadow-lg active:scale-95">
+            class="bg-primary hover:bg-primary-hover shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold text-white shadow-md transition-all active:scale-95">
             <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
                 aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M12 3l7 4v5a9 9 0 11-14 0V7z" />
@@ -170,7 +170,7 @@
         x-transition:leave="transition duration-150 ease-in" x-transition:leave-start="translate-y-0 opacity-100"
         x-transition:leave-end="translate-y-full opacity-0">
         <button type="button" @click="next()"
-            class="from-primary shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r to-emerald-700 py-3.5 text-sm font-bold text-white shadow-lg transition-transform active:scale-95">
+            class="bg-primary hover:bg-primary-hover shadow-primary/25 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95">
             <span x-text="idx + 1 < total ? @js(__('Skenario Berikutnya')) : @js(__('Selesai'))"></span>
             <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
                 aria-hidden="true">
