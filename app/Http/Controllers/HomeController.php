@@ -57,39 +57,96 @@ class HomeController extends Controller
             }
         }
 
-        // ponytail: rotasi acak yang di-cache per jam, bukan UmkmRecommendationService —
-        // service itu butuh categoryIds dan menulis last_recommended_at, yang tidak pantas
-        // dijalankan pada setiap kunjungan beranda.
+        // Rotasi UMKM yang di-cache dalam bentuk pool kandidat,
+        // lalu disampel acak per kunjungan untuk menjamin variasi kategori produk,
+        // mencegah kartu kembar, dan meratakan eksposur warga adat.
         $locale = app()->getLocale();
-        $featuredUmkm = Cache::tags(['explore', 'umkm'])->flexible(
-            "home_featured_umkm_cards_array_v2_{$locale}",
+        $featuredUmkmPool = Cache::tags(['explore', 'umkm'])->flexible(
+            "home_featured_umkm_pool_array_v2_{$locale}",
             [600, 1800],
-            fn () => UmkmProfile::active()
-                ->with([
-                    'activeProducts.category',
-                    'activeProducts.activeVariants',
-                    'traditionalHouse:id,number',
-                ])
-                ->inRandomOrder()
-                ->limit(8)
-                ->get()
-                ->map(function (UmkmProfile $profile): array {
-                    $product = $profile->activeProducts->first();
-                    $priceRange = $product?->price_range;
+            function (): array {
+                $profiles = UmkmProfile::active()
+                    ->with([
+                        'activeProducts.category',
+                        'activeProducts.activeVariants',
+                        'traditionalHouse:id,number',
+                    ])
+                    ->inRandomOrder()
+                    ->limit(12)
+                    ->get();
 
-                    return [
-                        'id' => $profile->id,
-                        'business_name' => $profile->getTranslations('business_name'),
-                        'owner_name' => $profile->owner_name,
-                        'image_path' => $profile->image_path,
-                        'product_name' => $product?->display_name,
-                        'product_image_path' => $product?->display_image,
-                        'product_price' => $priceRange['min'] ?? null,
-                        'house_number' => $profile->traditionalHouse?->number,
-                    ];
-                })
-                ->all()
+                $cards = [];
+
+                foreach ($profiles as $profile) {
+                    $products = $profile->activeProducts;
+
+                    if ($products->isEmpty()) {
+                        $cards[] = [
+                            'id' => $profile->id,
+                            'category_id' => null,
+                            'business_name' => $profile->getTranslations('business_name'),
+                            'owner_name' => $profile->owner_name,
+                            'image_path' => $profile->image_path,
+                            'product_name' => null,
+                            'product_image_path' => null,
+                            'product_price' => null,
+                            'house_number' => $profile->traditionalHouse?->number,
+                        ];
+
+                        continue;
+                    }
+
+                    foreach ($products->take(3) as $product) {
+                        $priceRange = $product->price_range;
+
+                        $cards[] = [
+                            'id' => $profile->id,
+                            'category_id' => $product->umkm_product_category_id,
+                            'business_name' => $profile->getTranslations('business_name'),
+                            'owner_name' => $profile->owner_name,
+                            'image_path' => $profile->image_path,
+                            'product_name' => $product->display_name,
+                            'product_image_path' => $product->display_image,
+                            'product_price' => $priceRange['min'] ?? null,
+                            'house_number' => $profile->traditionalHouse?->number,
+                        ];
+                    }
+                }
+
+                return $cards;
+            }
         );
+
+        $pool = collect($featuredUmkmPool)->shuffle()->values();
+        $pair = null;
+        $poolCount = $pool->count();
+
+        // Cari sepasang kartu dari UMKM berbeda dengan kategori berbeda
+        for ($i = 0; $i < $poolCount - 1; $i++) {
+            for ($j = $i + 1; $j < $poolCount; $j++) {
+                $a = $pool[$i];
+                $b = $pool[$j];
+
+                if ($a['id'] !== $b['id']) {
+                    $catA = $a['category_id'] ?? null;
+                    $catB = $b['category_id'] ?? null;
+
+                    if ($catA !== null && $catB !== null && $catA === $catB) {
+                        continue;
+                    }
+
+                    $pair = [$a, $b];
+                    break 2;
+                }
+            }
+        }
+
+        // Fallback jika tidak ditemukan pasangan dengan kategori berbeda
+        if (! $pair) {
+            $pair = $pool->unique('id')->take(2)->values()->all();
+        }
+
+        $featuredUmkm = $pair;
 
         $houseCount = TraditionalHouse::published()->count();
         $culturalCount = CulturalObject::roots()->count();

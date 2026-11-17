@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\UmkmProduct;
+use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -15,6 +17,48 @@ class HomeFeaturedUmkmTest extends TestCase
     {
         parent::setUp();
         Cache::flush();
+    }
+
+    public function test_home_page_diversifies_featured_umkm_categories(): void
+    {
+        $categoryCraft = UmkmProductCategory::factory()->create([
+            'name' => ['en' => 'Balinese Mask', 'id' => 'Topeng Bali'],
+        ]);
+        $categoryDrink = UmkmProductCategory::factory()->create([
+            'name' => ['en' => 'Herbal Drink', 'id' => 'Loloh Herbal'],
+        ]);
+
+        $umkm1 = UmkmProfile::factory()->create(['is_active' => true]);
+        $umkm2 = UmkmProfile::factory()->create(['is_active' => true]);
+
+        // Both UMKM 1 and UMKM 2 have craft as their first product
+        UmkmProduct::factory()->create([
+            'umkm_profile_id' => $umkm1->id,
+            'umkm_product_category_id' => $categoryCraft->id,
+            'name' => ['en' => 'Rangda Mask', 'id' => 'Topeng Rangda'],
+            'is_active' => true,
+        ]);
+
+        UmkmProduct::factory()->create([
+            'umkm_profile_id' => $umkm2->id,
+            'umkm_product_category_id' => $categoryCraft->id,
+            'name' => ['en' => 'Rangda Mask', 'id' => 'Topeng Rangda'],
+            'is_active' => true,
+        ]);
+
+        // UMKM 2 also has a drink product
+        UmkmProduct::factory()->create([
+            'umkm_profile_id' => $umkm2->id,
+            'umkm_product_category_id' => $categoryDrink->id,
+            'name' => ['en' => 'Loloh Cemcem', 'id' => 'Loloh Cemcem Segar'],
+            'is_active' => true,
+        ]);
+
+        $response = $this->get(route('home'))->assertOk();
+
+        // The view should diversify: one Topeng and one Loloh, never two identical Topeng products
+        $response->assertSee('Topeng Bali');
+        $response->assertSee('Loloh Herbal');
     }
 
     /**
