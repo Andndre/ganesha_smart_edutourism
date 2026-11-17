@@ -8,9 +8,9 @@
             <div class="flex-1 bg-white border-t border-[#E5DFD5]"></div>
             <!-- Center Notched Cradle (96px fixed width) -->
             <div class="w-[96px] h-16 shrink-0 relative">
-                <svg viewBox="0 0 96 64" fill="none" class="w-full h-full block" preserveAspectRatio="none">
-                    <path d="M 0 0.75 H 12 C 22 0.75 25 8 30 18 C 36 29 42 33 48 33 C 54 33 60 29 66 18 C 71 8 74 0.75 84 0.75 H 96 V 64 H 0 Z" fill="#FFFFFF" />
-                    <path d="M 0 0.75 H 12 C 22 0.75 25 8 30 18 C 36 29 42 33 48 33 C 54 33 60 29 66 18 C 71 8 74 0.75 84 0.75 H 96" stroke="#E5DFD5" stroke-width="1.5" stroke-linecap="round" fill="none" />
+                <svg viewBox="0 0 96 64" fill="none" class="w-full h-full block">
+                    <path d="M 0 0.75 H 5.19 A 10 10 0 0 1 15.14 9.07 A 33 33 0 0 0 80.86 9.07 A 10 10 0 0 1 90.81 0.75 H 96 V 64 H 0 Z" fill="#FFFFFF" />
+                    <path d="M 0 0.75 H 5.19 A 10 10 0 0 1 15.14 9.07 A 33 33 0 0 0 80.86 9.07 A 10 10 0 0 1 90.81 0.75 H 96" stroke="#E5DFD5" stroke-width="1.5" stroke-linecap="round" fill="none" />
                 </svg>
             </div>
             <!-- Right Wing -->
@@ -81,9 +81,9 @@
         </a>
 
         <!-- AR Scan Button Mobile Position (Docked in Cradle) -->
-        <div class="relative z-20 flex h-full w-20 shrink-0 items-center justify-center md:hidden">
+        <div class="relative z-20 flex h-full w-[96px] shrink-0 items-center justify-center md:hidden">
             <a href="{{ route('ar-scan') }}"
-                class="bg-primary absolute -top-5 flex h-[52px] w-[52px] items-center justify-center rounded-full text-accent shadow-md border-2 border-white transition-all duration-300 hover:-translate-y-6 hover:shadow-lg active:scale-95"
+                class="bg-primary absolute -top-5 flex h-[52px] w-[52px] items-center justify-center rounded-full text-accent shadow-md border-2 border-white transition-transform duration-150 hover:brightness-110 hover:shadow-lg active:scale-95"
                 aria-label="{{ __('Buka Kamera AR & Pindai QR') }}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-6 w-6 text-accent">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 7.5V5.25A1.5 1.5 0 0 1 5.25 3.75H7.5m9 0h2.25A1.5 1.5 0 0 1 20.25 5.25V7.5m0 9v2.25a1.5 1.5 0 0 1-1.5 1.5H16.5m-9 0H5.25a1.5 1.5 0 0 1-1.5-1.5V16.5" />
@@ -143,9 +143,6 @@
                 <span class="text-[11px] font-medium transition-colors duration-200 md:hidden lg:block lg:text-sm lg:font-semibold">{{ __('Masuk') }}</span>
             </a>
         @endauth
-
-    </div>
-</nav>
 
     </div>
 </nav>
