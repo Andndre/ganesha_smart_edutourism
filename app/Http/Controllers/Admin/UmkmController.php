@@ -11,13 +11,16 @@ use App\Http\Requests\Admin\UmkmOwnerRequest;
 use App\Http\Requests\Admin\UmkmProductRequest;
 use App\Http\Requests\Admin\UmkmProfileRequest;
 use App\Models\ArModel;
+use App\Models\TraditionalHouse;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use App\Models\User;
+use App\Services\HouseProfileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -156,34 +159,40 @@ class UmkmController extends Controller
      */
     public function storeProfile(UmkmProfileRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
+        return DB::transaction(function () use ($request) {
+            $validated = $request->validated();
 
-        $validated['is_active'] = $request->has('is_active');
+            $validated['is_active'] = $request->has('is_active');
 
-        if (empty($validated['ar_marker_id'])) {
-            $validated['ar_marker_id'] = 'UMKM_'.strtoupper(Str::random(8));
-        }
+            if (empty($validated['ar_marker_id'])) {
+                $validated['ar_marker_id'] = 'UMKM_'.strtoupper(Str::random(8));
+            }
 
-        $validated['slug'] = (new UmkmProfile)->generateCollisionFreeSlug(slugFromTranslatable($validated['business_name']));
+            if (($validated['profile_type'] ?? 'business') === 'house') {
+                $house = TraditionalHouse::findOrFail($validated['traditional_house_id']);
+                $validated['business_name'] = HouseProfileService::names($house->number);
+            }
+            $validated['slug'] = (new UmkmProfile)->generateCollisionFreeSlug(slugFromTranslatable($validated['business_name']));
 
-        $geo = $this->extractGeoFields($request, $validated);
-        unset($validated['ar_marker_id']);
+            $geo = $this->extractGeoFields($request, $validated);
+            unset($validated['ar_marker_id']);
 
-        $profile = UmkmProfile::create($validated);
+            $profile = UmkmProfile::create($validated);
 
-        $mapLocation = $profile->syncMapLocation(['category' => 'umkm', ...$geo]);
+            $mapLocation = $profile->syncMapLocation(['category' => 'umkm', ...$geo]);
 
-        // AR marker via ArModel (marker-only, no 3D model)
-        $arMarkerId = $request->input('ar_marker_id');
-        if (! empty($arMarkerId)) {
-            ArModel::create([
-                'name' => $profile->getMapDisplayName().' Marker',
-                'ar_marker_id' => $arMarkerId,
-                'map_location_id' => $mapLocation->id,
-            ]);
-        }
+            // AR marker via ArModel (marker-only, no 3D model)
+            $arMarkerId = $request->input('ar_marker_id');
+            if (! empty($arMarkerId)) {
+                ArModel::create([
+                    'name' => $profile->getMapDisplayName().' Marker',
+                    'ar_marker_id' => $arMarkerId,
+                    'map_location_id' => $mapLocation->id,
+                ]);
+            }
 
-        return redirect()->route('admin.map-manager')->with('success', __('Profil UMKM berhasil ditambahkan.'));
+            return redirect()->route('admin.map-manager')->with('success', __('Profil UMKM berhasil ditambahkan.'));
+        });
     }
 
     /**
@@ -191,50 +200,52 @@ class UmkmController extends Controller
      */
     public function updateProfile(UmkmProfileRequest $request, int $id): RedirectResponse
     {
-        $profile = UmkmProfile::findOrFail($id);
+        return DB::transaction(function () use ($request, $id) {
+            $profile = UmkmProfile::findOrFail($id);
 
-        $validated = $request->validated();
+            $validated = $request->validated();
 
-        $validated['is_active'] = $request->has('is_active');
+            $validated['is_active'] = $request->has('is_active');
 
-        if (empty($validated['ar_marker_id'])) {
-            $validated['ar_marker_id'] = 'UMKM_'.strtoupper(Str::random(8));
-        }
+            if (empty($validated['ar_marker_id'])) {
+                $validated['ar_marker_id'] = 'UMKM_'.strtoupper(Str::random(8));
+            }
 
-        $defaultLocale = config('app.fallback_locale', 'en');
-        $currentName = \is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[$defaultLocale] ?? '');
-        $newName = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? '';
-        if ($currentName !== $newName) {
-            $validated['slug'] = $profile->generateCollisionFreeSlug(slugFromTranslatable($validated['business_name']), $profile->id);
-        }
+            $defaultLocale = config('app.fallback_locale', 'en');
+            $currentName = \is_string($profile->business_name) ? $profile->business_name : ($profile->business_name[$defaultLocale] ?? '');
+            $newName = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? '';
+            if (! $profile->isHouse() && ($validated['profile_type'] ?? 'business') !== 'house' && $currentName !== $newName) {
+                $validated['slug'] = $profile->generateCollisionFreeSlug(slugFromTranslatable($validated['business_name']), $profile->id);
+            }
 
-        $geo = $this->extractGeoFields($request, $validated);
-        unset($validated['ar_marker_id']);
+            $geo = $this->extractGeoFields($request, $validated);
+            unset($validated['ar_marker_id']);
 
-        $profile->update($validated);
+            $profile->update($validated);
 
-        $mapLocation = $profile->syncMapLocation(['category' => 'umkm', ...$geo], isUpdate: true);
+            $mapLocation = $profile->syncMapLocation(['category' => 'umkm', ...$geo], isUpdate: true);
 
-        // AR marker via ArModel
-        $arMarkerId = $request->input('ar_marker_id');
-        $existingModel = $mapLocation->arModel;
-        if (! empty($arMarkerId)) {
-            if ($existingModel) {
-                $existingModel->update(['ar_marker_id' => $arMarkerId]);
+            // AR marker via ArModel
+            $arMarkerId = $request->input('ar_marker_id');
+            $existingModel = $mapLocation->arModel;
+            if (! empty($arMarkerId)) {
+                if ($existingModel) {
+                    $existingModel->update(['ar_marker_id' => $arMarkerId]);
+                } else {
+                    ArModel::create([
+                        'name' => $profile->getMapDisplayName().' Marker',
+                        'ar_marker_id' => $arMarkerId,
+                        'map_location_id' => $mapLocation->id,
+                    ]);
+                }
             } else {
-                ArModel::create([
-                    'name' => $profile->getMapDisplayName().' Marker',
-                    'ar_marker_id' => $arMarkerId,
-                    'map_location_id' => $mapLocation->id,
-                ]);
+                if ($existingModel) {
+                    $existingModel->update(['ar_marker_id' => null, 'map_location_id' => null]);
+                }
             }
-        } else {
-            if ($existingModel) {
-                $existingModel->update(['ar_marker_id' => null, 'map_location_id' => null]);
-            }
-        }
 
-        return redirect()->route('admin.map-manager')->with('success', __('Profil UMKM berhasil diperbarui.'));
+            return redirect()->route('admin.map-manager')->with('success', __('Profil UMKM berhasil diperbarui.'));
+        });
     }
 
     /**
@@ -242,12 +253,14 @@ class UmkmController extends Controller
      */
     public function destroyProfile(Request $request, int $id): RedirectResponse
     {
-        $profile = UmkmProfile::findOrFail($id);
-        $profile->delete();
+        return DB::transaction(function () use ($request, $id) {
+            $profile = UmkmProfile::findOrFail($id);
+            $profile->delete();
 
-        $route = $request->input('redirect_to') === 'owners' ? 'admin.umkm.owners' : 'admin.map-manager';
+            $route = $request->input('redirect_to') === 'owners' ? 'admin.umkm.owners' : 'admin.map-manager';
 
-        return redirect()->route($route)->with('success', __('Profil UMKM berhasil dihapus.'));
+            return redirect()->route($route)->with('success', __('Profil UMKM berhasil dihapus.'));
+        });
     }
 
     /**

@@ -205,18 +205,24 @@
                             'type' => 'header',
                             'label' => 'Toko Saya'
                         ],
+                        ...(($profile ?? null)?->managedHouse() ? [[
+                            'url' => route('owner.house'),
+                            'route' => 'owner.house',
+                            'icon' => 'M3 10l9-7 9 7v11H3V10zm6 11v-8h6v8',
+                            'label' => 'Rumah Saya'
+                        ]] : []),
                         [
                             'url' => route('owner.profile'),
                             'route' => 'owner.profile',
                             'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
-                            'label' => 'Informasi Toko'
+                            'label' => ($profile ?? null)?->isHouse() ? 'UMKM Saya' : 'Informasi Toko'
                         ],
-                        [
+                        ...(($profile ?? null)?->isHouse() ? [] : [[
                             'url' => route('owner.location'),
                             'route' => 'owner.location',
                             'icon' => 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z',
                             'label' => 'Kustomisasi Lokasi'
-                        ],
+                        ]]),
                         [
                             'url' => route('owner.products'),
                             'route' => 'owner.products',
@@ -376,18 +382,24 @@
                             'type' => 'header',
                             'label' => 'Toko Saya'
                         ],
+                        ...(($profile ?? null)?->managedHouse() ? [[
+                            'url' => route('owner.house'),
+                            'route' => 'owner.house',
+                            'icon' => 'M3 10l9-7 9 7v11H3V10zm6 11v-8h6v8',
+                            'label' => 'Rumah Saya'
+                        ]] : []),
                         [
                             'url' => route('owner.profile'),
                             'route' => 'owner.profile',
                             'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
-                            'label' => 'Informasi Toko'
+                            'label' => ($profile ?? null)?->isHouse() ? 'UMKM Saya' : 'Informasi Toko'
                         ],
-                        [
+                        ...(($profile ?? null)?->isHouse() ? [] : [[
                             'url' => route('owner.location'),
                             'route' => 'owner.location',
                             'icon' => 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z',
                             'label' => 'Kustomisasi Lokasi'
-                        ],
+                        ]]),
                         [
                             'url' => route('owner.products'),
                             'route' => 'owner.products',

@@ -20,13 +20,18 @@ class ExploreController extends Controller
     public function index(): View
     {
         $locale = app()->getLocale();
-        $locations = Cache::tags(['explore'])->flexible("explore_map_locations_array_v4_{$locale}", [86400, 172800], function () use ($locale) {
+        $locations = Cache::tags(['explore'])->flexible("explore_map_locations_array_v6_{$locale}", [86400, 172800], function () use ($locale) {
             $publishedHouseIds = TraditionalHouse::published()->pluck('id')->flip();
+            $houseProfiles = UmkmProfile::where('profile_type', 'house')->active()->with('mapLocation')->get()->keyBy('traditional_house_id');
 
             return MapLocation::with(['locationable' => function ($morphTo) {
                 $morphTo->morphWith([CulturalObject::class => ['arModel']]);
-            }])->get()->map(function ($loc) use ($locale, $publishedHouseIds) {
+            }])->get()->map(function ($loc) use ($locale, $publishedHouseIds, $houseProfiles) {
                 if ($loc->locationable_type === TraditionalHouse::class && ! $publishedHouseIds->has($loc->locationable_id)) {
+                    return null;
+                }
+                if ($loc->locationable instanceof UmkmProfile && $loc->locationable->isHouse()
+                    && (! $loc->locationable->is_active || $publishedHouseIds->has($loc->locationable->traditional_house_id))) {
                     return null;
                 }
                 // Map category to match JavaScript filters
@@ -48,6 +53,9 @@ class ExploreController extends Controller
                 $images = [];
                 $placeType = null;
                 $isDetail = false;
+                $umkmUrl = null;
+                $categories = [$category];
+                $locationIds = [$loc->id];
 
                 if ($loc->locationable) {
                     $descTranslations = method_exists($loc->locationable, 'getTranslations')
@@ -73,17 +81,30 @@ class ExploreController extends Controller
                         $name = $loc->locationable->getMapDisplayName();
                         $detailUrl = route('houses.show', ['number' => $loc->locationable->number]);
                         $placeType = 'rumah';
+                        $houseProfile = $houseProfiles->get($loc->locationable_id);
+                        if ($houseProfile) {
+                            $umkmUrl = route('umkm.store', ['id' => $houseProfile->id]);
+                            $categories[] = 'umkm';
+                            if ($houseProfile->mapLocation) {
+                                $locationIds[] = $houseProfile->mapLocation->id;
+                            }
+                        }
                         if ($loc->locationable->cover_image_path) {
-                            $images[] = asset('storage/'.$loc->locationable->cover_image_path);
+                            $images[] = $loc->locationable->cover_image_url;
                         }
                     } elseif ($loc->locationable_type === UmkmProfile::class) {
                         $nameTranslations = method_exists($loc->locationable, 'getTranslations')
                             ? $loc->locationable->getTranslations('business_name')
                             : null;
                         $name = translateValue($nameTranslations ?: ($loc->locationable->business_name ?? null), $locale) ?: $loc->name;
-                        $detailUrl = route('umkm');
-                        if (! empty($loc->locationable->image)) {
-                            $images[] = asset('storage/'.$loc->locationable->image);
+                        $detailUrl = route('umkm.store', ['id' => $loc->locationable->id]);
+                        if ($loc->locationable->isHouse()) {
+                            $placeType = 'rumah';
+                        }
+                        if ($loc->locationable->image_path) {
+                            $images[] = str_starts_with($loc->locationable->image_path, 'images/')
+                                ? asset($loc->locationable->image_path)
+                                : asset('storage/'.$loc->locationable->image_path);
                         }
                     } elseif ($loc->locationable_type === Facility::class) {
                         $nameTranslations = method_exists($loc->locationable, 'getTranslations')
@@ -110,6 +131,9 @@ class ExploreController extends Controller
                     'name' => $name,
                     'raw_name' => $loc->name,
                     'cat' => $category,
+                    'categories' => $categories,
+                    'map_location_ids' => $locationIds,
+                    'umkm_url' => $umkmUrl,
                     // Memilih glyph pin; null jatuh balik ke candi bentar
                     'place_type' => $placeType,
                     // Objek tingkat 2 (komponen pekarangan rumah): pinnya hanya dirender saat zoom dekat

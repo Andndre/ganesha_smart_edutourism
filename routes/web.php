@@ -35,6 +35,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Owner\OwnerCategoryController;
 use App\Http\Controllers\Owner\OwnerDashboardController;
+use App\Http\Controllers\Owner\OwnerHouseController;
 use App\Http\Controllers\Owner\OwnerProductController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
@@ -303,6 +304,8 @@ Route::prefix('admin')->middleware(['auth', 'admin.viewer'])->group(function () 
 
 // Owner Routes
 Route::prefix('owner')->middleware(['auth', 'umkm_owner'])->group(function () {
+    Route::get('/house', [OwnerHouseController::class, 'edit'])->name('owner.house');
+    Route::put('/house', [OwnerHouseController::class, 'update'])->name('owner.house.update');
     Route::get('/dashboard', [OwnerDashboardController::class, 'index'])->name('owner.dashboard');
     Route::get('/complaints', [OwnerDashboardController::class, 'complaints'])->name('owner.complaints');
     Route::get('/profile', [OwnerDashboardController::class, 'editProfile'])->name('owner.profile');

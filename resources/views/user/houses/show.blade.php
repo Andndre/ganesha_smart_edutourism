@@ -8,7 +8,7 @@
     <nav class="mb-5 text-xs text-gray-500"><a href="{{ route('houses.index') }}" class="hover:text-primary">{{ __('Rumah Adat') }}</a> / {{ __('Pekarangan') }} #{{ $house->number }}</nav>
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div>
-            @if($house->cover_image_path)<img src="{{ asset('storage/'.$house->cover_image_path) }}" alt="{{ __('Pekarangan No.') }} {{ $house->number }}" class="aspect-[16/9] w-full rounded-3xl object-cover">@endif
+            @if($house->cover_image_path)<img src="{{ $house->cover_image_url }}" alt="{{ __('Pekarangan No.') }} {{ $house->number }}" class="aspect-[16/9] w-full rounded-3xl object-cover">@endif
             <div class="mt-6 flex flex-wrap items-center gap-3"><span class="rounded-full border border-border bg-surface px-3 py-1 text-xs font-bold text-primary">{{ __('Pekarangan') }} #{{ $house->number }}</span><span class="text-xs font-semibold {{ $house->is_open_to_visitors ? 'text-primary' : 'text-secondary' }}">{{ $house->is_open_to_visitors ? __('Terbuka untuk Wisatawan') : __('Belum terbuka untuk kunjungan') }}</span></div>
             <h1 class="mt-3 font-display text-3xl font-bold text-charcoal md:text-5xl">{{ __('Rumah Adat') }} #{{ $house->number }}</h1>
             <p class="mt-3 max-w-3xl text-base leading-relaxed text-gray-700">{{ translateValue($house->description) }}</p>

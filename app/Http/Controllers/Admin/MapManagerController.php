@@ -7,10 +7,12 @@ use App\Models\ArModel;
 use App\Models\CulturalObject;
 use App\Models\Facility;
 use App\Models\MapLocation;
+use App\Models\TraditionalHouse;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class MapManagerController extends Controller
@@ -37,8 +39,9 @@ class MapManagerController extends Controller
             ->pluck('cultural_object_id', 'id');
 
         $modelsJson = $models->map(fn ($m) => $this->modelToJson($m));
+        $houses = TraditionalHouse::orderBy('number')->get(['id', 'number']);
 
-        return view('admin.map-manager.index', compact('locations', 'owners', 'models', 'unavailableModelIds', 'modelsJson'));
+        return view('admin.map-manager.index', compact('locations', 'owners', 'models', 'unavailableModelIds', 'modelsJson', 'houses'));
     }
 
     /**
@@ -88,7 +91,7 @@ class MapManagerController extends Controller
             'longitude' => ['required', 'numeric', 'between:-180,180'],
         ]);
 
-        $point->update($validated);
+        DB::transaction(fn () => $point->update($validated));
 
         return response()->json(['success' => true]);
     }
@@ -98,6 +101,7 @@ class MapManagerController extends Controller
      */
     public function destroyPoint(MapLocation $point): JsonResponse
     {
+        abort_if($point->locationable instanceof TraditionalHouse || ($point->locationable instanceof UmkmProfile && $point->locationable->isHouse()), 422, 'Kelola titik Rumah melalui profil rumah.');
         $point->delete();
 
         return response()->json(['success' => true]);

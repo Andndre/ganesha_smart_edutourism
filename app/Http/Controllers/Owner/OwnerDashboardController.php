@@ -9,6 +9,7 @@ use App\Models\UmkmProfile;
 use App\Services\ImageOptimizerService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -41,50 +42,52 @@ class OwnerDashboardController extends BaseOwnerController
      */
     public function updateProfile(OwnerProfileRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
-        unset($validated['image'], $validated['remove_image']);
+        return DB::transaction(function () use ($request): RedirectResponse {
+            $validated = $request->validated();
+            unset($validated['image'], $validated['remove_image']);
 
-        if ($request->hasFile('image')) {
-            $optimizer = app(ImageOptimizerService::class);
-            $newPath = $optimizer->optimizeAndStore($request->file('image'), 'umkm_profiles');
+            if ($request->hasFile('image')) {
+                $optimizer = app(ImageOptimizerService::class);
+                $newPath = $optimizer->optimizeAndStore($request->file('image'), 'umkm_profiles');
 
-            if ($this->profile && $this->profile->image_path && str_starts_with($this->profile->image_path, 'umkm_profiles/')) {
-                Storage::disk('public')->delete($this->profile->image_path);
+                if ($this->profile && $this->profile->image_path && str_starts_with($this->profile->image_path, 'umkm_profiles/')) {
+                    Storage::disk('public')->delete($this->profile->image_path);
+                }
+
+                $validated['image_path'] = $newPath;
+            } elseif ($request->boolean('remove_image') && $this->profile?->image_path) {
+                if (str_starts_with($this->profile->image_path, 'umkm_profiles/')) {
+                    Storage::disk('public')->delete($this->profile->image_path);
+                }
+                $validated['image_path'] = null;
             }
 
-            $validated['image_path'] = $newPath;
-        } elseif ($request->boolean('remove_image') && $this->profile?->image_path) {
-            if (str_starts_with($this->profile->image_path, 'umkm_profiles/')) {
-                Storage::disk('public')->delete($this->profile->image_path);
-            }
-            $validated['image_path'] = null;
-        }
+            $defaultLocale = config('app.fallback_locale', 'en');
 
-        $defaultLocale = config('app.fallback_locale', 'en');
+            if (! $this->profile) {
+                // Create a default profile if they don't have one
+                $validated['user_id'] = $this->user->id;
+                $validated['owner_name'] = $this->user->name;
+                $validated['slug'] = (new UmkmProfile)->generateUniqueSlug(slugFromTranslatable($validated['business_name']));
+                $validated['is_active'] = true;
+                $validated['rating'] = 5.0;
 
-        if (! $this->profile) {
-            // Create a default profile if they don't have one
-            $validated['user_id'] = $this->user->id;
-            $validated['owner_name'] = $this->user->name;
-            $validated['slug'] = (new UmkmProfile)->generateUniqueSlug(slugFromTranslatable($validated['business_name']));
-            $validated['is_active'] = true;
-            $validated['rating'] = 5.0;
+                UmkmProfile::create($validated);
+            } else {
+                // Update existing profile
+                $currentName = \is_string($this->profile->business_name) ? $this->profile->business_name : ($this->profile->business_name[$defaultLocale] ?? '');
+                $newName = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? '';
+                if (! $this->profile->isHouse() && $currentName !== $newName) {
+                    $validated['slug'] = $this->profile->generateCollisionFreeSlug(slugFromTranslatable($validated['business_name']), $this->profile->id);
+                }
 
-            UmkmProfile::create($validated);
-        } else {
-            // Update existing profile
-            $currentName = \is_string($this->profile->business_name) ? $this->profile->business_name : ($this->profile->business_name[$defaultLocale] ?? '');
-            $newName = $validated['business_name'][$defaultLocale] ?? $validated['business_name']['en'] ?? '';
-            if ($currentName !== $newName) {
-                $validated['slug'] = $this->profile->generateCollisionFreeSlug(slugFromTranslatable($validated['business_name']), $this->profile->id);
+                $this->profile->update($validated);
             }
 
-            $this->profile->update($validated);
-        }
+            Cache::tags(['explore', 'umkm'])->flush();
 
-        Cache::tags(['explore', 'umkm'])->flush();
-
-        return redirect()->route('owner.profile')->with('success', __('Informasi toko Anda berhasil diperbarui.'));
+            return redirect()->route('owner.profile')->with('success', __('Informasi toko Anda berhasil diperbarui.'));
+        });
     }
 
     /**
@@ -92,6 +95,9 @@ class OwnerDashboardController extends BaseOwnerController
      */
     public function editLocation(): View
     {
+        if ($this->profile?->isHouse()) {
+            abort(redirect()->route('owner.house'));
+        }
         $location = $this->profile ? $this->profile->mapLocation : null;
 
         return view('owner.location', ['profile' => $this->profile, 'location' => $location]);
@@ -105,6 +111,8 @@ class OwnerDashboardController extends BaseOwnerController
         $profile = $this->requireProfile();
 
         $validated = $request->validated();
+
+        abort_if($profile->isHouse(), 403, 'Ubah lokasi Rumah melalui menu Rumah Saya.');
 
         $latitude = $validated['latitude'];
         $longitude = $validated['longitude'];

@@ -52,6 +52,11 @@ class User extends Authenticatable
         return $this->hasOne(UmkmProfile::class);
     }
 
+    public function managedHouse(): HasOne
+    {
+        return $this->hasOne(TraditionalHouse::class, 'owner_user_id');
+    }
+
     /**
      * Get the user's route sessions.
      *

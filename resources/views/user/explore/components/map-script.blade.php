@@ -172,7 +172,7 @@
                 locations.forEach(loc => {
                     const item = { marker: null, loc, inCluster: false };
                     markerLayers.push(item);
-                    if (!loc.is_detail && activeFilters[loc.cat] !== false) {
+                    if (!loc.is_detail && (loc.categories || [loc.cat]).some(category => activeFilters[category] !== false)) {
                         clusteredMarkers.push(createMarker(item));
                         item.inCluster = true;
                     }
@@ -413,7 +413,7 @@
 
                     // Prefer an exact MapLocation id match (unambiguous when UMKM sit
                     // side by side); fall back to coordinate proximity for old links.
-                    const targetLoc = locations.find(loc => loc.id === targetId) ||
+                    const targetLoc = locations.find(loc => (loc.map_location_ids || [loc.id]).includes(targetId)) ||
                         locations.find(loc =>
                             Math.abs(parseFloat(loc.lat) - latNum) < 0.0001 &&
                             Math.abs(parseFloat(loc.lng) - lngNum) < 0.0001
@@ -674,7 +674,7 @@
                     if (checkClusterState && item.marker) {
                         item.inCluster = markerCluster.hasLayer(item.marker);
                     }
-                    const isFilterActive = activeFilters[item.loc.cat] !== false;
+                    const isFilterActive = (item.loc.categories || [item.loc.cat]).some(category => activeFilters[category] !== false);
 
                     // Objek komponen pekarangan (merajan, paon, saka enam) dipin di tiap
                     // rumah, jadi di zoom jauh puluhan pin kembar menutupi peta. Tahan
@@ -1037,7 +1037,13 @@
                     }
                 }
 
-                const label = categoryLabels[loc.cat] || @js(__('Lokasi'));
+                const label = loc.place_type === 'rumah' ? @js(__('Rumah')) : (categoryLabels[loc.cat] || @js(__('Lokasi')));
+                const umkmBtn = document.getElementById('sheet-umkm-btn');
+                if (umkmBtn) {
+                    umkmBtn.hidden = !loc.umkm_url;
+                    umkmBtn.style.display = loc.umkm_url ? '' : 'none';
+                    umkmBtn.href = loc.umkm_url || '#';
+                }
                 const color = categoryColors[loc.cat] || '#293518';
 
                 // Style category badge dynamically
@@ -1489,8 +1495,8 @@
 
                 const ids = stopsParam.split(',').map(s => parseInt(s, 10));
                 multiRouteStops = ids
-                    .map(id => markerLayers.find(item => item.loc.id === id))
-                    .filter(Boolean);
+                    .map(id => markerLayers.find(item => (item.loc.map_location_ids || [item.loc.id]).includes(id)))
+                    .filter((item, index, items) => item && items.indexOf(item) === index);
 
                 if (multiRouteStops.length === 0) return;
 

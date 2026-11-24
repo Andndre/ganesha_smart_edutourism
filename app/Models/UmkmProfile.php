@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\UmkmProfileType;
 use App\Models\Concerns\HasMapLocation;
 use App\Models\Concerns\HasSlug;
 use App\Models\Concerns\HasTranslatableArrayOutput;
+use App\Services\HouseProfileService;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\Translatable\HasTranslations;
 
-#[Fillable(['user_id', 'traditional_house_id', 'owner_name', 'business_name', 'slug', 'description', 'image_path', 'rating', 'is_active', 'recommendation_count'])]
+#[Fillable(['user_id', 'traditional_house_id', 'profile_type', 'owner_name', 'business_name', 'slug', 'description', 'image_path', 'rating', 'is_active', 'recommendation_count'])]
 class UmkmProfile extends Model
 {
     use HasFactory;
@@ -24,6 +26,29 @@ class UmkmProfile extends Model
     use HasTranslations;
 
     public array $translatable = ['business_name', 'description'];
+
+    protected $attributes = ['profile_type' => 'business'];
+
+    protected static function booted(): void
+    {
+        static::saving(fn (self $profile) => app(HouseProfileService::class)->prepare($profile));
+        static::saved(fn (self $profile) => app(HouseProfileService::class)->synchronizeOwner($profile));
+        static::deleted(fn (self $profile) => app(HouseProfileService::class)->revokeOwner($profile));
+    }
+
+    public function isHouse(): bool
+    {
+        return $this->profile_type === UmkmProfileType::House;
+    }
+
+    public function managedHouse(): ?TraditionalHouse
+    {
+        if (! $this->isHouse() || ! $this->user_id) {
+            return null;
+        }
+
+        return $this->traditionalHouse()->where('owner_user_id', $this->user_id)->first();
+    }
 
     protected function slugSourceField(): string
     {
@@ -43,6 +68,7 @@ class UmkmProfile extends Model
     protected function casts(): array
     {
         return [
+            'profile_type' => UmkmProfileType::class,
             'is_active' => 'boolean',
             'rating' => 'float',
         ];

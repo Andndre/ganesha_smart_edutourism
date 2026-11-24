@@ -21,6 +21,8 @@ class UmkmProfileResource extends JsonResource
         return [
             'id' => $this->id,
             'business_name' => $this->business_name,
+            'profile_type' => $this->profile_type->value,
+            'traditional_house_id' => $this->traditional_house_id,
             'slug' => $this->slug,
             'owner_name' => $this->owner_name,
             'description' => $this->description,

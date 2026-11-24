@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\UserRole;
+use App\Models\TraditionalHouse;
 use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use App\Models\User;
@@ -51,7 +52,14 @@ class PenglipuranHouseUmkmSeeder extends Seeder
                     'preferred_language' => 'id',
                 ]);
 
+                $house = TraditionalHouse::firstOrCreate(['number' => $number], [
+                    'head_name' => $owner->name,
+                    'cover_image_path' => 'images/packages/kuliner-paon.webp',
+                    'is_published' => true,
+                ]);
                 $profile = UmkmProfile::create([
+                    'profile_type' => 'house',
+                    'traditional_house_id' => $house->id,
                     'user_id' => $owner->id,
                     'owner_name' => $owner->name,
                     'business_name' => [

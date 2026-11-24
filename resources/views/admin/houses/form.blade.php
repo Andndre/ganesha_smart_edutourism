@@ -4,6 +4,9 @@
 
 @section('content')
 @php
+    $isOwner = $isOwner ?? false;
+    $backUrl = $isOwner ? route('owner.dashboard') : route('admin.houses.index');
+    $formAction = $isOwner ? route('owner.house.update') : ($house ? route('admin.houses.update', $house) : route('admin.houses.store'));
     $selectedProfiles = old('umkm_profile_ids', $house?->umkmProfiles->pluck('id')->all() ?? []);
     $selectedObjects = old('cultural_object_ids', $house?->culturalObjects->pluck('id')->all() ?? []);
     $description = $house?->getTranslations('description') ?? [];
@@ -12,7 +15,7 @@
 <div class="mx-auto max-w-6xl">
     <div class="mb-7 flex flex-wrap items-end justify-between gap-4">
         <div>
-            <a href="{{ route('admin.houses.index') }}" class="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
+            <a href="{{ $backUrl }}" class="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
                 Kembali ke daftar rumah
             </a>
@@ -26,12 +29,25 @@
         </span>
     </div>
 
-    <form method="POST" action="{{ $house ? route('admin.houses.update', $house) : route('admin.houses.store') }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
         @csrf
         @if($house) @method('PUT') @endif
 
         <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
             <div class="space-y-6">
+                @unless($isOwner)
+                <x-dashboard.panel title="Akun Pengelola Rumah">
+                    <label for="house-owner" class="mb-2 block text-sm font-semibold text-charcoal">Pengelola Rumah + UMKM</label>
+                    <select id="house-owner" name="owner_user_id" class="min-h-12 w-full rounded-xl border border-gray-500 bg-white px-3 text-base focus-visible:outline-2 focus-visible:outline-primary" aria-describedby="house-owner-help">
+                        <option value="">Belum ditetapkan</option>
+                        @foreach($owners as $owner)
+                            <option value="{{ $owner->id }}" @selected((string) old('owner_user_id', $house?->owner_user_id) === (string) $owner->id)>{{ $owner->name }} — {{ $owner->email }}</option>
+                        @endforeach
+                    </select>
+                    <p id="house-owner-help" class="mt-2 text-sm text-gray-600">Akun mendapat akses rumah ini. Profil UMKM Rumah dibuat otomatis atau menggunakan profil akun yang dipilih. Nama mengikuti nomor rumah.</p>
+                    @error('owner_user_id')<p class="mt-2 text-sm text-red-700">{{ $message }}</p>@enderror
+                </x-dashboard.panel>
+                @endunless
                 <x-dashboard.panel title="Data Keluarga">
                     <p class="-mt-2 mb-5 text-xs leading-relaxed text-gray-500">Identitas rumah dan jumlah penghuni yang ditampilkan dalam direktori.</p>
                     <div class="grid gap-4 sm:grid-cols-2">
@@ -50,6 +66,9 @@
 
                 <x-dashboard.panel title="Lokasi Rumah">
                     <x-dashboard.location-picker id="house-location" :latitude="old('latitude', $house?->mapLocation?->latitude)" :longitude="old('longitude', $house?->mapLocation?->longitude)" />
+                    <input type="hidden" name="is_accessible" value="0">
+                    <div class="mt-4"><x-dashboard.check-option name="is_accessible" value="1" :checked="old('is_accessible', $house?->mapLocation?->is_accessible ?? true)" label="Dapat diakses pengguna kursi roda" /></div>
+                    <div class="mt-4"><x-dashboard.localized-textarea name="accessibility_notes" id="house-accessibility" label="Catatan aksesibilitas" :value="$house?->mapLocation?->getTranslations('accessibility_notes') ?? []" /></div>
                 </x-dashboard.panel>
 
                 <x-dashboard.panel title="Penghuni dan Ruang Budaya">
@@ -59,7 +78,7 @@
                         <div class="mt-3 grid max-h-64 gap-2 overflow-y-auto sm:grid-cols-2">
                             @forelse($profiles as $profile)
                                 <x-dashboard.check-option name="umkm_profile_ids[]" :value="$profile->id" :checked="in_array($profile->id, $selectedProfiles)"
-                                    :label="translateValue($profile->business_name)" :caption="$profile->is_active ? 'Aktif' : 'Tidak aktif'" />
+                                    :disabled="$isOwner || $profile->isHouse()" :label="translateValue($profile->business_name)" :caption="$profile->is_active ? 'Aktif' : 'Tidak aktif'" />
                             @empty
                                 <p class="rounded-xl bg-surface p-4 text-sm text-gray-500 sm:col-span-2">Belum ada UMKM. Tambahkan UMKM sebelum menerbitkan rumah.</p>
                             @endforelse
@@ -84,10 +103,14 @@
                     <div class="space-y-6">
                         <x-dashboard.image-upload id="house-cover" name="cover_image" label="Foto sampul" remove-name="remove_cover_image" :existing="$house?->cover_image_path ? [$house->cover_image_path] : []" />
                         <x-dashboard.image-upload id="house-gallery" name="gallery_images[]" label="Foto galeri" :multiple="true" :append="true" :max-files="8" :existing="$house?->gallery ?? []" existing-hint="Foto baru akan ditambahkan ke galeri." />
+                        @foreach($house?->gallery ?? [] as $galleryPath)
+                            <x-dashboard.check-option name="remove_gallery_images[]" :value="$galleryPath" :label="'Hapus foto galeri '.($loop->iteration)" />
+                        @endforeach
                     </div>
                 </x-dashboard.panel>
 
                 <x-dashboard.panel title="Publikasi">
+                    <div class="mb-4"><x-dashboard.form-field name="ar_marker_id" label="ID penanda AR" :value="old('ar_marker_id', $house?->ar_marker_id)" maxlength="100" /></div>
                     <p class="-mt-2 mb-4 text-xs leading-relaxed text-gray-500">Atur akses pengunjung dan keterlihatan rumah di direktori.</p>
                     <div class="space-y-2">
                         <x-dashboard.check-option name="is_open_to_visitors" value="1" :checked="old('is_open_to_visitors', $house?->is_open_to_visitors)" label="Terbuka untuk pengunjung" />
@@ -108,15 +131,15 @@
         <div class="sticky bottom-0 z-20 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white/95 p-3 shadow-lg backdrop-blur sm:px-5">
             <p class="text-xs text-gray-500">Pastikan data rumah sudah sesuai sebelum disimpan.</p>
             <div class="flex w-full gap-2 sm:w-auto">
-                <a href="{{ route('admin.houses.index') }}" class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-gray-200 px-4 text-sm font-semibold text-gray-600 hover:bg-surface sm:flex-none">Batal</a>
-                @if(auth()->user()?->isAdmin())
+                <a href="{{ $backUrl }}" class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-gray-200 px-4 text-sm font-semibold text-gray-600 hover:bg-surface sm:flex-none">Batal</a>
+                @if($isOwner || auth()->user()?->isAdmin())
                     <button type="submit" class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-primary px-5 text-sm font-bold text-white transition hover:bg-primary-hover sm:flex-none">{{ $house ? 'Simpan Perubahan' : 'Simpan Rumah' }}</button>
                 @endif
             </div>
         </div>
     </form>
 
-    @if($house && auth()->user()?->isAdmin())
+    @if(!$isOwner && $house && auth()->user()?->isAdmin())
         <form method="POST" action="{{ route('admin.houses.destroy', $house) }}" onsubmit="return confirm('Hapus rumah adat ini beserta penandanya?')" class="mt-8 border-t border-gray-200 pt-5">
             @csrf @method('DELETE')
             <button type="submit" class="min-h-11 text-sm font-semibold text-red-700 underline underline-offset-4">Hapus rumah adat</button>

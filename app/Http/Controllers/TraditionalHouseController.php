@@ -19,7 +19,7 @@ class TraditionalHouseController extends Controller
             $query->whereRaw('1 = 0');
         }
 
-        $houses = $query->orderBy('number')->paginate(12)->withQueryString();
+        $houses = $query->orderBy('number')->get();
         $houseCount = TraditionalHouse::published()->count();
 
         return view('user.houses.index', compact('houses', 'houseCount', 'search'));

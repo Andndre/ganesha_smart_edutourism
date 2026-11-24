@@ -450,6 +450,7 @@ function handleMarkerClick(marker) {
 
             form.querySelector('input[name="business_name[en]"]').value = details.business_name?.en || details.business_name || '';
             form.querySelector('input[name="business_name[id]"]').value = details.business_name?.id || details.business_name || '';
+            setUmkmProfileType(details.profile_type || 'business', details.traditional_house_id, details.profile_type === 'house');
             form.querySelector('input[name="owner_name"]').value = details.owner_name;
             document.getElementById('umkm-owner-user-id').value = details.user_id || '';
             document.getElementById('umkm-owner-search').value = details.owner_name || '';
@@ -576,6 +577,7 @@ function resetForms() {
     const umkmForm = document.getElementById('form-umkm');
     if (umkmForm) {
         umkmForm.reset();
+        setUmkmProfileType('business', null, false);
         if (typeof window.clearAllTiptapEditors === 'function') {
             window.clearAllTiptapEditors(umkmForm);
         }
@@ -647,5 +649,34 @@ document.addEventListener('DOMContentLoaded', () => {
             updateAccessibilityNotesVisibility(form);
         }
     });
+});
+
+function setUmkmProfileType(type, houseId, locked = false) {
+    const form = document.getElementById('form-umkm');
+    if (!form) return;
+    form.querySelectorAll('input[name="profile_type"]').forEach(input => {
+        input.checked = input.value === type;
+        input.disabled = locked && input.value !== 'house';
+    });
+    const houseSelect = document.getElementById('umkm-house-id');
+    if (houseId !== undefined) houseSelect.value = houseId || '';
+    houseSelect.required = type === 'house';
+    const nameGroup = document.getElementById('umkm-manual-name');
+    nameGroup.hidden = type === 'house';
+    nameGroup.querySelectorAll('input').forEach(input => {
+        input.disabled = type === 'house';
+        input.required = type !== 'house';
+    });
+    const houseLink = document.getElementById('umkm-house-edit-link');
+    houseLink.hidden = !houseSelect.value;
+    houseLink.style.display = houseSelect.value ? '' : 'none';
+    houseLink.href = houseSelect.value ? `/admin/houses/${encodeURIComponent(houseSelect.value)}/edit` : '#';
+}
+document.querySelectorAll('#form-umkm input[name="profile_type"]').forEach(input => {
+    input.addEventListener('change', () => setUmkmProfileType(input.value, undefined));
+});
+document.getElementById('umkm-house-id')?.addEventListener('change', () => {
+    const type = document.querySelector('#form-umkm input[name="profile_type"]:checked')?.value || 'business';
+    setUmkmProfileType(type, undefined, document.querySelector('#form-umkm input[value="business"]').disabled);
 });
 </script>
