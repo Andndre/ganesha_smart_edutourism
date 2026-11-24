@@ -156,6 +156,17 @@ class HouseProfileService
         $house->save();
     }
 
+    public function ensureProfile(TraditionalHouse $house): UmkmProfile
+    {
+        return $house->umkmProfiles()->where('profile_type', 'house')->first()
+            ?? UmkmProfile::create([
+                'profile_type' => UmkmProfileType::House,
+                'traditional_house_id' => $house->id,
+                'owner_name' => $house->head_name,
+                'is_active' => true,
+            ]);
+    }
+
     public function flushCache(): void
     {
         if (Cache::supportsTags()) {

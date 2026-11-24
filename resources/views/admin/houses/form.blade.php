@@ -21,7 +21,7 @@
             </a>
             <p class="mt-2 text-xs font-bold uppercase tracking-[.18em] text-primary">Direktori Pekarangan</p>
             <h1 class="mt-1 font-display text-3xl font-bold text-charcoal">{{ $house ? 'Ubah Rumah No. '.$house->number : 'Tambah Rumah Adat' }}</h1>
-            <p class="mt-2 max-w-2xl text-sm leading-relaxed text-gray-600">Lengkapi data keluarga, pilih titik rumah di peta, lalu tambahkan foto. Rumah dapat diterbitkan setelah lokasi dan UMKM aktif terverifikasi.</p>
+            <p class="mt-2 max-w-2xl text-sm leading-relaxed text-gray-600">Lengkapi data keluarga, pilih titik rumah di peta, lalu tambahkan foto. UMKM Rumah mengikuti data rumah secara otomatis. Pastikan lokasi sudah benar sebelum ditampilkan untuk pengunjung.</p>
         </div>
         <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold {{ $house?->is_published ? 'bg-primary/10 text-primary' : 'bg-amber-50 text-amber-800' }}">
             <span class="h-2 w-2 rounded-full {{ $house?->is_published ? 'bg-primary' : 'bg-amber-500' }}"></span>
@@ -31,6 +31,9 @@
 
     <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
         @csrf
+        @if($house && !$house->is_published && $house->umkmProfiles->contains(fn ($profile) => $profile->isHouse() && !$profile->is_active))
+            <input type="hidden" name="activate_house_umkm" value="1">
+        @endif
         @if($house) @method('PUT') @endif
 
         <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -71,10 +74,12 @@
                     <div class="mt-4"><x-dashboard.localized-textarea name="accessibility_notes" id="house-accessibility" label="Catatan aksesibilitas" :value="$house?->mapLocation?->getTranslations('accessibility_notes') ?? []" /></div>
                 </x-dashboard.panel>
 
+                <details class="rounded-2xl border border-gray-200 bg-white p-4">
+                    <summary class="min-h-12 cursor-pointer py-3 font-semibold text-charcoal">Pengaturan tambahan: usaha dan objek budaya</summary>
                 <x-dashboard.panel title="Penghuni dan Ruang Budaya">
                     <div>
                         <h3 class="text-sm font-bold text-charcoal">UMKM di rumah ini</h3>
-                        <p class="mt-1 text-xs text-gray-500">Pilih setidaknya satu UMKM aktif sebelum menerbitkan rumah.</p>
+                        <p class="mt-1 text-xs text-gray-500">UMKM Rumah terhubung otomatis. Usaha lain di pekarangan ini dapat ditautkan bila diperlukan.</p>
                         <div class="mt-3 grid max-h-64 gap-2 overflow-y-auto sm:grid-cols-2">
                             @forelse($profiles as $profile)
                                 <x-dashboard.check-option name="umkm_profile_ids[]" :value="$profile->id" :checked="in_array($profile->id, $selectedProfiles)"
@@ -96,6 +101,7 @@
                         </div>
                     </div>
                 </x-dashboard.panel>
+                </details>
             </div>
 
             <div class="space-y-6">
@@ -114,7 +120,7 @@
                     <p class="-mt-2 mb-4 text-xs leading-relaxed text-gray-500">Atur akses pengunjung dan keterlihatan rumah di direktori.</p>
                     <div class="space-y-2">
                         <x-dashboard.check-option name="is_open_to_visitors" value="1" :checked="old('is_open_to_visitors', $house?->is_open_to_visitors)" label="Terbuka untuk pengunjung" />
-                        <x-dashboard.check-option name="is_published" value="1" :checked="old('is_published', $house?->is_published)" label="Tampilkan di direktori publik" />
+                        <x-dashboard.check-option name="is_published" value="1" :checked="old('is_published', $house?->is_published)" label="Tampilkan untuk pengunjung" />
                     </div>
                     @if($house?->ar_marker_id)
                         <div class="mt-5 border-t border-gray-100 pt-5 text-center">

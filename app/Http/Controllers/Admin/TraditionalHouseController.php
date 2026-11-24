@@ -34,9 +34,18 @@ class TraditionalHouseController extends Controller
         return view('admin.houses.index', compact('houses'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
-        return $this->form(null);
+        $prefill = $request->validate([
+            'latitude' => ['nullable', 'required_with:longitude', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'required_with:latitude', 'numeric', 'between:-180,180'],
+        ]);
+        $owners = User::where('role', 'umkm_owner')->with(['umkmProfile', 'managedHouse'])->orderBy('name')->get();
+        $existingNumbers = TraditionalHouse::orderBy('number')->get(['id', 'number'])
+            ->mapWithKeys(fn (TraditionalHouse $house): array => [$house->number => route('admin.houses.edit', $house)]);
+        $objects = CulturalObject::orderBy('name->id')->get();
+
+        return view('admin.houses.create', compact('prefill', 'owners', 'existingNumbers', 'objects'));
     }
 
     public function edit(TraditionalHouse $house): View
@@ -48,7 +57,7 @@ class TraditionalHouseController extends Controller
     {
         $house = app(TraditionalHouseService::class)->save($request, new TraditionalHouse);
 
-        return redirect()->route('admin.houses.edit', $house)->with('success', 'Rumah adat berhasil disimpan.');
+        return redirect()->route('admin.houses.edit', $house)->with('success', 'Rumah No. '.$house->number.' berhasil ditambahkan. UMKM Rumah sudah dibuat otomatis.'.($house->is_published ? ' Rumah sudah tampil untuk pengunjung.' : ' Tersimpan sebagai draf, belum tampil untuk pengunjung.'));
     }
 
     public function update(TraditionalHouseRequest $request, TraditionalHouse $house): RedirectResponse

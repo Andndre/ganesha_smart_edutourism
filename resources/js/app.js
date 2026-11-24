@@ -16,3 +16,4 @@ window.getMonthRahinan = getMonthRahinan;
  */
 
 import './echo';
+import './house-wizard';

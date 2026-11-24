@@ -151,6 +151,7 @@ class UmkmCatalogController extends Controller
     public function show($id): View
     {
         $umkm = UmkmProfile::with(['user', 'activeProducts.category', 'activeProducts.activeVariants', 'mapLocation', 'traditionalHouse' => fn ($query) => $query->published()])
+            ->where(fn ($query) => $query->where('profile_type', '!=', 'house')->orWhere('is_active', true))
             ->withCount('reviews')->withAvg('reviews', 'rating')->findOrFail($id);
         $reviews = $umkm->reviews()->with('user')->latest()->take(5)->get();
 
@@ -188,6 +189,7 @@ class UmkmCatalogController extends Controller
             });
 
         $products = UmkmProduct::active()->inStock()
+            ->whereHas('umkmProfile', fn ($query) => $query->where('profile_type', '!=', 'house')->orWhere('is_active', true))
             ->with('umkmProfile')
             ->whereRaw("name->>'$.\"{$locale}\"' LIKE ?", [$likePattern])
             ->limit(5)

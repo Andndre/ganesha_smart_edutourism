@@ -66,7 +66,7 @@
     function attachChangeListeners() {
         const editorPanel = document.getElementById('panel-editor');
         if (!editorPanel) return;
-        const inputs = editorPanel.querySelectorAll('input, select, textarea');
+        const inputs = editorPanel.querySelectorAll('input:not([name="map_location_type"]), select, textarea');
         inputs.forEach(input => {
             input.removeEventListener('input', markUnsaved);
             input.removeEventListener('change', markUnsaved);
