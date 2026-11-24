@@ -49,6 +49,10 @@
                                         <span class="bg-primary/10 text-primary-800 rounded-lg px-2.5 py-1 text-xs font-semibold">
                                             {{ $owner->umkmProfile->business_name }}
                                         </span>
+                                        <span class="text-xs font-semibold text-primary">{{ $owner->umkmProfile->isHouse() ? 'Rumah + UMKM' : 'UMKM Usaha' }}</span>
+                                        @if($owner->umkmProfile->isHouse() && $owner->umkmProfile->traditional_house_id)
+                                            <a href="{{ route('admin.houses.edit', $owner->umkmProfile->traditional_house_id) }}" class="inline-flex min-h-12 items-center text-xs font-semibold text-primary underline">Kelola rumah dan pengelola</a>
+                                        @endif
                                         <span class="text-xs font-medium {{ $owner->umkmProfile->has_map_pin ? 'text-green-700' : 'text-amber-700' }}">
                                             {{ $owner->umkmProfile->has_map_pin ? 'On map' : 'Missing map pin' }}
                                         </span>

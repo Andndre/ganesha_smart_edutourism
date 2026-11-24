@@ -29,6 +29,13 @@
 
 
                 {{-- Business Name --}}
+                @if($profile?->isHouse())
+                    <div class="rounded-xl bg-primary/5 p-4">
+                        <p class="text-sm font-semibold text-charcoal">Nama UMKM Rumah</p>
+                        <p class="mt-1 text-lg font-bold text-primary">{{ $profile->getTranslation('business_name', 'id') }}</p>
+                        <p class="mt-1 text-sm text-gray-600">Nama mengikuti nomor rumah dan tidak dapat diubah di profil UMKM.</p>
+                    </div>
+                @else
                 <x-dashboard.localized-field id="localized-owner-profile-business-name" anchor-id="tour-business-name" label="Nama toko" field-name="business_name" required>
                     <x-slot:indonesian>
                         <div>
@@ -59,6 +66,7 @@
                         </div>
                     </x-slot:english>
                 </x-dashboard.localized-field>
+                @endif
 
 
                 {{-- Description --}}

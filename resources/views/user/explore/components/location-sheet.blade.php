@@ -131,6 +131,7 @@
         </button>
 
         <!-- Action Buttons -->
+        <a id="sheet-umkm-btn" href="#" hidden class="mb-3 flex min-h-12 items-center justify-center rounded-xl border border-primary px-4 text-sm font-bold text-primary focus-visible:outline-2 focus-visible:outline-primary">{{ __('Lihat Produk UMKM') }}</a>
         <div class="mt-4 flex shrink-0 gap-3 border-t border-gray-100 pb-2 pt-4">
             <a href="#" id="sheet-route-btn" target="_blank"
                 class="shadow-xs flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-3.5 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 active:scale-95">

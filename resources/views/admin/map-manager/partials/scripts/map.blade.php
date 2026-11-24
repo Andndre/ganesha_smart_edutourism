@@ -75,7 +75,7 @@
         const details = loc.locationable;
 
         return Object.assign({
-            placeType: details ? details.place_type : null
+            placeType: details?.profile_type === 'house' ? 'rumah' : (details ? details.place_type : null)
         }, extra || {});
     }
 

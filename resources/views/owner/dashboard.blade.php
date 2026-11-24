@@ -1,11 +1,11 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Dashboard Pemilik UMKM')
+@section('title', $profile?->isHouse() ? 'Dashboard Rumah dan UMKM' : 'Dashboard Pemilik UMKM')
 
 @section('content')
     <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between max-w-6xl">
         <div id="tour-header">
-            <h1 class="font-display text-3xl font-extrabold text-charcoal tracking-tight">Ringkasan Toko Anda</h1>
+            <h1 class="font-display text-3xl font-extrabold text-charcoal tracking-tight">{{ $profile?->isHouse() ? 'Ringkasan Rumah dan UMKM Anda' : 'Ringkasan Toko Anda' }}</h1>
             <p class="mt-1 text-sm text-gray-500">Selamat datang kembali! Berikut ringkasan performa dan informasi toko
                 Anda.</p>
         </div>
@@ -29,6 +29,14 @@
         </div>
     </div>
 
+    @if($profile?->managedHouse())
+        <section class="mb-6 max-w-6xl rounded-2xl border border-primary/20 bg-white p-6" aria-labelledby="managed-house-title">
+            <p class="text-sm font-semibold text-secondary">Rumah + UMKM</p>
+            <h2 id="managed-house-title" class="mt-1 font-display text-2xl font-bold text-primary">Rumah No. {{ $profile->traditionalHouse->number }}</h2>
+            <p class="mt-2 text-sm text-gray-600">{{ $profile->traditionalHouse->head_name }} · {{ $profile->traditionalHouse->male_count + $profile->traditionalHouse->female_count }} penghuni · {{ $profile->traditionalHouse->is_published ? 'Terbit' : 'Draf' }}</p>
+            <a href="{{ route('owner.house') }}" class="mt-4 inline-flex min-h-12 items-center rounded-xl bg-primary px-5 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">Kelola Rumah Saya</a>
+        </section>
+    @endif
     @if (!$profile)
         <div id="tour-no-profile-warning">
             <x-owner.no-profile-warning message="Akun Anda belum memiliki profil toko UMKM yang aktif. Silakan isi informasi profil toko Anda terlebih dahulu agar dapat mengelola produk dan menandai lokasi di peta." />

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\ArModel;
+use App\Models\TraditionalHouse;
 use App\Models\UmkmProfile;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -10,6 +11,19 @@ use Illuminate\Validation\Validator;
 
 class TraditionalHouseRequest extends FormRequest
 {
+    protected function houseForValidation(): ?TraditionalHouse
+    {
+        return $this->route('house');
+    }
+
+    protected function profileIds(): array
+    {
+        return array_unique([
+            ...$this->input('umkm_profile_ids', []),
+            ...($this->houseForValidation()?->umkmProfiles()->where('profile_type', 'house')->pluck('id')->all() ?? []),
+        ]);
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -26,7 +40,8 @@ class TraditionalHouseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'number' => ['required', 'integer', 'min:1', 'max:9999', Rule::unique('traditional_houses')->ignore($this->route('house'))],
+            'number' => ['required', 'integer', 'min:1', 'max:9999', Rule::unique('traditional_houses')->ignore($this->houseForValidation())],
+            'owner_user_id' => ['nullable', 'integer', Rule::exists('users', 'id')->where('role', 'umkm_owner')],
             'head_name' => ['required', 'string', 'max:255'],
             'male_count' => ['required', 'integer', 'min:0', 'max:999'],
             'female_count' => ['required', 'integer', 'min:0', 'max:999'],
@@ -37,12 +52,18 @@ class TraditionalHouseRequest extends FormRequest
             'remove_cover_image' => ['nullable', 'boolean'],
             'gallery_images' => ['nullable', 'array', 'max:8'],
             'gallery_images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-            'ar_marker_id' => ['nullable', 'string', 'max:100', 'regex:/^[A-Za-z0-9_-]+$/', Rule::unique('traditional_houses')->ignore($this->route('house'))],
+            'remove_gallery_images' => ['nullable', 'array'],
+            'remove_gallery_images.*' => ['string', 'distinct', Rule::in($this->houseForValidation()?->gallery ?? [])],
+            'is_accessible' => ['nullable', 'boolean'],
+            'accessibility_notes' => ['nullable', 'array'],
+            'accessibility_notes.id' => ['nullable', 'string', 'max:1000'],
+            'accessibility_notes.en' => ['nullable', 'string', 'max:1000'],
+            'ar_marker_id' => ['nullable', 'string', 'max:100', 'regex:/^[A-Za-z0-9_-]+$/', Rule::unique('traditional_houses')->ignore($this->houseForValidation())],
             'is_open_to_visitors' => ['nullable', 'boolean'],
             'is_published' => ['nullable', 'boolean'],
             'latitude' => [Rule::requiredIf($this->boolean('is_published')), 'nullable', 'numeric', 'between:-90,90'],
             'longitude' => [Rule::requiredIf($this->boolean('is_published')), 'nullable', 'numeric', 'between:-180,180'],
-            'umkm_profile_ids' => [Rule::requiredIf($this->boolean('is_published')), 'array'],
+            'umkm_profile_ids' => [Rule::requiredIf($this->boolean('is_published') && ! $this->filled('owner_user_id') && ! $this->houseForValidation()?->umkmProfiles()->where('profile_type', 'house')->exists()), 'array'],
             'umkm_profile_ids.*' => ['integer', 'distinct', 'exists:umkm_profiles,id'],
             'cultural_object_ids' => ['nullable', 'array'],
             'cultural_object_ids.*' => ['integer', 'distinct', 'exists:cultural_objects,id'],
@@ -53,7 +74,14 @@ class TraditionalHouseRequest extends FormRequest
     public function after(): array
     {
         return [function (Validator $validator): void {
-            if ($this->filled('ar_marker_id') && ArModel::where('ar_marker_id', $this->input('ar_marker_id'))->exists()) {
+            if (! $validator->errors()->has('remove_gallery_images') && ! $validator->errors()->has('remove_gallery_images.*')
+                && ! $validator->errors()->has('gallery_images') && ! $validator->errors()->has('gallery_images.*')) {
+                $gallery = array_diff($this->houseForValidation()?->gallery ?? [], $this->input('remove_gallery_images', []));
+                if (count($gallery) + count($this->file('gallery_images', [])) > 8) {
+                    $validator->errors()->add('gallery_images', 'Galeri dapat berisi maksimal 8 foto. Hapus foto lama sebelum menambah foto baru.');
+                }
+            }
+            if (! $validator->errors()->has('ar_marker_id') && $this->filled('ar_marker_id') && ArModel::where('ar_marker_id', $this->input('ar_marker_id'))->exists()) {
                 $validator->errors()->add('ar_marker_id', 'ID penanda sudah digunakan oleh objek budaya.');
             }
 
@@ -61,7 +89,13 @@ class TraditionalHouseRequest extends FormRequest
                 return;
             }
 
-            $ids = $this->input('umkm_profile_ids', []);
+            $ids = $this->profileIds();
+            if ($this->user()?->isAdmin() && $this->filled('owner_user_id')) {
+                $ownerProfile = UmkmProfile::where('user_id', $this->integer('owner_user_id'))->first();
+                if (! $ownerProfile || $ownerProfile->is_active) {
+                    return;
+                }
+            }
             if (! is_array($ids) || ! UmkmProfile::active()->whereIn('id', $ids)->exists()) {
                 $validator->errors()->add('umkm_profile_ids', 'Rumah adat yang dipublikasikan harus memiliki setidaknya satu UMKM aktif.');
             }

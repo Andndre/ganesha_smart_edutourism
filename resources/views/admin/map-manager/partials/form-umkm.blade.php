@@ -4,6 +4,25 @@
     @csrf
     <div id="method-umkm"></div>
     {{-- Business Name --}}
+    <fieldset class="rounded-xl border border-gray-300 p-3">
+        <legend class="px-1 text-sm font-semibold text-charcoal">Jenis profil UMKM</legend>
+        <div class="flex flex-wrap gap-3">
+            <label class="flex min-h-12 items-center gap-2"><input type="radio" name="profile_type" value="business" checked class="accent-primary"> Usaha</label>
+            <label class="flex min-h-12 items-center gap-2"><input type="radio" name="profile_type" value="house" class="accent-primary"> Rumah</label>
+        </div>
+    </fieldset>
+    <div>
+        <label for="umkm-house-id" class="mb-2 block text-sm font-semibold text-charcoal">Rumah terkait</label>
+        <select id="umkm-house-id" name="traditional_house_id" class="min-h-12 w-full rounded-xl border border-gray-500 px-3 text-base focus-visible:outline-2 focus-visible:outline-primary" aria-describedby="umkm-house-help">
+            <option value="">Tidak terkait rumah</option>
+            @foreach($houses as $house)
+                <option value="{{ $house->id }}">Rumah No. {{ $house->number }}</option>
+            @endforeach
+        </select>
+        <p id="umkm-house-help" class="mt-2 text-sm text-gray-600">Jenis Rumah memakai nama otomatis dan memberi akses rumah kepada akun pengelola. Usaha biasa dapat berlokasi di rumah tanpa mendapat akses pengelolaan rumah.</p>
+        <a id="umkm-house-edit-link" hidden class="mt-2 inline-flex min-h-12 items-center text-sm font-semibold text-primary underline">Kelola data rumah</a>
+    </div>
+    <div id="umkm-manual-name">
     <x-dashboard.localized-field id="localized-map-manager-form-umkm-business-name" label="Nama toko" field-name="business_name" required>
         <x-slot:indonesian>
             <div>
@@ -22,6 +41,7 @@
             </div>
         </x-slot:english>
     </x-dashboard.localized-field>
+    </div>
 
 
     <div>

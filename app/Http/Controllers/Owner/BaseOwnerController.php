@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Controllers\Controller;
 use App\Models\UmkmProfile;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -16,6 +17,8 @@ abstract class BaseOwnerController extends Controller
     private ?UmkmProfile $profileCache = null;
 
     private bool $profileResolved = false;
+
+    private ?Request $profileRequest = null;
 
     public function __get(string $name): mixed
     {
@@ -41,7 +44,9 @@ abstract class BaseOwnerController extends Controller
 
     private function resolveProfile(): ?UmkmProfile
     {
-        if (! $this->profileResolved) {
+        if (! $this->profileResolved || $this->profileRequest !== request()) {
+            $this->profileCache = null;
+            $this->profileRequest = request();
             $user = Auth::user();
             if ($user && $user->isAdmin()) {
                 $profileId = request()->query('umkm_profile_id') ?? session('admin_view_umkm_profile_id');
@@ -52,7 +57,7 @@ abstract class BaseOwnerController extends Controller
                     }
                 }
             } else {
-                $this->profileCache = $user?->umkmProfile;
+                $this->profileCache = $user?->umkmProfile()->first();
             }
             $this->profileResolved = true;
         }

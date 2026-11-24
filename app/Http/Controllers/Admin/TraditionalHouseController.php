@@ -7,11 +7,11 @@ use App\Http\Requests\Admin\TraditionalHouseRequest;
 use App\Models\CulturalObject;
 use App\Models\TraditionalHouse;
 use App\Models\UmkmProfile;
+use App\Models\User;
+use App\Services\TraditionalHouseService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class TraditionalHouseController extends Controller
@@ -46,14 +46,14 @@ class TraditionalHouseController extends Controller
 
     public function store(TraditionalHouseRequest $request): RedirectResponse
     {
-        $house = $this->save($request, new TraditionalHouse);
+        $house = app(TraditionalHouseService::class)->save($request, new TraditionalHouse);
 
         return redirect()->route('admin.houses.edit', $house)->with('success', 'Rumah adat berhasil disimpan.');
     }
 
     public function update(TraditionalHouseRequest $request, TraditionalHouse $house): RedirectResponse
     {
-        $this->save($request, $house);
+        app(TraditionalHouseService::class)->save($request, $house);
 
         return redirect()->route('admin.houses.edit', $house)->with('success', 'Rumah adat berhasil diperbarui.');
     }
@@ -73,59 +73,8 @@ class TraditionalHouseController extends Controller
         $profiles = UmkmProfile::orderBy('owner_name')->get();
         $objects = CulturalObject::orderBy('name->'.app()->getLocale())->get();
 
-        return view('admin.houses.form', compact('house', 'profiles', 'objects'));
-    }
+        $owners = User::where('role', 'umkm_owner')->orderBy('name')->get();
 
-    private function save(TraditionalHouseRequest $request, TraditionalHouse $house): TraditionalHouse
-    {
-        $data = $request->validated();
-        $umkmIds = $data['umkm_profile_ids'] ?? [];
-        $objectIds = $data['cultural_object_ids'] ?? [];
-        unset($data['umkm_profile_ids'], $data['cultural_object_ids'], $data['latitude'], $data['longitude'], $data['cover_image'], $data['gallery_images'], $data['remove_cover_image']);
-
-        $data['is_open_to_visitors'] = $request->boolean('is_open_to_visitors');
-        $data['is_published'] = $request->boolean('is_published');
-        $data['ar_marker_id'] = ($data['ar_marker_id'] ?? null) ?: ($house->ar_marker_id ?: 'HOUSE_'.Str::ulid());
-        $data['description'] ??= ['id' => '', 'en' => ''];
-
-        $oldCover = $house->cover_image_path;
-        if ($request->hasFile('cover_image')) {
-            $newCover = $request->file('cover_image')->store('traditional_houses', 'public');
-            $data['cover_image_path'] = $newCover;
-        } elseif ($request->boolean('remove_cover_image')) {
-            $data['cover_image_path'] = null;
-        }
-
-        $gallery = $house->gallery ?? [];
-        foreach ($request->file('gallery_images', []) as $image) {
-            $gallery[] = $image->store('traditional_houses', 'public');
-        }
-        $data['gallery'] = $gallery;
-
-        $savedHouse = DB::transaction(function () use ($house, $data, $request, $umkmIds, $objectIds): TraditionalHouse {
-            $house->fill($data);
-            $house->save();
-
-            if ($request->filled('latitude') && $request->filled('longitude')) {
-                $house->syncMapLocation([
-                    'category' => 'cultural',
-                    'latitude' => $request->input('latitude'),
-                    'longitude' => $request->input('longitude'),
-                    'is_accessible' => true,
-                ], true);
-            }
-
-            UmkmProfile::where('traditional_house_id', $house->id)->whereNotIn('id', $umkmIds)->update(['traditional_house_id' => null]);
-            UmkmProfile::whereIn('id', $umkmIds)->update(['traditional_house_id' => $house->id]);
-            $house->culturalObjects()->sync($objectIds);
-
-            return $house;
-        });
-
-        if (($request->hasFile('cover_image') || $request->boolean('remove_cover_image')) && $oldCover) {
-            Storage::disk('public')->delete($oldCover);
-        }
-
-        return $savedHouse;
+        return view('admin.houses.form', compact('house', 'profiles', 'objects', 'owners'));
     }
 }

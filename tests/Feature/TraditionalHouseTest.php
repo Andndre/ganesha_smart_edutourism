@@ -11,11 +11,50 @@ use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class TraditionalHouseTest extends TestCase
 {
     use RefreshDatabase;
+
+    #[DataProvider('houseCoverPaths')]
+    public function test_house_covers_use_the_correct_urls_on_the_directory_profile_and_map(string $path, string $expectedPath): void
+    {
+        $house = TraditionalHouse::factory()->create(['number' => 13, 'is_published' => true, 'cover_image_path' => $path]);
+        $location = $house->syncMapLocation(['category' => 'cultural', 'latitude' => -8.42, 'longitude' => 115.36]);
+        UmkmProfile::factory()->create(['traditional_house_id' => $house->id, 'is_active' => true]);
+
+        $this->get(route('houses.index'))->assertOk()->assertSee('src="'.asset($expectedPath).'"', false);
+        $this->get(route('houses.show', ['number' => 13]))->assertOk()->assertSee('src="'.asset($expectedPath).'"', false);
+        $this->get(route('explore'))->assertOk()->assertViewHas('locations', function ($locations) use ($location, $expectedPath): bool {
+            $pin = collect($locations)->firstWhere('id', $location->id);
+
+            return $pin['image'] === asset($expectedPath) && $pin['images'] === [asset($expectedPath)];
+        });
+    }
+
+    public static function houseCoverPaths(): array
+    {
+        return [
+            'bundled seed image' => ['images/packages/kuliner-paon.webp', 'images/packages/kuliner-paon.webp'],
+            'uploaded cover' => ['traditional_houses/cover.webp', 'storage/traditional_houses/cover.webp'],
+        ];
+    }
+
+    public function test_directory_displays_all_published_houses_in_number_order_without_pagination(): void
+    {
+        foreach (range(15, 1) as $number) {
+            $house = TraditionalHouse::factory()->create(['number' => $number, 'is_published' => true]);
+            $house->syncMapLocation(['category' => 'cultural', 'latitude' => -8.42, 'longitude' => 115.36]);
+            UmkmProfile::factory()->create(['traditional_house_id' => $house->id, 'is_active' => true]);
+        }
+
+        $this->get(route('houses.index'))->assertOk()
+            ->assertViewHas('houses', fn ($houses) => $houses->pluck('number')->all() === range(1, 15))
+            ->assertSee('Pekarangan #1')
+            ->assertSee('Pekarangan #15');
+    }
 
     public function test_admin_house_pages_remain_in_indonesian_when_account_prefers_english(): void
     {

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\TraditionalHouse;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -13,6 +14,11 @@ use Illuminate\Support\Str;
 class UmkmProfileFactory extends Factory
 {
     protected $model = UmkmProfile::class;
+
+    public function house(?TraditionalHouse $house = null): static
+    {
+        return $this->for($house ?? TraditionalHouse::factory(), 'traditionalHouse')->state(['profile_type' => 'house']);
+    }
 
     /**
      * Define the model's default state.
