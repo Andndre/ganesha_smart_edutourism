@@ -70,9 +70,9 @@ class TraditionalHouseTest extends TestCase
         $this->actingAs($admin)->get(route('admin.houses.create'))
             ->assertOk()
             ->assertSee('Nomor rumah')
-            ->assertSee('Bahasa Deskripsi rumah')
+            ->assertSee('Cerita rumah')
             ->assertSee('Peta pemilih lokasi')
-            ->assertSee('Foto sampul');
+            ->assertSee('Foto rumah');
 
         $this->assertSame('en', $admin->fresh()->preferred_language);
     }
@@ -111,7 +111,7 @@ class TraditionalHouseTest extends TestCase
             ->assertOk()->assertJsonPath('redirect_url', route('houses.show', ['number' => 18]));
     }
 
-    public function test_publishing_requires_location_and_active_umkm(): void
+    public function test_publishing_a_new_house_requires_a_location_before_its_umkm_is_created(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $inactive = UmkmProfile::factory()->create(['is_active' => false]);
@@ -123,7 +123,7 @@ class TraditionalHouseTest extends TestCase
             'female_count' => 2,
             'umkm_profile_ids' => [$inactive->id],
             'is_published' => '1',
-        ])->assertSessionHasErrors(['latitude', 'longitude', 'umkm_profile_ids']);
+        ])->assertSessionHasErrors(['latitude', 'longitude']);
 
         $this->assertDatabaseMissing('traditional_houses', ['number' => 24]);
     }

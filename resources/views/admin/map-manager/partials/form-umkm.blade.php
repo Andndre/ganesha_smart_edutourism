@@ -4,7 +4,7 @@
     @csrf
     <div id="method-umkm"></div>
     {{-- Business Name --}}
-    <fieldset class="rounded-xl border border-gray-300 p-3">
+    <fieldset id="umkm-profile-type" class="rounded-xl border border-gray-300 p-3">
         <legend class="px-1 text-sm font-semibold text-charcoal">Jenis profil UMKM</legend>
         <div class="flex flex-wrap gap-3">
             <label class="flex min-h-12 items-center gap-2"><input type="radio" name="profile_type" value="business" checked class="accent-primary"> Usaha</label>

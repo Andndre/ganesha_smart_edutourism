@@ -1,6 +1,7 @@
-@props(['id', 'latitude' => null, 'longitude' => null, 'label' => 'Titik lokasi', 'latitudeName' => 'latitude', 'longitudeName' => 'longitude'])
+@props(['id', 'latitude' => null, 'longitude' => null, 'label' => 'Titik lokasi', 'latitudeName' => 'latitude', 'longitudeName' => 'longitude', 'hideCoordinates' => false, 'confirmSelection' => false])
 
 <div data-location-picker data-picker-id="{{ $id }}"
+    data-hide-coordinates="{{ $hideCoordinates ? 'true' : 'false' }}" data-confirm-selection="{{ $confirmSelection ? 'true' : 'false' }}"
     data-center-lat="{{ config('services.penglipuran.latitude') }}"
     data-center-lng="{{ config('services.penglipuran.longitude') }}"
     data-center-zoom="{{ config('services.penglipuran.zoom') }}">
@@ -17,6 +18,9 @@
         </div>
     </div>
     <div id="{{ $id }}-map" data-location-map class="h-72 w-full overflow-hidden rounded-2xl border border-gray-200 bg-surface sm:h-96" role="application" aria-label="Peta pemilih lokasi"></div>
+    @if($confirmSelection)
+        <button type="button" data-confirm-point class="mt-3 inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-5 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">Gunakan titik ini</button>
+    @endif
     <div class="mt-3 flex items-center gap-2 rounded-xl bg-primary/5 px-3 py-2.5 text-xs font-semibold text-primary" aria-live="polite">
         <span class="h-2 w-2 shrink-0 rounded-full bg-primary"></span>
         <span data-location-status>Belum ada titik dipilih</span>
@@ -65,8 +69,9 @@
                     iconAnchor: [12, 12]
                 });
                 let marker = null;
+                const requiresConfirmation = picker.dataset.confirmSelection === 'true';
 
-                const setPoint = point => {
+                const setPoint = (point, confirmed = false) => {
                     if (!marker) {
                         marker = L.marker(point, { draggable: true, icon }).addTo(map);
                         marker.on('dragend', () => setPoint(marker.getLatLng()));
@@ -75,21 +80,32 @@
                     }
                     latInput.value = point.lat.toFixed(7);
                     lngInput.value = point.lng.toFixed(7);
-                    status.textContent = `Titik dipilih · ${latInput.value}, ${lngInput.value}`;
+                    picker.dataset.locationConfirmed = (!requiresConfirmation || confirmed) ? 'true' : 'false';
+                    status.textContent = picker.dataset.locationConfirmed === 'true'
+                        ? (picker.dataset.hideCoordinates === 'true' ? 'Titik rumah sudah dipilih' : `Titik dipilih · ${latInput.value}, ${lngInput.value}`)
+                        : 'Titik dipilih. Tekan Gunakan titik ini untuk memastikan lokasi.';
+                    picker.dispatchEvent(new CustomEvent('location-change', { bubbles: true }));
                 };
 
                 map.on('click', event => setPoint(event.latlng));
                 picker.querySelector('[data-zoom-in]').addEventListener('click', () => map.zoomIn());
                 picker.querySelector('[data-zoom-out]').addEventListener('click', () => map.zoomOut());
                 picker.querySelector('[data-select-center]').addEventListener('click', () => setPoint(map.getCenter()));
+                picker.querySelector('[data-confirm-point]')?.addEventListener('click', () => {
+                    if (marker) setPoint(marker.getLatLng(), true);
+                    else status.textContent = 'Ketuk lokasi rumah di peta terlebih dahulu.';
+                });
                 picker.querySelector('[data-clear-location]').addEventListener('click', () => {
                     marker?.remove();
                     marker = null;
                     latInput.value = '';
                     lngInput.value = '';
                     status.textContent = 'Belum ada titik dipilih';
+                    picker.dataset.locationConfirmed = 'false';
+                    picker.dispatchEvent(new CustomEvent('location-change', { bubbles: true }));
                 });
-                if (hasSavedPoint) setPoint(L.latLng(savedLat, savedLng));
+                if (hasSavedPoint) setPoint(L.latLng(savedLat, savedLng), true);
+                picker.addEventListener('location-picker:shown', () => requestAnimationFrame(() => map.invalidateSize()));
                 requestAnimationFrame(() => map.invalidateSize());
             });
         }

@@ -141,13 +141,12 @@ function handleMapClick(lat, lng) {
 
         updateCoordinateInputs(lat, lng);
 
-        const typeSelect = document.getElementById('type-selector');
-        if (typeSelect) {
-            typeSelect.disabled = false;
-            typeSelect.value = 'cultural';
-        }
+        document.querySelectorAll('input[name="map_location_type"]').forEach(input => {
+            input.checked = false;
+            input.disabled = false;
+        });
 
-        switchForm('cultural');
+        switchForm('');
         setTimeout(attachChangeListeners, 100);
     });
 }
@@ -158,9 +157,20 @@ function updateCoordinateInputs(lat, lng) {
 
     document.querySelectorAll('input[name="latitude"]').forEach(input => input.value = fixedLat);
     document.querySelectorAll('input[name="longitude"]').forEach(input => input.value = fixedLng);
+    const selector = document.getElementById('selector-container');
+    selector.dataset.latitude = fixedLat;
+    selector.dataset.longitude = fixedLng;
 }
 
 function switchForm(type) {
+    if (type === 'house') {
+        const selector = document.getElementById('selector-container');
+        const url = new URL(selector.dataset.houseCreateUrl);
+        url.searchParams.set('latitude', selector.dataset.latitude);
+        url.searchParams.set('longitude', selector.dataset.longitude);
+        window.location.assign(url.href);
+        return;
+    }
     // Hide all forms
     const formCultural = document.getElementById('form-cultural');
     const formUmkm = document.getElementById('form-umkm');
@@ -185,7 +195,30 @@ function switchForm(type) {
     const submitBtn = document.getElementById('btn-global-submit');
     if (submitBtn) {
         submitBtn.setAttribute('form', formId);
+        submitBtn.hidden = !targetForm;
+        submitBtn.style.display = targetForm ? '' : 'none';
     }
+    document.getElementById('umkm-profile-type').classList.toggle('hidden', currentMode === 'create');
+    const choosing = currentMode === 'create' && !type;
+    const show = (id, visible) => {
+        const element = document.getElementById(id);
+        element.hidden = !visible;
+        element.style.display = visible ? '' : 'none';
+    };
+    show('selector-container', currentMode === 'create');
+    show('location-type-choices', choosing);
+    show('location-type-selected', currentMode === 'create' && !!type);
+    show('map-editor-actions', !choosing);
+    document.getElementById('location-type-label').textContent = {
+        umkm: 'Usaha', cultural: 'Objek budaya', facility: 'Fasilitas umum'
+    }[type] || '';
+    document.querySelectorAll('input[name="map_location_type"]').forEach(input => {
+        input.checked = input.value === type;
+        input.disabled = currentMode === 'edit';
+    });
+    if (type) document.getElementById('location-type-error').hidden = true;
+    if (currentMode === 'create' && type === 'umkm') setUmkmProfileType('business', undefined, false);
+
 
     // Update temp marker color to match type
     if (tempMarker) {
@@ -365,11 +398,6 @@ function handleMarkerClick(marker) {
         document.getElementById('editor-title').innerText = "Edit Lokasi";
 
         // Disable type selector since we can't transform type
-        const typeSelect = document.getElementById('type-selector');
-        if (typeSelect) {
-            typeSelect.value = loc.category;
-            typeSelect.disabled = true;
-        }
 
         // Show delete option
         document.getElementById('delete-container').classList.remove('hidden');
@@ -679,4 +707,33 @@ document.getElementById('umkm-house-id')?.addEventListener('change', () => {
     const type = document.querySelector('#form-umkm input[name="profile_type"]:checked')?.value || 'business';
     setUmkmProfileType(type, undefined, document.querySelector('#form-umkm input[value="business"]').disabled);
 });
+document.getElementById('location-type-continue')?.addEventListener('click', () => {
+    const selected = document.querySelector('input[name="map_location_type"]:checked');
+    if (!selected) {
+        document.getElementById('location-type-error').hidden = false;
+        document.querySelector('input[name="map_location_type"]').focus();
+        return;
+    }
+    switchForm(selected.value);
+    if (selected.value !== 'house') {
+        const form = document.getElementById(`form-${selected.value}`);
+        const name = selected.value === 'umkm' ? 'business_name[id]' : 'name[id]';
+        const input = form?.querySelector(`input[name="${name}"]`) || form?.querySelector('select:not([disabled]), input[type="text"]');
+        input?.focus();
+    }
+});
+document.querySelectorAll('input[name="map_location_type"]').forEach(input => {
+    input.addEventListener('change', () => document.getElementById('location-type-error').hidden = true);
+});
+document.getElementById('location-type-change')?.addEventListener('click', () => {
+    checkUnsavedChanges(() => {
+        const selector = document.getElementById('selector-container');
+        resetForms();
+        updateCoordinateInputs(selector.dataset.latitude, selector.dataset.longitude);
+        resetUnsaved();
+        switchForm('');
+        document.querySelector('input[name="map_location_type"]').focus();
+    });
+});
+document.getElementById('location-type-cancel')?.addEventListener('click', cancelEditor);
 </script>

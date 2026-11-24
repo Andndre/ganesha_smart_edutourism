@@ -7,7 +7,7 @@
         <div>
             <p class="text-xs font-bold uppercase tracking-[.18em] text-primary">Warisan Desa</p>
             <h1 class="font-display text-3xl font-bold text-charcoal">Rumah Adat</h1>
-            <p class="mt-2 text-sm text-gray-600">Publikasikan pekarangan yang telah diverifikasi, hubungkan UMKM penghuninya, dan cetak satu penanda untuk setiap rumah.</p>
+            <p class="mt-2 text-sm text-gray-600">Tambahkan rumah warga dan pilih pengelolanya. UMKM Rumah dibuat otomatis, lalu data dapat dilengkapi sebelum ditampilkan untuk pengunjung.</p>
         </div>
         @if (auth()->user()?->isAdmin())
             <a href="{{ route('admin.houses.create') }}" class="tap-target rounded-full bg-primary px-5 text-sm font-bold text-white">Tambah Rumah</a>
