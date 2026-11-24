@@ -2,8 +2,6 @@
 
 @section('title', 'UMKM')
 
-
-
 @section('content')
 
     <div class="mb-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
@@ -64,136 +62,80 @@
         @endforeach
     </div>
 
-    {{-- Search + Filter --}}
-    <form id="tour-filters" method="GET" action="{{ route('admin.umkm') }}" class="mb-4 flex flex-col gap-3 sm:flex-row">
-        <div class="relative flex-1">
-            <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ 'Cari produk atau toko UMKM...' }}"
-                class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 py-2.5 pl-9 pr-4 text-sm focus:outline-none focus:ring-1">
-        </div>
-        <select name="category" onchange="this.form.submit()"
-            class="focus:border-primary rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none">
-            <option value="Semua Kategori">{{ 'Semua Kategori' }}</option>
-            @foreach (['Kerajinan', 'Kuliner', 'Tekstil', 'Minuman'] as $cat)
-                <option value="{{ $cat }}" {{ request('category') === $cat ? 'selected' : '' }}>{{ $cat }}
-                </option>
-            @endforeach
-        </select>
-    </form>
+    <x-dashboard.table title="Produk UMKM" :columns="['Produk', 'Toko', 'Kategori', ['label' => 'Harga', 'align' => 'right'], ['label' => 'Stok', 'align' => 'right'], ['label' => 'Aksi', 'align' => 'right']]" :paginator="$products" id="tour-table">
+        <x-slot:toolbar>
+            <x-dashboard.table-filters :action="route('admin.umkm')" id="tour-filters" search-name="search" label="Cari produk atau toko" placeholder="Nama produk atau toko UMKM" :filtered="request()->filled('search') || (request()->filled('category') && request('category') !== 'Semua Kategori')">
+                <div class="sm:w-48">
+                    <label for="products-category" class="mb-1.5 block text-xs font-semibold text-gray-700">Kategori produk</label>
+                    <select id="products-category" name="category" class="dashboard-table-input w-full">
+                        <option value="">Semua kategori</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}" @selected((string) request('category') === (string) $category->id)>{{ translateValue($category->name) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </x-dashboard.table-filters>
+        </x-slot:toolbar>
 
-    {{-- Product Table --}}
-    <div id="tour-table" class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-gray-100 bg-gray-50/50">
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                            Produk</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Toko
-                        </th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                            Kategori</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Harga
-                        </th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Stok
-                        </th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Aksi
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    @forelse ($products as $p)
-                        <tr @if ($loop->first) id="tour-first-row" @endif class="hover:bg-gray-50/50">
-                            <td class="text-charcoal px-5 py-4 font-medium">
-                                <div>
-                                    <p>{{ $p->display_name }}</p>
-                                    @if (!$p->is_active)
-                                        <span
-                                            class="mt-0.5 inline-block rounded bg-gray-100 px-1.5 py-0.5 text-[11px] font-semibold text-gray-500">Nonaktif</span>
-                                    @endif
-                                </div>
-                            </td>
-                            <td class="px-5 py-4 text-gray-500">{{ $p->umkmProfile->business_name ?? 'Lokal' }}</td>
-                            <td class="px-5 py-4">
-                                <span
-                                    class="bg-primary/10 text-primary-800 rounded-lg px-2.5 py-1 text-xs font-semibold">{{ translateValue($p->category?->name) ?? 'Lainnya' }}</span>
-                            </td>
-                            <td class="text-charcoal px-5 py-4 font-semibold">
-                                @if ($p->display_price !== null)
-                                    Rp {{ number_format($p->display_price, 0, ',', '.') }}
-                                @else
-                                    <span class="text-xs italic text-gray-500">-</span>
-                                @endif
-                            </td>
-                            <td class="px-5 py-4">
-                                @if ($p->stock !== null && $p->stock <= 5)
-                                    <span
-                                        class="bg-warning/10 text-warning rounded-full px-2.5 py-0.5 text-xs font-bold">{{ $p->stock }}
-                                        (Stok Rendah)</span>
-                                @elseif ($p->stock === null)
-                                    <span class="text-gray-500 text-xs italic">{{ 'Tidak terbatas' }}</span>
-                                @else
-                                    <span class="text-gray-600">{{ $p->stock }} {{ $p->display_unit }}</span>
-                                @endif
-                            </td>
-                            <td @if ($loop->first) id="tour-row-actions" @endif class="px-5 py-4">
-                                <div class="flex items-center gap-2">
-                                    <button onclick="openEditModal({{ json_encode([
-                                        'id' => $p->id,
-                                        'name' => $p->getTranslations('name'),
-                                        'description' => $p->getTranslations('description'),
-                                        'umkm_product_category_id' => $p->umkm_product_category_id,
-                                        'umkm_profile_id' => $p->umkm_profile_id,
-                                        'price' => $p->price,
-                                        'stock' => $p->stock,
-                                        'unit' => $p->unit,
-                                        'images' => $p->images,
-                                        'is_active' => $p->is_active,
-                                    ]) }})"
-                                        class="hover:bg-primary/10 hover:text-primary rounded-lg p-1.5 text-gray-500 transition-colors"
-                                        title="Edit">
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                            stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                    </button>
-                                    <form method="POST" action="{{ route('admin.umkm.destroy', $p->id) }}"
-                                        class="delete-form inline"
-                                        data-confirm="{{ 'Apakah Anda yakin ingin menghapus produk ini?' }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="hover:bg-warning/10 hover:text-warning rounded-lg p-1.5 text-gray-500 transition-colors"
-                                            title="Hapus">
-                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                                stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td id="tour-empty-state" colspan="6" class="px-5 py-8 text-center text-gray-500">Belum ada
-                                data produk UMKM.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        @if ($products->hasPages())
-            <div class="border-t border-gray-100 px-5 py-3.5">
-                {{ $products->links() }}
-            </div>
-        @endif
-    </div>
+        @forelse ($products as $p)
+            <tr @if ($loop->first) id="tour-first-row" @endif>
+                <th scope="row">
+                    <div>
+                        <p>{{ $p->display_name }}</p>
+                        @if (!$p->is_active)
+                            <x-dashboard.table-badge class="mt-1">Nonaktif</x-dashboard.table-badge>
+                        @endif
+                    </div>
+                </th>
+                <td class="text-gray-500">{{ $p->umkmProfile->business_name ?? 'Lokal' }}</td>
+                <td>
+                    <x-dashboard.table-badge tone="success">{{ translateValue($p->category?->name) ?? 'Lainnya' }}</x-dashboard.table-badge>
+                </td>
+                <td class="table-number font-semibold text-charcoal">
+                    @if ($p->display_price !== null)
+                        Rp {{ number_format($p->display_price, 0, ',', '.') }}
+                    @else
+                        <span class="text-xs italic text-gray-500">-</span>
+                    @endif
+                </td>
+                <td class="table-number">
+                    @if ($p->stock !== null && $p->stock <= 5)
+                        <x-dashboard.table-badge tone="warning">{{ $p->stock }} (Stok rendah)</x-dashboard.table-badge>
+                    @elseif ($p->stock === null)
+                        <span class="text-gray-500 text-xs italic">{{ 'Tidak terbatas' }}</span>
+                    @else
+                        <span class="text-gray-600">{{ $p->stock }} {{ $p->display_unit }}</span>
+                    @endif
+                </td>
+                <td @if ($loop->first) id="tour-row-actions" @endif>
+                    <div class="table-actions">
+                        <x-dashboard.table-action onclick="openEditModal({{ json_encode([
+                            'id' => $p->id,
+                            'name' => $p->getTranslations('name'),
+                            'description' => $p->getTranslations('description'),
+                            'umkm_product_category_id' => $p->umkm_product_category_id,
+                            'umkm_profile_id' => $p->umkm_profile_id,
+                            'price' => $p->price,
+                            'stock' => $p->stock,
+                            'unit' => $p->unit,
+                            'images' => $p->images,
+                            'is_active' => $p->is_active,
+                        ]) }})">Ubah</x-dashboard.table-action>
+                        <form method="POST" action="{{ route('admin.umkm.destroy', $p->id) }}"
+                            class="delete-form inline"
+                            data-confirm="{{ 'Apakah Anda yakin ingin menghapus produk ini?' }}">
+                            @csrf
+                            @method('DELETE')
+                            <x-dashboard.table-action type="submit"
+                                variant="danger">Hapus</x-dashboard.table-action>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        @empty
+            <x-dashboard.table-empty id="tour-empty-state" :colspan="6" :filtered="request()->filled('search') || (request()->filled('category') && request('category') !== 'Semua Kategori')" message="Belum ada data produk UMKM." />
+        @endforelse
+    </x-dashboard.table>
 
     {{-- Product Modal Form --}}
     <x-modal name="product-modal" maxWidth="xl" desktopLayout="drawer">
@@ -326,8 +268,6 @@
         const modalTitle = document.getElementById('modal-title');
         const methodContainer = document.getElementById('method-container');
         const storageUrl = "{{ asset('storage') }}";
-
-
 
         function openCreateModal() {
             modalTitle.innerText = "Tambah Produk UMKM";
@@ -478,7 +418,7 @@
                     element: '#tour-row-actions',
                     popover: {
                         title: '⚙️ Aksi Cepat',
-                        description: 'Gunakan ikon Edit untuk mengubah data produk atau ikon Hapus untuk menghapusnya dari daftar.',
+                        description: 'Gunakan tombol Ubah untuk mengubah data produk atau tombol Hapus untuk menghapusnya dari daftar.',
                         side: 'top',
                         align: 'end'
                     }

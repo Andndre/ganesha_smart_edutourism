@@ -205,6 +205,8 @@
             },
 
             isLoadingList: false,
+            listError: '',
+            listRequestId: 0,
 
             searchEvents() {
                 const form = document.querySelector('#tour-search-form');
@@ -215,15 +217,17 @@
             },
 
             handlePaginationClick(event) {
-                const link = event.target.closest('a');
-                if (link && link.href) {
+                const link = event.target.closest('[data-table-pagination] a');
+                if (link && link.href && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
                     event.preventDefault();
                     this.fetchEventsFromUrl(link.href);
                 }
             },
 
             fetchEventsFromUrl(url, shouldPushState = true) {
+                const requestId = ++this.listRequestId;
                 this.isLoadingList = true;
+                this.listError = '';
                 fetch(url, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest'
@@ -234,13 +238,13 @@
                         return response.text();
                     })
                     .then(html => {
+                        if (requestId !== this.listRequestId) return;
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, 'text/html');
                         const newTable = doc.querySelector('#events-table-wrapper');
                         const currentTable = document.querySelector('#events-table-wrapper');
-                        if (newTable && currentTable) {
-                            currentTable.innerHTML = newTable.innerHTML;
-                        }
+                        if (!newTable || !currentTable) throw new Error('Tabel event tidak ditemukan');
+                        currentTable.innerHTML = newTable.innerHTML;
 
                         // Sync form input values
                         const newSearch = doc.querySelector('input[name="search"]');
@@ -259,9 +263,12 @@
                             window.history.pushState({}, '', url);
                         }
                         this.isLoadingList = false;
+                        this.$nextTick(() => currentTable.querySelector('[role="region"]')?.focus({ preventScroll: true }));
                     })
                     .catch(err => {
+                        if (requestId !== this.listRequestId) return;
                         console.error('AJAX Error:', err);
+                        this.listError = 'Data event gagal dimuat. Terapkan filter atau pilih halaman lagi untuk mencoba kembali.';
                         this.isLoadingList = false;
                     });
             },
@@ -283,7 +290,7 @@
 
                 // Check if URL parameters require switching to list view
                 const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.has('search') || urlParams.has('category') || urlParams.has('page')) {
+                if (urlParams.get('view') === 'list' || urlParams.has('search') || urlParams.has('category') || urlParams.has('page')) {
                     this.viewMode = 'list';
                 }
 

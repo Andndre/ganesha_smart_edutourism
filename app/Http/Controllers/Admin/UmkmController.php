@@ -36,7 +36,7 @@ class UmkmController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = UmkmProduct::with(['umkmProfile', 'variants']);
+        $query = UmkmProduct::with(['umkmProfile', 'variants', 'category']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -52,13 +52,10 @@ class UmkmController extends Controller
         }
 
         if ($request->filled('category') && $request->category !== 'Semua Kategori') {
-            $category = $request->category;
-            $query->whereHas('umkmProfile', function ($q) use ($category) {
-                $q->where('category', $category);
-            });
+            $query->where('umkm_product_category_id', $request->query('category'));
         }
 
-        $products = $query->paginate(10)->withQueryString();
+        $products = $query->orderBy('id')->paginate(15)->withQueryString();
         $profiles = UmkmProfile::orderBy('business_name->'.app()->getLocale())->get();
 
         // Compute dynamic stats
@@ -266,17 +263,34 @@ class UmkmController extends Controller
     /**
      * Display a listing of UMKM owner accounts.
      */
-    public function ownersList(): View
+    public function ownersList(Request $request): View
     {
-        $owners = User::where('role', 'umkm_owner')
-            ->with(['umkmProfile' => fn ($query) => $query->withExists(['mapLocation as has_map_pin'])])
+        $query = User::where('role', 'umkm_owner')
+            ->with(['umkmProfile' => fn ($query) => $query->withExists(['mapLocation as has_map_pin'])]);
+
+        if ($request->filled('search')) {
+            $search = trim((string) $request->query('search'));
+            $query->where(function ($query) use ($search): void {
+                $query->where('name', 'like', '%'.$search.'%')
+                    ->orWhere('email', 'like', '%'.$search.'%')
+                    ->orWhere('phone', 'like', '%'.$search.'%')
+                    ->orWhereHas('umkmProfile', function ($query) use ($search): void {
+                        $query->where('business_name->id', 'like', '%'.$search.'%')
+                            ->orWhere('business_name->en', 'like', '%'.$search.'%');
+                    });
+            });
+        }
+
+        $owners = $query
             ->orderBy('name')
-            ->get();
+            ->orderBy('id')
+            ->paginate(15)->withQueryString();
         $unmappedProfiles = UmkmProfile::whereDoesntHave('mapLocation')
             ->with('user:id,name,email')
             ->withCount('products')
             ->orderBy('id')
-            ->get(['id', 'user_id', 'owner_name', 'business_name', 'is_active']);
+            ->paginate(15, ['id', 'user_id', 'owner_name', 'business_name', 'is_active'], 'unmapped_page')
+            ->withQueryString();
 
         return view('admin.umkm.owners', compact('owners', 'unmappedProfiles'));
     }

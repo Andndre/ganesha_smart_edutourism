@@ -19,139 +19,84 @@
         </button>
     </div>
 
-    {{-- Owners Table --}}
-    <div class="max-w-5xl overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-gray-100 bg-gray-50/50">
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Nama
-                            Pemilik</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Email
-                        </th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Nomor
-                            Telepon</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Toko
-                            Tertaut</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Aksi
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    @forelse ($owners as $owner)
-                        <tr class="hover:bg-gray-50/50">
-                            <td class="text-charcoal px-5 py-4 font-semibold">{{ $owner->name }}</td>
-                            <td class="px-5 py-4 font-mono text-xs text-gray-500">{{ $owner->email }}</td>
-                            <td class="px-5 py-4 text-gray-600">{{ $owner->phone ?? '-' }}</td>
-                            <td class="px-5 py-4">
-                                @if ($owner->umkmProfile)
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        <span class="bg-primary/10 text-primary-800 rounded-lg px-2.5 py-1 text-xs font-semibold">
-                                            {{ $owner->umkmProfile->business_name }}
-                                        </span>
-                                        <span class="text-xs font-semibold text-primary">{{ $owner->umkmProfile->isHouse() ? 'Rumah + UMKM' : 'UMKM Usaha' }}</span>
-                                        @if($owner->umkmProfile->isHouse() && $owner->umkmProfile->traditional_house_id)
-                                            <a href="{{ route('admin.houses.edit', $owner->umkmProfile->traditional_house_id) }}" class="inline-flex min-h-12 items-center text-xs font-semibold text-primary underline">Kelola rumah dan pengelola</a>
-                                        @endif
-                                        <span class="text-xs font-medium {{ $owner->umkmProfile->has_map_pin ? 'text-green-700' : 'text-amber-700' }}">
-                                            {{ $owner->umkmProfile->has_map_pin ? 'On map' : 'Missing map pin' }}
-                                        </span>
-                                    </div>
-                                @else
-                                    <span class="text-xs italic text-gray-500">Belum ditautkan ke Toko</span>
-                                @endif
-                            </td>
-                            <td class="px-5 py-4">
-                                <div class="flex items-center gap-2">
-                                    <button onclick="openEditModal({{ json_encode($owner) }})"
-                                        class="hover:bg-primary/10 hover:text-primary rounded-lg p-1.5 text-gray-500 transition-colors"
-                                        title="Edit">
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                            stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                    </button>
-                                    <form method="POST" action="{{ route('admin.umkm.owners.destroy', $owner->id) }}"
-                                        class="delete-form inline"
-                                        data-confirm="{{ 'Apakah Anda yakin ingin menghapus akun pemilik UMKM ini?' }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="hover:bg-warning/10 hover:text-warning rounded-lg p-1.5 text-gray-500 transition-colors"
-                                            title="Hapus">
-                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                                stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-5 py-8 text-center text-gray-500">Belum ada akun pemilik UMKM.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <x-dashboard.table title="Pemilik UMKM" :columns="['Nama pemilik', 'Email', 'Nomor telepon', 'Toko tertaut', ['label' => 'Aksi', 'align' => 'right']]" :paginator="$owners">
+        <x-slot:toolbar>
+            <x-dashboard.table-filters :action="route('admin.umkm.owners')" id="owners-filters" search-name="search" label="Cari pemilik UMKM" placeholder="Nama, email, telepon, atau toko" :filtered="request()->filled('search')">
+            </x-dashboard.table-filters>
+        </x-slot:toolbar>
 
-    @if ($unmappedProfiles->isNotEmpty())
-        <section class="mt-8 max-w-5xl" aria-labelledby="unmapped-umkm-title">
-            <div class="mb-3 flex flex-wrap items-end justify-between gap-2">
-                <div>
-                    <h2 id="unmapped-umkm-title" class="text-charcoal text-lg font-bold">Shops missing map pins</h2>
-                    <p class="mt-1 text-sm text-gray-500">These profiles still exist. Deleting a shop leaves its owner account intact.</p>
-                </div>
-                <span class="text-sm font-semibold text-gray-600">{{ $unmappedProfiles->count() }} shops</span>
-            </div>
-            <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="border-b border-gray-100 bg-gray-50/50">
-                                <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Shop</th>
-                                <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Owner account</th>
-                                <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Products</th>
-                                <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50">
-                            @foreach ($unmappedProfiles as $profile)
-                                <tr class="hover:bg-gray-50/50">
-                                    <td class="px-5 py-4">
-                                        <p class="text-charcoal font-semibold">{{ translateValue($profile->business_name) }}</p>
-                                        <p class="mt-1 text-xs text-gray-500">{{ $profile->is_active ? 'Active' : 'Inactive' }}</p>
-                                    </td>
-                                    <td class="px-5 py-4">
-                                        <p class="text-gray-700">{{ $profile->user?->name ?? $profile->owner_name }}</p>
-                                        <p class="mt-1 text-xs text-gray-500">{{ $profile->user?->email ?? 'No linked account' }}</p>
-                                    </td>
-                                    <td class="px-5 py-4 text-gray-600">{{ $profile->products_count }}</td>
-                                    <td class="px-5 py-4">
-                                        <form action="{{ route('admin.umkm.profile.destroy', $profile->id) }}" method="POST"
-                                            class="delete-form"
-                                            data-confirm="Delete this shop and its products? The owner account will remain.">
-                                            @csrf
-                                            @method('DELETE')
-                                            <input type="hidden" name="redirect_to" value="owners">
-                                            <button type="submit"
-                                                class="inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold text-red-700 transition-colors hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700">
-                                                Delete shop
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+        @forelse ($owners as $owner)
+            <tr>
+                <th scope="row" class="text-charcoal font-semibold">{{ $owner->name }}</th>
+                <td class="font-mono text-xs text-gray-500">{{ $owner->email }}</td>
+                <td class="text-gray-600">{{ $owner->phone ?? '-' }}</td>
+                <td>
+                    @if ($owner->umkmProfile)
+                        <div class="flex flex-wrap items-center gap-2">
+                            <x-dashboard.table-badge tone="success">{{ $owner->umkmProfile->business_name }}</x-dashboard.table-badge>
+                            <span class="text-xs font-semibold text-primary">{{ $owner->umkmProfile->isHouse() ? 'Rumah + UMKM' : 'UMKM Usaha' }}</span>
+                            @if($owner->umkmProfile->isHouse() && $owner->umkmProfile->traditional_house_id)
+                                <a href="{{ route('admin.houses.edit', $owner->umkmProfile->traditional_house_id) }}" class="inline-flex min-h-12 items-center text-xs font-semibold text-primary underline">Kelola rumah dan pengelola</a>
+                            @endif
+                            <x-dashboard.table-badge :tone="$owner->umkmProfile->has_map_pin ? 'success' : 'warning'">{{ $owner->umkmProfile->has_map_pin ? 'Ada di peta' : 'Belum ada titik peta' }}</x-dashboard.table-badge>
+                        </div>
+                    @else
+                        <span class="text-xs italic text-gray-500">Belum ditautkan ke Toko</span>
+                    @endif
+                </td>
+                <td>
+                    <div class="table-actions">
+                        <x-dashboard.table-action onclick="openEditModal({{ json_encode($owner) }})">Ubah</x-dashboard.table-action>
+                        <form method="POST" action="{{ route('admin.umkm.owners.destroy', $owner->id) }}"
+                            class="delete-form inline"
+                            data-confirm="{{ 'Apakah Anda yakin ingin menghapus akun pemilik UMKM ini?' }}">
+                            @csrf
+                            @method('DELETE')
+                            <x-dashboard.table-action type="submit"
+                                variant="danger">Hapus</x-dashboard.table-action>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        @empty
+            <x-dashboard.table-empty :colspan="5" :filtered="request()->filled('search')" message="Belum ada akun pemilik UMKM." />
+        @endforelse
+    </x-dashboard.table>
+
+    @if ($unmappedProfiles->total() > 0)
+        <div class="mt-8">
+            <x-dashboard.table title="Toko tanpa titik peta" :columns="['Toko', 'Akun pemilik', ['label' => 'Produk', 'align' => 'right'], ['label' => 'Aksi', 'align' => 'right']]" :paginator="$unmappedProfiles">
+                <x-slot:toolbar>
+                    <p class="text-sm text-gray-600">Profil toko ini belum memiliki titik di peta. Menghapus toko juga menghapus produknya; akun pemilik tetap tersedia.</p>
+                </x-slot:toolbar>
+                @forelse ($unmappedProfiles as $profile)
+                    <tr>
+                        <th scope="row">
+                            <p>{{ translateValue($profile->business_name) }}</p>
+                            <x-dashboard.table-badge :tone="$profile->is_active ? 'success' : 'neutral'" class="mt-1">{{ $profile->is_active ? 'Aktif' : 'Nonaktif' }}</x-dashboard.table-badge>
+                        </th>
+                        <td>
+                            <p>{{ $profile->user?->name ?? $profile->owner_name }}</p>
+                            <p class="mt-1 text-xs text-gray-600">{{ $profile->user?->email ?? 'Belum ada akun tertaut' }}</p>
+                        </td>
+                        <td class="table-number">{{ $profile->products_count }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <form action="{{ route('admin.umkm.profile.destroy', $profile->id) }}" method="POST"
+                                    class="delete-form" data-confirm="Hapus toko ini beserta produknya? Akun pemilik tetap tersedia.">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="hidden" name="redirect_to" value="owners">
+                                    <x-dashboard.table-action type="submit" variant="danger">Hapus toko</x-dashboard.table-action>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <x-dashboard.table-empty :colspan="4" message="Tidak ada toko di halaman ini." hint="Pilih halaman sebelumnya untuk melihat toko lainnya." />
+                @endforelse
+            </x-dashboard.table>
+        </div>
     @endif
 
     {{-- Owner Modal Form --}}

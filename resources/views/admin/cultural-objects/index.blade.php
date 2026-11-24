@@ -18,111 +18,72 @@
         </a>
     </div>
 
-    <form method="GET" action="{{ route('admin.cultural-objects') }}" class="mb-4">
-        <div class="relative max-w-md">
-            <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari objek budaya..."
-                class="focus:border-primary focus:ring-primary/30 w-full rounded-xl border border-gray-200 py-2.5 pl-9 pr-4 text-sm focus:outline-none focus:ring-1">
-        </div>
-    </form>
+    <x-dashboard.table title="Objek budaya" :columns="['Nama', 'Tri Hita Karana', 'Titik peta', 'AR', 'Gambar', 'Audio', ['label' => 'Aksi', 'align' => 'right']]" :paginator="$objects">
+        <x-slot:toolbar>
+            <x-dashboard.table-filters :action="route('admin.cultural-objects')" id="objects-filters" search-name="search" label="Cari objek budaya" placeholder="Nama objek budaya" :filtered="request()->filled('search')">
+            </x-dashboard.table-filters>
+        </x-slot:toolbar>
 
-    <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-gray-100 bg-gray-50/50">
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Nama</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Tri Hita Karana</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Titik Peta</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">AR</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Images</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Audio</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    @forelse ($objects as $object)
-                        @php
-                            $hasImages = collect($object->historical_images ?? [])->contains(fn ($path) => filled($path));
-                            $hasIndonesianAudio = filled($object->audio_narration_paths['id'] ?? null);
-                            $hasEnglishAudio = filled($object->audio_narration_paths['en'] ?? null);
-                            $audioCount = (int) $hasIndonesianAudio + (int) $hasEnglishAudio;
-                        @endphp
-                        <tr class="hover:bg-gray-50/50">
-                            <td class="text-charcoal px-5 py-4 font-medium">
-                                @if ($object->parent)
-                                    <span class="text-xs font-normal text-gray-400">{{ translateValue($object->parent->name) }}
-                                        &rsaquo;</span>
-                                @endif
-                                {{ translateValue($object->name) }}
-                            </td>
-                            <td class="px-5 py-4">
-                                <span class="bg-primary/10 text-primary-800 rounded-lg px-2.5 py-1 text-xs font-semibold capitalize">{{ $object->category }}</span>
-                            </td>
-                            <td class="px-5 py-4 text-gray-500">
-                                @if ($object->map_locations_count === 0)
-                                    <a href="{{ route('admin.map-manager', ['place' => 'cultural_object:'.$object->id]) }}"
-                                        class="text-primary text-xs font-semibold hover:underline">Taruh di peta</a>
-                                @else
-                                    {{ $object->map_locations_count }} titik
-                                @endif
-                            </td>
-                            <td class="px-5 py-4">
-                                @if ($object->arModel)
-                                    <span class="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">Ada</span>
-                                @else
-                                    <span class="text-xs italic text-gray-500">-</span>
-                                @endif
-                            </td>
-                            <td class="px-5 py-4">
-                                <span @class([
-                                    'inline-flex whitespace-nowrap rounded-lg px-2.5 py-1 text-xs font-semibold',
-                                    'bg-green-50 text-green-700' => $hasImages,
-                                    'bg-gray-100 text-gray-600' => ! $hasImages,
-                                ])>{{ $hasImages ? 'Uploaded' : 'Missing' }}</span>
-                            </td>
-                            <td class="px-5 py-4">
-                                <div class="flex flex-col items-start gap-1.5">
-                                    <span @class([
-                                        'inline-flex rounded-lg px-2.5 py-1 text-xs font-semibold',
-                                        'bg-green-50 text-green-700' => $audioCount === 2,
-                                        'bg-amber-50 text-amber-700' => $audioCount === 1,
-                                        'bg-gray-100 text-gray-600' => $audioCount === 0,
-                                    ])>{{ $audioCount }}/2</span>
-                                    <div class="flex flex-col gap-0.5 whitespace-nowrap text-xs text-gray-500">
-                                        <span>ID: {{ $hasIndonesianAudio ? 'Uploaded' : 'Missing' }}</span>
-                                        <span>EN: {{ $hasEnglishAudio ? 'Uploaded' : 'Missing' }}</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-5 py-4">
-                                <div class="flex items-center gap-3">
-                                    <a href="{{ route('admin.cultural-objects.edit', $object->id) }}" class="text-primary font-semibold hover:underline">Edit</a>
-                                    <form action="{{ route('admin.cultural-objects.destroy', $object->id) }}" method="POST" class="delete-form"
-                                        data-confirm="Hapus objek budaya ini beserta semua titik dan model AR-nya?">
-                                        @csrf
-                                        @method('DELETE')
-                                        <input type="hidden" name="redirect_to" value="cultural-objects">
-                                        <button type="submit" class="font-semibold text-red-500 hover:underline">Hapus</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="px-5 py-10 text-center text-gray-500">Belum ada objek budaya.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="mt-4">
-        {{ $objects->links() }}
-    </div>
+        @forelse ($objects as $object)
+            @php
+                $hasImages = collect($object->historical_images ?? [])->contains(fn ($path) => filled($path));
+                $hasIndonesianAudio = filled($object->audio_narration_paths['id'] ?? null);
+                $hasEnglishAudio = filled($object->audio_narration_paths['en'] ?? null);
+                $audioCount = (int) $hasIndonesianAudio + (int) $hasEnglishAudio;
+            @endphp
+            <tr>
+                <th scope="row" class="text-charcoal font-medium">
+                    @if ($object->parent)
+                        <span class="text-xs font-normal text-gray-600">{{ translateValue($object->parent->name) }}
+                            &rsaquo;</span>
+                    @endif
+                    {{ translateValue($object->name) }}
+                </th>
+                <td>
+                    <x-dashboard.table-badge tone="success" class="capitalize">{{ $object->category }}</x-dashboard.table-badge>
+                </td>
+                <td class="text-gray-500">
+                    @if ($object->map_locations_count === 0)
+                        <x-dashboard.table-action :href="route('admin.map-manager', ['place' => 'cultural_object:'.$object->id])">Taruh di peta</x-dashboard.table-action>
+                    @else
+                        {{ $object->map_locations_count }} titik
+                    @endif
+                </td>
+                <td>
+                    @if ($object->arModel)
+                        <x-dashboard.table-badge tone="success">Tersedia</x-dashboard.table-badge>
+                    @else
+                        <x-dashboard.table-badge>Belum tersedia</x-dashboard.table-badge>
+                    @endif
+                </td>
+                <td>
+                    <x-dashboard.table-badge :tone="$hasImages ? 'success' : 'neutral'">{{ $hasImages ? 'Tersedia' : 'Belum tersedia' }}</x-dashboard.table-badge>
+                </td>
+                <td>
+                    <div class="flex flex-col items-start gap-1.5">
+                        <x-dashboard.table-badge :tone="$audioCount === 2 ? 'success' : ($audioCount === 1 ? 'warning' : 'neutral')">{{ $audioCount }}/2</x-dashboard.table-badge>
+                        <div class="flex flex-col gap-0.5 whitespace-nowrap text-xs text-gray-500">
+                            <span>ID: {{ $hasIndonesianAudio ? 'Tersedia' : 'Belum tersedia' }}</span>
+                            <span>EN: {{ $hasEnglishAudio ? 'Tersedia' : 'Belum tersedia' }}</span>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="table-actions">
+                        <x-dashboard.table-action href="{{ route('admin.cultural-objects.edit', $object->id) }}">Ubah</x-dashboard.table-action>
+                        <form action="{{ route('admin.cultural-objects.destroy', $object->id) }}" method="POST" class="delete-form"
+                            data-confirm="Hapus objek budaya ini beserta semua titik dan model AR-nya?">
+                            @csrf
+                            @method('DELETE')
+                            <input type="hidden" name="redirect_to" value="cultural-objects">
+                            <x-dashboard.table-action type="submit" variant="danger">Hapus</x-dashboard.table-action>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        @empty
+            <x-dashboard.table-empty :colspan="7" :filtered="request()->filled('search')" message="Belum ada objek budaya." />
+        @endforelse
+    </x-dashboard.table>
 
 @endsection
