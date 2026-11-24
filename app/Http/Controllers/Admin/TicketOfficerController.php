@@ -14,9 +14,20 @@ class TicketOfficerController extends Controller
     /**
      * Display a listing of Ticket Officer accounts.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $officers = User::where('role', 'ticket_officer')->orderBy('name')->get();
+        $query = User::where('role', 'ticket_officer');
+
+        if ($request->filled('search')) {
+            $search = trim((string) $request->query('search'));
+            $query->where(function ($query) use ($search): void {
+                $query->where('name', 'like', '%'.$search.'%')
+                    ->orWhere('email', 'like', '%'.$search.'%')
+                    ->orWhere('phone', 'like', '%'.$search.'%');
+            });
+        }
+
+        $officers = $query->orderBy('name')->orderBy('id')->paginate(15)->withQueryString();
 
         return view('admin.ticket-officers.index', compact('officers'));
     }

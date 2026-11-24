@@ -40,10 +40,10 @@ class UmkmOwnerTest extends TestCase
         $this->actingAs($admin)->get(route('admin.umkm.owners'))
             ->assertOk()
             ->assertViewHas('unmappedProfiles', fn ($profiles) => $profiles->modelKeys() === [$unmapped->id, $unlinked->id])
-            ->assertSee('Shops missing map pins')
-            ->assertSee('Missing map pin')
+            ->assertSee('Toko tanpa titik peta')
+            ->assertSee('Belum ada titik peta')
             ->assertSee('wayan@example.com')
-            ->assertSee('No linked account')
+            ->assertSee('Belum ada akun tertaut')
             ->assertSee(route('admin.umkm.profile.destroy', $unmapped->id), false);
 
         $this->deleteJson(route('admin.map-manager.points.destroy', $mapped->mapLocation))->assertOk();

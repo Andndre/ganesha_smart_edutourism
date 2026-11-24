@@ -35,7 +35,7 @@ class EventController extends Controller
             $query->category($mappedCategory);
         }
 
-        $events = $query->orderBy('start_datetime', 'desc')->paginate(10)->withQueryString();
+        $events = $query->orderBy('start_datetime', 'desc')->orderBy('id')->paginate(15)->withQueryString();
 
         // Calculate dynamic stats
         $now = Carbon::now();
@@ -262,7 +262,7 @@ class EventController extends Controller
     {
         $now = Carbon::now();
         $query = Event::query();
-        $events = $query->orderBy('start_datetime', 'desc')->paginate(10);
+        $events = $query->orderBy('start_datetime', 'desc')->orderBy('id')->paginate(15)->withQueryString();
 
         return [
             'events' => $events,

@@ -29,72 +29,37 @@
         </div>
     </div>
 
-    {{-- Officers Table --}}
-    <div id="tour-table" class="max-w-5xl overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-gray-100 bg-gray-50/50">
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Nama
-                            Petugas</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Email
-                        </th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Nomor
-                            Telepon</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                            Tanggal Terdaftar</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Aksi
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    @forelse ($officers as $officer)
-                        <tr class="hover:bg-gray-50/50">
-                            <td class="text-charcoal px-5 py-4 font-semibold">{{ $officer->name }}</td>
-                            <td class="px-5 py-4 font-mono text-xs text-gray-500">{{ $officer->email }}</td>
-                            <td class="px-5 py-4 text-gray-600">{{ $officer->phone ?? '-' }}</td>
-                            <td class="px-5 py-4 text-xs text-gray-500">
-                                {{ $officer->created_at ? $officer->created_at->translatedFormat('d M Y H:i') : '-' }}</td>
-                            <td class="px-5 py-4">
-                                <div @if ($loop->first) id="tour-actions" @endif class="flex items-center gap-2">
-                                    <button onclick="openEditModal({{ json_encode($officer) }})"
-                                        class="hover:bg-primary/10 hover:text-primary rounded-lg p-1.5 text-gray-500 transition-colors"
-                                        title="Edit">
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                            stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                    </button>
-                                    <form method="POST" action="{{ route('admin.ticket-officers.destroy', $officer->id) }}"
-                                        class="delete-form inline"
-                                        data-confirm="{{ 'Apakah Anda yakin ingin menghapus akun petugas tiket ini?' }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="hover:bg-warning/10 hover:text-warning rounded-lg p-1.5 text-gray-500 transition-colors"
-                                            title="Hapus">
-                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                                stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td id="tour-empty-state" colspan="5" class="px-5 py-8 text-center text-gray-500">Belum ada
-                                akun petugas tiket.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <x-dashboard.table title="Petugas tiket" :columns="['Nama petugas', 'Email', 'Nomor telepon', 'Tanggal terdaftar', ['label' => 'Aksi', 'align' => 'right']]" :paginator="$officers" id="tour-table">
+        <x-slot:toolbar>
+            <x-dashboard.table-filters :action="route('admin.ticket-officers')" id="officers-filters" search-name="search" label="Cari petugas tiket" placeholder="Nama, email, atau nomor telepon" :filtered="request()->filled('search')">
+            </x-dashboard.table-filters>
+        </x-slot:toolbar>
+
+        @forelse ($officers as $officer)
+            <tr>
+                <th scope="row" class="text-charcoal font-semibold">{{ $officer->name }}</th>
+                <td class="font-mono text-xs text-gray-500">{{ $officer->email }}</td>
+                <td class="text-gray-600">{{ $officer->phone ?? '-' }}</td>
+                <td class="text-xs text-gray-500">
+                    {{ $officer->created_at ? $officer->created_at->translatedFormat('d M Y H:i') : '-' }}</td>
+                <td>
+                    <div @if ($loop->first) id="tour-actions" @endif class="table-actions">
+                        <x-dashboard.table-action onclick="openEditModal({{ json_encode($officer) }})">Ubah</x-dashboard.table-action>
+                        <form method="POST" action="{{ route('admin.ticket-officers.destroy', $officer->id) }}"
+                            class="delete-form inline"
+                            data-confirm="{{ 'Apakah Anda yakin ingin menghapus akun petugas tiket ini?' }}">
+                            @csrf
+                            @method('DELETE')
+                            <x-dashboard.table-action type="submit"
+                                variant="danger">Hapus</x-dashboard.table-action>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        @empty
+            <x-dashboard.table-empty id="tour-empty-state" :colspan="5" :filtered="request()->filled('search')" message="Belum ada akun petugas tiket." />
+        @endforelse
+    </x-dashboard.table>
 
     {{-- Officer Modal Form --}}
     <x-modal name="officer-modal" maxWidth="md" desktopLayout="drawer">
@@ -310,7 +275,7 @@
                     element: '#tour-actions',
                     popover: {
                         title: '⚙️ Edit & Hapus Akun',
-                        description: 'Klik ikon pensil untuk mengubah data petugas (termasuk mengganti password), atau ikon tempat sampah untuk menghapus akun yang sudah tidak digunakan.',
+                        description: 'Klik tombol Ubah untuk mengubah data petugas (termasuk mengganti password), atau tombol Hapus untuk menghapus akun yang sudah tidak digunakan.',
                         side: 'top',
                         align: 'end'
                     }
