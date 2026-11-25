@@ -14,6 +14,29 @@ class CulturalObjectGalleryTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_card_pagination_uses_dashboard_controls_and_preserves_filters(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        CulturalObject::factory()->count(16)->create(['name' => ['id' => 'Sasih Pagination', 'en' => 'Sasih Pagination']]);
+        CulturalObject::factory()->create(['name' => ['id' => 'Objek lain', 'en' => 'Other object']]);
+        $filters = ['search' => 'Sasih', 'ar_status' => 'without_model'];
+        $nextUrl = route('admin.cultural-objects', [...$filters, 'page' => 2]);
+
+        $this->actingAs($admin)->get(route('admin.cultural-objects', $filters))
+            ->assertOk()
+            ->assertSee('Navigasi halaman objek budaya')
+            ->assertSee('Menampilkan')
+            ->assertSee('1–15')
+            ->assertSee('Berikutnya')
+            ->assertSee('href="'.e($nextUrl).'"', false)
+            ->assertDontSee('Showing');
+
+        $this->get($nextUrl)->assertOk()
+            ->assertViewHas('objects', fn ($objects) => $objects->total() === 16 && $objects->count() === 1)
+            ->assertSee('16–16')
+            ->assertSee('aria-current="page" aria-label="Halaman 2"', false);
+    }
+
     public function test_edit_form_and_cards_use_public_storage_urls_for_every_saved_photo(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

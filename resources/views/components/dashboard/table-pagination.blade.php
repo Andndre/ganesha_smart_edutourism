@@ -1,7 +1,7 @@
-<nav role="navigation" aria-label="Navigasi halaman tabel" data-table-pagination class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+<nav role="navigation" aria-label="{{ $paginationLabel ?? 'Navigasi halaman tabel' }}" data-table-pagination class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <p class="text-sm tabular-nums text-gray-600">
         Menampilkan <span class="font-semibold text-charcoal">{{ $paginator->firstItem() ?? 0 }}–{{ $paginator->lastItem() ?? 0 }}</span>
-        dari <span class="font-semibold text-charcoal">{{ number_format($paginator->total(), 0, ',', '.') }}</span> data
+        dari <span class="font-semibold text-charcoal">{{ number_format($paginator->total(), 0, ',', '.') }}</span> {{ $itemLabel ?? 'data' }}
     </p>
     @if ($paginator->hasPages())
         <div class="flex flex-wrap items-center gap-2">

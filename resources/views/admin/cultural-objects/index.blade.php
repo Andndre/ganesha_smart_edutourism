@@ -111,6 +111,8 @@
         @endforelse
     </ul>
     @if($objects->hasPages())
-        <div class="mt-6">{{ $objects->links() }}</div>
+        <div class="mt-6 rounded-2xl border border-gray-200 bg-white px-5 py-4">
+            {{ $objects->onEachSide(1)->links('components.dashboard.table-pagination', ['paginationLabel' => 'Navigasi halaman objek budaya', 'itemLabel' => 'objek budaya']) }}
+        </div>
     @endif
 @endsection
