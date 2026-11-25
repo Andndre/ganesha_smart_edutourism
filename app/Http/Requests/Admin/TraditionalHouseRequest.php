@@ -16,14 +16,6 @@ class TraditionalHouseRequest extends FormRequest
         return $this->route('house');
     }
 
-    protected function profileIds(): array
-    {
-        return array_unique([
-            ...$this->input('umkm_profile_ids', []),
-            ...($this->houseForValidation()?->umkmProfiles()->where('profile_type', 'house')->pluck('id')->all() ?? []),
-        ]);
-    }
-
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -71,10 +63,8 @@ class TraditionalHouseRequest extends FormRequest
             'is_published' => ['nullable', 'boolean'],
             'latitude' => [Rule::requiredIf($this->boolean('is_published')), 'required_with:longitude', 'nullable', 'numeric', 'between:-90,90'],
             'longitude' => [Rule::requiredIf($this->boolean('is_published')), 'required_with:latitude', 'nullable', 'numeric', 'between:-180,180'],
-            'umkm_profile_ids' => ['sometimes', 'array'],
-            'umkm_profile_ids.*' => ['integer', 'distinct', 'exists:umkm_profiles,id'],
-            'cultural_object_ids' => ['nullable', 'array'],
-            'cultural_object_ids.*' => ['integer', 'distinct', 'exists:cultural_objects,id'],
+            'umkm_profile_ids' => ['prohibited'],
+            'cultural_object_ids' => ['prohibited'],
         ];
     }
 
@@ -108,25 +98,28 @@ class TraditionalHouseRequest extends FormRequest
             if (! $this->houseForValidation()) {
                 return;
             }
-            if ($this->boolean('activate_house_umkm') && $this->houseForValidation()->umkmProfiles()->where('profile_type', 'house')->exists()) {
+            if ($this->boolean('activate_house_umkm') && $this->houseForValidation()->umkmProfile()->where('profile_type', 'house')->exists()) {
                 return;
             }
 
-            $ids = $this->profileIds();
             if ($this->user()?->isAdmin() && $this->filled('owner_user_id')) {
                 $ownerProfile = UmkmProfile::where('user_id', $this->integer('owner_user_id'))->first();
                 if (! $ownerProfile || $ownerProfile->is_active) {
                     return;
                 }
             }
-            if (! is_array($ids) || ! UmkmProfile::active()->whereIn('id', $ids)->exists()) {
-                $validator->errors()->add('umkm_profile_ids', 'Rumah adat yang dipublikasikan harus memiliki setidaknya satu UMKM aktif.');
+            if (! $this->houseForValidation()->umkmProfile()->active()->exists()) {
+                $validator->errors()->add('is_published', 'Aktifkan profil UMKM Rumah sebelum menampilkan rumah untuk pengunjung.');
             }
         }];
     }
 
     public function messages(): array
     {
-        return ['number.unique' => 'Rumah No. :input sudah terdaftar. Buka rumah tersebut untuk mengubah datanya.'];
+        return [
+            'number.unique' => 'Rumah No. :input sudah terdaftar. Buka rumah tersebut untuk mengubah datanya.',
+            'cultural_object_ids.prohibited' => 'Ruang budaya mengikuti pengaturan desa dan tidak perlu dipilih per rumah.',
+            'umkm_profile_ids.prohibited' => 'Satu rumah hanya memiliki satu profil UMKM yang terhubung otomatis. Tidak perlu memilih usaha tambahan.',
+        ];
     }
 }

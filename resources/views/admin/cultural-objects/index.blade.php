@@ -7,6 +7,7 @@
         <div>
             <h1 class="font-display text-2xl font-bold text-charcoal">Objek Budaya</h1>
             <p class="mt-1 max-w-2xl text-sm text-gray-500">Kelola foto, cerita, audio, dan model 3D dalam satu tempat. Atur titik melalui <a href="{{ route('admin.map-manager') }}" class="text-primary underline">Peta Lokasi & Titik</a>.</p>
+            <a href="{{ route('admin.settings') }}" class="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-primary underline underline-offset-4">Atur objek unggulan dan induk budaya seluruh rumah</a>
         </div>
         <a href="{{ route('admin.cultural-objects.create') }}" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-hover focus-visible:outline-primary">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>

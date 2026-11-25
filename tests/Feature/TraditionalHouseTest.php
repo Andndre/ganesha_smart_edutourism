@@ -9,6 +9,7 @@ use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use App\Models\User;
+use App\Models\VillageSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -63,8 +64,8 @@ class TraditionalHouseTest extends TestCase
         $this->actingAs($admin)->get(route('admin.houses.index', ['locale' => 'en']))
             ->assertOk()
             ->assertSee('<html lang="id"', false)
-            ->assertSee('Rumah Adat')
-            ->assertSee('Tambah Rumah')
+            ->assertSee('Pekarangan')
+            ->assertSee('Tambah Pekarangan')
             ->assertDontSee('Traditional houses');
 
         $this->actingAs($admin)->get(route('admin.houses.create'))
@@ -80,8 +81,6 @@ class TraditionalHouseTest extends TestCase
     public function test_admin_can_publish_a_house_with_a_location_and_active_umkm(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $umkm = UmkmProfile::factory()->create(['is_active' => true]);
-
         $this->actingAs($admin)->post(route('admin.houses.store'), [
             'number' => 18,
             'head_name' => 'Jero Wayan Sujana',
@@ -90,12 +89,12 @@ class TraditionalHouseTest extends TestCase
             'description' => ['id' => 'Rumah keluarga Sujana.', 'en' => 'The Sujana family courtyard.'],
             'latitude' => -8.42345,
             'longitude' => 115.36542,
-            'umkm_profile_ids' => [$umkm->id],
             'is_published' => '1',
             'is_open_to_visitors' => '1',
         ])->assertRedirect();
 
         $house = TraditionalHouse::where('number', 18)->firstOrFail();
+        $umkm = $house->umkmProfile;
         $this->assertTrue($house->is_published);
         $this->assertNotNull($house->ar_marker_id);
         $this->assertSame($house->id, $umkm->fresh()->traditional_house_id);
@@ -121,7 +120,6 @@ class TraditionalHouseTest extends TestCase
             'head_name' => 'Ibu Made Suartini',
             'male_count' => 1,
             'female_count' => 2,
-            'umkm_profile_ids' => [$inactive->id],
             'is_published' => '1',
         ])->assertSessionHasErrors(['latitude', 'longitude']);
 
@@ -208,7 +206,6 @@ class TraditionalHouseTest extends TestCase
             'female_count' => $house->female_count,
             'latitude' => -8.42,
             'longitude' => 115.36,
-            'umkm_profile_ids' => [$umkm->id],
             'is_published' => '0',
         ])->assertRedirect();
 
@@ -232,7 +229,9 @@ class TraditionalHouseTest extends TestCase
         $house = TraditionalHouse::factory()->create(['is_published' => true]);
         $house->syncMapLocation(['category' => 'cultural', 'latitude' => -8.42, 'longitude' => 115.36]);
         UmkmProfile::factory()->create(['traditional_house_id' => $house->id, 'is_active' => true]);
-        $house->culturalObjects()->attach(CulturalObject::factory()->create());
+        $root = CulturalObject::factory()->create();
+        CulturalObject::factory()->create(['parent_id' => $root->id]);
+        VillageSettings::get()->update(['house_cultural_object_id' => $root->id]);
 
         $this->get(route('houses.show', ['number' => $house->number]))
             ->assertOk()->assertDontSee('Lihat model 3D');
@@ -246,12 +245,27 @@ class TraditionalHouseTest extends TestCase
         $category = UmkmProductCategory::factory()->create(['name' => ['id' => 'Anyaman Bambu', 'en' => 'Bamboo Weaving']]);
         UmkmProduct::factory()->create(['umkm_profile_id' => $umkm->id, 'umkm_product_category_id' => $category->id]);
         $object = CulturalObject::factory()->create();
-        $house->culturalObjects()->attach($object);
+        $root = CulturalObject::factory()->create();
+        $object->update(['parent_id' => $root->id]);
+        VillageSettings::get()->update(['house_cultural_object_id' => $root->id]);
         $model = ArModel::factory()->create(['cultural_object_id' => $object->id]);
 
         $this->get(route('houses.show', ['number' => $house->number]))
             ->assertOk()
             ->assertSee('Anyaman Bambu')
             ->assertSee(route('ar-scan', ['model_id' => $model->id]), false);
+    }
+
+    public function test_house_form_only_shows_the_single_linked_profile_without_a_business_picker(): void
+    {
+        $profile = UmkmProfile::factory()->house()->create();
+        $other = UmkmProfile::factory()->create();
+
+        $this->actingAs(User::factory()->create(['role' => 'admin']))->get(route('admin.houses.edit', $profile->traditional_house_id))
+            ->assertOk()->assertSee('Terhubung otomatis')->assertSee('Satu rumah terhubung ke satu profil UMKM.')
+            ->assertDontSee('Usaha tambahan')->assertDontSee('name="umkm_profile_ids[]"', false)
+            ->assertDontSee($other->getTranslation('business_name', 'id'));
+        $this->actingAs($profile->user)->get(route('owner.house'))->assertOk()
+            ->assertSee('Terhubung otomatis')->assertDontSee('name="umkm_profile_ids[]"', false);
     }
 }

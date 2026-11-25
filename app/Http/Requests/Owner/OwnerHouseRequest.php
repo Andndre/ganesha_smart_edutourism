@@ -27,7 +27,6 @@ class OwnerHouseRequest extends TraditionalHouseRequest
         foreach (['owner_user_id', 'user_id', 'profile_type', 'traditional_house_id', 'umkm_profile_ids', 'owner_mode', 'new_owner_name', 'new_owner_email', 'new_owner_phone', 'password', 'password_confirmation', 'creation_flow'] as $field) {
             $rules[$field] = ['prohibited'];
         }
-        unset($rules['umkm_profile_ids.*']);
 
         return $rules;
     }
@@ -48,10 +47,5 @@ class OwnerHouseRequest extends TraditionalHouseRequest
     protected function houseForValidation(): ?TraditionalHouse
     {
         return $this->house();
-    }
-
-    protected function profileIds(): array
-    {
-        return $this->house()?->umkmProfiles()->pluck('id')->all() ?? [];
     }
 }

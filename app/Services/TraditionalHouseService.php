@@ -11,7 +11,6 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 
 class TraditionalHouseService
 {
@@ -19,7 +18,6 @@ class TraditionalHouseService
     {
         $data = $request->validated();
         $isOwner = $request instanceof OwnerHouseRequest;
-        $umkmIds = $isOwner ? $house->umkmProfiles()->pluck('id')->all() : ($data['umkm_profile_ids'] ?? []);
         $assignOwner = ! $isOwner && (array_key_exists('owner_user_id', $data) || isset($data['owner_mode']));
         $ownerId = ! empty($data['owner_user_id']) && ($data['owner_mode'] ?? 'existing') === 'existing' ? (int) $data['owner_user_id'] : null;
         $newOwner = ! $isOwner && ($data['owner_mode'] ?? null) === 'new' ? [
@@ -29,8 +27,7 @@ class TraditionalHouseService
         ] : null;
         $activateHouseUmkm = $request->boolean('activate_house_umkm');
         unset($data['owner_user_id'], $data['owner_mode'], $data['new_owner_name'], $data['new_owner_email'], $data['new_owner_phone'], $data['password'], $data['password_confirmation'], $data['creation_flow'], $data['activate_house_umkm']);
-        $objectIds = $data['cultural_object_ids'] ?? [];
-        unset($data['umkm_profile_ids'], $data['cultural_object_ids'], $data['latitude'], $data['longitude'], $data['cover_image'], $data['gallery_images'], $data['remove_cover_image'], $data['remove_gallery_images'], $data['is_accessible'], $data['accessibility_notes']);
+        unset($data['umkm_profile_ids'], $data['latitude'], $data['longitude'], $data['cover_image'], $data['gallery_images'], $data['remove_cover_image'], $data['remove_gallery_images'], $data['is_accessible'], $data['accessibility_notes']);
 
         $data['is_open_to_visitors'] = $request->boolean('is_open_to_visitors');
         $data['is_published'] = $request->boolean('is_published');
@@ -59,7 +56,7 @@ class TraditionalHouseService
         $data['gallery'] = $gallery;
 
         try {
-            $savedHouse = DB::transaction(function () use ($house, $data, $request, $umkmIds, $objectIds, $assignOwner, $ownerId, $newOwner, $activateHouseUmkm): TraditionalHouse {
+            $savedHouse = DB::transaction(function () use ($house, $data, $request, $assignOwner, $ownerId, $newOwner, $activateHouseUmkm): TraditionalHouse {
                 $creating = ! $house->exists;
                 if ($house->exists) {
                     $lockedHouse = TraditionalHouse::whereKey($house->id)->lockForUpdate()->firstOrFail();
@@ -89,23 +86,12 @@ class TraditionalHouseService
                     }
                     app(HouseProfileService::class)->assignOwner($house, $ownerId);
                 }
+                $profile = app(HouseProfileService::class)->ensureProfile($house);
                 if ($creating) {
-                    app(HouseProfileService::class)->ensureProfile($house)->update(['is_active' => $house->is_published]);
+                    $profile->update(['is_active' => $house->is_published]);
                 } elseif ($house->is_published && $activateHouseUmkm) {
-                    $house->umkmProfiles()->where('profile_type', 'house')->get()->each->update(['is_active' => true]);
+                    $house->umkmProfile()->where('profile_type', 'house')->first()?->update(['is_active' => true]);
                 }
-                $primaryIds = $house->umkmProfiles()->where('profile_type', 'house')->pluck('id')->all();
-                $umkmIds = array_unique([...$umkmIds, ...$primaryIds]);
-                UmkmProfile::where('traditional_house_id', $house->id)->whereNotIn('id', $umkmIds)->get()->each(function (UmkmProfile $profile): void {
-                    $profile->update(['traditional_house_id' => null]);
-                });
-                foreach (UmkmProfile::whereIn('id', $umkmIds)->lockForUpdate()->get() as $profile) {
-                    if ($profile->isHouse() && $profile->traditional_house_id !== $house->id) {
-                        throw ValidationException::withMessages(['umkm_profile_ids' => 'Profil Rumah tidak dapat dipindahkan melalui daftar UMKM.']);
-                    }
-                    $profile->update(['traditional_house_id' => $house->id]);
-                }
-                $house->culturalObjects()->sync($objectIds);
 
                 return $house;
             });

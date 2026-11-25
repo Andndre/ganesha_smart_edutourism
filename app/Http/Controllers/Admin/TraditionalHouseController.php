@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\TraditionalHouseRequest;
-use App\Models\CulturalObject;
 use App\Models\TraditionalHouse;
-use App\Models\UmkmProfile;
 use App\Models\User;
+use App\Models\VillageSettings;
 use App\Services\TraditionalHouseService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +17,7 @@ class TraditionalHouseController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = TraditionalHouse::with('mapLocation')->withCount('umkmProfiles');
+        $query = TraditionalHouse::with('mapLocation')->withCount('umkmProfile');
         if ($request->filled('q')) {
             $search = trim((string) $request->query('q'));
             $query->where(function ($query) use ($search): void {
@@ -43,9 +42,8 @@ class TraditionalHouseController extends Controller
         $owners = User::where('role', 'umkm_owner')->with(['umkmProfile', 'managedHouse'])->orderBy('name')->get();
         $existingNumbers = TraditionalHouse::orderBy('number')->get(['id', 'number'])
             ->mapWithKeys(fn (TraditionalHouse $house): array => [$house->number => route('admin.houses.edit', $house)]);
-        $objects = CulturalObject::orderBy('name->id')->get();
 
-        return view('admin.houses.create', compact('prefill', 'owners', 'existingNumbers', 'objects'));
+        return view('admin.houses.create', compact('prefill', 'owners', 'existingNumbers'));
     }
 
     public function edit(TraditionalHouse $house): View
@@ -78,12 +76,11 @@ class TraditionalHouseController extends Controller
 
     private function form(?TraditionalHouse $house): View
     {
-        $house?->load(['mapLocation', 'umkmProfiles', 'culturalObjects']);
-        $profiles = UmkmProfile::orderBy('owner_name')->get();
-        $objects = CulturalObject::orderBy('name->'.app()->getLocale())->get();
+        $house?->load(['mapLocation', 'umkmProfile']);
+        $houseCulture = VillageSettings::get()->houseCulturalObject()->roots()->with('children')->first();
 
         $owners = User::where('role', 'umkm_owner')->orderBy('name')->get();
 
-        return view('admin.houses.form', compact('house', 'profiles', 'objects', 'owners'));
+        return view('admin.houses.form', compact('house', 'houseCulture', 'owners'));
     }
 }

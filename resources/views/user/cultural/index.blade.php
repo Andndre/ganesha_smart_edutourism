@@ -38,7 +38,7 @@
 
     <div class="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5 xl:grid-cols-4">
         @forelse($objects as $object)
-            <a href="{{ route('cultural-object', ['slug' => $object['slug']]) }}" x-show="mode === 'complexes' ? {{ ($object['children_count'] ?? 0) > 0 ? 'true' : 'false' }} : (cat === 'all' || cat === '{{ $object['category'] ?? '' }}')" class="group overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md">
+            <a href="{{ route('cultural-object', ['slug' => $object['slug']]) }}" x-show="mode === 'complexes' ? {{ ($object['is_featured'] ?? false) || ($object['children_count'] ?? 0) > 0 ? 'true' : 'false' }} : (cat === 'all' || cat === '{{ $object['category'] ?? '' }}')" class="group overflow-hidden rounded-2xl border bg-white shadow-sm transition-shadow hover:shadow-md {{ ($object['is_featured'] ?? false) ? 'border-secondary ring-1 ring-secondary/40' : 'border-border' }}">
                 <div class="relative aspect-[4/3] border-b border-border bg-surface">
                     @if(!empty($object['historical_images'][0]))
                         <img src="{{ asset('storage/'.$object['historical_images'][0]) }}" alt="{{ $object['name'] }}" loading="lazy" class="h-full w-full object-cover">
@@ -48,6 +48,7 @@
                     @if(!empty($object['ar_marker_id']) || !empty($object['model_3d_path']))<span class="absolute right-2 top-2 rounded-full bg-primary/90 px-2.5 py-1 text-[10px] font-bold text-accent shadow-sm backdrop-blur-xs">{{ __('AR Tersedia') }}</span>@endif
                 </div>
                 <div class="p-4">
+                    @if($object['is_featured'] ?? false)<span class="mb-2 inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">{{ __('Unggulan') }}</span>@endif
                     <p class="text-[10px] font-bold uppercase tracking-wider text-secondary">{{ ($object['children_count'] ?? 0) > 0 ? __('Kompleks Induk') : ($categoryLabels[$object['category']] ?? __('Warisan Budaya')) }}</p>
                     <h3 class="mt-1 line-clamp-2 font-display text-base font-bold text-charcoal md:text-lg">{{ $object['name'] }}</h3>
                     <p class="mt-2 line-clamp-2 text-xs leading-relaxed text-gray-600 md:text-sm">{{ strip_tags($object['short_description'] ?? '') }}</p>

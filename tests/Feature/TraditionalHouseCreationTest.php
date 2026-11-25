@@ -21,7 +21,7 @@ class TraditionalHouseCreationTest extends TestCase
     {
         $response = $this->actingAs(User::factory()->create(['role' => 'admin']))->get(route('admin.map-manager'));
         $response->assertOk()->assertSee('Apa yang ingin ditambahkan?')->assertSee('Lanjutkan')
-            ->assertSeeInOrder(['Rumah warga', 'Usaha', 'Objek budaya', 'Fasilitas umum'])
+            ->assertSeeInOrder(['Pekarangan warga', 'Usaha', 'Objek budaya', 'Fasilitas umum'])
             ->assertDontSee('id="type-selector"', false)
             ->assertDontSee('id="map-create-house"', false)
             ->assertDontSee('id="map-create-business"', false);
@@ -45,7 +45,7 @@ class TraditionalHouseCreationTest extends TestCase
         $this->actingAs($admin)->post(route('admin.houses.store'), $this->draft())
             ->assertRedirect()->assertSessionHas('success', fn ($message) => str_contains($message, 'UMKM Rumah sudah dibuat otomatis'));
         $house = TraditionalHouse::sole();
-        $profile = $house->umkmProfiles()->sole();
+        $profile = $house->umkmProfile()->sole();
         $this->assertNull($house->owner_user_id);
         $this->assertNull($profile->user_id);
         $this->assertTrue($profile->isHouse());
@@ -72,7 +72,7 @@ class TraditionalHouseCreationTest extends TestCase
             ...$this->draft(), 'is_published' => '1', 'latitude' => -8.42345, 'longitude' => 115.36542,
         ])->assertRedirect();
         $house = TraditionalHouse::sole();
-        $profile = $house->umkmProfiles()->sole();
+        $profile = $house->umkmProfile()->sole();
         $this->assertTrue($house->is_published);
         $this->assertTrue($profile->is_active);
         $this->assertSame($house->mapLocation->latitude, $profile->mapLocation->latitude);
@@ -165,7 +165,7 @@ class TraditionalHouseCreationTest extends TestCase
             'is_published' => '1', 'activate_house_umkm' => '1', 'latitude' => -8.42345, 'longitude' => 115.36542,
         ])->assertRedirect();
         $this->assertTrue($house->fresh()->is_published);
-        $this->assertTrue($house->umkmProfiles()->sole()->is_active);
+        $this->assertTrue($house->umkmProfile()->sole()->is_active);
     }
 
     #[DataProvider('unauthorizedRoles')]

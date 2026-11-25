@@ -10,8 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Validation\ValidationException;
 use Spatie\Translatable\HasTranslations;
@@ -23,12 +22,12 @@ class TraditionalHouse extends Model
     {
         static::saved(function (self $house): void {
             if ($house->wasChanged('number')) {
-                $house->umkmProfiles()->where('profile_type', 'house')->get()->each->save();
+                $house->umkmProfile()->where('profile_type', 'house')->first()?->save();
                 $house->mapLocation?->update(['name' => $house->getMapDisplayName()]);
             }
         });
         static::deleting(function (self $house): void {
-            if ($house->umkmProfiles()->where('profile_type', 'house')->exists()) {
+            if ($house->umkmProfile()->where('profile_type', 'house')->exists()) {
                 throw ValidationException::withMessages(['house' => 'Hapus profil UMKM Rumah terlebih dahulu sebelum menghapus rumah.']);
             }
         });
@@ -61,7 +60,7 @@ class TraditionalHouse extends Model
     {
         return $query->where('is_published', true)
             ->whereHas('mapLocation')
-            ->whereHas('umkmProfiles', fn (Builder $profiles) => $profiles->active());
+            ->whereHas('umkmProfile', fn (Builder $profiles) => $profiles->active());
     }
 
     public function getMapDisplayName(): string
@@ -86,15 +85,9 @@ class TraditionalHouse extends Model
         return $this->morphOne(MapLocation::class, 'locationable');
     }
 
-    /** @return HasMany<UmkmProfile> */
-    public function umkmProfiles(): HasMany
+    /** @return HasOne<UmkmProfile, $this> */
+    public function umkmProfile(): HasOne
     {
-        return $this->hasMany(UmkmProfile::class);
-    }
-
-    /** @return BelongsToMany<CulturalObject> */
-    public function culturalObjects(): BelongsToMany
-    {
-        return $this->belongsToMany(CulturalObject::class);
+        return $this->hasOne(UmkmProfile::class);
     }
 }

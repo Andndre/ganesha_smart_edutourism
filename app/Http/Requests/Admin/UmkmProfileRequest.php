@@ -23,7 +23,7 @@ class UmkmProfileRequest extends FormRequest
         $isHouse = $this->input('profile_type', $profile?->profile_type?->value) === 'house';
         $rules = [
             'profile_type' => ['sometimes', Rule::enum(UmkmProfileType::class)],
-            'traditional_house_id' => [$isHouse ? 'required' : 'nullable', 'integer', 'exists:traditional_houses,id'],
+            'traditional_house_id' => [$isHouse ? 'required' : 'nullable', 'integer', 'exists:traditional_houses,id', Rule::unique('umkm_profiles', 'traditional_house_id')->ignore($profile)],
             'user_id' => ['nullable', Rule::exists('users', 'id')->where('role', 'umkm_owner')],
             'business_name' => ['required', 'array'],
             'business_name.en' => ['required', 'string', 'max:255'],
@@ -55,7 +55,10 @@ class UmkmProfileRequest extends FormRequest
 
     public function messages(): array
     {
-        return ['ar_marker_id.prohibited' => 'Marker 3D/AR dikelola melalui objek budaya.'];
+        return [
+            'ar_marker_id.prohibited' => 'Marker 3D/AR dikelola melalui objek budaya.',
+            'traditional_house_id.unique' => 'Rumah ini sudah memiliki profil UMKM. Satu rumah hanya dapat terhubung ke satu profil.',
+        ];
     }
 
     protected function prepareForValidation(): void

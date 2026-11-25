@@ -121,6 +121,8 @@ class BackfillTraditionalHousesTest extends TestCase
 
     public function test_existing_houses_locations_and_manual_links_survive_reruns_and_rollback(): void
     {
+        $cardinality = require database_path('migrations/2026_11_25_105755_enforce_one_umkm_profile_per_traditional_house.php');
+        $cardinality->down();
         $existing = TraditionalHouse::factory()->create(['number' => 13, 'is_published' => false]);
         $existing->syncMapLocation(['category' => 'cultural', 'latitude' => -8.4, 'longitude' => 115.3]);
         $linkedElsewhere = $this->legacyProfile('House No. 99', ['traditional_house_id' => $existing->id]);

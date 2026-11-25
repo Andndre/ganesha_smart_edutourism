@@ -23,16 +23,17 @@ class HouseProfileService
         if ($profile->user_id && UmkmProfile::where('user_id', $profile->user_id)->whereKeyNot($profile->getKey() ?? 0)->exists()) {
             throw ValidationException::withMessages(['user_id' => 'Akun ini sudah memiliki profil UMKM.']);
         }
+        $house = $profile->traditional_house_id
+            ? TraditionalHouse::whereKey($profile->traditional_house_id)->lockForUpdate()->first()
+            : null;
+        if ($house && $house->umkmProfile()->whereKeyNot($profile->getKey() ?? 0)->lockForUpdate()->first()) {
+            throw ValidationException::withMessages(['traditional_house_id' => 'Rumah ini sudah memiliki profil UMKM. Satu rumah hanya dapat terhubung ke satu profil.']);
+        }
         if (! $profile->isHouse()) {
             return;
         }
-
-        $house = TraditionalHouse::whereKey($profile->traditional_house_id)->lockForUpdate()->first();
         if (! $house) {
             throw ValidationException::withMessages(['traditional_house_id' => 'Pilih rumah untuk profil Rumah.']);
-        }
-        if ($house->umkmProfiles()->where('profile_type', 'house')->whereKeyNot($profile->getKey() ?? 0)->lockForUpdate()->first()) {
-            throw ValidationException::withMessages(['traditional_house_id' => 'Rumah ini sudah memiliki profil UMKM Rumah.']);
         }
         if ($profile->user_id) {
             $user = User::find($profile->user_id);
@@ -80,7 +81,7 @@ class HouseProfileService
             $house = $profile->traditionalHouse()->first();
             if ($house) {
                 $house->owner_user_id = null;
-                if (! $house->umkmProfiles()->active()->exists()) {
+                if (! $house->umkmProfile()->active()->exists()) {
                     $house->is_published = false;
                 }
                 $house->save();
@@ -120,7 +121,7 @@ class HouseProfileService
 
     public function assignOwner(TraditionalHouse $house, ?int $userId): void
     {
-        $profile = $house->umkmProfiles()->where('profile_type', 'house')->lockForUpdate()->first();
+        $profile = $house->umkmProfile()->where('profile_type', 'house')->lockForUpdate()->first();
         if ($userId === null) {
             if ($profile) {
                 $profile->user_id = null;
@@ -158,7 +159,7 @@ class HouseProfileService
 
     public function ensureProfile(TraditionalHouse $house): UmkmProfile
     {
-        return $house->umkmProfiles()->where('profile_type', 'house')->first()
+        return $house->umkmProfile()->first()
             ?? UmkmProfile::create([
                 'profile_type' => UmkmProfileType::House,
                 'traditional_house_id' => $house->id,

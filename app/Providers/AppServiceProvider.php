@@ -15,6 +15,7 @@ use App\Models\TraditionalHouse;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
+use App\Models\VillageSettings;
 use App\Models\WeatherReport;
 use App\Observers\CacheInvalidationObserver;
 use Illuminate\Support\Facades\Cache;
@@ -157,6 +158,7 @@ class AppServiceProvider extends ServiceProvider
         UmkmProduct::observe($observer);
         UmkmProductCategory::observe($observer);
         UmkmProfile::observe($observer);
+        VillageSettings::observe($observer);
         WeatherReport::observe($observer);
     }
 }

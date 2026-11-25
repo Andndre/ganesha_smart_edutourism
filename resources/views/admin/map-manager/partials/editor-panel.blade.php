@@ -18,7 +18,7 @@
                 <p id="location-type-help" class="mt-1 text-sm leading-relaxed text-gray-600">Pilih satu jenis untuk titik yang sudah Anda tentukan di peta.</p>
                 <div class="mt-4 grid gap-2">
                     @foreach([
-                        'house' => ['Rumah warga', 'Nomor rumah, data keluarga, dan pengelola.'],
+                        'house' => ['Pekarangan warga', 'Nomor pekarangan, data keluarga, dan pengelola.'],
                         'umkm' => ['Usaha', 'Kafe, warung, toko, atau usaha lainnya.'],
                         'cultural' => ['Objek budaya', 'Bangunan adat, pura, atau tempat bersejarah.'],
                         'facility' => ['Fasilitas umum', 'Toilet, tempat parkir, atau fasilitas pengunjung.'],
