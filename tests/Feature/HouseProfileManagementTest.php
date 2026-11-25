@@ -7,6 +7,7 @@ use App\Models\CulturalObject;
 use App\Models\TraditionalHouse;
 use App\Models\UmkmProfile;
 use App\Models\User;
+use App\Models\VillageSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -30,25 +31,27 @@ class HouseProfileManagementTest extends TestCase
         $this->get(route('owner.location'))->assertRedirect(route('owner.house'));
     }
 
-    public function test_cafe_at_a_house_cannot_manage_the_house_or_use_an_admin_preview_parameter(): void
+    public function test_standalone_cafe_cannot_manage_another_house_or_use_an_admin_preview_parameter(): void
     {
         $houseProfile = UmkmProfile::factory()->house()->create();
-        $cafe = UmkmProfile::factory()->create(['traditional_house_id' => $houseProfile->traditional_house_id]);
+        $cafe = UmkmProfile::factory()->create();
         $this->actingAs($cafe->user)->get(route('owner.house', ['umkm_profile_id' => $houseProfile->id]))->assertForbidden();
         $this->get(route('owner.dashboard'))->assertOk()->assertDontSee('Kelola Rumah Saya')->assertSee('Kustomisasi Lokasi');
         $this->put(route('owner.house.update'), $this->houseData(100))->assertForbidden();
         $this->assertNotSame(100, $houseProfile->traditionalHouse->number);
     }
 
-    public function test_owner_changes_only_their_house_and_names_coordinates_and_cultural_links_follow(): void
+    public function test_owner_changes_only_their_house_and_shared_cultural_content_follows(): void
     {
         $profile = UmkmProfile::factory()->house()->create();
         $other = UmkmProfile::factory()->house()->create();
         $slug = $profile->slug;
         $object = CulturalObject::factory()->create();
-        $this->actingAs($profile->user)->put(route('owner.house.update', ['house' => $other->traditional_house_id]), [
-            ...$this->houseData(993), 'cultural_object_ids' => [$object->id],
-        ])->assertRedirect(route('owner.house'));
+        $root = CulturalObject::factory()->create();
+        $object->update(['parent_id' => $root->id]);
+        VillageSettings::get()->update(['house_cultural_object_id' => $root->id]);
+        $this->actingAs($profile->user)->put(route('owner.house.update', ['house' => $other->traditional_house_id]), $this->houseData(993))
+            ->assertRedirect(route('owner.house'));
 
         $profile->refresh();
         $this->assertEquals(['id' => 'Rumah No. 993', 'en' => 'House No. 993'], $profile->getTranslations('business_name'));
@@ -56,12 +59,11 @@ class HouseProfileManagementTest extends TestCase
         $house = $profile->traditionalHouse;
         $this->assertSame(993, $house->number);
         $this->assertTrue($house->is_published);
-        $this->assertSame([$object->id], $house->culturalObjects->modelKeys());
         $this->assertSame($house->mapLocation->latitude, $profile->mapLocation->latitude);
         $this->assertSame($house->mapLocation->longitude, $profile->mapLocation->longitude);
         $this->assertNotSame(993, $other->traditionalHouse->number);
         auth()->logout();
-        $this->get(route('houses.show', 993))->assertOk();
+        $this->get(route('houses.show', 993))->assertOk()->assertSee(route('cultural-object', ['slug' => $object->slug]), false);
     }
 
     public function test_owner_cannot_set_management_fields_or_link_other_umkm(): void
@@ -134,7 +136,7 @@ class HouseProfileManagementTest extends TestCase
         $other = TraditionalHouse::factory()->create();
         $this->actingAs($profile->user)->put(route('owner.house.update'), [
             ...$this->houseData($other->number), 'latitude' => null, 'longitude' => null,
-        ])->assertSessionHasErrors(['number', 'latitude', 'longitude', 'umkm_profile_ids']);
+        ])->assertSessionHasErrors(['number', 'latitude', 'longitude', 'is_published']);
     }
 
     public function test_house_and_umkm_have_one_public_marker_and_cafe_retains_its_marker(): void
@@ -142,7 +144,7 @@ class HouseProfileManagementTest extends TestCase
         $house = TraditionalHouse::factory()->create(['is_published' => true]);
         $profile = UmkmProfile::factory()->house($house)->create();
         $profile->syncMapLocation(['category' => 'umkm', 'latitude' => -8.42, 'longitude' => 115.36]);
-        $cafe = UmkmProfile::factory()->create(['traditional_house_id' => $house->id]);
+        $cafe = UmkmProfile::factory()->create();
         $cafe->syncMapLocation(['category' => 'umkm', 'latitude' => -8.42, 'longitude' => 115.36]);
         $locations = $this->get(route('explore'))->assertOk()->viewData('locations');
         $this->assertCount(2, $locations);
@@ -196,12 +198,14 @@ class HouseProfileManagementTest extends TestCase
 
     public function test_legacy_classification_grants_matching_house_accounts_preserves_cafes_and_is_repeatable(): void
     {
+        $cardinality = require database_path('migrations/2026_11_25_105755_enforce_one_umkm_profile_per_traditional_house.php');
+        $cardinality->down();
         $house = TraditionalHouse::factory()->create(['number' => 13]);
         $profile = UmkmProfile::factory()->create([
             'traditional_house_id' => $house->id,
             'business_name' => ['en' => 'House No. 13', 'id' => 'Rumah No.13'],
         ]);
-        $cafe = UmkmProfile::factory()->create(['traditional_house_id' => $house->id]);
+        $cafe = UmkmProfile::withoutEvents(fn () => UmkmProfile::factory()->create(['traditional_house_id' => $house->id]));
         $migration = require database_path('migrations/2026_11_24_010220_classify_legacy_house_umkm_profiles.php');
         $migration->up();
         $migration->up();
@@ -213,9 +217,11 @@ class HouseProfileManagementTest extends TestCase
 
     public function test_legacy_conflicts_abort_before_any_access_is_granted(): void
     {
+        $cardinality = require database_path('migrations/2026_11_25_105755_enforce_one_umkm_profile_per_traditional_house.php');
+        $cardinality->down();
         $house = TraditionalHouse::factory()->create(['number' => 3]);
         $first = UmkmProfile::factory()->create(['traditional_house_id' => $house->id, 'business_name' => ['en' => 'House No. 3']]);
-        UmkmProfile::factory()->create(['traditional_house_id' => $house->id, 'business_name' => ['id' => 'Rumah No.3']]);
+        UmkmProfile::withoutEvents(fn () => UmkmProfile::factory()->create(['traditional_house_id' => $house->id, 'business_name' => ['id' => 'Rumah No.3']]));
         $migration = require database_path('migrations/2026_11_24_010220_classify_legacy_house_umkm_profiles.php');
         try {
             $migration->up();

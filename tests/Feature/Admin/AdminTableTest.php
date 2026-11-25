@@ -2,8 +2,6 @@
 
 namespace Tests\Feature\Admin;
 
-use App\Models\UmkmProduct;
-use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -61,29 +59,11 @@ class AdminTableTest extends TestCase
             ->assertViewHas('owners', fn ($owners) => $owners->modelKeys() === [$owner->id]);
     }
 
-    public function test_product_category_filter_matches_the_product_category_and_combines_with_search(): void
+    public function test_removed_global_product_table_is_not_available_with_filters(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $category = UmkmProductCategory::factory()->create(['name' => ['id' => 'Tenun', 'en' => 'Weaving']]);
-        $profile = UmkmProfile::factory()->create();
-        $match = UmkmProduct::factory()->create([
-            'umkm_product_category_id' => $category->id,
-            'umkm_profile_id' => $profile->id,
-            'name' => ['id' => 'Kain Sasih', 'en' => 'Sasih Cloth'],
-        ]);
-        UmkmProduct::factory()->create([
-            'umkm_product_category_id' => $category->id,
-            'umkm_profile_id' => $profile->id,
-            'name' => ['id' => 'Kain Lain', 'en' => 'Other Cloth'],
-        ]);
-        UmkmProduct::factory()->create([
-            'umkm_profile_id' => $profile->id,
-            'name' => ['id' => 'Camilan Sasih', 'en' => 'Sasih Snack'],
-        ]);
 
-        $this->actingAs($admin)->get(route('admin.umkm', ['search' => 'Sasih', 'category' => $category->id]))
-            ->assertOk()
-            ->assertViewHas('products', fn ($products) => $products->modelKeys() === [$match->id]);
+        $this->actingAs($admin)->get('/admin/umkm?search=Sasih&category=1')->assertNotFound();
     }
 
     public function test_owner_and_unmapped_shop_tables_have_independent_pages(): void

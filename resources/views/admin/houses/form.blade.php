@@ -1,14 +1,12 @@
 @extends('layouts.dashboard')
 
-@section('title', $house ? 'Ubah Rumah Adat' : 'Tambah Rumah Adat')
+@section('title', $house ? 'Ubah Pekarangan' : 'Tambah Pekarangan')
 
 @section('content')
 @php
     $isOwner = $isOwner ?? false;
     $backUrl = $isOwner ? route('owner.dashboard') : route('admin.houses.index');
     $formAction = $isOwner ? route('owner.house.update') : ($house ? route('admin.houses.update', $house) : route('admin.houses.store'));
-    $selectedProfiles = old('umkm_profile_ids', $house?->umkmProfiles->pluck('id')->all() ?? []);
-    $selectedObjects = old('cultural_object_ids', $house?->culturalObjects->pluck('id')->all() ?? []);
     $description = $house?->getTranslations('description') ?? [];
 @endphp
 
@@ -17,10 +15,10 @@
         <div>
             <a href="{{ $backUrl }}" class="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                Kembali ke daftar rumah
+                Kembali ke daftar pekarangan
             </a>
             <p class="mt-2 text-xs font-bold uppercase tracking-[.18em] text-primary">Direktori Pekarangan</p>
-            <h1 class="mt-1 font-display text-3xl font-bold text-charcoal">{{ $house ? 'Ubah Rumah No. '.$house->number : 'Tambah Rumah Adat' }}</h1>
+            <h1 class="mt-1 font-display text-3xl font-bold text-charcoal">{{ $house ? 'Ubah Pekarangan No. '.$house->number : 'Tambah Pekarangan' }}</h1>
             <p class="mt-2 max-w-2xl text-sm leading-relaxed text-gray-600">Lengkapi data keluarga, pilih titik rumah di peta, lalu tambahkan foto. UMKM Rumah mengikuti data rumah secara otomatis. Pastikan lokasi sudah benar sebelum ditampilkan untuk pengunjung.</p>
         </div>
         <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold {{ $house?->is_published ? 'bg-primary/10 text-primary' : 'bg-amber-50 text-amber-800' }}">
@@ -31,7 +29,7 @@
 
     <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
         @csrf
-        @if($house && !$house->is_published && $house->umkmProfiles->contains(fn ($profile) => $profile->isHouse() && !$profile->is_active))
+        @if($house && !$house->is_published && $house->umkmProfile?->isHouse() && !$house->umkmProfile->is_active)
             <input type="hidden" name="activate_house_umkm" value="1">
         @endif
         @if($house) @method('PUT') @endif
@@ -74,34 +72,40 @@
                     <div class="mt-4"><x-dashboard.localized-textarea name="accessibility_notes" id="house-accessibility" label="Catatan aksesibilitas" :value="$house?->mapLocation?->getTranslations('accessibility_notes') ?? []" /></div>
                 </x-dashboard.panel>
 
-                <details class="rounded-2xl border border-gray-200 bg-white p-4">
-                    <summary class="min-h-12 cursor-pointer py-3 font-semibold text-charcoal">Pengaturan tambahan: usaha dan objek budaya</summary>
-                <x-dashboard.panel title="Penghuni dan Ruang Budaya">
-                    <div>
-                        <h3 class="text-sm font-bold text-charcoal">UMKM di rumah ini</h3>
-                        <p class="mt-1 text-xs text-gray-500">UMKM Rumah terhubung otomatis. Usaha lain di pekarangan ini dapat ditautkan bila diperlukan.</p>
-                        <div class="mt-3 grid max-h-64 gap-2 overflow-y-auto sm:grid-cols-2">
-                            @forelse($profiles as $profile)
-                                <x-dashboard.check-option name="umkm_profile_ids[]" :value="$profile->id" :checked="in_array($profile->id, $selectedProfiles)"
-                                    :disabled="$isOwner || $profile->isHouse()" :label="translateValue($profile->business_name)" :caption="$profile->is_active ? 'Aktif' : 'Tidak aktif'" />
-                            @empty
-                                <p class="rounded-xl bg-surface p-4 text-sm text-gray-500 sm:col-span-2">Belum ada UMKM. Tambahkan UMKM sebelum menerbitkan rumah.</p>
-                            @endforelse
+                <x-dashboard.panel title="UMKM Rumah">
+                    <p class="text-sm leading-relaxed text-gray-600">Satu rumah terhubung ke satu profil UMKM. Produk dan usaha keluarga dikelola melalui profil ini.</p>
+                    @if($house?->umkmProfile)
+                        <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-primary/5 p-4">
+                            <div class="min-w-0">
+                                <p class="font-semibold text-charcoal">{{ translateValue($house->umkmProfile->business_name, 'id') }}</p>
+                                <p class="mt-1 text-sm text-gray-600">{{ $house->umkmProfile->is_active ? 'Aktif' : 'Tidak aktif' }}</p>
+                            </div>
+                            <span class="rounded-full border border-primary/20 px-3 py-1 text-xs font-semibold text-primary">{{ $house->umkmProfile->isHouse() ? 'Terhubung otomatis' : 'Terhubung' }}</span>
                         </div>
-                    </div>
-                    <div class="mt-6 border-t border-gray-100 pt-5">
-                        <h3 class="text-sm font-bold text-charcoal">Ruang dan objek budaya</h3>
-                        <p class="mt-1 text-xs text-gray-500">Hubungkan objek yang berada di pekarangan ini.</p>
-                        <div class="mt-3 grid max-h-64 gap-2 overflow-y-auto sm:grid-cols-2">
-                            @forelse($objects as $object)
-                                <x-dashboard.check-option name="cultural_object_ids[]" :value="$object->id" :checked="in_array($object->id, $selectedObjects)" :label="translateValue($object->name)" />
-                            @empty
-                                <p class="rounded-xl bg-surface p-4 text-sm text-gray-500 sm:col-span-2">Belum ada objek budaya untuk dihubungkan.</p>
-                            @endforelse
-                        </div>
-                    </div>
+                    @else
+                        <p class="mt-4 rounded-xl bg-surface p-4 text-sm text-gray-600">Profil UMKM Rumah dibuat otomatis saat rumah disimpan.</p>
+                    @endif
+                    @error('umkm_profile_ids')<p class="mt-3 text-sm text-red-700">{{ $message }}</p>@enderror
                 </x-dashboard.panel>
-                </details>
+
+                <x-dashboard.panel title="Ruang Budaya Otomatis">
+                    <p class="text-sm leading-relaxed text-gray-600">Susunan ruang budaya sama untuk seluruh rumah dan dikelola oleh admin desa. Cerita, audio, dan model 3D/AR mengikuti objek budaya yang sama.</p>
+                    @if($houseCulture)
+                        <p class="mt-4 font-semibold text-charcoal">{{ translateValue($houseCulture->name, 'id') }}</p>
+                        <ul class="mt-3 flex flex-wrap gap-2">
+                            @forelse($houseCulture->children as $room)
+                                <li class="rounded-lg bg-primary/10 px-3 py-2 text-sm text-primary">{{ translateValue($room->name, 'id') }}</li>
+                            @empty
+                                <li class="text-sm text-gray-600">Objek anak belum ditambahkan ke induk ini.</li>
+                            @endforelse
+                        </ul>
+                    @else
+                        <p class="mt-4 text-sm text-gray-600">Induk budaya untuk seluruh rumah belum ditentukan oleh admin desa.</p>
+                    @endif
+                    @unless($isOwner)
+                        <a href="{{ route('admin.settings') }}" class="mt-4 inline-flex min-h-12 items-center text-sm font-semibold text-primary underline underline-offset-4">Atur induk budaya seluruh rumah</a>
+                    @endunless
+                </x-dashboard.panel>
             </div>
 
             <div class="space-y-6">

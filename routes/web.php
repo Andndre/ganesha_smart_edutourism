@@ -206,11 +206,7 @@ Route::prefix('admin')->middleware(['auth', 'admin.viewer'])->group(function () 
     Route::put('/facilities/{facility}', [FacilityController::class, 'update'])->name('admin.facilities.update');
     Route::delete('/facilities/{facility}', [FacilityController::class, 'destroy'])->name('admin.facilities.destroy');
 
-    // UMKM Routes
-    Route::get('/umkm', [UmkmController::class, 'index'])->name('admin.umkm');
-    Route::post('/umkm/products', [UmkmController::class, 'store'])->name('admin.umkm.store');
-    Route::put('/umkm/products/{id}', [UmkmController::class, 'update'])->name('admin.umkm.update');
-    Route::delete('/umkm/products/{id}', [UmkmController::class, 'destroy'])->name('admin.umkm.destroy');
+    // UMKM Profile Routes (product management uses the owner dashboard)
     Route::post('/umkm/profiles', [UmkmController::class, 'storeProfile'])->name('admin.umkm.profile.store');
     Route::put('/umkm/profiles/{id}', [UmkmController::class, 'updateProfile'])->name('admin.umkm.profile.update');
     Route::delete('/umkm/profiles/{id}', [UmkmController::class, 'destroyProfile'])->name('admin.umkm.profile.destroy');

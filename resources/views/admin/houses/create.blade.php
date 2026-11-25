@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Tambah Rumah')
+@section('title', 'Tambah Pekarangan')
 
 @section('content')
 @php
@@ -10,7 +10,7 @@
 @endphp
 <div class="mx-auto max-w-3xl">
     <a href="{{ route('admin.houses.index') }}" class="inline-flex min-h-12 items-center text-sm font-semibold text-primary underline">Kembali ke daftar rumah</a>
-    <h1 id="house-create-title" class="mt-3 font-display text-3xl font-bold text-charcoal">Tambah rumah warga</h1>
+    <h1 id="house-create-title" class="mt-3 font-display text-3xl font-bold text-charcoal">Tambah pekarangan warga</h1>
     <p class="mt-2 text-base leading-relaxed text-gray-600">Isi data rumah, tentukan lokasinya, lalu pilih pengelola. UMKM Rumah akan dibuat otomatis.</p>
 
     <form action="{{ route('admin.houses.store') }}" method="POST" enctype="multipart/form-data" aria-labelledby="house-create-title"
@@ -44,7 +44,8 @@
                 @error('head_name')<p class="mt-2 text-sm text-red-700" data-server-error="head_name">{{ $message }}</p>@enderror
             </div>
             <p class="rounded-xl bg-primary/5 p-4 text-sm text-primary">Nama UMKM otomatis: <strong data-house-name>Rumah No. {{ old('number', '…') }}</strong></p>
-            <details data-extra class="rounded-xl border border-gray-200 p-4" @if($errors->hasAny(['male_count', 'female_count', 'cover_image', 'description.*', 'ar_marker_id', 'cultural_object_ids.*'])) open @endif>
+            <p class="rounded-xl bg-surface p-4 text-sm text-gray-600">Ruang budaya mengikuti susunan pekarangan yang diatur admin desa secara otomatis, termasuk cerita, audio, dan model 3D/AR.</p>
+            <details data-extra class="rounded-xl border border-gray-200 p-4" @if($errors->hasAny(['male_count', 'female_count', 'cover_image', 'description.*', 'ar_marker_id'])) open @endif>
                 <summary class="min-h-12 cursor-pointer py-3 font-semibold text-charcoal">Informasi tambahan (opsional)</summary>
                 <div class="mt-3 space-y-5">
                     <div class="grid gap-4 sm:grid-cols-2">
@@ -61,13 +62,6 @@
                         <div class="mt-3 space-y-5">
                             <div><label for="house-description-en" class="mb-2 block text-sm font-semibold text-charcoal">Cerita rumah dalam bahasa Inggris</label><textarea id="house-description-en" name="description[en]" rows="4" maxlength="10000" class="w-full rounded-xl border border-gray-500 p-3 text-base">{{ old('description.en') }}</textarea></div>
                             <x-dashboard.form-field name="ar_marker_id" label="ID penanda AR (otomatis jika dikosongkan)" :value="old('ar_marker_id')" maxlength="100" />
-                            <fieldset><legend class="mb-3 text-sm font-semibold text-charcoal">Objek budaya di rumah ini</legend>
-                                <div class="grid max-h-60 gap-2 overflow-auto sm:grid-cols-2">
-                                    @foreach($objects as $object)
-                                        <x-dashboard.check-option name="cultural_object_ids[]" :value="$object->id" :checked="in_array($object->id, old('cultural_object_ids', []))" :label="translateValue($object->name, 'id')" />
-                                    @endforeach
-                                </div>
-                            </fieldset>
                         </div>
                     </details>
                 </div>

@@ -266,7 +266,7 @@
                             'url' => route('admin.houses.index'),
                             'route' => 'admin.houses.*',
                             'icon' => 'M3 10 12 3l9 7v10H3V10Zm6 10v-7h6v7',
-                            'label' => 'Rumah Adat'
+                            'label' => 'Pekarangan'
                         ],
                         [
                             'url' => route('admin.facilities'),

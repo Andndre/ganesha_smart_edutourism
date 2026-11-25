@@ -3,16 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Concerns\ExtractsGeoFields;
-use App\Http\Concerns\HandlesFileUploads;
-use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUmkmOwnerJsonRequest;
 use App\Http\Requests\Admin\UmkmOwnerRequest;
-use App\Http\Requests\Admin\UmkmProductRequest;
 use App\Http\Requests\Admin\UmkmProfileRequest;
 use App\Models\TraditionalHouse;
-use App\Models\UmkmProduct;
-use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use App\Services\HouseProfileService;
@@ -26,128 +21,6 @@ use Illuminate\View\View;
 class UmkmController extends Controller
 {
     use ExtractsGeoFields;
-    use HandlesFileUploads;
-    use NormalizesMultilingualInput;
-
-    /**
-     * Display a listing of UMKM products and profiles.
-     */
-    public function index(Request $request): View
-    {
-        $query = UmkmProduct::with(['umkmProfile', 'variants', 'category']);
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name->en', 'like', '%'.$search.'%')
-                    ->orWhere('name->id', 'like', '%'.$search.'%')
-                    ->orWhereHas('umkmProfile', function ($qp) use ($search) {
-                        $qp->where('business_name->en', 'like', '%'.$search.'%')
-                            ->orWhere('business_name->id', 'like', '%'.$search.'%')
-                            ->orWhere('owner_name', 'like', '%'.$search.'%');
-                    });
-            });
-        }
-
-        if ($request->filled('category') && $request->category !== 'Semua Kategori') {
-            $query->where('umkm_product_category_id', $request->query('category'));
-        }
-
-        $products = $query->orderBy('id')->paginate(15)->withQueryString();
-        $profiles = UmkmProfile::orderBy('business_name->'.app()->getLocale())->get();
-
-        // Compute dynamic stats
-        $totalProfiles = UmkmProfile::count();
-        $totalProducts = UmkmProduct::count();
-
-        $categories = UmkmProductCategory::orderBy('name->'.app()->getLocale())->get();
-
-        return view('admin.umkm.index', compact('products', 'profiles', 'categories', 'totalProfiles', 'totalProducts'));
-    }
-
-    /**
-     * Store a newly created product in storage.
-     */
-    public function store(UmkmProductRequest $request): RedirectResponse
-    {
-        $validated = $request->validated();
-
-        if ($request->hasFile('images')) {
-            $validated['images'] = $this->handleUploadedImages($request, 'images', 'images');
-        }
-
-        $validated['slug'] = (new UmkmProduct)->generateUniqueSlug(slugFromTranslatable($validated['name']));
-        $validated['is_active'] = true;
-
-        if (! isset($validated['unit'])) {
-            $validated['unit'] = 'pcs';
-        }
-
-        $variants = $validated['variants'] ?? [];
-        unset($validated['variants']);
-        $product = UmkmProduct::create($validated);
-        $this->syncVariants($product, $variants);
-
-        return redirect()->route('admin.umkm')->with('success', __('Produk UMKM berhasil ditambahkan.'));
-    }
-
-    /**
-     * Update the specified product in storage.
-     */
-    public function update(UmkmProductRequest $request, int $id): RedirectResponse
-    {
-        $product = UmkmProduct::findOrFail($id);
-
-        $validated = $request->validated();
-
-        if ($request->hasFile('images')) {
-            $validated['images'] = $this->handleUploadedImages($request, 'images', 'images');
-        } else {
-            $validated['images'] = $product->images;
-        }
-
-        $validated['slug'] = $product->generateUniqueSlug(slugFromTranslatable($validated['name']));
-        $validated['is_active'] = $request->has('is_active') ? true : false;
-
-        $variants = $validated['variants'] ?? [];
-        unset($validated['variants']);
-        $product->update($validated);
-        $this->syncVariants($product, $variants);
-
-        return redirect()->route('admin.umkm')->with('success', __('Produk UMKM berhasil diperbarui.'));
-    }
-
-    /**
-     * Remove the specified product from storage.
-     */
-    public function destroy(int $id): RedirectResponse
-    {
-        $product = UmkmProduct::findOrFail($id);
-        $product->delete();
-
-        return redirect()->route('admin.umkm')->with('success', __('Produk UMKM berhasil dihapus.'));
-    }
-
-    /** @param array<int, array<string, mixed>> $variants */
-    private function syncVariants(UmkmProduct $product, array $variants): void
-    {
-        $product->variants()->delete();
-        foreach ($variants as $index => $variant) {
-            $labelId = trim((string) ($variant['label']['id'] ?? ''));
-            $labelEn = trim((string) ($variant['label']['en'] ?? '')) ?: $labelId;
-
-            $product->variants()->create([
-                'label' => [
-                    'id' => $labelId,
-                    'en' => $labelEn,
-                ],
-                'price' => $variant['price'],
-                'stock' => $variant['stock'] ?? null,
-                'is_active' => (bool) ($variant['is_active'] ?? false),
-                'sort_order' => $variant['sort_order'] ?? $index,
-            ]);
-        }
-    }
 
     /**
      * Store a newly created UMKM profile in storage.

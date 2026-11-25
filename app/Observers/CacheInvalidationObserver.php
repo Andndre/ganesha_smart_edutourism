@@ -14,6 +14,7 @@ use App\Models\TraditionalHouse;
 use App\Models\UmkmProduct;
 use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
+use App\Models\VillageSettings;
 use App\Models\WeatherReport;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
@@ -43,7 +44,7 @@ class CacheInvalidationObserver
     {
         if ($model instanceof CapacityZone) {
             Cache::tags(['capacity'])->flush();
-        } elseif ($model instanceof CulturalObject || $model instanceof TraditionalHouse || $model instanceof ArModel) {
+        } elseif ($model instanceof CulturalObject || $model instanceof TraditionalHouse || $model instanceof ArModel || $model instanceof VillageSettings) {
             Cache::tags(['cultural', 'explore'])->flush();
         } elseif ($model instanceof Event) {
             Cache::tags(['events'])->flush();

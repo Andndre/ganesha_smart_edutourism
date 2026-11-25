@@ -93,7 +93,6 @@ class HomeFeaturedUmkmTest extends TestCase
         $this->get('/?locale=en')
             ->assertOk()
             ->assertSee('Bamboo Craft House')
-            ->assertSee('See all')
             ->assertSee('See All')
             ->assertSee('Merchant Directory');
     }

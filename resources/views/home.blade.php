@@ -70,7 +70,7 @@
                 </a>
                 <a href="{{ route('houses.index') }}" class="hidden min-h-11 min-w-11 items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/15 lg:inline-flex">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5 12 3l9 7.5M5.5 9v11h13V9M9 20v-6h6v6"/></svg>
-                    {{ __('Direktori :count Rumah Adat', ['count' => $houseCount]) }}
+                    {{ __('Direktori :count Pekarangan', ['count' => $houseCount]) }}
                 </a>
             </div>
 
@@ -235,7 +235,7 @@
             @foreach ([
                 ['route' => 'explore', 'label' => __('Peta Interaktif'), 'subtitle' => __('Navigasi GPS & Pos'), 'icon' => 'M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Zm0-8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z'],
                 ['route' => 'cultural-objects', 'label' => __('Warisan Budaya'), 'subtitle' => __('Kosmologi Tri Hita'), 'icon' => 'M3 10h18M5 10V5l7-3 7 3v5M6 10v10m4-10v10m4-10v10m4-10v10M3 21h18'],
-                ['route' => 'houses.index', 'label' => __('Rumah Adat'), 'subtitle' => __('Sanga Mandala'), 'icon' => 'm3 10 9-7 9 7v10H3V10Zm6 10v-7h6v7'],
+                ['route' => 'houses.index', 'label' => __('Pekarangan'), 'subtitle' => __('Sanga Mandala'), 'icon' => 'm3 10 9-7 9 7v10H3V10Zm6 10v-7h6v7'],
                 ['route' => 'packages-tickets', 'label' => __('Paket & Tiket'), 'subtitle' => __('Katalog & Loket'), 'icon' => 'M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4V7Zm9 0v10'],
                 ['route' => 'umkm', 'label' => __('Direktori UMKM'), 'subtitle' => __('Kuliner, Kriya & Kafe'), 'icon' => 'M4 9h16l-1 11H5L4 9Zm2-5h12l2 5H4l2-5Zm4 5v4a2 2 0 0 0 4 0V9'],
                 ['route' => 'events', 'label' => __('Kalender Acara'), 'subtitle' => __('Jadwal Upacara'), 'icon' => 'M4 5h16v16H4V5Zm4-3v6m8-6v6M4 10h16'],
@@ -254,7 +254,8 @@
             <p class="hidden text-xs text-gray-500 lg:block">{{ __('Dokumentasi keaslian budaya dan karya kriya warga adat') }}</p>
         </div>
 
-        <div class="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:gap-6">
+        <div class="grid grid-cols-1 gap-5 {{ $featuredCultural ? 'lg:grid-cols-2' : '' }} lg:gap-6">
+            @if($featuredCultural)
             <div class="min-w-0">
                 <div class="mb-3 flex items-center justify-between gap-2 lg:hidden">
                     <h2 class="text-sm font-bold text-charcoal">{{ __('Warisan Budaya Unggulan') }}</h2>
@@ -263,7 +264,6 @@
                         <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                     </a>
                 </div>
-                @if ($featuredCultural)
                     <a href="{{ route('cultural-object', ['slug' => $featuredCultural->slug]) }}" class="group flex items-center gap-3 overflow-hidden rounded-2xl border border-border bg-white p-3 shadow-xs transition hover:-translate-y-0.5 hover:shadow-md lg:hidden">
                         @if (($featuredCultural->historical_images ?? [])[0] ?? null)
                             <img src="{{ asset('storage/'.$featuredCultural->historical_images[0]) }}" alt="{{ translateValue($featuredCultural->name) }}" loading="lazy" class="h-[76px] w-[76px] shrink-0 rounded-xl object-cover transition-transform duration-300 group-hover:scale-105">
@@ -275,11 +275,7 @@
                         </div>
                         <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-hover:translate-x-1 group-hover:text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                     </a>
-                @else
-                    <p class="rounded-2xl border border-dashed border-gray-300 bg-white p-4 text-sm text-gray-600 lg:hidden">{{ __('Cerita budaya akan tampil setelah diterbitkan.') }}</p>
-                @endif
             <section class="hidden h-full rounded-3xl border border-border bg-white p-5 shadow-xs lg:block" aria-labelledby="featured-culture-heading">
-                @if ($featuredCultural)
                     <div class="mb-3 flex items-center justify-between gap-3">
                         <div class="min-w-0">
                             <p class="text-[10px] font-bold uppercase tracking-wider text-amber-800">{{ __('Kompleks Induk Utama') }}</p>
@@ -304,15 +300,10 @@
                             <span class="rounded-full border border-border bg-surface px-3 py-1 text-[11px] text-gray-600">{{ __('Tri Hita Karana') }}</span>
                         @endforelse
                     </div>
-                @else
-                    <div class="flex min-h-72 flex-col justify-center rounded-2xl border border-dashed border-gray-300 p-6 text-center">
-                        <h3 id="featured-culture-heading" class="font-display text-lg font-bold text-charcoal">{{ __('Warisan Budaya Unggulan') }}</h3>
-                        <p class="mt-2 text-sm text-gray-600">{{ __('Cerita budaya akan tampil setelah diterbitkan.') }}</p>
-                    </div>
-                @endif
             </section>
             </div>
 
+            @endif
             <section class="min-w-0 lg:rounded-3xl lg:border lg:border-border lg:bg-white lg:p-5 lg:shadow-xs" aria-labelledby="featured-umkm-heading">
                 <div class="mb-3 flex items-center justify-between gap-3">
                     <div class="min-w-0">

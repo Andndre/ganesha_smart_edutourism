@@ -7,6 +7,7 @@ use App\Models\CulturalObject;
 use App\Models\TourRoute;
 use App\Models\TraditionalHouse;
 use App\Models\UmkmProfile;
+use App\Models\VillageSettings;
 use App\Models\WeatherReport;
 use App\Services\TourPackageCatalog;
 use Illuminate\Support\Facades\Artisan;
@@ -151,7 +152,7 @@ class HomeController extends Controller
         $houseCount = TraditionalHouse::published()->count();
         $culturalCount = CulturalObject::roots()->count();
         $routeCount = TourRoute::where('is_active', true)->count();
-        $featuredCultural = CulturalObject::roots()->with('children')->first();
+        $featuredCultural = VillageSettings::get()->featuredCulturalObject()->roots()->with('children')->first();
         $featuredPackages = $this->packageCatalog->homepageSlides();
         $umkmCount = UmkmProfile::active()->count();
 

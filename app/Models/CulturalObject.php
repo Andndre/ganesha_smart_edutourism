@@ -11,11 +11,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Validation\ValidationException;
 use Spatie\Translatable\HasTranslations;
 
 #[Fillable(['name', 'slug', 'parent_id', 'short_description', 'description', 'category', 'place_type', 'is_detail', 'historical_images', 'audio_narration_paths'])]
@@ -29,6 +29,27 @@ class CulturalObject extends Model
     use HasTranslations;
 
     public array $translatable = ['name', 'short_description', 'description'];
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $object): void {
+            if ($object->exists && $object->isDirty('parent_id') && $object->parent_id !== null && $object->isUsedInVillageSettings()) {
+                throw ValidationException::withMessages(['parent_id' => 'Objek ini digunakan sebagai induk rumah atau unggulan. Ganti pilihannya di Pengaturan Desa sebelum menjadikannya objek anak.']);
+            }
+        });
+
+        static::deleting(function (self $object): void {
+            if ($object->isUsedInVillageSettings()) {
+                throw ValidationException::withMessages(['destroy' => 'Objek ini digunakan sebagai induk rumah atau unggulan. Ganti pilihannya di Pengaturan Desa sebelum menghapusnya.']);
+            }
+        });
+    }
+
+    private function isUsedInVillageSettings(): bool
+    {
+        return VillageSettings::where('house_cultural_object_id', $this->id)
+            ->orWhere('featured_cultural_object_id', $this->id)->exists();
+    }
 
     /**
      * Preset jenis tempat yang memilih glyph pin di peta. Diturunkan dari inventaris
@@ -83,12 +104,6 @@ class CulturalObject extends Model
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id')->orderBy('name->'.app()->getLocale());
-    }
-
-    /** @return BelongsToMany<TraditionalHouse> */
-    public function traditionalHouses(): BelongsToMany
-    {
-        return $this->belongsToMany(TraditionalHouse::class);
     }
 
     /**

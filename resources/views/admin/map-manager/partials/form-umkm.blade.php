@@ -19,7 +19,7 @@
                 <option value="{{ $house->id }}">Rumah No. {{ $house->number }}</option>
             @endforeach
         </select>
-        <p id="umkm-house-help" class="mt-2 text-sm text-gray-600">Jenis Rumah memakai nama otomatis dan memberi akses rumah kepada akun pengelola. Usaha biasa dapat berlokasi di rumah tanpa mendapat akses pengelolaan rumah.</p>
+        <p id="umkm-house-help" class="mt-2 text-sm text-gray-600">Satu rumah hanya dapat terhubung ke satu profil UMKM. Jika sudah terhubung, ubah profil yang ada. Jenis Rumah memakai nama otomatis dan memberi akses rumah kepada akun pengelola.</p>
         <a id="umkm-house-edit-link" hidden class="mt-2 inline-flex min-h-12 items-center text-sm font-semibold text-primary underline">Kelola data rumah</a>
     </div>
     <div id="umkm-manual-name">

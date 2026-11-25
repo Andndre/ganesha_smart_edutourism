@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CulturalObject;
+use App\Models\VillageSettings;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
@@ -14,16 +15,19 @@ class CulturalController extends Controller
     public function index(): View
     {
         $locale = app()->getLocale();
-        $objects = Cache::tags(['cultural'])->flexible("cultural_objects_all_array_v3_$locale", [3600, 7200], function () {
+        $featuredId = VillageSettings::get()->featured_cultural_object_id;
+        $objects = Cache::tags(['cultural'])->flexible("cultural_objects_all_array_v4_{$featuredId}_$locale", [3600, 7200], function () use ($featuredId) {
             $models = CulturalObject::with('arModel')
                 ->withCount('children')
                 ->roots()
+                ->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [$featuredId])
                 ->orderBy('name->'.app()->getLocale())
                 ->get()
                 ->append(['ar_marker_id', 'model_3d_path', 'audio_narration_path']);
 
-            return $models->map(function ($model) {
+            return $models->map(function ($model) use ($featuredId) {
                 [$data] = $this->resolveTrans($model);
+                $data['is_featured'] = $model->id === $featuredId;
 
                 return $data;
             })->values()->toArray();

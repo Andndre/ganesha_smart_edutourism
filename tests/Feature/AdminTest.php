@@ -10,6 +10,7 @@ use App\Models\Feedback;
 use App\Models\MapLocation;
 use App\Models\TourRoute;
 use App\Models\UmkmProduct;
+use App\Models\UmkmProductCategory;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -401,90 +402,53 @@ class AdminTest extends TestCase
         ]);
     }
 
-    /**
-     * Test UMKM Products CRUD workflows.
-     */
-    public function test_umkm_products_crud(): void
+    public function test_removed_global_umkm_product_endpoints_cannot_change_existing_products(): void
     {
         Storage::fake('public');
+        Storage::disk('public')->put('images/existing-product.jpg', 'existing photo');
+        $product = UmkmProduct::factory()->create(['stock' => 15, 'images' => ['images/existing-product.jpg']]);
+        $original = $product->fresh()->getAttributes();
+        $this->actingAs($this->adminUser);
 
-        $profile = UmkmProfile::create([
-            'user_id' => $this->adminUser->id,
-            'owner_name' => 'Wayan',
-            'business_name' => ['en' => 'Kopi Wayan', 'id' => 'Kopi Wayan'],
-            'slug' => 'kopi-wayan',
-            'category' => 'culinary',
-            'ar_marker_id' => 'UMKM_TEST_MARKER',
-            'is_active' => true,
-        ]);
+        $this->get('/admin/umkm')->assertNotFound();
+        $this->post('/admin/umkm/products', ['stock' => 99])->assertNotFound();
+        $this->put('/admin/umkm/products/'.$product->id, ['stock' => 99])->assertNotFound();
+        $this->delete('/admin/umkm/products/'.$product->id)->assertNotFound();
 
-        $response = $this->actingAs($this->adminUser)
-            ->get(route('admin.umkm'));
-        $response->assertStatus(200);
+        $this->assertSame($original, $product->fresh()->getAttributes());
+        $this->assertDatabaseCount('umkm_products', 1);
+        Storage::disk('public')->assertExists('images/existing-product.jpg');
+    }
 
-        // 1. Create with invalid inputs
-        $responseCreateInvalid = $this->actingAs($this->adminUser)
-            ->post(route('admin.umkm.store'), [
-                'name' => '',
-                'price' => -100,
-            ]);
-        $responseCreateInvalid->assertSessionHasErrors(['name', 'price']);
+    public function test_admin_can_manage_shop_products_through_the_existing_owner_dashboard(): void
+    {
+        Storage::fake('public');
+        $profile = UmkmProfile::factory()->create();
+        $category = UmkmProductCategory::factory()->create();
+        $this->actingAs($this->adminUser)->get(route('owner.dashboard', ['umkm_profile_id' => $profile->id]))
+            ->assertOk()->assertViewHas('profile', fn ($selected) => $selected->is($profile))
+            ->assertSessionHas('admin_view_umkm_profile_id', $profile->id);
+        $this->get(route('owner.products'))->assertOk();
 
-        // 2. Create valid product
-        $arModel = UploadedFile::fake()->create('product_model.glb', 400);
-        $prodImg1 = UploadedFile::fake()->image('prod1.png');
-        $prodImg2 = UploadedFile::fake()->image('prod2.png');
-
-        $responseCreateSuccess = $this->actingAs($this->adminUser)
-            ->post(route('admin.umkm.store'), [
-                'umkm_profile_id' => $profile->id,
-                'name' => ['en' => 'Loloh Cemcem Spesial', 'id' => 'Loloh Cemcem Spesial'],
-                'description' => ['en' => 'Penglipuran herbal cemcem drink.', 'id' => 'Minuman herbal daun cemcem khas Penglipuran.'],
-                'price' => 5000,
-                'stock' => 100,
-                'unit' => 'botol',
-                'is_active' => true,
-                'ar_model_file' => $arModel,
-                'images' => [$prodImg1, $prodImg2],
-            ]);
-        $responseCreateSuccess->assertRedirect();
-
-        $product = UmkmProduct::where('name->en', 'Loloh Cemcem Spesial')->firstOrFail();
-        $this->assertCount(2, $product->images);
-        foreach ($product->images as $path) {
-            Storage::disk('public')->assertExists($path);
-        }
-
-        // 3. Update product
-        $newArModel = UploadedFile::fake()->create('new_product_model.glb', 500);
-        $newProdImg = UploadedFile::fake()->image('new_prod.png');
-
-        $responseUpdate = $this->actingAs($this->adminUser)
-            ->put(route('admin.umkm.update', $product->id), [
-                'umkm_profile_id' => $profile->id,
-                'name' => ['en' => 'Loloh Cemcem Premium', 'id' => 'Loloh Cemcem Premium'],
-                'description' => ['en' => 'Premium herbal drink.', 'id' => 'Minuman herbal premium.'],
-                'price' => 7500,
-                'stock' => 50,
-                'unit' => 'botol',
-                'is_active' => true,
-                'ar_model_file' => $newArModel,
-                'images' => [$newProdImg],
-            ]);
-        $responseUpdate->assertRedirect();
-
-        $product->refresh();
-        $this->assertEquals('Loloh Cemcem Premium', $product->name);
+        $this->post(route('owner.products.store'), ['price' => -100])->assertSessionHasErrors(['umkm_product_category_id', 'price']);
+        $this->post(route('owner.products.store'), [
+            'umkm_product_category_id' => $category->id, 'price' => 5000, 'stock' => 100,
+            'unit' => 'botol', 'is_active' => true,
+            'images' => [UploadedFile::fake()->image('product.png')],
+        ])->assertRedirect(route('owner.products'))->assertSessionHasNoErrors();
+        $product = $profile->products()->sole();
         $this->assertCount(1, $product->images);
         Storage::disk('public')->assertExists($product->images[0]);
 
-        // 4. Delete product
-        $responseDelete = $this->actingAs($this->adminUser)
-            ->delete(route('admin.umkm.destroy', $product->id));
-        $responseDelete->assertRedirect();
-        $this->assertDatabaseMissing('umkm_products', [
-            'id' => $product->id,
-        ]);
+        $this->put(route('owner.products.update', $product->id), [
+            'umkm_product_category_id' => $category->id, 'price' => 7500, 'stock' => 50, 'unit' => 'botol', 'is_active' => true,
+        ])->assertRedirect(route('owner.products'))->assertSessionHasNoErrors();
+        $this->assertSame(50, $product->fresh()->stock);
+        $this->assertSame($profile->id, $product->fresh()->umkm_profile_id);
+
+        $this->delete(route('owner.products.destroy', $product->id))->assertRedirect(route('owner.products'));
+        $this->assertModelMissing($product);
+        $this->assertAuthenticatedAs($this->adminUser);
     }
 
     /**

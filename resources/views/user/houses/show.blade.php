@@ -5,19 +5,24 @@
 
 @section('content')
 <div class="mx-auto max-w-7xl px-4 pb-12 pt-6 md:px-8 lg:px-12">
-    <nav class="mb-5 text-xs text-gray-500"><a href="{{ route('houses.index') }}" class="hover:text-primary">{{ __('Rumah Adat') }}</a> / {{ __('Pekarangan') }} #{{ $house->number }}</nav>
+    <nav class="mb-5 text-xs text-gray-500"><a href="{{ route('houses.index') }}" class="hover:text-primary">{{ __('Pekarangan') }}</a> / {{ __('Pekarangan') }} #{{ $house->number }}</nav>
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div>
             @if($house->cover_image_path)<img src="{{ $house->cover_image_url }}" alt="{{ __('Pekarangan No.') }} {{ $house->number }}" class="aspect-[16/9] w-full rounded-3xl object-cover">@endif
             <div class="mt-6 flex flex-wrap items-center gap-3"><span class="rounded-full border border-border bg-surface px-3 py-1 text-xs font-bold text-primary">{{ __('Pekarangan') }} #{{ $house->number }}</span><span class="text-xs font-semibold {{ $house->is_open_to_visitors ? 'text-primary' : 'text-secondary' }}">{{ $house->is_open_to_visitors ? __('Terbuka untuk Wisatawan') : __('Belum terbuka untuk kunjungan') }}</span></div>
-            <h1 class="mt-3 font-display text-3xl font-bold text-charcoal md:text-5xl">{{ __('Rumah Adat') }} #{{ $house->number }}</h1>
+            <h1 class="mt-3 font-display text-3xl font-bold text-charcoal md:text-5xl">{{ __('Pekarangan') }} #{{ $house->number }}</h1>
             <p class="mt-3 max-w-3xl text-base leading-relaxed text-gray-700">{{ translateValue($house->description) }}</p>
             @if($house->gallery)
                 <div class="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3">@foreach($house->gallery as $image)<img src="{{ asset('storage/'.$image) }}" alt="{{ __('Foto pekarangan') }} {{ $house->number }}" loading="lazy" class="aspect-[4/3] w-full rounded-xl object-cover">@endforeach</div>
             @endif
 
-            <section class="mt-10"><h2 class="font-display text-2xl font-bold text-charcoal">{{ __('Ruang Budaya di Pekarangan') }}</h2><div class="mt-4 grid gap-4 sm:grid-cols-2">
-                @forelse($house->culturalObjects as $object)
+            <section class="mt-10"><h2 class="font-display text-2xl font-bold text-charcoal">{{ __('Ruang Budaya di Pekarangan') }}</h2>
+                @if($houseCulture)
+                    <p class="mt-2 text-sm text-gray-600">{{ __('Kenali susunan ruang yang terdapat di setiap pekarangan rumah adat.') }}</p>
+                    <a href="{{ route('cultural-object', ['slug' => $houseCulture->slug]) }}" class="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-primary underline underline-offset-4">{{ translateValue($houseCulture->name) }}</a>
+                @endif
+                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                @forelse($houseCulture?->children ?? [] as $object)
                     <div class="rounded-2xl border border-border bg-white p-5 shadow-sm">
                         <a href="{{ route('cultural-object', ['slug' => $object->slug]) }}" class="block">
                             <h3 class="font-display text-lg font-bold">{{ translateValue($object->name) }}</h3>
@@ -36,7 +41,7 @@
             </div></section>
 
             <section class="mt-10"><h2 class="font-display text-2xl font-bold text-charcoal">{{ __('UMKM di Pekarangan Ini') }}</h2><div class="mt-4 grid gap-4 sm:grid-cols-2">
-                @foreach($house->umkmProfiles as $profile)
+                @if($profile = $house->umkmProfile)
                     <div class="rounded-2xl border border-border bg-white p-5 shadow-sm">
                         <a href="{{ route('umkm.store', ['id' => $profile->id]) }}" class="block"><h3 class="font-display text-lg font-bold">{{ translateValue($profile->business_name) }}</h3><p class="mt-1 text-sm text-gray-600">{{ $profile->owner_name }}</p></a>
                         <div class="mt-4 space-y-2">
@@ -55,7 +60,7 @@
                             <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                         </a>
                     </div>
-                @endforeach
+                @endif
             </div></section>
         </div>
         <aside class="space-y-4">

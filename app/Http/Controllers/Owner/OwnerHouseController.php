@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Requests\Owner\OwnerHouseRequest;
-use App\Models\CulturalObject;
+use App\Models\VillageSettings;
 use App\Services\TraditionalHouseService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -14,12 +14,12 @@ class OwnerHouseController extends BaseOwnerController
     {
         $house = $this->profile?->managedHouse();
         abort_unless($house, 403);
-        $house->load(['mapLocation', 'umkmProfiles', 'culturalObjects']);
-        $objects = CulturalObject::orderBy('name->'.app()->getLocale())->get();
+        $house->load(['mapLocation', 'umkmProfile']);
+        $houseCulture = VillageSettings::get()->houseCulturalObject()->roots()->with('children')->first();
 
         return view('admin.houses.form', [
-            'house' => $house, 'profiles' => $house->umkmProfiles,
-            'objects' => $objects, 'owners' => collect(), 'isOwner' => true, 'profile' => $this->profile,
+            'house' => $house,
+            'houseCulture' => $houseCulture, 'owners' => collect(), 'isOwner' => true, 'profile' => $this->profile,
         ]);
     }
 
