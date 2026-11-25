@@ -7,7 +7,6 @@ use App\Services\HouseProfileService;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Spatie\Translatable\HasTranslations;
 
@@ -45,15 +44,5 @@ class MapLocation extends Model
     public function locationable(): MorphTo
     {
         return $this->morphTo();
-    }
-
-    /**
-     * Get the AR model associated with this location.
-     *
-     * @return HasOne<ArModel>
-     */
-    public function arModel(): HasOne
-    {
-        return $this->hasOne(ArModel::class, 'map_location_id');
     }
 }

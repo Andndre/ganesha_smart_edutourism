@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Concerns\HandlesArFileUploads;
 use App\Http\Concerns\HandlesFileUploads;
 use App\Http\Concerns\NormalizesMultilingualInput;
 use App\Http\Controllers\Controller;
@@ -11,13 +10,17 @@ use App\Http\Requests\Admin\ImportXlsxRequest;
 use App\Http\Requests\Admin\UploadEditorImageRequest;
 use App\Models\ArModel;
 use App\Models\CulturalObject;
+use App\Services\ArModelService;
 use App\Services\ImageOptimizerService;
+use App\Services\UnusedArAssetCleaner;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -26,9 +29,10 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class CulturalObjectController extends Controller
 {
-    use HandlesArFileUploads;
     use HandlesFileUploads;
     use NormalizesMultilingualInput;
+
+    public function __construct(private ArModelService $assets, private UnusedArAssetCleaner $cleaner) {}
 
     /**
      * Display a listing of cultural objects (dedicated management page, separate from map-manager).
@@ -37,13 +41,22 @@ class CulturalObjectController extends Controller
     {
         $query = CulturalObject::query();
 
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name->en', 'like', '%'.$search.'%')
-                    ->orWhere('name->id', 'like', '%'.$search.'%');
+        $grammar = $query->getQuery()->getGrammar();
+        foreach (preg_split('/\s+/u', mb_strtolower(trim($request->string('search')->toString())), -1, PREG_SPLIT_NO_EMPTY) as $word) {
+            $query->where(function ($query) use ($word, $grammar): void {
+                $query->whereLike(DB::raw('LOWER('.$grammar->wrap('name->id').')'), '%'.$word.'%')
+                    ->orWhereLike(DB::raw('LOWER('.$grammar->wrap('name->en').')'), '%'.$word.'%');
             });
         }
+
+        $hasModel = fn ($modelQuery) => $modelQuery->whereNotNull('model_3d_path')->where('model_3d_path', '!=', '');
+        match ($request->query('ar_status')) {
+            'with_model' => $query->whereHas('arModel', $hasModel),
+            'without_model' => $query->whereDoesntHave('arModel', $hasModel),
+            'without_marker' => $query->whereHas('arModel', fn ($modelQuery) => $hasModel($modelQuery)
+                ->where(fn ($markerQuery) => $markerQuery->whereNull('ar_marker_id')->orWhere('ar_marker_id', ''))),
+            default => null,
+        };
 
         $objects = $query->with(['arModel', 'parent'])->withCount('mapLocations')->orderBy('name->'.app()->getLocale())->paginate(15)->withQueryString();
 
@@ -55,11 +68,7 @@ class CulturalObjectController extends Controller
      */
     public function create(): View
     {
-        $modelsJson = ArModel::whereNull('cultural_object_id')->orderBy('name')->get()
-            ->map(fn ($m) => $this->modelToJson($m));
-
         return view('admin.cultural-objects.create', [
-            'modelsJson' => $modelsJson,
             'parentOptions' => $this->parentOptions(),
         ]);
     }
@@ -71,14 +80,9 @@ class CulturalObjectController extends Controller
     {
         $object = CulturalObject::with('arModel')->findOrFail($id);
 
-        $modelsJson = ArModel::where('cultural_object_id', $id)->orWhereNull('cultural_object_id')
-            ->orderBy('name')->get()
-            ->map(fn ($m) => $this->modelToJson($m));
-
         // Diri sendiri dan turunannya tidak boleh jadi induk — itu siklus.
         return view('admin.cultural-objects.edit', [
             'object' => $object,
-            'modelsJson' => $modelsJson,
             'parentOptions' => $this->parentOptions($object),
         ]);
     }
@@ -103,165 +107,14 @@ class CulturalObjectController extends Controller
             ->all();
     }
 
-    private function modelToJson(ArModel $m): array
-    {
-        $name = $m->getTranslations('name');
-
-        return [
-            'id' => (string) $m->id,
-            'name' => $name,
-            'displayName' => $name[app()->getLocale()] ?? $name['en'] ?? $name['id'] ?? '',
-            'ar_marker_id' => $m->ar_marker_id,
-            'thumbnail_path' => $m->thumbnail_path,
-            'model_3d_path' => $m->model_3d_path,
-            'isTaken' => false,
-        ];
-    }
-
     /**
      * Store a newly created cultural object in storage.
      */
     public function store(CulturalObjectRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
+        $this->persist($request);
 
-        if ($request->hasFile('historical_images')) {
-            $validated['historical_images'] = $this->handleUploadedImages(
-                $request,
-                'historical_images',
-                'images',
-            );
-        }
-
-        $slugValue = slugFromTranslatable($validated['name']);
-        $validated['slug'] = (new CulturalObject)->generateSlug($slugValue);
-
-        // Null safety for database constraints
-        if (empty($validated['description']['en']) && empty($validated['description']['id'])) {
-            $validated['description'] = [
-                'en' => 'Description for '.$slugValue,
-                'id' => 'Deskripsi untuk '.$slugValue,
-            ];
-        }
-
-        // Coordinates are optional: the dedicated cultural-objects create page omits them
-        // entirely so a "perkakas" object (3D model, no map presence) can be created with
-        // zero points. map-manager's own create flow always includes them.
-        $hasCoordinates = $request->filled('latitude') && $request->filled('longitude');
-
-        // Clean up temporary variables not in DB schema
-        unset(
-            $validated['latitude'],
-            $validated['longitude'],
-            // Decoupled AR fields
-            $validated['ar_marker_id'],
-            $validated['ar_marker_patt_content'],
-            $validated['ar_model_id'],
-            $validated['new_model_name'],
-            $validated['new_model_description'],
-            $validated['model_3d_file'],
-            $validated['model_3d_usdz_file'],
-            $validated['cultural_audio_file']
-        );
-
-        // Handle locale-specific audio narration uploads
-        $audioPaths = [];
-        foreach (['en', 'id'] as $locale) {
-            $fileKey = "cultural_audio_file.{$locale}";
-            if ($request->hasFile($fileKey)) {
-                $audioPaths[$locale] = $request->file($fileKey)->store('audio', 'public');
-            }
-        }
-        if (! empty($audioPaths)) {
-            $validated['audio_narration_paths'] = $audioPaths;
-        }
-
-        $object = CulturalObject::create($validated);
-
-        if ($hasCoordinates) {
-            $object->syncMapLocation([
-                'category' => 'cultural',
-                'latitude' => $request->input('latitude'),
-                'longitude' => $request->input('longitude'),
-                'is_accessible' => $request->has('is_accessible'),
-                'accessibility_notes' => $request->input('accessibility_notes') ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.',
-            ]);
-        }
-
-        // AR model logic: create new or link existing
-        $arModelId = $request->input('ar_model_id');
-        $arMarkerId = $request->input('ar_marker_id');
-
-        $shouldCreateNewModel = $arModelId === 'new' ||
-            (empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file')));
-
-        if ($shouldCreateNewModel) {
-            $submittedName = $request->input('new_model_name', []);
-            if (\is_array($submittedName) && count($submittedName) === 1) {
-                if (isset($submittedName['en']) && ! isset($submittedName['id'])) {
-                    $submittedName['id'] = $submittedName['en'];
-                } elseif (isset($submittedName['id']) && ! isset($submittedName['en'])) {
-                    $submittedName['en'] = $submittedName['id'];
-                }
-            }
-
-            $defaultLocale = config('app.fallback_locale', 'en');
-            $modelData = [
-                'name' => $submittedName ?: [$defaultLocale => ($object->name[$defaultLocale] ?? 'Model').' Model'],
-                'description' => $request->input('new_model_description') ?: ($object->short_description ?? null),
-                'cultural_object_id' => $object->id,
-                'ar_marker_id' => $arMarkerId ?: null,
-            ];
-
-            if ($request->hasFile('model_3d_file')) {
-                $modelData['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
-            }
-            if ($request->hasFile('model_3d_usdz_file')) {
-                $modelData['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')
-                    ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
-            }
-            if ($request->filled('ar_marker_patt_content') && $arMarkerId) {
-                $pattPath = 'ar-markers/'.$arMarkerId.'.patt';
-                Storage::disk('public')->put($pattPath, $request->input('ar_marker_patt_content'));
-                $modelData['ar_marker_patt_path'] = $pattPath;
-            }
-
-            ArModel::create($modelData);
-        } elseif (is_numeric($arModelId)) {
-            $arModel = ArModel::find((int) $arModelId);
-            if ($arModel) {
-                $modelData = ['cultural_object_id' => $object->id];
-
-                // Handle multilingual name with partial locale merging
-                if ($request->has('new_model_name')) {
-                    $existingName = $arModel->getTranslations('name');
-                    $newName = array_merge($existingName, $request->input('new_model_name', []));
-                    $modelData['name'] = $newName;
-                }
-
-                // Handle multilingual description with partial locale merging
-                if ($request->has('new_model_description')) {
-                    $existingDesc = $arModel->getTranslations('description');
-                    $newDesc = array_merge($existingDesc, $request->input('new_model_description', []));
-                    $modelData['description'] = $newDesc;
-                }
-
-                // Handle file replacement: upload new, THEN delete old
-                if ($request->hasFile('model_3d_file')) {
-                    $modelData['model_3d_path'] = $this->replaceStoredFile($request->file('model_3d_file'), 'models', $arModel->model_3d_path);
-                }
-
-                if ($request->hasFile('model_3d_usdz_file')) {
-                    $modelData['model_3d_usdz_path'] = $this->replaceStoredFile(
-                        $request->file('model_3d_usdz_file'), 'models_usdz', $arModel->model_3d_usdz_path, Str::random(40).'.usdz'
-                    );
-                }
-
-                $arModel->update($modelData);
-            }
-        }
-
-        return $this->redirectAfterSave($request, __('Objek budaya berhasil ditambahkan.'));
+        return $this->redirectAfterSave($request, 'Objek budaya berhasil ditambahkan.');
     }
 
     /**
@@ -280,153 +133,76 @@ class CulturalObjectController extends Controller
      */
     public function update(CulturalObjectRequest $request, int $id): RedirectResponse
     {
-        $object = CulturalObject::findOrFail($id);
+        $this->persist($request, CulturalObject::findOrFail($id));
 
-        $validated = $request->validated();
+        return $this->redirectAfterSave($request, 'Objek budaya berhasil diperbarui.');
+    }
 
-        if ($request->hasFile('historical_images')) {
-            $validated['historical_images'] = $this->handleUploadedImages(
-                $request,
-                'historical_images',
-                'images',
-            );
-        } else {
-            $validated['historical_images'] = $object->historical_images;
-        }
-
-        $slugValue = slugFromTranslatable($validated['name']);
-        $validated['slug'] = $object->generateSlug($slugValue);
-
-        // Null safety for database constraints
-        if (empty($validated['description']['en']) && empty($validated['description']['id'])) {
-            $validated['description'] = [
-                'en' => 'Description for '.$slugValue,
-                'id' => 'Deskripsi untuk '.$slugValue,
-            ];
-        }
-
-        // Coordinates are only present when this request came from map-manager (which always
-        // includes them). The dedicated cultural-objects edit page omits them entirely, so a
-        // point managed separately via map-manager's point CRUD is never silently moved here.
-        $hasCoordinates = $request->filled('latitude') && $request->filled('longitude');
-
-        // Clean up temporary variables not in DB schema
-        unset(
-            $validated['latitude'],
-            $validated['longitude'],
-            // Decoupled AR fields
-            $validated['ar_marker_id'],
-            $validated['ar_marker_patt_content'],
-            $validated['ar_model_id'],
-            $validated['new_model_name'],
-            $validated['new_model_description'],
-            $validated['model_3d_file'],
-            $validated['model_3d_usdz_file'],
-            $validated['cultural_audio_file']
-        );
-
-        // Handle locale-specific audio narration uploads (merge, replace old files)
-        $originalAudioPaths = $object->audio_narration_paths ?? [];
-        $existingAudioPaths = $this->replaceLocalizedAudio($request, 'cultural_audio_file', $originalAudioPaths);
-        if ($existingAudioPaths !== $originalAudioPaths) {
-            $validated['audio_narration_paths'] = $existingAudioPaths;
-        }
-
-        $object->update($validated);
-
-        if ($hasCoordinates) {
-            $object->syncMapLocation([
-                'category' => 'cultural',
-                'latitude' => $request->input('latitude'),
-                'longitude' => $request->input('longitude'),
-                'is_accessible' => $request->has('is_accessible'),
-                'accessibility_notes' => $request->input('accessibility_notes') ?? 'Akses jalan datar ramah kursi roda dan stroller bayi.',
-            ], isUpdate: true);
-        }
-
-        // Sync AR model link
-        $arModelId = $request->input('ar_model_id');
-        $arMarkerId = $request->input('ar_marker_id');
-
-        $shouldCreateNewModel = $arModelId === 'new' ||
-            ($arModelId !== 'none' && empty($arModelId) && ($request->hasFile('model_3d_file') || $request->hasFile('model_3d_usdz_file')));
-
-        if ($shouldCreateNewModel) {
-            // Detach any model the object currently owns first — arModel() is a hasOne,
-            // so leaving the old row's cultural_object_id set would give the object two
-            // "owned" models with only one reachable via the relation.
-            ArModel::where('cultural_object_id', $object->id)->update(['cultural_object_id' => null]);
-
-            $submittedName = $request->input('new_model_name', []);
-            if (\is_array($submittedName) && count($submittedName) === 1) {
-                if (isset($submittedName['en']) && ! isset($submittedName['id'])) {
-                    $submittedName['id'] = $submittedName['en'];
-                } elseif (isset($submittedName['id']) && ! isset($submittedName['en'])) {
-                    $submittedName['en'] = $submittedName['id'];
+    private function persist(CulturalObjectRequest $request, ?CulturalObject $object = null): CulturalObject
+    {
+        $newPaths = [];
+        try {
+            return DB::transaction(function () use ($request, $object, &$newPaths) {
+                $object = $object
+                    ? CulturalObject::whereKey($object->id)->lockForUpdate()->firstOrFail()
+                    : new CulturalObject;
+                $data = $request->safe()->only([
+                    'name', 'short_description', 'description', 'category', 'parent_id', 'place_type', 'is_detail',
+                ]);
+                $data['slug'] = $object->generateSlug(slugFromTranslatable($data['name']));
+                if (! $object->exists || array_key_exists('description', $data)) {
+                    $data['description'] ??= ['id' => '', 'en' => ''];
                 }
-            }
+                $removedImages = $request->validated('removed_historical_images') ?? [];
+                $images = array_values(array_diff($object->historical_images ?? [], $removedImages));
+                $uploads = $request->file('historical_images', []);
+                if (count($images) + count($uploads) > 20) {
+                    throw ValidationException::withMessages(['historical_images' => 'Maksimal 20 foto per objek. Hapus beberapa foto sebelum menambahkan foto baru.']);
+                }
+                foreach ($uploads as $image) {
+                    $path = app(ImageOptimizerService::class)->optimizeAndStore($image, 'images');
+                    $newPaths[] = $path;
+                    $images[] = $path;
+                }
+                $data['historical_images'] = $images;
+                $audioPaths = $object->audio_narration_paths ?? [];
+                $oldAudio = [];
+                foreach (['id', 'en'] as $locale) {
+                    if ($request->hasFile('cultural_audio_file.'.$locale)) {
+                        $oldAudio[] = $audioPaths[$locale] ?? null;
+                        $audioPaths[$locale] = $request->file('cultural_audio_file.'.$locale)->store('audio', 'public');
+                        $newPaths[] = $audioPaths[$locale];
+                    }
+                }
+                $data['audio_narration_paths'] = $audioPaths ?: null;
+                $object->fill($data)->save();
 
-            $defaultLocale = config('app.fallback_locale', 'en');
-            $modelData = [
-                'name' => $submittedName ?: [$defaultLocale => ($object->name[$defaultLocale] ?? 'Model').' Model'],
-                'description' => $request->input('new_model_description') ?: ($object->short_description ?? null),
-                'cultural_object_id' => $object->id,
-                'ar_marker_id' => $arMarkerId ?: null,
-            ];
-
-            if ($request->hasFile('model_3d_file')) {
-                $modelData['model_3d_path'] = $request->file('model_3d_file')->store('models', 'public');
-            }
-            if ($request->hasFile('model_3d_usdz_file')) {
-                $modelData['model_3d_usdz_path'] = $request->file('model_3d_usdz_file')
-                    ->storeAs('models_usdz', Str::random(40).'.usdz', 'public');
-            }
-            if ($request->filled('ar_marker_patt_content') && $arMarkerId) {
-                $pattPath = 'ar-markers/'.$arMarkerId.'.patt';
-                Storage::disk('public')->put($pattPath, $request->input('ar_marker_patt_content'));
-                $modelData['ar_marker_patt_path'] = $pattPath;
-            }
-
-            ArModel::create($modelData);
-        } elseif (is_numeric($arModelId)) {
-            $arModel = ArModel::find((int) $arModelId);
-            if ($arModel) {
-                $modelData = ['cultural_object_id' => $object->id];
-
-                // Handle multilingual name with partial locale merging
-                if ($request->has('new_model_name')) {
-                    $existingName = $arModel->getTranslations('name');
-                    $newName = array_merge($existingName, $request->input('new_model_name', []));
-                    $modelData['name'] = $newName;
+                if ($request->filled('latitude') && $request->filled('longitude')) {
+                    $object->syncMapLocation([
+                        'category' => 'cultural',
+                        'latitude' => $request->input('latitude'),
+                        'longitude' => $request->input('longitude'),
+                        'is_accessible' => $request->boolean('is_accessible'),
+                        'accessibility_notes' => $request->input('accessibility_notes') ?? ['id' => 'Akses jalan datar ramah kursi roda dan stroller bayi.'],
+                    ], isUpdate: $object->mapLocation()->exists());
                 }
 
-                // Handle multilingual description with partial locale merging
-                if ($request->has('new_model_description')) {
-                    $existingDesc = $arModel->getTranslations('description');
-                    $newDesc = array_merge($existingDesc, $request->input('new_model_description', []));
-                    $modelData['description'] = $newDesc;
+                if ($request->boolean('remove_ar_model')) {
+                    if ($model = $object->arModel()->first()) {
+                        $this->assets->delete($model);
+                    }
+                } elseif ($object->arModel()->exists()
+                    || $request->hasFile('model_3d_file') || $request->filled('tmp_model_3d_path')) {
+                    $this->assets->save($object, $request);
                 }
+                DB::afterCommit(fn () => $this->cleaner->deleteUnused(array_merge($oldAudio, $removedImages)));
 
-                // Handle file replacement: upload new, THEN delete old
-                if ($request->hasFile('model_3d_file')) {
-                    $modelData['model_3d_path'] = $this->replaceStoredFile($request->file('model_3d_file'), 'models', $arModel->model_3d_path);
-                }
-
-                if ($request->hasFile('model_3d_usdz_file')) {
-                    $modelData['model_3d_usdz_path'] = $this->replaceStoredFile(
-                        $request->file('model_3d_usdz_file'), 'models_usdz', $arModel->model_3d_usdz_path, Str::random(40).'.usdz'
-                    );
-                }
-
-                $arModel->update($modelData);
-            }
-        } else {
-            // Detach: clear cultural_object_id from any model currently linked here.
-            // Covers 'none' and the empty string the "Hapus Pilihan" button submits.
-            ArModel::where('cultural_object_id', $object->id)->update(['cultural_object_id' => null]);
+                return $object;
+            });
+        } catch (\Throwable $exception) {
+            $this->cleaner->deleteUnused($newPaths);
+            throw $exception;
         }
-
-        return $this->redirectAfterSave($request, __('Objek budaya berhasil diperbarui.'));
     }
 
     /**
@@ -446,9 +222,13 @@ class CulturalObjectController extends Controller
             ]);
         }
 
+        if ($object->arModel()->exists()) {
+            return back()->withErrors(['destroy' => 'Objek budaya ini masih memiliki model 3D. Hapus model 3D melalui halaman edit terlebih dahulu.']);
+        }
+
         $object->delete();
 
-        return $this->redirectAfterSave($request, __('Objek budaya berhasil dihapus.'));
+        return $this->redirectAfterSave($request, 'Objek budaya berhasil dihapus.');
     }
 
     /**
@@ -643,11 +423,9 @@ class CulturalObjectController extends Controller
                 // If marker ID is provided, create/link ArModel
                 if (! empty($markerId)) {
                     ArModel::updateOrCreate(
-                        ['ar_marker_id' => $markerId],
+                        ['cultural_object_id' => $culturalObject->id],
                         [
-                            'name' => ['id' => $nameId.' Model', 'en' => $nameEn.' Model'],
-                            'description' => ['id' => $shortDescId, 'en' => $shortDescEn],
-                            'cultural_object_id' => $culturalObject->id,
+                            'ar_marker_id' => $markerId,
                         ]
                     );
                 }

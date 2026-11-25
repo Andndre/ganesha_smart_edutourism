@@ -22,6 +22,7 @@
 
     <!-- Model Viewer & Meshopt Decoder -->
     <script>
+        window.AR_LOCALE = @json(app()->getLocale());
         window.AR_MESSAGES = {
             touchToRotate: "{{ __('Sentuh untuk memutar/zoom') }}",
             qrNotRecognized: "{{ __('QR Tidak Dikenali!') }}",

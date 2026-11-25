@@ -50,16 +50,14 @@ class AdminDedicatedManagementPagesTest extends TestCase
             ->assertSee('name[en]');
     }
 
-    public function test_admin_model_form_has_language_tabs_for_each_translated_field(): void
+    public function test_former_ar_asset_page_redirects_to_cultural_objects(): void
     {
         $this->actingAs($this->adminUser)
             ->get(route('admin.ar-manager'))
-            ->assertOk()
-            ->assertSee('model-name-tab-id')
-            ->assertSee('model-description-tab-en')
-            ->assertSee('model-audio-tab-id')
-            ->assertSee('name[id]')
-            ->assertSee('name[en]');
+            ->assertRedirect(route('admin.cultural-objects'));
+        $this->get(route('admin.cultural-objects'))
+            ->assertOk()->assertDontSee('Aset AR &amp; Penanda', false)
+            ->assertSee('Status 3D / AR');
     }
 
     public function test_admin_can_view_cultural_object_edit_page_with_prefilled_data(): void
@@ -176,7 +174,7 @@ class AdminDedicatedManagementPagesTest extends TestCase
         $response->assertRedirect(route('admin.cultural-objects'));
     }
 
-    public function test_dedicated_cultural_object_create_page_lists_only_unassigned_ar_models(): void
+    public function test_dedicated_cultural_object_create_page_uploads_assets_without_a_standalone_model_selector(): void
     {
         $assignedObject = CulturalObject::create([
             'name' => ['en' => 'Assigned', 'id' => 'Assigned'],
@@ -185,13 +183,13 @@ class AdminDedicatedManagementPagesTest extends TestCase
             'short_description' => ['en' => 'a', 'id' => 'b'],
             'category' => 'pawongan',
         ]);
-        ArModel::create(['name' => ['en' => 'Taken Model'], 'cultural_object_id' => $assignedObject->id]);
-        ArModel::create(['name' => ['en' => 'Free Model']]);
+        ArModel::factory()->create(['cultural_object_id' => $assignedObject->id]);
 
         $response = $this->actingAs($this->adminUser)->get(route('admin.cultural-objects.create'));
 
         $response->assertOk();
         $response->assertDontSee('Taken Model');
-        $response->assertSee('Free Model');
+        $response->assertSee('model_3d_file');
+        $response->assertDontSee('ar_model_id');
     }
 }

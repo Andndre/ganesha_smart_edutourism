@@ -64,6 +64,7 @@ fi
 # 6. Run database migrations
 echo "Running database migrations..."
 docker compose -f docker-compose.yml exec -T penglipuran-app php artisan migrate --force
+docker compose -f docker-compose.yml exec -T penglipuran-app php artisan app:cleanup-ar-assets
 
 # 7. Check for seeding request
 if [[ "$1" == "--seed" ]]; then

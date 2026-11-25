@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ArModel;
-use App\Models\CulturalObject;
 use App\Models\TraditionalHouse;
 use Illuminate\Http\RedirectResponse;
 
@@ -31,10 +30,6 @@ class ArScanController extends Controller
             abort(404);
         }
 
-        if ($arModel->culturalObject instanceof CulturalObject) {
-            return redirect()->route('cultural-object', ['slug' => $arModel->culturalObject->slug]);
-        }
-
-        return redirect()->route('ar-viewer', ['arMarkerId' => $arModel->ar_marker_id]);
+        return redirect()->route('cultural-object', ['slug' => $arModel->culturalObject->slug]);
     }
 }

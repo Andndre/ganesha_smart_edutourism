@@ -161,7 +161,7 @@ class AdminCulturalObjectImportTest extends TestCase
 
         // ArModel check
         $arModel = ArModel::where('ar_marker_id', 'MARKER_KEHEN')->firstOrFail();
-        $this->assertEquals('Kehen Temple Model', $arModel->getTranslation('name', 'en'));
+        $this->assertEquals('Kehen Temple', $arModel->culturalObject->getTranslation('name', 'en'));
         $this->assertEquals($object1->id, $arModel->cultural_object_id);
 
         // Object 2 check

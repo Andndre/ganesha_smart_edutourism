@@ -30,7 +30,12 @@ class ARController extends Controller
         $request->validate([
             'slug' => 'nullable|string|max:255',
             'marker' => 'nullable|string|max:255',
+            'locale' => 'nullable|in:id,en',
         ]);
+
+        if ($request->filled('locale')) {
+            app()->setLocale($request->string('locale')->toString());
+        }
 
         $model = null;
 
@@ -69,16 +74,16 @@ class ARController extends Controller
         }
 
         $locationable = $model->culturalObject;
-        $name = $locationable?->name ?? $model->name;
-        $description = $locationable?->description ?? $model->description;
-        $shortDescription = $locationable?->short_description ?? $model->name;
+        $name = $locationable->name;
+        $description = $locationable->description;
+        $shortDescription = $locationable->short_description;
 
         return response()->json([
             'success' => true,
             'name' => $name,
             'model_url' => '/storage/'.$model->model_3d_path,
             'usdz_url' => $model->model_3d_usdz_path ? route('usdz.serve', ['path' => basename($model->model_3d_usdz_path)]) : null,
-            'audio_url' => $model->audio_narration_path ? asset('storage/'.$model->audio_narration_path) : null,
+            'audio_url' => $locationable->audio_narration_path ? route('audio.stream', ['path' => $locationable->audio_narration_path]) : null,
             'description' => $description,
             'short_description' => $shortDescription,
         ]);

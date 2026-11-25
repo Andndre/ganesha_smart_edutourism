@@ -2,12 +2,12 @@
 
 namespace Tests\Unit;
 
-use App\Models\ArModel;
+use App\Models\CulturalObject;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * Verifies the shared audio_narration_path accessor (used by ArModel and CulturalObject).
+ * Verifies the shared audio_narration_path accessor (used by CulturalObject).
  */
 class HasLocalizedAudioNarrationTest extends TestCase
 {
@@ -15,7 +15,7 @@ class HasLocalizedAudioNarrationTest extends TestCase
 
     public function test_resolves_current_locale_path(): void
     {
-        $model = new ArModel(['audio_narration_paths' => ['en' => 'en.mp3', 'id' => 'id.mp3']]);
+        $model = new CulturalObject(['audio_narration_paths' => ['en' => 'en.mp3', 'id' => 'id.mp3']]);
 
         app()->setLocale('id');
 
@@ -24,7 +24,7 @@ class HasLocalizedAudioNarrationTest extends TestCase
 
     public function test_falls_back_to_fallback_locale_when_missing(): void
     {
-        $model = new ArModel(['audio_narration_paths' => ['en' => 'en.mp3']]);
+        $model = new CulturalObject(['audio_narration_paths' => ['en' => 'en.mp3']]);
 
         app()->setLocale('id');
         config(['app.fallback_locale' => 'en']);
@@ -34,7 +34,7 @@ class HasLocalizedAudioNarrationTest extends TestCase
 
     public function test_returns_null_when_no_paths(): void
     {
-        $model = new ArModel(['audio_narration_paths' => []]);
+        $model = new CulturalObject(['audio_narration_paths' => []]);
 
         $this->assertNull($model->audio_narration_path);
     }

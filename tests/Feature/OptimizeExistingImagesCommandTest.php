@@ -78,8 +78,7 @@ class OptimizeExistingImagesCommandTest extends TestCase
 
         Storage::disk('public')->put('thumbnails/1-123.png', $initialPng);
 
-        $arModel = ArModel::create([
-            'name' => ['en' => 'Test 3D Model', 'id' => 'Model 3D Uji'],
+        $arModel = ArModel::factory()->create([
             'model_3d_path' => 'models/test.glb',
             'thumbnail_path' => 'thumbnails/1-123.png',
         ]);
@@ -98,8 +97,7 @@ class OptimizeExistingImagesCommandTest extends TestCase
         // Simulate scenario where .webp exists on disk, but database still points to old .png
         Storage::disk('public')->put('thumbnails/existing.webp', 'fake-webp-content');
 
-        $arModel = ArModel::create([
-            'name' => ['en' => 'Dangling Model', 'id' => 'Model Menggantung'],
+        $arModel = ArModel::factory()->create([
             'model_3d_path' => 'models/test.glb',
             'thumbnail_path' => 'thumbnails/existing.png',
         ]);

@@ -372,6 +372,19 @@ input[type="checkbox"]:focus-visible {
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 20%, transparent);
 }
 
+[data-asset-remove] > input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    margin-block-start: 0.125rem;
+    border-radius: 0.375rem !important;
+}
+
+[data-asset-remove] > input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+}
+
 /* ===========================================
    CUSTOM PREMIUM SCROLLBAR
    =========================================== */

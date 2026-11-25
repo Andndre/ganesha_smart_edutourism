@@ -17,3 +17,5 @@ window.getMonthRahinan = getMonthRahinan;
 
 import './echo';
 import './house-wizard';
+
+import './ar-assets';

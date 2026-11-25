@@ -9,6 +9,7 @@
         @method('PUT')
     @endif
     <input type="hidden" name="redirect_to" value="cultural-objects">
+    @include('admin.cultural-objects.partials.language-switch')
 
     <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <div class="space-y-4">
@@ -138,10 +139,6 @@
         </div>
     </div>
 
-    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        @include('admin.map-manager.partials.form-cultural.ar-model-section')
-    </div>
-
     <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
         {{-- Audio Narasi --}}
         <x-dashboard.localized-field id="cultural-object-audio" label="Audio narasi" help="MP3, OGG, WAV, M4A, atau 3GP; maksimal 10 MB per bahasa.">
@@ -165,13 +162,21 @@
             </x-slot:english>
         </x-dashboard.localized-field>
 
+    </div>
+
+    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        @include('admin.map-manager.partials.form-cultural.ar-model-section')
+    </div>
+
+    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <x-dashboard.image-upload id="cultural-historical-images" name="historical_images[]" label="Foto sejarah"
-            :multiple="true" :max-files="20" :existing="$isEdit ? ($object->historical_images ?? []) : []"
+            :multiple="true" :append="true" :max-files="20" :existing="$isEdit ? ($object->historical_images ?? []) : []"
+            remove-existing-name="removed_historical_images[]" existing-hint="Foto baru ditambahkan ke galeri. Foto pertama menjadi sampul. Penghapusan diterapkan setelah disimpan."
             accept="image/jpeg,image/png,image/webp,image/gif" />
     </div>
 
     <div class="sticky bottom-0 z-20 -mx-6 -mb-6 mt-4 flex gap-2 rounded-b-2xl border-t border-gray-100 bg-white px-6 pb-6 pt-4 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.03)]">
-        <button type="submit" class="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-600">Simpan</button>
+        <button type="submit" class="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-600">Simpan perubahan</button>
         <a href="{{ route('admin.cultural-objects') }}" class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500 shadow-sm hover:bg-gray-50">Batal</a>
     </div>
 </form>
