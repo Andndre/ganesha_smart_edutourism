@@ -2,12 +2,6 @@
 
 @section('title', 'Edit Objek Budaya')
 
-@push('styles')
-    <style>
-        .model-viewer-wrapper { min-height: 200px; }
-        model-viewer { width: 100%; height: 200px; }
-    </style>
-@endpush
 
 @section('content')
 
@@ -22,7 +16,7 @@
 
     @include('admin.cultural-objects.partials.form')
 
-    @include('admin.ar-manager.partials.modal-form')
+
 
 @endsection
 
@@ -30,17 +24,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script type="module" src="{{ asset('js/model-viewer.min.js') }}"></script>
     <x-tiptap-editor-script />
-    @include('admin.map-manager.partials.scripts.ar')
-    @include('admin.map-manager.partials.scripts.ar-model-modal')
+
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            @if ($object->arModel)
-                window.dispatchEvent(new CustomEvent('ar-model-select', {
-                    detail: { modelId: '{{ $object->arModel->id }}' }
-                }));
-            @endif
-
             @if (!empty($object->audio_narration_paths['id']))
                 window.setMiniAudio('current-audio-id', @json($object->audio_narration_paths['id']));
             @endif

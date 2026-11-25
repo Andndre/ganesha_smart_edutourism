@@ -30,12 +30,10 @@ class CulturalPublicTest extends TestCase
             'category' => 'cultural',
         ]);
 
-        $arModelName = \is_string($object->name) ? $object->name.' 3D Model' : (($object->name[config('app.fallback_locale')] ?? $object->name['en'] ?? '').' 3D Model');
         ArModel::create([
-            'name' => $arModelName,
             'model_3d_path' => 'models/test.glb',
             'ar_marker_id' => $markerId,
-            'map_location_id' => $location->id,
+
             'cultural_object_id' => $object->id,
         ]);
 

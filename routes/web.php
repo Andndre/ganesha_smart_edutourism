@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\ARManagerController;
 use App\Http\Controllers\Admin\CapacityController;
 use App\Http\Controllers\Admin\CulturalObjectController;
 use App\Http\Controllers\Admin\CulturalObjectRatingController as AdminCulturalObjectRatingController;
@@ -244,16 +243,12 @@ Route::prefix('admin')->middleware(['auth', 'admin.viewer'])->group(function () 
 
     // Map Manager Routes
     Route::get('/map-manager', [MapManagerController::class, 'index'])->name('admin.map-manager');
-    Route::get('/map-manager/models-json', [MapManagerController::class, 'modelsJson'])->name('admin.map-manager.models-json');
     Route::post('/map-manager/points', [MapManagerController::class, 'storePoint'])->name('admin.map-manager.points.store');
     Route::put('/map-manager/points/{point}', [MapManagerController::class, 'updatePoint'])->name('admin.map-manager.points.update');
     Route::delete('/map-manager/points/{point}', [MapManagerController::class, 'destroyPoint'])->name('admin.map-manager.points.destroy');
 
-    // AR Manager Routes
-    Route::get('/ar-manager', [ARManagerController::class, 'index'])->name('admin.ar-manager');
-    Route::post('/ar-manager/models', [ARManagerController::class, 'storeModel'])->name('admin.ar-manager.models.store');
-    Route::put('/ar-manager/models/{id}', [ARManagerController::class, 'updateModel'])->name('admin.ar-manager.models.update');
-    Route::delete('/ar-manager/models/{id}', [ARManagerController::class, 'destroyModel'])->name('admin.ar-manager.models.destroy');
+    // Keep the former asset page URL working for existing bookmarks.
+    Route::get('/ar-manager', fn () => redirect()->route('admin.cultural-objects'))->name('admin.ar-manager');
 
     // Event Routes
     Route::get('/events', [EventController::class, 'index'])->name('admin.events');

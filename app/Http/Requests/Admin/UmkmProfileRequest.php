@@ -32,7 +32,7 @@ class UmkmProfileRequest extends FormRequest
             'description' => ['nullable', 'array'],
             'description.en' => ['nullable', 'string'],
             'description.id' => ['nullable', 'string'],
-            'ar_marker_id' => ['nullable', 'string', 'max:255'],
+            'ar_marker_id' => ['prohibited'],
             'rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
             'is_active' => ['nullable', 'boolean'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],
@@ -51,6 +51,11 @@ class UmkmProfileRequest extends FormRequest
         }
 
         return $rules;
+    }
+
+    public function messages(): array
+    {
+        return ['ar_marker_id.prohibited' => 'Marker 3D/AR dikelola melalui objek budaya.'];
     }
 
     protected function prepareForValidation(): void

@@ -184,7 +184,7 @@ class UmkmCatalogController extends Controller
                     'id' => $umkm->id,
                     'business_name' => $businessName,
                     'slug' => $umkm->slug,
-                    'image_path' => $umkm->mapLocation?->arModel?->ar_marker_id,
+                    'image_path' => $umkm->image_path,
                 ];
             });
 

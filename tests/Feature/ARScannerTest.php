@@ -39,12 +39,11 @@ class ARScannerTest extends TestCase
             'longitude' => 115.359,
         ]);
 
-        ArModel::create([
-            'name' => 'Test Model asset',
+        ArModel::factory()->create([
             'model_3d_path' => 'models/test-model.glb',
             'model_3d_usdz_path' => 'models_usdz/test-model.usdz',
             'ar_marker_id' => 'marker-1',
-            'map_location_id' => $mapLocation->id,
+
             'cultural_object_id' => $object->id,
         ]);
 
@@ -96,8 +95,8 @@ class ARScannerTest extends TestCase
 
     public function test_api_ar_model_returns_model_data_for_valid_id()
     {
-        $model = ArModel::create([
-            'name' => 'Model By ID',
+        $model = ArModel::factory()->create([
+            'cultural_object_id' => CulturalObject::factory()->create(['name' => ['id' => 'Model By ID', 'en' => 'Model By ID']])->id,
             'model_3d_path' => 'models/by-id.glb',
             'ar_marker_id' => 'MARKER_BY_ID',
         ]);
@@ -186,11 +185,10 @@ class ARScannerTest extends TestCase
             'longitude' => 115.359,
         ]);
 
-        ArModel::create([
-            'name' => ['en' => 'Test Model', 'id' => 'Model Test'],
+        ArModel::factory()->create([
             'model_3d_path' => 'models/test.glb',
             'ar_marker_id' => 'MARKER_TEMPLE_01',
-            'map_location_id' => $mapLocation->id,
+
             'cultural_object_id' => $object->id,
         ]);
 
@@ -198,16 +196,15 @@ class ARScannerTest extends TestCase
         $response->assertRedirect('/cultural/test-temple');
     }
 
-    public function test_ar_scan_redirects_to_viewer_for_no_map_location()
+    public function test_ar_scan_redirects_to_cultural_object_without_map_location()
     {
-        $model = ArModel::create([
-            'name' => ['en' => 'Standalone Model', 'id' => 'Model Mandiri'],
+        $model = ArModel::factory()->create([
             'model_3d_path' => 'models/standalone.glb',
             'ar_marker_id' => 'MARKER_STANDALONE',
         ]);
 
         $response = $this->get('/ar/scan/MARKER_STANDALONE');
-        $response->assertRedirect(route('ar-viewer', ['arMarkerId' => $model->ar_marker_id]));
+        $response->assertRedirect(route('cultural-object', ['slug' => $model->culturalObject->slug]));
     }
 
     public function test_ar_scan_returns_404_for_invalid_marker()
@@ -218,8 +215,7 @@ class ARScannerTest extends TestCase
 
     public function test_ar_viewer_redirects_to_ar_scan_with_model_id()
     {
-        $model = ArModel::create([
-            'name' => ['en' => 'Viewer Model', 'id' => 'Model Viewer'],
+        $model = ArModel::factory()->create([
             'model_3d_path' => 'models/viewer.glb',
             'ar_marker_id' => 'MARKER_VIEWER',
         ]);
@@ -234,7 +230,7 @@ class ARScannerTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_ar_scan_redirects_to_viewer_for_non_cultural_locationable()
+    public function test_ar_scan_uses_cultural_object_even_when_an_unrelated_facility_exists()
     {
         $facility = Facility::create([
             'name' => 'Test Facility',
@@ -251,18 +247,17 @@ class ARScannerTest extends TestCase
             'locationable_id' => $facility->id,
         ]);
 
-        $model = ArModel::create([
-            'name' => ['en' => 'Facility Model', 'id' => 'Model Fasilitas'],
+        $model = ArModel::factory()->create([
             'model_3d_path' => 'models/facility.glb',
             'ar_marker_id' => 'MARKER_FACILITY_01',
-            'map_location_id' => $mapLocation->id,
+
         ]);
 
         $response = $this->get('/ar/scan/MARKER_FACILITY_01');
-        $response->assertRedirect(route('ar-viewer', ['arMarkerId' => $model->ar_marker_id]));
+        $response->assertRedirect(route('cultural-object', ['slug' => $model->culturalObject->slug]));
     }
 
-    public function test_ar_scan_redirects_to_viewer_for_orphaned_map_location()
+    public function test_ar_scan_uses_cultural_object_even_when_an_unrelated_map_point_is_orphaned()
     {
         $mapLocation = MapLocation::create([
             'name' => 'Orphaned Location',
@@ -273,14 +268,13 @@ class ARScannerTest extends TestCase
             'locationable_id' => 99999, // Doesn't exist
         ]);
 
-        $model = ArModel::create([
-            'name' => ['en' => 'Orphan Model', 'id' => 'Model Yatim'],
+        $model = ArModel::factory()->create([
             'model_3d_path' => 'models/orphan.glb',
             'ar_marker_id' => 'MARKER_ORPHAN_01',
-            'map_location_id' => $mapLocation->id,
+
         ]);
 
         $response = $this->get('/ar/scan/MARKER_ORPHAN_01');
-        $response->assertRedirect(route('ar-viewer', ['arMarkerId' => $model->ar_marker_id]));
+        $response->assertRedirect(route('cultural-object', ['slug' => $model->culturalObject->slug]));
     }
 }

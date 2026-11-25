@@ -424,31 +424,13 @@ function handleMarkerClick(marker) {
             form.querySelector('input[type="checkbox"][name="is_detail"]').checked = !!details.is_detail;
             setTiptapContent(form.querySelector('textarea[name="description[en]"]'), details.description?.en || details.description || '');
             setTiptapContent(form.querySelector('textarea[name="description[id]"]'), details.description?.id || details.description || '');
-            // Select active model via custom event to Alpine component
-            window.dispatchEvent(new CustomEvent('ar-model-select', {
-                detail: { modelId: details.ar_model ? String(details.ar_model.id) : '' }
+            window.dispatchEvent(new CustomEvent('ar-model-load', {
+                detail: { model: details.ar_model || {} }
             }));
-
-            // Populate AR model name/description fields (for inline editing)
-            const arModelData = details.ar_model || null;
-            if (arModelData) {
-                const nameEn = typeof arModelData.name === 'object' ? (arModelData.name.en || '') : arModelData.name || '';
-                const nameId = typeof arModelData.name === 'object' ? (arModelData.name.id || '') : arModelData.name || '';
-                const descEn = typeof arModelData.description === 'object' ? (arModelData.description.en || '') : arModelData.description || '';
-                const descId = typeof arModelData.description === 'object' ? (arModelData.description.id || '') : arModelData.description || '';
-                const nameEnInput = document.querySelector('input[name="new_model_name[en]"]');
-                const nameIdInput = document.querySelector('input[name="new_model_name[id]"]');
-                const descEnInput = document.querySelector('textarea[name="new_model_description[en]"]');
-                const descIdInput = document.querySelector('textarea[name="new_model_description[id]"]');
-                if (nameEnInput) nameEnInput.value = nameEn;
-                if (nameIdInput) nameIdInput.value = nameId;
-                if (descEnInput) setTiptapContent(descEnInput, descEn);
-                if (descIdInput) setTiptapContent(descIdInput, descId);
-            }
 
             const arModel = details.ar_model || null;
             document.getElementById('map-cultural-historical-images').closest('[data-image-upload]')
-                .setExistingImages((details.historical_images || []).map(img => `${storageUrl}/${img}`));
+                .setExistingImages((details.historical_images || []).map(img => `${storageUrl}/${img}`), details.historical_images || []);
 
             // Populate existing audio narration indicators
             ['en', 'id'].forEach(function(locale) {

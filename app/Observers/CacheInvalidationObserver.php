@@ -43,7 +43,7 @@ class CacheInvalidationObserver
     {
         if ($model instanceof CapacityZone) {
             Cache::tags(['capacity'])->flush();
-        } elseif ($model instanceof CulturalObject || $model instanceof TraditionalHouse) {
+        } elseif ($model instanceof CulturalObject || $model instanceof TraditionalHouse || $model instanceof ArModel) {
             Cache::tags(['cultural', 'explore'])->flush();
         } elseif ($model instanceof Event) {
             Cache::tags(['events'])->flush();
@@ -51,7 +51,7 @@ class CacheInvalidationObserver
             Cache::tags(['explore', 'edutourism'])->flush();
         } elseif ($model instanceof UmkmProduct || $model instanceof UmkmProductCategory) {
             Cache::tags(['umkm'])->flush();
-        } elseif ($model instanceof MapLocation || $model instanceof Facility || $model instanceof UmkmProfile || $model instanceof ArModel) {
+        } elseif ($model instanceof MapLocation || $model instanceof Facility || $model instanceof UmkmProfile) {
             Cache::tags(['explore'])->flush();
         } elseif ($model instanceof WeatherReport) {
             Cache::tags(['weather'])->flush();

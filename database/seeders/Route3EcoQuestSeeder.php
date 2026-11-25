@@ -209,7 +209,7 @@ class Route3EcoQuestSeeder extends Seeder
         $points = [];
 
         foreach ($definitions as $order => $def) {
-            $hasArMarker = (bool) $def['object']->mapLocation?->arModel?->ar_marker_id;
+            $hasArMarker = (bool) $def['object']->arModel?->ar_marker_id;
 
             $points[$order] = TourRoutePoint::updateOrCreate(
                 ['tour_route_id' => $route->id, 'order' => $order],

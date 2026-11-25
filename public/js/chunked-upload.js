@@ -28,6 +28,7 @@ class ChunkedUploader {
 
         // Find submit button — explicit or first [type="submit"] in form
         const form = opts.progressContainer?.closest("form");
+        this.form = form;
         this.submitBtn =
             opts.submitButton || form?.querySelector('[type="submit"]');
 
@@ -200,6 +201,7 @@ class ChunkedUploader {
     }
 
     disableSubmit(disabled) {
+        disabled = disabled || !!this.form?._tusUploaders?.some((u) => u.state === "uploading");
         if (this.submitBtn) {
             this.submitBtn.disabled = disabled;
             this.submitBtn.classList.toggle("opacity-50", disabled);
@@ -207,3 +209,5 @@ class ChunkedUploader {
         }
     }
 }
+
+window.ChunkedUploader = ChunkedUploader;

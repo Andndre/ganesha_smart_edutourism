@@ -2,6 +2,7 @@
 <form id="form-cultural" action="{{ route('admin.cultural-objects.store') }}" method="POST" enctype="multipart/form-data"
     class="hidden space-y-4" x-data="{ locale: 'id' }">
     @csrf
+    @include('admin.cultural-objects.partials.language-switch')
     <div id="method-cultural"></div>
     {{-- Name --}}
     <x-dashboard.localized-field id="localized-map-manager-form-cultural-name" label="Nama objek budaya" field-name="name" required>
@@ -124,7 +125,9 @@
     </x-dashboard.localized-field>
 
     <x-dashboard.image-upload id="map-cultural-historical-images" name="historical_images[]" label="Foto sejarah"
-        :multiple="true" :max-files="20" accept="image/jpeg,image/png,image/webp,image/gif" />
+        :multiple="true" :append="true" :max-files="20" remove-existing-name="removed_historical_images[]"
+        existing-hint="Foto baru ditambahkan ke galeri. Foto pertama menjadi sampul. Penghapusan diterapkan setelah disimpan."
+        accept="image/jpeg,image/png,image/webp,image/gif" />
 
     <div class="grid grid-cols-2 gap-3">
         <div>

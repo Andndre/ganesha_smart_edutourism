@@ -172,8 +172,7 @@ class CacheInvalidationTest extends TestCase
         Cache::tags(['explore'])->put('explore_map_locations_array', ['locations'], 86400);
 
         // 4. ArModel
-        ArModel::create([
-            'name' => 'Model AR',
+        ArModel::factory()->create([
             'model_3d_path' => 'models/ar.glb',
         ]);
         $this->assertNull(Cache::tags(['explore'])->get('explore_map_locations_array'));

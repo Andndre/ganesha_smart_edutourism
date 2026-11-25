@@ -537,7 +537,7 @@
             ? `slug=${encodeURIComponent(slug)}`
             : `marker=${encodeURIComponent(marker)}`;
 
-        fetch(`/api/ar/model?${query}`)
+        fetch(`/api/ar/model?${query}&locale=${encodeURIComponent(window.AR_LOCALE || "id")}`)
             .then((res) => res.json())
             .then((data) => {
                 if (data.success && data.redirect_url) {
@@ -810,7 +810,7 @@
                 window.AR_MESSAGES?.downloadingModel || "Mengunduh Model...";
         }
 
-        fetch("/api/ar/model?" + (isModelId ? "id=" : "marker=") + encodeURIComponent(marker))
+        fetch("/api/ar/model?" + (isModelId ? "id=" : "marker=") + encodeURIComponent(marker) + "&locale=" + encodeURIComponent(window.AR_LOCALE || "id"))
             .then(function (res) { return res.json(); })
             .then(function (data) {
                 if (data.success && data.redirect_url) {
