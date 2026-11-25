@@ -149,7 +149,7 @@ class HomeController extends Controller
 
         $featuredUmkm = $pair;
 
-        $houseCount = TraditionalHouse::published()->count();
+        $houseCount = TraditionalHouse::count();
         $culturalCount = CulturalObject::roots()->count();
         $routeCount = TourRoute::where('is_active', true)->count();
         $featuredCultural = VillageSettings::get()->featuredCulturalObject()->roots()->with('children')->first();

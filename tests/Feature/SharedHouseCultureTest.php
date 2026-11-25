@@ -20,6 +20,27 @@ class SharedHouseCultureTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_migration_opens_and_publishes_all_existing_houses(): void
+    {
+        $closed = TraditionalHouse::factory()->create(['is_open_to_visitors' => false, 'is_published' => false]);
+        $open = TraditionalHouse::factory()->create(['is_open_to_visitors' => true, 'is_published' => true]);
+        Cache::tags(['cultural'])->put('house-publication-test', 'stale');
+        Cache::tags(['explore'])->put('house-publication-test', 'stale');
+        $migration = require database_path('migrations/2026_11_25_120055_publish_and_open_existing_traditional_houses.php');
+
+        $migration->up();
+
+        foreach ([$closed, $open] as $house) {
+            $this->assertDatabaseHas('traditional_houses', [
+                'id' => $house->id,
+                'is_open_to_visitors' => true,
+                'is_published' => true,
+            ]);
+        }
+        $this->assertNull(Cache::tags(['cultural'])->get('house-publication-test'));
+        $this->assertNull(Cache::tags(['explore'])->get('house-publication-test'));
+    }
+
     public function test_every_house_automatically_shares_the_selected_courtyard_rooms_and_models(): void
     {
         $root = CulturalObject::factory()->create(['name' => ['id' => 'Pekarangan Rumah Adat', 'en' => 'Traditional Courtyard']]);
@@ -99,6 +120,18 @@ class SharedHouseCultureTest extends TestCase
 
         $this->assertNotSame('Nama pengganti', $profile->traditionalHouse->fresh()->head_name);
         $this->assertNull(VillageSettings::get()->house_cultural_object_id);
+    }
+
+    public function test_home_counts_all_houses_including_unpublished_and_incomplete_profiles(): void
+    {
+        WeatherReport::create(['temperature' => 25, 'condition' => 'Cerah', 'weather_code' => 0, 'humidity' => 80, 'wind_speed' => 2]);
+        $this->publishedHouse(1);
+        TraditionalHouse::factory()->create(['number' => 2, 'is_published' => true]);
+        TraditionalHouse::factory()->create(['number' => 3, 'is_published' => false]);
+
+        $this->get(route('home'))->assertOk()
+            ->assertViewHas('houseCount', 3)
+            ->assertSee('Direktori 3 Pekarangan');
     }
 
     public function test_featured_selection_controls_home_and_is_first_on_the_cultural_index(): void
